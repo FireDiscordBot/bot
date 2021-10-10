@@ -1,7 +1,6 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 
 export default class Warn extends Command {
@@ -32,27 +31,31 @@ export default class Warn extends Command {
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,
+      slashOnly: true,
       ephemeral: true,
     });
   }
 
-  async exec(message: FireMessage, args: { user: FireMember; reason: string }) {
+  async run(
+    command: ApplicationCommandMessage,
+    args: { user: FireMember; reason: string }
+  ) {
     if (!args.user) return;
     else if (
-      (args.user.isModerator(message.channel) || args.user.user.bot) &&
-      message.author.id != message.guild.ownerId
+      (args.user.isModerator(command.channel) || args.user.user.bot) &&
+      command.author.id != command.guild.ownerId
     )
-      return await message.error("MODERATOR_ACTION_DISALLOWED");
-    if (!args.reason) return await message.error("WARN_REASON_MISSING");
+      return await command.error("MODERATOR_ACTION_DISALLOWED");
+    if (!args.reason) return await command.error("WARN_REASON_MISSING");
     const warned = await args.user.warn(
       args.reason,
-      message.member,
-      message.channel as FireTextChannel
+      command.member,
+      command.channel
     );
     if (warned == "forbidden")
-      return await message.error("COMMAND_MODERATOR_ONLY");
+      return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof warned == "string")
-      return await message.error(
+      return await command.error(
         `WARN_FAILED_${warned.toUpperCase()}` as LanguageKeys
       );
   }

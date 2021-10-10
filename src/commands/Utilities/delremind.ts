@@ -1,14 +1,14 @@
-import { FireMessage } from "@fire/lib/extensions/message";
-import { Reminder } from "@fire/lib/interfaces/reminders";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
 import {
   MessageActionRow,
   MessageButton,
-  Snowflake,
   SnowflakeUtil,
+  Snowflake,
 } from "discord.js";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
+import { Reminder } from "@fire/lib/interfaces/reminders";
+import { Language } from "@fire/lib/util/language";
+import { Command } from "@fire/lib/util/command";
 
 export default class DeleteReminder extends Command {
   constructor() {
@@ -34,14 +34,14 @@ export default class DeleteReminder extends Command {
 
   // TODO: add autocomplete (waiting for official support to do personalised ones)
 
-  async exec(message: FireMessage, args: { index?: number }) {
-    if (!args.index) return await message.error("DELREMIND_MISSING_ARG");
+  async run(command: ApplicationCommandMessage, args: { index?: number }) {
+    if (!args.index) return await command.error("DELREMIND_MISSING_ARG");
     const remindersResult = await this.client.db.query(
       "SELECT * FROM remind WHERE uid=$1",
-      [message.author.id]
+      [command.author.id]
     );
     if (!remindersResult.rows.length)
-      return await message.error("REMINDERS_NONE_FOUND");
+      return await command.error("REMINDERS_NONE_FOUND");
     let timestamps: number[] = [],
       reminders: (Reminder & { date: Date })[] = [];
     for await (const reminder of remindersResult) {
@@ -56,26 +56,26 @@ export default class DeleteReminder extends Command {
       });
     }
     if (timestamps.length < args.index)
-      return await message.error("DELREMIND_TOO_HIGH");
+      return await command.error("DELREMIND_TOO_HIGH");
     const timestamp = timestamps[args.index - 1];
     const reminder = reminders[args.index - 1];
     const yesSnowflake = SnowflakeUtil.generate();
     this.client.buttonHandlersOnce.set(yesSnowflake, this.yesButton(timestamp));
     const noSnowflake = SnowflakeUtil.generate();
     this.client.buttonHandlersOnce.set(noSnowflake, this.noButton);
-    return await message.send("DELREMIND_CONFIRM", {
+    return await command.send("DELREMIND_CONFIRM", {
       text: reminder.text,
-      date: reminder.date.toLocaleString(message.language.id),
+      date: reminder.date.toLocaleString(command.language.id),
       components: [
         new MessageActionRow().addComponents([
           new MessageButton()
             .setStyle("SUCCESS")
             .setCustomId(`!${yesSnowflake}`)
-            .setLabel(message.language.get("DELREMIND_DELETE_IT")),
+            .setLabel(command.language.get("DELREMIND_DELETE_IT")),
           new MessageButton()
             .setStyle("DANGER")
             .setCustomId(`!${noSnowflake}`)
-            .setLabel(message.language.get("DELREMIND_CANCEL")),
+            .setLabel(command.language.get("DELREMIND_CANCEL")),
         ]),
       ],
     });

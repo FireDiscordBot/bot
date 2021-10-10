@@ -1,7 +1,6 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
 
@@ -10,21 +9,21 @@ export default class Unmute extends Command {
     super("unmute", {
       description: (language: Language) =>
         language.get("UNMUTE_COMMAND_DESCRIPTION"),
-        clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
-        args: [
-          {
-            id: "user",
-            type: "memberSilent",
-            description: (language: Language) =>
+      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
+      args: [
+        {
+          id: "user",
+          type: "memberSilent",
+          description: (language: Language) =>
             language.get("UNMUTE_ARGUMENT_USER_DESCRIPTION"),
-            required: true,
-            default: null,
-          },
-          {
+          required: true,
+          default: null,
+        },
+        {
           id: "reason",
           type: "string",
           description: (language: Language) =>
-          language.get("UNMUTE_ARGUMENT_REASON_DESCRIPTION"),
+            language.get("UNMUTE_ARGUMENT_REASON_DESCRIPTION"),
           required: false,
           default: null,
           match: "rest",
@@ -39,29 +38,29 @@ export default class Unmute extends Command {
     });
   }
 
-  async exec(
-    message: FireMessage,
+  async run(
+    command: ApplicationCommandMessage,
     args: { user: FireMember; reason?: string }
   ) {
-    if (!args.user) return await message.error("UNMUTE_USER_REQUIRED");
+    if (!args.user) return await command.error("UNMUTE_USER_REQUIRED");
     else if (
       args.user instanceof FireMember &&
-      args.user.isModerator(message.channel) &&
-      message.author.id != message.guild.ownerId
+      args.user.isModerator(command.channel) &&
+      command.author.id != command.guild.ownerId
     )
-      return await message.error("MODERATOR_ACTION_DISALLOWED");
+      return await command.error("MODERATOR_ACTION_DISALLOWED");
     const unmuted = await args.user.unmute(
       args.reason?.trim() ||
-        (message.guild.language.get(
+        (command.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
-      message.member,
-      message.channel as FireTextChannel
+      command.member,
+      command.channel
     );
     if (unmuted == "forbidden")
-      return await message.error("COMMAND_MODERATOR_ONLY");
+      return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof unmuted == "string")
-      return await message.error(
+      return await command.error(
         `UNMUTE_FAILED_${unmuted.toUpperCase()}` as LanguageKeys
       );
   }

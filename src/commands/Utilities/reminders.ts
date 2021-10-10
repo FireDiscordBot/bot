@@ -2,8 +2,8 @@ import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Formatters, MessageEmbed, Permissions } from "discord.js";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -23,13 +23,13 @@ export default class Reminders extends Command {
     });
   }
 
-  async exec(message: FireMessage) {
+  async run(command: ApplicationCommandMessage) {
     const remindersResult = await this.client.db.query(
       "SELECT * FROM remind WHERE uid=$1",
-      [message.author.id]
+      [command.author.id]
     );
     if (!remindersResult.rows.length)
-      return await message.error("REMINDERS_NONE_FOUND");
+      return await command.error("REMINDERS_NONE_FOUND");
     const paginator = new WrappedPaginator("", "", 1980);
     let index = 1;
     for await (const reminder of remindersResult) {
@@ -41,20 +41,20 @@ export default class Reminders extends Command {
         )}`
       );
     }
-    const embed = new MessageEmbed().setColor(message.member?.displayColor);
+    const embed = new MessageEmbed().setColor(command.member?.displayColor);
     const paginatorInterface = new PaginatorEmbedInterface(
       this.client,
       paginator,
       {
-        owner: message.member || message.author,
+        owner: command.member || command.author,
         embed,
         footer: {
-          text: message.language.get("REMINDERS_FOOTER", {
-            prefix: message.util?.parsed?.prefix,
+          text: command.language.get("REMINDERS_FOOTER", {
+            prefix: command.util?.parsed?.prefix,
           }),
         },
       }
     );
-    return await paginatorInterface.send(message.channel);
+    return await paginatorInterface.send(command.channel);
   }
 }

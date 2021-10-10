@@ -1,5 +1,4 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { MessageEmbed, Permissions } from "discord.js";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
@@ -39,40 +38,40 @@ export default class Meme extends Command {
     });
   }
 
-  async exec(
-    message: FireMessage,
+  async run(
+    command: ApplicationCommandMessage,
     args: {
       subreddit?: string;
       span: "hour" | "day" | "week" | "month" | "year" | "all";
     }
   ) {
-    if (!this.client.ksoft) return await message.error("ERROR_NO_KSOFT");
+    if (!this.client.ksoft) return await command.error("ERROR_NO_KSOFT");
     let meme: RedditImage;
     try {
       if (args.subreddit)
         meme = await this.client.ksoft.images.reddit(
           args.subreddit.replace("r/", ""),
           {
-            removeNSFW: !(message.channel as FireTextChannel).nsfw,
+            removeNSFW: !command.channel.nsfw,
             span: args.span,
           }
         );
       else meme = await this.client.ksoft.images.meme();
     } catch (e) {
-      return await message.error("MEME_NOT_FOUND");
+      return await command.error("MEME_NOT_FOUND");
     }
-    if (!meme.url || !meme.post) return await message.error("MEME_NOT_FOUND");
-    if (meme.tag.nsfw && !(message.channel as FireTextChannel).nsfw)
-      return await message.error("MEME_NSFW_FORBIDDEN");
-    const language = message.language;
+    if (!meme.url || !meme.post) return await command.error("MEME_NOT_FOUND");
+    if (meme.tag.nsfw && !command.channel.nsfw)
+      return await command.error("MEME_NSFW_FORBIDDEN");
+    const language = command.language;
     const embed = new MessageEmbed()
       .setTitle(language.get("MEME_EMBED_TITLE"))
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor ?? "#FFFFFF")
       .setURL(meme.post.link)
       .setTimestamp()
       .setAuthor(
-        language.get("MEME_EMBED_AUTHOR", { user: message.author.toString() }),
-        message.author.displayAvatarURL({
+        language.get("MEME_EMBED_AUTHOR", { user: command.author.toString() }),
+        command.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
@@ -88,7 +87,7 @@ export default class Meme extends Command {
         `[${meme.post.subreddit}](https://reddit.com/${meme.post.subreddit})`
       )
       .addField(
-        message.language.get("STATS"),
+        command.language.get("STATS"),
         `<:upvote:646857470345478184> ${meme.post.upvotes.toLocaleString(
           language.id
         )} | <:downvote:646857487353380867> ${meme.post.downvotes.toLocaleString(
@@ -99,6 +98,6 @@ export default class Meme extends Command {
       embed.setImage(meme.url);
     else
       embed.addField(language.get("ATTACHMENT"), `[Click Here](${meme.url})`);
-    return await message.channel.send({ embeds: [embed] });
+    return await command.channel.send({ embeds: [embed] });
   }
 }

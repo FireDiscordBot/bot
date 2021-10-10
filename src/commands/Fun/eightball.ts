@@ -1,4 +1,4 @@
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -23,13 +23,13 @@ export default class Eightball extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { question?: string }) {
+  async run(command: ApplicationCommandMessage, args: { question?: string }) {
     if (!args.question?.trim().endsWith("?"))
-      return await message.send("EIGHTBALL_NO_QUESTION");
-    const responses = (message.language.get("EIGHTBALL_ANSWER", {
+      return await command.send("EIGHTBALL_NO_QUESTION");
+    const responses = (command.language.get("EIGHTBALL_ANSWER", {
       returnObjects: true,
     }) as unknown) as string[];
-    await message.channel.send(
+    await command.channel.send(
       responses[Math.floor(Math.random() * responses.length)]
     );
   }

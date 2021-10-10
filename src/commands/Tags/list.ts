@@ -1,5 +1,5 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -20,21 +20,21 @@ export default class TagList extends Command {
     });
   }
 
-  async exec(message: FireMessage) {
-    if (!message.guild.tags) {
-      message.guild.tags = new GuildTagManager(this.client, message.guild);
-      await message.guild.tags.init();
+  async run(command: ApplicationCommandMessage) {
+    if (!command.guild.tags) {
+      command.guild.tags = new GuildTagManager(this.client, command.guild);
+      await command.guild.tags.init();
     }
-    const manager = message.guild.tags;
+    const manager = command.guild.tags;
     const names = manager.names;
-    if (!names.length) return await message.error("TAG_NONE_FOUND");
+    if (!names.length) return await command.error("TAG_NONE_FOUND");
     const embed = new MessageEmbed()
       .setAuthor(
-        message.language.get("TAG_LIST", { guild: message.guild.name }),
-        message.guild.iconURL({ size: 2048, format: "png", dynamic: true })
+        command.language.get("TAG_LIST", { guild: command.guild.name }),
+        command.guild.iconURL({ size: 2048, format: "png", dynamic: true })
       )
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor ?? "#FFFFFF")
       .setDescription(names.join(", "));
-    return await message.channel.send({ embeds: [embed] });
+    return await command.channel.send({ embeds: [embed] });
   }
 }

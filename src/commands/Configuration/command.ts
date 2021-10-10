@@ -1,5 +1,5 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Option } from "@fire/lib/interfaces/interactions";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -59,11 +59,11 @@ export default class CommandCommand extends Command {
       .slice(0, 20);
   }
 
-  async exec(message: FireMessage, args: { command?: Command }) {
-    if (!args.command) return await message.error("COMMAND_NO_ARG");
+  async run(command: ApplicationCommandMessage, args: { command?: Command }) {
+    if (!args.command) return await command.error("COMMAND_NO_ARG");
     if (unableToDisable.includes(args.command.id))
-      return await message.error("COMMAND_DISABLE_FORBIDDEN");
-    let current = message.guild.settings.get<string[]>("disabled.commands", []);
+      return await command.error("COMMAND_DISABLE_FORBIDDEN");
+    let current = command.guild.settings.get<string[]>("disabled.commands", []);
     if (current.includes(args.command.id)) {
       current = current.filter(
         (command) =>
@@ -71,15 +71,15 @@ export default class CommandCommand extends Command {
           this.client.commandHandler.modules.has(command)
       );
       if (current.length)
-        message.guild.settings.set<string[]>("disabled.commands", current);
-      else message.guild.settings.delete("disabled.commands");
-      return await message.success("COMMAND_ENABLE", {
+        command.guild.settings.set<string[]>("disabled.commands", current);
+      else command.guild.settings.delete("disabled.commands");
+      return await command.success("COMMAND_ENABLE", {
         command: args.command.id,
       });
     } else {
       current.push(args.command.id);
-      message.guild.settings.set<string[]>("disabled.commands", current);
-      return await message.success("COMMAND_DISABLE", {
+      command.guild.settings.set<string[]>("disabled.commands", current);
+      return await command.success("COMMAND_DISABLE", {
         command: args.command.id,
       });
     }

@@ -1,5 +1,4 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -19,23 +18,23 @@ export default class Ping extends Command {
     });
   }
 
-  async exec(message: FireMessage) {
+  async run(command: ApplicationCommandMessage) {
     const embed = new MessageEmbed()
       .setTitle(
         `:ping_pong: ${this.client.restPing}ms.\n:heartpulse: ${
-          this.client.ws.shards.get(message.guild ? message.guild.shardId : 0)
+          this.client.ws.shards.get(command.guild ? command.guild.shardId : 0)
             .ping
         }ms.`
       )
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor ?? "#FFFFFF")
       .setFooter(
-        message.language.get("PING_FOOTER", {
-          shard: message.guild ? message.guild.shardId : 0,
+        command.language.get("PING_FOOTER", {
+          shard: command.guild ? command.guild.shardId : 0,
           cluster: this.client.manager.id,
         })
       )
       .setTimestamp();
 
-    return await message.channel.send({ embeds: [embed] });
+    return await command.channel.send({ embeds: [embed] });
   }
 }

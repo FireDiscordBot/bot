@@ -1,5 +1,5 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { Option } from "@fire/lib/interfaces/interactions";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Language } from "@fire/lib/util/language";
@@ -41,16 +41,16 @@ export default class TagView extends Command {
     return guild.tags.names.slice(0, 20);
   }
 
-  async exec(message: FireMessage, args: { tag: string }) {
-    if (!message.guild.tags) {
-      message.guild.tags = new GuildTagManager(this.client, message.guild);
-      await message.guild.tags.init();
+  async run(command: ApplicationCommandMessage, args: { tag: string }) {
+    if (!command.guild.tags) {
+      command.guild.tags = new GuildTagManager(this.client, command.guild);
+      await command.guild.tags.init();
     }
-    const manager = message.guild.tags;
+    const manager = command.guild.tags;
     const cachedTag = await manager.getTag(args.tag);
     if (!cachedTag)
-      return await message.error("TAG_INVALID_TAG", { tag: args.tag });
+      return await command.error("TAG_INVALID_TAG", { tag: args.tag });
     await manager.useTag(cachedTag.name);
-    return await message.channel.send({ content: cachedTag.content });
+    return await command.channel.send({ content: cachedTag.content });
   }
 }

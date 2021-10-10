@@ -1,5 +1,5 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, Permissions } from "discord.js";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
@@ -30,23 +30,23 @@ export default class Avatar extends Command {
     });
   }
 
-  async exec(
-    message: FireMessage,
+  async run(
+    command: ApplicationCommandMessage,
     args: { user: FireMember | FireUser | null }
   ) {
     let user = args.user;
-    if (typeof user == "undefined") user = message.member || message.author;
+    if (typeof user == "undefined") user = command.member || command.author;
     else if (!user) return;
 
     const color =
       user instanceof FireMember
         ? user?.displayColor
-        : message.member?.displayColor;
+        : command.member?.displayColor;
 
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
-      .setTitle(message.language.get("AVATAR_TITLE", { user: user.toString() }))
+      .setTitle(command.language.get("AVATAR_TITLE", { user: user.toString() }))
       .setImage(
         user?.displayAvatarURL({
           size: 2048,
@@ -55,6 +55,6 @@ export default class Avatar extends Command {
         })
       );
 
-    return await message.channel.send({ embeds: [embed] });
+    return await command.channel.send({ embeds: [embed] });
   }
 }

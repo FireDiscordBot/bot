@@ -1,5 +1,5 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Option } from "@fire/lib/interfaces/interactions";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -45,8 +45,8 @@ export default class LinkFilter extends Command {
     return valid;
   }
 
-  async exec(
-    message: FireMessage,
+  async run(
+    command: ApplicationCommandMessage,
     args: {
       filters:
         | "discord"
@@ -58,19 +58,19 @@ export default class LinkFilter extends Command {
     }
   ) {
     if (!args.filters || !valid.includes(args.filters))
-      return await message.error("LINKFILTER_FILTER_LIST", {
+      return await command.error("LINKFILTER_FILTER_LIST", {
         valid: valid.join(", "),
       });
     else {
-      let current = message.guild.settings.get<string[]>("mod.linkfilter", []);
+      let current = command.guild.settings.get<string[]>("mod.linkfilter", []);
       const filter = args.filters;
       if (current.includes(filter))
         current = current.filter((f) => f != filter && valid.includes(f));
       else current.push(filter);
       if (current.length)
-        message.guild.settings.set<string[]>("mod.linkfilter", current);
-      else message.guild.settings.delete("mod.linkfilter");
-      return await message.success(
+        command.guild.settings.set<string[]>("mod.linkfilter", current);
+      else command.guild.settings.delete("mod.linkfilter");
+      return await command.success(
         current.length ? "LINKFILTER_SET" : "LINKFILTER_RESET",
         { enabled: current.join(", ") }
       );

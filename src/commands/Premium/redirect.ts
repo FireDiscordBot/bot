@@ -1,5 +1,5 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { FireMessage } from "@fire/lib/extensions/message";
 import Redirects from "@fire/src/modules/redirects";
 import { Command } from "@fire/lib/util/command";
 import Filters from "@fire/src/modules/filters";
@@ -36,55 +36,55 @@ export default class Redirect extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { code?: string; url?: string }) {
+  async run(command: ApplicationCommandMessage, args: { code?: string; url?: string }) {
     if (!this.module)
       this.module = this.client.getModule("redirects") as Redirects;
 
-    if (!message.author.premium)
-      return await message.error("COMMAND_PREMIUM_USER_ONLY");
+    if (!command.author.premium)
+      return await command.error("COMMAND_PREMIUM_USER_ONLY");
 
     if (!args.code) {
-      const current = await this.module.list(message.author);
-      if (!current.length) return await message.error("REDIRECT_ARGS_REQUIRED");
+      const current = await this.module.list(command.author);
+      if (!current.length) return await command.error("REDIRECT_ARGS_REQUIRED");
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setColor(command.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
         .setAuthor(
-          message.language.get("REDIRECT_LIST_AUTHOR"),
-          message.author.displayAvatarURL({
+          command.language.get("REDIRECT_LIST_AUTHOR"),
+          command.author.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,
           })
         )
         .setDescription(
-          message.language.get("REDIRECT_LIST_DESCRIPTION", {
+          command.language.get("REDIRECT_LIST_DESCRIPTION", {
             codes: current.join(", "),
-            remaining: message.author.isSuperuser()
+            remaining: command.author.isSuperuser()
               ? 1_337_420.69
-              : 5 * message.author.premium - current.length,
-            prefix: message.util?.parsed?.prefix,
+              : 5 * command.author.premium - current.length,
+            prefix: command.util?.parsed?.prefix,
           })
         );
-      return await message.channel.send({ embeds: [embed] });
+      return await command.channel.send({ embeds: [embed] });
     } else if (!args.url) {
       const embed = await this.module.current(
-        message.author,
+        command.author,
         args.code,
-        message.language
+        command.language
       );
-      if (!embed) return await message.error("REDIRECT_NOT_FOUND");
-      return await message.channel.send({ embeds: [embed] });
+      if (!embed) return await command.error("REDIRECT_NOT_FOUND");
+      return await command.channel.send({ embeds: [embed] });
     }
 
     if (deleteKeywords.includes(args.url)) {
-      const deleted = await this.module.delete(args.code, message.author);
-      return deleted ? await message.success() : await message.error();
+      const deleted = await this.module.delete(args.code, command.author);
+      return deleted ? await command.success() : await command.error();
     }
 
-    if (!validityRegex.test(args.code) && !message.author.isSuperuser()) {
+    if (!validityRegex.test(args.code) && !command.author.isSuperuser()) {
       validityRegex.lastIndex = 0;
-      return await message.error("REDIRECT_REGEX_FAIL");
+      return await command.error("REDIRECT_REGEX_FAIL");
     }
     validityRegex.lastIndex = 0;
 
@@ -104,22 +104,22 @@ export default class Redirect extends Command {
       )
         throw new Error("invite");
     } catch (e) {
-      return await message.error("REDIRECT_URL_INVALID");
+      return await command.error("REDIRECT_URL_INVALID");
     }
 
     const created = await this.module.create(
-      message.author,
+      command.author,
       args.code,
       url.toString()
     );
-    if (!created) return await message.error();
+    if (!created) return await command.error();
 
     if (typeof created == "string")
-      return await message.error(
+      return await command.error(
         `REDIRECT_ERROR_${created.toUpperCase()}` as LanguageKeys
       );
 
-    return await message.success("REDIRECT_CREATED", {
+    return await command.success("REDIRECT_CREATED", {
       redirect: `https://${
         process.env.NODE_ENV == "production" ? "" : "test."
       }inv.wtf/${created.get("code")}`,

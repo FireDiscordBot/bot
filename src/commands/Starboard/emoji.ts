@@ -1,13 +1,17 @@
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { constants } from "@fire/lib/util/constants";
 import { Permissions, GuildEmoji } from "discord.js";
-import { ArgumentTypeCaster } from "discord-akairo";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
 const unicodeEmojiRegex = constants.regexes.unicodeEmoji;
 const discordEmojiRegex = constants.regexes.customEmoji;
 const defaultEmoji = "⭐";
+
+type ArgumentTypeCaster = (
+  message: ApplicationCommandMessage,
+  phrase: string
+) => any;
 
 export default class StarboardEmoji extends Command {
   converter: ArgumentTypeCaster;
@@ -32,24 +36,26 @@ export default class StarboardEmoji extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { emoji?: string }) {
+  async run(command: ApplicationCommandMessage, args: { emoji?: string }) {
     if (!this.converter)
-      this.converter = this.client.commandHandler.resolver.types.get("emoji");
+      this.converter = this.client.commandHandler.resolver.types.get(
+        "emoji"
+      ) as unknown as ArgumentTypeCaster;
     let emoji: GuildEmoji | string = defaultEmoji;
     if (discordEmojiRegex.test(args.emoji)) {
       discordEmojiRegex.lastIndex = 0;
-      emoji = await this.converter(message, args.emoji);
+      emoji = await this.converter(command, args.emoji);
     } else if (unicodeEmojiRegex.test(args.emoji)) emoji = args.emoji.trim();
 
-    if (!emoji) return await message.error("STARBOARD_EMOJI_INVALID");
+    if (!emoji) return await command.error("STARBOARD_EMOJI_INVALID");
 
-    if (emoji == defaultEmoji) message.guild.settings.delete("starboard.emoji");
+    if (emoji == defaultEmoji) command.guild.settings.delete("starboard.emoji");
     else
-      message.guild.settings.set<string>(
+      command.guild.settings.set<string>(
         "starboard.emoji",
         emoji instanceof GuildEmoji ? emoji.id : emoji
       );
-    return await message.success("STARBOARD_EMOJI_SET", {
+    return await command.success("STARBOARD_EMOJI_SET", {
       emoji: emoji.toString(),
     });
   }

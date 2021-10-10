@@ -25,6 +25,7 @@ import {
   Util,
 } from "discord.js";
 import {
+  GuildTextChannel,
   ActionLogType,
   MemberLogType,
   ModLogType,
@@ -40,6 +41,7 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { MessageIterator } from "../util/iterators";
+import { FakeChannel } from "./appcommandmessage";
 import { FireVoiceChannel } from "./voicechannel";
 import { LanguageKeys } from "../util/language";
 import { FireTextChannel } from "./textchannel";
@@ -1382,7 +1384,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     user: FireUser,
     reason: string,
     moderator: FireMember,
-    channel?: FireTextChannel
+    channel?: FakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -1439,7 +1441,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     blockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: FireTextChannel
+    channel: FakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -1512,7 +1514,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     unblockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: FireTextChannel
+    channel: FakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";

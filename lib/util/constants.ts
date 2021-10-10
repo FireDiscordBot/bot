@@ -34,6 +34,7 @@ export type ActionLogType =
 export type ModLogType =
   | "system"
   | "warn"
+  | "note"
   | "ban"
   | "unban"
   | "kick"

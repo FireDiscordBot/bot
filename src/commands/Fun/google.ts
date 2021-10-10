@@ -1,8 +1,8 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { SnowflakeUtil, Permissions } from "discord.js";
 import { Command } from "@fire/lib/util/command";
@@ -60,18 +60,18 @@ export default class Google extends Command {
       );
   }
 
-  async exec(message: FireMessage, args: { query: string }) {
+  async run(command: ApplicationCommandMessage, args: { query: string }) {
     if (!this.client.manager.ws?.open)
-      return await message.error("PLAYWRIGHT_ERROR_NOT_READY");
+      return await command.error("PLAYWRIGHT_ERROR_NOT_READY");
     if (!this.assistant) {
-      await message.error("GOOGLE_MISSING_CREDENTIALS");
+      await command.error("GOOGLE_MISSING_CREDENTIALS");
       return this.remove();
     }
 
     // context menu shenanigans
-    if (message instanceof ContextCommandMessage)
+    if (command instanceof ContextCommandMessage)
       args.query =
-        (message as ContextCommandMessage).getMessage()?.content || "Hi";
+        (command as ContextCommandMessage).getMessage()?.content || "Hi";
 
     const response = await this.assistant
       .query(args.query || "Hi", {
@@ -90,17 +90,17 @@ export default class Google extends Command {
       response instanceof Error &&
       response.message.includes("text_query too long.")
     )
-      return await message.send("GOOGLE_TOO_LONG");
+      return await command.send("GOOGLE_TOO_LONG");
     else if (response instanceof Error)
       return this.client.commandHandler.emit(
         "commandError",
-        message,
+        command,
         this,
         args,
         response
       );
     if (!response.html)
-      return await message.react("a:okaygoogle:769207087674032129");
+      return await command.react("a:okaygoogle:769207087674032129");
     const filters = this.client.getModule("filters") as Filters;
     const html = await filters.runReplace(
       response.html
@@ -113,44 +113,39 @@ export default class Google extends Command {
           `window.onload = () => {window.document.body.innerHTML = window.document.body.innerHTML
   .replace(
     /<div class=\"show_text_content\">Your name is [\\w\\n]+\\.<\\/div>/gim,
-    "<div class='show_text_content'>Your name is ${message.author.username}.</div>"
+    "<div class='show_text_content'>Your name is ${command.author.username}.</div>"
   )
   .replace(
     /<div class=\"show_text_content\">I remember you telling me your name was [\\w\\n]+\\.<\\/div>/gim,
-    "<div class='show_text_content'>I remember you telling me your name was ${message.author.username}.</div>"
+    "<div class='show_text_content'>I remember you telling me your name was ${command.author.username}.</div>"
   );};`
         ),
-      message.member || message.author
+      command.member || command.author
     );
     if (!html)
-      return await message
-        .reply({
-          content: message.language.get("PLAYWRIGHT_ERROR_UNKNOWN"),
-          failIfNotExists: false,
-        })
-        .catch(() => {});
+      return await command.error("PLAYWRIGHT_ERROR_UNKNOWN").catch(() => {});
     const playwrightResponse = await this.getImageFromPlaywright(
-      message,
+      command,
       html
     ).catch(() => {});
     if (!playwrightResponse)
-      return await message.error("PLAYWRIGHT_ERROR_UNKNOWN");
+      return await command.error("PLAYWRIGHT_ERROR_UNKNOWN");
     if (playwrightResponse.error)
-      return await message.error(
+      return await command.error(
         `PLAYWRIGHT_ERROR_${playwrightResponse.error.toUpperCase()}` as LanguageKeys
       );
     else if (playwrightResponse.screenshot) {
       const screenshot = Buffer.from(playwrightResponse.screenshot.data);
-      await message.channel
+      await command.channel
         .send({
           files: [{ attachment: screenshot, name: "playwright.png" }],
         })
         .catch(() => {});
-    } else return await message.error("PLAYWRIGHT_ERROR_UNKNOWN");
+    } else return await command.error("PLAYWRIGHT_ERROR_UNKNOWN");
   }
 
   async getImageFromPlaywright(
-    message: FireMessage,
+    command: ApplicationCommandMessage,
     html: string
   ): Promise<PlaywrightResponse> {
     return new Promise((resolve, reject) => {

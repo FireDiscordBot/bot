@@ -1,7 +1,6 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { parseTime } from "@fire/lib/util/constants";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
@@ -11,29 +10,29 @@ export default class Mute extends Command {
     super("mute", {
       description: (language: Language) =>
         language.get("MUTE_COMMAND_DESCRIPTION"),
-        args: [
-          {
-            id: "user",
-            type: "memberSilent",
-            description: (language: Language) =>
+      args: [
+        {
+          id: "user",
+          type: "memberSilent",
+          description: (language: Language) =>
             language.get("MUTE_ARGUMENT_USER_DESCRIPTION"),
-            required: true,
-            default: null,
-          },
-          {
-            id: "reason",
-            type: "string",
-            description: (language: Language) =>
+          required: true,
+          default: null,
+        },
+        {
+          id: "reason",
+          type: "string",
+          description: (language: Language) =>
             language.get("MUTE_ARGUMENT_REASON_DESCRIPTION"),
-            required: false,
-            default: null,
-            match: "rest",
-          },
-          {
+          required: false,
+          default: null,
+          match: "rest",
+        },
+        {
           id: "time",
           type: "string",
           description: (language: Language) =>
-          language.get("MUTE_ARGUMENT_TIME_DESCRIPTION"),
+            language.get("MUTE_ARGUMENT_TIME_DESCRIPTION"),
           required: false,
           default: null,
           match: "rest",
@@ -60,25 +59,25 @@ export default class Mute extends Command {
     });
   }
 
-  async exec(
-    message: FireMessage,
+  async run(
+    command: ApplicationCommandMessage,
     args: { user: FireMember; reason?: string; time?: string }
   ) {
-    if (!args.user) return await message.error("MUTE_USER_REQUIRED");
+    if (!args.user) return await command.error("MUTE_USER_REQUIRED");
     else if (
       args.user instanceof FireMember &&
-      (args.user.isModerator(message.channel) || args.user.user.bot) &&
-      message.author.id != message.guild.ownerId
+      (args.user.isModerator(command.channel) || args.user.user.bot) &&
+      command.author.id != command.guild.ownerId
     )
-      return await message.error("MODERATOR_ACTION_DISALLOWED");
+      return await command.error("MODERATOR_ACTION_DISALLOWED");
     let minutes: number;
     try {
       minutes = parseTime(args.time) as number;
     } catch {
-      return await message.error("MUTE_FAILED_PARSE_TIME");
+      return await command.error("MUTE_FAILED_PARSE_TIME");
     }
     if (minutes != 0 && minutes < 5 && process.env.NODE_ENV != "development")
-      return await message.error("MUTE_TIME_TOO_SHORT");
+      return await command.error("MUTE_TIME_TOO_SHORT");
     const now = new Date();
     let date: number;
     if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
@@ -86,17 +85,17 @@ export default class Mute extends Command {
     const reason = parseTime(args.reason, true) as string;
     const muted = await args.user.mute(
       reason ||
-        (message.guild.language.get(
+        (command.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
-      message.member,
+      command.member,
       date,
-      message.channel as FireTextChannel
+      command.channel
     );
     if (muted == "forbidden")
-      return await message.error("COMMAND_MODERATOR_ONLY");
+      return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof muted == "string")
-      return await message.error(
+      return await command.error(
         `MUTE_FAILED_${muted.toUpperCase()}` as LanguageKeys
       );
   }

@@ -1,4 +1,4 @@
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -15,7 +15,7 @@ export default class Support extends Command {
     });
   }
 
-  async exec(message: FireMessage) {
-    await message.channel.send({ content: `<${constants.url.support}>` });
+  async run(command: ApplicationCommandMessage) {
+    await command.channel.send({ content: `<${constants.url.support}>` });
   }
 }

@@ -1,4 +1,4 @@
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Option } from "@fire/lib/interfaces/interactions";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
@@ -36,22 +36,22 @@ export default class Anti extends Command {
   }
 
   // todo: make "ui" with components rather than using an argument
-  async exec(
-    message: FireMessage,
+  async run(
+    command: ApplicationCommandMessage,
     args: { anti?: "everyone" | "zws" | "spoiler" | "selfbot" }
   ) {
     if (!args.anti) {
       const options = {
-        [message.language.get("ANTI_EVERYONE") as string]:
-          message.guild.settings.get<boolean>("mod.antieveryone", false),
-        [message.language.get("ANTI_ZWS") as string]:
-          message.guild.settings.get<boolean>("mod.antizws", false),
-        [message.language.get("ANTI_SPOILER") as string]:
-          message.guild.settings.get<boolean>("mod.antispoilers", false),
-        [message.language.get("ANTI_SELFBOT") as string]:
-          message.guild.settings.get<boolean>("mod.antiselfbot", false),
+        [command.language.get("ANTI_EVERYONE") as string]:
+          command.guild.settings.get<boolean>("mod.antieveryone", false),
+        [command.language.get("ANTI_ZWS") as string]:
+          command.guild.settings.get<boolean>("mod.antizws", false),
+        [command.language.get("ANTI_SPOILER") as string]:
+          command.guild.settings.get<boolean>("mod.antispoilers", false),
+        [command.language.get("ANTI_SELFBOT") as string]:
+          command.guild.settings.get<boolean>("mod.antiselfbot", false),
       };
-      return await message.send("ANTI_CURRENT_OPTIONS", {
+      return await command.send("ANTI_CURRENT_OPTIONS", {
         filters: Object.entries(options)
           .map(([name, enabled]) =>
             enabled
@@ -66,47 +66,47 @@ export default class Anti extends Command {
     // so use a switch from the get go
     switch (args.anti) {
       case "everyone": {
-        const current = message.guild.settings.get<boolean>(
+        const current = command.guild.settings.get<boolean>(
           "mod.antieveryone",
           false
         );
-        message.guild.settings.set<boolean>("mod.antieveryone", !current);
+        command.guild.settings.set<boolean>("mod.antieveryone", !current);
         return current
-          ? await message.success("ANTI_EVERYONE_DISABLED")
-          : await message.success("ANTI_EVERYONE_ENABLED");
+          ? await command.success("ANTI_EVERYONE_DISABLED")
+          : await command.success("ANTI_EVERYONE_ENABLED");
       }
       case "zws": {
-        const current = message.guild.settings.get<boolean>(
+        const current = command.guild.settings.get<boolean>(
           "mod.antizws",
           false
         );
-        message.guild.settings.set<boolean>("mod.antizws", !current);
+        command.guild.settings.set<boolean>("mod.antizws", !current);
         return current
-          ? await message.success("ANTI_ZWS_DISABLED")
-          : await message.success("ANTI_ZWS_ENABLED");
+          ? await command.success("ANTI_ZWS_DISABLED")
+          : await command.success("ANTI_ZWS_ENABLED");
       }
       case "spoiler": {
-        const current = message.guild.settings.get<boolean>(
+        const current = command.guild.settings.get<boolean>(
           "mod.antispoilers",
           false
         );
-        message.guild.settings.set<boolean>("mod.antispoilers", !current);
+        command.guild.settings.set<boolean>("mod.antispoilers", !current);
         return current
-          ? await message.success("ANTI_SPOILER_DISABLED")
-          : await message.success("ANTI_SPOILER_ENABLED");
+          ? await command.success("ANTI_SPOILER_DISABLED")
+          : await command.success("ANTI_SPOILER_ENABLED");
       }
       case "selfbot": {
-        const current = message.guild.settings.get<boolean>(
+        const current = command.guild.settings.get<boolean>(
           "mod.antiselfbot",
           false
         );
-        message.guild.settings.set<boolean>("mod.antiselfbot", !current);
+        command.guild.settings.set<boolean>("mod.antiselfbot", !current);
         return current
-          ? await message.success("ANTI_SELFBOT_DISABLED")
-          : await message.success("ANTI_SELFBOT_ENABLED");
+          ? await command.success("ANTI_SELFBOT_DISABLED")
+          : await command.success("ANTI_SELFBOT_ENABLED");
       }
       default: {
-        return await message.error("ANTI_UNKNOWN", { valid: valid.join(", ") });
+        return await command.error("ANTI_UNKNOWN", { valid: valid.join(", ") });
       }
     }
   }

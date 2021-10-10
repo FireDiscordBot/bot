@@ -153,6 +153,14 @@ export class Command extends AkairoCommand {
     return [];
   }
 
+  async run(
+    command: ApplicationCommandMessage,
+    args: Record<string, any>
+  ): Promise<any> {
+    // method_must_be_overwritten
+    return await command.error("COMMAND_ERROR_500");
+  }
+
   isDisabled(guild: FireGuild) {
     return guild?.settings
       .get<string[]>("disabled.commands", [])

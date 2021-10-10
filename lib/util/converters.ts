@@ -58,7 +58,7 @@ const getRoleMentionMatch = (argument: string) => {
 };
 
 export const snowflakeConverter = async (
-  message: FireMessage,
+  message: FireMessage | ApplicationCommandMessage,
   argument: string,
   silent = false
 ): Promise<({ snowflake: Snowflake } & DeconstructedSnowflake) | null> => {
@@ -155,7 +155,7 @@ export const guildPreviewConverter = async (
 };
 
 export const memberConverter = async (
-  message: FireMessage,
+  message: FireMessage | ApplicationCommandMessage,
   argument: string,
   silent = false
 ): Promise<FireMember | null> => {
@@ -246,7 +246,7 @@ export const memberConverter = async (
 };
 
 export const userConverter = async (
-  message: FireMessage,
+  message: FireMessage | ApplicationCommandMessage,
   argument: string,
   silent = false
 ): Promise<FireUser | null> => {

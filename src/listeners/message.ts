@@ -155,8 +155,7 @@ export default class Message extends Listener {
         "Phishing links",
         message.guild.me,
         null,
-        7,
-        message.channel as FireTextChannel
+        7
       );
     }
 

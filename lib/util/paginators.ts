@@ -9,8 +9,9 @@ import {
 } from "discord.js";
 import {
   ApplicationCommandMessage,
-  FakeChannel,
+  FakeChannel as AppFakeChannel,
 } from "@fire/lib/extensions/appcommandmessage";
+import { FakeChannel as ContextFakeChannel } from "../extensions/contextcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ComponentMessage } from "../extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -291,7 +292,8 @@ export class PaginatorInterface {
       | NewsChannel
       | ThreadChannel
       | DMChannel
-      | FakeChannel
+      | AppFakeChannel
+      | ContextFakeChannel
   ) {
     const message = (await destination.send({
       content: typeof this.sendArgs == "string" ? this.sendArgs : null,

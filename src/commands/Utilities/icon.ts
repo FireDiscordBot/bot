@@ -1,7 +1,5 @@
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { MessageEmbed, Permissions } from "discord.js";
-import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -20,24 +18,21 @@ export default class Icon extends Command {
     });
   }
 
-  async exec(
-    message: FireMessage,
-    args: { user: FireMember | FireUser | null }
-  ) {
+  async run(command: ApplicationCommandMessage) {
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setTitle(
-        message.language.get("ICON_TITLE", { guild: message.guild.name })
+        command.language.get("ICON_TITLE", { guild: command.guild.name })
       )
       .setImage(
-        message.guild?.iconURL({
+        command.guild?.iconURL({
           size: 2048,
           format: "png",
           dynamic: true,
         })
       );
 
-    return await message.channel.send({ embeds: [embed] });
+    return await command.channel.send({ embeds: [embed] });
   }
 }

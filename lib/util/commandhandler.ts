@@ -63,7 +63,12 @@ export class CommandHandler extends AkairoCommandHandler {
 
     this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
     try {
-      const ret = await command.exec(message as unknown as FireMessage, args);
+      // all commands will eventually be switched to use run instead of exec
+      // for now, this is the best way I could find to determine whether or not it's the
+      // Command class method or whether it has been overwritten
+      const ret = !command.run.toString().includes("method_must_be_overwritten")
+        ? await command.run(message, args)
+        : await command.exec(message as unknown as FireMessage, args);
       this.emit(
         CommandHandlerEvents.COMMAND_FINISHED,
         message,

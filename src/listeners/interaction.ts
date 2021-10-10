@@ -194,6 +194,7 @@ export default class InteractionListener extends Listener {
         return await message.error("SLASH_COMMAND_BOT_REQUIRED", {
           invite: this.client.config.inviteLink,
         });
+      // TODO: change to handleSlash and remove content
       await message.generateContent();
       // @ts-ignore
       await this.client.commandHandler.handle(message);
