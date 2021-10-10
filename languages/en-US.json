@@ -1148,6 +1148,10 @@
   "CLEARWARNINGS_COMMAND_DESCRIPTION": "Clear warnings, either by user or by case id",
   "CLEARWARNINGS_ARGUMENT_REQUIRED": "You must provide a member or case ID to clear warn(s)",
   "CLEARWARN_CASEID_REQUIRED": "You must provide a case ID when using \"clearwarn\" or \"clearwarning\"",
+  "CLEARWARN_INVALID_CASE_TYPE": "You cannot clear this type of case!",
+  "CLEARWARN_ALL_SUCCESS": "Successfully cleared {{amount}} warning(s) from **{{user}}**",
+  "CLEARWARN_SINGLE_SUCCESS": "Successfully cleared warning!",
+  "CLEARWARN_FAILED": "Uh oh, something went wrong while trying to clear warnings",
   "YTSYNC_COMMAND_DESCRIPTION": "Allows creation of YT Sync invites for a specific voice channel, allowing access without the need for experiments",
   "YTSYNC_CHANNEL_REQUIRED": "You must provide a valid voice channel!"
 }
