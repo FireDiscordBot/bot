@@ -1,8 +1,9 @@
 import {
-  AkairoClient,
+  version as akairover,
+  ArgumentTypeCaster,
   InhibitorHandler,
   ListenerHandler,
-  version as akairover,
+  AkairoClient,
 } from "discord-akairo";
 import {
   categoryChannelSilentTypeCaster,
@@ -303,7 +304,7 @@ export class Fire extends AkairoClient {
 
     this.commandHandler.resolver.addTypes({
       "member|role|channel|category": memberRoleChannelCategoryTypeCaster,
-      "user|member|snowflake": userMemberSnowflakeTypeCaster,
+      "user|member|snowflake": userMemberSnowflakeTypeCaster as ArgumentTypeCaster,
       "member|role|channel": memberRoleChannelTypeCaster,
       guildChannelSilent: guildChannelSilentTypeCaster,
       categorySilent: categoryChannelSilentTypeCaster,
