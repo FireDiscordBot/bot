@@ -23,7 +23,6 @@ export class FireMember extends GuildMember {
   declare guild: FireGuild;
   changingNick?: boolean;
   declare user: FireUser;
-  avatar: string | null;
   declare client: Fire;
 
   constructor(client: Fire, data: any, guild: FireGuild) {
