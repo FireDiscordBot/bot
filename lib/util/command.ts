@@ -63,6 +63,13 @@ const slashCommandTypeMappings = {
   MENTIONABLE: ["member|role"],
 };
 
+const canAcceptMember = [
+  "member",
+  "user|member",
+  "user|member|snowflake",
+  "memberSilent",
+];
+
 export class Command extends AkairoCommand {
   requiresExperiment?: { id: number; bucket: number };
   declare description: (language: Language) => string;
@@ -312,31 +319,35 @@ export class Command extends AkairoCommand {
               ) ?? ["STRING"];
         switch (type) {
           case "STRING": {
-            args[name] = message.slashCommand.options.getString(name);
+            args[arg.id] = message.slashCommand.options.getString(name);
             break;
           }
           case "INTEGER": {
-            args[name] = message.slashCommand.options.getInteger(name);
+            args[arg.id] = message.slashCommand.options.getInteger(name);
             break;
           }
           case "BOOLEAN": {
-            args[name] = message.slashCommand.options.getBoolean(name);
+            args[arg.id] = message.slashCommand.options.getBoolean(name);
             break;
           }
           case "USER": {
-            args[name] = message.slashCommand.options.getUser(name);
+            if (canAcceptMember.includes(arg.type.toString()))
+              args[arg.id] =
+                message.slashCommand.options.getMember(name, false) ??
+                message.slashCommand.options.getUser(name);
+            else args[arg.id] = message.slashCommand.options.getUser(name);
             break;
           }
           case "CHANNEL": {
             const resolvedChannel =
               message.slashCommand.options.getChannel(name);
             if (this.client.channels.cache.has(resolvedChannel.id))
-              args[name] = this.client.channels.cache.get(resolvedChannel.id);
+              args[arg.id] = this.client.channels.cache.get(resolvedChannel.id);
             break;
           }
           case "ROLE": {
             const role = message.slashCommand.options.getRole(name);
-            if (role instanceof Role) args[name] = role;
+            if (role instanceof Role) args[arg.id] = role;
             break;
           }
           case "MENTIONABLE": {
@@ -346,23 +357,23 @@ export class Command extends AkairoCommand {
               mentionable instanceof Role ||
               mentionable instanceof FireMember
             )
-              args[name] = mentionable;
+              args[arg.id] = mentionable;
             else if (mentionable instanceof FireUser && message.guild) {
               const member = await message.guild.members
                 .fetch(mentionable)
                 .catch(() => {});
-              if (member) args[name] = member;
+              if (member) args[arg.id] = member;
             } else if (mentionable instanceof FireUser)
-              args[name] = mentionable;
+              args[arg.id] = mentionable;
             break;
           }
         }
-        if (!args[name] && typeof arg.type == "function")
-          args[name] = await arg.type(
+        if (!args[arg.id] && typeof arg.type == "function")
+          args[arg.id] = await arg.type(
             message as unknown as FireMessage,
             message.slashCommand.options.get(name)?.value.toString()
           );
-        else if (!args[name]) args[name] = arg.default;
+        else if (!args[arg.id]) args[arg.id] = arg.default;
       }
     }
     return args;
