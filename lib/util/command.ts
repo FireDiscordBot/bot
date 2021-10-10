@@ -352,7 +352,7 @@ export class Command extends AkairoCommand {
         if (!args[name] && typeof arg.type == "function")
           args[name] = await arg.type(
             message as unknown as FireMessage,
-            message.slashCommand.options.get(name).value.toString()
+            message.slashCommand.options.get(name)?.value.toString()
           );
         else if (!args[name]) args[name] = arg.default;
       }
