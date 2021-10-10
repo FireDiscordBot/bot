@@ -222,6 +222,7 @@ export default class MCLogs extends Module {
         },
         contentType: "text/plain; charset=utf-8",
         name: "message.txt",
+        ephemeral: true,
         id: message.id,
         attachment: "",
         spoiler: false,
@@ -359,7 +360,7 @@ export default class MCLogs extends Module {
       .split("\n")
       // filter imports as this often makes java code mistaken for logs
       .filter(
-        (line) => 
+        (line) =>
           !(line.startsWith("import "))
       )
       .filter(
