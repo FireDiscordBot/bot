@@ -148,15 +148,15 @@ export class FireMessage extends Message {
         });
   }
 
-  react(emoji: EmojiIdentifierResolvable) {
+  async react(emoji: EmojiIdentifierResolvable) {
     if (
       (this.channel instanceof ThreadChannel && this.channel.archived) ||
       this.channel.deleted
     )
       return;
     if (process.env.USE_LITECORD == "true")
-      return super.react(emoji).catch(() => this.reactions.cache.first());
-    return super.react(emoji);
+      return await super.react(emoji).catch(() => this.reactions.cache.first());
+    return await super.react(emoji);
   }
 
   hasExperiment(id: number, bucket: number) {
