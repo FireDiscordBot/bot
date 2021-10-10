@@ -33,24 +33,26 @@ export default class Note extends Command {
     });
   }
 
-  async run(command: ApplicationCommandMessage, args: { user: FireMember; text: string }) {
+  async run(
+    command: ApplicationCommandMessage,
+    args: { user: FireMember; text: string }
+  ) {
     if (!args.user) return;
     else if (
       (args.user.isModerator(command.channel) || args.user.user.bot) &&
       command.author.id != command.guild.ownerId
     )
       return await command.error("MODERATOR_ACTION_DISALLOWED");
-    if (!args.text) return await command.error("WARN_REASON_MISSING");
-    const warned = await args.user.warn(
+    const noted = await args.user.note(
       args.text,
       command.member,
       command.channel
     );
-    if (warned == "forbidden")
+    if (noted == "forbidden")
       return await command.error("COMMAND_MODERATOR_ONLY");
-    else if (typeof warned == "string")
+    else if (typeof noted == "string")
       return await command.error(
-        `WARN_FAILED_${warned.toUpperCase()}` as LanguageKeys
+        `NOTE_FAILED_${noted.toUpperCase()}` as LanguageKeys
       );
   }
 }
