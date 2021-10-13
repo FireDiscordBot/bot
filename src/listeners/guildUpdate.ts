@@ -118,15 +118,6 @@ export default class GuildUpdate extends Listener {
             }) || "???"
           } ➜ ${after.bannerURL({ size: 2048, format: "png" }) || "???"}`
         );
-      if (
-        before.description != after.description &&
-        after.id != "411619823445999637" &&
-        after.id != "564052798044504084"
-      )
-        embed.addField(
-          language.get("DESCRIPTION"),
-          `${before.description} ➜ ${after.description}`
-        );
       if (before.verificationLevel != after.verificationLevel)
         embed.addField(
           language.get("VERIFICATION_LEVEL"),
@@ -172,6 +163,16 @@ export default class GuildUpdate extends Listener {
               .join("\n")
           );
       }
+      if (
+        (before.description != after.description &&
+          after.id != "411619823445999637" &&
+          after.id != "564052798044504084") ||
+        (before.description != after.description && embed.fields.length != 0)
+      )
+        embed.addField(
+          language.get("DESCRIPTION"),
+          `${before.description} ➜ ${after.description}`
+        );
       if (embed.fields.length)
         await after.actionLog(embed, "guild_update").catch(() => {});
     }
