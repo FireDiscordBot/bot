@@ -33,6 +33,8 @@ export default class MinecraftStatus extends Command {
     };
   }
 
+  // TODO: clean this holy shit it is awful
+
   async exec(message: FireMessage) {
     const statusReq = await centra("https://status.mojang.com/check")
       .header("User-Agent", this.client.manager.ua)
