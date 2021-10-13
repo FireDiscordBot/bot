@@ -141,7 +141,6 @@ export default class GuildUpdate extends Listener {
           )}`
         );
       if (before.features.length != after.features.length) {
-        // TODO use localised feature names
         const added = after.features.filter(
           (feature) => !before.features.includes(feature)
         );
@@ -152,14 +151,18 @@ export default class GuildUpdate extends Listener {
           embed.addField(
             language.get("ADDED_FEATURES"),
             added
-              .map((feature) => titleCase(feature.split("_").join(" ")))
+              .map((feature) =>
+                this.client.util.cleanFeatureName(feature, after.language)
+              )
               .join("\n")
           );
         if (removed.length)
           embed.addField(
             language.get("REMOVED_FEATURES"),
             removed
-              .map((feature) => titleCase(feature.split("_").join(" ")))
+              .map((feature) =>
+                this.client.util.cleanFeatureName(feature, after.language)
+              )
               .join("\n")
           );
       }

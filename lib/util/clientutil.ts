@@ -318,6 +318,18 @@ export class Util extends ClientUtil {
     );
   }
 
+  cleanFeatureName(
+    feature: string,
+    language?: Language
+  ): string {
+    language = language ?? this.client.getLanguage("en-US");
+    if (language.has(`FEATURES.${feature}` as LanguageKeys))
+      return language.get(`FEATURES.${feature}` as LanguageKeys);
+    return titleCase(
+      feature.toLowerCase().replace(/_/gim, " ").replace(/guild/, "server")
+    );
+  }
+
   bitToPermissionString(permission: bigint) {
     const found = this.permissionFlags.find(([, bit]) => bit == permission);
     if (found?.length) return found[0];
