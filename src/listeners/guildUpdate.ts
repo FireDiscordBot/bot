@@ -21,16 +21,6 @@ export default class GuildUpdate extends Listener {
   }
 
   async exec(before: FireGuild, after: FireGuild) {
-    if (
-      before.id == "411619823445999637" &&
-      !after.features.includes("PARTNERED")
-    ) {
-      await (after.channels.cache.get("411620457754787841") as TextChannel)
-        .send("rip partner")
-        .then(() => (this.theFunny = true))
-        .catch(() => {});
-    }
-
     const discoveryChanges =
       before.name != after.name ||
       before.icon != after.icon ||
