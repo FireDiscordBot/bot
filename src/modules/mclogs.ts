@@ -16,13 +16,19 @@ import Filters from "./filters";
 const { mcLogFilters } = constants;
 
 const allowedURLs = [
+  "minecraftservices.com",
+  "microsoftonline.com",
   "minecraftforge.net",
   "logging.apache.org",
+  "microsoft.com",
+  "xboxlive.com",
   "fabricmc.net",
   "essential.gg",
+  "mojang.com",
   "sk1er.club",
   "lwjgl.org",
   "127.0.0.1",
+  "live.com",
 ];
 
 export default class MCLogs extends Module {
