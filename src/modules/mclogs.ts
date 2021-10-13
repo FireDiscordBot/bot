@@ -1,15 +1,10 @@
+import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 // import * as solutions from "../../mc_solutions.json";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import { Readable } from "stream";
-import {
-  MessageActionRow,
-  MessageButton,
-  MessageEmbed,
-  Util,
-} from "discord.js";
 import * as centra from "centra";
 import Filters from "./filters";
 
@@ -365,10 +360,7 @@ export default class MCLogs extends Module {
     data = data
       .split("\n")
       // filter imports as this often makes java code mistaken for logs
-      .filter(
-        (line) =>
-          !(line.startsWith("import "))
-      )
+      .filter((line) => !line.startsWith("import "))
       .filter(
         (line) =>
           !mcLogFilters.some((filter) => line.trim().includes(filter.trim()))
