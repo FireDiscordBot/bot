@@ -160,12 +160,6 @@ export default class Message extends Listener {
       );
     }
 
-    if (
-      message.guild?.id == "662109704549433380" &&
-      !message.content?.toLowerCase().includes("banger")
-    )
-      await message.delete();
-
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
     // These won't run if the modules aren't loaded
     await mcLogsModule?.checkLogs(message).catch(() => {});
