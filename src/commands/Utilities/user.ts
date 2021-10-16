@@ -13,7 +13,11 @@ import {
   DMChannel,
   Snowflake,
 } from "discord.js";
-import { APIApplication, ApplicationFlags } from "discord-api-types";
+import {
+  APIApplication,
+  APIChannel,
+  ApplicationFlags,
+} from "discord-api-types";
 import { constants, humanize, zws } from "@fire/lib/util/constants";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -632,13 +636,14 @@ export default class User extends Command {
       );
     }
 
-    let maybeGuild: unknown;
+    let maybeGuild: boolean;
     if (!this.client.guilds.cache.has(snowflake.snowflake)) {
       maybeGuild = await this.client.req
         .guilds(snowflake.snowflake)
-        .channels.get()
+        .channels.get<APIChannel[]>()
+        .then((c) => Array.isArray(c))
         .catch((e) => e instanceof DiscordAPIError && e.code == 50001);
-      if (maybeGuild) {
+      if (maybeGuild == true) {
         info.push(
           message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
             type: message.language.get("GUILD"),
