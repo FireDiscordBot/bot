@@ -12,6 +12,7 @@ import {
   Formatters,
   DMChannel,
   Snowflake,
+  GuildPreview,
 } from "discord.js";
 import {
   APIApplication,
@@ -674,9 +675,16 @@ export default class User extends Command {
       message.hasExperiment(4026299021, 1) &&
       this.client.manager.state.discordExperiments?.length
     ) {
+      let guild: FireGuild | GuildPreview = this.client.guilds.cache.get(
+        snowflake.snowflake
+      ) as FireGuild;
+      if (maybeGuild)
+        guild = await this.client
+          .fetchGuildPreview(snowflake.snowflake)
+          .catch(() => null);
       const experiments = await this.client.util.getFriendlyGuildExperiments(
         snowflake.snowflake,
-        this.client.guilds.cache.get(snowflake.snowflake) as FireGuild
+        guild
       );
       if (experiments.length)
         embed.addField(
