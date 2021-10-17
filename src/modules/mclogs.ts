@@ -90,6 +90,7 @@ export default class MCLogs extends Module {
       "gg.essential",
       "club.sk1er",
       "fabric-api",
+      "Environment: authHost='https://authserver.mojang.com'",
     ];
   }
 
