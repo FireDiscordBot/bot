@@ -1450,11 +1450,12 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         blockee,
         moderator,
         "block",
-        reason
+        `#${channel.name} | ${reason}`
       ).catch(() => {});
       if (!logEntry) return "entry";
     }
     const overwrite: PermissionOverwriteOptions = {
+      SEND_MESSAGES_IN_THREADS: false,
       SEND_MESSAGES: false,
       ADD_REACTIONS: false,
     };
@@ -1522,11 +1523,12 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         unblockee,
         moderator,
         "unblock",
-        reason
+        `#${channel.name} | ${reason}`
       ).catch(() => {});
       if (!logEntry) return "entry";
     }
     const overwrite: PermissionOverwriteOptions = {
+      SEND_MESSAGES_IN_THREADS: null,
       SEND_MESSAGES: null,
       ADD_REACTIONS: null,
     };
