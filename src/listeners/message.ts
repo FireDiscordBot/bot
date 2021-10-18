@@ -146,6 +146,15 @@ export default class Message extends Listener {
         (lowerContent.includes("leaving") &&
           lowerContent.includes("fucking") &&
           lowerContent.includes("game")) ||
+        (lowerContent.includes("gift") &&
+          lowerContent.includes("http") &&
+          lowerContent.includes("@everyone")) ||
+        (lowerContent.includes("gift") &&
+          lowerContent.includes("http") &&
+          lowerContent.includes("bro")) ||
+        (lowerContent.includes("gift") &&
+          lowerContent.includes("http") &&
+          lowerContent.includes("for you")) ||
         (lowerContent.includes("airdrop") && lowerContent.includes("nitro")) ||
         (lowerContent.includes("/n@") && lowerContent.includes("nitro")))
     ) {
