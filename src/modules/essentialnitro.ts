@@ -201,7 +201,11 @@ export default class EssentialNitro extends Module {
       .query("user_id", uuid)
       .send();
 
-    if (nitroReq.statusCode == 200) {
+    if (nitroReq.statusCode == 200 || nitroReq.statusCode == 204) {
+      if (nitroReq.statusCode == 204)
+        this.client.console.warn(
+          `[Essential] User ${user} didn't have the cosmetic, removing from database...`
+        );
       const result = await this.client.db
         .query("DELETE FROM essential WHERE uid=$1 RETURNING uid;", [user.id])
         .first();
