@@ -143,26 +143,7 @@ export default class EssentialNitro extends Module {
 
     const existing = await this.getCurrentTransactions(user);
     if (existing == null) return false;
-    if (
-      existing.length &&
-      existing.every((t) => t.status.expiration < +new Date())
-    )
-      return true;
-    else {
-      this.client.console.warn(
-        `[Essential] User ${user} (${user.id}) has existing booster transactions, removing...`
-      );
-      for (const existingUUID of existing.map((t) => t.uuid)) {
-        const removed = await this.removeNitroCosmetic(user, existingUUID); // remove old "transactions"
-        if (!removed != true) {
-          this.client.console.error(
-            `[Essential] Failed to remove booster cosmetic from ${existingUUID} for ${user}, return value: `,
-            removed
-          );
-          return false;
-        }
-      }
-    }
+    if (existing.length) return true;
 
     const body = {
       username: ign,
