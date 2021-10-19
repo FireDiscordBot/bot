@@ -123,7 +123,7 @@ export default class EssentialNitro extends Module {
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", this.auth)
       .send();
-    if (transReq.statusCode != 200) return null;
+    if (transReq.statusCode != 200 && transReq.statusCode != 204) return null;
 
     return await transReq.json();
   }
