@@ -631,6 +631,7 @@
   "MODLOGS_CASE_ID": "Case ID",
   "MODLOGS_MODERATOR_ID": "Moderator ID",
   "MCSTATUS_COMMAND_DESCRIPTION": "Check the status of Minecraft services",
+  "MCSTATUS_DISABLED": "This command has been disabled due to the DNS record for status.mojang.com no longer existing",
   "MCSTATUS_FETCH_FAIL": "Failed to fetch Minecraft status",
   "MCSTATUS_STATUSES": {
     "green": "No Issues",
