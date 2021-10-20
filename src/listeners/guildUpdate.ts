@@ -4,10 +4,10 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { LanguageKeys } from "@fire/lib/util/language";
-import { MessageEmbed, TextChannel } from "discord.js";
-import { titleCase } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { GuildFeature } from "discord-api-types";
 import { Message } from "@fire/lib/ws/Message";
+import { MessageEmbed } from "discord.js";
 
 export default class GuildUpdate extends Listener {
   theFunny: boolean;
@@ -21,16 +21,6 @@ export default class GuildUpdate extends Listener {
   }
 
   async exec(before: FireGuild, after: FireGuild) {
-    if (
-      before.id == "411619823445999637" &&
-      !after.features.includes("PARTNERED")
-    ) {
-      await (after.channels.cache.get("411620457754787841") as TextChannel)
-        .send("rip partner")
-        .then(() => (this.theFunny = true))
-        .catch(() => {});
-    }
-
     const discoveryChanges =
       before.name != after.name ||
       before.icon != after.icon ||
@@ -128,15 +118,6 @@ export default class GuildUpdate extends Listener {
             }) || "???"
           } ➜ ${after.bannerURL({ size: 2048, format: "png" }) || "???"}`
         );
-      if (
-        before.description != after.description &&
-        after.id != "411619823445999637" &&
-        after.id != "564052798044504084"
-      )
-        embed.addField(
-          language.get("DESCRIPTION"),
-          `${before.description} ➜ ${after.description}`
-        );
       if (before.verificationLevel != after.verificationLevel)
         embed.addField(
           language.get("VERIFICATION_LEVEL"),
@@ -160,28 +141,55 @@ export default class GuildUpdate extends Listener {
           )}`
         );
       if (before.features.length != after.features.length) {
-        // TODO use localised feature names
         const added = after.features.filter(
           (feature) => !before.features.includes(feature)
         );
         const removed = before.features.filter(
           (feature) => !after.features.includes(feature)
         );
+        if (after.id == "411619823445999637" && added.length)
+          await this.client.req
+            .channels("624304772333436928")
+            .messages.post({
+              data: {
+                content: `<@287698408855044097> new feature(s) in sk1er discord, ${added.join(
+                  ", "
+                )}`,
+                allowed_mentions: {
+                  users: ["287698408855044097"],
+                },
+              },
+            })
+            .catch(() => {});
         if (added.length)
           embed.addField(
             language.get("ADDED_FEATURES"),
             added
-              .map((feature) => titleCase(feature.split("_").join(" ")))
+              .map((feature) =>
+                this.client.util.cleanFeatureName(feature, after.language)
+              )
               .join("\n")
           );
         if (removed.length)
           embed.addField(
             language.get("REMOVED_FEATURES"),
             removed
-              .map((feature) => titleCase(feature.split("_").join(" ")))
+              .map((feature) =>
+                this.client.util.cleanFeatureName(feature, after.language)
+              )
               .join("\n")
           );
       }
+      if (
+        (before.description != after.description &&
+          after.id != "411619823445999637" &&
+          after.id != "564052798044504084") ||
+        (before.description != after.description && embed.fields.length != 0)
+      )
+        embed.addField(
+          language.get("DESCRIPTION"),
+          `${before.description} ➜ ${after.description}`
+        );
       if (embed.fields.length)
         await after.actionLog(embed, "guild_update").catch(() => {});
     }

@@ -13,7 +13,7 @@ export class EventStore extends Collection<number, Event> {
   }
 
   init() {
-    const eventsFolder = __dirname.includes("/dist/")
+    const eventsFolder = this.manager.isDist
       ? "/dist/src/ws/events/"
       : "/src/ws/events/";
     const files = readdirSync(join(process.cwd(), eventsFolder));

@@ -1,7 +1,9 @@
 import {
   EmojiIdentifierResolvable,
+  ReplyMessageOptions,
   DiscordAPIError,
   MessageReaction,
+  MessagePayload,
   ThreadChannel,
   WebhookClient,
   ThreadMember,
@@ -101,6 +103,15 @@ export class FireMessage extends Message {
       components: args?.components,
       reply: args?.reply,
     });
+  }
+
+  async reply(options: string | MessagePayload | ReplyMessageOptions) {
+    if (
+      this.channel.deleted ||
+      (this.guild && !this.guild.me?.permissions.has("READ_MESSAGE_HISTORY"))
+    )
+      return this; // we need to return a message to prevent issues so just return this
+    return (await super.reply(options)) as FireMessage;
   }
 
   success(
@@ -350,11 +361,24 @@ export class FireMessage extends Message {
           attachments.push({ attachment: req.body, name: names[index] });
       }
     }
+    const member =
+      this.member ??
+      ((await this.guild.members
+        .fetch(this.author)
+        .catch(() => null)) as FireMember);
     return await hook
       .send({
         content: content.length ? content : null,
-        username: this.author.toString().replace(/#0000/gim, ""),
-        avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
+        username:
+          member && member.nickname
+            ? `${member.nickname} (${this.author
+                .toString()
+                .replace(/#0000/gim, "")})`
+            : this.author.toString().replace(/#0000/gim, ""),
+        avatarURL: (member ?? this.author).displayAvatarURL({
+          size: 2048,
+          format: "png",
+        }),
         embeds: this.embeds.filter(
           (embed) =>
             !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
@@ -396,8 +420,7 @@ export class FireMessage extends Message {
 
   private async embedQuote(
     destination: GuildTextChannel | ThreadChannel | PartialQuoteDestination,
-    quoter: FireMember,
-    thread?: ThreadChannel
+    quoter: FireMember
   ) {
     // PartialQuoteDestination needs to be set for type here
     // since this#quote can take either but it should never
@@ -419,12 +442,21 @@ export class FireMessage extends Message {
       });
     } else if (this.author.bot && this.embeds.length)
       extraEmbeds.push(...this.embeds);
+    const member =
+      this.member ??
+      ((await this.guild.members
+        .fetch(this.author)
+        .catch(() => null)) as FireMember);
     const embed = new MessageEmbed()
-      .setColor(this.member?.displayColor || quoter.displayColor)
+      .setColor(member?.displayColor || quoter.displayColor)
       .setTimestamp(this.createdAt)
       .setAuthor(
-        this.author.toString(),
-        this.author.displayAvatarURL({
+        member && member.nickname
+          ? `${member.nickname} (${this.author
+              .toString()
+              .replace(/#0000/gim, "")})`
+          : this.author.toString().replace(/#0000/gim, ""),
+        (member ?? this.author).displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,

@@ -23,7 +23,8 @@ export default class CommandFinished extends Listener {
     if (
       chance > 30 &&
       chance < 50 &&
-      message.util?.parsed?.command?.id != "help"
+      message.util?.parsed?.command?.id != "help" &&
+      !message.util?.parsed?.command?.ownerOnly
     ) {
       const upsellEmbed = await this.client.util.getSlashUpsellEmbed(message);
       if (upsellEmbed)

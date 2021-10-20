@@ -46,11 +46,12 @@ export default class GuildMemberRemove extends Listener {
         const removed = await essentialModule
           .removeNitroCosmetic(member)
           .catch(() => false);
-        this.client.console.error(
-          `[Essential] Failed to remove nitro perks from ${member}${
-            typeof removed == "number" ? ` with status code ${removed}` : ""
-          }`
-        );
+        if (removed != true)
+          this.client.console.error(
+            `[Essential] Failed to remove nitro perks from ${member}${
+              typeof removed == "number" ? ` with status code ${removed}` : ""
+            }`
+          );
       }
     }
 

@@ -18,7 +18,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
-import { constants } from "@fire/lib/util/constants";
+import { constants, titleCase } from "@fire/lib/util/constants";
 import { getBranch } from "@fire/lib/util/gitUtils";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
@@ -49,12 +49,24 @@ const sk1erTypeToEmoji = {
   bug: "🐛",
 };
 
-// these are currently the same as sk1er support but can change so they're kept separate
-const validEssentialTypes = ["general", "purchase", "bug"];
+const validEssentialTypes = [
+  "general",
+  "purchase",
+  "bug",
+  "nufcrash",
+  "nufbug",
+  "nufenquiry",
+  "nuf",
+];
 const essentialTypeToEmoji = {
   general: "🖥️",
   purchase: "💸",
   bug: "🐛",
+  // NUF types don't have emojis
+  nufcrash: "",
+  nufbug: "",
+  nufenquiry: "",
+  nuf: "",
 };
 
 export default class Button extends Listener {
@@ -70,6 +82,13 @@ export default class Button extends Listener {
     // check for deletion button
     if (button.customId == "delete_me")
       return await button.delete(button.interaction.message.id).catch(() => {});
+    else if (button.customId == "cancel_me")
+      return await button
+        .edit({
+          content: button.language.get("INTERACTION_CANCELLED"),
+          components: [],
+        })
+        .catch(() => {});
 
     let message: FireMessage;
     if (!button.ephemeralSource) message = button.message as FireMessage;
@@ -597,6 +616,38 @@ export default class Button extends Listener {
       if (!essentialModule) return;
 
       if (!message) return "no message";
+
+      // NUF experiment
+      if (button.hasExperiment(69538346, 1)) {
+        const choices = [
+          new MessageButton()
+            .setCustomId("essentialsupport:crash")
+            .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_CRASH"))
+            .setStyle("DANGER"),
+          // .setEmoji("895747752443666442"),
+          new MessageButton()
+            .setCustomId("essentialsupport:bug")
+            .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_BUG"))
+            .setStyle("DANGER"),
+          // .setEmoji("🐛"),
+          new MessageButton()
+            .setCustomId("essentialsupport:enquiry")
+            .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ENQUIRY"))
+            .setStyle("PRIMARY"),
+          // .setEmoji("❓"),
+          new MessageButton()
+            .setCustomId("essentialsupport:other")
+            .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
+            .setStyle("PRIMARY"),
+          // .setEmoji("785860532041285673"),
+        ];
+        button.flags += 64;
+        return await button.edit({
+          content: button.language.get("ESSENTIAL_SUPPORT_CHOOSE_ISSUE"),
+          components: [new MessageActionRow().addComponents(choices)],
+        });
+      }
+
       const component = message.components
         ?.map((component) =>
           component.type == "ACTION_ROW" || component.type == 1
@@ -666,13 +717,13 @@ export default class Button extends Listener {
       (button.message as FireMessage).components = [
         new MessageActionRow().addComponents(
           new MessageButton()
-            .setCustomId(`essential_confirm_${type}`)
+            .setCustomId(button.customId)
             .setEmoji(essentialTypeToEmoji[type])
         ),
       ];
 
       const ticket = await essentialModule
-        .handleTicket(button, button.author)
+        .handleTicket(button, type)
         .catch((e: Error) => e);
       if (
         !(ticket instanceof FireTextChannel) &&
@@ -724,6 +775,18 @@ export default class Button extends Listener {
             components: [],
           })
           .catch(() => {});
+    }
+
+    if (button.customId.startsWith("essentialsupport:")) {
+      const choice = button.customId.slice(17);
+      const essentialModule = this.client.getModule("essential") as Essential;
+      if (!essentialModule) return;
+
+      const handler: Function =
+        essentialModule[`supportHandle${titleCase(choice)}`];
+      if (!handler || typeof handler != "function")
+        return await button.error("ESSENTIAL_SUPPORT_CHOICE_INVALID");
+      else return await handler(button);
     }
 
     if (button.customId.startsWith("snooze:")) {

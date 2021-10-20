@@ -1,28 +1,29 @@
+import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 // import * as solutions from "../../mc_solutions.json";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import { Readable } from "stream";
-import {
-  MessageActionRow,
-  MessageButton,
-  MessageEmbed,
-  Util,
-} from "discord.js";
 import * as centra from "centra";
 import Filters from "./filters";
 
 const { mcLogFilters } = constants;
 
 const allowedURLs = [
+  "minecraftservices.com",
+  "microsoftonline.com",
   "minecraftforge.net",
   "logging.apache.org",
+  "microsoft.com",
+  "xboxlive.com",
   "fabricmc.net",
   "essential.gg",
+  "mojang.com",
   "sk1er.club",
   "lwjgl.org",
   "127.0.0.1",
+  "live.com",
 ];
 
 export default class MCLogs extends Module {
@@ -89,6 +90,7 @@ export default class MCLogs extends Module {
       "gg.essential",
       "club.sk1er",
       "fabric-api",
+      "Environment: authHost='https://authserver.mojang.com'",
     ];
   }
 
@@ -214,16 +216,20 @@ export default class MCLogs extends Module {
         setName: function () {
           return this;
         },
+        setDescription: function () {
+          return this;
+        },
         toJSON: () => {
           return {};
         },
-        setSpoiler: function (spoiler?: boolean) {
+        setSpoiler: function () {
           return this;
         },
         contentType: "text/plain; charset=utf-8",
         name: "message.txt",
-        ephemeral: false,
+        ephemeral: true,
         id: message.id,
+        description: "",
         attachment: "",
         spoiler: false,
         proxyURL: url,
@@ -359,10 +365,7 @@ export default class MCLogs extends Module {
     data = data
       .split("\n")
       // filter imports as this often makes java code mistaken for logs
-      .filter(
-        (line) =>
-          !(line.startsWith("import "))
-      )
+      .filter((line) => !line.startsWith("import "))
       .filter(
         (line) =>
           !mcLogFilters.some((filter) => line.trim().includes(filter.trim()))

@@ -23,8 +23,9 @@ export default class MinecraftStatus extends Command {
         Permissions.FLAGS.SEND_MESSAGES,
         Permissions.FLAGS.EMBED_LINKS,
       ],
-      enableSlashCommand: true,
+      enableSlashCommand: false,
       restrictTo: "all",
+      hidden: true,
     });
     this.emotes = {
       green: emojis.statuspage.operational,
@@ -33,7 +34,11 @@ export default class MinecraftStatus extends Command {
     };
   }
 
+  // TODO: clean this holy shit it is awful
+
   async exec(message: FireMessage) {
+    return await message.error("MCSTATUS_DISABLED")
+
     const statusReq = await centra("https://status.mojang.com/check")
       .header("User-Agent", this.client.manager.ua)
       .send();

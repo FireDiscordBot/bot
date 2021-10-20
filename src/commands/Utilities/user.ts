@@ -12,9 +12,14 @@ import {
   Formatters,
   DMChannel,
   Snowflake,
+  GuildPreview,
 } from "discord.js";
+import {
+  ApplicationFlags,
+  APIApplication,
+  APIChannel,
+} from "discord-api-types";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { APIApplication, ApplicationFlags } from "discord-api-types";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -184,9 +189,6 @@ export default class User extends Command {
           this.client.util.shorten(roles, 1000, " - "),
           false
         );
-      const permissionsTranslated = command.language.get("PERMISSIONS", {
-        returnObjects: true,
-      }) as unknown as object;
       if (!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
         let perms = [];
         const keyPerms: PermissionString[] = [
@@ -205,14 +207,11 @@ export default class User extends Command {
           "VIEW_GUILD_INSIGHTS",
           "MANAGE_THREADS",
         ];
-        Object.keys(permissionsTranslated)
-          .filter((permission: PermissionString) =>
-            keyPerms.includes(permission)
-          )
-          .forEach((permission: PermissionString) => {
-            if (member.permissions.has(permission))
-              perms.push(permissionsTranslated[permission]);
-          });
+        for (const permission of keyPerms)
+          if (member.permissions.has(permission))
+            perms.push(
+              this.client.util.cleanPermissionName(permission, command.language)
+            );
         if (perms.length)
           embed.addField(
             `» ${command.language.get("KEY_PERMISSIONS")}`,
@@ -222,7 +221,10 @@ export default class User extends Command {
       } else
         embed.addField(
           `» ${command.language.get("PERMISSIONS_TEXT")}`,
-          permissionsTranslated["ADMINISTRATOR"],
+          this.client.util.cleanPermissionName(
+            "ADMINISTRATOR",
+            command.language
+          ),
           false
         );
     }
@@ -636,13 +638,14 @@ export default class User extends Command {
       );
     }
 
-    let maybeGuild: unknown;
+    let maybeGuild: boolean;
     if (!this.client.guilds.cache.has(snowflake.snowflake)) {
       maybeGuild = await this.client.req
         .guilds(snowflake.snowflake)
-        .channels.get()
+        .channels.get<APIChannel[]>()
+        .then((c) => Array.isArray(c))
         .catch((e) => e instanceof DiscordAPIError && e.code == 50001);
-      if (maybeGuild) {
+      if (maybeGuild == true) {
         info.push(
           command.language.get("USER_SNOWFLAKE_BELONGS_TO", {
             type: command.language.get("GUILD"),
@@ -673,9 +676,16 @@ export default class User extends Command {
       command.hasExperiment(4026299021, 1) &&
       this.client.manager.state.discordExperiments?.length
     ) {
+      let guild: FireGuild | GuildPreview = this.client.guilds.cache.get(
+        snowflake.snowflake
+      ) as FireGuild;
+      if (maybeGuild)
+        guild = await this.client
+          .fetchGuildPreview(snowflake.snowflake)
+          .catch(() => null);
       const experiments = await this.client.util.getFriendlyGuildExperiments(
         snowflake.snowflake,
-        this.client.guilds.cache.get(snowflake.snowflake) as FireGuild
+        guild
       );
       if (experiments.length)
         embed.addField(

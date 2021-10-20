@@ -46,11 +46,24 @@ export default class NitroPerks extends Command {
     const ign: string = args.ign.match[0];
     const hasAlready = await essentialModule.getUUID(message.author);
     if (hasAlready) {
+      this.client.console.warn(
+        `[Essential] User ${message.author} (${message.author.id}) is requesting the booster cosmetic on ${ign} but already has them on ${hasAlready}, attempting to remove...`
+      );
       const successOld = await essentialModule.removeNitroCosmetic(
         message.author
       );
-      if (!successOld) return await message.error();
+      successOld == true
+        ? this.client.console.info(
+            `[Essential] Successfully removed cosmetic from ${hasAlready}!`
+          )
+        : this.client.console.error(
+            `[Essential] Failed to remove cosmetic from ${hasAlready}!`
+          );
+      if (successOld != true) return await message.error();
     }
+    this.client.console.info(
+      `[Essential] User ${message.author} (${message.author.id}) is requesting the booster cosmetic on ${ign}`
+    );
     const success = await essentialModule.giveNitroCosmetic(
       message.author,
       ign
