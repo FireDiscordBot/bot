@@ -132,6 +132,25 @@ CREATE TABLE public.essential (
 ALTER TABLE public.essential OWNER TO postgres;
 
 --
+-- Name: experimentfilters; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.experimentfilters (
+    id bigint NOT NULL,
+    bucket integer NOT NULL,
+    features text[],
+    min_range integer,
+    max_range integer,
+    min_members integer,
+    max_members integer,
+    min_id bigint,
+    max_id bigint
+);
+
+
+ALTER TABLE public.experimentfilters OWNER TO postgres;
+
+--
 -- Name: experiments; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -140,7 +159,8 @@ CREATE TABLE public.experiments (
     kind text NOT NULL,
     label text NOT NULL,
     buckets integer[],
-    data json
+    data json,
+    active boolean DEFAULT true
 );
 
 
@@ -449,6 +469,14 @@ ALTER TABLE ONLY public.statushooks
 
 
 --
+-- Name: experiments unique_id; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.experiments
+    ADD CONSTRAINT unique_id UNIQUE (id, label);
+
+
+--
 -- Name: invrole unique_inv; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -463,6 +491,106 @@ ALTER TABLE ONLY public.invrole
 ALTER TABLE ONLY public.vcroles
     ADD CONSTRAINT vcroles_cid_key UNIQUE (cid);
 
+
+--
+-- Name: TABLE aliases; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.aliases TO grafana;
+
+
+--
+-- Name: TABLE blacklist; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.blacklist TO grafana;
+
+
+--
+-- Name: TABLE guildconfig; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.guildconfig TO grafana;
+
+
+--
+-- Name: TABLE invrole; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.invrole TO grafana;
+
+
+--
+-- Name: TABLE modlogs; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.modlogs TO grafana;
+
+
+--
+-- Name: TABLE mutes; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.mutes TO grafana;
+
+
+--
+-- Name: TABLE premium; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.premium TO grafana;
+
+
+--
+-- Name: TABLE reactrole; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.reactrole TO grafana;
+
+
+--
+-- Name: TABLE referrals; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.referrals TO grafana;
+
+
+--
+-- Name: TABLE remind; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.remind TO grafana;
+
+
+--
+-- Name: TABLE rolepersists; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.rolepersists TO grafana;
+
+
+--
+-- Name: TABLE tags; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.tags TO grafana;
+
+
+--
+-- Name: TABLE vanity; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.vanity TO grafana;
+
+
+--
+-- Name: TABLE vanitybl; Type: ACL; Schema: public; Owner: postgres
+--
+
+GRANT SELECT ON TABLE public.vanitybl TO grafana;
+
+
 --
 -- PostgreSQL database dump complete
 --
+
