@@ -364,8 +364,8 @@ export class FireMessage extends Message {
     return await hook
       .send({
         content: content.length ? content : null,
-        username: this.author.toString().replace(/#0000/gim, ""),
-        avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
+        username: `${this.member.nickname} (${this.author.toString().replace(/#0000/gim, "")})`,
+        avatarURL: this.member.displayAvatarURL({ size: 2048, format: "png" }),
         embeds: this.embeds.filter(
           (embed) =>
             !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
@@ -434,8 +434,8 @@ export class FireMessage extends Message {
       .setColor(this.member?.displayColor || quoter.displayColor)
       .setTimestamp(this.createdAt)
       .setAuthor(
-        this.author.toString(),
-        this.author.displayAvatarURL({
+        `${this.member.nickname} (${this.author.toString()})`,
+        this.member.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
