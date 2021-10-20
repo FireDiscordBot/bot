@@ -422,7 +422,7 @@
   ],
   "EMBED_COMMAND_DESCRIPTION": "Send a custom embed to a channel with a haste link containing an embed",
   "EMBED_MISSING_PERMISSIONS": "You must have the `Manage Messages` permission in the channel you wish to send an embed in if a channel is provided",
-  "EMBED_OBJECT_INVALID": "That doesn't seem to be a valid embed, try using https://gaminggeek.dev/embed-visualizer to generate an embed",
+  "EMBED_OBJECT_INVALID": "That doesn't seem to be a valid embed, try using <https://inv.wtf/embedviz> to generate an embed",
   "EMOJILOCK_COMMAND_DESCRIPTION": "Lock an emoji to specific roles",
   "EMOJI_COMMAND_DESCRIPTION": "Upload an emoji to your server, useful for mobile users",
   "EMOJI_INVALID": "You must provide an emoji to upload. This can be an existing emoji, emoji URL or an attached image.",
