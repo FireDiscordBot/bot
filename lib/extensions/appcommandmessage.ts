@@ -197,16 +197,18 @@ export class ApplicationCommandMessage {
   }
 
   async generateContent() {
+    // thiss has any types and I don't like it but in feature/better-slash-commands this isn't necessary so whatever
+    // it's fine for now
     let content = `/${this.command.id} `;
     if (this.command.args?.length && this.slashCommand.options?.data.length) {
       const commandArgs = this.command.args as ArgumentOptions[];
       const argNames = this.slashCommand.options.data.map((opt) => opt.name);
       const sortedArgs = Object.values(this.slashCommand.options.data).sort(
-        (a, b) =>
+        (a: any, b: any) =>
           argNames.indexOf(a.name.toLowerCase()) -
           argNames.indexOf(b.name.toLowerCase())
       );
-      let args = sortedArgs.map((opt) => {
+      let args = sortedArgs.map((opt: any) => {
         if (
           commandArgs.find(
             (arg) => arg.id == opt.name && arg.flag && arg.match == "flag"

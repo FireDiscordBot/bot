@@ -216,16 +216,20 @@ export default class MCLogs extends Module {
         setName: function () {
           return this;
         },
+        setDescription: function () {
+          return this;
+        },
         toJSON: () => {
           return {};
         },
-        setSpoiler: function (spoiler?: boolean) {
+        setSpoiler: function () {
           return this;
         },
         contentType: "text/plain; charset=utf-8",
         name: "message.txt",
         ephemeral: true,
         id: message.id,
+        description: "",
         attachment: "",
         spoiler: false,
         proxyURL: url,

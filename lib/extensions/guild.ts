@@ -3,8 +3,8 @@ import {
   GuildAuditLogsFetchOptions,
   PermissionResolvable,
   MessageEmbedOptions,
-  FetchOwnerOptions,
   MessageAttachment,
+  BaseFetchOptions,
   MessageActionRow,
   CategoryChannel,
   GuildAuditLogs,
@@ -148,7 +148,7 @@ export class FireGuild extends Guild {
     super._patch(data);
   }
 
-  fetchOwner(options?: FetchOwnerOptions) {
+  fetchOwner(options?: BaseFetchOptions) {
     return super.fetchOwner(options) as Promise<FireMember>;
   }
 
