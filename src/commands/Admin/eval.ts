@@ -247,11 +247,10 @@ export default class Eval extends Command {
       success = false;
     }
 
-    if (result instanceof MessageAttachment || result instanceof MessageEmbed) {
+    if (result instanceof MessageEmbed) {
       try {
         await message.channel.send({
-          embeds: result instanceof MessageEmbed ? [result] : null,
-          files: result instanceof MessageAttachment ? [result] : null,
+          embeds: [result],
         });
         return { success: true, type, result: null };
       } catch {
