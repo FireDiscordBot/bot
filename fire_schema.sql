@@ -17,14 +17,14 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -490,105 +490,6 @@ ALTER TABLE ONLY public.invrole
 
 ALTER TABLE ONLY public.vcroles
     ADD CONSTRAINT vcroles_cid_key UNIQUE (cid);
-
-
---
--- Name: TABLE aliases; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.aliases TO grafana;
-
-
---
--- Name: TABLE blacklist; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.blacklist TO grafana;
-
-
---
--- Name: TABLE guildconfig; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.guildconfig TO grafana;
-
-
---
--- Name: TABLE invrole; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.invrole TO grafana;
-
-
---
--- Name: TABLE modlogs; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.modlogs TO grafana;
-
-
---
--- Name: TABLE mutes; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.mutes TO grafana;
-
-
---
--- Name: TABLE premium; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.premium TO grafana;
-
-
---
--- Name: TABLE reactrole; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.reactrole TO grafana;
-
-
---
--- Name: TABLE referrals; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.referrals TO grafana;
-
-
---
--- Name: TABLE remind; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.remind TO grafana;
-
-
---
--- Name: TABLE rolepersists; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.rolepersists TO grafana;
-
-
---
--- Name: TABLE tags; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.tags TO grafana;
-
-
---
--- Name: TABLE vanity; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.vanity TO grafana;
-
-
---
--- Name: TABLE vanitybl; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.vanitybl TO grafana;
-
 
 --
 -- PostgreSQL database dump complete
