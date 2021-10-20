@@ -30,7 +30,6 @@
   "dependencies": {
     "@aero/ksoft": "^3.1.8",
     "@aero/sanitizer": "^1.2.0",
-    "@klasa/type": "^0.0.1",
     "@sapphire/async-queue": "^1.1.2",
     "@sentry/node": "^6.0.2",
     "@skyra/timestamp": "^1.0.0",
@@ -42,7 +41,6 @@
     "discord.js": "FireDiscordBot/discord.js",
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^9.2.2",
-    "erlpack": "discord/erlpack",
     "fuzzball": "^1.3.0",
     "humanize-duration": "^3.23.1",
     "i18next": "^20.3.2",

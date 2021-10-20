@@ -11,7 +11,6 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
-import { Type } from "@klasa/type";
 import { inspect } from "util";
 
 const { emojis } = constants;
@@ -212,7 +211,7 @@ export default class Eval extends Command {
       content = lines.join("\n");
     }
     let success: boolean, result: any;
-    let type: Type;
+    let type: string = "void";
     try {
       setTimeout(async () => {
         if (typeof success == "undefined") await message.react("▶️");
@@ -239,10 +238,10 @@ export default class Eval extends Command {
       if (this.client.util.isPromise(result)) {
         result = await result;
       }
-      type = new Type(result);
+      type = result?.constructor.name ?? typeof result;
       success = !(result instanceof Error);
     } catch (error) {
-      if (!type) type = new Type(error);
+      if (!type) type = error.constructor.name;
       result = error;
       success = false;
     }
