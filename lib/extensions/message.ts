@@ -400,8 +400,8 @@ export class FireMessage extends Message {
       !embed.author &&
       !embed.footer &&
       (embed.url == embed.thumbnail.url ||
-        (embedURL?.host.includes("imgur.com") &&
-          thumbURL?.host.includes("i.imgur.com")))
+        (embedURL?.host == "imgur.com" &&
+          thumbURL?.host == "i.imgur.com"))
     );
   }
 
