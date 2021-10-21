@@ -6,6 +6,7 @@ import {
   Flag,
 } from "discord-akairo";
 import {
+  CommandOptionDataTypeResolvable,
   ApplicationCommandOptionData,
   ApplicationCommandData,
   ApplicationCommand,
@@ -13,7 +14,7 @@ import {
   Permissions,
   Snowflake,
 } from "discord.js";
-import { ApplicationCommandOptionType } from "discord-api-types";
+import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 import { FireGuild } from "../extensions/guild";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
@@ -204,9 +205,10 @@ export class Command extends AkairoCommand {
     const type =
       (Object.keys(slashCommandTypeMappings).find((type) =>
         slashCommandTypeMappings[type].includes(argument.type)
-      ) as unknown as ApplicationCommandOptionType) || "STRING";
+      ) as CommandOptionDataTypeResolvable) ||
+      ApplicationCommandOptionTypes.STRING;
     let options: ApplicationCommandOptionData = {
-      type: type as keyof typeof ApplicationCommandOptionType,
+      type,
       name: (argument.slashCommandType
         ? argument.slashCommandType
         : argument.readableType.split("|")[0]
@@ -236,7 +238,7 @@ export class Command extends AkairoCommand {
       options["choices"] = choices;
     } else if (argument.flag && argument.match == "flag") {
       options["name"] = argument.id.toLowerCase();
-      options["type"] = "BOOLEAN";
+      options["type"] = ApplicationCommandOptionTypes.BOOLEAN;
     } else if (argument.flag && argument.match == "option") {
       options["name"] = argument.id.toLowerCase();
     }
@@ -251,7 +253,7 @@ export class Command extends AkairoCommand {
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
           : this.description || "No Description Provided",
-      type: ApplicationCommandOptionType.SUB_COMMAND,
+      type: ApplicationCommandOptionTypes.SUB_COMMAND,
     };
     if (this.args?.length)
       data["options"] = [
