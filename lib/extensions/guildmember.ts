@@ -713,22 +713,24 @@ export class FireMember extends GuildMember {
     }
     await this.guild.modLog(embed, "mute").catch(() => {});
     if (channel)
-      return await (useEdit && channel instanceof BaseFakeChannel
-        ? channel.message.edit
-        : channel.send)({
-        content: dbadd
-          ? this.guild.language.getSuccess("MUTE_SUCCESS", {
-              user: Util.escapeMarkdown(this.toString()),
-            })
-          : this.guild.language.getWarning("MUTE_SEMI_SUCCESS", {
-              user: Util.escapeMarkdown(this.toString()),
-            }),
-        embeds:
-          channel instanceof BaseFakeChannel ||
-          moderator.id == this.client.user?.id
-            ? []
-            : this.client.util.getModCommandSlashWarning(this.guild),
-      }).catch(() => {});
+      return await channel
+        .send({
+          content: dbadd
+            ? this.guild.language.getSuccess("MUTE_SUCCESS", {
+                user: Util.escapeMarkdown(this.toString()),
+              })
+            : this.guild.language.getWarning("MUTE_SEMI_SUCCESS", {
+                user: Util.escapeMarkdown(this.toString()),
+              }),
+          embeds:
+            channel instanceof BaseFakeChannel ||
+            moderator.id == this.client.user?.id
+              ? []
+              : this.client.util.getModCommandSlashWarning(this.guild),
+        })
+        .catch((e) => {
+          console.log(e.stack);
+        });
   }
 
   async unmute(
