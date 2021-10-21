@@ -6,6 +6,7 @@ import {
   Flag,
 } from "discord-akairo";
 import {
+  CommandOptionDataTypeResolvable,
   ApplicationCommandOptionData,
   ApplicationCommandData,
   ApplicationCommand,
@@ -16,13 +17,14 @@ import {
 } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ApplicationCommandOptionType } from "discord-api-types";
+import { FireMember } from "../extensions/guildmember";
+import { FireMessage } from "../extensions/message";
 import { Option } from "../interfaces/interactions";
 import { FireGuild } from "../extensions/guild";
+import { FireUser } from "../extensions/user";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
-import { FireMessage } from "../extensions/message";
-import { FireMember } from "../extensions/guildmember";
-import { FireUser } from "../extensions/user";
+import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 
 type ArgumentGenerator = (
   ...a: Parameters<AkairoArgumentGenerator>
@@ -241,9 +243,10 @@ export class Command extends AkairoCommand {
     const type =
       (Object.keys(slashCommandTypeMappings).find((type) =>
         slashCommandTypeMappings[type].includes(argument.type)
-      ) as unknown as ApplicationCommandOptionType) || "STRING";
+      ) as CommandOptionDataTypeResolvable) ||
+      ApplicationCommandOptionTypes.STRING;
     let options: ApplicationCommandOptionData = {
-      type: type as keyof typeof ApplicationCommandOptionType,
+      type,
       name: this.getSlashCommandArgName(argument),
       description:
         typeof argument.description == "function"
@@ -268,7 +271,7 @@ export class Command extends AkairoCommand {
       options["choices"] = choices;
     } else if (argument.flag && argument.match == "flag") {
       options["name"] = argument.id.toLowerCase();
-      options["type"] = "BOOLEAN";
+      options["type"] = ApplicationCommandOptionTypes.BOOLEAN;
     } else if (argument.flag && argument.match == "option") {
       options["name"] = argument.id.toLowerCase();
     }
@@ -283,7 +286,7 @@ export class Command extends AkairoCommand {
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
           : this.description || "No Description Provided",
-      type: ApplicationCommandOptionType.SUB_COMMAND,
+      type: ApplicationCommandOptionTypes.SUB_COMMAND,
     };
     if (this.args?.length)
       data["options"] = [
