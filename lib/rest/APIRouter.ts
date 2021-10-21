@@ -12,6 +12,7 @@ const reflectors = [
 ];
 
 export interface RequestOptions {
+  dontUsePayloadJSON?: boolean;
   query?:
     | string[][]
     | Record<string, string | number | boolean>
