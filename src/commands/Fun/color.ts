@@ -54,7 +54,7 @@ export default class Color extends Command {
       "COLOR_HEADING",
       { color: color.toName() || color.toHexString() }
     )}
-    
+
 **HEX:** ${color.toHexString()}
 **RGB:** ${color.toRgbString()}
 **HSL:** ${color.toHslString()}
@@ -73,6 +73,12 @@ export default class Color extends Command {
         image.body,
         `${color.toHex()}.png`
       );
+      if (color.toName())
+        attachment.setDescription(
+          (message.guild ?? message).language.get("COLOR_IMAGE_ALT", {
+            color: color.toName(),
+          })
+        );
       return await message.channel.send({
         content: colorInfo,
         files: [attachment],
