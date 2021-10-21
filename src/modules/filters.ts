@@ -153,6 +153,10 @@ export default class Filters extends Module {
                 .map((embed) => JSON.stringify(embed.toJSON()))
                 .join(" ") +
               " " +
+              message.attachments
+                .map((attachment) => attachment.description)
+                .join(" ") +
+              " " +
               extra
       )) != null
     ) {
@@ -265,11 +269,17 @@ export default class Filters extends Module {
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
+      " " +
       extra;
     const noExtra =
       message.content +
       " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ");
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      message.attachments.map((attachment) => attachment.description).join(" ");
     let found: RegExpExecArray[] = [];
     let invites: string[] = [];
     let regexec: RegExpExecArray;
@@ -467,6 +477,10 @@ export default class Filters extends Module {
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
+      " " +
       extra;
     const match = regexes.paypal.exec(sanitizer(searchString));
     if (!match) return;
@@ -497,6 +511,10 @@ export default class Filters extends Module {
       message.content +
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
       " " +
       extra;
     const match = regexes.youtube.video.exec(sanitizer(searchString));
@@ -579,6 +597,10 @@ export default class Filters extends Module {
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
+      " " +
       extra
     ).replace(regexes.youtube.video, "[ youtube video ]"); // prevents videos being matched
     const match = regexes.youtube.channel.exec(sanitizer(searchString));
@@ -652,6 +674,10 @@ export default class Filters extends Module {
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
+      " " +
       extra;
     const clipMatch = regexes.twitch.clip.exec(sanitizer(searchString));
     const channelMatch = regexes.twitch.channel.exec(sanitizer(searchString));
@@ -687,6 +713,10 @@ export default class Filters extends Module {
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
+      " " +
       extra;
     const match = regexes.twitter.exec(sanitizer(searchString));
     if (!match) return;
@@ -717,6 +747,10 @@ export default class Filters extends Module {
       message.content +
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
       " " +
       extra;
     const match = this.shortURLRegex.exec(sanitizer(searchString));
