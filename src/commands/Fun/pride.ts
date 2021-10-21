@@ -76,7 +76,20 @@ export default class Pride extends Command {
       .query("image", user.displayAvatarURL({ size: 1024, format: "png" }))
       .send();
 
-    const attachment = new MessageAttachment(prideReq.body, "avatar.png");
+    const attachment = new MessageAttachment(
+      prideReq.body,
+      "avatar.png"
+    ).setDescription(
+      overlay
+        ? (message.guild ?? message).language.get("PRIDE_IMAGE_ALT_OVERLAY", {
+            user: message.author.username,
+            flag: args.flag ?? "transgender",
+          })
+        : (message.guild ?? message).language.get("PRIDE_IMAGE_ALT_CIRCLE", {
+            user: message.author.username,
+            flag: args.flag ?? "transgender",
+          })
+    );
     return await message.channel.send({ files: [attachment] });
   }
 }

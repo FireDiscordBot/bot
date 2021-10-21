@@ -16,6 +16,7 @@ import {
   DMChannel,
   Webhook,
   Message,
+  MessageAttachment,
 } from "discord.js";
 import {
   GuildTextChannel,
@@ -334,7 +335,11 @@ export class FireMessage extends Message {
           content = content.replace(channel.toString(), `#${channel.name}`);
       if (content.length > 2000) return "QUOTE_PREMIUM_INCREASED_LENGTH";
     }
-    let attachments: { attachment: Buffer; name: string }[] = [];
+    let attachments: {
+      attachment: Buffer;
+      name: string;
+      description?: string;
+    }[] = [];
     if (
       ((destination instanceof FireTextChannel ||
         destination instanceof NewsChannel) &&
@@ -347,7 +352,10 @@ export class FireMessage extends Message {
       ) &&
         (BigInt(destination.permissions) & 32768n) == 32768n)
     ) {
-      const names = this.attachments.map((attach) => attach.name);
+      const info = this.attachments.map((attach) => ({
+        name: attach.name,
+        description: attach.description,
+      }));
       const attachReqs = await Promise.all(
         this.attachments.map((attachment) =>
           centra(attachment.url)
@@ -358,7 +366,11 @@ export class FireMessage extends Message {
       ).catch(() => []);
       for (const [index, req] of attachReqs.entries()) {
         if (req && req.statusCode == 200)
-          attachments.push({ attachment: req.body, name: names[index] });
+          attachments.push({
+            attachment: req.body,
+            name: info[index].name,
+            description: info[index].description,
+          });
       }
     }
     const member =
@@ -383,12 +395,16 @@ export class FireMessage extends Message {
           (embed) =>
             !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
         ),
-        files: attachments,
+        files: attachments.map((data) =>
+          new MessageAttachment(data.attachment, data.name).setDescription(
+            data.description
+          )
+        ),
         allowedMentions: this.client.options.allowedMentions,
         threadId: thread?.id,
         components: this.components,
       })
-      .catch(async (e) => {
+      .catch(async () => {
         // this will ensure deleted webhooks are deleted
         // but also allow webhooks to be refreshed
         // even if the cached one still exists
