@@ -154,7 +154,7 @@ These instructions are designed for the official launcher so if you're using a t
         this.ticketChannel,
         category
       );
-    } else if (type == "ICE") {
+    } else if (type == "ice") {
       const category = this.guild.channels.cache.get(
         "880170184931934328"
       ) as CategoryChannel;
@@ -219,7 +219,7 @@ These instructions are designed for the official launcher so if you're using a t
     });
   }
 
-  async supportHandleICE(button: ComponentMessage) {
+  async supportHandleIce(button: ComponentMessage) {
     const actions = [
       new MessageButton()
         .setStyle("SECONDARY")
