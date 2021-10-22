@@ -303,7 +303,7 @@ export class PaginatorInterface {
       this.message = await message.getRealMessage();
     } else this.message = message as FireMessage;
     if (!this.message) return;
-    this.message.paginator = this;
+    this.bot.util.paginators.set(this.message.id, this);
 
     if (!this.ready) this.ready = true;
 
