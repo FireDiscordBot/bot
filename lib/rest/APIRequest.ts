@@ -67,7 +67,7 @@ export class APIRequest {
       body = new FormData();
       for (const [index, file] of this.options.files.entries())
         if (file && file.file)
-          body.append(`files[${index}]`, file.file, file.name);
+          body.append(file.key ?? `files[${index}]`, file.file, file.name);
       if (typeof this.options.data !== "undefined") {
         if (this.options.dontUsePayloadJSON) {
           for (const [key, value] of Object.entries(this.options.data))
