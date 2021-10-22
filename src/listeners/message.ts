@@ -229,7 +229,8 @@ export default class Message extends Listener {
 
     let toSearch = (
       message.content +
-      message.embeds.map((embed) => JSON.stringify(embed)).join(" ")
+      message.embeds.map((embed) => JSON.stringify(embed)).join(" ") +
+      message.attachments.map((attachment) => attachment.description).join(" ")
     ).replace(tokenExtras, "");
     if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN) {
       this.tokenRegex.lastIndex = 0;
