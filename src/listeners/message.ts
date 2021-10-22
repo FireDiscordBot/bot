@@ -115,7 +115,10 @@ export default class Message extends Listener {
     if (message.type == "CHANNEL_PINNED_MESSAGE")
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
-    const lowerContent = message.content.toLowerCase().replace(/\s/gim, "");
+    const lowerContent = message.content
+      .toLowerCase()
+      .replace(/\s/gim, "")
+      .replace(regexes.zws, "");
     if (
       message.guild?.hasExperiment(936071411, 1) &&
       ((lowerContent.includes("@everyone") &&
