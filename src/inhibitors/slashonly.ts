@@ -19,6 +19,7 @@ export default class SlashOnlyInhibitor extends Inhibitor {
   ) {
     if (process.env.USE_LITECORD == "true") return false;
     if (command.slashOnly && message instanceof FireMessage) return true;
+    if (message.hasExperiment(93659956, 1)) return false;
     if (message.util?.parsed && message.util.parsed.prefix != "/")
       message.util.parsed.prefix = "/";
     return false;

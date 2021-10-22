@@ -56,6 +56,9 @@ export class CommandHandler extends AkairoCommandHandler {
     )
       return false;
 
+    if (!message.content && message.hasExperiment(3901360561, 1))
+      message.content = message.attachments.first()?.description ?? message.content;
+
     try {
       if (this.fetchMembers && message.guild && !message.member)
         await message.guild.members.fetch(message.author);
