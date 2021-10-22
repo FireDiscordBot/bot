@@ -146,12 +146,7 @@ export default class Eval extends Command {
         )
       );
     }
-    if (
-      (success && result == null) ||
-      type.toString() == "void" ||
-      type.toString() == "Promise<void>"
-    )
-      return;
+    if ((success && result == null) || result == "undefined") return;
     const input = codeBlock(args.code.language || "ts", args.code.content);
     const embed = new MessageEmbed()
       .setTitle(
@@ -167,7 +162,7 @@ export default class Eval extends Command {
     embed.setFooter(`Cluster ID: ${this.client.manager.id}`);
     if (embed.description == "fuck") embed.description = null;
     if (result.length > 1014) {
-      const paginator = new WrappedPaginator("```js", "```", 1200);
+      const paginator = new WrappedPaginator("```js", "```", 1500);
       result.split("\n").forEach((line: string) => paginator.addLine(line));
       const paginatorEmbed = new MessageEmbed().setColor(
         success ? message.member?.displayColor : "#ef5350"
