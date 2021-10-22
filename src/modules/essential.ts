@@ -3,25 +3,19 @@ import {
   CategoryChannel,
   MessageButton,
   Snowflake,
+  Channel,
 } from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Module } from "@fire/lib/util/module";
 
-const supportCrashMessage = `Alright, you'll need to provide a log for us to diagnose the cause of the crash. You can find instructions below on how to find the log.
-If you're using a third party launcher, these instructions may not work and you'll have to consult a guide for that specific launcher.
+const supportCrashMessage = `Alright, you'll need to provide a log for us to diagnose the cause of the crash. You will be given instructions when the ticket is opened.
+These instructions may not work if you're using a third-party launcher, you may need to consult a guide for that specific launcher.
 
-**Windows:** Hit Windows Key + R and type in \`%appdata%\`. Open the \`.minecraft\` folder.
-**Mac:** On the bar at the top of your screen in Finder, click \`Go\`, then click \`Go to Folder\` and type \`~/Library/Application Support/Minecraft\`, then hit enter.
-**Linux:** \`.minecraft\` is located in your home folder. \`~/.minecraft\`
-
-**If you used the Essential installer and chose to create a new profile, you'll need to open the \`essential_version\` folder (e.g. \`essential_1.17.1\`) in \`.minecraft\` before continuing**
-
-Then proceed with navigating to the folder called \`logs\`. Inside that folder there is a file called \`latest\` or \`latest.log\`.
-
-Once you have found this file, hit the green button below to continue or the red button to cancel.`;
+Hit the thumbs up button below to continue or the thumbs down button to cancel.`;
 
 const supportBugMessage = `Bugs can be nasty and require a good amount of information to squash. Below is a list of everything you should have ready to provide but don't worry if you can't get them all...
 
@@ -29,20 +23,29 @@ const supportBugMessage = `Bugs can be nasty and require a good amount of inform
 - Steps to Reproduce (What do you need to do for the bug to happen?)
 - Latest Log
 
-When you're ready, hit the green button below to continue or the red button to cancel.`;
+When you're ready, hit the thumbs up button below to continue or the thumbs down button to cancel.`;
 
 const supportQuestionMessage = `We (probably) have the answer to your question but we'll need as much detail as you can give.
 
 Firstly, you should check our [support page](<https://essential.gg/support>) to see if your question is answered there!
 
-If our support page didn't answer your question, hit the green button below to continue or the red button to cancel.`;
+If our support page didn't answer your question, hit the thumbs up button below to continue or the thumbs down button to cancel.`;
+
+const supportICEMessage = `Essential's Invite Friends feature is cool but it can't work in all situations.
+
+If you're hosting the world, you'll need a decent PC and plenty of free RAM/CPU available for it to use. Checking these values while hosting and letting us know may help us help you.
+
+Both players will also need a decent internet connection. If your connection isn't too stable, you may experience some issues such as falling into the void and timing out.
+Lowering your render distance can sometimes help if you're timing out so give that a try!
+
+If you're trying to play with a big modpack, it's important to note that some mods weren't designed to be used with Open to LAN (and therefore inviting friends with Esssential) so `
 
 const supportOtherMessage = `No worries! We can't list every possible issue.
 
 Make sure you have all the details about the issue ready to provide to the support team.
 While we're usually quick to respond, issues outside of the ones listed may take a bit more time to get an answer...
 
-When you're ready, hit the green button below to continue or the red button to cancel.`;
+When you're ready, hit the thumbs up button below to continue or the thumbs down button to cancel.`;
 
 export default class Essential extends Module {
   ticketChannel: FireTextChannel;
@@ -90,51 +93,54 @@ export default class Essential extends Module {
         this.ticketChannel,
         category
       );
-    } else if (type == "purchase") {
-      const category = this.guild.channels.cache.get(
-        "880170235397828650"
-      ) as CategoryChannel;
-      if (!category) return "no category";
-      return await this.guild.createTicket(
-        member,
-        "Purchase Support",
-        this.ticketChannel,
-        category
-      );
-    } else if (type == "bug") {
-      const category = this.guild.channels.cache.get(
-        "880170285259686018"
-      ) as CategoryChannel;
-      if (!category) return "no category";
-      return await this.guild.createTicket(
-        member,
-        "Bug Report",
-        this.ticketChannel,
-        category
-      );
-    } else if (type == "nufcrash") {
+    } else if (type == "crash") {
       const category = this.guild.channels.cache.get(
         "880170184931934328"
       ) as CategoryChannel;
       if (!category) return "no category";
-      return await this.guild.createTicket(
+      const ticket = await this.guild.createTicket(
         member,
         "My game is crashing <:crashwoah:895747752443666442>",
         this.ticketChannel,
         category
       );
-    } else if (type == "nufbug") {
+      if (ticket instanceof Channel) {
+        if (!this.guild.tags) {
+          this.guild.tags = new GuildTagManager(this.client, this.guild);
+          await this.guild.tags.init();
+        }
+        const manager = this.guild.tags;
+        const cachedTag = await manager.getTag("latestlog");
+        if (!cachedTag) return ticket;
+        await manager.useTag(cachedTag.name);
+        await ticket.send({ content: cachedTag.content }).catch(() => {});
+      }
+      return ticket;
+    } else if (type == "bug") {
       const category = this.guild.channels.cache.get(
         "880170184931934328"
       ) as CategoryChannel;
       if (!category) return "no category";
-      return await this.guild.createTicket(
+      const ticket = await this.guild.createTicket(
         member,
         "I found a bug that needs to be squashed 🐛",
         this.ticketChannel,
         category
       );
-    } else if (type == "nufenquiry") {
+      if (ticket instanceof Channel)
+        await ticket
+          .send(
+            `Here's a reminder of the information you'll need to send
+
+- Versions (Minecraft version, Operating System version and if you can find it, Essential version)
+- Steps to Reproduce (What do you need to do for the bug to happen?)
+- Latest Log
+
+You can run \`/latestlog\` for instructions on how to find your log.
+These instructions are designed for the official launcher so if you're using a third-party launcher, you may need to consult a guide for that specific launcher.`
+          )
+          .catch(() => {});
+    } else if (type == "enquiry") {
       const category = this.guild.channels.cache.get(
         "880170184931934328"
       ) as CategoryChannel;
@@ -153,7 +159,7 @@ export default class Essential extends Module {
       new MessageButton()
         .setStyle("SECONDARY")
         .setEmoji("👍")
-        .setCustomId("essential_confirm_nufcrash"),
+        .setCustomId("essential_confirm_crash"),
       new MessageButton()
         .setEmoji("👎")
         .setStyle("SECONDARY")
@@ -170,7 +176,7 @@ export default class Essential extends Module {
       new MessageButton()
         .setStyle("SECONDARY")
         .setEmoji("👍")
-        .setCustomId("essential_confirm_nufbug"),
+        .setCustomId("essential_confirm_bug"),
       new MessageButton()
         .setEmoji("👎")
         .setStyle("SECONDARY")
@@ -187,7 +193,7 @@ export default class Essential extends Module {
       new MessageButton()
         .setStyle("SECONDARY")
         .setEmoji("👍")
-        .setCustomId("essential_confirm_nufenquiry"),
+        .setCustomId("essential_confirm_enquiry"),
       new MessageButton()
         .setEmoji("👎")
         .setStyle("SECONDARY")

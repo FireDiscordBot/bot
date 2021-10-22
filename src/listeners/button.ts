@@ -49,25 +49,7 @@ const sk1erTypeToEmoji = {
   bug: "🐛",
 };
 
-const validEssentialTypes = [
-  "general",
-  "purchase",
-  "bug",
-  "nufcrash",
-  "nufbug",
-  "nufenquiry",
-  "nuf",
-];
-const essentialTypeToEmoji = {
-  general: "🖥️",
-  purchase: "💸",
-  bug: "🐛",
-  // NUF types don't have emojis
-  nufcrash: "",
-  nufbug: "",
-  nufenquiry: "",
-  nuf: "",
-};
+const validEssentialTypes = ["crash", "bug", "enquiry", "general"];
 
 export default class Button extends Listener {
   constructor() {
@@ -617,110 +599,38 @@ export default class Button extends Listener {
 
       if (!message) return "no message";
 
-      // NUF experiment
-      if (button.hasExperiment(69538346, 1)) {
-        const choices = [
-          new MessageButton()
-            .setCustomId("essentialsupport:crash")
-            .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_CRASH"))
-            .setStyle("DANGER"),
-          // .setEmoji("895747752443666442"),
-          new MessageButton()
-            .setCustomId("essentialsupport:bug")
-            .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_BUG"))
-            .setStyle("DANGER"),
-          // .setEmoji("🐛"),
-          new MessageButton()
-            .setCustomId("essentialsupport:enquiry")
-            .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ENQUIRY"))
-            .setStyle("PRIMARY"),
-          // .setEmoji("❓"),
-          new MessageButton()
-            .setCustomId("essentialsupport:other")
-            .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
-            .setStyle("PRIMARY"),
-          // .setEmoji("785860532041285673"),
-        ];
-        button.flags += 64;
-        return await button.edit({
-          content: button.language.get("ESSENTIAL_SUPPORT_CHOOSE_ISSUE"),
-          components: [new MessageActionRow().addComponents(choices)],
-        });
-      }
-
-      const component = message.components
-        ?.map((component) =>
-          component.type == "ACTION_ROW" || component.type == 1
-            ? component?.components ?? component
-            : component
-        )
-        .flat()
-        .find(
-          (component) =>
-            component.type == "BUTTON" &&
-            component.style != "LINK" &&
-            (component.customId == button.customId ||
-              component.customId.slice(1) == button.customId)
-        );
-      if (component?.type != "BUTTON" || component?.style == "LINK")
-        return "non button";
-      if (!component.emoji) return "unknown emoji";
-      const emoji =
-        typeof component.emoji == "string"
-          ? component.emoji
-          : component.emoji.name;
-
-      button.flags += 64; // set ephemeral
-      const confirmButton = new MessageButton()
-        .setCustomId(`essential_confirm_${type}`)
-        .setStyle("SUCCESS")
-        .setEmoji(emoji)
-        .setDisabled(true);
-      const deleteSnowflake = SnowflakeUtil.generate();
-      const deleteButton = new MessageButton()
-        .setEmoji("534174796938870792")
-        .setStyle("DANGER")
-        .setCustomId(deleteSnowflake);
-      this.client.buttonHandlersOnce.set(deleteSnowflake, () => {
-        button
-          .edit({
-            content: button.language.get("INTERACTION_CANCELLED"),
-            components: [],
-          })
-          .catch(() => {});
+      const choices = [
+        new MessageButton()
+          .setCustomId("essentialsupport:crash")
+          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_CRASH"))
+          .setStyle("DANGER"),
+        // .setEmoji("895747752443666442"),
+        new MessageButton()
+          .setCustomId("essentialsupport:bug")
+          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_BUG"))
+          .setStyle("DANGER"),
+        // .setEmoji("🐛"),
+        new MessageButton()
+          .setCustomId("essentialsupport:enquiry")
+          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ENQUIRY"))
+          .setStyle("PRIMARY"),
+        // .setEmoji("❓"),
+        new MessageButton()
+          .setCustomId("essentialsupport:other")
+          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
+          .setStyle("PRIMARY"),
+        // .setEmoji("785860532041285673"),
+      ];
+      button.flags += 64;
+      return await button.edit({
+        content: button.language.get("ESSENTIAL_SUPPORT_CHOOSE_ISSUE"),
+        components: [new MessageActionRow().addComponents(choices)],
       });
-      await button.edit({
-        content: button.language.get("ESSENTIAL_SUPPORT_CONFIRM"),
-        components: [
-          new MessageActionRow().addComponents([confirmButton, deleteButton]),
-        ],
-      });
-
-      await this.client.util.sleep(5000);
-      confirmButton.setDisabled(false);
-      // user has not clicked delete button
-      if (this.client.buttonHandlersOnce.has(deleteSnowflake))
-        await button.edit({
-          content: button.language.get("ESSENTIAL_SUPPORT_CONFIRM_EDIT"),
-          components: [
-            new MessageActionRow().addComponents([confirmButton, deleteButton]),
-          ],
-        });
     } else if (button.customId.startsWith("essential_confirm_")) {
       const type = button.customId.slice(18);
       if (!type || !validEssentialTypes.includes(type)) return;
       const essentialModule = this.client.getModule("essential") as Essential;
       if (!essentialModule) return;
-
-      // since this is an ephemeral message, it does not give us the components
-      // so we need to fake them
-      (button.message as FireMessage).components = [
-        new MessageActionRow().addComponents(
-          new MessageButton()
-            .setCustomId(button.customId)
-            .setEmoji(essentialTypeToEmoji[type])
-        ),
-      ];
 
       const ticket = await essentialModule
         .handleTicket(button, type)
@@ -775,9 +685,7 @@ export default class Button extends Listener {
             components: [],
           })
           .catch(() => {});
-    }
-
-    if (button.customId.startsWith("essentialsupport:")) {
+    } else if (button.customId.startsWith("essentialsupport:")) {
       const choice = button.customId.slice(17);
       const essentialModule = this.client.getModule("essential") as Essential;
       if (!essentialModule) return;
