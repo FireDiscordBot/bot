@@ -38,7 +38,9 @@ If you're hosting the world, you'll need a decent PC and plenty of free RAM/CPU 
 Both players will also need a decent internet connection. If your connection isn't too stable, you may experience some issues such as falling into the void and timing out.
 Lowering your render distance can sometimes help if you're timing out so give that a try!
 
-If you're trying to play with a big modpack, it's important to note that some mods weren't designed to be used with Open to LAN (and therefore inviting friends with Esssential) so `;
+If you're trying to play with a big modpack, it's important to note that some mods weren't designed to be used with Open to LAN (and therefore inviting friends with Esssential) so you may encounter isssues.
+
+When you're ready, hit the thumbs up button below to continue or the thumbs down button to cancel.`;
 
 const supportOtherMessage = `No worries! We can't list every possible issue.
 
@@ -152,6 +154,17 @@ These instructions are designed for the official launcher so if you're using a t
         this.ticketChannel,
         category
       );
+    } else if (type == "ICE") {
+      const category = this.guild.channels.cache.get(
+        "880170184931934328"
+      ) as CategoryChannel;
+      if (!category) return "no category";
+      return await this.guild.createTicket(
+        member,
+        "I need help or have encountered issues while inviting friends to a world 🧊",
+        this.ticketChannel,
+        category
+      );
     }
   }
 
@@ -202,6 +215,23 @@ These instructions are designed for the official launcher so if you're using a t
     ];
     return await button.edit({
       content: supportQuestionMessage,
+      components: [new MessageActionRow().setComponents(actions)],
+    });
+  }
+
+  async supportHandleICE(button: ComponentMessage) {
+    const actions = [
+      new MessageButton()
+        .setStyle("SECONDARY")
+        .setEmoji("👍")
+        .setCustomId("essential_confirm_ice"),
+      new MessageButton()
+        .setEmoji("👎")
+        .setStyle("SECONDARY")
+        .setCustomId("cancel_me"),
+    ];
+    return await button.edit({
+      content: supportICEMessage,
       components: [new MessageActionRow().setComponents(actions)],
     });
   }
