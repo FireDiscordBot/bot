@@ -1,15 +1,16 @@
 import {
   version as djsver,
+  LimitedCollection,
   PermissionString,
   GuildFeatures,
   ThreadChannel,
+  MessageEmbed,
   GuildPreview,
   OAuth2Guild,
   Permissions,
   Collection,
   Snowflake,
   Webhook,
-  MessageEmbed,
 } from "discord.js";
 import {
   GuildMemberCountFilter,
@@ -59,7 +60,7 @@ interface MojangProfile {
 }
 
 export class Util extends ClientUtil {
-  paginators: Collection<Snowflake, PaginatorInterface>;
+  paginators: LimitedCollection<Snowflake, PaginatorInterface>;
   loadedData: { plonked: boolean; premium: boolean };
   permissionFlags: [PermissionString, bigint][];
   premium: Collection<string, PremiumData>;
@@ -72,7 +73,14 @@ export class Util extends ClientUtil {
   constructor(client: Fire) {
     super(client);
     this.loadedData = { plonked: false, premium: false };
-    this.paginators = new Collection();
+    this.paginators = new LimitedCollection({
+      sweepFilter: () => {
+        return (paginator: PaginatorInterface) =>
+          !!paginator.message &&
+          +new Date() - paginator.lastInteraction > 150000;
+      },
+      sweepInterval: 60,
+    });
     this.uuidCache = new Collection();
     this.premium = new Collection();
     this.hasRoleUpdates = [];
@@ -321,10 +329,7 @@ export class Util extends ClientUtil {
     );
   }
 
-  cleanFeatureName(
-    feature: string,
-    language?: Language
-  ): string {
+  cleanFeatureName(feature: string, language?: Language): string {
     language = language ?? this.client.getLanguage("en-US");
     if (language.has(`FEATURES.${feature}` as LanguageKeys))
       return language.get(`FEATURES.${feature}` as LanguageKeys);
