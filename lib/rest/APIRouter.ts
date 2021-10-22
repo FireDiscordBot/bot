@@ -18,7 +18,7 @@ export interface RequestOptions {
     | Record<string, string | number | boolean>
     | string
     | URLSearchParams;
-  files?: { name: string; file: any }[];
+  files?: { name: string; key?: string; file: any }[];
   headers?: Record<string, any>;
   versioned?: boolean;
   debug?: boolean;
