@@ -43,7 +43,6 @@ const { emojis, reactions, regexes, imageExts, audioExts, videoExts } =
 export class FireMessage extends Message {
   declare channel: DMChannel | FireTextChannel | NewsChannel | ThreadChannel;
   invWtfResolved: Collection<string, { invite?: string; url?: string }>;
-  paginator?: PaginatorInterface;
   declare member: FireMember;
   declare guild: FireGuild;
   declare author: FireUser;
@@ -94,6 +93,10 @@ export class FireMessage extends Message {
         ? this.author.language
         : this.guild?.language) ?? this.client.getLanguage("en-US")
     );
+  }
+
+  get paginator() {
+    return this.client.util.paginators.get(this.id) ?? null;
   }
 
   send(key?: LanguageKeys, args?: i18nOptions) {

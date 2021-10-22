@@ -88,7 +88,7 @@ const i18n = i18next as unknown as typeof i18next.default;
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 type NonceHandler = (data: unknown) => Promise<any> | any;
 
-// Rewrite completed - 15:10 17/1/2021
+// Rewrite completed - 15:10 17/1/2021 :)
 export class Fire extends AkairoClient {
   launchTime: number;
   started: boolean;

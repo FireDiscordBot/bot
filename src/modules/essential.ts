@@ -38,7 +38,7 @@ If you're hosting the world, you'll need a decent PC and plenty of free RAM/CPU 
 Both players will also need a decent internet connection. If your connection isn't too stable, you may experience some issues such as falling into the void and timing out.
 Lowering your render distance can sometimes help if you're timing out so give that a try!
 
-If you're trying to play with a big modpack, it's important to note that some mods weren't designed to be used with Open to LAN (and therefore inviting friends with Esssential) so `
+If you're trying to play with a big modpack, it's important to note that some mods weren't designed to be used with Open to LAN (and therefore inviting friends with Esssential) so `;
 
 const supportOtherMessage = `No worries! We can't list every possible issue.
 
@@ -140,6 +140,7 @@ You can run \`/latestlog\` for instructions on how to find your log.
 These instructions are designed for the official launcher so if you're using a third-party launcher, you may need to consult a guide for that specific launcher.`
           )
           .catch(() => {});
+      return ticket;
     } else if (type == "enquiry") {
       const category = this.guild.channels.cache.get(
         "880170184931934328"

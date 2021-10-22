@@ -1,4 +1,5 @@
 import {
+  TextBasedChannels,
   MessageActionRow,
   EmojiResolvable,
   ThreadChannel,
@@ -161,7 +162,8 @@ export class PaginatorInterface {
   deleteMessage: boolean;
 
   slashMessage?: ApplicationCommandMessage;
-  message: FireMessage;
+  #channel: TextBasedChannels;
+  #messageId: string;
   _displayPage: number;
   maxPageSize: number;
 
@@ -169,6 +171,7 @@ export class PaginatorInterface {
   updateLock: Semaphore;
   closed: boolean = false;
   streaming: boolean = true;
+  lastInteraction: number = 0;
 
   buttonHandler: (button: ComponentMessage) => Promise<any>;
 
@@ -213,6 +216,7 @@ export class PaginatorInterface {
     }
 
     this.buttonHandler = async (button: ComponentMessage) => {
+      this.lastInteraction = +new Date();
       if (button.customId == "close") {
         this.closed = true;
         return (
@@ -267,6 +271,15 @@ export class PaginatorInterface {
     return this.pages[displayPage] + pageNum;
   }
 
+  get message() {
+    return this.#channel.messages.cache.get(this.#messageId) as FireMessage;
+  }
+
+  set message(message: FireMessage) {
+    this.#channel = message.channel;
+    this.#messageId = message.id;
+  }
+
   addLine(line = "", empty = false) {
     if (this.closed) return;
     const displayPage = this.displayPage;
@@ -305,7 +318,8 @@ export class PaginatorInterface {
       this.message = await message.getRealMessage();
     } else this.message = message as FireMessage;
     if (!this.message) return;
-    this.message.paginator = this;
+    this.lastInteraction = +new Date();
+    this.bot.util.paginators.set(this.#messageId, this);
 
     if (!this.ready) this.ready = true;
 
