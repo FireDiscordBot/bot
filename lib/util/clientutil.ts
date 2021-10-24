@@ -746,7 +746,11 @@ export class Util extends ClientUtil {
   }
 
   async getSlashUpsellEmbed(message: FireMessage) {
-    if (!message.hasExperiment(3144709624, 1)) return false;
+    if (
+      !message.hasExperiment(3144709624, 1) ||
+      message.hasExperiment(93659956, 1)
+    )
+      return false;
     else if (!(message instanceof FireMessage)) return false;
     const slashCommands = await message.client
       .requestSlashCommands(message.guild)
