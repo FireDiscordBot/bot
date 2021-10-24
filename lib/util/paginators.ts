@@ -239,7 +239,10 @@ export class PaginatorInterface {
   }
 
   get pages() {
-    return [...this.paginator._pages, this.paginator.currentPage];
+    return [
+      ...this.paginator._pages,
+      this.paginator.currentPage + this.paginator.suffix,
+    ];
   }
 
   get pageCount() {

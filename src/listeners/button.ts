@@ -49,7 +49,7 @@ const sk1erTypeToEmoji = {
   bug: "🐛",
 };
 
-const validEssentialTypes = ["crash", "bug", "enquiry", "general"];
+const validEssentialTypes = ["crash", "bug", "enquiry", "ice", "general"];
 
 export default class Button extends Listener {
   constructor() {
@@ -615,6 +615,10 @@ export default class Button extends Listener {
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ENQUIRY"))
           .setStyle("PRIMARY"),
         // .setEmoji("❓"),
+        new MessageButton()
+          .setCustomId("essentialsupport:ice")
+          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ICE"))
+          .setStyle("PRIMARY"),
         new MessageButton()
           .setCustomId("essentialsupport:other")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
