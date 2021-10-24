@@ -320,11 +320,37 @@ export default class Message extends Listener {
   }
 
   cleanContent(message: FireMessage) {
+    if (message.embeds.length)
+      message.embeds = message.embeds.map((embed) => {
+        // normalize urls
+        if (embed.url) embed.url = decodeURI(new URL(embed.url).toString());
+        if (embed.thumbnail?.url)
+          embed.thumbnail.url = decodeURI(
+            new URL(embed.thumbnail.url).toString()
+          );
+        if (embed.author?.url)
+          embed.author.url = decodeURI(new URL(embed.author.url).toString());
+        return embed;
+      });
+
     let content = message.cleanContent;
+
+    let match: RegExpExecArray;
+    while ((match = regexes.URL.exec(content)))
+      if (match?.length)
+        try {
+          const uri = new URL(match[0]);
+          content = content.replace(
+            match[0],
+            decodeURIComponent(uri.toString())
+          );
+        } catch {}
+
     for (const [replacement, regexes] of Object.entries(cleanMap)) {
       for (const regex of regexes)
         content = content.replace(regex, replacement);
     }
+
     return content;
   }
 }
