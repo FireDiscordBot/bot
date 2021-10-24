@@ -1,6 +1,7 @@
 import {
   EmojiIdentifierResolvable,
   ReplyMessageOptions,
+  MessageAttachment,
   DiscordAPIError,
   MessageReaction,
   MessagePayload,
@@ -16,7 +17,6 @@ import {
   DMChannel,
   Webhook,
   Message,
-  MessageAttachment,
 } from "discord.js";
 import {
   GuildTextChannel,
@@ -25,7 +25,6 @@ import {
 } from "@fire/lib/util/constants";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { RawMessageData } from "discord.js/typings/rawDataTypes";
-import { PaginatorInterface } from "@fire/lib/util/paginators";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import Filters from "@fire/src/modules/filters";
 import { FireTextChannel } from "./textchannel";

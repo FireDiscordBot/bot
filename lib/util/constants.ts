@@ -197,6 +197,7 @@ export const constants = {
         "|<a?:(?<name>[a-zA-Z0-9\\_]+):(?<id>\\d{15,21})>)",
       "gim"
     ),
+    URL: /https?:\/\/([^\/?#]*)([^?#]*)(\?([^#]*))?(#(.*))?/gim,
     protocol: /\w{1,10}:\/\//gim,
     joinleavemsgs: {
       user: /{user}/gim,

@@ -100,7 +100,7 @@ export default class Filters extends Module {
       message,
       extra,
     ])) as [FireMessage, string];
-    Object.keys(this.filters).forEach((name) => {
+    for (const name of Object.keys(this.filters))
       if (!exclude.includes(name) && enabled.includes(name)) {
         if (this.debug.includes(message.guild.id))
           this.client.console.warn(`[Filters] Running handler(s) for ${name}`);
@@ -109,7 +109,6 @@ export default class Filters extends Module {
             await this.safeExc(handler.bind(this), message, extra)
         );
       }
-    });
   }
 
   async runReplace(
@@ -130,13 +129,13 @@ export default class Filters extends Module {
       !context || context instanceof FireUser
         ? null
         : context.guild?.settings.get<string[]>("mod.linkfilter", []);
-    Object.entries(this.regexes).forEach(([name, regexes]) => {
+    for (const [name, regexes] of Object.entries(this.regexes)) {
       if (enabled instanceof Array && !enabled.includes(name)) return;
-      regexes.forEach((regex) => {
+      for (const regex of regexes) {
         while (regex.test(text)) text = text.replace(regex, "[ filtered ]");
         regex.lastIndex = 0;
-      });
-    });
+      }
+    }
     text = text.replace(filteredReplaceRegex, "[ filtered ]");
     return text;
   }
@@ -283,13 +282,12 @@ export default class Filters extends Module {
     let found: RegExpExecArray[] = [];
     let invites: string[] = [];
     let regexec: RegExpExecArray;
-    regexes.invites.forEach((regex) => {
+    for (const regex of regexes.invites)
       while ((regexec = regex.exec(sanitizer(searchString)))) {
         found.push(regexec);
         if (regexec?.length >= 3 && !invites.includes(regexec[2]))
           invites.push(regexec[2]);
       }
-    });
     found = found.filter(
       (exec, pos) => exec?.length >= 3 && invites.indexOf(exec[2]) == pos
     ); // remove non matches and duplicates
@@ -452,13 +450,12 @@ export default class Filters extends Module {
     ) {
       let found: RegExpExecArray[] = [];
       let invites: string[] = [];
-      regexes.invites.forEach((regex) => {
+      for (const regex of regexes.invites)
         while ((regexec = regex.exec(req.body.toString()))) {
           found.push(regexec);
           if (regexec?.length >= 3 && !invites.includes(regexec[2]))
             invites.push(regexec[2]);
         }
-      });
       found = found.filter(
         (foundExec, pos) =>
           foundExec?.length && invites.indexOf(foundExec[2]) == pos
