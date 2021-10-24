@@ -66,6 +66,7 @@ export default class Filters extends Module {
     const guild = message?.guild ?? member?.guild;
     if ((message && message.author.bot) || (user && user.bot)) return false;
     if (!guild && !member) return false;
+    if (!guild.settings.get("mod.linkfilter", []).length) return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
     const excluded =
       guild?.settings.get<Snowflake[]>("excluded.filter", []) ?? [];
@@ -127,10 +128,10 @@ export default class Filters extends Module {
     if (replaced && typeof replaced == "string") text = replaced;
     const enabled: string[] =
       !context || context instanceof FireUser
-        ? null
+        ? []
         : context.guild?.settings.get<string[]>("mod.linkfilter", []);
     for (const [name, regexes] of Object.entries(this.regexes)) {
-      if (enabled instanceof Array && !enabled.includes(name)) return;
+      if (!enabled.includes(name)) return;
       for (const regex of regexes) {
         while (regex.test(text)) text = text.replace(regex, "[ filtered ]");
         regex.lastIndex = 0;
