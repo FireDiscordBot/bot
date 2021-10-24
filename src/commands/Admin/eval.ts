@@ -163,7 +163,7 @@ export default class Eval extends Command {
     if (embed.description == "fuck") embed.description = null;
     if (result.length > 1014) {
       const paginator = new WrappedPaginator("```js", "```", 1500);
-      result.split("\n").forEach((line: string) => paginator.addLine(line));
+      for (const line of result.split("\n")) paginator.addLine(line);
       const paginatorEmbed = new MessageEmbed().setColor(
         success ? message.member?.displayColor : "#ef5350"
       );
