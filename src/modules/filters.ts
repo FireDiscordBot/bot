@@ -131,7 +131,7 @@ export default class Filters extends Module {
         ? []
         : context.guild?.settings.get<string[]>("mod.linkfilter", []);
     for (const [name, regexes] of Object.entries(this.regexes)) {
-      if (!enabled.includes(name)) return;
+      if (!enabled.includes(name)) continue;
       for (const regex of regexes) {
         while (regex.test(text)) text = text.replace(regex, "[ filtered ]");
         regex.lastIndex = 0;
