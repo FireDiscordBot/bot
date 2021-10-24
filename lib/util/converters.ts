@@ -117,6 +117,8 @@ export const guildPreviewConverter = async (
   if (message.client.guilds.cache.has(id.snowflake)) {
     const guild = message.client.guilds.cache.get(id.snowflake) as FireGuild;
     if (guild.isPublic()) return guild;
+    const member = await guild.members.fetch(message.author.id).catch(() => {});
+    if (member) return guild;
   }
 
   const preview = await message.client
@@ -127,8 +129,17 @@ export const guildPreviewConverter = async (
     return null;
   }
 
-  if (!preview.features.includes("DISCOVERABLE")) {
-    if (!message.client.manager.ws?.open && !message.author.isSuperuser()) {
+  if (
+    !preview.features.includes("DISCOVERABLE") &&
+    !message.author.isSuperuser()
+  ) {
+    if (!message.client.manager.ws?.open) {
+      const member = await message.client.req
+        .guilds(preview.id)
+        .members(message.author.id)
+        .get()
+        .catch(() => {});
+      if (member) return preview;
       if (!silent) await message.error("PREVIEW_NOT_DISCOVERABLE");
       return null;
     }
@@ -143,9 +154,15 @@ export const guildPreviewConverter = async (
       .send();
     if (publicGuildsReq.statusCode == 200) {
       const publicGuilds: string[] = await publicGuildsReq.json();
-      if (publicGuilds.includes(preview.id)) isPublic = true;
+      isPublic = publicGuilds.includes(preview.id);
     }
-    if (!isPublic && !message.author.isSuperuser()) {
+    if (!isPublic) {
+      const member = await message.client.req
+        .guilds(preview.id)
+        .members(message.author.id)
+        .get()
+        .catch(() => {});
+      if (member) return preview;
       if (!silent) await message.error("PREVIEW_NOT_DISCOVERABLE");
       return null;
     }

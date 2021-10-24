@@ -86,7 +86,7 @@ const i18n = i18next as unknown as typeof i18next.default;
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 type NonceHandler = (data: unknown) => Promise<any> | any;
 
-// Rewrite completed - 15:10 17/1/2021
+// Rewrite completed - 15:10 17/1/2021 :)
 export class Fire extends AkairoClient {
   launchTime: number;
   started: boolean;
@@ -240,7 +240,7 @@ export class Fire extends AkairoClient {
     });
 
     this.commandHandler = new CommandHandler(this, {
-      directory: __dirname.includes("/dist/")
+      directory: this.isDist
         ? "./dist/src/commands/"
         : "./src/commands/",
       commandUtil: true,
@@ -334,7 +334,7 @@ export class Fire extends AkairoClient {
     this.commandHandler.loadAll();
 
     this.inhibitorHandler = new InhibitorHandler(this, {
-      directory: __dirname.includes("/dist/")
+      directory: this.isDist
         ? "./dist/src/inhibitors/"
         : "./src/inhibitors/",
     });
@@ -349,7 +349,7 @@ export class Fire extends AkairoClient {
     this.inhibitorHandler.loadAll();
 
     this.listenerHandler = new ListenerHandler(this, {
-      directory: __dirname.includes("/dist/")
+      directory: this.isDist
         ? "./dist/src/listeners/"
         : "./src/listeners/",
     });
@@ -364,7 +364,7 @@ export class Fire extends AkairoClient {
     this.listenerHandler.loadAll();
 
     this.languages = new LanguageHandler(this, {
-      directory: __dirname.includes("/dist/")
+      directory: this.isDist
         ? "./dist/src/languages/"
         : "./src/languages/",
     });
@@ -381,7 +381,7 @@ export class Fire extends AkairoClient {
       });
 
     this.modules = new ModuleHandler(this, {
-      directory: __dirname.includes("/dist/")
+      directory: this.isDist
         ? "./dist/src/modules/"
         : "./src/modules/",
     });
@@ -408,6 +408,10 @@ export class Fire extends AkairoClient {
   get restManager(): RESTManager {
     // @ts-ignore
     return this.rest;
+  }
+
+  get isDist() {
+    return __dirname.includes("/dist/") || __dirname.includes("\\dist\\");
   }
 
   private async initDB(reconnect: boolean = false) {

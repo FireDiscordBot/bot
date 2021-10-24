@@ -1,15 +1,16 @@
 import {
   version as djsver,
+  LimitedCollection,
   PermissionString,
   GuildFeatures,
   ThreadChannel,
+  MessageEmbed,
   GuildPreview,
   OAuth2Guild,
   Permissions,
   Collection,
   Snowflake,
   Webhook,
-  MessageEmbed,
 } from "discord.js";
 import {
   GuildMemberCountFilter,
@@ -31,6 +32,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { Cluster } from "@fire/lib/interfaces/stats";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language, LanguageKeys } from "./language";
+import { PaginatorInterface } from "./paginators";
 import { Message } from "@fire/lib/ws/Message";
 import { ClientUtil } from "discord-akairo";
 import { getCommitHash } from "./gitUtils";
@@ -58,6 +60,7 @@ interface MojangProfile {
 }
 
 export class Util extends ClientUtil {
+  paginators: LimitedCollection<Snowflake, PaginatorInterface>;
   loadedData: { plonked: boolean; premium: boolean };
   permissionFlags: [PermissionString, bigint][];
   premium: Collection<string, PremiumData>;
@@ -70,6 +73,14 @@ export class Util extends ClientUtil {
   constructor(client: Fire) {
     super(client);
     this.loadedData = { plonked: false, premium: false };
+    this.paginators = new LimitedCollection({
+      sweepFilter: () => {
+        return (paginator: PaginatorInterface) =>
+          !!paginator.message &&
+          +new Date() - paginator.lastInteraction > 150000;
+      },
+      sweepInterval: 60,
+    });
     this.uuidCache = new Collection();
     this.premium = new Collection();
     this.hasRoleUpdates = [];
@@ -315,6 +326,15 @@ export class Util extends ClientUtil {
       return language.get(`PERMISSIONS.${name}` as LanguageKeys);
     return titleCase(
       name.toLowerCase().replace(/_/gim, " ").replace(/guild/, "server")
+    );
+  }
+
+  cleanFeatureName(feature: string, language?: Language): string {
+    language = language ?? this.client.getLanguage("en-US");
+    if (language.has(`FEATURES.${feature}` as LanguageKeys))
+      return language.get(`FEATURES.${feature}` as LanguageKeys);
+    return titleCase(
+      feature.toLowerCase().replace(/_/gim, " ").replace(/guild/, "server")
     );
   }
 
@@ -726,7 +746,11 @@ export class Util extends ClientUtil {
   }
 
   async getSlashUpsellEmbed(message: FireMessage) {
-    if (!message.hasExperiment(3144709624, 1)) return false;
+    if (
+      !message.hasExperiment(3144709624, 1) ||
+      message.hasExperiment(93659956, 1)
+    )
+      return false;
     else if (!(message instanceof FireMessage)) return false;
     const slashCommands = await message.client
       .requestSlashCommands(message.guild)

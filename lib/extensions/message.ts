@@ -1,6 +1,7 @@
 import {
   EmojiIdentifierResolvable,
   ReplyMessageOptions,
+  MessageAttachment,
   DiscordAPIError,
   MessageReaction,
   MessagePayload,
@@ -24,7 +25,6 @@ import {
 } from "@fire/lib/util/constants";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { RawMessageData } from "discord.js/typings/rawDataTypes";
-import { PaginatorInterface } from "@fire/lib/util/paginators";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import Filters from "@fire/src/modules/filters";
 import { FireTextChannel } from "./textchannel";
@@ -42,7 +42,6 @@ const { emojis, reactions, regexes, imageExts, audioExts, videoExts } =
 export class FireMessage extends Message {
   declare channel: DMChannel | FireTextChannel | NewsChannel | ThreadChannel;
   invWtfResolved: Collection<string, { invite?: string; url?: string }>;
-  paginator?: PaginatorInterface;
   declare member: FireMember;
   declare guild: FireGuild;
   declare author: FireUser;
@@ -93,6 +92,10 @@ export class FireMessage extends Message {
         ? this.author.language
         : this.guild?.language) ?? this.client.getLanguage("en-US")
     );
+  }
+
+  get paginator() {
+    return this.client.util.paginators.get(this.id) ?? null;
   }
 
   send(key?: LanguageKeys, args?: i18nOptions) {
@@ -334,7 +337,11 @@ export class FireMessage extends Message {
           content = content.replace(channel.toString(), `#${channel.name}`);
       if (content.length > 2000) return "QUOTE_PREMIUM_INCREASED_LENGTH";
     }
-    let attachments: { attachment: Buffer; name: string }[] = [];
+    let attachments: {
+      attachment: Buffer;
+      name: string;
+      description?: string;
+    }[] = [];
     if (
       ((destination instanceof FireTextChannel ||
         destination instanceof NewsChannel) &&
@@ -347,7 +354,10 @@ export class FireMessage extends Message {
       ) &&
         (BigInt(destination.permissions) & 32768n) == 32768n)
     ) {
-      const names = this.attachments.map((attach) => attach.name);
+      const info = this.attachments.map((attach) => ({
+        name: attach.name,
+        description: attach.description,
+      }));
       const attachReqs = await Promise.all(
         this.attachments.map((attachment) =>
           centra(attachment.url)
@@ -358,24 +368,45 @@ export class FireMessage extends Message {
       ).catch(() => []);
       for (const [index, req] of attachReqs.entries()) {
         if (req && req.statusCode == 200)
-          attachments.push({ attachment: req.body, name: names[index] });
+          attachments.push({
+            attachment: req.body,
+            name: info[index].name,
+            description: info[index].description,
+          });
       }
     }
+    const member =
+      this.member ??
+      ((await this.guild.members
+        .fetch(this.author)
+        .catch(() => null)) as FireMember);
     return await hook
       .send({
         content: content.length ? content : null,
-        username: this.author.toString().replace(/#0000/gim, ""),
-        avatarURL: this.author.displayAvatarURL({ size: 2048, format: "png" }),
+        username:
+          member && member.nickname
+            ? `${member.nickname} (${this.author
+                .toString()
+                .replace(/#0000/gim, "")})`
+            : this.author.toString().replace(/#0000/gim, ""),
+        avatarURL: (member ?? this.author).displayAvatarURL({
+          size: 2048,
+          format: "png",
+        }),
         embeds: this.embeds.filter(
           (embed) =>
             !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
         ),
-        files: attachments,
+        files: attachments.map((data) =>
+          new MessageAttachment(data.attachment, data.name).setDescription(
+            data.description
+          )
+        ),
         allowedMentions: this.client.options.allowedMentions,
         threadId: thread?.id,
         components: this.components,
       })
-      .catch(async (e) => {
+      .catch(async () => {
         // this will ensure deleted webhooks are deleted
         // but also allow webhooks to be refreshed
         // even if the cached one still exists
@@ -400,15 +431,14 @@ export class FireMessage extends Message {
       !embed.author &&
       !embed.footer &&
       (embed.url == embed.thumbnail.url ||
-        (embedURL?.host.includes("imgur.com") &&
-          thumbURL?.host.includes("i.imgur.com")))
+        ((embedURL?.host == "imgur.com" || embedURL?.host == "i.imgur.com") &&
+          thumbURL?.host == "i.imgur.com"))
     );
   }
 
   private async embedQuote(
     destination: GuildTextChannel | ThreadChannel | PartialQuoteDestination,
-    quoter: FireMember,
-    thread?: ThreadChannel
+    quoter: FireMember
   ) {
     // PartialQuoteDestination needs to be set for type here
     // since this#quote can take either but it should never
@@ -430,12 +460,21 @@ export class FireMessage extends Message {
       });
     } else if (this.author.bot && this.embeds.length)
       extraEmbeds.push(...this.embeds);
+    const member =
+      this.member ??
+      ((await this.guild.members
+        .fetch(this.author)
+        .catch(() => null)) as FireMember);
     const embed = new MessageEmbed()
-      .setColor(this.member?.displayColor || quoter.displayColor)
+      .setColor(member?.displayColor || quoter.displayColor)
       .setTimestamp(this.createdAt)
       .setAuthor(
-        this.author.toString(),
-        this.author.displayAvatarURL({
+        member && member.nickname
+          ? `${member.nickname} (${this.author
+              .toString()
+              .replace(/#0000/gim, "")})`
+          : this.author.toString().replace(/#0000/gim, ""),
+        (member ?? this.author).displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,

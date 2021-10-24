@@ -242,12 +242,9 @@ export default class GuildCommand extends Command {
     const info = await this.getInfo(message, guild);
     const security = this.getSecurity(message, guild);
 
-    const featuresLocalization = message.language.get("FEATURES", {
-      returnObjects: true,
-    }) as unknown as Record<string, string>;
-    const features: string[] = guild.features
-      .filter((feature) => featuresLocalization.hasOwnProperty(feature))
-      .map((feature) => featuresLocalization[feature]);
+    const features: string[] = guild.features.map((feature) =>
+      this.client.util.cleanFeatureName(feature, message.language)
+    );
 
     const roles =
       guild instanceof FireGuild

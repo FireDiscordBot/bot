@@ -115,49 +115,102 @@ export default class Message extends Listener {
     if (message.type == "CHANNEL_PINNED_MESSAGE")
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
-    const lowerContent = message.content.toLowerCase().replace(/\s/gim, "");
-    if (
-      message.guild?.hasExperiment(936071411, 1) &&
-      ((lowerContent.includes("@everyone") &&
+    const lowerContent = message.content
+      .toLowerCase()
+      .replace(/\s/gim, "")
+      .replace(regexes.zws, "");
+    if (message.guild?.hasExperiment(936071411, 1)) {
+      const triggerFilter = async (match?: string) => {
+        if (process.env.NODE_ENV == "development")
+          return await message.reply(
+            "triggered steam/nitro phishing detection"
+          );
+        return await message.member?.bean(
+          match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
+          message.guild.me,
+          null,
+          7,
+          message.channel as FireTextChannel
+        );
+      };
+      if (
+        lowerContent.includes("@everyone") &&
         (lowerContent.includes("nitro") ||
           lowerContent.includes("cs:go") ||
           lowerContent.includes("tradeoffer") ||
-          lowerContent.includes("partner"))) ||
-        (lowerContent.includes(".ru") &&
-          (lowerContent.includes("tradeoffer") ||
-            lowerContent.includes("partner") ||
-            lowerContent.includes("cs:go"))) ||
-        (lowerContent.includes("nitro") &&
-          lowerContent.includes("steam") &&
-          lowerContent.includes("http")) ||
-        (lowerContent.includes("nitro") &&
-          lowerContent.includes("distributiоn") &&
-          lowerContent.includes("free")) ||
-        (lowerContent.includes("discord") &&
-          lowerContent.includes("steam") &&
-          lowerContent.includes("http")) ||
-        (lowerContent.includes("cs") &&
-          lowerContent.includes("go") &&
-          lowerContent.includes("skin") &&
-          lowerContent.includes("http")) ||
-        (lowerContent.includes("nitro") &&
-          lowerContent.includes("gift") &&
-          lowerContent.includes(".ru")) ||
-        (lowerContent.includes("leaving") &&
-          lowerContent.includes("fucking") &&
-          lowerContent.includes("game")) ||
-        (lowerContent.includes("airdrop") && lowerContent.includes("nitro")) ||
-        (lowerContent.includes("/n@") && lowerContent.includes("nitro")))
-    ) {
-      if (process.env.NODE_ENV == "development")
-        return await message.reply("triggered steam/nitro phishing detection");
-      return await message.member?.bean(
-        "Phishing links",
-        message.guild.me,
-        null,
-        7,
-        message.channel as FireTextChannel
-      );
+          lowerContent.includes("partner"))
+      )
+        return await triggerFilter("Common Words");
+      else if (
+        lowerContent.includes(".ru") &&
+        (lowerContent.includes("tradeoffer") ||
+          lowerContent.includes("partner") ||
+          lowerContent.includes("cs:go"))
+      )
+        return await triggerFilter(".ru CS:GO Trade/Partner Link");
+      else if (
+        lowerContent.includes("nitro") &&
+        lowerContent.includes("steam") &&
+        lowerContent.includes("http")
+      )
+        return await triggerFilter("Nitro/Steam Link");
+      else if (
+        lowerContent.includes("nitro") &&
+        lowerContent.includes("distributiоn") &&
+        lowerContent.includes("free")
+      )
+        return await triggerFilter("Free Nitro Link");
+      else if (
+        lowerContent.includes("discord") &&
+        lowerContent.includes("steam") &&
+        lowerContent.includes("http")
+      )
+        return await triggerFilter("Discord/Steam Link");
+      else if (
+        lowerContent.includes("cs") &&
+        lowerContent.includes("go") &&
+        lowerContent.includes("skin") &&
+        lowerContent.includes("http")
+      )
+        return await triggerFilter("CS:GO Skin");
+      else if (
+        lowerContent.includes("nitro") &&
+        lowerContent.includes("gift") &&
+        lowerContent.includes(".ru")
+      )
+        return await triggerFilter(".ru Nitro Gift Link");
+      else if (
+        lowerContent.includes("leaving") &&
+        lowerContent.includes("fucking") &&
+        lowerContent.includes("game")
+      )
+        return await triggerFilter('"Rage Quit"');
+      else if (
+        lowerContent.includes("gift") &&
+        lowerContent.includes("http") &&
+        lowerContent.includes("@everyone")
+      )
+        return await triggerFilter("@everyone Mention w/Gift Link");
+      else if (
+        lowerContent.includes("gift") &&
+        lowerContent.includes("http") &&
+        lowerContent.includes("bro")
+      )
+        // copilot generated this and I can't stop laughing at it
+        return await triggerFilter("Bro Mention w/Gift Link");
+      else if (
+        lowerContent.includes("gift") &&
+        lowerContent.includes("http") &&
+        lowerContent.includes("for you")
+      )
+        return await triggerFilter("gift 4 you bro");
+      else if (
+        lowerContent.includes("airdrop") &&
+        lowerContent.includes("nitro")
+      )
+        return await triggerFilter("Nitro Airdrop");
+      else if (lowerContent.includes("/n@") && lowerContent.includes("nitro"))
+        return await triggerFilter("Epic Newline Fail");
     }
 
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
@@ -176,7 +229,8 @@ export default class Message extends Listener {
 
     let toSearch = (
       message.content +
-      message.embeds.map((embed) => JSON.stringify(embed)).join(" ")
+      message.embeds.map((embed) => JSON.stringify(embed)).join(" ") +
+      message.attachments.map((attachment) => attachment.description).join(" ")
     ).replace(tokenExtras, "");
     if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN) {
       this.tokenRegex.lastIndex = 0;
@@ -266,11 +320,37 @@ export default class Message extends Listener {
   }
 
   cleanContent(message: FireMessage) {
+    if (message.embeds.length)
+      message.embeds = message.embeds.map((embed) => {
+        // normalize urls
+        if (embed.url) embed.url = decodeURI(new URL(embed.url).toString());
+        if (embed.thumbnail?.url)
+          embed.thumbnail.url = decodeURI(
+            new URL(embed.thumbnail.url).toString()
+          );
+        if (embed.author?.url)
+          embed.author.url = decodeURI(new URL(embed.author.url).toString());
+        return embed;
+      });
+
     let content = message.cleanContent;
+
+    let match: RegExpExecArray;
+    while ((match = regexes.URL.exec(content)))
+      if (match?.length)
+        try {
+          const uri = new URL(match[0]);
+          content = content.replace(
+            match[0],
+            decodeURIComponent(uri.toString())
+          );
+        } catch {}
+
     for (const [replacement, regexes] of Object.entries(cleanMap)) {
       for (const regex of regexes)
         content = content.replace(regex, replacement);
     }
+
     return content;
   }
 }

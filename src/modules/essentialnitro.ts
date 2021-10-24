@@ -53,9 +53,9 @@ export default class EssentialNitro extends Module {
             `[Essential] Removing nitro cosmetic from ${member} due to lack of booster role`
           );
           const removed = await this.removeNitroCosmetic(member).catch(
-            () => {}
+            () => false
           );
-          if (!removed || typeof removed == "number")
+          if (removed != true)
             this.client.console.error(
               `[Essential] Failed to remove nitro cosmetic from ${member}${
                 typeof removed == "number" ? ` with status code ${removed}` : ""
@@ -75,7 +75,7 @@ export default class EssentialNitro extends Module {
           .catch(() => {})) as FireUser;
         if (user) {
           const removed = await this.removeNitroCosmetic(user).catch(() => {});
-          if (!removed || typeof removed == "number")
+          if (removed != true)
             this.client.console.error(
               `[Essential] Failed to remove nitro cosmetic from ${user} (${
                 user.id
@@ -100,17 +100,10 @@ export default class EssentialNitro extends Module {
 
   async setUUID(user: FireMember | FireUser, uuid: string) {
     try {
-      const current = await this.getUUID(user);
-      if (current)
-        await this.client.db.query(
-          "UPDATE essential SET uuid=$1 WHERE uid=$2;",
-          [uuid, user.id]
-        );
-      else
-        await this.client.db.query(
-          "INSERT INTO essential (uid, uuid) VALUES ($1, $2);",
-          [user.id, uuid]
-        );
+      await this.client.db.query(
+        "INSERT INTO essential (uid, uuid) VALUES ($1, $2);",
+        [user.id, uuid]
+      );
       return true;
     } catch {
       return false;
@@ -130,7 +123,8 @@ export default class EssentialNitro extends Module {
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", this.auth)
       .send();
-    if (transReq.statusCode != 200) return [];
+    if (transReq.statusCode == 204) return [];
+    else if (transReq.statusCode != 200) return null;
 
     return await transReq.json();
   }
@@ -140,16 +134,16 @@ export default class EssentialNitro extends Module {
     const uuid = await this.client.util.nameToUUID(ign, true);
     if (!uuid) return false;
 
+    this.client.console.info(
+      `[Essential] Giving booster cosmetic to ${user} (${user.id}) with IGN ${ign} (${uuid})!`
+    );
+
     const setUUID = await this.setUUID(user, uuid);
     if (!setUUID) return false;
 
     const existing = await this.getCurrentTransactions(user);
-    if (
-      existing.length &&
-      existing.every((t) => t.status.expiration < +new Date())
-    )
-      return true;
-    else await this.removeNitroCosmetic(user); // remove old "transactions"
+    if (existing == null) return false;
+    if (existing.length) return true;
 
     const body = {
       username: ign,
@@ -169,10 +163,15 @@ export default class EssentialNitro extends Module {
     return nitroReq.statusCode == 201;
   }
 
-  async removeNitroCosmetic(user: FireMember | FireUser) {
+  async removeNitroCosmetic(user: FireMember | FireUser, uuid?: string) {
     if (!this.auth) return false;
-    const uuid = await this.getUUID(user);
+    // TODO: switch to ??= when I can update to Node 16
+    uuid = uuid ?? (await this.getUUID(user));
     if (!uuid) return false;
+
+    this.client.console.warn(
+      `[Essential] Removing booster cosmetic from ${user} (${user.id}) with UUID ${uuid}!`
+    );
 
     const nitroReq = await centra(
       "https://api.essential.gg/v2/discord/nitro",
@@ -184,7 +183,11 @@ export default class EssentialNitro extends Module {
       .query("user_id", uuid)
       .send();
 
-    if (nitroReq.statusCode == 200) {
+    if (nitroReq.statusCode == 200 || nitroReq.statusCode == 204) {
+      if (nitroReq.statusCode == 204)
+        this.client.console.warn(
+          `[Essential] User ${user} didn't have the cosmetic, removing from database...`
+        );
       const result = await this.client.db
         .query("DELETE FROM essential WHERE uid=$1 RETURNING uid;", [user.id])
         .first();
@@ -193,8 +196,27 @@ export default class EssentialNitro extends Module {
         this.client.console.error(
           `[Essential] Failed to remove uuid from database for ${user} (${user.id})`
         );
+        this.client.sentry.captureException(
+          new Error(
+            `Failed to remove uuid from Essential table for ${user} (${user.id})`
+          ),
+          { extra: { uuid } }
+        );
         return false;
       }
-    } else return nitroReq.statusCode;
+    } else {
+      this.client.sentry.captureException(
+        new Error(
+          `Failed to remove booster cosmetic from ${user} (${user.id})`
+        ),
+        {
+          extra: {
+            uuid,
+            statusCode: nitroReq.statusCode,
+          },
+        }
+      );
+      return nitroReq.statusCode;
+    }
   }
 }

@@ -66,6 +66,7 @@ export default class Filters extends Module {
     const guild = message?.guild ?? member?.guild;
     if ((message && message.author.bot) || (user && user.bot)) return false;
     if (!guild && !member) return false;
+    if (!guild.settings.get("mod.linkfilter", []).length) return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
     const excluded =
       guild?.settings.get<Snowflake[]>("excluded.filter", []) ?? [];
@@ -100,7 +101,7 @@ export default class Filters extends Module {
       message,
       extra,
     ])) as [FireMessage, string];
-    Object.keys(this.filters).forEach((name) => {
+    for (const name of Object.keys(this.filters))
       if (!exclude.includes(name) && enabled.includes(name)) {
         if (this.debug.includes(message.guild.id))
           this.client.console.warn(`[Filters] Running handler(s) for ${name}`);
@@ -109,7 +110,6 @@ export default class Filters extends Module {
             await this.safeExc(handler.bind(this), message, extra)
         );
       }
-    });
   }
 
   async runReplace(
@@ -128,15 +128,15 @@ export default class Filters extends Module {
     if (replaced && typeof replaced == "string") text = replaced;
     const enabled: string[] =
       !context || context instanceof FireUser
-        ? null
+        ? []
         : context.guild?.settings.get<string[]>("mod.linkfilter", []);
-    Object.entries(this.regexes).forEach(([name, regexes]) => {
-      if (enabled instanceof Array && !enabled.includes(name)) return;
-      regexes.forEach((regex) => {
+    for (const [name, regexes] of Object.entries(this.regexes)) {
+      if (!enabled.includes(name)) continue;
+      for (const regex of regexes) {
         while (regex.test(text)) text = text.replace(regex, "[ filtered ]");
         regex.lastIndex = 0;
-      });
-    });
+      }
+    }
     text = text.replace(filteredReplaceRegex, "[ filtered ]");
     return text;
   }
@@ -151,6 +151,10 @@ export default class Filters extends Module {
               " " +
               message.embeds
                 .map((embed) => JSON.stringify(embed.toJSON()))
+                .join(" ") +
+              " " +
+              message.attachments
+                .map((attachment) => attachment.description)
                 .join(" ") +
               " " +
               extra
@@ -265,21 +269,26 @@ export default class Filters extends Module {
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
+      " " +
       extra;
     const noExtra =
       message.content +
       " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ");
+      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      message.attachments.map((attachment) => attachment.description).join(" ");
     let found: RegExpExecArray[] = [];
     let invites: string[] = [];
     let regexec: RegExpExecArray;
-    regexes.invites.forEach((regex) => {
+    for (const regex of regexes.invites)
       while ((regexec = regex.exec(sanitizer(searchString)))) {
         found.push(regexec);
         if (regexec?.length >= 3 && !invites.includes(regexec[2]))
           invites.push(regexec[2]);
       }
-    });
     found = found.filter(
       (exec, pos) => exec?.length >= 3 && invites.indexOf(exec[2]) == pos
     ); // remove non matches and duplicates
@@ -442,13 +451,12 @@ export default class Filters extends Module {
     ) {
       let found: RegExpExecArray[] = [];
       let invites: string[] = [];
-      regexes.invites.forEach((regex) => {
+      for (const regex of regexes.invites)
         while ((regexec = regex.exec(req.body.toString()))) {
           found.push(regexec);
           if (regexec?.length >= 3 && !invites.includes(regexec[2]))
             invites.push(regexec[2]);
         }
-      });
       found = found.filter(
         (foundExec, pos) =>
           foundExec?.length && invites.indexOf(foundExec[2]) == pos
@@ -466,6 +474,10 @@ export default class Filters extends Module {
       message.content +
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
       " " +
       extra;
     const match = regexes.paypal.exec(sanitizer(searchString));
@@ -497,6 +509,10 @@ export default class Filters extends Module {
       message.content +
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
       " " +
       extra;
     const match = regexes.youtube.video.exec(sanitizer(searchString));
@@ -579,6 +595,10 @@ export default class Filters extends Module {
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
+      " " +
       extra
     ).replace(regexes.youtube.video, "[ youtube video ]"); // prevents videos being matched
     const match = regexes.youtube.channel.exec(sanitizer(searchString));
@@ -652,6 +672,10 @@ export default class Filters extends Module {
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
+      " " +
       extra;
     const clipMatch = regexes.twitch.clip.exec(sanitizer(searchString));
     const channelMatch = regexes.twitch.channel.exec(sanitizer(searchString));
@@ -687,6 +711,10 @@ export default class Filters extends Module {
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
       " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
+      " " +
       extra;
     const match = regexes.twitter.exec(sanitizer(searchString));
     if (!match) return;
@@ -717,6 +745,10 @@ export default class Filters extends Module {
       message.content +
       " " +
       message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
+      " " +
+      message.attachments
+        .map((attachment) => attachment.description)
+        .join(" ") +
       " " +
       extra;
     const match = this.shortURLRegex.exec(sanitizer(searchString));

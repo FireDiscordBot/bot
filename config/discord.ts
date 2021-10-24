@@ -31,8 +31,7 @@ export const discord: ClientOptions = {
       sweepFilter: () => {
         return (message: FireMessage) =>
           +new Date() - (message.editedTimestamp ?? message.createdTimestamp) >
-            (message.paginator ? 300000 : 150000) ||
-          (message.author?.bot && !message.paginator);
+          150000;
       },
       keepOverLimit: (message: FireMessage) =>
         !message.author?.bot || !!message.paginator,

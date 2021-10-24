@@ -1,3 +1,4 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Assistant, AssistantLanguage } from "nodejs-assistant";
@@ -120,15 +121,17 @@ export default class Google extends Command {
     "<div class='show_text_content'>I remember you telling me your name was ${message.author.username}.</div>"
   );};`
         ),
-      message.member || message.author
+      message.member ?? message.author
     );
     if (!html)
-      return await message
-        .reply({
-          content: message.language.get("PLAYWRIGHT_ERROR_UNKNOWN"),
-          failIfNotExists: false,
-        })
-        .catch(() => {});
+      return message instanceof ApplicationCommandMessage
+        ? await message.error("PLAYWRIGHT_ERROR_UNKNOWN")
+        : await message
+            .reply({
+              content: message.language.get("PLAYWRIGHT_ERROR_UNKNOWN"),
+              failIfNotExists: false,
+            })
+            .catch(() => {});
     const playwrightResponse = await this.getImageFromPlaywright(
       message,
       html

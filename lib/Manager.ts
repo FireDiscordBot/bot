@@ -44,6 +44,10 @@ export class Manager {
     return `DiscordBot (https://discord.js.org, ${djsver}) Fire/${this.version} Node.JS/${process.version}`;
   }
 
+  get isDist() {
+    return __dirname.includes("/dist/") || __dirname.includes("\\dist\\");
+  }
+
   init(reconnecting = false) {
     if (reconnecting && this.ws?.open) return;
     if (process.env.BOOT_SINGLE == "false") {

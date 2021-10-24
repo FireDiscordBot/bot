@@ -177,7 +177,7 @@ export const constants = {
     support: "https://inv.wtf/fire",
     // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
     imageGen: "https://gen.inv.wtf/",
-    supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh", "h.inv.wtf"],
+    supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh"],
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   audioExts: ["mp3", "wav", "flac", "alac", "m4a"],
@@ -196,6 +196,7 @@ export const constants = {
         "|<a?:(?<name>[a-zA-Z0-9\\_]+):(?<id>\\d{15,21})>)",
       "gim"
     ),
+    URL: /https?:\/\/([^\/?#]*)([^?#]*)(\?([^#]*))?(#(.*))?/gim,
     protocol: /\w{1,10}:\/\//gim,
     joinleavemsgs: {
       user: /{user}/gim,
