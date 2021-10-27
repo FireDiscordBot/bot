@@ -325,6 +325,7 @@
   "COLOR_ARGUMENT_INVALID": "That does not seem to be a valid color, maybe try {{random}}",
   "COLOR_HEADING": "Information about the color **{{color}}**",
   "COLOR_IMAGE_ALT": "A square, with the color {{color}}",
+  "COLOR_DECIMAL": "Decimal",
   "COMMAND_COMMAND_DESCRIPTION": "Enable/disable a command in your server",
   "COMMAND_DISABLE_FORBIDDEN": "You cannot disable this command!",
   "COMMAND_ENABLE": "Successfully enabled {{command}}!",
