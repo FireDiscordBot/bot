@@ -1,7 +1,7 @@
-import { ColorResolvable, MessageAttachment, Role, Util } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
+import { MessageAttachment, Role } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Argument } from "discord-akairo";
@@ -60,9 +60,7 @@ export default class Color extends Command {
 **RGB:** ${color.toRgbString()}
 **HSL:** ${color.toHslString()}
 **HSV:** ${color.toHsvString()}
-**${message.language.get("COLOR_DECIMAL")}:** ${Util.resolveColor(
-      color.toHex() as ColorResolvable
-    )}`;
+**${message.language.get("COLOR_DECIMAL")}:** ${parseInt(color.toHex(), 16)}`;
 
     const image = await centra(
       `${constants.url.imageGen}color?color=${color.toHex()}`
