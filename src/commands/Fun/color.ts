@@ -56,6 +56,7 @@ export default class Color extends Command {
     )}
 
 **HEX:** ${color.toHexString()}
+**HEX8:** ${color.toHex8String()}
 **RGB:** ${color.toRgbString()}
 **HSL:** ${color.toHslString()}
 **HSV:** ${color.toHsvString()}`;
