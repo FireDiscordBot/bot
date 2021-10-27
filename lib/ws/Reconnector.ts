@@ -1,10 +1,9 @@
 import { EventType, WebsocketStates } from "./util/constants";
-import { MessageUtil } from "./util/MessageUtil";
 import { Manager } from "@fire/lib/Manager";
 import { Websocket } from "./Websocket";
-import { Message } from "./Message";
 
 export class Reconnector {
+  sessionTimeout: NodeJS.Timeout;
   timeout?: NodeJS.Timeout;
   manager: Manager;
   state: number;
@@ -13,6 +12,7 @@ export class Reconnector {
     this.manager = manager;
     this.state = WebsocketStates.IDLE;
     this.timeout = null;
+    this.sessionTimeout = null;
   }
 
   handleOpen() {
@@ -24,10 +24,10 @@ export class Reconnector {
       this.manager.client.console.log("[Aether] Connected to Websocket.");
       this.state = WebsocketStates.CONNECTED;
     }
-    setTimeout(() => {
+    this.sessionTimeout = setTimeout(() => {
       if (!this.manager.ready && this.manager.ws?.open)
         this.manager.ws.close(4009, "Timed out waiting for session");
-    }, 5000);
+    }, 60000);
   }
 
   handleClose(code: number, reason: string) {
