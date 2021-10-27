@@ -24,10 +24,15 @@ export class Reconnector {
       this.manager.client.console.log("[Aether] Connected to Websocket.");
       this.state = WebsocketStates.CONNECTED;
     }
+    setTimeout(() => {
+      if (!this.manager.ready && this.manager.ws?.open)
+        this.manager.ws.close(4009, "Timed out waiting for session");
+    }, 5000);
   }
 
   handleClose(code: number, reason: string) {
     clearInterval(this.manager.ws?.keepAlive);
+    this.manager.ready = false;
     if (
       this.state == WebsocketStates.CONNECTED ||
       this.state == WebsocketStates.CLOSING

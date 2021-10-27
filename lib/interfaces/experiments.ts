@@ -25,4 +25,7 @@ export interface ExperimentFilters {
   max_members: number;
   min_id: string;
   max_id: string;
+  min_boosts: number;
+  max_boosts: number;
+  boost_tier: number;
 }

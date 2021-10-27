@@ -59,6 +59,7 @@ export default class Ready extends Listener {
         )
       );
     } catch {}
+    this.client.manager.ready = true;
     this.client.setReadyPresence();
     this.client.guildSettings.items = this.client.guildSettings.items.filter(
       (value, key) => this.client.guilds.cache.has(key) || key == "0"

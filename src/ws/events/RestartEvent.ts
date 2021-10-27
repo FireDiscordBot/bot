@@ -69,6 +69,6 @@ export default class RestartEvent extends Event {
         )
       )
     );
-    return;
+    return (this.manager.ready = true);
   }
 }

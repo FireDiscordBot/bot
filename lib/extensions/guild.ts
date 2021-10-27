@@ -55,6 +55,13 @@ import { v4 as uuidv4 } from "uuid";
 import { FireUser } from "./user";
 import { nanoid } from "nanoid";
 
+const BOOST_TIERS = {
+  NONE: 0,
+  TIER_1: 1,
+  TIER_2: 2,
+  TIER_3: 3,
+};
+
 export class FireGuild extends Guild {
   quoteHooks: Collection<string, Webhook | WebhookClient>;
   reactionRoles: Collection<Snowflake, ReactionRoleData[]>;
@@ -839,14 +846,26 @@ export class FireGuild extends Guild {
     }
   }
 
-  hasExperiment(id: number, bucket: number) {
+  hasExperiment(id: number, bucket: number | number[]): boolean {
     // if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "guild") return false;
     if (!experiment.active) return true;
+    if (Array.isArray(bucket))
+      return bucket
+        .map((b) => this.hasExperiment(id, b))
+        .some((hasexp) => !!hasexp);
+    if (bucket == 0)
+      return experiment.buckets
+        .slice(1)
+        .map((b) => this.hasExperiment(id, b))
+        .every((hasexp) => hasexp == false);
     if (!!experiment.data.find(([i, b]) => i == this.id && b == bucket))
       // override
       return true;
+    else if (!!experiment.data.find(([i, b]) => i == this.id && b != bucket))
+      // override for another bucket, stop here and ignore filters
+      return false;
     const filters = experiment.filters.find(
       (filter) => filter.bucket == bucket
     );
@@ -884,6 +903,21 @@ export class FireGuild extends Guild {
     if (
       typeof filters.max_id == "string" &&
       BigInt(this.id) >= BigInt(filters.max_id)
+    )
+      return false;
+    if (
+      typeof filters.min_boosts == "number" &&
+      this.premiumSubscriptionCount < filters.min_boosts
+    )
+      return false;
+    if (
+      typeof filters.max_boosts == "number" &&
+      this.premiumSubscriptionCount >= filters.max_boosts
+    )
+      return false;
+    if (
+      typeof filters.boost_tier == "number" &&
+      BOOST_TIERS[this.premiumTier] != filters.boost_tier
     )
       return false;
     return true;

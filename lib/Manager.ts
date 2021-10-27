@@ -12,6 +12,7 @@ export class Manager {
   eventHandler: EventHandler;
   reconnector: Reconnector;
   killing: boolean = false;
+  ready: boolean = false;
   sentry: typeof Sentry;
   session?: string;
   version: string;
