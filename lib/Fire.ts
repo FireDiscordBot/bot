@@ -240,9 +240,7 @@ export class Fire extends AkairoClient {
     });
 
     this.commandHandler = new CommandHandler(this, {
-      directory: this.isDist
-        ? "./dist/src/commands/"
-        : "./src/commands/",
+      directory: this.isDist ? "./dist/src/commands/" : "./src/commands/",
       commandUtil: true,
       handleEdits: true,
       fetchMembers: true,
@@ -334,9 +332,7 @@ export class Fire extends AkairoClient {
     this.commandHandler.loadAll();
 
     this.inhibitorHandler = new InhibitorHandler(this, {
-      directory: this.isDist
-        ? "./dist/src/inhibitors/"
-        : "./src/inhibitors/",
+      directory: this.isDist ? "./dist/src/inhibitors/" : "./src/inhibitors/",
     });
     this.inhibitorHandler.on("load", async (inhibitor) => {
       if (inhibitor instanceof Inhibitor) await inhibitor?.init();
@@ -349,9 +345,7 @@ export class Fire extends AkairoClient {
     this.inhibitorHandler.loadAll();
 
     this.listenerHandler = new ListenerHandler(this, {
-      directory: this.isDist
-        ? "./dist/src/listeners/"
-        : "./src/listeners/",
+      directory: this.isDist ? "./dist/src/listeners/" : "./src/listeners/",
     });
 
     this.commandHandler.useListenerHandler(this.listenerHandler);
@@ -364,9 +358,7 @@ export class Fire extends AkairoClient {
     this.listenerHandler.loadAll();
 
     this.languages = new LanguageHandler(this, {
-      directory: this.isDist
-        ? "./dist/src/languages/"
-        : "./src/languages/",
+      directory: this.isDist ? "./dist/src/languages/" : "./src/languages/",
     });
     this.languages.loadAll();
     i18n
@@ -381,9 +373,7 @@ export class Fire extends AkairoClient {
       });
 
     this.modules = new ModuleHandler(this, {
-      directory: this.isDist
-        ? "./dist/src/modules/"
-        : "./src/modules/",
+      directory: this.isDist ? "./dist/src/modules/" : "./src/modules/",
     });
     this.modules.on("load", async (module: Module, isReload: boolean) => {
       await module?.init();
@@ -510,6 +500,7 @@ export class Fire extends AkairoClient {
         data: (experiment.get("data") ?? []) as [string, number][],
         filters: [],
       };
+      data.buckets.unshift(0); // control bucket
       this.experiments.set(data.id, data);
     }
     const filters = await this.db.query("SELECT * FROM experimentfilters;");
@@ -525,6 +516,9 @@ export class Fire extends AkairoClient {
         max_members: (filter.get("max_members") ?? null) as number,
         min_id: (filter.get("min_id")?.toString() ?? null) as string,
         max_id: (filter.get("max_id")?.toString() ?? null) as string,
+        min_boosts: (filter.get("min_boosts") ?? null) as number,
+        max_boosts: (filter.get("max_boosts") ?? null) as number,
+        boost_tier: (filter.get("boost_tier") ?? null) as number,
       });
     }
   }

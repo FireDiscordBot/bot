@@ -385,7 +385,7 @@ export class ApplicationCommandMessage {
     return await this.sourceMessage.react(emoji);
   }
 
-  hasExperiment(id: number, bucket: number) {
+  hasExperiment(id: number, bucket: number | number[]) {
     // if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment) return false;
