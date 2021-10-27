@@ -9,10 +9,10 @@ import { Fire } from "./Fire";
 
 export class Manager {
   state: Partial<ManagerState> = {};
+  private _ready: boolean = false;
   eventHandler: EventHandler;
   reconnector: Reconnector;
   killing: boolean = false;
-  ready: boolean = false;
   sentry: typeof Sentry;
   session?: string;
   version: string;
@@ -47,6 +47,16 @@ export class Manager {
 
   get isDist() {
     return __dirname.includes("/dist/") || __dirname.includes("\\dist\\");
+  }
+
+  get ready() {
+    return this._ready;
+  }
+
+  set ready(state: boolean) {
+    this._ready = state;
+    if (state && this.reconnector.sessionTimeout)
+      clearTimeout(this.reconnector.sessionTimeout);
   }
 
   init(reconnecting = false) {
@@ -102,7 +112,7 @@ export class Manager {
     this.id = data.id;
     this.session = data.session;
     this.client.options.presence.shardId = this.client.options.shards =
-    data.shards;
+      data.shards;
     this.client.options.shardCount = data.shardCount;
     this.client.sentry.setTag("cluster", this.id);
     return this.client.login();
