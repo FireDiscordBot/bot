@@ -8,8 +8,8 @@ import { GuildFeatures } from "discord.js";
 
 export interface Experiment {
   kind: "user" | "guild";
-  id: number;
-  label: string;
+  hash: number;
+  id: string;
   buckets: number[];
   active: boolean;
   data: [string, number][]; // overrides
@@ -25,4 +25,7 @@ export interface ExperimentFilters {
   max_members: number;
   min_id: string;
   max_id: string;
+  min_boosts: number;
+  max_boosts: number;
+  boost_tier: number;
 }

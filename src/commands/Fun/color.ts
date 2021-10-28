@@ -56,9 +56,11 @@ export default class Color extends Command {
     )}
 
 **HEX:** ${color.toHexString()}
+**HEX8:** ${color.toHex8String()}
 **RGB:** ${color.toRgbString()}
 **HSL:** ${color.toHslString()}
-**HSV:** ${color.toHsvString()}`;
+**HSV:** ${color.toHsvString()}
+**${message.language.get("COLOR_DECIMAL")}:** ${parseInt(color.toHex(), 16)}`;
 
     const image = await centra(
       `${constants.url.imageGen}color?color=${color.toHex()}`

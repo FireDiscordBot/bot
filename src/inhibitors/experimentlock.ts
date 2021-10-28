@@ -17,7 +17,7 @@ export default class ExperimentLockInhibitor extends Inhibitor {
     if (requiresExperiment) {
       const experiment = this.client.experiments.get(requiresExperiment.id);
       if (!experiment) return true;
-      else if (!message.hasExperiment(experiment.id, requiresExperiment.bucket))
+      else if (!message.hasExperiment(experiment.hash, requiresExperiment.bucket))
         return true;
     }
 

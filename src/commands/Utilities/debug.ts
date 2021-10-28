@@ -75,7 +75,7 @@ export default class Debug extends Command {
           message,
           "COMMAND_EXPERIMENT_REQUIRED"
         );
-      else if (!message.hasExperiment(experiment.id, requiresExperiment.bucket))
+      else if (!message.hasExperiment(experiment.hash, requiresExperiment.bucket))
         return await this.sendSingleError(
           message,
           "COMMAND_EXPERIMENT_REQUIRED"

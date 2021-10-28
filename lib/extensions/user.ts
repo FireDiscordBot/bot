@@ -52,14 +52,26 @@ export class FireUser extends User {
     return await this.client.util.unblacklist(this);
   }
 
-  hasExperiment(id: number, bucket: number) {
+  hasExperiment(id: number, bucket: number | number[]): boolean {
     // if (this.client.config.dev) return true;
     const experiment = this.client.experiments.get(id);
     if (!experiment || experiment.kind != "user") return false;
     if (!experiment.active) return true;
+    if (Array.isArray(bucket))
+      return bucket
+        .map((b) => this.hasExperiment(id, b))
+        .some((hasexp) => !!hasexp);
+    if (bucket == 0)
+      return experiment.buckets
+        .slice(1)
+        .map((b) => this.hasExperiment(id, b))
+        .every((hasexp) => hasexp == false);
     if (!!experiment.data.find(([i, b]) => i == this.id && b == bucket))
       // override
       return true;
+    else if (!!experiment.data.find(([i, b]) => i == this.id && b != bucket))
+      // override for another bucket, stop here and ignore filters
+      return false;
     let hasExperiment: boolean | number = 1;
     const filters = experiment.filters.find(
       (filter) => filter.bucket == bucket
@@ -67,12 +79,12 @@ export class FireUser extends User {
     if (!filters) return false;
     if (
       typeof filters.min_range == "number" &&
-      murmur3(`${experiment.label}:${this.id}`) % 1e4 < filters.min_range
+      murmur3(`${experiment.id}:${this.id}`) % 1e4 < filters.min_range
     )
       return false;
     if (
       typeof filters.max_range == "number" &&
-      murmur3(`${experiment.label}:${this.id}`) % 1e4 >= filters.max_range
+      murmur3(`${experiment.id}:${this.id}`) % 1e4 >= filters.max_range
     )
       return false;
     if (
@@ -97,9 +109,9 @@ export class FireUser extends User {
     experiment.data.push([this.id, bucket]);
     await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
       experiment.data?.length ? experiment.data : null,
-      BigInt(experiment.id),
+      BigInt(experiment.hash),
     ]);
-    this.client.experiments.set(experiment.id, experiment);
+    this.client.experiments.set(experiment.hash, experiment);
     this.client.refreshExperiments([experiment]);
     return this.hasExperiment(id, bucket);
   }
@@ -115,9 +127,9 @@ export class FireUser extends User {
     if (b == experiment.data.length) return !this.hasExperiment(id, bucket);
     await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
       experiment.data?.length ? experiment.data : null,
-      BigInt(experiment.id),
+      BigInt(experiment.hash),
     ]);
-    this.client.experiments.set(experiment.id, experiment);
+    this.client.experiments.set(experiment.hash, experiment);
     this.client.refreshExperiments([experiment]);
     return !this.hasExperiment(id, bucket);
   }

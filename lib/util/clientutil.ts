@@ -39,8 +39,8 @@ import { getCommitHash } from "./gitUtils";
 import { murmur3 } from "murmurhash-js";
 import { Fire } from "@fire/lib/Fire";
 import * as pidusage from "pidusage";
+import { cpus, totalmem } from "os";
 import * as centra from "centra";
-import { totalmem } from "os";
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -267,7 +267,7 @@ export class Util extends ClientUtil {
       userId: this.client.user ? this.client.user.id : "",
       started: new Date(this.client.launchTime).toISOString(),
       uptime: humanize(+new Date() - this.client.launchTime, "en"),
-      cpu: parseFloat(processStats.cpu.toFixed(2)),
+      cpu: parseFloat((processStats.cpu / cpus().length).toFixed(2)),
       ram: humanFileSize(processStats.memory),
       ramBytes: processStats.memory,
       totalRam: humanFileSize(totalmem()),

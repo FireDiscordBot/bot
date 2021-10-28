@@ -45,6 +45,13 @@ const isValidURL = (url: string) => {
     return false;
   }
 };
+
+// todo: remove this when discord-api-types is updated
+enum NewApplicationFlags {
+  GatewayMessageContent = 262144,
+  GatewayMessageContentLimited = 524288,
+}
+
 export default class User extends Command {
   constructor() {
     super("user", {
@@ -270,6 +277,24 @@ export default class User extends Command {
           } ${message.language.get("USER_BOT_PRESENCE_INTENT")}`
         );
       else appInfo.push(message.language.getError("USER_BOT_PRESENCE_INTENT"));
+      if (
+        (application.flags & NewApplicationFlags.GatewayMessageContent) ==
+          NewApplicationFlags.GatewayMessageContent ||
+        (application.flags &
+          NewApplicationFlags.GatewayMessageContentLimited) ==
+          NewApplicationFlags.GatewayMessageContentLimited
+      )
+        appInfo.push(
+          `${
+            application.flags & NewApplicationFlags.GatewayMessageContent
+              ? emojis.success
+              : emojis.warning
+          } ${message.language.get("USER_BOT_MESSAGE_CONTENT_INTENT")}`
+        );
+      else
+        appInfo.push(
+          message.language.getError("USER_BOT_MESSAGE_CONTENT_INTENT")
+        );
       if (user.bot && this.client.config.bots[user.id]?.best)
         appInfo.push(message.language.getSuccess("USER_BOT_BEST"));
       if (application.privacy_policy_url || application.terms_of_service_url)
