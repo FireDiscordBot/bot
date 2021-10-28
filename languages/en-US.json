@@ -936,6 +936,7 @@
   "USER_BOT_PRIVATE": "Private Bot",
   "USER_BOT_MEMBERS_INTENT": "Guild Members Intent",
   "USER_BOT_PRESENCE_INTENT": "Presence Intent",
+  "USER_BOT_MESSAGE_CONTENT_INTENT": "Message Content Intent",
   "USER_BOT_BEST": "Best Bot",
   "USER_BOT_PRIVACY_POLICY": "Privacy Policy",
   "USER_BOT_TERMS": "Terms of Service",

@@ -49,7 +49,7 @@ export class Reconnector {
       delete this.manager.session;
       delete this.manager.seq;
       return this.activate(
-        process.env.NODE_ENV == "development" ? 10000 : 2500
+        process.env.NODE_ENV == "development" ? 15000 : 2500
       ); // takes longer to reboot in dev
     }
     if (code == 4007)

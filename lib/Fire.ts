@@ -494,16 +494,16 @@ export class Fire extends AkairoClient {
     if (!experiments) return;
     for await (const experiment of experiments) {
       const data: Experiment = {
-        id: Number(experiment.get("id")),
+        hash: Number(experiment.get("id")),
         kind: experiment.get("kind") as "user" | "guild",
-        label: experiment.get("label") as string,
+        id: experiment.get("label") as string,
         buckets: experiment.get("buckets") as number[],
         active: experiment.get("active") as boolean,
         data: (experiment.get("data") ?? []) as [string, number][],
         filters: [],
       };
       data.buckets.unshift(0); // control bucket
-      this.experiments.set(data.id, data);
+      this.experiments.set(data.hash, data);
     }
     const filters = await this.db.query("SELECT * FROM experimentfilters;");
     for await (const filter of filters) {

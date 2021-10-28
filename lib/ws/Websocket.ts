@@ -14,19 +14,18 @@ export class Websocket extends Client {
   pongs: number;
 
   constructor(manager: Manager) {
+    const headers = {
+      authorization: process.env.WS_AUTH,
+      "x-aether-encoding": "zlib",
+      "User-Agent": manager.ua,
+    };
+    if (manager.seq) headers["x-aether-seq"] = manager.seq;
+    if (manager.session) headers["x-aether-session"] = manager.session;
     super(
       process.env.WS_HOST
         ? `wss://${process.env.WS_HOST}`
         : `ws://127.0.0.1:${process.env.WS_PORT}`,
-      {
-        headers: {
-          "x-aether-seq": manager.seq?.toString() || "0",
-          "x-aether-session": manager.session || "",
-          authorization: process.env.WS_AUTH,
-          "x-aether-encoding": "zlib",
-          "User-Agent": manager.ua,
-        },
-      }
+      { headers }
     );
     this.handlers = new Collection();
     this.waitingForPong = false;
@@ -55,17 +54,16 @@ export class Websocket extends Client {
         this.pongs++;
       });
       this.manager.client.getModule("aetherstats").init();
-      if (!this.manager.session)
-        this.send(
-          MessageUtil.encode(
-            new Message(EventType.IDENTIFY_CLIENT, {
-              ready: !!this.manager.client.readyAt,
-              id: this.manager.id,
-              pid: process.pid,
-              config: {},
-            })
-          )
-        );
+      this.send(
+        MessageUtil.encode(
+          new Message(EventType.IDENTIFY_CLIENT, {
+            ready: !!this.manager.client.readyAt,
+            id: this.manager.id,
+            pid: process.pid,
+            config: {},
+          })
+        )
+      );
       if (!this.manager.seq) this.manager.seq = 0;
     });
   }
