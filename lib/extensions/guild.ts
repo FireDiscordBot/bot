@@ -875,12 +875,12 @@ export class FireGuild extends Guild {
       return false;
     if (
       typeof filters.min_range == "number" &&
-      murmur3(`${experiment.label}:${this.id}`) % 1e4 < filters.min_range
+      murmur3(`${experiment.id}:${this.id}`) % 1e4 < filters.min_range
     )
       return false;
     if (
       typeof filters.max_range == "number" &&
-      murmur3(`${experiment.label}:${this.id}`) % 1e4 >= filters.max_range
+      murmur3(`${experiment.id}:${this.id}`) % 1e4 >= filters.max_range
     )
       return false;
     if (
@@ -930,9 +930,9 @@ export class FireGuild extends Guild {
     experiment.data.push([this.id, bucket]);
     await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
       experiment.data?.length ? experiment.data : null,
-      BigInt(experiment.id),
+      BigInt(experiment.hash),
     ]);
-    this.client.experiments.set(experiment.id, experiment);
+    this.client.experiments.set(experiment.hash, experiment);
     this.client.refreshExperiments([experiment]);
     return this.hasExperiment(id, bucket);
   }
@@ -948,9 +948,9 @@ export class FireGuild extends Guild {
     if (b == experiment.data.length) return !this.hasExperiment(id, bucket);
     await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
       experiment.data?.length ? experiment.data : null,
-      BigInt(experiment.id),
+      BigInt(experiment.hash),
     ]);
-    this.client.experiments.set(experiment.id, experiment);
+    this.client.experiments.set(experiment.hash, experiment);
     this.client.refreshExperiments([experiment]);
     return !this.hasExperiment(id, bucket);
   }

@@ -13,6 +13,6 @@ export default class ReloadExperimentsEvent extends Event {
       "[Aether] Received request to reload experiments."
     );
     for (const experiment of experiments)
-      this.manager.client.experiments.set(experiment.id, experiment);
+      this.manager.client.experiments.set(experiment.hash, experiment);
   }
 }

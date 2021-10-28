@@ -8,8 +8,8 @@ import { GuildFeatures } from "discord.js";
 
 export interface Experiment {
   kind: "user" | "guild";
-  id: number;
-  label: string;
+  hash: number;
+  id: string;
   buckets: number[];
   active: boolean;
   data: [string, number][]; // overrides
