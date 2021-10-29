@@ -10,4 +10,5 @@ export class CommandInteraction extends CommandInteractionBase {
   declare client: Fire;
 }
 
+// @ts-ignore (why this is needed? no clue)
 Structures.extend("CommandInteraction", () => CommandInteraction);
