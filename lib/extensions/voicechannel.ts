@@ -10,7 +10,7 @@ export class FireVoiceChannel extends VoiceChannel {
 
   constructor(guild: FireGuild, data?: RawGuildChannelData) {
     super(guild, data);
-    // @ts-ignore
+    // @ts-ignore (remove when text in vc is fully supported)
     this.messages = new MessageManager(this);
   }
 }
