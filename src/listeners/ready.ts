@@ -66,6 +66,30 @@ export default class Ready extends Listener {
     ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
     // or "0" which may be used for something later
 
+    if (process.env.USE_LITECORD != "true")
+      for (const [, command] of this.client.commandHandler
+        .modules as Collection<string, Command>) {
+        if (!command.requiresExperiment) continue;
+        command.guilds = this.client.guilds.cache
+          .filter((guild: FireGuild) =>
+            guild.hasExperiment(
+              command.requiresExperiment.id,
+              command.requiresExperiment.bucket
+            )
+          )
+          .map((g) => g.id);
+        if (!command.guilds.length) continue;
+        const registered = await command.registerSlashCommand();
+        if (registered && registered.length)
+          this.client.console.info(
+            `[Commands] Successfully registered locked command ${command.id} in ${registered.length} guild(s)`,
+            registered
+              .map((cmd) => cmd.guild?.name)
+              .filter((n) => !!n)
+              .join(", ")
+          );
+      }
+
     if (process.env.USE_LITECORD || this.client.manager.id != 0) return;
 
     const appCommands = await this.client.application.commands.fetch();
@@ -127,31 +151,6 @@ export default class Ready extends Listener {
             `[Commands] Successfully bulk updated ${updated.size} slash commands`
           );
       }
-    }
-
-    for (const [, command] of this.client.commandHandler.modules as Collection<
-      string,
-      Command
-    >) {
-      if (!command.requiresExperiment) continue;
-      command.guilds = this.client.guilds.cache
-        .filter((guild: FireGuild) =>
-          guild.hasExperiment(
-            command.requiresExperiment.id,
-            command.requiresExperiment.bucket
-          )
-        )
-        .map((g) => g.id);
-      if (!command.guilds.length) continue;
-      const registered = await command.registerSlashCommand();
-      if (registered && registered.length)
-        this.client.console.info(
-          `[Commands] Successfully registered locked command ${command.id} in ${registered.length} guild(s)`,
-          registered
-            .map((cmd) => cmd.guild?.name)
-            .filter((n) => !!n)
-            .join(", ")
-        );
     }
   }
 }
