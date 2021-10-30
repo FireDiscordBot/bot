@@ -38,7 +38,7 @@
     "chrono-node": "^2.3.2",
     "discord-akairo": "discord-akairo/discord-akairo",
     "discord-api-types": "^0.24.0",
-    "discord.js": "FireDiscordBot/discord.js#autocomplete",
+    "discord.js": "FireDiscordBot/discord.js",
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^10.0.0",
     "fuzzball": "^2.0.2",

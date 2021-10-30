@@ -54,6 +54,8 @@ export default class Quote extends Command {
       debug?: boolean;
     }
   ) {
+    if (message.channel.isVoice() && message.hasExperiment(377996528, 1))
+      return await message.error("COMMAND_NOTICE_TEXT_IN_VOICE_UNSUPPORTED");
     if (!args?.quote) return;
     args.debug = args.debug && message.author?.isSuperuser();
     if (args.quote == "cross_cluster") {

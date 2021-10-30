@@ -1,10 +1,10 @@
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { ClusterStats } from "@fire/lib/interfaces/stats";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
-import { Stats } from "@fire/lib/interfaces/stats";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
 import { Module } from "@fire/lib/util/module";
@@ -77,15 +77,15 @@ export default class Unload extends Command {
         const stats = (await (
           await centra(
             process.env.REST_HOST
-              ? `https://${process.env.REST_HOST}/stats`
-              : `http://127.0.0.1:${process.env.REST_PORT}/stats`
+              ? `https://${process.env.REST_HOST}/v2/stats`
+              : `http://127.0.0.1:${process.env.REST_PORT}/v2/stats`
           )
             .header("User-Agent", this.client.manager.ua)
             .send()
         )
           .json()
-          .catch(() => {})) as Stats | void;
-        if (stats && stats.clusters.length == 1)
+          .catch(() => {})) as ClusterStats[] | void;
+        if (stats && stats.length == 1)
           this.client.manager.ws.send(
             MessageUtil.encode(
               new Message(EventType.REQUEST_COMMANDS, {

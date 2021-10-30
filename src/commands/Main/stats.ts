@@ -1,7 +1,7 @@
-import { Cluster, Stats as AetherStats } from "@fire/lib/interfaces/stats";
 import { MessageEmbed, Permissions, version as djsver } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { humanFileSize } from "@fire/lib/util/clientutil";
+import { ClusterStats } from "@fire/lib/interfaces/stats";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as centra from "centra";
@@ -32,27 +32,27 @@ export default class Stats extends Command {
   async exec(message: FireMessage, args: { cluster?: number }) {
     if (!this.client.manager.ws?.open || args.cluster == this.client.manager.id)
       return await this.singularStats(message);
-    let clusterStats: Cluster;
-    const stats: AetherStats = await (
+    let clusterStats: ClusterStats;
+    const stats: ClusterStats[] = await (
       await centra(
         process.env.REST_HOST
-          ? `https://${process.env.REST_HOST}/stats`
-          : `http://127.0.0.1:${process.env.REST_PORT}/stats`
+          ? `https://${process.env.REST_HOST}/v2/stats`
+          : `http://127.0.0.1:${process.env.REST_PORT}/v2/stats`
       )
         .header("User-Agent", this.client.manager.ua)
         .send()
     ).json();
-    if (stats.clusters.length <= 1) return await this.singularStats(message);
+    if (stats.length <= 1) return await this.singularStats(message);
     const clusterId = args.cluster;
     if (typeof clusterId == "number") {
-      clusterStats = stats.clusters.find(
+      clusterStats = stats.find(
         (cluster) =>
           cluster.id == clusterId &&
           cluster.env == process.env.NODE_ENV.toLowerCase()
       );
       if (!clusterStats) return await message.error("STATS_UNKNOWN_CLUSTER");
     } else
-      clusterStats = stats.clusters.find(
+      clusterStats = stats.find(
         (cluster) =>
           cluster.id == this.client.manager.id &&
           cluster.env == process.env.NODE_ENV.toLowerCase()
@@ -79,21 +79,25 @@ export default class Stats extends Command {
       )
       .addField(
         message.language.get("GUILDS"),
-        `${clusterStats.guilds.toLocaleString(
-          message.language.id
-        )}/${stats.guilds.toLocaleString(message.language.id)}`,
+        `${clusterStats.guilds.toLocaleString(message.language.id)}/${stats
+          .map((c) => c.guilds)
+          .reduce((a, b) => a + b, 0)
+          .toLocaleString(message.language.id)}`,
         true
       )
       .addField(
         message.language.get("USERS"),
-        `${clusterStats.users.toLocaleString(
-          message.language.id
-        )}/${stats.users.toLocaleString(message.language.id)}`,
+        `${clusterStats.users.toLocaleString(message.language.id)}/${stats
+          .map((c) => c.users)
+          .reduce((a, b) => a + b, 0)
+          .toLocaleString(message.language.id)}`,
         true
       )
       .addField(
         message.language.get("STATS_MEMORY_USAGE"),
-        `${clusterStats.ram}/${stats.ram}`,
+        `${clusterStats.ram}/${humanFileSize(
+          stats.map((c) => c.ramBytes).reduce((a, b) => a + b, 0)
+        )}`,
         true
       )
       .addField(message.language.get("STATS_DJS_VER"), djsver, true)

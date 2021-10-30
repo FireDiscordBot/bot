@@ -29,9 +29,9 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { DiscordExperiment } from "../interfaces/aether";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { Cluster } from "@fire/lib/interfaces/stats";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language, LanguageKeys } from "./language";
+import { ClusterStats } from "../interfaces/stats";
 import { PaginatorInterface } from "./paginators";
 import { Message } from "@fire/lib/ws/Message";
 import { ClientUtil } from "discord-akairo";
@@ -251,7 +251,7 @@ export class Util extends ClientUtil {
     }
   }
 
-  async getClusterStats(): Promise<Cluster> {
+  async getClusterStats(): Promise<ClusterStats> {
     const processStats = await pidusage(process.pid);
     processStats.memory = process.memoryUsage().heapUsed;
     const env = (process.env.NODE_ENV || "DEVELOPMENT").toLowerCase();
