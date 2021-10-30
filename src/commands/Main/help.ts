@@ -8,10 +8,10 @@ import {
   GuildChannel,
   MessageEmbed,
   Permissions,
+  CommandInteractionOption,
 } from "discord.js";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Option } from "@fire/lib/interfaces/interactions";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
@@ -44,29 +44,35 @@ export default class Help extends Command {
     });
   }
 
-  async autocomplete(guild: FireGuild, option: Option) {
-    if (option.value)
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (focused.value)
       return this.client.commandHandler.modules
         .filter(
           (cmd) =>
-            cmd.id.includes(option.value.toString()) &&
+            cmd.id.includes(focused.value.toString()) &&
             (cmd.requiresExperiment
-              ? guild.hasExperiment(
+              ? interaction.guild.hasExperiment(
                   cmd.requiresExperiment.id,
                   cmd.requiresExperiment.bucket
                 )
-              : true)
+              : true) &&
+            (cmd.superuserOnly ? interaction.author.isSuperuser() : true)
         )
         .map((cmd) => cmd.id.replace("-", " "))
         .slice(0, 20);
     return this.client.commandHandler.modules
-      .filter((cmd) =>
-        cmd.requiresExperiment
-          ? guild.hasExperiment(
-              cmd.requiresExperiment.id,
-              cmd.requiresExperiment.bucket
-            )
-          : true
+      .filter(
+        (cmd) =>
+          (cmd.requiresExperiment
+            ? interaction.guild.hasExperiment(
+                cmd.requiresExperiment.id,
+                cmd.requiresExperiment.bucket
+              )
+            : true) &&
+          (cmd.superuserOnly ? interaction.author.isSuperuser() : true)
       )
       .map((cmd) => cmd.id.replace("-", " "))
       .slice(0, 20);

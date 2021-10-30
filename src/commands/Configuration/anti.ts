@@ -1,10 +1,13 @@
+import {
+  AutocompleteInteraction,
+  CommandInteractionOption,
+  Permissions,
+} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Option } from "@fire/lib/interfaces/interactions";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
 
 const valid = ["everyone", "zws", "spoiler", "selfbot"];
 
@@ -30,7 +33,7 @@ export default class Anti extends Command {
     });
   }
 
-  async autocomplete(guild: FireGuild, option: Option) {
+  async autocomplete() {
     // allows it to be immediately updated rather than waiting for the command to propogate
     return valid;
   }

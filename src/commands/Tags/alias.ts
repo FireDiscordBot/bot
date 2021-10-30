@@ -1,10 +1,9 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { CommandInteractionOption, Permissions } from "discord.js";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Option } from "@fire/lib/interfaces/interactions";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
 
 export default class TagAlias extends Command {
   constructor() {
@@ -38,14 +37,20 @@ export default class TagAlias extends Command {
     });
   }
 
-  async autocomplete(guild: FireGuild, option: Option) {
-    if (!guild.tags) {
-      guild.tags = new GuildTagManager(this.client, guild);
-      await guild.tags.init();
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (!interaction.guild.tags) {
+      interaction.guild.tags = new GuildTagManager(
+        this.client,
+        interaction.guild
+      );
+      await interaction.guild.tags.init();
     }
-    if (option.value)
-      return guild.tags.getFuzzyMatches(option.value.toString());
-    return guild.tags.names.slice(0, 20);
+    if (focused.value)
+      return interaction.guild.tags.getFuzzyMatches(focused.value.toString());
+    return interaction.guild.tags.names.slice(0, 20);
   }
 
   async exec(message: FireMessage, args: { tag?: string; alias?: string }) {

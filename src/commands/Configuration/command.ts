@@ -1,6 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Option } from "@fire/lib/interfaces/interactions";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { CommandInteractionOption } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -28,19 +28,23 @@ export default class CommandCommand extends Command {
     });
   }
 
-  async autocomplete(guild: FireGuild, option: Option) {
-    if (option.value)
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (focused.value)
       return this.client.commandHandler.modules
         .filter(
           (cmd) =>
-            cmd.id.includes(option.value.toString()) &&
+            cmd.id.includes(focused.value.toString()) &&
             !unableToDisable.includes(cmd.id) &&
             (cmd.requiresExperiment
-              ? guild.hasExperiment(
+              ? interaction.guild.hasExperiment(
                   cmd.requiresExperiment.id,
                   cmd.requiresExperiment.bucket
                 )
-              : true)
+              : true) &&
+            (cmd.superuserOnly ? interaction.author.isSuperuser() : true)
         )
         .map((cmd) => cmd.id.replace("-", " "))
         .slice(0, 20);
@@ -49,11 +53,12 @@ export default class CommandCommand extends Command {
         (cmd) =>
           !unableToDisable.includes(cmd.id) &&
           (cmd.requiresExperiment
-            ? guild.hasExperiment(
+            ? interaction.guild.hasExperiment(
                 cmd.requiresExperiment.id,
                 cmd.requiresExperiment.bucket
               )
-            : true)
+            : true) &&
+          (cmd.superuserOnly ? interaction.author.isSuperuser() : true)
       )
       .map((cmd) => cmd.id.replace("-", " "))
       .slice(0, 20);

@@ -5,8 +5,6 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { MessageAttachment } from "discord.js";
 import * as centra from "centra";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { Option } from "@fire/lib/interfaces/interactions";
 
 const flagTypes = [
   "transgender",
@@ -52,7 +50,7 @@ export default class Pride extends Command {
     });
   }
 
-  async autocomplete(guild: FireGuild, option: Option) {
+  async autocomplete() {
     // allows it to be immediately updated rather than waiting for the command to propogate
     return flagTypes;
   }

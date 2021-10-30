@@ -2,6 +2,7 @@ import {
   MessageComponentInteraction,
   ContextMenuInteraction,
   Interaction,
+  AutocompleteInteraction,
 } from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
@@ -31,6 +32,10 @@ export default class InteractionListener extends Listener {
     else if (interaction.isCommand())
       return await this.handleApplicationCommand(
         interaction as CommandInteraction
+      );
+    else if (interaction.isAutocomplete())
+      return await this.handleCommandAutocomplete(
+        interaction as AutocompleteInteraction
       );
     else if (interaction.isContextMenu())
       return await this.handleContextMenu(interaction);
@@ -114,6 +119,26 @@ export default class InteractionListener extends Listener {
         sentry.setUser(null);
       }
     }
+  }
+
+  async handleCommandAutocomplete(interaction: AutocompleteInteraction) {
+    // transform subcommands
+    if (interaction.options.data.find((opt) => opt.type == "SUB_COMMAND")) {
+      interaction.commandName = `${
+        interaction.commandName
+      }-${interaction.options.getSubcommand()}`;
+    }
+    const message = new ApplicationCommandMessage(this.client, interaction);
+    if (!message.command || typeof message.command.autocomplete !== "function")
+      return;
+    const focused = interaction.options.data.find((option) => option.focused);
+    if (!focused) return await interaction.respond([]);
+    const autocomplete = await message.command.autocomplete(message, focused);
+    return await interaction.respond(
+      Array.isArray(autocomplete) && autocomplete.length <= 20
+        ? autocomplete
+        : []
+    );
   }
 
   async handleButton(button: MessageComponentInteraction) {

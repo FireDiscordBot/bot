@@ -216,11 +216,6 @@ export class CommandHandler extends AkairoCommandHandler {
         message.command,
         Constants.BuiltInReasons.BOT
       );
-      // TODO: change hasPrompt to use FakeChannel (or just remove it since I don't use prompts)
-    } else if (
-      this.hasPrompt(message.channel as unknown as Channel, message.author)
-    ) {
-      this.emit(CommandHandlerEvents.IN_PROMPT, message);
     } else {
       return false;
     }

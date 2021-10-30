@@ -1,10 +1,9 @@
-import { Option } from "@fire/lib/interfaces/interactions";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { CommandInteractionOption, MessageAttachment } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Codeblock } from "@fire/src/arguments/codeblock";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { MessageAttachment } from "discord.js";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";
 
@@ -134,13 +133,16 @@ export default class Carbon extends Command {
     });
   }
 
-  async autocomplete(guild: FireGuild, option: Option) {
-    if (option.name == "theme") {
-      if (!option.value) return validThemes.slice(0, 20);
-      else return getFuzzy(validThemes, option.value.toString());
-    } else if (option.name == "font") {
-      if (!option.value) return validFonts.slice(0, 20);
-      else return getFuzzy(validFonts, option.value.toString());
+  async autocomplete(
+    _: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (focused.name == "theme") {
+      if (!focused.value) return validThemes.slice(0, 20);
+      else return getFuzzy(validThemes, focused.value.toString());
+    } else if (focused.name == "font") {
+      if (!focused.value) return validFonts.slice(0, 20);
+      else return getFuzzy(validFonts, focused.value.toString());
     }
     return [];
   }

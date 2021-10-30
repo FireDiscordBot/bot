@@ -24,9 +24,12 @@ export default class InteractionCreate extends Listener {
     if (!interaction) return;
     if (this.blacklistCheck(interaction)) return;
     // slash command or message component, use client interaction event
-    else if (interaction.type == 2 || interaction.type == 3) return;
-    else if (interaction.type == 4)
-      return await this.handleCommandAutocomplete(interaction);
+    else if (
+      interaction.type == 2 ||
+      interaction.type == 3 ||
+      interaction.type == 4
+    )
+      return;
     else {
       const haste = await this.client.util.haste(
         JSON.stringify(interaction, null, 4),
@@ -42,55 +45,6 @@ export default class InteractionCreate extends Listener {
         },
       });
     }
-  }
-
-  async handleCommandAutocomplete(
-    interaction: ApplicationCommandAutocompleteInteraction
-  ) {
-    // transform subcommands
-    if (
-      interaction.data.options[0]?.type ==
-      ApplicationCommandOptionType.SUB_COMMAND
-    ) {
-      interaction.data.name = `${interaction.data.name}-${interaction.data.options[0].name}`;
-      interaction.data.options = interaction.data.options[0].options;
-    }
-
-    const command = this.client.getCommand(interaction.data.name);
-    if (!command || typeof command.autocomplete !== "function") return;
-    const guild = this.client.guilds.cache.get(
-      interaction.guild_id
-    ) as FireGuild;
-    if (!guild) return;
-    const focused = interaction.data.options.find((option) => option.focused);
-    if (!focused) return await this.callbackAutocomplete(interaction, []);
-    const autocomplete = await command.autocomplete(guild, focused);
-    return await this.callbackAutocomplete(
-      interaction,
-      Array.isArray(autocomplete) && autocomplete.length <= 20
-        ? autocomplete
-        : []
-    );
-  }
-
-  private async callbackAutocomplete(
-    interaction: ApplicationCommandAutocompleteInteraction,
-    choices: unknown[]
-  ) {
-    return await this.client.req
-      .interactions(interaction.id)(interaction.token)
-      .callback.post({
-        data: {
-          type: 8,
-          data: {
-            choices: choices.map((choice) => ({
-              name: choice.toString(),
-              value: choice,
-            })),
-          },
-        },
-      })
-      .catch(() => {});
   }
 
   async callbackError(interaction: Interaction, error: Error) {

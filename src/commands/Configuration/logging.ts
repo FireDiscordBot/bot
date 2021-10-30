@@ -4,8 +4,6 @@ import { GuildLogManager } from "@fire/lib/util/logmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { Option } from "@fire/lib/interfaces/interactions";
 
 type validTypes =
   | "mod"
@@ -51,7 +49,7 @@ export default class Logging extends Command {
     });
   }
 
-  async autocomplete(guild: FireGuild, option: Option) {
+  async autocomplete() {
     // allows it to be immediately updated rather than waiting for the command to propogate
     return Object.keys(typeMapping);
   }

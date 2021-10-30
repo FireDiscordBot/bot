@@ -5,6 +5,7 @@ import {
   MessageEmbed,
   Permissions,
   DMChannel,
+  CommandInteractionOption,
 } from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
@@ -39,10 +40,13 @@ export default class Debug extends Command {
     });
   }
 
-  async autocomplete(guild: FireGuild, option: Option) {
-    if (option.value)
+  async autocomplete(
+    _: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (focused.value)
       return this.client.commandHandler.modules
-        .filter((cmd) => cmd.id.includes(option.value.toString()))
+        .filter((cmd) => cmd.id.includes(focused.value.toString()))
         .map((cmd) => cmd.id.replace("-", " "))
         .slice(0, 20);
     return this.client.commandHandler.modules
@@ -85,7 +89,9 @@ export default class Debug extends Command {
           command,
           "COMMAND_EXPERIMENT_REQUIRED"
         );
-      else if (!command.hasExperiment(experiment.hash, requiresExperiment.bucket))
+      else if (
+        !command.hasExperiment(experiment.hash, requiresExperiment.bucket)
+      )
         return await this.sendSingleError(
           command,
           "COMMAND_EXPERIMENT_REQUIRED"

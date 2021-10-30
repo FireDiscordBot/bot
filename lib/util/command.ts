@@ -8,6 +8,8 @@ import {
 import {
   CommandOptionDataTypeResolvable,
   ApplicationCommandOptionData,
+  CommandInteractionOption,
+  AutocompleteInteraction,
   ApplicationCommandData,
   ApplicationCommand,
   DiscordAPIError,
@@ -16,15 +18,13 @@ import {
   Role,
 } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
-import { ApplicationCommandOptionType } from "discord-api-types";
+import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
-import { Option } from "../interfaces/interactions";
 import { FireGuild } from "../extensions/guild";
 import { FireUser } from "../extensions/user";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
-import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 
 type ArgumentGenerator = (
   ...a: Parameters<AkairoArgumentGenerator>
@@ -158,7 +158,10 @@ export class Command extends AkairoCommand {
 
   async unload(): Promise<any> {}
 
-  async autocomplete(guild: FireGuild, focused: Option) {
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
     return [];
   }
 

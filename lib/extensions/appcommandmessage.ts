@@ -1,6 +1,7 @@
 import {
   CommandInteractionOptionResolver,
   EmojiIdentifierResolvable,
+  AutocompleteInteraction,
   DeconstructedSnowflake,
   GuildMemberResolvable,
   WebhookMessageOptions,
@@ -44,10 +45,10 @@ import { FireUser } from "./user";
 const { emojis, reactions } = constants;
 
 export class ApplicationCommandMessage {
+  slashCommand: CommandInteraction | AutocompleteInteraction;
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   attachments: Collection<string, MessageAttachment>;
   private snowflake: DeconstructedSnowflake;
-  slashCommand: CommandInteraction;
   groupActivityApplication: never;
   sent: false | "ack" | "message";
   type: MessageType = "DEFAULT";
@@ -72,7 +73,10 @@ export class ApplicationCommandMessage {
   embeds = [];
   nonce = "";
 
-  constructor(client: Fire, command: CommandInteraction) {
+  constructor(
+    client: Fire,
+    command: CommandInteraction | AutocompleteInteraction
+  ) {
     this.client = client;
     this.id = command.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
@@ -439,7 +443,7 @@ export class ApplicationCommandMessage {
   }
 
   async getRealMessage() {
-    if (!this.realChannel) return;
+    if (!this.realChannel || this.slashCommand.isAutocomplete()) return;
     if (this.sourceMessage instanceof FireMessage) return this.sourceMessage;
 
     let messageId = this.latestResponse as Snowflake;
@@ -619,8 +623,9 @@ export class FakeChannel extends BaseFakeChannel {
   // Defer interaction unless ephemeral & not set to defer anyways
   async ack(ephemeral = false) {
     if (
-      (ephemeral || (this.flags & 64) != 0) &&
-      !this.message.command.deferAnyways
+      ((ephemeral || (this.flags & 64) != 0) &&
+        !this.message.command.deferAnyways) ||
+      this.message.slashCommand.isAutocomplete()
     )
       return;
     await this.message.slashCommand
