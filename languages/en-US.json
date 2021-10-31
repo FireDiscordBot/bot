@@ -945,6 +945,7 @@
   "PERMROLES_FINISHED": "Alright, all channels should now copy the permissions for that role from here!",
   "PERMROLES_FINISHED_FAIL_SOME": "I've finished updating channels but failed to set permissions in {{failed}} channels.",
   "PERMROLES_REASON": "Setting up permission role...",
+  "PRONOUNS_COMMAND_DESCRIPTION": "Gets a users pronouns from pronoundb.org",
   "RELOAD_COMMAND_DESCRIPTION": "reload a command/language/listener/module",
   "UNLOAD_COMMAND_DESCRIPTION": "unload a command/language/listener/module",
   "TAG_COMMAND_DESCRIPTION": "See a list of all tags or view a tag",

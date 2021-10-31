@@ -1,4 +1,4 @@
-import { MessageEmbed, UserMention, Structures, User, Util } from "discord.js";
+import { MessageEmbed, UserMention, Structures, User, Util, Snowflake } from "discord.js";
 import { RawUserData } from "discord.js/typings/rawDataTypes";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -10,6 +10,7 @@ import { FireMember } from "./guildmember";
 import { murmur3 } from "murmurhash-js";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
+import got from 'got';
 
 type Primitive = string | boolean | number | null;
 
@@ -192,6 +193,18 @@ export class FireUser extends User {
     );
     return true;
   }
+
+  async getPronounsOf(user: User | Snowflake): Promise<Pronoun | undefined> {
+		const apiRes = (await got
+			.get(`https://pronoundb.org/api/v1/lookup?platform=discord&id=${user.id}`)
+			.json()
+			.catch(() => undefined)) as { pronouns: PronounCode } | undefined;
+
+		if (!apiRes) return undefined;
+		if (!apiRes.pronouns) throw new Error('apiRes.pronouns is undefined');
+
+		return client.constants.pronounMapping[apiRes.pronouns];
+	}
 
   async bean(
     guild: FireGuild,
