@@ -194,18 +194,6 @@ export class FireUser extends User {
     return true;
   }
 
-  async getPronounsOf(user: User | Snowflake): Promise<Pronoun | undefined> {
-		const apiRes = (await got
-			.get(`https://pronoundb.org/api/v1/lookup?platform=discord&id=${user.id}`)
-			.json()
-			.catch(() => undefined)) as { pronouns: PronounCode } | undefined;
-
-		if (!apiRes) return undefined;
-		if (!apiRes.pronouns) throw new Error('apiRes.pronouns is undefined');
-
-		return client.constants.pronounMapping[apiRes.pronouns];
-	}
-
   async bean(
     guild: FireGuild,
     reason: string,
