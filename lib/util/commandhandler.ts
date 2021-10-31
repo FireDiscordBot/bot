@@ -1,15 +1,10 @@
 import {
-  Category,
   CommandHandler as AkairoCommandHandler,
   CommandHandlerOptions,
   Constants,
+  Category,
 } from "discord-akairo";
-import {
-  DiscordAPIError,
-  ThreadChannel,
-  Collection,
-  Channel,
-} from "discord.js";
+import { DiscordAPIError, ThreadChannel, Collection } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ContextCommandMessage } from "../extensions/contextcommandmessage";
 import { CommandUtil, ParsedComponentData } from "./commandutil";
@@ -19,6 +14,11 @@ import { Command } from "./command";
 
 const { CommandHandlerEvents } = Constants;
 const allowedTypes = ["DEFAULT", "REPLY"];
+
+export type SlashArgumentTypeCaster = (
+  message: ApplicationCommandMessage,
+  phrase: string
+) => any;
 
 // TODO: replace as unknown when fully switched to slash
 
@@ -93,7 +93,8 @@ export class CommandHandler extends AkairoCommandHandler {
       return false;
 
     if (!message.content && message.hasExperiment(3901360561, 1))
-      message.content = message.attachments.first()?.description ?? message.content;
+      message.content =
+        message.attachments.first()?.description ?? message.content;
 
     try {
       if (this.fetchMembers && message.guild && !message.member)

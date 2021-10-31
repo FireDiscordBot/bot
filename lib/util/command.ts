@@ -25,6 +25,7 @@ import { FireGuild } from "../extensions/guild";
 import { FireUser } from "../extensions/user";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
+import { SlashArgumentTypeCaster } from "./commandhandler";
 
 type ArgumentGenerator = (
   ...a: Parameters<AkairoArgumentGenerator>
@@ -326,6 +327,21 @@ export class Command extends AkairoCommand {
         switch (type) {
           case "STRING": {
             args[arg.id] = message.slashCommand.options.getString(name);
+            if (
+              this.client.commandHandler.resolver.types.has(arg.type.toString())
+            ) {
+              const resolver = this.client.commandHandler.resolver.types.get(
+                arg.type.toString()
+              ) as unknown as SlashArgumentTypeCaster;
+              args[arg.id] = await resolver(message, args[arg.id]);
+            } else if (typeof arg.type == "function") {
+              args[arg.id] = await (
+                arg.type as unknown as SlashArgumentTypeCaster
+              )(
+                message,
+                message.slashCommand.options.get(name)?.value.toString()
+              );
+            }
             break;
           }
           case "INTEGER": {
@@ -375,8 +391,8 @@ export class Command extends AkairoCommand {
           }
         }
         if (!args[arg.id] && typeof arg.type == "function")
-          args[arg.id] = await arg.type(
-            message as unknown as FireMessage,
+          args[arg.id] = await (arg.type as unknown as SlashArgumentTypeCaster)(
+            message,
             message.slashCommand.options.get(name)?.value.toString()
           );
         else if (!args[arg.id]) args[arg.id] = arg.default;
