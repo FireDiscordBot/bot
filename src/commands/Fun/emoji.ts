@@ -40,7 +40,7 @@ export default class Emoji extends Command {
   }
 
   async exec(message: FireMessage, args: { name?: string; emoji?: string }) {
-    let emoji = args.emoji ?? message.attachments.first()?.url ?? args.name;
+    let emoji = args.emoji || message.attachments.first()?.url || args.name;
     let name = args.name || "stolen_emoji";
     if (!emoji) return await message.error("EMOJI_INVALID");
     if (snowflakeRegex.test(emoji.toString())) {
