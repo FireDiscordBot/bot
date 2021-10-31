@@ -856,7 +856,7 @@
   "REMINDERS_NONE_FOUND": "You must have a good memory because I found no reminders",
   "REMINDERS_FOOTER": "Use \"{{prefix}}delremind [number]\" to delete a reminder",
   "DELREMIND_COMMAND_DESCRIPTION": "Delete a reminder using the index from the reminders command",
-  "DELREMIND_ARG_DESCRIPTION": "The reminder you want to delete. Use the [number] from the reminders command",
+  "DELREMIND_ARG_DESCRIPTION": "The reminder you want to delete",
   "DELREMIND_MISSING_ARG": "You need to provide a reminder to delete",
   "DELREMIND_TOO_HIGH": "You don't have that many reminders",
   "DELREMIND_CONFIRM": "Reminder for {{date}}, {{text}}\n\nAre you sure you want to delete this reminder?",

@@ -46,12 +46,12 @@ export default class Debug extends Command {
   ) {
     if (focused.value)
       return this.client.commandHandler.modules
-        .filter((cmd) => cmd.id.includes(focused.value.toString()))
-        .map((cmd) => cmd.id.replace("-", " "))
-        .slice(0, 20);
+        .filter((cmd) => cmd.id.includes(focused.value?.toString()))
+        .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+        .slice(0, 25);
     return this.client.commandHandler.modules
-      .map((cmd) => cmd.id.replace("-", " "))
-      .slice(0, 20);
+      .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+      .slice(0, 25);
   }
 
   async run(command: ApplicationCommandMessage, args: { command: Command }) {

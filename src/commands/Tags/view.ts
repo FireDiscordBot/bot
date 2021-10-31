@@ -41,8 +41,8 @@ export default class TagView extends Command {
       await interaction.guild.tags.init();
     }
     if (focused.value)
-      return interaction.guild.tags.getFuzzyMatches(focused.value.toString());
-    return interaction.guild.tags.names.slice(0, 20);
+      return interaction.guild.tags.getFuzzyMatches(focused.value?.toString());
+    return interaction.guild.tags.names.slice(0, 25);
   }
 
   async run(command: ApplicationCommandMessage, args: { tag: string }) {

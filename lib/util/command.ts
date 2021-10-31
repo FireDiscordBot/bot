@@ -7,9 +7,9 @@ import {
 } from "discord-akairo";
 import {
   CommandOptionDataTypeResolvable,
+  ApplicationCommandOptionChoice,
   ApplicationCommandOptionData,
   CommandInteractionOption,
-  AutocompleteInteraction,
   ApplicationCommandData,
   ApplicationCommand,
   DiscordAPIError,
@@ -162,7 +162,7 @@ export class Command extends AkairoCommand {
   async autocomplete(
     interaction: ApplicationCommandMessage,
     focused: CommandInteractionOption
-  ) {
+  ): Promise<ApplicationCommandOptionChoice[]> {
     return [];
   }
 

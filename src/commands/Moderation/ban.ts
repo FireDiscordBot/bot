@@ -65,7 +65,6 @@ export default class Ban extends Command {
       message.util?.parsed?.alias.trim() == "fire"
     )
       return await message.error("BAN_SMTH_SPECIAL");
-    // TODO user|member has no silent variety so add one future me kthx
     else if (
       args.user instanceof FireMember &&
       args.user.isModerator(message.channel) &&

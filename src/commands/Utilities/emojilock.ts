@@ -1,5 +1,11 @@
+import {
+  CommandInteractionOption,
+  GuildEmoji,
+  Permissions,
+  Role,
+} from "discord.js";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { GuildEmoji, Permissions, Role } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -15,6 +21,7 @@ export default class EmojiLock extends Command {
           id: "emoji",
           type: "emoji",
           required: true,
+          autocomplete: true,
           default: null,
         },
         {
@@ -36,7 +43,24 @@ export default class EmojiLock extends Command {
     });
   }
 
-  // TODO: auto complete emojis
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (!interaction.guild) return [];
+    const emojis = await interaction.guild.emojis.fetch();
+    return emojis
+      .map((emoii) => ({
+        name: emoii.name,
+        value: emoii.toString(),
+      }))
+      .filter((emoji) =>
+        emoji.name
+          .toLowerCase()
+          .includes(focused.value?.toString().toLowerCase())
+      )
+      .slice(0, 25);
+  }
 
   async exec(message: FireMessage, args: { emoji: GuildEmoji; role: Role }) {
     if (!args.emoji || args.emoji?.guild?.id != message.guild.id)

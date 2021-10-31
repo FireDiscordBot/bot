@@ -1,6 +1,9 @@
+import {
+  CommandInteractionOption,
+  BitFieldResolvable,
+  PermissionString,
+} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { CommandInteractionOption } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -34,34 +37,33 @@ export default class CommandCommand extends Command {
   ) {
     if (focused.value)
       return this.client.commandHandler.modules
-        .filter(
-          (cmd) =>
-            cmd.id.includes(focused.value.toString()) &&
-            !unableToDisable.includes(cmd.id) &&
-            (cmd.requiresExperiment
-              ? interaction.guild.hasExperiment(
-                  cmd.requiresExperiment.id,
-                  cmd.requiresExperiment.bucket
-                )
-              : true) &&
-            (cmd.superuserOnly ? interaction.author.isSuperuser() : true)
-        )
-        .map((cmd) => cmd.id.replace("-", " "))
-        .slice(0, 20);
+        .filter((cmd) => this.filter(cmd, interaction))
+        .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+        .slice(0, 25);
     return this.client.commandHandler.modules
-      .filter(
-        (cmd) =>
-          !unableToDisable.includes(cmd.id) &&
-          (cmd.requiresExperiment
-            ? interaction.guild.hasExperiment(
-                cmd.requiresExperiment.id,
-                cmd.requiresExperiment.bucket
-              )
-            : true) &&
-          (cmd.superuserOnly ? interaction.author.isSuperuser() : true)
-      )
-      .map((cmd) => cmd.id.replace("-", " "))
-      .slice(0, 20);
+      .filter((cmd) => this.filter(cmd, interaction))
+      .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+      .slice(0, 25);
+  }
+
+  private filter(command: Command, message: ApplicationCommandMessage) {
+    if (!(command instanceof Command)) return false;
+    else if (command.hidden && !message.author.isSuperuser()) return false;
+    else if (command.ownerOnly && this.client.ownerID != message.author.id)
+      return false;
+    else if (command.superuserOnly && !message.author.isSuperuser())
+      return false;
+    else if (
+      command.moderatorOnly &&
+      !message.member?.isModerator(message.channel)
+    )
+      return false;
+    else if (
+      command.guilds.length &&
+      !command.guilds.includes(message.guild?.id)
+    )
+      return false;
+    return true;
   }
 
   async run(command: ApplicationCommandMessage, args: { command?: Command }) {

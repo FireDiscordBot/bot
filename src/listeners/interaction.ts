@@ -135,7 +135,7 @@ export default class InteractionListener extends Listener {
     if (!focused) return await interaction.respond([]);
     const autocomplete = await message.command.autocomplete(message, focused);
     return await interaction.respond(
-      Array.isArray(autocomplete) && autocomplete.length <= 20
+      Array.isArray(autocomplete) && autocomplete.length <= 25
         ? autocomplete
         : []
     );

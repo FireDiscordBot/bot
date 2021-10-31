@@ -50,35 +50,19 @@ export default class Help extends Command {
   ) {
     if (focused.value)
       return this.client.commandHandler.modules
-        .filter(
-          (cmd) =>
-            cmd.id.includes(focused.value.toString()) &&
-            (cmd.requiresExperiment
-              ? interaction.guild.hasExperiment(
-                  cmd.requiresExperiment.id,
-                  cmd.requiresExperiment.bucket
-                )
-              : true) &&
-            (cmd.superuserOnly ? interaction.author.isSuperuser() : true)
-        )
-        .map((cmd) => cmd.id.replace("-", " "))
-        .slice(0, 20);
+        .filter((cmd) => this.filter(cmd, interaction))
+        .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+        .slice(0, 25);
     return this.client.commandHandler.modules
-      .filter(
-        (cmd) =>
-          (cmd.requiresExperiment
-            ? interaction.guild.hasExperiment(
-                cmd.requiresExperiment.id,
-                cmd.requiresExperiment.bucket
-              )
-            : true) &&
-          (cmd.superuserOnly ? interaction.author.isSuperuser() : true)
-      )
-      .map((cmd) => cmd.id.replace("-", " "))
-      .slice(0, 20);
+      .filter((cmd) => this.filter(cmd, interaction))
+      .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+      .slice(0, 25);
   }
 
-  private filter(command: Command, message: FireMessage) {
+  private filter(
+    command: Command,
+    message: FireMessage | ApplicationCommandMessage
+  ) {
     if (!(command instanceof Command)) return false;
     else if (command.hidden && !message.author.isSuperuser()) return false;
     else if (command.ownerOnly && this.client.ownerID != message.author.id)
@@ -104,7 +88,7 @@ export default class Help extends Command {
     else if (
       (command.userPermissions as PermissionString[])?.length &&
       (message.channel as GuildChannel)
-        .permissionsFor(message.author)
+        .permissionsFor(message.member ?? message.author)
         .missing(
           command.userPermissions as BitFieldResolvable<
             PermissionString,

@@ -89,7 +89,7 @@ const getFuzzy = (
     );
   }
   if (!fuzzy.length) fuzzy = items.filter((item) => item.startsWith(name));
-  return fuzzy.slice(0, limit);
+  return fuzzy.slice(0, limit).map((value) => ({ name: value, value }));
 };
 
 export default class Carbon extends Command {
@@ -138,11 +138,15 @@ export default class Carbon extends Command {
     focused: CommandInteractionOption
   ) {
     if (focused.name == "theme") {
-      if (!focused.value) return validThemes.slice(0, 20);
-      else return getFuzzy(validThemes, focused.value.toString());
+      if (!focused.value)
+        return validThemes
+          .slice(0, 25)
+          .map((value) => ({ name: value, value }));
+      else return getFuzzy(validThemes, focused.value?.toString());
     } else if (focused.name == "font") {
-      if (!focused.value) return validFonts.slice(0, 20);
-      else return getFuzzy(validFonts, focused.value.toString());
+      if (!focused.value)
+        return validFonts.slice(0, 25).map((value) => ({ name: value, value }));
+      else return getFuzzy(validFonts, focused.value?.toString());
     }
     return [];
   }

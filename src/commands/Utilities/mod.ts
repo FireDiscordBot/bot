@@ -1,6 +1,10 @@
+import {
+  CommandInteractionOption,
+  MessageEmbed,
+  Permissions,
+} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ModAnalytics, Sk1erMod } from "@fire/lib/interfaces/sk1ermod";
-import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as centra from "centra";
@@ -18,6 +22,7 @@ export default class Mod extends Command {
         {
           id: "mod",
           type: "string",
+          autocomplete: true,
           default: null,
           required: false,
         },
@@ -29,7 +34,27 @@ export default class Mod extends Command {
     });
   }
 
-  // TODO: autocomplete mods list
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    const modsReq = await centra("https://api.sk1er.club/mods")
+      .header("User-Agent", this.client.manager.ua)
+      .send()
+      .catch(() => {});
+    if (!modsReq || modsReq.statusCode != 200) return [];
+    const mods: Sk1erMod[] = Object.values(
+      await modsReq.json().catch(() => {
+        return {};
+      })
+    );
+    return mods
+      .map((mod) => ({ name: mod.display, value: mod.mod_ids?.[0] }))
+      .filter((mod) =>
+        mod.name.toLowerCase().includes(focused.value?.toString().toLowerCase())
+      )
+      .slice(0, 25);
+  }
 
   async run(command: ApplicationCommandMessage, args: { mod?: string }) {
     const modsReq = await centra("https://api.sk1er.club/mods")

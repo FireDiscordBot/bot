@@ -4,7 +4,6 @@ import {
   Permissions,
 } from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -35,7 +34,7 @@ export default class Anti extends Command {
 
   async autocomplete() {
     // allows it to be immediately updated rather than waiting for the command to propogate
-    return valid;
+    return valid.map((value) => ({ name: value, value}));
   }
 
   // todo: make "ui" with components rather than using an argument

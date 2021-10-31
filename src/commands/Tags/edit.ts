@@ -56,8 +56,8 @@ export default class TagEdit extends Command {
       await interaction.guild.tags.init();
     }
     if (focused.value)
-      return interaction.guild.tags.getFuzzyMatches(focused.value.toString());
-    return interaction.guild.tags.names.slice(0, 20);
+      return interaction.guild.tags.getFuzzyMatches(focused.value?.toString());
+    return interaction.guild.tags.names.slice(0, 25);
   }
 
   async exec(message: FireMessage, args: { tag?: string; content?: string }) {
