@@ -396,7 +396,7 @@ export const messageConverter = async (
     channelId = message.channelId;
   }
   const channel = (message.client.channels.cache.get(channelId) ||
-    message.channel) as FireTextChannel;
+    message.channel) as FireTextChannel | FireVoiceChannel;
 
   try {
     return (await channel.messages.fetch(messageId)) as FireMessage;

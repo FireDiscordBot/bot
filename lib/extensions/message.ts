@@ -797,4 +797,5 @@ export class FireMessage extends Message {
   }
 }
 
+// @ts-ignore (why this is needed? no clue)
 Structures.extend("Message", () => FireMessage);

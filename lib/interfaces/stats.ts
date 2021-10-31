@@ -1,30 +1,11 @@
-export interface Stats {
-  cpu: number;
-  ram: string;
-  totalRam: string;
-  aetherStats: AetherStats;
-  clusterCount: number;
-  shardCount: number;
-  guilds: number;
-  users: number;
-  events: number;
-  clusters: Cluster[];
-}
-
-export interface AetherStats {
-  cpu: number;
-  ram: string;
-  ramBytes: number;
-}
-
-export interface Cluster {
+export interface ClusterStats {
   id: number;
   name: string;
   env: string;
   user: string;
   userId: string;
-  started: string;
   uptime: string;
+  started: string;
   cpu: number;
   ram: string;
   ramBytes: number;
@@ -39,6 +20,7 @@ export interface Cluster {
   commands: number;
   restPing: number;
   shards: Shard[];
+  error?: true;
 }
 
 export interface Shard {
