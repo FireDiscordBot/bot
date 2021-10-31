@@ -212,7 +212,7 @@ export const constants = {
       invite:
         /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/gim,
       cdnEmoji:
-        /^https?:\/\/cdn\.discordapp\.com(\/emojis\/\d{15,21})\.\w{3,4}(?:\?v=\d)/gim,
+        /^https?:\/\/cdn\.discordapp\.com(\/emojis\/\d{15,21})\.\w{3,4}(?:\?v=\d)?/gim,
       cdnAttachment:
         /^https?:\/\/cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21}\/\w*\.\w{3,4}/im,
       message:
