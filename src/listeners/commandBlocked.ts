@@ -42,13 +42,19 @@ export default class CommandBlocked extends Listener {
         if (hasSlash)
           return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL", {
             command: command.parent
-              ? `/${command.parent} ${command.id}`
+              ? `/${command.parent} ${command.id.replace(
+                  command.parent + "-",
+                  ""
+                )}`
               : `/${command.id}`,
           });
         else
           return await message.error("COMMAND_ERROR_SLASH_ONLY_NOSLASH", {
             command: command.parent
-              ? `/${command.parent} ${command.id}`
+              ? `/${command.parent} ${command.id.replace(
+                  command.parent + "-",
+                  ""
+                )}`
               : `/${command.id}`,
             components: [
               new MessageActionRow().addComponents(
@@ -68,13 +74,19 @@ export default class CommandBlocked extends Listener {
         if (hasSlash)
           return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL", {
             command: command.parent
-              ? `/${command.parent} ${command.id}`
+              ? `/${command.parent} ${command.id.replace(
+                  command.parent + "-",
+                  ""
+                )}`
               : `/${command.id}`,
           });
         else
           return await message.error("COMMAND_ERROR_SLASH_ONLY_USER_NOSLASH", {
             command: command.parent
-              ? `/${command.parent} ${command.id}`
+              ? `/${command.parent} ${command.id.replace(
+                  command.parent + "-",
+                  ""
+                )}`
               : `/${command.id}`,
             components: [
               new MessageActionRow().addComponents(
