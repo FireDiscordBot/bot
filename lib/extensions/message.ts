@@ -17,6 +17,7 @@ import {
   DMChannel,
   Webhook,
   Message,
+  Channel,
 } from "discord.js";
 import {
   GuildTextChannel,
@@ -26,6 +27,7 @@ import {
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { RawMessageData } from "discord.js/typings/rawDataTypes";
 import { CommandUtil } from "@fire/lib/util/commandutil";
+import { FireVoiceChannel } from "./voicechannel";
 import Filters from "@fire/src/modules/filters";
 import { FireTextChannel } from "./textchannel";
 import { LanguageKeys } from "../util/language";
@@ -344,12 +346,14 @@ export class FireMessage extends Message {
     }[] = [];
     if (
       ((destination instanceof FireTextChannel ||
+        destination instanceof FireVoiceChannel ||
         destination instanceof NewsChannel) &&
         quoter
           .permissionsIn(destination)
           .has(Permissions.FLAGS.ATTACH_FILES)) ||
       (!(
         destination instanceof FireTextChannel ||
+        destination instanceof FireVoiceChannel ||
         destination instanceof NewsChannel
       ) &&
         (BigInt(destination.permissions) & 32768n) == 32768n)
@@ -444,7 +448,7 @@ export class FireMessage extends Message {
     // since this#quote can take either but it should never
     // actually end up at this point
     if (
-      !(destination instanceof FireTextChannel) &&
+      !(destination instanceof Channel) &&
       !(destination instanceof ThreadChannel)
     )
       return;

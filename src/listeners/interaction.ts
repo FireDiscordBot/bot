@@ -106,7 +106,9 @@ export default class InteractionListener extends Listener {
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
         sentry.setExtras({
-          slashCommand: JSON.stringify(command),
+          slashCommand: JSON.stringify(command, (_, value) =>
+            typeof value === "bigint" ? `${value}n` : value
+          ),
           member: command.member
             ? `${command.member.user.username}#${command.member.user.discriminator}`
             : `${command.user.username}#${command.user.discriminator}`,

@@ -6,6 +6,7 @@ import {
   ReplyOptions,
   NewsChannel,
 } from "discord.js";
+import { FireVoiceChannel } from "../extensions/voicechannel";
 import { FireTextChannel } from "../extensions/textchannel";
 import humanizeDuration = require("humanize-duration");
 import { StringMap, TOptions } from "i18next";
@@ -54,7 +55,7 @@ export type MemberLogType =
   | "roles_remove"
   | "nickname_update";
 
-export type GuildTextChannel = FireTextChannel | NewsChannel;
+export type GuildTextChannel = FireTextChannel | FireVoiceChannel | NewsChannel;
 
 export type i18nOptions = TOptions<StringMap> & {
   components?: (

@@ -1,92 +1,93 @@
+import { KSoftClient } from "@aero/ksoft";
+import { config } from "@fire/config/index";
+import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import {
-  version as akairover,
+  categoryChannelSilentTypeCaster,
+  categoryChannelTypeCaster
+} from "@fire/src/arguments/category";
+import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
+import { commandTypeCaster } from "@fire/src/arguments/command";
+import { emojiTypeCaster } from "@fire/src/arguments/emoji";
+import {
+  guildChannelSilentTypeCaster,
+  guildChannelTypeCaster
+} from "@fire/src/arguments/guildChannel";
+import { hasteTypeCaster } from "@fire/src/arguments/haste";
+import { languageTypeCaster } from "@fire/src/arguments/language";
+import { listenerTypeCaster } from "@fire/src/arguments/listener";
+import {
+  memberSilentTypeCaster,
+  memberTypeCaster
+} from "@fire/src/arguments/member";
+import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
+import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
+import { memberRoleChannelCategoryTypeCaster } from "@fire/src/arguments/memberRoleChannelCategory";
+import { messageTypeCaster } from "@fire/src/arguments/message";
+import { moduleTypeCaster } from "@fire/src/arguments/module";
+import {
+  previewSilentTypeCaster,
+  previewTypeCaster
+} from "@fire/src/arguments/preview";
+import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
+import {
+  textChannelSilentTypeCaster,
+  textChannelTypeCaster
+} from "@fire/src/arguments/textChannel";
+import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
+import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
+import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
+import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
+import * as Sentry from "@sentry/node";
+import {
+  AkairoClient,
   ArgumentTypeCaster,
   InhibitorHandler,
   ListenerHandler,
-  AkairoClient,
+  version as akairover
 } from "discord-akairo";
+import { APIGuildMember } from "discord-api-types";
 import {
-  categoryChannelSilentTypeCaster,
-  categoryChannelTypeCaster,
-} from "@fire/src/arguments/category";
-import {
-  textChannelSilentTypeCaster,
-  textChannelTypeCaster,
-} from "@fire/src/arguments/textChannel";
-import {
-  guildChannelSilentTypeCaster,
-  guildChannelTypeCaster,
-} from "@fire/src/arguments/guildChannel";
-import {
-  memberSilentTypeCaster,
-  memberTypeCaster,
-} from "@fire/src/arguments/member";
-import { memberRoleChannelCategoryTypeCaster } from "@fire/src/arguments/memberRoleChannelCategory";
-import {
-  previewSilentTypeCaster,
-  previewTypeCaster,
-} from "@fire/src/arguments/preview";
-import {
-  version as djsver,
+  ClientUser,
+  Collection,
+  Constants,
   GuildFeatures,
   SnowflakeUtil,
-  Collection,
-  ClientUser,
-  Constants,
+  version as djsver
 } from "discord.js";
-import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
-import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
-import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
-import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
-import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
-import { ApplicationCommandMessage } from "./extensions/appcommandmessage";
-import { ContextCommandMessage } from "./extensions/contextcommandmessage";
-import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
-import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
-import { GuildApplicationCommandsUpdate } from "./interfaces/discord";
-import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
-import { languageTypeCaster } from "@fire/src/arguments/language";
-import { listenerTypeCaster } from "@fire/src/arguments/listener";
-import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
-import { ComponentMessage } from "./extensions/componentmessage";
-import { booleanTypeCaster } from "@fire/src/arguments/boolean";
-import { commandTypeCaster } from "@fire/src/arguments/command";
-import { messageTypeCaster } from "@fire/src/arguments/message";
-import { moduleTypeCaster } from "@fire/src/arguments/module";
-import { Language, LanguageHandler } from "./util/language";
-import { hasteTypeCaster } from "@fire/src/arguments/haste";
-import { emojiTypeCaster } from "@fire/src/arguments/emoji";
-import { PostgresProvider } from "./providers/postgres";
-import { CommandHandler } from "./util/commandhandler";
-import { Module, ModuleHandler } from "./util/module";
-import { FireMember } from "./extensions/guildmember";
-import { Experiment } from "./interfaces/experiments";
-import { MessageUtil } from "./ws/util/MessageUtil";
-import { APIGuildMember } from "discord-api-types";
-import { FireMessage } from "./extensions/message";
-import { Client as PGClient } from "ts-postgres";
-import { RESTManager } from "./rest/RESTManager";
-import { EventType } from "./ws/util/constants";
-import { FireGuild } from "./extensions/guild";
-import { FireUser } from "./extensions/user";
-import { Inhibitor } from "./util/inhibitor";
-import { FireConsole } from "./util/console";
-import { config } from "@fire/config/index";
-import { Listener } from "./util/listener";
-import { KSoftClient } from "@aero/ksoft";
-import { Command } from "./util/command";
-import { Util } from "./util/clientutil";
-import * as Sentry from "@sentry/node";
-import { Message } from "./ws/Message";
-import { Manager } from "./Manager";
-import * as i18next from "i18next";
 import * as fuzz from "fuzzball";
+import * as i18next from "i18next";
+import { Client as PGClient } from "ts-postgres";
+import { ApplicationCommandMessage } from "./extensions/appcommandmessage";
+import { ComponentMessage } from "./extensions/componentmessage";
+import { ContextCommandMessage } from "./extensions/contextcommandmessage";
+import { FireGuild } from "./extensions/guild";
+import { FireMember } from "./extensions/guildmember";
+import { FireMessage } from "./extensions/message";
+import { FireUser } from "./extensions/user";
+import { GuildApplicationCommandsUpdate } from "./interfaces/discord";
+import { Experiment } from "./interfaces/experiments";
+import { Manager } from "./Manager";
+import { PostgresProvider } from "./providers/postgres";
+import { RESTManager } from "./rest/RESTManager";
+import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
+import { Util } from "./util/clientutil";
+import { Command } from "./util/command";
+import { CommandHandler } from "./util/commandhandler";
+import { FireConsole } from "./util/console";
+import { Inhibitor } from "./util/inhibitor";
+import { Language, LanguageHandler } from "./util/language";
+import { Listener } from "./util/listener";
+import { Module, ModuleHandler } from "./util/module";
+import { Message } from "./ws/Message";
+import { EventType } from "./ws/util/constants";
+import { MessageUtil } from "./ws/util/MessageUtil";
 
 // this shit has some weird import fuckery, this is the only way I can use it
 const i18n = i18next as unknown as typeof i18next.default;
 
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 type NonceHandler = (data: unknown) => Promise<any> | any;
+type SelectHandler = (data: unknown) => void;
 
 // Rewrite completed - 15:10 17/1/2021 :)
 export class Fire extends AkairoClient {
@@ -119,6 +120,9 @@ export class Fire extends AkairoClient {
 
   // Gateway Events
   nonceHandlers: Collection<string, NonceHandler>;
+
+  // /select Handlers
+  selectHandlers: Collection<string, SelectHandler>;
 
   // Private Utilities
   private readyWait: Promise<Fire>;
@@ -391,6 +395,7 @@ export class Fire extends AkairoClient {
 
     this.buttonHandlers = new Collection();
     this.buttonHandlersOnce = new Collection();
+    this.selectHandlers = new Collection();
   }
 
   get req() {

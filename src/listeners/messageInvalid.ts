@@ -18,7 +18,6 @@ let mentionRegex: RegExp;
 
 export default class MessageInvalid extends Listener {
   botQuoteRegex: RegExp;
-  slashCommandRegex: RegExp;
 
   constructor() {
     super("messageInvalid", {
@@ -27,25 +26,20 @@ export default class MessageInvalid extends Listener {
     });
     this.botQuoteRegex =
       /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development|staging)\.)?discord(?:app)?\.com?\/channels\/(?:\d{15,21}\/?){3}/gim;
-    this.slashCommandRegex = /<\/\w+:\d{15,21}>/gim;
   }
 
   async exec(message: FireMessage) {
     if (
       (this.client.config.dev && process.env.USE_LITECORD != "true") ||
       this.botQuoteRegex.test(message.content) ||
-      this.slashCommandRegex.test(message.content) ||
       !message.guild ||
       message.editedAt
     ) {
       this.botQuoteRegex.lastIndex = 0;
-      this.slashCommandRegex.lastIndex = 0;
-      this.cleanCommandUtil(message);
-      return;
+      return this.cleanCommandUtil(message);
     }
 
     this.botQuoteRegex.lastIndex = 0;
-    this.slashCommandRegex.lastIndex = 0;
 
     let inhibited = false;
     const inhibitors = [...this.client.inhibitorHandler.modules.values()].sort(

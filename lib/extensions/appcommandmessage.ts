@@ -87,7 +87,23 @@ export class ApplicationCommandMessage {
       }-${command.options.getSubcommand()}`;
       command.options = new CommandInteractionOptionResolver(
         client,
-        command.options.data[0].options ?? [],
+        command.options.data.find((opt) => opt.type == "SUB_COMMAND").options ??
+          [],
+        command.options.resolved
+      );
+    } else if (
+      command.options.data.find((opt) => opt.type == "SUB_COMMAND_GROUP")
+    ) {
+      command.commandName = `${
+        command.commandName
+      }-${command.options.getSubcommandGroup()}-${command.options.getSubcommand()}`;
+      command.options = new CommandInteractionOptionResolver(
+        client,
+        command.options.data
+          .find((opt) => opt.type == "SUB_COMMAND_GROUP")
+          .options.find(
+            (option) => option.name == command.options.getSubcommand()
+          ).options ?? [],
         command.options.resolved
       );
     }
