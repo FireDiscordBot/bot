@@ -14,7 +14,10 @@ import {
   Permissions,
   Snowflake,
 } from "discord.js";
-import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
+import {
+  ApplicationCommandOptionTypes,
+  ChannelTypes,
+} from "discord.js/typings/enums";
 import { FireGuild } from "../extensions/guild";
 import { Language } from "./language";
 import { Fire } from "@fire/lib/Fire";
@@ -56,6 +59,36 @@ const slashCommandTypeMappings = {
   ],
   ROLE: ["role", "roleSilent"],
   MENTIONABLE: ["member|role"],
+};
+
+const channelTypeMapping: Record<
+  string,
+  Exclude<ChannelTypes, ChannelTypes.UNKNOWN>[]
+> = {
+  textChannel: [
+    ChannelTypes.GUILD_TEXT,
+    ChannelTypes.GUILD_NEWS_THREAD,
+    ChannelTypes.GUILD_PUBLIC_THREAD,
+    ChannelTypes.GUILD_PRIVATE_THREAD,
+  ],
+  voiceChannel: [ChannelTypes.GUILD_VOICE, ChannelTypes.GUILD_STAGE_VOICE],
+  textChannelSilent: [
+    ChannelTypes.GUILD_TEXT,
+    ChannelTypes.GUILD_NEWS_THREAD,
+    ChannelTypes.GUILD_PUBLIC_THREAD,
+    ChannelTypes.GUILD_PRIVATE_THREAD,
+  ],
+  category: [ChannelTypes.GUILD_CATEGORY],
+  categorySilent: [ChannelTypes.GUILD_CATEGORY],
+  guildChannel: [
+    ChannelTypes.GUILD_TEXT,
+    ChannelTypes.GUILD_VOICE,
+    ChannelTypes.GUILD_STAGE_VOICE,
+    ChannelTypes.GUILD_CATEGORY,
+    ChannelTypes.GUILD_NEWS_THREAD,
+    ChannelTypes.GUILD_PUBLIC_THREAD,
+    ChannelTypes.GUILD_PRIVATE_THREAD,
+  ],
 };
 
 export class Command extends AkairoCommand {
@@ -187,11 +220,13 @@ export class Command extends AkairoCommand {
             .map((arg) => this.getSlashCommandOption(arg)),
         ];
     } else {
-      const subcommands = this.client.commandHandler.modules.filter(
-        (command: Command) => command.parent == this.id
-      );
+      const subcommands = this.getSubcommands();
+      const subcommandGroups = this.getSubcommandGroups();
       // @ts-ignore (i am in too much pain to figure out why this is complaining)
       data["options"] = [
+        ...subcommandGroups.map((command: Command) =>
+          command.getSubcommandGroup()
+        ),
         ...subcommands.map((command: Command) => command.getSubcommand()),
         ...(this.args as ArgumentOptions[])
           .filter((arg) => arg.readableType)
@@ -199,6 +234,18 @@ export class Command extends AkairoCommand {
       ];
     }
     return data;
+  }
+
+  getSubcommands() {
+    return this.client.commandHandler.modules.filter(
+      (command: Command) => command.parent == this.id && !command.group
+    );
+  }
+
+  getSubcommandGroups() {
+    return this.client.commandHandler.modules.filter(
+      (command: Command) => command.parent == this.id && command.group
+    );
   }
 
   getSlashCommandOption(argument: ArgumentOptions) {
@@ -222,6 +269,11 @@ export class Command extends AkairoCommand {
       required: argument.required,
     };
     if (!options.description) delete options.description;
+    if (
+      options.type == ApplicationCommandOptionTypes.CHANNEL ||
+      options.type == "CHANNEL"
+    )
+      options.channelTypes = channelTypeMapping[argument.type.toString()] ?? [];
     if (
       argument.slashCommandOptions ||
       (argument.type instanceof Array &&
@@ -248,7 +300,7 @@ export class Command extends AkairoCommand {
   getSubcommand() {
     if (!this.parent) return;
     let data = {
-      name: this.id.replace(`${this.parent}-`, ""),
+      name: this.id.split("-").at(-1),
       description:
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
@@ -256,11 +308,25 @@ export class Command extends AkairoCommand {
       type: ApplicationCommandOptionTypes.SUB_COMMAND,
     };
     if (this.args?.length)
-      data["options"] = [
-        ...(this.args as ArgumentOptions[])
-          .filter((arg) => arg.readableType)
-          .map((arg) => this.getSlashCommandOption(arg)),
-      ];
+      data["options"] = (this.args as ArgumentOptions[])
+        .filter((arg) => arg.readableType)
+        .map((arg) => this.getSlashCommandOption(arg));
+    return data;
+  }
+
+  getSubcommandGroup() {
+    if (!this.parent || !this.group) return;
+    let data = {
+      name: this.id.replace(`${this.parent}-`, ""),
+      description:
+        typeof this.description == "function"
+          ? this.description(this.client.getLanguage("en-US"))
+          : this.description || "No Description Provided",
+      type: ApplicationCommandOptionTypes.SUB_COMMAND_GROUP,
+    };
+    data["options"] = this.getSubcommands().map((command: Command) =>
+      command.getSubcommand()
+    );
     return data;
   }
 
