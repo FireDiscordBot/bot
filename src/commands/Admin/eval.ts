@@ -122,8 +122,8 @@ export default class Eval extends Command {
     }
     const { success, result, type } = await this.eval(message, args);
     success
-      ? await message.success()?.catch(() => {})
-      : await message.error()?.catch(() => {});
+      ? await message.react(emojis.success)?.catch(() => {})
+      : await message.react(emojis.error)?.catch(() => {});
     if (this.client.manager.ws) {
       let input: string, output: string;
       try {

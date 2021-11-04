@@ -20,7 +20,7 @@ export default class CommandError extends Listener {
   async exec(
     message: FireMessage,
     command: Command,
-    args: any[],
+    args: Record<string, unknown>,
     error: Error
   ) {
     if (
@@ -39,9 +39,7 @@ export default class CommandError extends Listener {
       if (!checks) return;
     }
 
-    try {
-      await message.error();
-    } catch {}
+    await message.react(emojis.error).catch(() => {});
 
     if (typeof this.client.sentry != "undefined") {
       const sentry = this.client.sentry;

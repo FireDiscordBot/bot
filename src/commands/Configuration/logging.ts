@@ -92,7 +92,7 @@ export default class Logging extends Command {
         ? await message.success(
             `LOGGING_DISABLED_${type.toUpperCase()}` as LanguageKeys
           )
-        : await message.error();
+        : await message.error("ERROR_CONTACT_SUPPORT");
     } else {
       let set: any;
       try {
@@ -113,7 +113,7 @@ export default class Logging extends Command {
         ? await message.success(
             `LOGGING_ENABLED_${type.toUpperCase()}` as LanguageKeys
           )
-        : await message.error();
+        : await message.error("ERROR_CONTACT_SUPPORT");
     }
   }
 }

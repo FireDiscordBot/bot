@@ -63,7 +63,7 @@ export default class Remind extends Command {
       const event = this.client.manager.eventHandler?.store?.get(
         EventType.REMINDER_SEND
       ) as ReminderSendEvent;
-      if (!event) return await message.error();
+      if (!event) return await message.error("ERROR_CONTACT_SUPPORT");
       const now = +new Date();
       // we push a dummy reminder that we use for "snoozing"
       event.sent.push({
@@ -188,6 +188,6 @@ export default class Remind extends Command {
             times: success.map((s) => "- " + s).join("\n"),
           }
         )
-      : await message.error();
+      : await message.error("ERROR_CONTACT_SUPPORT");
   }
 }

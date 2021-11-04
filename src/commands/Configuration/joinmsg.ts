@@ -116,11 +116,13 @@ export default class JoinMSG extends Command {
       disableArgs.includes(args.channel)
     ) {
       if (!msg) return await message.error("JOINMSG_DISABLE_ALREADY");
-      const msgDelete = message.guild.settings.delete("greet.joinmsg");
-      const channelDelete = message.guild.settings.delete("greet.joinchannel");
+      const msgDelete = await message.guild.settings.delete("greet.joinmsg");
+      const channelDelete = await message.guild.settings.delete(
+        "greet.joinchannel"
+      );
       return !!msgDelete && !!channelDelete
-        ? await message.success()
-        : await message.error();
+        ? await message.success("JOINMSG_DISABLED")
+        : await message.error("ERROR_CONTACT_SUPPORT");
     }
     const channel = args.channel as FireTextChannel;
     const allowedMentions: MessageMentionOptions = {

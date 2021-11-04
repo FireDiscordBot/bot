@@ -120,24 +120,19 @@ export default class Button extends Listener {
           return await button.error("EMBED_OBJECT_INVALID");
 
         if (embeds instanceof Array) {
-          let sentContent = false;
-          for (const embed of embeds) {
-            const instance = new MessageEmbed(embed);
-            if (this.isEmbedEmpty(instance)) continue;
-            content && !sentContent
-              ? await button.channel.send({ content, embeds: [instance] })
-              : await button.channel.send({ embeds: [instance] });
-            if (!sentContent) sentContent = true;
-          }
-          return await message.success();
+          const instances = embeds
+            .map((e) => new MessageEmbed(e))
+            .filter((e) => !this.client.util.isEmbedEmpty(e))
+            .slice(0, 10);
+          return await button.channel.send({ content, embeds: instances });
         } else if (typeof embeds == "object") {
           const instance = new MessageEmbed(embeds);
-          if (this.isEmbedEmpty(instance))
-            return await message.error("EMBED_OBJECT_INVALID");
+          if (this.client.util.isEmbedEmpty(instance))
+            return await button.error("EMBED_OBJECT_INVALID");
           return content
             ? await button.channel.send({ content, embeds: [instance] })
             : await button.channel.send({ embeds: [instance] });
-        } else return await message.error("EMBED_OBJECT_INVALID");
+        } else return await button.error("EMBED_OBJECT_INVALID");
       }
     }
 

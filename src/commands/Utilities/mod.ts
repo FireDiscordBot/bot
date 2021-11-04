@@ -61,7 +61,8 @@ export default class Mod extends Command {
       .header("User-Agent", this.client.manager.ua)
       .send()
       .catch(() => {});
-    if (!modsReq || modsReq.statusCode != 200) return await command.error();
+    if (!modsReq || modsReq.statusCode != 200)
+      return await command.error("MOD_FETCH_FAIL");
     const mods: Sk1erMod[] = Object.values(
       await modsReq.json().catch(() => {
         return {};

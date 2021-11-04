@@ -9,7 +9,7 @@ export default class TicketRemove extends Command {
   constructor() {
     super("remove", {
       description: (language: Language) =>
-        language.get("TICKETREMOVE_COMMAND_DESCRIPTION"),
+        language.get("TICKET_REMOVE_COMMAND_DESCRIPTION"),
       clientPermissions: [
         Permissions.FLAGS.SEND_MESSAGES,
         Permissions.FLAGS.MANAGE_ROLES,
@@ -63,6 +63,12 @@ export default class TicketRemove extends Command {
         }
       )
       .catch(() => {});
-    return updated ? await message.success() : await message.error();
+    return updated
+      ? await message.success("TICKET_REMOVE_SUCCESS", {
+          user: args.user.toString(),
+        })
+      : await message.error("TICKET_REMOVE_FAILURE", {
+          user: args.user.toString(),
+        });
   }
 }

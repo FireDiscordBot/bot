@@ -43,7 +43,7 @@ export class Language extends AkairoModule {
     return this.client.i18n.t(key, { lng: this.id }) != key;
   }
 
-  get(key?: LanguageKeys, args?: TOptions<StringMap>) {
+  get(key: LanguageKeys, args?: TOptions<StringMap>) {
     if (args && !("interpolation" in args))
       args.interpolation = { escapeValue: false };
     if (!this.enabled) return this.client.i18n.t(key, { ...args });
@@ -52,19 +52,19 @@ export class Language extends AkairoModule {
     return this.client.i18n.t(key, { ...args, lng: this.id });
   }
 
-  getSuccess(key?: LanguageKeys, args?: TOptions<StringMap>) {
+  getSuccess(key: LanguageKeys, args?: TOptions<StringMap>) {
     return `${constants.emojis.success} ${this.get(key, args)}`;
   }
 
-  getWarning(key?: LanguageKeys, args?: TOptions<StringMap>) {
+  getWarning(key: LanguageKeys, args?: TOptions<StringMap>) {
     return `${constants.emojis.warning} ${this.get(key, args)}`;
   }
 
-  getError(key?: LanguageKeys, args?: TOptions<StringMap>) {
+  getError(key: LanguageKeys, args?: TOptions<StringMap>) {
     return `${constants.emojis.error} ${this.get(key, args)}`;
   }
 
-  getSlashError(key?: LanguageKeys, args?: TOptions<StringMap>) {
+  getSlashError(key: LanguageKeys, args?: TOptions<StringMap>) {
     return `${constants.emojis.slashError} ${this.get(key, args)}`;
   }
 }

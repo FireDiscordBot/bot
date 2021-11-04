@@ -78,6 +78,6 @@ export default class Alias extends Command {
       )
     );
 
-    return await message.success();
+    return await message.success("SLASH_COMMAND_HANDLE_SUCCESS");
   }
 }

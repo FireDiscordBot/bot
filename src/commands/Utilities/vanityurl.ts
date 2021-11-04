@@ -65,7 +65,7 @@ export default class VanityURL extends Command {
 
     if (deleteKeywords.includes(args.code)) {
       await this.module.delete(command.guild);
-      return await command.success();
+      return await command.success("VANITYURL_DELETED");
     }
 
     if (!validityRegex.test(args.code) && !command.author.isSuperuser()) {
@@ -89,14 +89,13 @@ export default class VanityURL extends Command {
         command.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
       ) {
         const vanity = await command.guild.fetchVanityData().catch(() => {});
-        if (vanity)
-          invite = await this.client.fetchInvite(vanity.code).catch();
+        if (vanity) invite = await this.client.fetchInvite(vanity.code).catch();
       }
 
       const channel =
         command.guild.systemChannel || (command.realChannel as FireTextChannel);
       if (typeof channel.createInvite != "function")
-        return await command.error();
+        return await command.error("ERROR_CONTACT_SUPPORT");
 
       // this will be false if above failed
       if (!invite)
@@ -116,7 +115,7 @@ export default class VanityURL extends Command {
     }
 
     const vanity = await this.module.create(command.guild, args.code, invite);
-    if (!vanity) return await command.error();
+    if (!vanity) return await command.error("ERROR_CONTACT_SUPPORT");
     else if (vanity == "blacklisted")
       return await command.error("VANITYURL_BLACKLISTED");
     else

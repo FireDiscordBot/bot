@@ -100,7 +100,7 @@ export class FireMessage extends Message {
     return this.client.util.paginators.get(this.id) ?? null;
   }
 
-  send(key?: LanguageKeys, args?: i18nOptions) {
+  send(key: LanguageKeys, args?: i18nOptions) {
     if (this.channel.deleted) return;
     return this.channel.send({
       content: this.language.get(key, args),
@@ -120,7 +120,7 @@ export class FireMessage extends Message {
   }
 
   success(
-    key?: LanguageKeys,
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
@@ -135,7 +135,7 @@ export class FireMessage extends Message {
   }
 
   warn(
-    key?: LanguageKeys,
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
@@ -150,7 +150,7 @@ export class FireMessage extends Message {
   }
 
   error(
-    key?: LanguageKeys,
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;

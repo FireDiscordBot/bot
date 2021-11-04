@@ -116,11 +116,13 @@ export default class LeaveMSG extends Command {
       disableArgs.includes(args.channel)
     ) {
       if (!msg) return await message.error("LEAVEMSG_DISABLE_ALREADY");
-      const msgDelete = message.guild.settings.delete("greet.leavemsg");
-      const channelDelete = message.guild.settings.delete("greet.leavechannel");
+      const msgDelete = await message.guild.settings.delete("greet.leavemsg");
+      const channelDelete = await message.guild.settings.delete(
+        "greet.leavechannel"
+      );
       return !!msgDelete && !!channelDelete
-        ? await message.success()
-        : await message.error();
+        ? await message.success("LEAVEMSG_DISABLED")
+        : await message.error("ERROR_CONTACT_SUPPORT");
     }
     const channel = args.channel as FireTextChannel;
     const allowedMentions: MessageMentionOptions = {

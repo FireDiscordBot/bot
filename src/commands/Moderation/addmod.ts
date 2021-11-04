@@ -45,8 +45,6 @@ export default class AddModerator extends Command {
     if (current.length)
       message.guild.settings.set<string[]>("utils.moderators", current);
     else message.guild.settings.delete("utils.moderators");
-    // prevent "reacting" on slash commands
-    if (message instanceof FireMessage) await message.success();
     return await this.getModeratorEmbed(message);
   }
 

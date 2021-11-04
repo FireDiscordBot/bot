@@ -75,7 +75,7 @@ export default class Lockdown extends Command {
       if (!category) return;
       if (!excluded.includes(category.id)) excluded.push(category.id);
       message.guild.settings.set<string[]>("mod.lockdownexcl", excluded);
-      return await message.success();
+      return await message.success("LOCKDOWN_EXCLUDE_SUCCESS");
     } else if (args.action == "start")
       return await this.start(message, args.reason);
     else if (args.action == "end") return await this.end(message, args.reason);
@@ -149,10 +149,10 @@ export default class Lockdown extends Command {
       "mod.lockdownmessages",
       lockdownMessages
     );
-    if (failed.length == channels.size) await message.error();
+    if (failed.length == channels.size)
+      await message.error("ERROR_CONTACT_SUPPORT");
     else {
       const end = +new Date();
-      message.success().catch(() => {});
       if (!failed.length)
         await message
           .success("LOCKDOWN_FINISH", {
@@ -261,7 +261,9 @@ export default class Lockdown extends Command {
           failcount: failed.length,
           failed: failed.join(", "),
         })
-      : await message.success();
+      : await message.success("LOCKDOWN_END_SUCCESS", {
+          unlockcount: channels.size,
+        });
   }
 
   async deleteMessage(channel: string, message: string, reason: string) {

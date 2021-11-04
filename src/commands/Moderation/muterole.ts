@@ -37,10 +37,20 @@ export default class MuteRole extends Command {
   async exec(message: FireMessage, args: { role: Role }) {
     if (!args.role) return;
     const settingUp = await message.send("MUTE_ROLE_CREATE_REASON");
-    const changed = await message.guild.changeMuteRole(args.role).catch((e) => {
-      this.client.console.error(e.stack);
-    });
+    const changed = await message.guild
+      .changeMuteRole(args.role)
+      .catch((e) => e);
+    if (changed instanceof Error)
+      return this.client.commandHandler.emit(
+        "commandError",
+        message,
+        this,
+        args,
+        changed
+      );
     settingUp.delete();
-    return changed ? await message.success() : await message.error();
+    return changed
+      ? await message.success("MUTE_ROLE_CREATED")
+      : await message.error("ERROR_CONTACT_SUPPORT");
   }
 }

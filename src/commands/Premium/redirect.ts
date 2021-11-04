@@ -36,7 +36,10 @@ export default class Redirect extends Command {
     });
   }
 
-  async run(command: ApplicationCommandMessage, args: { code?: string; url?: string }) {
+  async run(
+    command: ApplicationCommandMessage,
+    args: { code?: string; url?: string }
+  ) {
     if (!this.module)
       this.module = this.client.getModule("redirects") as Redirects;
 
@@ -79,7 +82,9 @@ export default class Redirect extends Command {
 
     if (deleteKeywords.includes(args.url)) {
       const deleted = await this.module.delete(args.code, command.author);
-      return deleted ? await command.success() : await command.error();
+      return deleted
+        ? await command.success("REDIRECT_DELETED")
+        : await command.error("ERROR_CONTACT_SUPPORT");
     }
 
     if (!validityRegex.test(args.code) && !command.author.isSuperuser()) {
@@ -112,7 +117,7 @@ export default class Redirect extends Command {
       args.code,
       url.toString()
     );
-    if (!created) return await command.error();
+    if (!created) return await command.error("ERROR_CONTACT_SUPPORT");
 
     if (typeof created == "string")
       return await command.error(

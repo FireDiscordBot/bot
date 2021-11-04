@@ -64,8 +64,17 @@ export default class TagDelete extends Command {
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag, false);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
+    if (typeof cachedTag.createdBy != "string")
+      cachedTag.createdBy = cachedTag.createdBy.id;
+    delete cachedTag.uses;
+
+    const data = await this.client.util
+      .haste(JSON.stringify(cachedTag, null, 4), false, "json")
+      .catch(() => {});
+    if (!data) return await message.error("ERROR_CONTACT_SUPPORT");
     const deleted = await manager.deleteTag(tag).catch(() => false);
-    if (typeof deleted == "boolean" && !deleted) return await message.error();
-    else return await message.success();
+    if (typeof deleted == "boolean" && !deleted)
+      return await message.error("TAG_DELETE_FAILED", { haste: data });
+    else return await message.success("TAG_DELETE_SUCCESS");
   }
 }

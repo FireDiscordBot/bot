@@ -59,7 +59,7 @@ export default class NitroPerks extends Command {
         : this.client.console.error(
             `[Essential] Failed to remove cosmetic from ${hasAlready}!`
           );
-      if (successOld != true) return await message.error();
+      if (successOld != true) return await message.error("ERROR_CONTACT_SUPPORT");
     }
     this.client.console.info(
       `[Essential] User ${message.author} (${message.author.id}) is requesting the booster cosmetic on ${ign}`

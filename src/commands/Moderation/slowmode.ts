@@ -57,7 +57,8 @@ export default class Slowmode extends Command {
       global?: boolean;
     }
   ) {
-    if (args.delay < 0 || args.delay > 21600) return await message.error();
+    if (args.delay < 0 || args.delay > 21600)
+      return await message.error("SLOWMODE_DELAY_INVALID");
     if (
       !args.channel &&
       message.util?.parsed?.alias != "slowmodeall" &&
@@ -86,16 +87,14 @@ export default class Slowmode extends Command {
       });
       return failed.length
         ? await message.error("SLOWMODE_FAILED", { failed: failed.join(", ") })
-        : await message.success();
+        : await message.success("SLOWMODE_SUCCESS");
     } else if (args.channel.type == "GUILD_TEXT") {
       const limited = await args.channel
         .setRateLimitPerUser(args.delay, `Slowmode set by ${message.author}`)
-        .catch(async () => {
-          return await message.error();
-        });
-      if (limited instanceof MessageReaction) return;
-      return await message.success();
-    } else return await message.error();
+        .catch(() => null);
+      if (limited == null) return await message.error("ERROR_CONTACT_SUPPORT");
+      return await message.success("SLOWMODE_SUCCESS");
+    } else return await message.error("ERROR_CONTACT_SUPPORT");
   }
 
   async globalSlowmode(message: FireMessage, delay: number) {
@@ -129,6 +128,6 @@ export default class Slowmode extends Command {
       ? await message.error("SLOWMODE_GLOBAL_FAIL_SOME", {
           failed: failed.join(", "),
         })
-      : await message.success();
+      : await message.success("SLOWMODE_SET");
   }
 }

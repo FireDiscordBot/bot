@@ -99,8 +99,7 @@ export default class Google extends Command {
         args,
         response
       );
-    if (!response.html)
-      return await command.react("a:okaygoogle:769207087674032129");
+    if (!response.html) return await command.send("GOOGLE_NO_RESPONSE");
     const filters = this.client.getModule("filters") as Filters;
     const html = await filters.runReplace(
       response.html

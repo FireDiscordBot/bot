@@ -49,7 +49,9 @@ export default class AddRank extends Command {
     else {
       current.push(args.role.id);
       message.guild.settings.set<string[]>("utils.ranks", current);
-      return await message.success();
+      return await message.success("ADDRANK_SUCCESS", {
+        role: args.role.toString(),
+      });
     }
   }
 }

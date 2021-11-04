@@ -28,7 +28,7 @@ export default class Deepfry extends Command {
   }
 
   async exec(message: FireMessage, args: { image: string }) {
-    if (!process.env.MEME_TOKEN) return await message.error();
+    if (!process.env.MEME_TOKEN) return await message.error("ERROR_CONTACT_SUPPORT");
     let image: string;
     if (!args.image && !message.attachments.size)
       image = message.author.displayAvatarURL({
@@ -38,7 +38,7 @@ export default class Deepfry extends Command {
     else if (message.attachments.size) {
       image = message.attachments.first().url;
     } else image = args.image as string;
-    if (!image) return await message.error();
+    if (!image) return await message.error("MEME_NO_VALID_IMAGE");
     try {
       const url = new URL(image);
       if (
@@ -55,7 +55,7 @@ export default class Deepfry extends Command {
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", process.env.MEME_TOKEN)
       .send();
-    if (deepfryReq.statusCode != 200) return await message.error();
+    if (deepfryReq.statusCode != 200) return await message.error("ERROR_CONTACT_SUPPORT");
     else {
       const fried = deepfryReq.body;
       if (fried.byteLength >= 8e6)

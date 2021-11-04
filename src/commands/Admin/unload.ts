@@ -45,7 +45,7 @@ export default class Unload extends Command {
       broadcast?: string;
     }
   ) {
-    if (!args.module) return await message.error();
+    if (!args.module) return;
     try {
       if (this.client.manager.ws)
         this.client.manager.ws.send(
@@ -95,10 +95,10 @@ export default class Unload extends Command {
               })
             )
           );
-        return await message.success();
+        return await message.success("SLASH_COMMAND_HANDLE_SUCCESS");
       }
     } catch {
-      return await message.error();
+      return await message.error("ERROR_CONTACT_SUPPORT");
     }
   }
 }

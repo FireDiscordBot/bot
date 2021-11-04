@@ -96,7 +96,7 @@ export default class ReactionRole extends Command {
           emoji: reaction.emoji.toString(),
           role: args.role.toString(),
         });
-      } else return await message.error();
+      } else return await message.error("ERROR_CONTACT_SUPPORT");
     }
 
     const yesSnowflake = SnowflakeUtil.generate();

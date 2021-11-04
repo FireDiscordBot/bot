@@ -64,7 +64,7 @@ export default class CloseTicket extends Command {
               "TICKET_CONFIRMATION_EXPIRED"
             )}`
           )
-        : await message.error();
+        : await message.error("ERROR_CONTACT_SUPPORT");
     const closure = await message.guild.closeTicket(
       message.channel as FireTextChannel,
       message.member,

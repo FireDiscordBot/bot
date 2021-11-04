@@ -161,7 +161,7 @@ export default class TicTacToe extends Command {
       ),
       ...requestMsgOptions,
     });
-    if (!requestMsg) return await command.error();
+    if (!requestMsg) return await command.error("ERROR_CONTACT_SUPPORT");
     const accepted = await this.awaitOpponentResponse(requestId, opponent);
     this.client.buttonHandlers.delete(requestId);
     if (!accepted) {

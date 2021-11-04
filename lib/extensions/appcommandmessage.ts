@@ -359,7 +359,7 @@ export class ApplicationCommandMessage {
     return Util.flatten(this);
   }
 
-  send(key?: LanguageKeys, args?: i18nOptions) {
+  send(key: LanguageKeys, args?: i18nOptions) {
     return this.channel.send(
       {
         content: this.language.get(key, args),
@@ -371,7 +371,7 @@ export class ApplicationCommandMessage {
   }
 
   async success(
-    key?: LanguageKeys,
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!key) {
@@ -400,7 +400,7 @@ export class ApplicationCommandMessage {
   }
 
   async warn(
-    key?: LanguageKeys,
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!key) {
@@ -429,7 +429,7 @@ export class ApplicationCommandMessage {
   }
 
   async error(
-    key?: LanguageKeys,
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<ApplicationCommandMessage | MessageReaction | void> {
     if (!this.sent && (this.flags & 64) != 64) this.flags = 64;
