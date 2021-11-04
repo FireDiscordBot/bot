@@ -17,7 +17,7 @@ export default class CommandBlocked extends Listener {
     });
   }
 
-  async exec(message: FireMessage, _: Command, reason: string) {
+  async exec(message: FireMessage, command: Command, reason: string) {
     if (message.channel instanceof ThreadChannel) {
       const checks = await this.client.commandHandler
         .preThreadChecks(message)
@@ -40,9 +40,16 @@ export default class CommandBlocked extends Listener {
         );
       if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
         if (hasSlash)
-          return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL");
+          return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL", {
+            command: command.parent
+              ? `/${command.parent} ${command.id}`
+              : `/${command.id}`,
+          });
         else
           return await message.error("COMMAND_ERROR_SLASH_ONLY_NOSLASH", {
+            command: command.parent
+              ? `/${command.parent} ${command.id}`
+              : `/${command.id}`,
             components: [
               new MessageActionRow().addComponents(
                 new MessageButton()
@@ -59,9 +66,16 @@ export default class CommandBlocked extends Listener {
           });
       else {
         if (hasSlash)
-          return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL");
+          return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL", {
+            command: command.parent
+              ? `/${command.parent} ${command.id}`
+              : `/${command.id}`,
+          });
         else
           return await message.error("COMMAND_ERROR_SLASH_ONLY_USER_NOSLASH", {
+            command: command.parent
+              ? `/${command.parent} ${command.id}`
+              : `/${command.id}`,
             components: [
               new MessageActionRow().addComponents(
                 new MessageButton()
