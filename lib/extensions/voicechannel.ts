@@ -1,11 +1,15 @@
 import { Fire } from "@fire/lib/Fire";
-import { APIMessage } from "discord-api-types";
+import { APIMessage, APIWebhook } from "discord-api-types";
 import {
+  ChannelWebhookCreateOptions,
+  Collection,
+  DataResolver,
   MessageManager,
   MessageOptions,
   MessagePayload,
   Structures,
   VoiceChannel,
+  Webhook,
 } from "discord.js";
 import { RawGuildChannelData } from "discord.js/typings/rawDataTypes";
 import { FireGuild } from "./guild";
@@ -14,7 +18,9 @@ import { FireMessage } from "./message";
 export class FireVoiceChannel extends VoiceChannel {
   messages: MessageManager;
   declare guild: FireGuild;
+  nsfw: boolean = false;
   declare client: Fire;
+  createWebhook: never; // TODO: remove when uncommenting method
 
   constructor(guild: FireGuild, data?: RawGuildChannelData) {
     super(guild, data);
@@ -46,6 +52,35 @@ export class FireVoiceChannel extends VoiceChannel {
       // @ts-ignore
       this.messages._add(d)) as FireMessage;
   }
+
+  async fetchWebhooks() {
+    const data = await this.client.req.channels[this.id].webhooks.get<
+      APIWebhook[]
+    >();
+    const hooks = new Collection<string, Webhook>();
+    for (const hook of data) hooks.set(hook.id, new Webhook(this.client, hook));
+    return hooks;
+  }
+
+  // TODO: uncomment when usable
+  // async createWebhook(
+  //   name: string,
+  //   { avatar, reason }: ChannelWebhookCreateOptions = {}
+  // ) {
+  //   if (typeof avatar === "string" && !avatar.startsWith("data:")) {
+  //     avatar = await DataResolver.resolveImage(avatar);
+  //   }
+  //   const data = await this.client.req.channels[
+  //     this.id
+  //   ].webhooks.post<APIWebhook>({
+  //     data: {
+  //       name,
+  //       avatar,
+  //     },
+  //     reason,
+  //   });
+  //   return new Webhook(this.client, data);
+  // }
 }
 
 Structures.extend("VoiceChannel", () => FireVoiceChannel);
