@@ -761,7 +761,7 @@ export default class Button extends Listener {
               m.embeds[0].title.startsWith(`[bot:${branch}]`) &&
               m.embeds[0].description.includes(commit)
           );
-          if (commitMsg) {
+          if (commitMsg)
             if (commitMsg.hasThread) threadId = commitMsg.id;
             else {
               const thread = await commitMsg
@@ -772,7 +772,6 @@ export default class Button extends Listener {
                 .catch(() => {});
               if (thread) threadId = thread?.id;
             }
-          }
         }
       }
       return this.client.manager.ws.send(
