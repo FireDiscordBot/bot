@@ -767,7 +767,7 @@ export default class Button extends Listener {
               const thread = await commitMsg
                 .startThread({
                   name: "Deploy Log",
-                  autoArchiveDuration: 60,
+                  autoArchiveDuration: 1440,
                 })
                 .catch(() => {});
               if (thread) threadId = thread?.id;
