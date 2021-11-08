@@ -238,20 +238,21 @@ export class RequestHandler {
           sublimitTimeout = retryAfter;
         }
       }
-
-      request.client.manager.ws?.send(
-        MessageUtil.encode(
-          new Message(EventType.LOG_REQUEST, {
-            path: request.path,
-            status: res.statusCode ?? 500,
-            method: request.method,
-            retries: request.retries,
-            limit: this.limit,
-            remaining: this.remaining,
-          })
-        )
-      );
     }
+
+
+    request.client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(EventType.LOG_REQUEST, {
+          path: request.path,
+          status: res.statusCode ?? 500,
+          method: request.method,
+          retries: request.retries,
+          limit: this.limit,
+          remaining: this.remaining,
+        })
+      )
+    );
 
     // Count the invalid requests
     if (
