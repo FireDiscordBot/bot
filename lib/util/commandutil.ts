@@ -1,3 +1,4 @@
+import { Fire } from "@fire/lib/Fire";
 import {
   CommandUtil as AkairoUtil,
   ParsedComponentData as AkairoParsed,
@@ -5,10 +6,9 @@ import {
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ContextCommandMessage } from "../extensions/contextcommandmessage";
 import { FireMessage } from "../extensions/message";
+import { Command } from "./command";
 import { CommandHandler } from "./commandhandler";
 import { Language } from "./language";
-import { Fire } from "@fire/lib/Fire";
-import { Command } from "./command";
 
 export class CommandUtil extends AkairoUtil {
   declare parsed?: ParsedComponentData;
@@ -80,9 +80,12 @@ export const getCommands = (client: Fire) => {
           const args = command.getArgumentsClean().join(" ");
           return {
             name: command.id,
-            description: command.description(
-              client.languages.modules.get("en-US") as Language
-            ),
+            description:
+              typeof command.description == "function"
+                ? command.description(
+                    client.languages.modules.get("en-US") as Language
+                  )
+                : command.description ?? "No Description Provided",
             usage: command.slashOnly
               ? `/${command.id} ${args}`.trim()
               : `{prefix}${command.id} ${args}`.trim(),
@@ -113,9 +116,12 @@ export const getAllCommands = (client: Fire) => {
       const args = command.getArgumentsClean().join(" ");
       return {
         name: command.id,
-        description: command.description(
-          client.languages.modules.get("en-US") as Language
-        ),
+        description:
+          typeof command.description == "function"
+            ? command.description(
+                client.languages.modules.get("en-US") as Language
+              )
+            : command.description ?? "No Description Provided",
         usage: command.slashOnly
           ? `/${command.id} ${args}`.trim()
           : `{prefix}${command.id} ${args}`.trim(),
