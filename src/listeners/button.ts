@@ -1,31 +1,33 @@
-import {
-  MessageSelectMenu,
-  MessageActionRow,
-  MessageButton,
-  SnowflakeUtil,
-  MessageEmbed,
-  Permissions,
-  Snowflake,
-  ThreadChannel,
-} from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { codeblockTypeCaster } from "../arguments/codeblock";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { LanguageKeys } from "@fire/lib/util/language";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { getBranch } from "@fire/lib/util/gitUtils";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
-import Essential from "../modules/essential";
-import Rank from "../commands/Premium/rank";
-import Sk1er from "../modules/sk1er";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
+import {
+  Collection,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  MessageSelectMenu,
+  NewsChannel,
+  Permissions,
+  Snowflake,
+  SnowflakeUtil,
+  ThreadChannel,
+} from "discord.js";
+import { codeblockTypeCaster } from "../arguments/codeblock";
+import Rank from "../commands/Premium/rank";
+import Essential from "../modules/essential";
+import Sk1er from "../modules/sk1er";
+import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 
 const { url, emojis } = constants;
 
@@ -49,7 +51,14 @@ const sk1erTypeToEmoji = {
   bug: "🐛",
 };
 
-const validEssentialTypes = ["crash", "bug", "enquiry", "ice", "general"];
+const validEssentialTypes = [
+  "crash",
+  "bug",
+  "enquiry",
+  "ice",
+  "general",
+  "testers",
+];
 
 export default class Button extends Listener {
   constructor() {
@@ -739,11 +748,40 @@ export default class Button extends Listener {
           (button.message as FireMessage).embeds[0].fields[0].value
         )?.content.trim() ?? "Commit Message Unknown";
       const branch = getBranch();
+      const githubChannel = this.client.channels.cache.get(
+        this.client.config.githubChannelId
+      ) as NewsChannel;
+      let threadId: Snowflake;
+      if (githubChannel) {
+        const messages = await githubChannel.messages
+          .fetch({ limit: 10 })
+          .catch(() => {});
+        if (messages) {
+          const commitMsg = messages.find(
+            (m) =>
+              m.embeds.length &&
+              m.embeds[0].title.startsWith(`[bot:${branch}]`) &&
+              m.embeds[0].description.includes(commit)
+          );
+          if (commitMsg)
+            if (commitMsg.hasThread) threadId = commitMsg.id;
+            else {
+              const thread = await commitMsg
+                .startThread({
+                  name: "Deploy Log",
+                  autoArchiveDuration: 1440,
+                })
+                .catch(() => {});
+              if (thread) threadId = thread?.id;
+            }
+        }
+      }
       return this.client.manager.ws.send(
         MessageUtil.encode(
           new Message(EventType.DEPLOY, {
             commit,
             branch,
+            threadId,
             message: commitMessage,
           })
         )
