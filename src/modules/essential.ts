@@ -50,15 +50,12 @@ While we're usually quick to respond, issues outside of the ones listed may take
 When you're ready, hit the thumbs up button below to continue or the thumbs down button to cancel.`;
 
 export default class Essential extends Module {
-  ticketChannel: FireTextChannel;
-  ticketChannelId: Snowflake;
   guildId: Snowflake;
   guild: FireGuild;
 
   constructor() {
     super("essential");
     this.guildId = "864592657572560958";
-    this.ticketChannelId = "880141313981431829";
   }
 
   async init() {
@@ -73,9 +70,6 @@ export default class Essential extends Module {
       this.remove();
       return;
     }
-    this.ticketChannel = this.guild?.channels.cache.get(
-      this.ticketChannelId
-    ) as FireTextChannel;
   }
 
   async handleTicket(trigger: ComponentMessage, type: string) {
@@ -92,7 +86,7 @@ export default class Essential extends Module {
       return await this.guild.createTicket(
         member,
         "General Support",
-        this.ticketChannel,
+        trigger.realChannel as FireTextChannel,
         category
       );
     } else if (type == "crash") {
@@ -103,7 +97,7 @@ export default class Essential extends Module {
       const ticket = await this.guild.createTicket(
         member,
         "My game is crashing <:crashwoah:895747752443666442>",
-        this.ticketChannel,
+        trigger.realChannel as FireTextChannel,
         category
       );
       if (ticket instanceof Channel) {
@@ -126,7 +120,7 @@ export default class Essential extends Module {
       const ticket = await this.guild.createTicket(
         member,
         "I found a bug that needs to be squashed 🐛",
-        this.ticketChannel,
+        trigger.realChannel as FireTextChannel,
         category
       );
       if (ticket instanceof Channel)
@@ -151,7 +145,7 @@ These instructions are designed for the official launcher so if you're using a t
       return await this.guild.createTicket(
         member,
         "I have a question ❓",
-        this.ticketChannel,
+        trigger.realChannel as FireTextChannel,
         category
       );
     } else if (type == "ice") {
@@ -162,7 +156,7 @@ These instructions are designed for the official launcher so if you're using a t
       return await this.guild.createTicket(
         member,
         "I need help or have encountered issues while inviting friends to a world 🧊",
-        this.ticketChannel,
+        trigger.realChannel as FireTextChannel,
         category
       );
     }

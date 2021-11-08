@@ -51,7 +51,14 @@ const sk1erTypeToEmoji = {
   bug: "🐛",
 };
 
-const validEssentialTypes = ["crash", "bug", "enquiry", "ice", "general"];
+const validEssentialTypes = [
+  "crash",
+  "bug",
+  "enquiry",
+  "ice",
+  "general",
+  "testers",
+];
 
 export default class Button extends Listener {
   constructor() {
