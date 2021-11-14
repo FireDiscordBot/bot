@@ -260,7 +260,7 @@ export class RequestHandler {
         },
       ],
       {
-        retentionPolicy: "week",
+        retentionPolicy: "7d",
       }
     );
 
