@@ -110,21 +110,6 @@ export default class InteractionListener extends Listener {
       else message.customId = message.customId.slice(1);
       this.client.emit("button", message);
       if (!message.message) await message.getRealMessage().catch(() => {});
-      if (message.guild?.hasExperiment(3389051620, 1))
-        this.client.manager.ws.send(
-          MessageUtil.encode(
-            new Message(EventType.LOG_BUTTON, {
-              guildId: button.guildId,
-              authorId: button.user?.id,
-              customId: button.customId,
-              timeToClick:
-                button.createdTimestamp -
-                (message.message?.editedTimestamp ??
-                  message.message?.createdTimestamp ??
-                  button.createdTimestamp),
-            })
-          )
-        );
     } catch (error) {
       await this.error(button, error).catch(() => {
         button.reply(`${emojis.error} Something went wrong...`);
