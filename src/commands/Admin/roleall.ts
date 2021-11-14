@@ -1,3 +1,6 @@
+/*
+	Adapted from https://github.com/NotEnoughUpdates/bush-bot/blob/master/src/commands/admin/roleAll.ts
+*/
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import 
@@ -33,10 +36,10 @@ export default class RoleAllCommand extends Command {
 		if (!message.guild) return await message.util.reply('This command can only be run in a server.');
 
 		if (!message.member!.permissions.has('ADMINISTRATOR') )
-			return await message.util.reply(`You must have admin perms to use this command.`);
+			return await message.util.reply(`You must have admin permissions to use this command.`);
 
 		if (args.role.comparePositionTo(message.guild.me!.roles.highest) >= 0 && !args.role) {
-			return await message.util.reply('I cannot give a role higher or equal to my highest role.');
+			return await message.util.reply('I cannot add a role higher or equal to my highest role.');
 		}
 
 		let members = await message.guild.members.fetch();
@@ -51,7 +54,7 @@ export default class RoleAllCommand extends Command {
 			return true;
 		});
 
-		await message.util.reply(`Adding roles to ${members.size} members`);
+		await message.util.reply(`Adding roles to ${members.size} members. This may take a while...`);
 
 		const promises = members.map((member: GuildMember) => {
 			return member.roles.add(args.role, `Role All Command - triggered by ${message.author.tag} (${message.author.id})`);
@@ -68,7 +71,7 @@ export default class RoleAllCommand extends Command {
 		} else {
 			const array = [...members.values()];
 			await message.util.reply({
-				content: ` Finished adding <@&${args.role.id}> to **${members.size - failed.length}** member${
+				content: ` Finished adding the  <@&${args.role.id}> with errors.${
 					members.size - failed.length > 1 ? 's' : ''
 				}! Failed members:\n${failed.map((_, index) => `<@${array[index].id}>`).join(' ')}`,
 			});
