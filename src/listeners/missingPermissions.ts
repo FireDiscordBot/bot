@@ -30,10 +30,8 @@ export default class MissingPermissions extends Listener {
           type: "permissions",
           command: command.id,
           missing_type: type,
-          guild_id: message.guild ? message.guild.id : "N/A",
-          guild: message.guild ? message.guild.name : "N/A",
-          user_id: message.author.id,
-          user: message.author.toString(),
+          guild: message.guild ? `${message.guild.name} (${message.guildId})` : "N/A",
+          user: `${message.author} (${message.author.id})`,
           message_id: message.id,
           missing: missing.join(", "),
           has:

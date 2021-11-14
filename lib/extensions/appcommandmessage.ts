@@ -212,6 +212,10 @@ export class ApplicationCommandMessage {
     return this.slashCommand.channelId;
   }
 
+  get guildId() {
+    return this.slashCommand.guildId;
+  }
+
   async generateContent() {
     // thiss has any types and I don't like it but in feature/better-slash-commands this isn't necessary so whatever
     // it's fine for now

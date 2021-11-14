@@ -27,10 +27,8 @@ export default class CommandStarted extends Listener {
       fields: {
         type: "started",
         command: command.id,
-        guild_id: message.guild ? message.guild.id : "N/A",
-        guild: message.guild ? message.guild.name : "N/A",
-        user_id: message.author.id,
-        user: message.author.toString(),
+        guild: message.guild ? `${message.guild.name} (${message.guildId})` : "N/A",
+        user: `${message.author} (${message.author.id})`,
         message_id: message.id,
         args: "",
       },
