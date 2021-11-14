@@ -1,11 +1,11 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
-import { GuildChannel, ThreadChannel, DMChannel } from "discord.js";
-import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
+import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import { Command } from "@fire/lib/util/command";
+import { DMChannel, GuildChannel, ThreadChannel } from "discord.js";
 
 const { emojis } = constants;
 
