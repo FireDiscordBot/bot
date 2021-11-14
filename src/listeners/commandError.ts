@@ -32,6 +32,8 @@ export default class CommandError extends Listener {
         shard: message.guild?.shardId.toString() ?? "0",
       },
       fields: {
+        type: "error",
+        command: command.id,
         guild_id: message.guild ? message.guild.id : "N/A",
         guild: message.guild ? message.guild.name : "N/A",
         user_id: message.author.id,

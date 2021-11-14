@@ -27,7 +27,9 @@ export default class MissingPermissions extends Listener {
           shard: message.guild?.shardId.toString() ?? "0",
         },
         fields: {
-          type,
+          type: "permissions",
+          command: command.id,
+          missing_type: type,
           guild_id: message.guild ? message.guild.id : "N/A",
           guild: message.guild ? message.guild.name : "N/A",
           user_id: message.author.id,

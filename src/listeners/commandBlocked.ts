@@ -28,6 +28,8 @@ export default class CommandBlocked extends Listener {
           shard: message.guild?.shardId.toString() ?? "0",
         },
         fields: {
+          type: "blocked",
+          command: command.id,
           guild_id: message.guild ? message.guild.id : "N/A",
           guild: message.guild ? message.guild.name : "N/A",
           user_id: message.author.id,
