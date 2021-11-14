@@ -28,7 +28,7 @@ export class CommandHandler extends AkairoCommandHandler {
   async runCommand(
     message: FireMessage,
     command: Command,
-    args: any[]
+    args: Record<string, unknown>
   ): Promise<void> {
     if (command.typing) message.channel.sendTyping();
 

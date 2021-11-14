@@ -36,11 +36,55 @@ export interface DiscordExperiment {
   title: string;
   description: string[];
   buckets: number[];
-  hash: number
+  hash: number;
 }
 
 export interface ManagerState {
   loadedGuildExperiments: GuildExperimentConfig[];
   loadedUserExperiments: UserExperimentConfig[];
   discordExperiments: DiscordExperiment[];
+}
+
+export interface IPoint {
+  /**
+   * Measurement is the Influx measurement name.
+   */
+  measurement?: string;
+  /**
+   * Tags is the list of tag values to insert.
+   */
+  tags?: {
+    [name: string]: string;
+  };
+  /**
+   * Fields is the list of field values to insert.
+   */
+  fields?: {
+    [name: string]: any;
+  };
+  /**
+   * Timestamp tags this measurement with a date. This can be a Date object,
+   * in which case we'll adjust it to the desired precision, or a numeric
+   * string or number, in which case it gets passed directly to Influx.
+   */
+  timestamp?: Date | string | number;
+}
+
+type InfluxPrecision = "n" | "u" | "ms" | "s" | "m" | "h";
+
+export interface IWriteOptions {
+  /**
+   * Precision at which the points are written, defaults to nanoseconds 'n'.
+   */
+  precision?: InfluxPrecision;
+  /**
+   * Retention policy to write the points under, defaults to the DEFAULT
+   * database policy.
+   */
+  retentionPolicy?: `${number}${InfluxPrecision}`;
+  /**
+   * Database under which to write the points. This is required if a default
+   * database is not provided in Influx.
+   */
+  database?: string;
 }
