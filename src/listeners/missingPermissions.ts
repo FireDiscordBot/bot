@@ -43,7 +43,7 @@ export default class MissingPermissions extends Listener {
         },
       ],
       {
-        retentionPolicy: "24h",
+        retentionPolicy: "day",
       }
     );
 

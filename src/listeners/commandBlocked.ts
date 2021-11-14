@@ -39,7 +39,7 @@ export default class CommandBlocked extends Listener {
         },
       ],
       {
-        retentionPolicy: "24h",
+        retentionPolicy: "day",
       }
     );
 

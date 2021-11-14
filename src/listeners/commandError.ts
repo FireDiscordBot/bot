@@ -73,7 +73,7 @@ export default class CommandError extends Listener {
       sentry.setUser(null);
     }
     this.client.influx([point], {
-      retentionPolicy: "24h",
+      retentionPolicy: "day",
     });
 
     if (

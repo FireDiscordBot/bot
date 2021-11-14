@@ -81,7 +81,7 @@ export interface IWriteOptions {
    * Retention policy to write the points under, defaults to the DEFAULT
    * database policy.
    */
-  retentionPolicy?: `${number}${InfluxPrecision}`;
+  retentionPolicy?: string;
   /**
    * Database under which to write the points. This is required if a default
    * database is not provided in Influx.
