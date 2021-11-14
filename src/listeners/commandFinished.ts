@@ -27,10 +27,10 @@ export default class CommandFinished extends Listener {
         shard: message.guild?.shardId.toString() ?? "0",
       },
       fields: {
-        guild_id: message.guild ? message.guild.id : "N/A",
-        guild: message.guild ? message.guild.name : "N/A",
-        user_id: message.author.id,
-        user: message.author.toString(),
+        type: "finish",
+        command: command.id,
+        guild: message.guild ? `${message.guild.name} (${message.guildId})` : "N/A",
+        user: `${message.author} (${message.author.id})`,
         message_id: message.id,
         return: "",
       },
@@ -38,9 +38,7 @@ export default class CommandFinished extends Listener {
     try {
       point.fields.return = inspect(ret, false, 0);
     } catch {}
-    this.client.influx([point], {
-      retentionPolicy: "day",
-    });
+    this.client.influx([point]);
 
     if (
       message instanceof ApplicationCommandMessage ||
