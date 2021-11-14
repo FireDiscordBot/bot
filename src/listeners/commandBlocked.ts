@@ -8,7 +8,6 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 
 export default class CommandBlocked extends Listener {
   constructor() {

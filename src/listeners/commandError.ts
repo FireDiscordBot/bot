@@ -93,10 +93,6 @@ export default class CommandError extends Listener {
     }
 
     try {
-      await message.error();
-    } catch {}
-
-    try {
       if (!message.author.isSuperuser()) {
         return await message.error("COMMAND_ERROR_GENERIC", {
           id: message.util?.parsed?.alias,
