@@ -39,7 +39,7 @@ export default class CommandFinished extends Listener {
       point.fields.return = inspect(ret, false, 0);
     } catch {}
     this.client.influx([point], {
-      retentionPolicy: "24h",
+      retentionPolicy: "day",
     });
 
     if (

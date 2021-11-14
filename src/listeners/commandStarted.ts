@@ -37,7 +37,7 @@ export default class CommandStarted extends Listener {
       point.fields.args = inspect(args, false, 0);
     } catch {}
     this.client.influx([point], {
-      retentionPolicy: "24h",
+      retentionPolicy: "day",
     });
   }
 }

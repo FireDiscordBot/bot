@@ -262,7 +262,7 @@ export class RequestHandler {
         },
       ],
       {
-        retentionPolicy: "168h",
+        retentionPolicy: "week",
       }
     );
 
