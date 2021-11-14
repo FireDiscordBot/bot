@@ -18,30 +18,25 @@ export default class CommandBlocked extends Listener {
   }
 
   async exec(message: FireMessage, command: Command, reason: string) {
-    this.client.influx(
-      [
-        {
-          measurement: "commands",
-          tags: {
-            type: "blocked",
-            command: command.id,
-            cluster: this.client.manager.id.toString(),
-            shard: message.guild?.shardId.toString() ?? "0",
-          },
-          fields: {
-            guild_id: message.guild ? message.guild.id : "N/A",
-            guild: message.guild ? message.guild.name : "N/A",
-            user_id: message.author.id,
-            user: message.author.toString(),
-            message_id: message.id,
-            reason,
-          },
-        },
-      ],
+    this.client.influx([
       {
-        retentionPolicy: "day",
-      }
-    );
+        measurement: "commands",
+        tags: {
+          type: "blocked",
+          command: command.id,
+          cluster: this.client.manager.id.toString(),
+          shard: message.guild?.shardId.toString() ?? "0",
+        },
+        fields: {
+          guild_id: message.guild ? message.guild.id : "N/A",
+          guild: message.guild ? message.guild.name : "N/A",
+          user_id: message.author.id,
+          user: message.author.toString(),
+          message_id: message.id,
+          reason,
+        },
+      },
+    ]);
 
     if (message.channel instanceof ThreadChannel) {
       const checks = await this.client.commandHandler

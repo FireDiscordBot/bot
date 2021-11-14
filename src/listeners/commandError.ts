@@ -72,9 +72,7 @@ export default class CommandError extends Listener {
       sentry.setExtras(null);
       sentry.setUser(null);
     }
-    this.client.influx([point], {
-      retentionPolicy: "day",
-    });
+    this.client.influx([point]);
 
     if (
       (message instanceof ApplicationCommandMessage ||

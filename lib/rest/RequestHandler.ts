@@ -240,29 +240,24 @@ export class RequestHandler {
       }
     }
 
-    request.client.influx(
-      [
-        {
-          measurement: "requests",
-          tags: {
-            cluster: request.client.manager.id.toString(),
-            // TODO: maybe figure out if we can figure out the shard
-            // belonging to any item (guild, channel, message etc.) in the request
-          },
-          fields: {
-            path: request.path,
-            status: res.statusCode ?? 500,
-            method: request.method,
-            retries: request.retries,
-            limit: this.limit ?? -1,
-            remaining: this.remaining ?? -1,
-          },
-        },
-      ],
+    request.client.influx([
       {
-        retentionPolicy: "7d",
-      }
-    );
+        measurement: "requests",
+        tags: {
+          cluster: request.client.manager.id.toString(),
+          // TODO: maybe figure out if we can figure out the shard
+          // belonging to any item (guild, channel, message etc.) in the request
+        },
+        fields: {
+          path: request.path,
+          status: res.statusCode ?? 500,
+          method: request.method,
+          retries: request.retries,
+          limit: this.limit ?? -1,
+          remaining: this.remaining ?? -1,
+        },
+      },
+    ]);
 
     // Count the invalid requests
     if (
