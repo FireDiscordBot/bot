@@ -180,7 +180,6 @@ export class RequestHandler {
 
     // Perform the request
     let res: centra.Response;
-    const time = +new Date();
     try {
       res = await request.make();
     } catch (error) {
@@ -255,10 +254,9 @@ export class RequestHandler {
             status: res.statusCode ?? 500,
             method: request.method,
             retries: request.retries,
-            limit: this.limit,
-            remaining: this.remaining,
+            limit: this.limit ?? -1,
+            remaining: this.remaining ?? -1,
           },
-          timestamp: time,
         },
       ],
       {
