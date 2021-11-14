@@ -180,6 +180,7 @@ export class RequestHandler {
 
     // Perform the request
     let res: centra.Response;
+    const time = +new Date();
     try {
       res = await request.make();
     } catch (error) {
@@ -240,18 +241,29 @@ export class RequestHandler {
       }
     }
 
-
-    request.client.manager.ws?.send(
-      MessageUtil.encode(
-        new Message(EventType.LOG_REQUEST, {
-          path: request.path,
-          status: res.statusCode ?? 500,
-          method: request.method,
-          retries: request.retries,
-          limit: this.limit,
-          remaining: this.remaining,
-        })
-      )
+    request.client.influx(
+      [
+        {
+          measurement: "requests",
+          tags: {
+            cluster: request.client.manager.id.toString(),
+            // TODO: maybe figure out if we can figure out the shard
+            // belonging to any item (guild, channel, message etc.) in the request
+          },
+          fields: {
+            path: request.path,
+            status: res.statusCode ?? 500,
+            method: request.method,
+            retries: request.retries,
+            limit: this.limit,
+            remaining: this.remaining,
+          },
+          timestamp: time,
+        },
+      ],
+      {
+        retentionPolicy: "168h",
+      }
     );
 
     // Count the invalid requests

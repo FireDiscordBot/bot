@@ -338,7 +338,7 @@ export default class GuildMemberUpdate extends Listener {
       )
       .addField(
         guild.language.get("MODERATOR"),
-        executor ? executor.toString() : "???"
+        executor ? executor.toString() : "¯\\\\_(ツ)_/¯"
       )
       .setFooter(targetId);
     if (action.reason)
@@ -385,7 +385,7 @@ export default class GuildMemberUpdate extends Listener {
       )
       .addField(
         guild.language.get("MODERATOR"),
-        executor ? executor.toString() : "???"
+        executor ? executor.toString() : "¯\\\\_(ツ)_/¯"
       )
       .setFooter(targetId);
     if (action.reason)
@@ -424,18 +424,18 @@ export default class GuildMemberUpdate extends Listener {
       .setColor(target ? target?.displayColor : "#ffffff")
       .addField(
         guild.language.get("MODERATOR"),
-        executor ? executor.toString() : "???"
+        executor ? executor.toString() : "¯\\\\_(ツ)_/¯"
       )
       .setFooter(targetId);
     if (change.old)
       embed.addField(
         guild.language.get("NICKCHANGELOG_OLD_NICK"),
-        change.old.toString() || "???"
+        change.old.toString() || "¯\\\\_(ツ)_/¯"
       );
     if (change.new)
       embed.addField(
         guild.language.get("NICKCHANGELOG_NEW_NICK"),
-        change.new.toString() || "???"
+        change.new.toString() || "¯\\\\_(ツ)_/¯"
       );
     if (embed.fields.length <= 1) return;
     if (action.reason)

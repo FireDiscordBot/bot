@@ -23,23 +23,27 @@ export default class CommandError extends Listener {
     args: Record<string, unknown>,
     error: Error
   ) {
-    if (
-      (message instanceof ApplicationCommandMessage ||
-        message instanceof ContextCommandMessage) &&
-      !this.client.channels.cache.has(message.channelId)
-    )
-      return await message.channel.send(
-        `${emojis.error} I was unable to find the channel you are in. If it is a private thread, you'll need to mention me to add me to the thread or give me \`Manage Threads\` permission`
-      ); // could be a private thread fire can't access
-
-    if (message.channel instanceof ThreadChannel) {
-      const checks = await this.client.commandHandler
-        .preThreadChecks(message)
-        .catch(() => {});
-      if (!checks) return;
-    }
-
-    await message.react(emojis.error).catch(() => {});
+    const point = {
+      measurement: "commands",
+      tags: {
+        type: "error",
+        command: command.id,
+        cluster: this.client.manager.id.toString(),
+        shard: message.guild?.shardId.toString() ?? "0",
+      },
+      fields: {
+        guild_id: message.guild ? message.guild.id : "N/A",
+        guild: message.guild ? message.guild.name : "N/A",
+        user_id: message.author.id,
+        user: message.author.toString(),
+        message_id: message.id,
+        error: "",
+        sentry: "",
+      },
+    };
+    try {
+      point.fields.error = error.message;
+    } catch {}
 
     if (typeof this.client.sentry != "undefined") {
       const sentry = this.client.sentry;
@@ -63,10 +67,34 @@ export default class CommandError extends Listener {
         extras["command.args"] = JSON.stringify(args);
       } catch {}
       sentry.setExtras(extras);
-      sentry.captureException(error);
+      const eventId = sentry.captureException(error);
+      if (eventId) point.fields.sentry = eventId;
       sentry.setExtras(null);
       sentry.setUser(null);
     }
+    this.client.influx([point], {
+      retentionPolicy: "24h",
+    });
+
+    if (
+      (message instanceof ApplicationCommandMessage ||
+        message instanceof ContextCommandMessage) &&
+      !this.client.channels.cache.has(message.channelId)
+    )
+      return await message.channel.send(
+        `${emojis.error} I was unable to find the channel you are in. If it is a private thread, you'll need to mention me to add me to the thread or give me \`Manage Threads\` permission`
+      ); // could be a private thread fire can't access
+
+    if (message.channel instanceof ThreadChannel) {
+      const checks = await this.client.commandHandler
+        .preThreadChecks(message)
+        .catch(() => {});
+      if (!checks) return;
+    }
+
+    try {
+      await message.error();
+    } catch {}
 
     try {
       if (!message.author.isSuperuser()) {

@@ -127,7 +127,7 @@ export default class ChannelUpdate extends Listener {
       if (before.parentId != after.parentId)
         embed.addField(
           language.get("CATEGORY"),
-          `${before.parent?.name || "???"} ➜ ${after.parent?.name || "???"}`
+          `${before.parent?.name || "¯\\\\_(ツ)_/¯"} ➜ ${after.parent?.name || "¯\\\\_(ツ)_/¯"}`
         );
       // @ts-ignore
       if (before.topic != after.topic)
@@ -149,10 +149,10 @@ export default class ChannelUpdate extends Listener {
             language.get("REGION"),
             `${
               language.get(`REGIONS.${before.rtcRegion}` as LanguageKeys) ||
-              "???"
+              "¯\\\\_(ツ)_/¯"
             } ➜ ${
               language.get(`REGIONS.${after.rtcRegion}` as LanguageKeys) ||
-              "???"
+              "¯\\\\_(ツ)_/¯"
             }`
           );
         }

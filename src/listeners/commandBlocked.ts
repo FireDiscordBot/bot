@@ -19,6 +19,31 @@ export default class CommandBlocked extends Listener {
   }
 
   async exec(message: FireMessage, command: Command, reason: string) {
+    this.client.influx(
+      [
+        {
+          measurement: "commands",
+          tags: {
+            type: "blocked",
+            command: command.id,
+            cluster: this.client.manager.id.toString(),
+            shard: message.guild?.shardId.toString() ?? "0",
+          },
+          fields: {
+            guild_id: message.guild ? message.guild.id : "N/A",
+            guild: message.guild ? message.guild.name : "N/A",
+            user_id: message.author.id,
+            user: message.author.toString(),
+            message_id: message.id,
+            reason,
+          },
+        },
+      ],
+      {
+        retentionPolicy: "24h",
+      }
+    );
+
     if (message.channel instanceof ThreadChannel) {
       const checks = await this.client.commandHandler
         .preThreadChecks(message)
@@ -31,6 +56,15 @@ export default class CommandBlocked extends Listener {
         status: constants.url.fireStatus,
       });
     else if (reason == "slashonly") {
+      if (!message.guildId)
+        return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL", {
+          command: command.parent
+            ? `/${command.parent} ${command.id.replace(
+                command.parent + "-",
+                ""
+              )}`
+            : `/${command.id}`,
+        });
       const slashCommands = await this.client
         .requestSlashCommands(message.guild)
         .catch(() => {});
@@ -97,7 +131,7 @@ export default class CommandBlocked extends Listener {
                   .setURL(
                     this.client.config.commandsInvite(
                       this.client,
-                      message.guild.id
+                      message.guild?.id ?? ""
                     )
                   )
               ),

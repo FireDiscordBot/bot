@@ -64,6 +64,7 @@ import { FireGuild } from "./extensions/guild";
 import { FireMember } from "./extensions/guildmember";
 import { FireMessage } from "./extensions/message";
 import { FireUser } from "./extensions/user";
+import { IPoint, IWriteOptions } from "./interfaces/aether";
 import { GuildApplicationCommandsUpdate } from "./interfaces/discord";
 import { Experiment } from "./interfaces/experiments";
 import { Manager } from "./Manager";
@@ -548,6 +549,19 @@ export class Fire extends AkairoClient {
         (alias.get("aliases") as string[]).map((a) => a.toLowerCase())
       );
     }
+  }
+
+  influx(points: IPoint[], options?: IWriteOptions) {
+    this.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(
+          EventType.WRITE_INFLUX_POINTS,
+          { points, options },
+          // nonce is used to allow returning errors, but we don't currently care about them
+          (+new Date()).toString()
+        )
+      )
+    );
   }
 
   setReadyPresence() {
