@@ -9,8 +9,7 @@ import { Role, Permissions }  from 'discord.js';
 export default class RoleAllCommand extends Command {
 	constructor() {
 		super('roleAll', {
-			category: 'moderation',
-            userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
+      userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
 			clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
 			description: "Give a role to al the members of this server",
 			args: [
