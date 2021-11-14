@@ -11,7 +11,7 @@ export default class RoleAllCommand extends Command {
 		super('roleAll', {
       userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
 			clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
-			description: "Give a role to al the members of this server",
+			description: "Give a role to all the members of this server",
 			args: [
 				{
 					id: 'role',
