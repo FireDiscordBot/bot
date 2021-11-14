@@ -552,7 +552,12 @@ export class Fire extends AkairoClient {
   influx(points: IPoint[], options?: IWriteOptions) {
     this.manager.ws?.send(
       MessageUtil.encode(
-        new Message(EventType.WRITE_INFLUX_POINTS, { points, options })
+        new Message(
+          EventType.WRITE_INFLUX_POINTS,
+          { points, options },
+          // nonce is used to allow returning errors, but we don't currently care about them
+          (+new Date()).toString()
+        )
       )
     );
   }
