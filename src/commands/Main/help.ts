@@ -86,16 +86,16 @@ export default class Help extends Command {
   }
 
   async sendHelp(message: FireMessage) {
-    const categories = this.client.commandHandler.categories.filter(
-      (category) => {
+    const categories = this.client.commandHandler
+      .getCategories()
+      .filter((category) => {
         if (category.id == "Admin" && !message.author.isSuperuser())
           return false;
         const commands = category.filter((command: Command) =>
           this.filter(command, message)
         );
         return commands.size > 0;
-      }
-    );
+      });
     let components: MessageActionRow[] = null;
     let supportInvite = "https://inv.wtf/fire";
     const vanityurls = this.client.getModule("vanityurls") as VanityURLs;

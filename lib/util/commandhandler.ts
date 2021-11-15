@@ -25,6 +25,13 @@ export class CommandHandler extends AkairoCommandHandler {
     super(client, options);
   }
 
+  getCategories() {
+    // categories with lowercase names are not actual categories
+    return this.categories.filter(
+      (c) => c.id && c.id[0].toUpperCase() == c.id[0]
+    );
+  }
+
   async runCommand(
     message: FireMessage,
     command: Command,
@@ -57,7 +64,8 @@ export class CommandHandler extends AkairoCommandHandler {
       return false;
 
     if (!message.content && message.hasExperiment(3901360561, 1))
-      message.content = message.attachments.first()?.description ?? message.content;
+      message.content =
+        message.attachments.first()?.description ?? message.content;
 
     try {
       if (this.fetchMembers && message.guild && !message.member)

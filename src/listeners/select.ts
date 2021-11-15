@@ -130,14 +130,17 @@ export default class Select extends Listener {
 
     if (select.customId == "help_category") {
       const categoryName = select.values[0];
-      const category = this.client.commandHandler.categories.get(categoryName);
+      const category = this.client.commandHandler
+        .getCategories()
+        .get(categoryName);
       // the following length checks should always be truthy but you never know what could happen
       if (!category) {
         if (message.embeds.length)
           message.embeds[0].description = select.author.language.get(
             "HELP_CATEGORY_INVALID",
             {
-              names: this.client.commandHandler.categories
+              names: this.client.commandHandler
+                .getCategories()
                 .map((c) => c.id)
                 .join(", "),
             }
