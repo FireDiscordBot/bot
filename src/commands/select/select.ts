@@ -6,12 +6,13 @@ export default class Select extends Command {
     super("select", {
       description: (language: Language) =>
         language.get("SELECT_COMMAND_DESCRIPTION"),
-      args: [],
       enableSlashCommand: true,
       restrictTo: "all",
+      category: "Main",
       slashOnly: true,
       ephemeral: true,
       group: true,
+      args: [],
     });
   }
 

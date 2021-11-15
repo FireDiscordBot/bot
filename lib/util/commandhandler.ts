@@ -32,6 +32,13 @@ export class CommandHandler extends AkairoCommandHandler {
     super(client, options);
   }
 
+  getCategories() {
+    // categories with lowercase names are not actual categories
+    return this.categories.filter(
+      (c) => c.id && c.id[0].toUpperCase() == c.id[0]
+    );
+  }
+
   async runCommand(
     message: FireMessage,
     command: Command,
