@@ -34,6 +34,20 @@ export default class AetherStats extends Module {
     this.client.manager.ws.send(
       MessageUtil.encode(new Message(EventType.SEND_STATS, stats))
     );
+    this.client.manager.ws.send(
+      MessageUtil.encode(
+        new Message(EventType.GATEWAY_EVENT_COUNTS, {
+          total: this.gatewayEvents
+            .map((events) => events.toJSON())
+            .flat()
+            .reduce((a, b) => a + b, 0),
+          session: this.sessionGatewayEvents
+            .map((events) => events.toJSON())
+            .flat()
+            .reduce((a, b) => a + b, 0),
+        })
+      )
+    );
     this.client.influx([
       ...this.gatewayEvents.map((events, shard) => ({
         measurement: "gateway_events",
@@ -52,19 +66,6 @@ export default class AetherStats extends Module {
         },
         fields: Object.fromEntries(events.entries()),
       })),
-      {
-        measurement: "gateway_events_count",
-        fields: {
-          total: this.gatewayEvents
-            .map((events) => events.toJSON())
-            .flat()
-            .reduce((a, b) => a + b, 0),
-          session: this.sessionGatewayEvents
-            .map((events) => events.toJSON())
-            .flat()
-            .reduce((a, b) => a + b, 0),
-        },
-      },
     ]);
   }
 }
