@@ -36,6 +36,7 @@ import {
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
 import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
+import AetherStats from "@fire/src/modules/aetherstats";
 import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
 import * as Sentry from "@sentry/node";
 import {
@@ -181,7 +182,17 @@ export class Fire extends AkairoClient {
     );
     this.on("ready", () => config.fire.readyMessage(this));
     this.nonceHandlers = new Collection();
-    this.on("raw", (r: any) => {
+    this.on("raw", (r: any, shard: number) => {
+      const stats = this.getModule("aetherstats") as AetherStats;
+      if (stats?.gatewayEvents && typeof r.t == "string") {
+        stats.gatewayEvents
+          .get(shard)
+          .set(r.t, (stats.gatewayEvents.get(shard).get(r.t) ?? 0) + 1);
+        stats.sessionGatewayEvents
+          .get(shard)
+          .set(r.t, (stats.sessionGatewayEvents.get(shard).get(r.t) ?? 0) + 1);
+      }
+
       if (r.d?.nonce && this.nonceHandlers.has(r.d.nonce)) {
         this.nonceHandlers.get(r.d.nonce)(r.d);
         this.nonceHandlers.delete(r.d.nonce);

@@ -1,11 +1,11 @@
-import { EventHandler } from "./ws/event/EventHandler";
-import { ManagerState } from "./interfaces/aether";
-import { Reconnector } from "./ws/Reconnector";
-import { version as djsver } from "discord.js";
-import { Websocket } from "./ws/Websocket";
-import { Command } from "./util/command";
 import * as Sentry from "@sentry/node";
+import { version as djsver } from "discord.js";
 import { Fire } from "./Fire";
+import { ManagerState } from "./interfaces/aether";
+import { Command } from "./util/command";
+import { EventHandler } from "./ws/event/EventHandler";
+import { Reconnector } from "./ws/Reconnector";
+import { Websocket } from "./ws/Websocket";
 
 export class Manager {
   state: Partial<ManagerState> = {};

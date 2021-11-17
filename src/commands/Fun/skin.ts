@@ -17,8 +17,9 @@ export default class Skin extends Command {
           required: true,
         },
       ],
-      enableSlashCommand: false,
+      enableSlashCommand: true,
       restrictTo: "all",
+      slashOnly: true,
     });
   }
 

@@ -1,15 +1,16 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { Message as AetherMessage } from "@fire/lib/ws/Message";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import * as sanitizer from "@aero/sanitizer";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { EventType } from "@fire/lib/ws/util/constants";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { Message as AetherMessage } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import Filters from "@fire/src/modules/filters";
-import { APIMessage } from "discord-api-types";
 import MCLogs from "@fire/src/modules/mclogs";
-import { Snowflake } from "discord.js";
 import * as centra from "centra";
+import { APIMessage } from "discord-api-types";
+import { Snowflake } from "discord.js";
 
 const { regexes } = constants;
 const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
@@ -115,10 +116,12 @@ export default class Message extends Listener {
     if (message.type == "CHANNEL_PINNED_MESSAGE")
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
-    const lowerContent = message.content
-      .toLowerCase()
-      .replace(/\s/gim, "")
-      .replace(regexes.zws, "");
+    const lowerContent = sanitizer(
+      message.content
+        .toLowerCase()
+        .replace(/\s/gim, "")
+        .replace(regexes.zws, "")
+    );
     if (message.guild?.hasExperiment(936071411, 1)) {
       const triggerFilter = async (match?: string) => {
         if (process.env.NODE_ENV == "development")
@@ -211,6 +214,12 @@ export default class Message extends Listener {
         return await triggerFilter("Nitro Airdrop");
       else if (lowerContent.includes("/n@") && lowerContent.includes("nitro"))
         return await triggerFilter("Epic Newline Fail");
+      else if (
+        lowerContent.includes("distribution") &&
+        lowerContent.includes("nitro") &&
+        lowerContent.includes("steam")
+      )
+        return await triggerFilter("Nitro/Steam Link");
     }
 
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
@@ -351,6 +360,6 @@ export default class Message extends Listener {
         content = content.replace(regex, replacement);
     }
 
-    return content;
+    return sanitizer(content);
   }
 }
