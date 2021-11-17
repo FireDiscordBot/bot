@@ -3,21 +3,21 @@ import { config } from "@fire/config/index";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import {
   categoryChannelSilentTypeCaster,
-  categoryChannelTypeCaster,
+  categoryChannelTypeCaster
 } from "@fire/src/arguments/category";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
 import { commandTypeCaster } from "@fire/src/arguments/command";
 import { emojiTypeCaster } from "@fire/src/arguments/emoji";
 import {
   guildChannelSilentTypeCaster,
-  guildChannelTypeCaster,
+  guildChannelTypeCaster
 } from "@fire/src/arguments/guildChannel";
 import { hasteTypeCaster } from "@fire/src/arguments/haste";
 import { languageTypeCaster } from "@fire/src/arguments/language";
 import { listenerTypeCaster } from "@fire/src/arguments/listener";
 import {
   memberSilentTypeCaster,
-  memberTypeCaster,
+  memberTypeCaster
 } from "@fire/src/arguments/member";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
@@ -26,23 +26,24 @@ import { messageTypeCaster } from "@fire/src/arguments/message";
 import { moduleTypeCaster } from "@fire/src/arguments/module";
 import {
   previewSilentTypeCaster,
-  previewTypeCaster,
+  previewTypeCaster
 } from "@fire/src/arguments/preview";
 import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import {
   textChannelSilentTypeCaster,
-  textChannelTypeCaster,
+  textChannelTypeCaster
 } from "@fire/src/arguments/textChannel";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
 import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
+import AetherStats from "@fire/src/modules/aetherstats";
 import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
 import * as Sentry from "@sentry/node";
 import {
   AkairoClient,
   InhibitorHandler,
   ListenerHandler,
-  version as akairover,
+  version as akairover
 } from "discord-akairo";
 import { APIGuildMember } from "discord-api-types";
 import {
@@ -51,7 +52,7 @@ import {
   Constants,
   GuildFeatures,
   SnowflakeUtil,
-  version as djsver,
+  version as djsver
 } from "discord.js";
 import * as i18next from "i18next";
 import { Client as PGClient } from "ts-postgres";
@@ -179,7 +180,17 @@ export class Fire extends AkairoClient {
     );
     this.on("ready", () => config.fire.readyMessage(this));
     this.nonceHandlers = new Collection();
-    this.on("raw", (r: any) => {
+    this.on("raw", (r: any, shard: number) => {
+      const stats = this.getModule("aetherstats") as AetherStats;
+      if (stats?.gatewayEvents && typeof r.t == "string") {
+        stats.gatewayEvents
+          .get(shard)
+          .set(r.t, (stats.gatewayEvents.get(shard).get(r.t) ?? 0) + 1);
+        stats.sessionGatewayEvents
+          .get(shard)
+          .set(r.t, (stats.sessionGatewayEvents.get(shard).get(r.t) ?? 0) + 1);
+      }
+
       if (r.d?.nonce && this.nonceHandlers.has(r.d.nonce)) {
         this.nonceHandlers.get(r.d.nonce)(r.d);
         this.nonceHandlers.delete(r.d.nonce);
