@@ -3,21 +3,21 @@ import { config } from "@fire/config/index";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import {
   categoryChannelSilentTypeCaster,
-  categoryChannelTypeCaster
+  categoryChannelTypeCaster,
 } from "@fire/src/arguments/category";
 import { codeblockTypeCaster } from "@fire/src/arguments/codeblock";
 import { commandTypeCaster } from "@fire/src/arguments/command";
 import { emojiTypeCaster } from "@fire/src/arguments/emoji";
 import {
   guildChannelSilentTypeCaster,
-  guildChannelTypeCaster
+  guildChannelTypeCaster,
 } from "@fire/src/arguments/guildChannel";
 import { hasteTypeCaster } from "@fire/src/arguments/haste";
 import { languageTypeCaster } from "@fire/src/arguments/language";
 import { listenerTypeCaster } from "@fire/src/arguments/listener";
 import {
   memberSilentTypeCaster,
-  memberTypeCaster
+  memberTypeCaster,
 } from "@fire/src/arguments/member";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
@@ -26,12 +26,12 @@ import { messageTypeCaster } from "@fire/src/arguments/message";
 import { moduleTypeCaster } from "@fire/src/arguments/module";
 import {
   previewSilentTypeCaster,
-  previewTypeCaster
+  previewTypeCaster,
 } from "@fire/src/arguments/preview";
 import { roleSilentTypeCaster, roleTypeCaster } from "@fire/src/arguments/role";
 import {
   textChannelSilentTypeCaster,
-  textChannelTypeCaster
+  textChannelTypeCaster,
 } from "@fire/src/arguments/textChannel";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
@@ -42,7 +42,7 @@ import {
   AkairoClient,
   InhibitorHandler,
   ListenerHandler,
-  version as akairover
+  version as akairover,
 } from "discord-akairo";
 import { APIGuildMember } from "discord-api-types";
 import {
@@ -51,7 +51,7 @@ import {
   Constants,
   GuildFeatures,
   SnowflakeUtil,
-  version as djsver
+  version as djsver,
 } from "discord.js";
 import * as i18next from "i18next";
 import { Client as PGClient } from "ts-postgres";
@@ -185,17 +185,21 @@ export class Fire extends AkairoClient {
       }
 
       if (r.t == Constants.WSEvents.GUILD_CREATE && !r.d?.unavailable) {
-        const member = r.d.members.find(
-          (member: APIGuildMember) => member.user.id == this.user.id
-        ) as APIGuildMember;
-        this.manager.ws?.send(
-          MessageUtil.encode(
-            new Message(EventType.GUILD_CREATE, {
-              id: r.d.id,
-              member: GuildCheckEvent.getMemberJSON(member),
-            })
-          )
-        );
+        this.waitUntilReady().then(() => {
+          const member =
+            (this.guilds.cache.get(r.d.id)?.me as FireMember) ??
+            (r.d.members.find(
+              (member: APIGuildMember) => member.user.id == this.user.id
+            ) as APIGuildMember);
+          this.manager.ws?.send(
+            MessageUtil.encode(
+              new Message(EventType.GUILD_CREATE, {
+                id: r.d.id,
+                member: GuildCheckEvent.getMemberJSON(member),
+              })
+            )
+          );
+        });
       } else if (r.t == Constants.WSEvents.GUILD_DELETE)
         this.manager.ws?.send(
           MessageUtil.encode(
