@@ -57,7 +57,7 @@ export default class GuildCheckEvent extends Event {
     }
   }
 
- async run(data: { id: Snowflake }, nonce: string) {
+  async run(data: { id: Snowflake }, nonce: string) {
     this.manager.ws.send(
       MessageUtil.encode(
         new Message(
