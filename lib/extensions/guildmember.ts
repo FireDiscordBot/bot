@@ -643,7 +643,7 @@ export class FireMember extends GuildMember {
       ? await this.disableCommunication({
           until: new Date(until),
           reason: `${moderator} | ${reason}`,
-        })
+        }).catch(() => {})
       : await this.roles
           .add(this.guild.muteRole, `${moderator} | ${reason}`)
           .catch(() => {});
