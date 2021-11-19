@@ -1,17 +1,26 @@
 import { Fire } from "@fire/lib/Fire";
 import {
   ArgumentGenerator as AkairoArgumentGenerator,
-  ArgumentOptions as AkairoArgumentOptions, Command as AkairoCommand, CommandOptions as AkairoCommandOptions, Flag
+  ArgumentOptions as AkairoArgumentOptions,
+  Command as AkairoCommand,
+  CommandOptions as AkairoCommandOptions,
+  Flag,
 } from "discord-akairo";
 import {
-  ApplicationCommand, ApplicationCommandData, ApplicationCommandOptionChoice,
+  ApplicationCommand,
+  ApplicationCommandData,
+  ApplicationCommandOptionChoice,
   ApplicationCommandOptionData,
-  CommandInteractionOption, CommandOptionDataTypeResolvable, DiscordAPIError,
-  Permissions, Role, Snowflake
+  CommandInteractionOption,
+  CommandOptionDataTypeResolvable,
+  DiscordAPIError,
+  Permissions,
+  Role,
+  Snowflake,
 } from "discord.js";
 import {
   ApplicationCommandOptionTypes,
-  ChannelTypes
+  ChannelTypes,
 } from "discord.js/typings/enums";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { FireGuild } from "../extensions/guild";
@@ -65,6 +74,8 @@ const canAcceptMember = [
   "user|member|snowflake",
   "memberSilent",
 ];
+
+const mustBeMember = ["member", "memberSilent"];
 
 const channelTypeMapping: Record<
   string,
@@ -382,18 +393,22 @@ export class Command extends AkairoCommand {
               ) ?? ["STRING"];
         switch (type) {
           case "STRING": {
-            args[arg.id] = message.slashCommand.options.getString(name);
+            args[arg.id] =
+              message.slashCommand.options.getString(name) ?? arg.default;
             if (
-              this.client.commandHandler.resolver.types.has(arg.type.toString())
+              this.client.commandHandler.resolver.types.has(
+                arg.type.toString()
+              ) &&
+              args[arg.id]
             ) {
               const resolver = this.client.commandHandler.resolver.types.get(
                 arg.type.toString()
               ) as unknown as SlashArgumentTypeCaster;
               args[arg.id] = await resolver(message, args[arg.id]);
-            } else if (typeof arg.type == "function") {
+            } else if (typeof arg.type == "function" && args[arg.id]) {
               args[arg.id] = await (
                 arg.type as unknown as SlashArgumentTypeCaster
-              )(
+              ).bind(this)(
                 message,
                 message.slashCommand.options.get(name)?.value.toString()
               );
@@ -401,19 +416,26 @@ export class Command extends AkairoCommand {
             break;
           }
           case "INTEGER": {
-            args[arg.id] = message.slashCommand.options.getInteger(name);
+            args[arg.id] =
+              message.slashCommand.options.getInteger(name) ?? arg.default;
             break;
           }
           case "BOOLEAN": {
-            args[arg.id] = message.slashCommand.options.getBoolean(name);
+            args[arg.id] =
+              message.slashCommand.options.getBoolean(name) ?? arg.default;
             break;
           }
           case "USER": {
-            if (canAcceptMember.includes(arg.type.toString()))
+            if (canAcceptMember.includes(arg.type?.toString()))
               args[arg.id] =
                 message.slashCommand.options.getMember(name, false) ??
-                message.slashCommand.options.getUser(name);
-            else args[arg.id] = message.slashCommand.options.getUser(name);
+                mustBeMember.includes(arg.type?.toString())
+                  ? null
+                  : message.slashCommand.options.getUser(name);
+            else
+              args[arg.id] =
+                message.slashCommand.options.getUser(name, false) ??
+                arg.default;
             break;
           }
           case "CHANNEL": {
@@ -421,11 +443,13 @@ export class Command extends AkairoCommand {
               message.slashCommand.options.getChannel(name);
             if (this.client.channels.cache.has(resolvedChannel.id))
               args[arg.id] = this.client.channels.cache.get(resolvedChannel.id);
+            else args[arg.id] = arg.default;
             break;
           }
           case "ROLE": {
             const role = message.slashCommand.options.getRole(name);
             if (role instanceof Role) args[arg.id] = role;
+            else args[arg.id] = arg.default;
             break;
           }
           case "MENTIONABLE": {
@@ -441,17 +465,22 @@ export class Command extends AkairoCommand {
                 .fetch(mentionable)
                 .catch(() => {});
               if (member) args[arg.id] = member;
-            } else if (mentionable instanceof FireUser)
-              args[arg.id] = mentionable;
+            } else args[arg.id] = arg.default;
             break;
           }
         }
-        if (!args[arg.id] && typeof arg.type == "function")
-          args[arg.id] = await (arg.type as unknown as SlashArgumentTypeCaster)(
-            message,
-            message.slashCommand.options.get(name)?.value.toString()
-          );
-        else if (!args[arg.id]) args[arg.id] = arg.default;
+        if (!args[arg.id] && typeof arg.type == "function") {
+          try {
+            args[arg.id] = await (
+              arg.type as unknown as SlashArgumentTypeCaster
+            ).bind(this)(
+              message,
+              message.slashCommand.options.get(name, true)?.value.toString()
+            );
+          } catch {
+            args[arg.id] = arg.default;
+          }
+        } else if (!args[arg.id]) args[arg.id] = arg.default;
       }
     }
     return args;
