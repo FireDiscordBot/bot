@@ -728,9 +728,7 @@ export class FireMember extends GuildMember {
               ? []
               : this.client.util.getModCommandSlashWarning(this.guild),
         })
-        .catch((e) => {
-          console.log(e.stack);
-        });
+        .catch(() => {});
   }
 
   async unmute(
