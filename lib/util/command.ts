@@ -426,12 +426,15 @@ export class Command extends AkairoCommand {
             break;
           }
           case "USER": {
-            if (canAcceptMember.includes(arg.type?.toString()))
+            if (mustBeMember.includes(arg.type?.toString()))
               args[arg.id] =
                 message.slashCommand.options.getMember(name, false) ??
-                mustBeMember.includes(arg.type?.toString())
-                  ? null
-                  : message.slashCommand.options.getUser(name);
+                arg.default;
+            else if (canAcceptMember.includes(arg.type?.toString()))
+              args[arg.id] =
+                message.slashCommand.options.getMember(name, false) ??
+                message.slashCommand.options.getUser(name, false) ??
+                arg.default;
             else
               args[arg.id] =
                 message.slashCommand.options.getUser(name, false) ??

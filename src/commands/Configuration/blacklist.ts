@@ -100,7 +100,9 @@ export default class Blacklist extends Command {
           )
         );
       return unblacklisted
-        ? await command.success("UNBLACKLIST_SUCCESS", { guild: "Fire (Global Blacklist)" })
+        ? await command.success("UNBLACKLIST_SUCCESS", {
+            guild: "Fire (Global Blacklist)",
+          })
         : await command.error("ERROR_CONTACT_SUPPORT");
     } else {
       const blacklisted = await args.user.blacklist(args.reason);
