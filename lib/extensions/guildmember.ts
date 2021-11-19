@@ -20,6 +20,7 @@ import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 
 export class FireMember extends GuildMember {
+  communicationDisabledTimestamp: number;
   declare guild: FireGuild;
   changingNick?: boolean;
   declare user: FireUser;
@@ -27,8 +28,13 @@ export class FireMember extends GuildMember {
 
   constructor(client: Fire, data: any, guild: FireGuild) {
     super(client, data, guild);
-    this.avatar = data.avatar ?? null;
     this.changingNick = false;
+    this.communicationDisabledTimestamp = null;
+
+    if ("communication_disabled_until" in data)
+      this.communicationDisabledTimestamp = new Date(
+        data.communication_disabled_until
+      ).getTime();
   }
 
   get language() {
@@ -55,7 +61,35 @@ export class FireMember extends GuildMember {
     // @ts-ignore
     super._patch(data);
 
-    this.avatar = data.avatar ?? null;
+    if ("communication_disabled_until" in data)
+      this.communicationDisabledTimestamp = new Date(
+        data.communication_disabled_until
+      ).getTime();
+  }
+
+  _clone(): FireMember {
+    // @ts-ignore
+    return super._clone();
+  }
+
+  get communicationDisabledUntil() {
+    return this.communicationDisabledTimestamp
+      ? new Date(this.communicationDisabledTimestamp)
+      : null;
+  }
+
+  async disableCommunication(options: { until: Date | null; reason?: string }) {
+    const { until, reason } = options;
+    const patched = await this.client.req
+      .guilds(this.guild.id)
+      .members(this.id)
+      .patch({
+        data: { communication_disabled_until: until?.toISOString() ?? null },
+        reason,
+      });
+    const clone = this._clone();
+    clone?._patch(patched);
+    return clone;
   }
 
   avatarURL({
@@ -642,21 +676,27 @@ export class FireMember extends GuildMember {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     let useEdit = false;
-    if (!this.guild.muteRole) {
+    if (!this.guild.muteRole  && !this.guild.hasExperiment(1955682940, 1)) {
       if (channel) {
         useEdit = true;
         await channel.send(this.language.get("MUTE_ROLE_CREATE_REASON"));
       }
       const role = await this.guild.initMuteRole();
       if (!role) return "role";
-    } else this.guild.syncMuteRolePermissions();
+    } else if (!this.guild.hasExperiment(1955682940, 1))
+      this.guild.syncMuteRolePermissions();
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, "mute", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
-    const muted = await this.roles
-      .add(this.guild.muteRole, `${moderator} | ${reason}`)
-      .catch(() => {});
+    const muted = this.guild.hasExperiment(1955682940, 1)
+      ? await this.disableCommunication({
+          until: new Date(until),
+          reason: `${moderator} | ${reason}`,
+        })
+      : await this.roles
+          .add(this.guild.muteRole, `${moderator} | ${reason}`)
+          .catch(() => {});
     if (!muted) {
       const deleted = await this.guild
         .deleteModLogEntry(logEntry)
@@ -739,22 +779,39 @@ export class FireMember extends GuildMember {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     if (!this.guild.mutes.has(this.id)) {
-      if (this.roles.cache.has(this.guild.muteRole?.id)) {
-        const unmuted = await this.roles
-          .remove(this.guild.muteRole, `${moderator} | ${reason}`)
-          .catch(() => {});
-        if (
-          channel &&
-          unmuted &&
-          !this.roles.cache.has(this.guild.muteRole?.id)
-        )
-          return await channel.send(
-            this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
-          );
-        else return "unknown";
-      } else return "not_muted";
+      if (this.guild.hasExperiment(1955682940, 1)) {
+        if (this.communicationDisabledUntil) {
+          const unmuted = await this.disableCommunication({
+            until: null,
+            reason: `${moderator} | ${reason}`,
+          }).catch(() => {});
+          if (channel && unmuted && !this.communicationDisabledUntil)
+            return await channel.send(
+              this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
+            );
+          else return "unknown";
+        } else return "not_muted";
+      } else {
+        if (this.roles.cache.has(this.guild.muteRole?.id)) {
+          const unmuted = await this.roles
+            .remove(this.guild.muteRole, `${moderator} | ${reason}`)
+            .catch(() => {});
+          if (
+            channel &&
+            unmuted &&
+            !this.roles.cache.has(this.guild.muteRole?.id)
+          )
+            return await channel.send(
+              this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
+            );
+          else return "unknown";
+        } else return "not_muted";
+      }
     }
-    if (!this.roles.cache.has(this.guild.muteRole?.id)) {
+    if (
+      !this.roles.cache.has(this.guild.muteRole?.id) &&
+      !this.guild.hasExperiment(1955682940, 1)
+    ) {
       this.guild.mutes.delete(this.id);
       await this.client.db
         .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [
@@ -763,16 +820,21 @@ export class FireMember extends GuildMember {
         ])
         .catch(() => {});
       return "not_muted";
-    }
+    } else if (!this.communicationDisabledUntil) return "not_muted";
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, "unmute", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     const until = this.guild.mutes.get(this.id);
     this.guild.mutes.delete(this.id);
-    const unmuted = await this.roles
-      .remove(this.guild.muteRole, `${moderator} | ${reason}`)
-      .catch(() => {});
+    const unmuted = this.guild.hasExperiment(1955682940, 1)
+      ? await this.disableCommunication({
+          until: null,
+          reason: `${moderator} | ${reason}`,
+        }).catch(() => {})
+      : await this.roles
+          .remove(this.guild.muteRole, `${moderator} | ${reason}`)
+          .catch(() => {});
     if (!unmuted) {
       // ensures user can be properly unmuted
       // if moderator retries unmute
