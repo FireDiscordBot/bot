@@ -820,7 +820,11 @@ export class FireMember extends GuildMember {
         ])
         .catch(() => {});
       return "not_muted";
-    } else if (!this.communicationDisabledUntil) return "not_muted";
+    } else if (
+      !this.communicationDisabledUntil &&
+      this.guild.hasExperiment(1955682940, 1)
+    )
+      return "not_muted";
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, "unmute", reason)
       .catch(() => {});
