@@ -1,6 +1,5 @@
 import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
-// import * as solutions from "../../mc_solutions.json";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
@@ -47,11 +46,12 @@ export default class MCLogs extends Module {
   solutions: {
     solutions: { [key: string]: string };
     recommendations: { [key: string]: string };
+    cheats: string[];
   };
 
   constructor() {
     super("mclogs");
-    this.solutions = { solutions: {}, recommendations: {} };
+    this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
     this.regexes = {
       reupload:
         /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
@@ -59,7 +59,7 @@ export default class MCLogs extends Module {
       secrets:
         /("access_key":".+"|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken \S+|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+(\?key=|&key=))/gim,
       jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
-      optifine: /HD_U_M(?:5|6_pre1)(?:\.jar)?(\s\d{1,3} mods loaded|$)/im,
+      optifine: /HD_U_M(?:5|6_pre\d)(?:\.jar)?(\s\d{1,3} mods loaded|$)/im,
       exOptifine: /HD_U_\w\d_MOD/gm,
       forge:
         /(?:version |MinecraftForge v|Powered by Forge |forge-?1.8.9-)11\.15\.1\.2318/gim,
@@ -102,7 +102,7 @@ export default class MCLogs extends Module {
       )
     )
       return this.remove();
-    this.solutions = { solutions: {}, recommendations: {} };
+    this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
     const solutionsReq = await centra(
       `https://api.github.com/repos/GamingGeek/BlockGameSolutions/contents/mc_solutions.json`
     )
@@ -119,11 +119,23 @@ export default class MCLogs extends Module {
   }
 
   public getSolutions(log: string) {
+    if (
+      this.solutions.cheats.some((cheat) =>
+        log.toLowerCase().includes(cheat.toLowerCase())
+      )
+    )
+      return `Seems like you're using cheats (${this.solutions.cheats.filter(
+        (cheat) => log.toLowerCase().includes(cheat.toLowerCase())
+      )}) which mean you're on your own with any issues (they're almost always poorly made)`;
+
     let currentSolutions: string[] = [];
     let currentRecommendations: string[] = [];
 
     for (const [err, sol] of Object.entries(this.solutions.solutions)) {
-      if (log.includes(err) && !currentSolutions.includes(`- **${sol}**`))
+      if (
+        log.toLowerCase().includes(err.toLowerCase()) &&
+        !currentSolutions.includes(`- **${sol}**`)
+      )
         currentSolutions.push(`- **${sol}**`);
     }
     if (
@@ -162,7 +174,7 @@ export default class MCLogs extends Module {
 
     for (const [rec, sol] of Object.entries(this.solutions.recommendations)) {
       if (
-        log.includes(rec) &&
+        log.toLowerCase().includes(rec.toLowerCase()) &&
         !currentRecommendations.includes(`- ${sol}`) &&
         !currentSolutions.includes(`- **${sol}**`)
       )
@@ -184,6 +196,8 @@ export default class MCLogs extends Module {
   async checkLogs(message: FireMessage) {
     if (message.author.bot) return; // you should see what it's like without this lol
     if (!message.guild.hasExperiment(77266757, 1)) return;
+    if (message.member?.roles.cache.some((r) => r.name == "fuckin' loser"))
+      return;
 
     if (this.regexes.noRaw.test(message.content)) {
       this.regexes.noRaw.lastIndex = 0;
