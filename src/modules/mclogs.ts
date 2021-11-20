@@ -196,7 +196,11 @@ export default class MCLogs extends Module {
   async checkLogs(message: FireMessage) {
     if (message.author.bot) return; // you should see what it's like without this lol
     if (!message.guild.hasExperiment(77266757, 1)) return;
-    if (message.member?.roles.cache.some((r) => r.name == "fuckin' loser"))
+    if (
+      message.member?.roles.cache.some(
+        (r) => r.name == "fuckin' loser" || r.name == "no logs"
+      )
+    )
       return;
 
     if (this.regexes.noRaw.test(message.content)) {
