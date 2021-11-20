@@ -123,10 +123,14 @@ export default class MCLogs extends Module {
       this.solutions.cheats.some((cheat) =>
         log.toLowerCase().includes(cheat.toLowerCase())
       )
-    )
-      return `Seems like you're using cheats (${this.solutions.cheats.filter(
-        (cheat) => log.toLowerCase().includes(cheat.toLowerCase())
-      )}) which mean you're on your own with any issues (they're almost always poorly made)`;
+    ) {
+      const found = this.solutions.cheats.filter((cheat) =>
+        log.toLowerCase().includes(cheat.toLowerCase())
+      );
+      return `Cheat${found.length > 1 ? "s" : ""} found (${found.join(
+        ", "
+      )}). Bailing out, you are on your own now. Good luck.`;
+    }
 
     let currentSolutions: string[] = [];
     let currentRecommendations: string[] = [];
