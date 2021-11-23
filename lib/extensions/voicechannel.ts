@@ -20,7 +20,6 @@ export class FireVoiceChannel extends VoiceChannel {
   declare guild: FireGuild;
   nsfw: boolean = false;
   declare client: Fire;
-  createWebhook: never; // TODO: remove when uncommenting method
 
   constructor(guild: FireGuild, data?: RawGuildChannelData) {
     super(guild, data);
@@ -62,25 +61,24 @@ export class FireVoiceChannel extends VoiceChannel {
     return hooks;
   }
 
-  // TODO: uncomment when usable
-  // async createWebhook(
-  //   name: string,
-  //   { avatar, reason }: ChannelWebhookCreateOptions = {}
-  // ) {
-  //   if (typeof avatar === "string" && !avatar.startsWith("data:")) {
-  //     avatar = await DataResolver.resolveImage(avatar);
-  //   }
-  //   const data = await this.client.req.channels[
-  //     this.id
-  //   ].webhooks.post<APIWebhook>({
-  //     data: {
-  //       name,
-  //       avatar,
-  //     },
-  //     reason,
-  //   });
-  //   return new Webhook(this.client, data);
-  // }
+  async createWebhook(
+    name: string,
+    { avatar, reason }: ChannelWebhookCreateOptions = {}
+  ) {
+    if (typeof avatar === "string" && !avatar.startsWith("data:")) {
+      avatar = await DataResolver.resolveImage(avatar);
+    }
+    const data = await this.client.req.channels[
+      this.id
+    ].webhooks.post<APIWebhook>({
+      data: {
+        name,
+        avatar,
+      },
+      reason,
+    });
+    return new Webhook(this.client, data);
+  }
 }
 
 Structures.extend("VoiceChannel", () => FireVoiceChannel);

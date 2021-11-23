@@ -76,8 +76,8 @@ export default class GuildUpdate extends Listener {
       if (before.systemChannelId != after.systemChannelId)
         embed.addField(
           language.get("SYSTEM_CHANNEL"),
-          `${before.systemChannel?.name || "???"} ➜ ${
-            after.systemChannel?.name || "???"
+          `${before.systemChannel?.name || "¯\\\\_(ツ)_/¯"} ➜ ${
+            after.systemChannel?.name || "¯\\\\_(ツ)_/¯"
           }`
         );
       if (before.ownerId != after.ownerId)
@@ -93,9 +93,9 @@ export default class GuildUpdate extends Listener {
               size: 128,
               format: "png",
               dynamic: true,
-            }) || "???"
+            }) || "¯\\\\_(ツ)_/¯"
           } ➜ ${
-            after.iconURL({ size: 128, format: "png", dynamic: true }) || "???"
+            after.iconURL({ size: 128, format: "png", dynamic: true }) || "¯\\\\_(ツ)_/¯"
           }`
         );
       if (before.splash != after.splash)
@@ -105,8 +105,8 @@ export default class GuildUpdate extends Listener {
             before.splashURL({
               size: 2048,
               format: "png",
-            }) || "???"
-          } ➜ ${after.splashURL({ size: 2048, format: "png" }) || "???"}`
+            }) || "¯\\\\_(ツ)_/¯"
+          } ➜ ${after.splashURL({ size: 2048, format: "png" }) || "¯\\\\_(ツ)_/¯"}`
         );
       if (before.banner != after.banner)
         embed.addField(
@@ -115,8 +115,8 @@ export default class GuildUpdate extends Listener {
             before.bannerURL({
               size: 2048,
               format: "png",
-            }) || "???"
-          } ➜ ${after.bannerURL({ size: 2048, format: "png" }) || "???"}`
+            }) || "¯\\\\_(ツ)_/¯"
+          } ➜ ${after.bannerURL({ size: 2048, format: "png" }) || "¯\\\\_(ツ)_/¯"}`
         );
       if (before.verificationLevel != after.verificationLevel)
         embed.addField(

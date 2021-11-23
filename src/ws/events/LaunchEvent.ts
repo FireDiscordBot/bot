@@ -1,14 +1,15 @@
+import { Collection } from "@discordjs/collection";
 import { ManagerState } from "@fire/lib/interfaces/aether";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
+import { Event } from "@fire/lib/ws/event/Event";
+import { EventType } from "@fire/lib/ws/util/constants";
 
 export default class LaunchEvent extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.LAUNCH_CLIENT);
   }
 
- async run(data: {
+  async run(data: {
     state: ManagerState;
     shardCount: number;
     shards: number[];

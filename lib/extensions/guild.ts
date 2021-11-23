@@ -490,7 +490,7 @@ export class FireGuild extends Guild {
       if (!user) continue;
       await this.unban(
         user,
-        this.language.get("UNMUTE_AUTOMATIC"),
+        this.language.get("UNBAN_AUTOMATIC"),
         this.me as FireMember
       );
     }

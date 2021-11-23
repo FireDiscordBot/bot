@@ -7,6 +7,7 @@ export default class SelectDiscord extends Command {
       enableSlashCommand: false,
       restrictTo: "all",
       parent: "select",
+      category: "Main",
       slashOnly: true,
       group: true,
     });

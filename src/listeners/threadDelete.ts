@@ -46,7 +46,7 @@ export default class ThreadDelete extends Listener {
           guild.iconURL({ size: 2048, format: "png", dynamic: true })
         )
         .addField(language.get("NAME"), thread.name)
-        .addField(language.get("CHANNEL"), thread.parent.toString())
+        .addField(language.get("CHANNEL"), thread.parent?.toString() ?? "¯\\\\_(ツ)_/¯")
         .addField(
           language.get("ARCHIVE"),
           Formatters.time(autoArchiveAt, "R")

@@ -32,10 +32,17 @@ export class CommandHandler extends AkairoCommandHandler {
     super(client, options);
   }
 
+  getCategories() {
+    // categories with lowercase names are not actual categories
+    return this.categories.filter(
+      (c) => c.id && c.id[0].toUpperCase() == c.id[0]
+    );
+  }
+
   async runCommand(
     message: FireMessage,
     command: Command,
-    args: any[]
+    args: Record<string, unknown>
   ): Promise<void> {
     if (command.typing) message.channel.sendTyping();
 
@@ -264,7 +271,11 @@ export class CommandHandler extends AkairoCommandHandler {
 
       await command.before(message as unknown as FireMessage);
 
-      const args = await command.parseSlash(message);
+      const args = await command.parseSlash(message).catch((e) => {
+        this.client.sentry.captureException(e);
+        return null;
+      });
+      if (args == null) return null;
 
       if (!ignore) {
         if (command.lock)

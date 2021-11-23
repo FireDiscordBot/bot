@@ -52,7 +52,8 @@ export const getCommands = (client: Fire) => {
   const categories: Category[] = [];
   let categoryID = 0;
 
-  client.commandHandler.categories
+  client.commandHandler
+    .getCategories()
     .filter(
       (category) =>
         !!category.findKey(

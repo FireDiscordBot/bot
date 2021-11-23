@@ -17,6 +17,31 @@ export default class MissingPermissions extends Listener {
     type: "client" | "user",
     missing: PermissionString[]
   ) {
+    this.client.influx([
+      {
+        measurement: "commands",
+        tags: {
+          type: "permissions",
+          command: command.id,
+          cluster: this.client.manager.id.toString(),
+          shard: message.guild?.shardId.toString() ?? "0",
+        },
+        fields: {
+          type: "permissions",
+          command: command.id,
+          missing_type: type,
+          guild: message.guild ? `${message.guild.name} (${message.guildId})` : "N/A",
+          user: `${message.author} (${message.author.id})`,
+          message_id: message.id,
+          missing: missing.join(", "),
+          has:
+            type == "client"
+              ? message.guild?.me.permissions.toArray().join(", ") ?? ""
+              : message.member?.permissions.toArray().join(", ") ?? "",
+        },
+      },
+    ]);
+
     const cleanPermissions = missing
       .map((name) =>
         this.client.util.cleanPermissionName(name, message.language)

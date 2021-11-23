@@ -1,6 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Command } from "@fire/lib/util/command";
 import { Listener } from "@fire/lib/util/listener";
+import { inspect } from "util";
 
 export default class CommandFinished extends Listener {
   constructor() {
@@ -10,7 +12,34 @@ export default class CommandFinished extends Listener {
     });
   }
 
-  async exec(message: FireMessage | ApplicationCommandMessage) {
+  async exec(
+    message: FireMessage | ApplicationCommandMessage,
+    command: Command,
+    args: Record<string, unknown>,
+    ret: unknown
+  ) {
+    const point = {
+      measurement: "commands",
+      tags: {
+        type: "finish",
+        command: command.id,
+        cluster: this.client.manager.id.toString(),
+        shard: message.guild?.shardId.toString() ?? "0",
+      },
+      fields: {
+        type: "finish",
+        command: command.id,
+        guild: message.guild ? `${message.guild.name} (${message.guildId})` : "N/A",
+        user: `${message.author} (${message.author.id})`,
+        message_id: message.id,
+        return: "",
+      },
+    };
+    try {
+      point.fields.return = inspect(ret, false, 0);
+    } catch {}
+    this.client.influx([point]);
+
     if (
       message instanceof ApplicationCommandMessage ||
       message.deleted ||

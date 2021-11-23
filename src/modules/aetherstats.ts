@@ -1,10 +1,11 @@
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { Module } from "@fire/lib/util/module";
 import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 
 export default class AetherStats extends Module {
   statsTask: NodeJS.Timeout;
+
   constructor() {
     super("aetherstats");
   }

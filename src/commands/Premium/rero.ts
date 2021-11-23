@@ -170,7 +170,7 @@ export default class ReactionRole extends Command {
       )
       .addField(
         message.guild.language.get("EMOJI"),
-        reaction.emoji?.toString() || "???"
+        reaction.emoji?.toString() || "¯\\\\_(ツ)_/¯"
       )
       .addField(message.guild.language.get("ROLE"), role.toString())
       .setFooter(`${role.id} | ${message.author.id}`);
@@ -202,7 +202,7 @@ export default class ReactionRole extends Command {
       )
       .addField(
         message.guild.language.get("EMOJI"),
-        reaction.emoji?.toString() || "???"
+        reaction.emoji?.toString() || "¯\\\\_(ツ)_/¯"
       )
       .addField(message.guild.language.get("ROLE"), role.toString())
       .setFooter(`${role.id} | ${message.author.id}`);

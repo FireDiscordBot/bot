@@ -39,8 +39,7 @@ export enum EventType {
   DISCOVERY_UPDATE,
   API_REQUEST,
   ALIAS_SYNC,
-  LOG_REQUEST,
-  LOG_BUTTON,
+  WRITE_INFLUX_POINTS,
 }
 
 export enum WebsocketStates {

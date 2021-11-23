@@ -25,6 +25,7 @@ export default class GuildMemberUpdate extends Listener {
     newMember.dehoistAndDecancer();
 
     if (
+      !newMember.guild.hasExperiment(1955682940, 1) &&
       newMember.guild.mutes.has(newMember.id) &&
       !newMember.roles.cache.has(newMember.guild.muteRole?.id)
     ) {
@@ -32,6 +33,17 @@ export default class GuildMemberUpdate extends Listener {
       const until = newMember.guild.mutes.get(newMember.id);
       if (until == 0 || +new Date() < until)
         await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
+    } else if (
+      newMember.guild.hasExperiment(1955682940, 1) &&
+      newMember.guild.mutes.has(newMember.id) &&
+      !newMember.communicationDisabledUntil
+    ) {
+      await this.client.util.sleep(5000); // wait a bit to ensure it isn't from being unmuted
+      const until = newMember.guild.mutes.get(newMember.id);
+      if (until == 0 || +new Date() < until)
+        await newMember
+          .disableCommunication({ until: new Date(until) })
+          .catch(() => {});
     }
 
     // maybe fix role persist removing on member upddte shortly after joining
@@ -338,7 +350,7 @@ export default class GuildMemberUpdate extends Listener {
       )
       .addField(
         guild.language.get("MODERATOR"),
-        executor ? executor.toString() : "???"
+        executor ? executor.toString() : "¯\\\\_(ツ)_/¯"
       )
       .setFooter(targetId);
     if (action.reason)
@@ -385,7 +397,7 @@ export default class GuildMemberUpdate extends Listener {
       )
       .addField(
         guild.language.get("MODERATOR"),
-        executor ? executor.toString() : "???"
+        executor ? executor.toString() : "¯\\\\_(ツ)_/¯"
       )
       .setFooter(targetId);
     if (action.reason)
@@ -424,18 +436,18 @@ export default class GuildMemberUpdate extends Listener {
       .setColor(target ? target?.displayColor : "#ffffff")
       .addField(
         guild.language.get("MODERATOR"),
-        executor ? executor.toString() : "???"
+        executor ? executor.toString() : "¯\\\\_(ツ)_/¯"
       )
       .setFooter(targetId);
     if (change.old)
       embed.addField(
         guild.language.get("NICKCHANGELOG_OLD_NICK"),
-        change.old.toString() || "???"
+        change.old.toString() || "¯\\\\_(ツ)_/¯"
       );
     if (change.new)
       embed.addField(
         guild.language.get("NICKCHANGELOG_NEW_NICK"),
-        change.new.toString() || "???"
+        change.new.toString() || "¯\\\\_(ツ)_/¯"
       );
     if (embed.fields.length <= 1) return;
     if (action.reason)
