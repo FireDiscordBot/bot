@@ -798,7 +798,8 @@ export class Util extends ClientUtil {
             ),
           })
         );
-    else if (upsellType == "switch")
+    else if (upsellType == "switch") {
+      const cmdName = message.util?.parsed?.command?.id?.replace("-", " ");
       upsellEmbed = new MessageEmbed()
         .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setAuthor(
@@ -809,13 +810,20 @@ export class Util extends ClientUtil {
           })
         )
         .setDescription(
-          message.language.get("COMMAND_NOTICE_SLASH_SWITCH", {
-            invite: this.client.config.commandsInvite(
-              this.client,
-              message.guild.id
-            ),
-          })
+          message.language.get(
+            cmdName
+              ? "COMMAND_NOTICE_SLASH_SWITCH_WITH_NAME"
+              : "COMMAND_NOTICE_SLASH_SWITCH",
+            {
+              invite: this.client.config.commandsInvite(
+                this.client,
+                message.guild.id
+              ),
+              cmd: cmdName,
+            }
+          )
         );
+    }
     message.sentUpsell = true;
     return upsellEmbed;
   }
