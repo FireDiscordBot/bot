@@ -130,7 +130,10 @@ export default class RemindersCreate extends Command {
       });
     }
 
-    if (!reminder) return await command.error("REMINDER_MISSING_ARG");
+    if (!reminder)
+      return await command.error("REMINDER_MISSING_ARG", {
+        includeSlashUpsell: true,
+      });
     let repeat: number, step: string;
     const repeatExec = repeatRegex.exec(reminder);
     if (repeatExec?.length == 2) repeat = parseInt(repeatExec[1]);
@@ -138,29 +141,44 @@ export default class RemindersCreate extends Command {
     repeatRegex.lastIndex = 0;
     repeat++;
     if (!repeat || repeat > 6 || repeat < 1)
-      return await command.error("REMINDER_INVALID_REPEAT");
+      return await command.error("REMINDER_INVALID_REPEAT", {
+        includeSlashUpsell: true,
+      });
     reminder = reminder.replace(repeatRegex, "");
     const stepExec = stepRegex.exec(reminder) || [""];
     stepRegex.lastIndex = 0;
     step = stepExec[0] || "";
     if ((!step && repeat > 1) || (step && repeat == 1))
-      return await command.error("REMINDER_SEPARATE_FLAGS");
+      return await command.error("REMINDER_SEPARATE_FLAGS", {
+        includeSlashUpsell: true,
+      });
     reminder = reminder.replace(stepRegex, "").trimEnd();
     const stepMinutes = parseTime(step) as number;
     if (step && stepMinutes > 0 && stepMinutes < 2)
-      return await command.error("REMINDER_STEP_TOO_SHORT");
+      return await command.error("REMINDER_STEP_TOO_SHORT", {
+        includeSlashUpsell: true,
+      });
     const parsedMinutes = parseTime(args.time) as number;
-    if (!parsedMinutes) return await command.error("REMINDER_MISSING_TIME");
+    if (!parsedMinutes)
+      return await command.error("REMINDER_MISSING_TIME", {
+        includeSlashUpsell: true,
+      });
     else if (parsedMinutes < 2)
-      return await command.error("REMINDER_TOO_SHORT");
+      return await command.error("REMINDER_TOO_SHORT", {
+        includeSlashUpsell: true,
+      });
     if (!reminder.replace(/\s/gim, "").length && !command.reference?.messageId)
-      return await command.error("REMINDER_MISSING_CONTENT");
+      return await command.error("REMINDER_MISSING_CONTENT", {
+        includeSlashUpsell: true,
+      });
     else if (!reminder.replace(/\s/gim, "").length) {
       const referenced = await command.channel.messages
         .fetch(command.reference.messageId)
         .catch(() => {});
       if (!referenced || !referenced.content)
-        return await command.error("REMINDER_MISSING_CONTENT");
+        return await command.error("REMINDER_MISSING_CONTENT", {
+          includeSlashUpsell: true,
+        });
       else reminder = referenced.content;
     }
     const time = new Date();
@@ -174,7 +192,9 @@ export default class RemindersCreate extends Command {
       moment(largestTime).diff(moment(), "months") >= 7 &&
       !command.author.isSuperuser()
     )
-      return await command.error("REMINDER_TIME_LIMIT");
+      return await command.error("REMINDER_TIME_LIMIT", {
+        includeSlashUpsell: true,
+      });
     let created: { [duration: string]: boolean } = {};
     for (let i = 0; i < repeat; i++) {
       const currentTime = new Date(time);
