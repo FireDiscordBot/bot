@@ -1,28 +1,26 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
+import { Command } from "@fire/lib/util/command";
+import { humanize } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
 import {
   ApplicationCommandOptionChoice,
   CommandInteractionOption,
   MessageActionRow,
-  MessageButton,
-  SnowflakeUtil,
-  Snowflake,
+  MessageButton, Snowflake, SnowflakeUtil
 } from "discord.js";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
-import { humanize } from "@fire/lib/util/constants";
 
-export default class DeleteReminder extends Command {
+export default class RemindersDelete extends Command {
   constructor() {
-    super("delremind", {
+    super("reminders-delete", {
       description: (language: Language) =>
-        language.get("DELREMIND_COMMAND_DESCRIPTION"),
+        language.get("REMINDERS_DELETE_COMMAND_DESCRIPTION"),
       args: [
         {
           id: "reminder",
           type: "string",
           description: (language: Language) =>
-            language.get("DELREMIND_ARG_DESCRIPTION"),
+            language.get("REMINDERS_DELETE_ARG_DESCRIPTION"),
           required: true,
           autocomplete: true,
           default: null,
@@ -69,7 +67,7 @@ export default class DeleteReminder extends Command {
 
   async run(command: ApplicationCommandMessage, args: { reminder?: string }) {
     const timestamp = +args.reminder;
-    if (!args.reminder) return await command.error("DELREMIND_MISSING_ARG");
+    if (!args.reminder) return await command.error("REMINDERS_DELETE_MISSING_ARG");
     const remindersResult = await this.client.db
       .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2 LIMIT 1;", [
         command.author.id,
@@ -77,7 +75,7 @@ export default class DeleteReminder extends Command {
       ])
       .first()
       .catch(() => {});
-    if (!remindersResult) return await command.error("REMINDERS_NONE_FOUND");
+    if (!remindersResult) return await command.error("REMINDERS_LIST_NONE_FOUND");
     const date = remindersResult.get("forwhen") as Date;
     const reminder = {
       user: remindersResult.get("uid") as Snowflake,
@@ -93,7 +91,7 @@ export default class DeleteReminder extends Command {
     );
     const noSnowflake = SnowflakeUtil.generate();
     this.client.buttonHandlersOnce.set(noSnowflake, this.noButton);
-    return await command.send("DELREMIND_CONFIRM", {
+    return await command.send("REMINDERS_DELETE_CONFIRM", {
       text: reminder.text,
       date: reminder.date.toLocaleString(command.language.id),
       components: [
@@ -101,11 +99,11 @@ export default class DeleteReminder extends Command {
           new MessageButton()
             .setStyle("SUCCESS")
             .setCustomId(`!${yesSnowflake}`)
-            .setLabel(command.language.get("DELREMIND_DELETE_IT")),
+            .setLabel(command.language.get("REMINDERS_DELETE_DELETE_IT")),
           new MessageButton()
             .setStyle("DANGER")
             .setCustomId(`!${noSnowflake}`)
-            .setLabel(command.language.get("DELREMIND_CANCEL")),
+            .setLabel(command.language.get("REMINDERS_DELETE_CANCEL")),
         ]),
       ],
     });
@@ -116,7 +114,7 @@ export default class DeleteReminder extends Command {
       const deleted = await button.author.deleteReminder(timestamp);
       return deleted
         ? await button.channel.update({
-            content: button.language.getSuccess("DELREMIND_YES"),
+            content: button.language.getSuccess("REMINDERS_DELETE_YES"),
             components: [],
           })
         : await button.channel.update({
@@ -128,7 +126,7 @@ export default class DeleteReminder extends Command {
 
   private async noButton(button: ComponentMessage) {
     return await button.channel.update({
-      content: button.language.get("DELREMIND_NO"),
+      content: button.language.get("REMINDERS_DELETE_NO"),
       components: [],
     });
   }

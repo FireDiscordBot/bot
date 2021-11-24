@@ -3,11 +3,16 @@ import {
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { constants, GuildTextChannel } from "@fire/lib/util/constants";
+import {
+  constants,
+  GuildTextChannel,
+  parseTime,
+  pluckTime,
+} from "@fire/lib/util/constants";
 import { messageConverter } from "@fire/lib/util/converters";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
-import Remind from "@fire/src/commands/Utilities/remind";
+import RemindersCreate from "@fire/src/commands/Utilities/createremind";
 import { EventType } from "@fire/lib/ws/util/constants";
 import Quote from "@fire/src/commands/Utilities/quote";
 import { Listener } from "@fire/lib/util/listener";
@@ -48,7 +53,9 @@ export default class MessageInvalid extends Listener {
     );
 
     if (message.content.includes("--remind")) {
-      const remindCommand = this.client.getCommand("remind") as Remind;
+      const remindCommand = this.client.getCommand(
+        "reminders-create"
+      ) as RemindersCreate;
       for (const inhibitor of inhibitors) {
         if (inhibited) continue;
         let exec = inhibitor.exec(message, remindCommand);
@@ -56,9 +63,11 @@ export default class MessageInvalid extends Listener {
         if (exec) inhibited = true;
       }
       if (!inhibited) {
+        const text = message.content.replace("--remind", " ").trim();
         await remindCommand
           .exec(message, {
-            reminder: message.content.replace("--remind", " ").trimEnd(),
+            reminder: parseTime(text, true) as string,
+            time: pluckTime(text),
           })
           .catch(() => {});
       }

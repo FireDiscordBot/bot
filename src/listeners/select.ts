@@ -101,7 +101,7 @@ export default class Select extends Listener {
         });
     }
 
-    if (select.customId.startsWith("snooze:")) {
+    if (select.customId.startsWith(`snooze:${select.author.id}:`)) {
       const event = this.client.manager.eventHandler?.store?.get(
         EventType.REMINDER_SEND
       ) as ReminderSendEvent;

@@ -1,11 +1,11 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 import {
   PaginatorEmbedInterface,
-  WrappedPaginator,
+  WrappedPaginator
 } from "@fire/lib/util/paginators";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Formatters, MessageEmbed, Permissions } from "discord.js";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
+import { Formatters, MessageEmbed } from "discord.js";
 
 export default class RemindersList extends Command {
   constructor() {

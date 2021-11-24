@@ -705,7 +705,7 @@ export default class Button extends Listener {
       else return await handler(button);
     }
 
-    if (button.customId.startsWith("snooze:")) {
+    if (button.customId.startsWith(`snooze:${button.author.id}:`)) {
       const event = this.client.manager.eventHandler?.store?.get(
         EventType.REMINDER_SEND
       ) as ReminderSendEvent;
@@ -720,7 +720,11 @@ export default class Button extends Listener {
         .setPlaceholder(
           button.author.language.get("REMINDER_SNOOZE_PLACEHOLDER")
         )
-        .setCustomId(`!snooze:${button.customId.slice(7)}`)
+        .setCustomId(
+          `!snooze:${button.author.id}:${button.customId.slice(
+            `snooze:${button.author.id}:`.length
+          )}`
+        )
         .setMaxValues(1)
         .setMinValues(1)
         .addOptions(

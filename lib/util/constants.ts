@@ -430,6 +430,28 @@ export const parseTime = (content: string, replace: boolean = false) => {
   return minutes;
 };
 
+export const pluckTime = (content: string) => {
+  if (!content) return null;
+  else if (!content) return content;
+  const {
+    regexes: { time: regexes },
+  } = constants;
+  // to try reduce false positives for the time
+  // it requires a space before the time
+  // so here we add a space before the content
+  // in case the time is at the start
+  content = " " + content;
+  const matches = [
+    regexes.month.exec(content)?.groups?.months,
+    regexes.week.exec(content)?.groups?.weeks,
+    regexes.day.exec(content)?.groups?.days,
+    regexes.hours.exec(content)?.groups?.hours,
+    regexes.minutes.exec(content)?.groups?.minutes,
+    regexes.seconds.exec(content)?.groups?.seconds,
+  ].filter((match) => !!match);
+  return matches.join(" ");
+}
+
 export const shortURLs = [
   "0rz.tw",
   "1link.in",

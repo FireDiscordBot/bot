@@ -1,17 +1,17 @@
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Command } from "@fire/lib/util/command";
+import { parseTime } from "@fire/lib/util/constants";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { EventType } from "@fire/lib/ws/util/constants";
+import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
 import {
-  MessageSelectMenu,
+  Formatters,
   MessageActionRow,
   MessageButton,
+  MessageSelectMenu,
   SnowflakeUtil,
-  Formatters,
 } from "discord.js";
-import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
-import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { parseTime } from "@fire/lib/util/constants";
-import { Command } from "@fire/lib/util/command";
 import * as moment from "moment";
 
 const repeatRegex = /--repeat (\d*)/gim;
@@ -29,30 +29,39 @@ const reminderContextTimes = {
   REMINDER_SNOOZE_MONTH: "2628060000",
 };
 
-export default class Remind extends Command {
+export default class RemindersCreate extends Command {
   constructor() {
-    super("remind", {
+    super("reminders-create", {
       description: (language: Language) =>
-        language.get("REMIND_COMMAND_DESCRIPTION"),
+        language.get("REMINDERS_CREATE_COMMAND_DESCRIPTION"),
       args: [
         {
           id: "reminder",
           type: "string",
           description: (language: Language) =>
-            language.get("REMIND_ARG_DESCRIPTION"),
+            language.get("REMINDERS_CREATE_MSG_ARG_DESCRIPTION"),
+          default: null,
+          required: true,
+        },
+        {
+          id: "time",
+          type: "string",
+          description: (language: Language) =>
+            language.get("REMINDERS_CREATE_TIME_ARG_DESCRIPTION"),
           default: null,
           required: true,
         },
       ],
-      aliases: ["remindme", "reminder"],
       enableSlashCommand: true,
       context: ["remind me"],
+      parent: "reminders",
       restrictTo: "all",
       ephemeral: true,
     });
   }
 
-  async exec(message: FireMessage, args: { reminder?: string }) {
+  async exec(message: FireMessage, args: { reminder: string; time: string }) {
+    let { reminder } = args;
     // handle context menu before actual command
     if (message instanceof ContextCommandMessage) {
       const clickedMessage = (
@@ -76,7 +85,7 @@ export default class Remind extends Command {
         .setPlaceholder(
           message.author.language.get("REMINDER_CONTEXT_PLACEHOLDER")
         )
-        .setCustomId(`!snooze:${now}`)
+        .setCustomId(`!snooze:${message.author.id}:${now}`)
         .setMaxValues(1)
         .setMinValues(1)
         .addOptions(
@@ -115,30 +124,29 @@ export default class Remind extends Command {
       });
     }
 
-    if (!args.reminder) return await message.error("REMINDER_MISSING_ARG");
+    if (!reminder) return await message.error("REMINDER_MISSING_ARG");
     let repeat: number, step: string;
-    const repeatExec = repeatRegex.exec(args.reminder);
+    const repeatExec = repeatRegex.exec(reminder);
     if (repeatExec?.length == 2) repeat = parseInt(repeatExec[1]);
     else repeat = 0;
     repeatRegex.lastIndex = 0;
     repeat++;
     if (!repeat || repeat > 6 || repeat < 1)
       return await message.error("REMINDER_INVALID_REPEAT");
-    args.reminder = args.reminder.replace(repeatRegex, "");
-    const stepExec = stepRegex.exec(args.reminder) || [""];
+    reminder = reminder.replace(repeatRegex, "");
+    const stepExec = stepRegex.exec(reminder) || [""];
     stepRegex.lastIndex = 0;
     step = stepExec[0] || "";
     if ((!step && repeat > 1) || (step && repeat == 1))
       return await message.error("REMINDER_SEPARATE_FLAGS");
-    args.reminder = args.reminder.replace(stepRegex, "").trimEnd();
+    reminder = reminder.replace(stepRegex, "").trimEnd();
     const stepMinutes = parseTime(step) as number;
     if (step && stepMinutes > 0 && stepMinutes < 2)
       return await message.error("REMINDER_STEP_TOO_SHORT");
-    const parsedMinutes = parseTime(args.reminder) as number;
+    const parsedMinutes = parseTime(args.time) as number;
     if (!parsedMinutes) return await message.error("REMINDER_MISSING_TIME");
     else if (parsedMinutes < 2)
       return await message.error("REMINDER_TOO_SHORT");
-    let reminder = parseTime(args.reminder, true) as string;
     if (!reminder.replace(/\s/gim, "").length && !message.reference?.messageId)
       return await message.error("REMINDER_MISSING_CONTENT");
     else if (!reminder.replace(/\s/gim, "").length) {
