@@ -58,7 +58,7 @@ export default class Ready extends Listener {
           )
         )
       );
-    } catch {}
+    } catch { }
     this.client.manager.ready = true;
     this.client.setReadyPresence();
     this.client.guildSettings.items = this.client.guildSettings.items.filter(
@@ -103,7 +103,7 @@ export default class Ready extends Listener {
         if (
           cmd.enableSlashCommand &&
           !cmd.guilds?.length &&
-          !cmd.requiresExperiment &&
+          !cmd.requiresExperiment && !cmd.parent &&
           appCommands.find((s) => s.name == cmd.id)
         )
           commands.push(
@@ -114,7 +114,7 @@ export default class Ready extends Listener {
         else if (
           cmd.enableSlashCommand &&
           !cmd.guilds?.length &&
-          !cmd.requiresExperiment
+          !cmd.requiresExperiment && !cmd.parent
         )
           commands.push(cmd.getSlashCommandJSON());
       }
