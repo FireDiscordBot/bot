@@ -744,6 +744,7 @@ export class Util extends ClientUtil {
     )
       return false;
     else if (!(message instanceof FireMessage)) return false;
+    else if (message.sentUpsell) return false; // we don't want to send two of them for the same message
     const slashCommands = await message.client
       .requestSlashCommands(message.guild)
       .catch(() => {});
@@ -815,6 +816,7 @@ export class Util extends ClientUtil {
             ),
           })
         );
+    message.sentUpsell = true;
     return upsellEmbed;
   }
 

@@ -64,6 +64,7 @@ export type i18nOptions = TOptions<StringMap> & {
   )[];
   allowedMentions?: MessageMentionOptions;
   reply?: ReplyOptions;
+  includeSlashUpsell?: boolean;
 };
 
 let emojis = {

@@ -348,7 +348,10 @@ export class CommandHandler extends AkairoCommandHandler {
             }
             if (o.content.trim() == m.content.trim()) return;
             if (o.paginator) this.client.util.paginators.delete(o.id);
-            if (this.handleEdits) this.handle(m);
+            if (this.handleEdits) {
+              m.sentUpsell = false;
+              this.handle(m);
+            }
           }
         );
       }

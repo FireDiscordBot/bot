@@ -1,42 +1,42 @@
+import { Fire } from "@fire/lib/Fire";
+import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
+import { CommandUtil } from "@fire/lib/util/commandutil";
 import {
-  EmojiIdentifierResolvable,
-  ReplyMessageOptions,
-  MessageAttachment,
-  DiscordAPIError,
-  MessageReaction,
-  MessagePayload,
-  ThreadChannel,
-  WebhookClient,
-  ThreadMember,
-  MessageEmbed,
-  GuildChannel,
-  Permissions,
-  NewsChannel,
-  Collection,
-  Structures,
-  DMChannel,
-  Webhook,
-  Message,
-  Channel,
-} from "discord.js";
-import {
+  constants,
   GuildTextChannel,
   i18nOptions,
-  constants,
 } from "@fire/lib/util/constants";
-import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
-import { RawMessageData } from "discord.js/typings/rawDataTypes";
-import { CommandUtil } from "@fire/lib/util/commandutil";
-import { FireVoiceChannel } from "./voicechannel";
 import Filters from "@fire/src/modules/filters";
-import { FireTextChannel } from "./textchannel";
-import { LanguageKeys } from "../util/language";
-import Semaphore from "semaphore-async-await";
-import { FireMember } from "./guildmember";
-import { Fire } from "@fire/lib/Fire";
-import { FireGuild } from "./guild";
-import { FireUser } from "./user";
 import * as centra from "centra";
+import {
+  Channel,
+  Collection,
+  DiscordAPIError,
+  DMChannel,
+  EmojiIdentifierResolvable,
+  GuildChannel,
+  Message,
+  MessageAttachment,
+  MessageEmbed,
+  MessagePayload,
+  MessageReaction,
+  NewsChannel,
+  Permissions,
+  ReplyMessageOptions,
+  Structures,
+  ThreadChannel,
+  ThreadMember,
+  Webhook,
+  WebhookClient,
+} from "discord.js";
+import { RawMessageData } from "discord.js/typings/rawDataTypes";
+import Semaphore from "semaphore-async-await";
+import { LanguageKeys } from "../util/language";
+import { FireGuild } from "./guild";
+import { FireMember } from "./guildmember";
+import { FireTextChannel } from "./textchannel";
+import { FireUser } from "./user";
+import { FireVoiceChannel } from "./voicechannel";
 
 const { emojis, reactions, regexes, imageExts, audioExts, videoExts } =
   constants;
@@ -51,6 +51,7 @@ export class FireMessage extends Message {
   starLock: Semaphore;
   selfDelete: boolean;
   util?: CommandUtil;
+  sentUpsell = false;
   silent?: boolean;
 
   constructor(client: Fire, data: RawMessageData) {
@@ -100,13 +101,17 @@ export class FireMessage extends Message {
     return this.client.util.paginators.get(this.id) ?? null;
   }
 
-  send(key: LanguageKeys, args?: i18nOptions) {
+  async send(key: LanguageKeys, args?: i18nOptions) {
     if (this.channel.deleted) return;
+    let upsell: MessageEmbed | false;
+    if (args.includeSlashUpsell)
+      upsell = await this.client.util.getSlashUpsellEmbed(this);
     return this.channel.send({
       content: this.language.get(key, args),
       allowedMentions: args?.allowedMentions,
       components: args?.components,
       reply: args?.reply,
+      embeds: upsell ? [upsell] : undefined,
     });
   }
 
@@ -119,11 +124,14 @@ export class FireMessage extends Message {
     return (await super.reply(options)) as FireMessage;
   }
 
-  success(
+  async success(
     key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
+    let upsell: MessageEmbed | false;
+    if (args.includeSlashUpsell)
+      upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
       ? this.react(reactions.success).catch(() => {})
       : this.channel.send({
@@ -131,14 +139,18 @@ export class FireMessage extends Message {
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           reply: args?.reply,
+          embeds: upsell ? [upsell] : undefined,
         });
   }
 
-  warn(
+  async warn(
     key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
+    let upsell: MessageEmbed | false;
+    if (args.includeSlashUpsell)
+      upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
       ? this.react(reactions.warning).catch(() => {})
       : this.reply({
@@ -146,14 +158,18 @@ export class FireMessage extends Message {
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           failIfNotExists: false,
+          embeds: upsell ? [upsell] : undefined,
         });
   }
 
-  error(
+  async error(
     key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
+    let upsell: MessageEmbed | false;
+    if (args.includeSlashUpsell)
+      upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
       ? this.react(reactions.error).catch(() => {})
       : this.reply({
@@ -161,6 +177,7 @@ export class FireMessage extends Message {
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           failIfNotExists: false,
+          embeds: upsell ? [upsell] : undefined,
         });
   }
 

@@ -192,7 +192,6 @@ export default class RemindersCreate extends Command {
     const failed = Object.entries(created)
       .filter(([, success]) => !success)
       .map(([duration]) => duration);
-    // TODO: add slash cmd upsell
     return failed.length != repeat
       ? await command.success(
           success.length == 1
@@ -201,8 +200,11 @@ export default class RemindersCreate extends Command {
           {
             time: success[0],
             times: success.map((s) => "- " + s).join("\n"),
+            includeSlashUpsell: true,
           }
         )
-      : await command.error("ERROR_CONTACT_SUPPORT");
+      : await command.error("ERROR_CONTACT_SUPPORT", {
+          includeSlashUpsell: true,
+        });
   }
 }
