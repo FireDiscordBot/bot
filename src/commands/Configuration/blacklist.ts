@@ -101,6 +101,7 @@ export default class Blacklist extends Command {
         );
       return unblacklisted
         ? await command.success("UNBLACKLIST_SUCCESS", {
+            user: args.user.toString(),
             guild: "Fire (Global Blacklist)",
           })
         : await command.error("ERROR_CONTACT_SUPPORT");
@@ -121,6 +122,7 @@ export default class Blacklist extends Command {
         );
       return blacklisted
         ? await command.success("BLACKLIST_SUCCESS", {
+            user: args.user.toString(),
             guild: "Fire (Global Blacklist)",
           })
         : await command.error("ERROR_CONTACT_SUPPORT");
