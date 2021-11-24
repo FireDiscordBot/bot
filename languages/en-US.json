@@ -866,7 +866,7 @@
   "REMINDER_SNOOZE_MONTH": "1 month",
   "REMINDERS_LIST_COMMAND_DESCRIPTION": "List all reminders you have set",
   "REMINDERS_LIST_NONE_FOUND": "You must have a good memory because I found no reminders",
-  "REMINDERS_LIST_FOOTER": "Use the `/reminders delete` command to delete a reminder",
+  "REMINDERS_LIST_FOOTER": "Use the \"/reminders delete\" command to delete a reminder",
   "REMINDERS_DELETE_COMMAND_DESCRIPTION": "Delete a reminder",
   "REMINDERS_DELETE_ARG_DESCRIPTION": "The reminder you want tfo delete",
   "REMINDERS_DELETE_MISSING_ARG": "You need to provide a reminder to delete",
