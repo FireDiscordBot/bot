@@ -442,12 +442,12 @@ export const pluckTime = (content: string) => {
   // in case the time is at the start
   content = " " + content;
   const matches = [
-    regexes.month.exec(content)?.groups?.months,
-    regexes.week.exec(content)?.groups?.weeks,
-    regexes.day.exec(content)?.groups?.days,
-    regexes.hours.exec(content)?.groups?.hours,
-    regexes.minutes.exec(content)?.groups?.minutes,
-    regexes.seconds.exec(content)?.groups?.seconds,
+    regexes.month.exec(content)?.groups?.months + "mo",
+    regexes.week.exec(content)?.groups?.weeks + "w",
+    regexes.day.exec(content)?.groups?.days + "d",
+    regexes.hours.exec(content)?.groups?.hours + "h",
+    regexes.minutes.exec(content)?.groups?.minutes + "m",
+    regexes.seconds.exec(content)?.groups?.seconds + "s",
   ].filter((match) => !!match);
   return matches.join(" ");
 }
