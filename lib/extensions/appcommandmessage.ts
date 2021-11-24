@@ -70,8 +70,6 @@ export class ApplicationCommandMessage {
   deleted = false;
   id: Snowflake;
   client: Fire;
-  embeds = [];
-  nonce = "";
 
   constructor(
     client: Fire,
@@ -318,6 +316,14 @@ export class ApplicationCommandMessage {
 
   get invWtfResolved() {
     return new Collection();
+  }
+
+  get embeds() {
+    return this.sourceMessage?.embeds ?? [];
+  }
+
+  get nonce() {
+    return "deez nuts"
   }
 
   async generateContent() {
