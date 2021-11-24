@@ -11,7 +11,7 @@ import {
   MessageActionRow,
   MessageButton,
   MessageSelectMenu,
-  SnowflakeUtil
+  SnowflakeUtil,
 } from "discord.js";
 import * as moment from "moment";
 
@@ -61,7 +61,12 @@ export default class RemindersCreate extends Command {
     });
   }
 
-  async run(command: ApplicationCommandMessage | ContextCommandMessage, args: { reminder: string; time: string }) {
+  async run(
+    // Command#run will usually never have FireMessage, this is temporary to allow the remind command to work as a message command
+    // for familiarity and to prompt with an upsell
+    command: ApplicationCommandMessage | ContextCommandMessage | FireMessage,
+    args: { reminder: string; time: string }
+  ) {
     let { reminder } = args;
     // handle context menu before actual command
     if (command instanceof ContextCommandMessage) {
@@ -187,6 +192,7 @@ export default class RemindersCreate extends Command {
     const failed = Object.entries(created)
       .filter(([, success]) => !success)
       .map(([duration]) => duration);
+    // TODO: add slash cmd upsell
     return failed.length != repeat
       ? await command.success(
           success.length == 1
