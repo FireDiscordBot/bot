@@ -1,3 +1,4 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
@@ -10,7 +11,7 @@ import {
   MessageActionRow,
   MessageButton,
   MessageSelectMenu,
-  SnowflakeUtil,
+  SnowflakeUtil
 } from "discord.js";
 import * as moment from "moment";
 
@@ -52,46 +53,46 @@ export default class RemindersCreate extends Command {
           required: true,
         },
       ],
-      enableSlashCommand: true,
       context: ["remind me"],
       parent: "reminders",
       restrictTo: "all",
       ephemeral: true,
+      slashOnly: true,
     });
   }
 
-  async exec(message: FireMessage, args: { reminder: string; time: string }) {
+  async run(command: ApplicationCommandMessage | ContextCommandMessage, args: { reminder: string; time: string }) {
     let { reminder } = args;
     // handle context menu before actual command
-    if (message instanceof ContextCommandMessage) {
+    if (command instanceof ContextCommandMessage) {
       const clickedMessage = (
-        message as ContextCommandMessage
+        command as ContextCommandMessage
       ).getMessage() as FireMessage;
       if (!clickedMessage?.content)
-        return await message.error("REMINDER_MISSING_CONTEXT");
+        return await command.error("REMINDER_MISSING_CONTEXT");
       const event = this.client.manager.eventHandler?.store?.get(
         EventType.REMINDER_SEND
       ) as ReminderSendEvent;
-      if (!event) return await message.error("ERROR_CONTACT_SUPPORT");
+      if (!event) return await command.error("ERROR_CONTACT_SUPPORT");
       const now = +new Date();
       // we push a dummy reminder that we use for "snoozing"
       event.sent.push({
-        user: message.author.id,
+        user: command.author.id,
         text: clickedMessage.content,
         link: clickedMessage.url,
         timestamp: now,
       });
       const dropdown = new MessageSelectMenu()
         .setPlaceholder(
-          message.author.language.get("REMINDER_CONTEXT_PLACEHOLDER")
+          command.author.language.get("REMINDER_CONTEXT_PLACEHOLDER")
         )
-        .setCustomId(`!snooze:${message.author.id}:${now}`)
+        .setCustomId(`!snooze:${command.author.id}:${now}`)
         .setMaxValues(1)
         .setMinValues(1)
         .addOptions(
           Object.entries(reminderContextTimes).map(([key, time]) => {
             return {
-              label: message.author.language.get(key as LanguageKeys),
+              label: command.author.language.get(key as LanguageKeys),
               value: time,
             };
           })
@@ -110,8 +111,8 @@ export default class RemindersCreate extends Command {
           })
           .catch(() => {});
       });
-      return await message.channel.send({
-        content: message.author.language.get("REMINDER_CONTEXT_CONTENT", {
+      return await command.channel.send({
+        content: command.author.language.get("REMINDER_CONTEXT_CONTENT", {
           content:
             clickedMessage.content.length >= 503
               ? clickedMessage.content.slice(0, 500) + "..."
@@ -124,7 +125,7 @@ export default class RemindersCreate extends Command {
       });
     }
 
-    if (!reminder) return await message.error("REMINDER_MISSING_ARG");
+    if (!reminder) return await command.error("REMINDER_MISSING_ARG");
     let repeat: number, step: string;
     const repeatExec = repeatRegex.exec(reminder);
     if (repeatExec?.length == 2) repeat = parseInt(repeatExec[1]);
@@ -132,29 +133,29 @@ export default class RemindersCreate extends Command {
     repeatRegex.lastIndex = 0;
     repeat++;
     if (!repeat || repeat > 6 || repeat < 1)
-      return await message.error("REMINDER_INVALID_REPEAT");
+      return await command.error("REMINDER_INVALID_REPEAT");
     reminder = reminder.replace(repeatRegex, "");
     const stepExec = stepRegex.exec(reminder) || [""];
     stepRegex.lastIndex = 0;
     step = stepExec[0] || "";
     if ((!step && repeat > 1) || (step && repeat == 1))
-      return await message.error("REMINDER_SEPARATE_FLAGS");
+      return await command.error("REMINDER_SEPARATE_FLAGS");
     reminder = reminder.replace(stepRegex, "").trimEnd();
     const stepMinutes = parseTime(step) as number;
     if (step && stepMinutes > 0 && stepMinutes < 2)
-      return await message.error("REMINDER_STEP_TOO_SHORT");
+      return await command.error("REMINDER_STEP_TOO_SHORT");
     const parsedMinutes = parseTime(args.time) as number;
-    if (!parsedMinutes) return await message.error("REMINDER_MISSING_TIME");
+    if (!parsedMinutes) return await command.error("REMINDER_MISSING_TIME");
     else if (parsedMinutes < 2)
-      return await message.error("REMINDER_TOO_SHORT");
-    if (!reminder.replace(/\s/gim, "").length && !message.reference?.messageId)
-      return await message.error("REMINDER_MISSING_CONTENT");
+      return await command.error("REMINDER_TOO_SHORT");
+    if (!reminder.replace(/\s/gim, "").length && !command.reference?.messageId)
+      return await command.error("REMINDER_MISSING_CONTENT");
     else if (!reminder.replace(/\s/gim, "").length) {
-      const referenced = await message.channel.messages
-        .fetch(message.reference.messageId)
+      const referenced = await command.channel.messages
+        .fetch(command.reference.messageId)
         .catch(() => {});
       if (!referenced || !referenced.content)
-        return await message.error("REMINDER_MISSING_CONTENT");
+        return await command.error("REMINDER_MISSING_CONTENT");
       else reminder = referenced.content;
     }
     const time = new Date();
@@ -166,17 +167,17 @@ export default class RemindersCreate extends Command {
     );
     if (
       moment(largestTime).diff(moment(), "months") >= 7 &&
-      !message.author.isSuperuser()
+      !command.author.isSuperuser()
     )
-      return await message.error("REMINDER_TIME_LIMIT");
+      return await command.error("REMINDER_TIME_LIMIT");
     let created: { [duration: string]: boolean } = {};
     for (let i = 0; i < repeat; i++) {
       const currentTime = new Date(time);
       currentTime.setMinutes(time.getMinutes() + stepMinutes * i);
-      const remind = await message.author.createReminder(
+      const remind = await command.author.createReminder(
         currentTime,
         reminder,
-        message.url
+        command.url
       );
       created[Formatters.time(currentTime, "R")] = remind;
     }
@@ -187,7 +188,7 @@ export default class RemindersCreate extends Command {
       .filter(([, success]) => !success)
       .map(([duration]) => duration);
     return failed.length != repeat
-      ? await message.success(
+      ? await command.success(
           success.length == 1
             ? "REMINDER_CREATED_SINGLE"
             : "REMINDER_CREATED_MULTI",
@@ -196,6 +197,6 @@ export default class RemindersCreate extends Command {
             times: success.map((s) => "- " + s).join("\n"),
           }
         )
-      : await message.error("ERROR_CONTACT_SUPPORT");
+      : await command.error("ERROR_CONTACT_SUPPORT");
   }
 }
