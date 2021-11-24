@@ -104,7 +104,7 @@ export class FireMessage extends Message {
   async send(key: LanguageKeys, args?: i18nOptions) {
     if (this.channel.deleted) return;
     let upsell: MessageEmbed | false;
-    if (args.includeSlashUpsell)
+    if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
     return this.channel.send({
       content: this.language.get(key, args),
@@ -130,7 +130,7 @@ export class FireMessage extends Message {
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
     let upsell: MessageEmbed | false;
-    if (args.includeSlashUpsell)
+    if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
       ? this.react(reactions.success).catch(() => {})
@@ -149,7 +149,7 @@ export class FireMessage extends Message {
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
     let upsell: MessageEmbed | false;
-    if (args.includeSlashUpsell)
+    if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
       ? this.react(reactions.warning).catch(() => {})
@@ -168,7 +168,7 @@ export class FireMessage extends Message {
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
     let upsell: MessageEmbed | false;
-    if (args.includeSlashUpsell)
+    if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
       ? this.react(reactions.error).catch(() => {})
