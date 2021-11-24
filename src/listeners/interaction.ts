@@ -1,21 +1,16 @@
-import {
-  MessageComponentInteraction,
-  ContextMenuInteraction,
-  Interaction,
-  AutocompleteInteraction,
-} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
-import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { constants } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
+import { constants } from "@fire/lib/util/constants";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
-import { Message } from "@fire/lib/ws/Message";
+import {
+  AutocompleteInteraction, ContextMenuInteraction,
+  Interaction, MessageComponentInteraction
+} from "discord.js";
 
 const { emojis } = constants;
 
@@ -124,12 +119,6 @@ export default class InteractionListener extends Listener {
   }
 
   async handleCommandAutocomplete(interaction: AutocompleteInteraction) {
-    // transform subcommands
-    if (interaction.options.data.find((opt) => opt.type == "SUB_COMMAND")) {
-      interaction.commandName = `${
-        interaction.commandName
-      }-${interaction.options.getSubcommand()}`;
-    }
     const message = new ApplicationCommandMessage(this.client, interaction);
     if (!message.command || typeof message.command.autocomplete !== "function")
       return;
