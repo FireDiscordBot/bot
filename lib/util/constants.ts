@@ -1,15 +1,15 @@
 import {
   BaseMessageComponentOptions,
+  MessageActionRow,
   MessageActionRowOptions,
   MessageMentionOptions,
-  MessageActionRow,
-  ReplyOptions,
   NewsChannel,
+  ReplyOptions,
 } from "discord.js";
-import { FireVoiceChannel } from "../extensions/voicechannel";
-import { FireTextChannel } from "../extensions/textchannel";
-import humanizeDuration = require("humanize-duration");
 import { StringMap, TOptions } from "i18next";
+import { FireTextChannel } from "../extensions/textchannel";
+import { FireVoiceChannel } from "../extensions/voicechannel";
+import humanizeDuration = require("humanize-duration");
 
 const emojiRegex = require("emoji-regex")() as RegExp;
 const emojiRegexStr = emojiRegex.toString();
@@ -442,15 +442,17 @@ export const pluckTime = (content: string) => {
   // in case the time is at the start
   content = " " + content;
   const matches = [
-    regexes.month.exec(content)?.groups?.months + "mo",
-    regexes.week.exec(content)?.groups?.weeks + "w",
-    regexes.day.exec(content)?.groups?.days + "d",
-    regexes.hours.exec(content)?.groups?.hours + "h",
-    regexes.minutes.exec(content)?.groups?.minutes + "m",
-    regexes.seconds.exec(content)?.groups?.seconds + "s",
-  ].filter((match) => !!match);
+    [regexes.month.exec(content)?.groups?.months, "mo"],
+    [regexes.week.exec(content)?.groups?.weeks, "w"],
+    [regexes.day.exec(content)?.groups?.days, "d"],
+    [regexes.hours.exec(content)?.groups?.hours, "h"],
+    [regexes.minutes.exec(content)?.groups?.minutes, "m"],
+    [regexes.seconds.exec(content)?.groups?.seconds, "s"],
+  ]
+    .filter((match) => !!match[0])
+    .map(([match, unit]) => match + unit);
   return matches.join(" ");
-}
+};
 
 export const shortURLs = [
   "0rz.tw",
