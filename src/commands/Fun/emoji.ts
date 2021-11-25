@@ -44,15 +44,15 @@ export default class Emoji extends Command {
     let name = args.name || "stolen_emoji";
     if (!emoji) return await message.error("EMOJI_INVALID");
     if (snowflakeRegex.test(emoji.toString())) {
-      snowflakeRegex.lastIndex = 0;
+      this.resetIndexes();
       emoji = `https://cdn.discordapp.com/emojis/${emoji}`;
       const format = await this.getFormat(emoji);
       if (!format) return await message.error("EMOJI_INVALID");
       else emoji = `${emoji}.${format}`;
     } else if (constants.regexes.customEmoji.test(emoji)) {
-      constants.regexes.customEmoji.lastIndex = 0;
+      this.resetIndexes();
       const match = constants.regexes.customEmoji.exec(emoji);
-      constants.regexes.customEmoji.lastIndex = 0;
+      this.resetIndexes();
       emoji = `https://cdn.discordapp.com/emojis/${match.groups.id}.${
         match[0].startsWith("<a") ? "gif" : "png"
       }`;
@@ -61,21 +61,19 @@ export default class Emoji extends Command {
       !constants.regexes.discord.cdnEmoji.test(emoji) &&
       !constants.regexes.discord.cdnAttachment.test(emoji)
     ) {
-      constants.regexes.discord.cdnAttachment.lastIndex = 0;
-      constants.regexes.discord.cdnEmoji.lastIndex = 0;
+      this.resetIndexes();
       return await message.error("EMOJI_INVALID");
     }
-    constants.regexes.customEmoji.lastIndex = 0;
-    snowflakeRegex.lastIndex = 0;
+    this.resetIndexes();
     if (constants.regexes.customEmoji.test(name)) {
-      constants.regexes.customEmoji.lastIndex = 0;
+      this.resetIndexes();
       const match = constants.regexes.customEmoji.exec(name);
-      constants.regexes.customEmoji.lastIndex = 0;
       name = match.groups.name;
-    } else constants.regexes.customEmoji.lastIndex = 0;
+    }
+    this.resetIndexes();
     if (
       !constants.imageExts.some(
-        (ext) => emoji.endsWith(ext) || emoji.endsWith(`${ext}?v=1`)
+        (ext) => emoji.split("?")[0].endsWith(ext)
         // there is a chance for this to break if they change the "1"
         // but the likelihood of that happening is very low
       )
@@ -101,5 +99,12 @@ export default class Emoji extends Command {
     const contentType = emojiReq.headers["content-type"];
     if (!contentType || !contentType.includes("image/")) return null;
     else return contentType.split("/")[1];
+  }
+
+  private resetIndexes() {
+    constants.regexes.discord.cdnAttachment.lastIndex = 0;
+    constants.regexes.discord.cdnEmoji.lastIndex = 0;
+    constants.regexes.customEmoji.lastIndex = 0;
+    snowflakeRegex.lastIndex = 0;
   }
 }

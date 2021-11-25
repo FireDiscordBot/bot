@@ -1,59 +1,59 @@
+import { Fire } from "@fire/lib/Fire";
+import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import {
-  PermissionOverwriteOptions,
-  GuildAuditLogsFetchOptions,
-  PermissionResolvable,
-  MessageEmbedOptions,
-  MessageAttachment,
-  BaseFetchOptions,
-  MessageActionRow,
-  CategoryChannel,
-  GuildAuditLogs,
-  MessageButton,
-  WebhookClient,
-  ThreadChannel,
-  MessageEmbed,
-  StageChannel,
-  GuildChannel,
-  Permissions,
-  Structures,
-  Collection,
-  Formatters,
-  Snowflake,
-  Webhook,
-  Guild,
-  Role,
-  Util,
-} from "discord.js";
-import {
-  GuildTextChannel,
   ActionLogType,
+  GuildTextChannel,
   MemberLogType,
   ModLogType,
 } from "@fire/lib/util/constants";
-import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import { RawGuildData } from "discord.js/typings/rawDataTypes";
-import { ReactionRoleData } from "@fire/lib/interfaces/rero";
-import TicketName from "@fire/src/commands/Tickets/name";
-import { PermRolesData } from "../interfaces/permroles";
-import { GuildSettings } from "@fire/lib/util/settings";
-import { DiscoverableGuild } from "../interfaces/stats";
 import { getIDMatch } from "@fire/lib/util/converters";
-import { GuildLogManager } from "../util/logmanager";
-import { BaseFakeChannel } from "../interfaces/misc";
-import { MessageIterator } from "../util/iterators";
-import { FakeChannel } from "./appcommandmessage";
-import { FireVoiceChannel } from "./voicechannel";
-import { LanguageKeys } from "../util/language";
-import { FireTextChannel } from "./textchannel";
-import Semaphore from "semaphore-async-await";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
+import { GuildSettings } from "@fire/lib/util/settings";
+import TicketName from "@fire/src/commands/Tickets/name";
 import { APIGuild } from "discord-api-types";
+import {
+  BaseFetchOptions,
+  CategoryChannel,
+  Collection,
+  Formatters,
+  Guild,
+  GuildAuditLogs,
+  GuildAuditLogsFetchOptions,
+  GuildChannel,
+  MessageActionRow,
+  MessageAttachment,
+  MessageButton,
+  MessageEmbed,
+  MessageEmbedOptions,
+  PermissionOverwriteOptions,
+  PermissionResolvable,
+  Permissions,
+  Role,
+  Snowflake,
+  StageChannel,
+  Structures,
+  ThreadChannel,
+  Util,
+  Webhook,
+  WebhookClient,
+} from "discord.js";
+import { RawGuildData } from "discord.js/typings/rawDataTypes";
+import { murmur3 } from "murmurhash-js";
+import { nanoid } from "nanoid";
+import Semaphore from "semaphore-async-await";
+import { v4 as uuidv4 } from "uuid";
+import { BaseFakeChannel } from "../interfaces/misc";
+import { PermRolesData } from "../interfaces/permroles";
+import { DiscoverableGuild } from "../interfaces/stats";
+import { MessageIterator } from "../util/iterators";
+import { LanguageKeys } from "../util/language";
+import { GuildLogManager } from "../util/logmanager";
+import { FakeChannel } from "./appcommandmessage";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
-import { murmur3 } from "murmurhash-js";
-import { Fire } from "@fire/lib/Fire";
-import { v4 as uuidv4 } from "uuid";
+import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
-import { nanoid } from "nanoid";
+import { FireVoiceChannel } from "./voicechannel";
 
 const BOOST_TIERS = {
   NONE: 0,
