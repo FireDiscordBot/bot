@@ -1532,7 +1532,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     unblockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: FireTextChannel
+    channel: FireTextChannel | FireVoiceChannel | NewsChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";

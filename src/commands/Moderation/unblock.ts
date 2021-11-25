@@ -1,9 +1,10 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
 import { Command } from "@fire/lib/util/command";
-import { Permissions, Role } from "discord.js";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { NewsChannel, Permissions, Role, ThreadChannel } from "discord.js";
 
 export default class Unblock extends Command {
   constructor() {
@@ -55,6 +56,14 @@ export default class Unblock extends Command {
     )
       return await message.error("UNBLOCK_ROLE_HIGH");
 
+    let channel = message.channel as
+      | FireTextChannel
+      | FireVoiceChannel
+      | NewsChannel
+      | ThreadChannel;
+    if (channel instanceof ThreadChannel)
+      channel = channel.parent as FireTextChannel | NewsChannel;
+
     await message.delete().catch(() => {});
     const blocked = await message.guild.unblock(
       args.tounblock,
@@ -63,7 +72,7 @@ export default class Unblock extends Command {
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
       message.member,
-      message.channel as FireTextChannel
+      channel
     );
     if (blocked == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
