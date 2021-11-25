@@ -72,7 +72,7 @@ export default class Block extends Command {
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
       message.member,
-      message.channel as FireTextChannel
+      channel
     );
     if (blocked == "forbidden")
       return await message.error("COMMAND_MODERATOR_ONLY");
