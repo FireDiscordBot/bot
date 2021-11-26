@@ -107,6 +107,18 @@ export class FireGuild extends Guild {
     return this.client.util?.premium.has(this.id);
   }
 
+  get configId() {
+    // used for grabbing data from the DB (such as tags)
+    // allowing one guild to have the same data as another
+    // but never used for writing data that could cause damage
+    // e.g. allowing write for updating tag uses but not creating a tag
+
+    // this will only be used where it makes sense
+    // and not where guild specific data (such as channel/message ids) are involved
+    // and not for the guild's settings (for what I hope are obvious reasons)
+    return this.settings?.get<string>("utils.configid", this.id) ?? this.id;
+  }
+
   get muteRole() {
     const id = this.settings.get<Snowflake>(
       "mod.mutedrole",
