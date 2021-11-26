@@ -43,7 +43,7 @@ export class GuildTagManager {
 
   async init() {
     const result = await this.client.db
-      .query("SELECT name FROM tags WHERE gid=$1;", [this.guild.id])
+      .query("SELECT name FROM tags WHERE gid=$1;", [this.guild.configId])
       .catch(() => {});
     if (!result) return 0;
     for await (const tag of result) {
@@ -86,7 +86,7 @@ export class GuildTagManager {
         includeCreator
           ? "SELECT name, content, uid, aliases, uses FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)"
           : "SELECT name, content, aliases, uses FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)",
-        [this.guild.id, name]
+        [this.guild.configId, name]
       )
       .first()
       .catch(() => {});
@@ -119,7 +119,7 @@ export class GuildTagManager {
     if (this.names.includes(name)) return true;
     const exists = await this.client.db
       .query("SELECT name FROM tags WHERE gid=$1 AND name=$2", [
-        this.guild.id,
+        this.guild.configId,
         name,
       ])
       .first()
@@ -132,7 +132,7 @@ export class GuildTagManager {
     if (this.aliases.includes(alias)) return true;
     const exists = await this.client.db
       .query("SELECT name FROM tags WHERE gid=$1 AND $2=ANY(aliases)", [
-        this.guild.id,
+        this.guild.configId,
         alias,
       ])
       .first()
@@ -145,7 +145,7 @@ export class GuildTagManager {
     const fetchedTag = await this.client.db
       .query(
         "SELECT uses FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)",
-        [this.guild.id, name]
+        [this.guild.configId, name]
       )
       .first()
       .catch(() => {});
@@ -158,7 +158,7 @@ export class GuildTagManager {
     const fetchedTag = await this.client.db
       .query(
         "SELECT aliases FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)",
-        [this.guild.id, name]
+        [this.guild.configId, name]
       )
       .first()
       .catch(() => {});
@@ -365,7 +365,7 @@ export class GuildTagManager {
   async fetchTags() {
     const result = await this.client.db.query(
       "SELECT * FROM tags WHERE gid=$1;",
-      [this.guild.id]
+      [this.guild.configId]
     );
     const tags = new LimitedCollection<string, Tag>({
       maxSize: 100,
@@ -395,7 +395,7 @@ export class GuildTagManager {
     const fetchedTag = await this.client.db
       .query(
         "SELECT name, content, aliases, uses FROM tags WHERE gid=$1 AND content=$2",
-        [this.guild.id, content.trim()]
+        [this.guild.configId, content.trim()]
       )
       .first();
     if (!fetchedTag) return null;
@@ -410,6 +410,7 @@ export class GuildTagManager {
   }
 
   async createTag(name: string, content: string, user: FireUser | FireMember) {
+    if (this.guild.id != this.guild.configId) return false;
     name = name.toLowerCase();
     content = content.trim();
     if (this.names.includes(name)) return false;
@@ -490,11 +491,12 @@ export class GuildTagManager {
     uses++;
     await this.client.db.query(
       "UPDATE tags SET uses=$1 WHERE gid=$2 AND name=$2 or gid=$2 AND $2=ANY(aliases);",
-      [uses, this.guild.id, tag]
+      [uses, this.guild.configId, tag]
     );
   }
 
   async addAlias(existing: string, alias: string) {
+    if (this.guild.id != this.guild.configId) return false;
     existing = existing.toLowerCase();
     alias = alias.toLowerCase();
     const nameExists = await this.doesTagExist(existing);
@@ -516,6 +518,7 @@ export class GuildTagManager {
   }
 
   async editTag(name: string, newContent: string) {
+    if (this.guild.id != this.guild.configId) return false;
     name = name.toLowerCase();
     const tagExists = await this.doesTagExist(name);
     if (!tagExists) return false;
