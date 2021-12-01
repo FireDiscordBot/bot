@@ -1,5 +1,5 @@
 import { Fire } from "@fire/lib/Fire";
-import { APIMessage, APIWebhook } from "discord-api-types";
+import { APIMessage } from "discord-api-types";
 import {
   ChannelWebhookCreateOptions,
   Collection,
@@ -9,9 +9,9 @@ import {
   MessagePayload,
   Structures,
   VoiceChannel,
-  Webhook,
+  Webhook
 } from "discord.js";
-import { RawGuildChannelData } from "discord.js/typings/rawDataTypes";
+import { RawGuildChannelData, RawWebhookData } from "discord.js/typings/rawDataTypes";
 import { FireGuild } from "./guild";
 import { FireMessage } from "./message";
 
@@ -54,7 +54,7 @@ export class FireVoiceChannel extends VoiceChannel {
 
   async fetchWebhooks() {
     const data = await this.client.req.channels[this.id].webhooks.get<
-      APIWebhook[]
+      RawWebhookData[]
     >();
     const hooks = new Collection<string, Webhook>();
     for (const hook of data) hooks.set(hook.id, new Webhook(this.client, hook));
@@ -70,7 +70,7 @@ export class FireVoiceChannel extends VoiceChannel {
     }
     const data = await this.client.req.channels[
       this.id
-    ].webhooks.post<APIWebhook>({
+    ].webhooks.post<RawWebhookData>({
       data: {
         name,
         avatar,
