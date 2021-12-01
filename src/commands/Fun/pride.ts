@@ -80,11 +80,11 @@ export default class Pride extends Command {
     ).setDescription(
       overlay
         ? (message.guild ?? message).language.get("PRIDE_IMAGE_ALT_OVERLAY", {
-            user: message.author.username,
+            user: user.username,
             flag: args.flag ?? "transgender",
           })
         : (message.guild ?? message).language.get("PRIDE_IMAGE_ALT_CIRCLE", {
-            user: message.author.username,
+            user: user.username,
             flag: args.flag ?? "transgender",
           })
     );

@@ -79,7 +79,7 @@ export default class Ban extends Command {
     } catch {
       return await message.error("BAN_FAILED_PARSE_TIME");
     }
-    if (minutes != 0 && minutes < 30)
+    if (minutes != 0 && minutes < 30 && !message.author.isSuperuser())
       return await message.error("BAN_TIME_TOO_SHORT");
     else if (minutes && args.user instanceof FireUser)
       return await message.error("BAN_MEMBER_REQUIRED");

@@ -154,7 +154,12 @@ export default class RemindersCreate extends Command {
       });
     reminder = reminder.replace(stepRegex, "").trimEnd();
     const stepMinutes = parseTime(step) as number;
-    if (step && stepMinutes > 0 && stepMinutes < 2)
+    if (
+      step &&
+      stepMinutes > 0 &&
+      stepMinutes < 2 &&
+      !command.author.isSuperuser()
+    )
       return await command.error("REMINDER_STEP_TOO_SHORT", {
         includeSlashUpsell: true,
       });
@@ -163,7 +168,7 @@ export default class RemindersCreate extends Command {
       return await command.error("REMINDER_MISSING_TIME", {
         includeSlashUpsell: true,
       });
-    else if (parsedMinutes < 2)
+    else if (parsedMinutes < 2 && !command.author.isSuperuser())
       return await command.error("REMINDER_TOO_SHORT", {
         includeSlashUpsell: true,
       });
