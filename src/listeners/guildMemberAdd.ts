@@ -97,7 +97,7 @@ export default class GuildMemberAdd extends Listener {
     ) {
       await member.roles.add(member.guild.muteRole).catch(() => {});
     } else if (member.guild.mutes.has(member.id)) {
-      // temp until timeouts aren't removed on leave
+      // temp until timeouts aren't removed on leave (soon:tm: judging by partner announcement)
       await member
         .disableCommunication({
           until: new Date(member.guild.mutes.get(member.id)),

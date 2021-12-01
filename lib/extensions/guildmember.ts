@@ -622,9 +622,13 @@ export class FireMember extends GuildMember {
     channel?: FireTextChannel,
     sendDM: boolean = true
   ) {
+    const canTimeOut =
+      until &&
+      until < +new Date() + 2419199999 &&
+      this.guild.hasExperiment(1955682940, 1);
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
-    if (!this.guild.muteRole && !this.guild.hasExperiment(1955682940, 1)) {
+    if (!this.guild.muteRole && !canTimeOut) {
       let settingUp: FireMessage;
       if (channel)
         settingUp = (await channel.send(
@@ -633,13 +637,12 @@ export class FireMember extends GuildMember {
       const role = await this.guild.initMuteRole();
       settingUp?.delete();
       if (!role) return "role";
-    } else if (!this.guild.hasExperiment(1955682940, 1))
-      this.guild.syncMuteRolePermissions();
+    } else if (!canTimeOut) this.guild.syncMuteRolePermissions();
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, "mute", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
-    const muted = this.guild.hasExperiment(1955682940, 1)
+    const muted = canTimeOut
       ? await this.disableCommunication({
           until: new Date(until),
           reason: `${moderator} | ${reason}`,
@@ -760,7 +763,7 @@ export class FireMember extends GuildMember {
     }
     if (
       !this.roles.cache.has(this.guild.muteRole?.id) &&
-      !this.guild.hasExperiment(1955682940, 1)
+      !this.communicationDisabledUntil
     ) {
       this.guild.mutes.delete(this.id);
       await this.client.db
@@ -770,18 +773,14 @@ export class FireMember extends GuildMember {
         ])
         .catch(() => {});
       return "not_muted";
-    } else if (
-      !this.communicationDisabledUntil &&
-      this.guild.hasExperiment(1955682940, 1)
-    )
-      return "not_muted";
+    }
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, "unmute", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     const until = this.guild.mutes.get(this.id);
     this.guild.mutes.delete(this.id);
-    const unmuted = this.guild.hasExperiment(1955682940, 1)
+    const unmuted = this.communicationDisabledUntil
       ? await this.disableCommunication({
           until: null,
           reason: `${moderator} | ${reason}`,
