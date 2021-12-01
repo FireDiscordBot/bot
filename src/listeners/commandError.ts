@@ -30,6 +30,7 @@ export default class CommandError extends Listener {
         command: command.id,
         cluster: this.client.manager.id.toString(),
         shard: message.guild?.shardId.toString() ?? "0",
+        user_id: message.author.id, // easier to query tag
       },
       fields: {
         type: "error",
