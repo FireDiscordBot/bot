@@ -862,9 +862,10 @@ export default class Button extends Listener {
           )
           .setStyle("PRIMARY")
           .setCustomId(
-            `avatar:${userId}:${type == "global" ? "guild" : "global"}:${
-              button.author.id
-            }`
+            (authorId != button.author.id ? "?" : "") +
+              `avatar:${userId}:${type == "global" ? "guild" : "global"}:${
+                button.author.id
+              }`
           )
       );
 
@@ -875,7 +876,9 @@ export default class Button extends Listener {
         });
       else {
         button.flags = 64;
-        return await button.channel.send({
+        return await (message.flags.has("EPHEMERAL")
+          ? button.channel.update
+          : button.channel.send)({
           embeds: [embed],
           components: [actionRow],
         });
