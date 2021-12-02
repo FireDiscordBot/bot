@@ -28,19 +28,20 @@ export default class Mute extends Command {
         },
       ],
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES_IN_THREADS,
-        Permissions.FLAGS.CREATE_PRIVATE_THREADS,
-        Permissions.FLAGS.CREATE_PUBLIC_THREADS,
-        Permissions.FLAGS.REQUEST_TO_SPEAK,
+        // Permissions.FLAGS.SEND_MESSAGES_IN_THREADS,
+        // Permissions.FLAGS.CREATE_PRIVATE_THREADS,
+        // Permissions.FLAGS.CREATE_PUBLIC_THREADS,
+        // Permissions.FLAGS.REQUEST_TO_SPEAK,
         Permissions.FLAGS.MANAGE_CHANNELS,
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.ADD_REACTIONS,
+        // Permissions.FLAGS.SEND_MESSAGES,
+        // Permissions.FLAGS.ADD_REACTIONS,
         Permissions.FLAGS.MANAGE_ROLES,
-        Permissions.FLAGS.SPEAK,
+        // Permissions.FLAGS.SPEAK,
       ],
       aliases: ["silence", "tempmute", "403"],
       restrictTo: "guild",
       moderatorOnly: true,
+      ephemeral: true,
     });
   }
 
@@ -67,7 +68,7 @@ export default class Mute extends Command {
     let date: number;
     if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
     const reason = parseTime(args.reason, true) as string;
-    await message.delete().catch(() => {});
+    if (message instanceof FireMessage) await message.delete().catch(() => {});
     const muted = await args.user.mute(
       reason ||
         (message.guild.language.get(
