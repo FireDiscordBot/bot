@@ -472,18 +472,19 @@ export class FireMessage extends Message {
     const embed = new MessageEmbed()
       .setColor(member?.displayColor || quoter.displayColor)
       .setTimestamp(this.createdAt)
-      .setAuthor(
-        member && member.nickname
-          ? `${member.nickname} (${this.author
-              .toString()
-              .replace(/#0000/gim, "")})`
-          : this.author.toString().replace(/#0000/gim, ""),
-        (member ?? this.author).displayAvatarURL({
+      .setAuthor({
+        name:
+          member && member.nickname
+            ? `${member.nickname} (${this.author
+                .toString()
+                .replace(/#0000/gim, "")})`
+            : this.author.toString().replace(/#0000/gim, ""),
+        iconURL: (member ?? this.author).displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      );
+        }),
+      });
     if (this.content) {
       let content = this.content;
       const imageMatches = regexes.imageURL.exec(content);
@@ -664,14 +665,14 @@ export class FireMessage extends Message {
   getStarboardMessage(emoji: string, stars: number): [string, MessageEmbed] {
     const embed = new MessageEmbed()
       .setTimestamp(this.createdTimestamp)
-      .setAuthor(
-        this.author.toString(),
-        this.author.displayAvatarURL({
+      .setAuthor({
+        name: this.author.toString(),
+        iconURL: this.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setColor(this.member?.displayColor ?? "#FFFFFF")
       .setFooter(this.id);
     if (this.content) embed.setDescription(this.content);

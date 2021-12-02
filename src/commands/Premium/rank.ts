@@ -78,16 +78,18 @@ export default class Rank extends Command {
       const embed = new MessageEmbed()
         .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
-        .setAuthor(
-          message.language.get("RANKS_AUTHOR", { guild: message.guild.name }),
-          message.guild.icon
+        .setAuthor({
+          name: message.language.get("RANKS_AUTHOR", {
+            guild: message.guild.name,
+          }),
+          iconURL: message.guild.icon
             ? (message.guild.iconURL({
                 size: 2048,
                 format: "png",
                 dynamic: true,
               }) as string)
-            : undefined
-        );
+            : undefined,
+        });
       let components: MessageActionRow[];
       if (roles.length <= 5)
         components = Rank.getRankButtons(

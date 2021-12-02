@@ -74,10 +74,14 @@ export default class Tag extends Command {
     const names = manager.names;
     if (!names.length) return await message.error("TAG_NONE_FOUND");
     const embed = new MessageEmbed()
-      .setAuthor(
-        message.language.get("TAG_LIST", { guild: message.guild.name }),
-        message.guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: message.language.get("TAG_LIST", { guild: message.guild.name }),
+        iconURL: message.guild.iconURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setDescription(names.join(", "));
     return await message.channel.send({ embeds: [embed] });

@@ -153,20 +153,20 @@ export default class Blacklist extends Command {
           : "#E74C3C"
       )
       .setTimestamp()
-      .setAuthor(
-        isPlonked
+      .setAuthor({
+        name: isPlonked
           ? message.guild.language.get("UNBLACKLIST_LOG_AUTHOR", {
               user: args.user.toString(),
             })
           : message.guild.language.get("BLACKLIST_LOG_AUTHOR", {
               user: args.user.toString(),
             }),
-        args.user.displayAvatarURL({
+        iconURL: args.user.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .addField(
         message.guild.language.get("MODERATOR"),
         message.author.toString()

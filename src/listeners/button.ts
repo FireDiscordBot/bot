@@ -219,18 +219,18 @@ export default class Button extends Listener {
       const embed = new MessageEmbed()
         .setColor(button.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
-        .setAuthor(
-          button.language.get("RANKS_AUTHOR", {
+        .setAuthor({
+          name: button.language.get("RANKS_AUTHOR", {
             guild: button.guild.toString(),
           }),
-          button.guild.icon
+          iconURL: button.guild.icon
             ? (button.guild.iconURL({
                 size: 2048,
                 format: "png",
                 dynamic: true,
               }) as string)
-            : undefined
-        );
+            : undefined,
+        });
       await button.channel.update({
         embeds: [embed],
         components,
@@ -289,10 +289,14 @@ export default class Button extends Listener {
         if (button.ephemeralSource) return;
         cancelled = true;
         const cancelledEmbed = new MessageEmbed()
-          .setAuthor(
-            button.guild.name,
-            button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
-          )
+          .setAuthor({
+            name: button.guild.name,
+            iconURL: button.guild.iconURL({
+              size: 2048,
+              format: "png",
+              dynamic: true,
+            }),
+          })
           .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(button.language.get("TAG_EDIT_BUTTON_CANCEL_EMBED"))
           .setTimestamp();
@@ -302,10 +306,14 @@ export default class Button extends Listener {
         });
       });
       const editEmbed = new MessageEmbed()
-        .setAuthor(
-          button.guild.name,
-          button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
-        )
+        .setAuthor({
+          name: button.guild.name,
+          iconURL: button.guild.iconURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          }),
+        })
         .setColor(button.member?.displayColor ?? "#FFFFFF")
         .setDescription(button.language.get("TAG_EDIT_BUTTON_EMBED"))
         .setTimestamp();
@@ -339,10 +347,14 @@ export default class Button extends Listener {
 
       if (!button.ephemeralSource && !cancelled) {
         const editingEmbed = new MessageEmbed()
-          .setAuthor(
-            button.guild.name,
-            button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
-          )
+          .setAuthor({
+            name: button.guild.name,
+            iconURL: button.guild.iconURL({
+              size: 2048,
+              format: "png",
+              dynamic: true,
+            }),
+          })
           .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(button.language.get("TAG_EDIT_BUTTON_EDITING_EMBED"))
           .setTimestamp();
@@ -363,10 +375,14 @@ export default class Button extends Listener {
         .catch(() => {});
       if (!button.ephemeralSource && !cancelled) {
         const editingEmbed = new MessageEmbed()
-          .setAuthor(
-            button.guild.name,
-            button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
-          )
+          .setAuthor({
+            name: button.guild.name,
+            iconURL: button.guild.iconURL({
+              size: 2048,
+              format: "png",
+              dynamic: true,
+            }),
+          })
           .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(
             !edited
@@ -435,10 +451,14 @@ export default class Button extends Listener {
         });
       else {
         const embed = new MessageEmbed()
-          .setAuthor(
-            button.guild.name,
-            button.guild.iconURL({ size: 2048, format: "png", dynamic: true })
-          )
+          .setAuthor({
+            name: button.guild.name,
+            iconURL: button.guild.iconURL({
+              size: 2048,
+              format: "png",
+              dynamic: true,
+            }),
+          })
           .setColor(button.member?.displayColor ?? "#FFFFFF")
           .setDescription(
             button.language.get("TAG_DELETE_SUCCESS", { haste: data })

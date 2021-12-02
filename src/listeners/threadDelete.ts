@@ -41,16 +41,16 @@ export default class ThreadDelete extends Listener {
       const embed = new MessageEmbed()
         .setColor("#E74C3C")
         .setTimestamp()
-        .setAuthor(
-          language.get("THREADDELETELOG_AUTHOR", { guild: guild.name }),
-          guild.iconURL({ size: 2048, format: "png", dynamic: true })
-        )
+        .setAuthor({
+          name: language.get("THREADDELETELOG_AUTHOR", { guild: guild.name }),
+          iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+        })
         .addField(language.get("NAME"), thread.name)
-        .addField(language.get("CHANNEL"), thread.parent?.toString() ?? "¯\\\\_(ツ)_/¯")
         .addField(
-          language.get("ARCHIVE"),
-          Formatters.time(autoArchiveAt, "R")
+          language.get("CHANNEL"),
+          thread.parent?.toString() ?? "¯\\\\_(ツ)_/¯"
         )
+        .addField(language.get("ARCHIVE"), Formatters.time(autoArchiveAt, "R"))
         .addField(
           language.get("CREATED_BY"),
           owner ? `${owner} (${owner.id})` : thread.ownerId

@@ -153,17 +153,17 @@ export default class ReactionRole extends Command {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#2ECC71")
       .setTimestamp()
-      .setAuthor(
-        message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {
+      .setAuthor({
+        name: message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {
           guild: message.guild.name,
         }),
-        message.guild.iconURL({
+        iconURL: message.guild.iconURL({
           size: 2048,
           format: "png",
           dynamic: true,
         }),
-        reaction.message?.url
-      )
+        url: reaction.message?.url,
+      })
       .addField(
         message.guild.language.get("MODERATOR"),
         message.author.toString()
@@ -185,17 +185,17 @@ export default class ReactionRole extends Command {
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
       .setTimestamp()
-      .setAuthor(
-        message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {
+      .setAuthor({
+        name: message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {
           guild: message.guild.name,
         }),
-        message.guild.iconURL({
+        iconURL: message.guild.iconURL({
           size: 2048,
           format: "png",
           dynamic: true,
         }),
-        reaction.message?.url
-      )
+        url: reaction.message?.url,
+      })
       .addField(
         message.guild.language.get("MODERATOR"),
         message.author.toString()

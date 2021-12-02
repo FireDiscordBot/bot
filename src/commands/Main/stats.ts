@@ -59,10 +59,13 @@ export default class Stats extends Command {
       );
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
-      .setAuthor(
-        this.client.user.username,
-        this.client.user.displayAvatarURL({ size: 2048, format: "png" })
-      )
+      .setAuthor({
+        name: this.client.user.username,
+        iconURL: this.client.user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+        }),
+      })
       .setTitle(
         message.language.get("STATS_TITLE", {
           name: clusterStats.name,
@@ -119,10 +122,13 @@ export default class Stats extends Command {
     const stats = await this.client.util.getClusterStats();
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
-      .setAuthor(
-        this.client.user.username,
-        this.client.user.displayAvatarURL({ size: 2048, format: "png" })
-      )
+      .setAuthor({
+        name: this.client.user.username,
+        iconURL: this.client.user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+        }),
+      })
       .setTitle(
         message.language.get("STATS_TITLE", {
           name: stats.name,
