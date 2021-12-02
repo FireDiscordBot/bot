@@ -12,7 +12,6 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
 import {
-  Collection,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
@@ -811,6 +810,72 @@ export default class Button extends Listener {
           })
         )
       );
+    }
+
+    if (button.customId.startsWith(`avatar:${button.author.id}:global:`)) {
+      const userId = button.customId.slice(
+        `avatar:${button.author.id}:global:`.length
+      );
+      const user = await this.client.users.fetch(userId).catch(() => {});
+      if (!user) return await button.error("USER_NOT_FOUND_COMPONENT");
+      const embed = new MessageEmbed()
+        .setColor(button.member?.displayHexColor ?? "#FFFFFF")
+        .setTimestamp()
+        .setTitle(
+          button.language.get("AVATAR_TITLE", { user: user.toString() })
+        )
+        .setImage(
+          user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          })
+        );
+
+      const actionRow = new MessageActionRow().addComponents(
+        new MessageButton()
+          .setLabel(button.language.get("AVATAR_SWITCH_TO_GUILD"))
+          .setStyle("PRIMARY")
+          .setCustomId(`avatar:${button.author.id}:guild:${user.id}`)
+      );
+
+      return await button.channel.send({
+        embeds: [embed],
+        components: [actionRow],
+      });
+    } else if (
+      button.customId.startsWith(`avatar:${button.author.id}:guild:`)
+    ) {
+      const userId = button.customId.slice(
+        `avatar:${button.author.id}:guild:`.length
+      );
+      const user = await this.client.users.fetch(userId).catch(() => {});
+      if (!user) return await button.error("USER_NOT_FOUND_COMPONENT");
+      const embed = new MessageEmbed()
+        .setColor(button.member?.displayHexColor ?? "#FFFFFF")
+        .setTimestamp()
+        .setTitle(
+          button.language.get("AVATAR_TITLE", { user: user.toString() })
+        )
+        .setImage(
+          user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          })
+        );
+
+      const actionRow = new MessageActionRow().addComponents(
+        new MessageButton()
+          .setLabel(message.language.get("AVATAR_SWITCH_TO_GLOBAL"))
+          .setStyle("PRIMARY")
+          .setCustomId(`avatar:${button.author.id}:global:${user.id}`)
+      );
+
+      return await button.channel.send({
+        embeds: [embed],
+        components: [actionRow],
+      });
     }
 
     if (
