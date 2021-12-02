@@ -71,7 +71,7 @@ export default class Avatar extends Command {
 
     return await message.channel.send({
       embeds: [embed],
-      components: message.guild ? [actionRow] : null,
+      components: actionRow ? [actionRow] : null,
     });
   }
 }
