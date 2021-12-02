@@ -1,42 +1,42 @@
+import { Fire } from "@fire/lib/Fire";
+import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
+import { CommandUtil } from "@fire/lib/util/commandutil";
 import {
-  EmojiIdentifierResolvable,
-  ReplyMessageOptions,
-  MessageAttachment,
-  DiscordAPIError,
-  MessageReaction,
-  MessagePayload,
-  ThreadChannel,
-  WebhookClient,
-  ThreadMember,
-  MessageEmbed,
-  GuildChannel,
-  Permissions,
-  NewsChannel,
-  Collection,
-  Structures,
-  DMChannel,
-  Webhook,
-  Message,
-  Channel,
-} from "discord.js";
-import {
+  constants,
   GuildTextChannel,
   i18nOptions,
-  constants,
 } from "@fire/lib/util/constants";
-import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
-import { RawMessageData } from "discord.js/typings/rawDataTypes";
-import { CommandUtil } from "@fire/lib/util/commandutil";
-import { FireVoiceChannel } from "./voicechannel";
 import Filters from "@fire/src/modules/filters";
-import { FireTextChannel } from "./textchannel";
-import { LanguageKeys } from "../util/language";
-import Semaphore from "semaphore-async-await";
-import { FireMember } from "./guildmember";
-import { Fire } from "@fire/lib/Fire";
-import { FireGuild } from "./guild";
-import { FireUser } from "./user";
 import * as centra from "centra";
+import {
+  Channel,
+  Collection,
+  DiscordAPIError,
+  DMChannel,
+  EmojiIdentifierResolvable,
+  GuildChannel,
+  Message,
+  MessageAttachment,
+  MessageEmbed,
+  MessagePayload,
+  MessageReaction,
+  NewsChannel,
+  Permissions,
+  ReplyMessageOptions,
+  Structures,
+  ThreadChannel,
+  ThreadMember,
+  Webhook,
+  WebhookClient,
+} from "discord.js";
+import { RawMessageData } from "discord.js/typings/rawDataTypes";
+import Semaphore from "semaphore-async-await";
+import { LanguageKeys } from "../util/language";
+import { FireGuild } from "./guild";
+import { FireMember } from "./guildmember";
+import { FireTextChannel } from "./textchannel";
+import { FireUser } from "./user";
+import { FireVoiceChannel } from "./voicechannel";
 
 const { emojis, reactions, regexes, imageExts, audioExts, videoExts } =
   constants;
@@ -98,6 +98,44 @@ export class FireMessage extends Message {
 
   get paginator() {
     return this.client.util.paginators.get(this.id) ?? null;
+  }
+
+  // TODO: remove when djs Util.removeMentions is removed
+  // @ts-ignore (it is a getter, not a property)
+  get cleanContent() {
+    return this.content == null
+      ? null
+      : this.content
+          .replace(/<@!?[0-9]+>/g, (input) => {
+            const id = input.replace(/<|!|>|@/g, "");
+            if (this.channel.type === "DM") {
+              const user = this.channel.client.users.cache.get(id);
+              return user ? `@${user.username}` : input;
+            }
+
+            const member = this.channel.guild.members.cache.get(id);
+            if (member) {
+              return `@${member.displayName}`;
+            } else {
+              const user = this.channel.client.users.cache.get(id);
+              return user ? `@${user.username}` : input;
+            }
+          })
+          .replace(/<#[0-9]+>/g, (input) => {
+            const mentionedChannel = this.client.channels.cache.get(
+              input.replace(/<|#|>/g, "")
+            );
+            return mentionedChannel
+              ? `#${(mentionedChannel as GuildChannel).name}`
+              : input;
+          })
+          .replace(/<@&[0-9]+>/g, (input) => {
+            if (this.channel.type === "DM") return input;
+            const role = this.channel.guild.roles.cache.get(
+              input.replace(/<|@|>|&/g, "")
+            );
+            return role ? `@${role.name}` : input;
+          });
   }
 
   send(key?: LanguageKeys, args?: i18nOptions) {
