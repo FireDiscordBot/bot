@@ -826,7 +826,10 @@ export default class Button extends Listener {
       ];
       if (type == "guild" && !button.guild)
         return await button.error("AVATAR_BUTTON_NO_GUILD");
-      const user = (await (type == "global" ? this.client.users : button.guild.members)
+      const user = (await (type == "global"
+        ? this.client.users
+        : button.guild.members
+      )
         .fetch(userId)
         .catch(() => {})) as FireMember | FireUser;
       if (!user || typeof user.displayAvatarURL != "function")
@@ -877,11 +880,14 @@ export default class Button extends Listener {
       else {
         button.flags = 64;
         return await (message.flags.has("EPHEMERAL")
-          ? button.channel.update
-          : button.channel.send)({
-          embeds: [embed],
-          components: [actionRow],
-        });
+          ? button.channel.update({
+              embeds: [embed],
+              components: [actionRow],
+            })
+          : button.channel.send({
+              embeds: [embed],
+              components: [actionRow],
+            }));
       }
     }
 
