@@ -765,13 +765,13 @@ export class Util extends ClientUtil {
     if (upsellType == "invite")
       upsellEmbed = new MessageEmbed()
         .setColor(message.member?.displayColor ?? "#FFFFFF")
-        .setAuthor(
-          message.language.get("NOTICE_TITLE"),
-          this.client.user.displayAvatarURL({
+        .setAuthor({
+          name: message.language.get("NOTICE_TITLE"),
+          iconURL: this.client.user.displayAvatarURL({
             size: 2048,
             format: "png",
-          })
-        )
+          }),
+        })
         .setDescription(
           message.language.get("COMMAND_NOTICE_SLASH_UPSELL", {
             invite: this.client.config.commandsInvite(
@@ -783,13 +783,13 @@ export class Util extends ClientUtil {
     else if (upsellType == "noslash")
       upsellEmbed = new MessageEmbed()
         .setColor(message.member?.displayColor ?? "#FFFFFF")
-        .setAuthor(
-          message.language.get("NOTICE_TITLE"),
-          this.client.user.displayAvatarURL({
+        .setAuthor({
+          name: message.language.get("NOTICE_TITLE"),
+          iconURL: this.client.user.displayAvatarURL({
             size: 2048,
             format: "png",
-          })
-        )
+          }),
+        })
         .setDescription(
           message.language.get("COMMAND_NOTICE_SLASH_POKE", {
             invite: this.client.config.commandsInvite(
@@ -802,13 +802,13 @@ export class Util extends ClientUtil {
       const cmdName = message.util?.parsed?.command?.id?.replace("-", " ");
       upsellEmbed = new MessageEmbed()
         .setColor(message.member?.displayColor ?? "#FFFFFF")
-        .setAuthor(
-          message.language.get("NOTICE_TITLE"),
-          this.client.user.displayAvatarURL({
+        .setAuthor({
+          name: message.language.get("NOTICE_TITLE"),
+          iconURL: this.client.user.displayAvatarURL({
             size: 2048,
             format: "png",
-          })
-        )
+          }),
+        })
         .setDescription(
           message.language.get(
             cmdName
@@ -833,13 +833,13 @@ export class Util extends ClientUtil {
     return [
       new MessageEmbed()
         .setColor("RED")
-        .setAuthor(
-          "Fire",
-          this.client.user.displayAvatarURL({
+        .setAuthor({
+          name: "Fire",
+          iconURL: this.client.user.displayAvatarURL({
             size: 2048,
             format: "png",
-          })
-        )
+          }),
+        })
         .setDescription(
           guild.language.get("COMMAND_NOTICE_MOD_SLASH", {
             invite: this.client.config.commandsInvite(this.client, guild.id),

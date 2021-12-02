@@ -63,10 +63,14 @@ export default class TagInfo extends Command {
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
 
     const embed = new MessageEmbed()
-      .setAuthor(
-        message.guild.name,
-        message.guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: message.guild.name,
+        iconURL: message.guild.iconURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setDescription(
         cachedTag.content.length < 250

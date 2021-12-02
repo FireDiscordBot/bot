@@ -69,14 +69,16 @@ export default class Meme extends Command {
       .setColor(command.member?.displayColor ?? "#FFFFFF")
       .setURL(meme.post.link)
       .setTimestamp()
-      .setAuthor(
-        language.get("MEME_EMBED_AUTHOR", { user: command.author.toString() }),
-        command.author.displayAvatarURL({
+      .setAuthor({
+        name: language.get("MEME_EMBED_AUTHOR", {
+          user: command.author.toString(),
+        }),
+        iconURL: command.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(
         language.get("POWERED_BY_KSOFT"),
         "https://cdn.ksoft.si/images/Logo1024.png"

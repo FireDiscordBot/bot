@@ -52,14 +52,14 @@ export default class Redirect extends Command {
       const embed = new MessageEmbed()
         .setColor(command.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
-        .setAuthor(
-          command.language.get("REDIRECT_LIST_AUTHOR"),
-          command.author.displayAvatarURL({
+        .setAuthor({
+          name: command.language.get("REDIRECT_LIST_AUTHOR"),
+          iconURL: command.author.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,
-          })
-        )
+          }),
+        })
         .setDescription(
           command.language.get("REDIRECT_LIST_DESCRIPTION", {
             codes: current.join(", "),

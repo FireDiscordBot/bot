@@ -153,15 +153,17 @@ export default class GuildMemberRemove extends Listener {
       const embed = new MessageEmbed()
         .setColor(member.partial ? "#E74C3C" : member.displayColor || "#E74C3C")
         .setTimestamp()
-        .setAuthor(
-          language.get("MEMBERLEAVE_LOG_AUTHOR", { member: member.toString() }),
-          member.displayAvatarURL({
+        .setAuthor({
+          name: language.get("MEMBERLEAVE_LOG_AUTHOR", {
+            member: member.toString(),
+          }),
+          iconURL: member.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,
           }),
-          "https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif"
-        )
+          url: "https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif",
+        })
         .setFooter(member.id);
       if (moderator && action)
         embed.addField(

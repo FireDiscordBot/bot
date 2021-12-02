@@ -27,16 +27,13 @@ export default class ThreadCreate extends Listener {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
         .setTimestamp(channel.createdAt)
-        .setAuthor(
-          language.get("THREADCREATELOG_AUTHOR", { guild: guild.name }),
-          guild.iconURL({ size: 2048, format: "png", dynamic: true })
-        )
+        .setAuthor({
+          name: language.get("THREADCREATELOG_AUTHOR", { guild: guild.name }),
+          iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+        })
         .addField(language.get("NAME"), channel.name)
         .addField(language.get("CHANNEL"), channel.parent.toString())
-        .addField(
-          language.get("ARCHIVE"),
-          Formatters.time(autoArchiveAt, "R")
-        )
+        .addField(language.get("ARCHIVE"), Formatters.time(autoArchiveAt, "R"))
         .addField(
           language.get("CREATED_BY"),
           owner ? `${owner} (${owner.id})` : channel.ownerId

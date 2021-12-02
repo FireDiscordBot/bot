@@ -224,10 +224,10 @@ export class FireUser extends User {
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
       .setTimestamp()
-      .setAuthor(
-        guild.language.get("BAN_LOG_AUTHOR", { user: this.toString() }),
-        this.avatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: guild.language.get("BAN_LOG_AUTHOR", { user: this.toString() }),
+        iconURL: this.avatarURL({ size: 2048, format: "png", dynamic: true }),
+      })
       .addField(guild.language.get("MODERATOR"), moderator.toString())
       .addField(guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);

@@ -93,15 +93,15 @@ export default class MessageUpdate extends Listener {
       const embed = new MessageEmbed()
         .setColor(after.member.displayColor ?? "#FFFFFF")
         .setTimestamp(after.editedAt)
-        .setAuthor(
-          after.author.toString(),
-          after.author.displayAvatarURL({
+        .setAuthor({
+          name: after.author.toString(),
+          iconURL: after.author.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,
           }),
-          after.url
-        )
+          url: after.url,
+        })
         .setDescription(
           guild.language.get("MSGEDITLOG_DESCRIPTION", {
             author: after.author.toMention(),

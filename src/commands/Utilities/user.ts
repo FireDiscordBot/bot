@@ -149,9 +149,9 @@ export default class User extends Command {
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
-      .setAuthor(
-        user.toString(),
-        (command.hasExperiment(194480739, 2)
+      .setAuthor({
+        name: user.toString(),
+        iconURL: (command.hasExperiment(194480739, 2)
           ? member ?? user
           : user
         ).displayAvatarURL({
@@ -159,16 +159,17 @@ export default class User extends Command {
           format: "png",
           dynamic: true,
         }),
-        application && application.bot_public
-          ? `https://discord.com/oauth2/authorize?client_id=${
-              application.id
-            }&scope=bot%20applications.commands${
-              application.id == this.client.user.id
-                ? "&permissions=1007021303"
-                : ""
-            }`
-          : null
-      )
+        url:
+          application && application.bot_public
+            ? `https://discord.com/oauth2/authorize?client_id=${
+                application.id
+              }&scope=bot%20applications.commands${
+                application.id == this.client.user.id
+                  ? "&permissions=1007021303"
+                  : ""
+              }`
+            : null,
+      })
       .addField(`» ${command.language.get("ABOUT")}`, info.join("\n"));
     if (badges.length)
       embed.setDescription(
@@ -682,14 +683,14 @@ export default class User extends Command {
     const embed = new MessageEmbed()
       .setColor(command.member?.displayColor ?? "#FFFFFF")
       .setTimestamp(snowflake.date)
-      .setAuthor(
-        command.author.toString(),
-        command.author.displayAvatarURL({
+      .setAuthor({
+        name: command.author.toString(),
+        iconURL: command.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setDescription(command.language.get("USER_SNOWFLAKE_DESCRIPTION"))
       .addField(`» ${command.language.get("ABOUT")}`, info.join("\n"));
 

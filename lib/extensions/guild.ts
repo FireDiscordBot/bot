@@ -454,10 +454,10 @@ export class FireGuild extends Guild {
         const embed = new MessageEmbed()
           .setColor("#2ECC71")
           .setTimestamp(now)
-          .setAuthor(
-            this.language.get("UNMUTE_LOG_AUTHOR", { user: id }),
-            this.iconURL({ size: 2048, format: "png", dynamic: true })
-          )
+          .setAuthor({
+            name: this.language.get("UNMUTE_LOG_AUTHOR", { user: id }),
+            iconURL: this.iconURL({ size: 2048, format: "png", dynamic: true }),
+          })
           .addField(this.language.get("MODERATOR"), me.toString())
           .setFooter(id.toString());
         if (!dbremove)
@@ -1431,10 +1431,14 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
       .setTimestamp()
-      .setAuthor(
-        this.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),
-        user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: this.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),
+        iconURL: user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${user.id} | ${moderator.id}`);
@@ -1495,20 +1499,21 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         blockee instanceof FireMember ? blockee.displayColor : null || "#E74C3C"
       )
       .setTimestamp()
-      .setAuthor(
-        this.language.get("BLOCK_LOG_AUTHOR", {
+      .setAuthor({
+        name: this.language.get("BLOCK_LOG_AUTHOR", {
           blockee:
             blockee instanceof FireMember ? blockee.toString() : blockee.name,
         }),
-        blockee instanceof FireMember
-          ? blockee.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            })
-          : this.iconURL({ size: 2048, format: "png", dynamic: true }),
-        "https://static.inv.wtf/blocked.gif" // hehe
-      )
+        iconURL:
+          blockee instanceof FireMember
+            ? blockee.displayAvatarURL({
+                size: 2048,
+                format: "png",
+                dynamic: true,
+              })
+            : this.iconURL({ size: 2048, format: "png", dynamic: true }),
+        url: "https://static.inv.wtf/blocked.gif", // hehe
+      })
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
@@ -1581,21 +1586,22 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
           : null || "#2ECC71"
       )
       .setTimestamp()
-      .setAuthor(
-        this.language.get("UNBLOCK_LOG_AUTHOR", {
+      .setAuthor({
+        name: this.language.get("UNBLOCK_LOG_AUTHOR", {
           unblockee:
             unblockee instanceof FireMember
               ? unblockee.toString()
               : unblockee.name,
         }),
-        unblockee instanceof FireMember
-          ? unblockee.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            })
-          : this.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+        iconURL:
+          unblockee instanceof FireMember
+            ? unblockee.displayAvatarURL({
+                size: 2048,
+                format: "png",
+                dynamic: true,
+              })
+            : this.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);

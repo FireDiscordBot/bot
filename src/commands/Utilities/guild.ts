@@ -59,7 +59,10 @@ export default class GuildCommand extends Command {
     return emojis;
   }
 
-  async getInfo(command: ApplicationCommandMessage, guild: FireGuild | GuildPreview) {
+  async getInfo(
+    command: ApplicationCommandMessage,
+    guild: FireGuild | GuildPreview
+  ) {
     if (guild instanceof FireGuild) await guild.fetch(); // gets approximatePresenceCount
 
     const guildSnowflake = await snowflakeConverter(command, guild.id);
@@ -158,7 +161,10 @@ export default class GuildCommand extends Command {
     return messages.filter((message) => !!message);
   }
 
-  getSecurity(command: ApplicationCommandMessage, guild: FireGuild | GuildPreview) {
+  getSecurity(
+    command: ApplicationCommandMessage,
+    guild: FireGuild | GuildPreview
+  ) {
     const info: string[] = [];
     if (!(guild instanceof FireGuild)) return info;
 
@@ -230,7 +236,10 @@ export default class GuildCommand extends Command {
     return info;
   }
 
-  async run(command: ApplicationCommandMessage, args: { guild?: GuildPreview | FireGuild }) {
+  async run(
+    command: ApplicationCommandMessage,
+    args: { guild?: GuildPreview | FireGuild }
+  ) {
     if (command.channel instanceof DMChannel && !args.guild)
       return await command.error("COMMAND_GUILD_ONLY", {
         invite: this.client.config.inviteLink,
@@ -263,14 +272,14 @@ export default class GuildCommand extends Command {
           : badges.join(" ")
       )
       .setColor(command.member?.displayColor ?? "#FFFFFF")
-      .setAuthor(
-        guild.name,
-        guild.iconURL({
+      .setAuthor({
+        name: guild.name,
+        iconURL: guild.iconURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(guild.id)
       .setTimestamp();
     if (info.length)

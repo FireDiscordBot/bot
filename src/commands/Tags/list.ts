@@ -29,10 +29,14 @@ export default class TagList extends Command {
     const names = manager.names;
     if (!names.length) return await command.error("TAG_NONE_FOUND");
     const embed = new MessageEmbed()
-      .setAuthor(
-        command.language.get("TAG_LIST", { guild: command.guild.name }),
-        command.guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: command.language.get("TAG_LIST", { guild: command.guild.name }),
+        iconURL: command.guild.iconURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .setColor(command.member?.displayColor ?? "#FFFFFF")
       .setDescription(names.join(", "));
     return await command.channel.send({ embeds: [embed] });

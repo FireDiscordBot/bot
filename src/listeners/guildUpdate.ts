@@ -66,10 +66,10 @@ export default class GuildUpdate extends Listener {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
         .setTimestamp()
-        .setAuthor(
-          language.get("GUILDUPDATELOG_AUTHOR", { name: after.name }),
-          after.iconURL({ size: 2048, format: "png", dynamic: true })
-        )
+        .setAuthor({
+          name: language.get("GUILDUPDATELOG_AUTHOR", { name: after.name }),
+          iconURL: after.iconURL({ size: 2048, format: "png", dynamic: true }),
+        })
         .setFooter(after.id);
       if (before.name != after.name)
         embed.addField(language.get("NAME"), `${before.name} ➜ ${after.name}`);
@@ -95,7 +95,8 @@ export default class GuildUpdate extends Listener {
               dynamic: true,
             }) || "¯\\\\_(ツ)_/¯"
           } ➜ ${
-            after.iconURL({ size: 128, format: "png", dynamic: true }) || "¯\\\\_(ツ)_/¯"
+            after.iconURL({ size: 128, format: "png", dynamic: true }) ||
+            "¯\\\\_(ツ)_/¯"
           }`
         );
       if (before.splash != after.splash)
@@ -106,7 +107,9 @@ export default class GuildUpdate extends Listener {
               size: 2048,
               format: "png",
             }) || "¯\\\\_(ツ)_/¯"
-          } ➜ ${after.splashURL({ size: 2048, format: "png" }) || "¯\\\\_(ツ)_/¯"}`
+          } ➜ ${
+            after.splashURL({ size: 2048, format: "png" }) || "¯\\\\_(ツ)_/¯"
+          }`
         );
       if (before.banner != after.banner)
         embed.addField(
@@ -116,7 +119,9 @@ export default class GuildUpdate extends Listener {
               size: 2048,
               format: "png",
             }) || "¯\\\\_(ツ)_/¯"
-          } ➜ ${after.bannerURL({ size: 2048, format: "png" }) || "¯\\\\_(ツ)_/¯"}`
+          } ➜ ${
+            after.bannerURL({ size: 2048, format: "png" }) || "¯\\\\_(ツ)_/¯"
+          }`
         );
       if (before.verificationLevel != after.verificationLevel)
         embed.addField(

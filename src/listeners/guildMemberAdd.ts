@@ -221,15 +221,17 @@ export default class GuildMemberAdd extends Listener {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
         .setTimestamp()
-        .setAuthor(
-          language.get("MEMBERJOIN_LOG_AUTHOR", { member: member.toString() }),
-          member.displayAvatarURL({
+        .setAuthor({
+          name: language.get("MEMBERJOIN_LOG_AUTHOR", {
+            member: member.toString(),
+          }),
+          iconURL: member.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,
           }),
-          "https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif"
-        )
+          url: "https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif",
+        })
         .addField(
           language.get("ACCOUNT_CREATED"),
           Formatters.time(member.user.createdAt, "R")
