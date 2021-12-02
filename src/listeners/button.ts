@@ -839,7 +839,7 @@ export default class Button extends Listener {
           .setCustomId(`avatar:${button.author.id}:guild:${user.id}`)
       );
 
-      return await button.channel.send({
+      return await button.edit({
         embeds: [embed],
         components: [actionRow],
       });
@@ -872,7 +872,7 @@ export default class Button extends Listener {
           .setCustomId(`avatar:${button.author.id}:global:${user.id}`)
       );
 
-      return await button.channel.send({
+      return await button.edit({
         embeds: [embed],
         components: [actionRow],
       });
