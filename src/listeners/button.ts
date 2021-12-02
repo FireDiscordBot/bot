@@ -865,8 +865,7 @@ export default class Button extends Listener {
           )
           .setStyle("PRIMARY")
           .setCustomId(
-            (authorId != button.author.id ? "?" : "") +
-              `avatar:${userId}:${type == "global" ? "guild" : "global"}:${
+            `avatar:${userId}:${type == "global" ? "guild" : "global"}:${
                 button.author.id
               }`
           )
