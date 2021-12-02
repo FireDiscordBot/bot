@@ -829,7 +829,7 @@ export default class Button extends Listener {
       const user = (await (type == "global" ? this.client.users : button.guild)
         .fetch(userId)
         .catch(() => {})) as FireMember | FireUser;
-      if (!user)
+      if (!user || typeof user.displayAvatarURL != "function")
         return await button.error(
           type == "global"
             ? "USER_NOT_FOUND_COMPONENT"
