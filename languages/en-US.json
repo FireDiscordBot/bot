@@ -289,6 +289,7 @@
   "AVATAR_SWITCH_TO_GLOBAL": "Show Global Avatar",
   "AVATAR_SWITCH_TO_GUILD": "Show Server Avatar",
   "AVATAR_BUTTON_NO_GUILD": "This doesn't seem to be in a server meaning there's no server avatar to show",
+  "AVATAR_NO_GUILD_AVATAR": "That member doesn't have a server avatar",
   "BADNAME_COMMAND_DESCRIPTION": "Change the name used for auto dehoist/decancer",
   "BADNAME_NO_CHANGES": "I did absolutely nothing because that's already set as the \"bad name\"",
   "BADNAME_SET": "I have set the \"bad name\" to \"{{name}}\". This will **not** rename existing users",

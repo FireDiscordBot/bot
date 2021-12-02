@@ -846,12 +846,14 @@ export default class Button extends Listener {
     } else if (
       button.customId.startsWith(`avatar:${button.author.id}:guild:`)
     ) {
-      if (!button.guild) return await message.error("AVATAR_BUTTON_NO_GUILD")
+      if (!button.guild) return await message.error("AVATAR_BUTTON_NO_GUILD");
       const userId = button.customId.slice(
         `avatar:${button.author.id}:guild:`.length
       );
       const member = await button.guild.members.fetch(userId).catch(() => {});
       if (!member) return await button.error("MEMBER_NOT_FOUND_COMPONENT");
+      else if (!member.avatar)
+        return await button.error("AVATAR_NO_GUILD_AVATAR");
       const embed = new MessageEmbed()
         .setColor(member?.displayHexColor ?? "#FFFFFF")
         .setTimestamp()
