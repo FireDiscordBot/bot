@@ -826,7 +826,7 @@ export default class Button extends Listener {
       ];
       if (type == "guild" && !button.guild)
         return await button.error("AVATAR_BUTTON_NO_GUILD");
-      const user = (await (type == "global" ? this.client.users : button.guild)
+      const user = (await (type == "global" ? this.client.users : button.guild.members)
         .fetch(userId)
         .catch(() => {})) as FireMember | FireUser;
       if (!user || typeof user.displayAvatarURL != "function")
