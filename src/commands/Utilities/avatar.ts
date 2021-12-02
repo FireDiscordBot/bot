@@ -66,7 +66,7 @@ export default class Avatar extends Command {
         new MessageButton()
           .setLabel(message.language.get("AVATAR_SWITCH_TO_GLOBAL"))
           .setStyle("PRIMARY")
-          .setCustomId(`avatar:${message.author.id}:global:${user.id}`)
+          .setCustomId(`avatar:${user.id}:global:${message.author.id}`)
       );
 
     return await message.channel.send({

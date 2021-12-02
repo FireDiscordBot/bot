@@ -2,6 +2,7 @@ import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { FireUser } from "@fire/lib/extensions/user";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { getBranch } from "@fire/lib/util/gitUtils";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
@@ -812,12 +813,30 @@ export default class Button extends Listener {
       );
     }
 
-    if (button.customId.startsWith(`avatar:${button.author.id}:global:`)) {
-      const userId = button.customId.slice(
-        `avatar:${button.author.id}:global:`.length
-      );
-      const user = await this.client.users.fetch(userId).catch(() => {});
-      if (!user) return await button.error("USER_NOT_FOUND_COMPONENT");
+    if (
+      button.customId.startsWith(`avatar:`) &&
+      (button.customId.includes(":guild:") ||
+        button.customId.includes(":global:"))
+    ) {
+      const [, userId, type, authorId] = button.customId.split(":") as [
+        string,
+        Snowflake,
+        "guild" | "global",
+        Snowflake
+      ];
+      if (type == "guild" && !button.guild)
+        return await button.error("AVATAR_BUTTON_NO_GUILD");
+      const user = (await (type == "global" ? this.client.users : button.guild)
+        .fetch(userId)
+        .catch(() => {})) as FireMember | FireUser;
+      if (!user)
+        return await button.error(
+          type == "global"
+            ? "USER_NOT_FOUND_COMPONENT"
+            : "MEMBER_NOT_FOUND_COMPONENT"
+        );
+      if (user instanceof FireMember && !user.avatar)
+        return await button.error("AVATAR_NO_GUILD_AVATAR");
       const embed = new MessageEmbed()
         .setColor(button.member?.displayHexColor ?? "#FFFFFF")
         .setTimestamp()
@@ -834,51 +853,33 @@ export default class Button extends Listener {
 
       const actionRow = new MessageActionRow().addComponents(
         new MessageButton()
-          .setLabel(button.language.get("AVATAR_SWITCH_TO_GUILD"))
+          .setLabel(
+            button.language.get(
+              type == "global"
+                ? "AVATAR_SWITCH_TO_GUILD"
+                : "AVATAR_SWITCH_TO_GLOBAL"
+            )
+          )
           .setStyle("PRIMARY")
-          .setCustomId(`avatar:${button.author.id}:guild:${user.id}`)
+          .setCustomId(
+            `avatar:${userId}:${type == "global" ? "guild" : "global"}:${
+              button.author.id
+            }`
+          )
       );
 
-      return await button.edit({
-        embeds: [embed],
-        components: [actionRow],
-      });
-    } else if (
-      button.customId.startsWith(`avatar:${button.author.id}:guild:`)
-    ) {
-      if (!button.guild) return await message.error("AVATAR_BUTTON_NO_GUILD");
-      const userId = button.customId.slice(
-        `avatar:${button.author.id}:guild:`.length
-      );
-      const member = await button.guild.members.fetch(userId).catch(() => {});
-      if (!member) return await button.error("MEMBER_NOT_FOUND_COMPONENT");
-      else if (!member.avatar)
-        return await button.error("AVATAR_NO_GUILD_AVATAR");
-      const embed = new MessageEmbed()
-        .setColor(member?.displayHexColor ?? "#FFFFFF")
-        .setTimestamp()
-        .setTitle(
-          button.language.get("AVATAR_TITLE", { user: member.toString() })
-        )
-        .setImage(
-          member.displayAvatarURL({
-            size: 2048,
-            format: "png",
-            dynamic: true,
-          })
-        );
-
-      const actionRow = new MessageActionRow().addComponents(
-        new MessageButton()
-          .setLabel(message.language.get("AVATAR_SWITCH_TO_GLOBAL"))
-          .setStyle("PRIMARY")
-          .setCustomId(`avatar:${button.author.id}:global:${member.id}`)
-      );
-
-      return await button.edit({
-        embeds: [embed],
-        components: [actionRow],
-      });
+      if (authorId == button.author.id)
+        return await button.edit({
+          embeds: [embed],
+          components: [actionRow],
+        });
+      else {
+        button.flags = 64;
+        return await button.channel.send({
+          embeds: [embed],
+          components: [actionRow],
+        });
+      }
     }
 
     if (
