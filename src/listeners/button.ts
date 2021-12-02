@@ -846,19 +846,20 @@ export default class Button extends Listener {
     } else if (
       button.customId.startsWith(`avatar:${button.author.id}:guild:`)
     ) {
+      if (!button.guild) return await message.error("AVATAR_BUTTON_NO_GUILD")
       const userId = button.customId.slice(
         `avatar:${button.author.id}:guild:`.length
       );
-      const user = await this.client.users.fetch(userId).catch(() => {});
-      if (!user) return await button.error("USER_NOT_FOUND_COMPONENT");
+      const member = await button.guild.members.fetch(userId).catch(() => {});
+      if (!member) return await button.error("MEMBER_NOT_FOUND_COMPONENT");
       const embed = new MessageEmbed()
-        .setColor(button.member?.displayHexColor ?? "#FFFFFF")
+        .setColor(member?.displayHexColor ?? "#FFFFFF")
         .setTimestamp()
         .setTitle(
-          button.language.get("AVATAR_TITLE", { user: user.toString() })
+          button.language.get("AVATAR_TITLE", { user: member.toString() })
         )
         .setImage(
-          user.displayAvatarURL({
+          member.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,
@@ -869,7 +870,7 @@ export default class Button extends Listener {
         new MessageButton()
           .setLabel(message.language.get("AVATAR_SWITCH_TO_GLOBAL"))
           .setStyle("PRIMARY")
-          .setCustomId(`avatar:${button.author.id}:global:${user.id}`)
+          .setCustomId(`avatar:${button.author.id}:global:${member.id}`)
       );
 
       return await button.edit({
