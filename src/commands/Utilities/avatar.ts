@@ -61,7 +61,7 @@ export default class Avatar extends Command {
       );
 
     let actionRow: MessageActionRow;
-    if (message.guild && user instanceof FireMember)
+    if (message.guild && user instanceof FireMember && user.avatar)
       actionRow = new MessageActionRow().addComponents(
         new MessageButton()
           .setLabel(message.language.get("AVATAR_SWITCH_TO_GLOBAL"))
