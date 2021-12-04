@@ -650,7 +650,7 @@ export default class Button extends Listener {
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_JAVA"))
           .setStyle("PRIMARY"),
       ];
-      button.flags += 64;
+      if (!(button.flags & 64)) button.flags += 64;
       return await button.edit({
         content: button.language.get("ESSENTIAL_SUPPORT_CHOOSE_ISSUE"),
         components: [
