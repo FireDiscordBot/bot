@@ -64,7 +64,7 @@ const openButton = () =>
 const cancelButton = new MessageButton()
   .setLabel("Cancel")
   .setStyle("DANGER")
-  .setCustomId("!essential_support_general"); // return to initial menu
+  .setCustomId("cancel_me");
 
 export default class Essential extends Module {
   guildId: Snowflake;
