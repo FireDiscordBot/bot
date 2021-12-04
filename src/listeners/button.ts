@@ -633,31 +633,35 @@ export default class Button extends Listener {
           .setCustomId("essentialsupport:crash")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_CRASH"))
           .setStyle("DANGER"),
-        // .setEmoji("895747752443666442"),
         new MessageButton()
           .setCustomId("essentialsupport:bug")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_BUG"))
           .setStyle("DANGER"),
-        // .setEmoji("🐛"),
         new MessageButton()
           .setCustomId("essentialsupport:enquiry")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ENQUIRY"))
           .setStyle("PRIMARY"),
-        // .setEmoji("❓"),
         new MessageButton()
           .setCustomId("essentialsupport:ice")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ICE"))
           .setStyle("PRIMARY"),
         new MessageButton()
-          .setCustomId("essentialsupport:other")
-          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
+          .setCustomId("essentialsupport:java")
+          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_JAVA"))
           .setStyle("PRIMARY"),
-        // .setEmoji("785860532041285673"),
       ];
       button.flags += 64;
       return await button.edit({
         content: button.language.get("ESSENTIAL_SUPPORT_CHOOSE_ISSUE"),
-        components: [new MessageActionRow().addComponents(choices)],
+        components: [
+          new MessageActionRow().addComponents(choices),
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setCustomId("essentialsupport:other")
+              .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
+              .setStyle("PRIMARY")
+          ),
+        ],
       });
     } else if (button.customId.startsWith("essential_confirm_")) {
       const type = button.customId.slice(18);
@@ -866,8 +870,8 @@ export default class Button extends Listener {
           .setStyle("PRIMARY")
           .setCustomId(
             `avatar:${userId}:${type == "global" ? "guild" : "global"}:${
-                button.author.id
-              }`
+              button.author.id
+            }`
           )
       );
 
