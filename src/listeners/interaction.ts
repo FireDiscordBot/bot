@@ -49,6 +49,7 @@ export default class InteractionListener extends Listener {
       point.fields.custom_id = interaction.customId;
       point.fields.component_type = interaction.componentType;
     } else if (interaction.isContextMenu()) {
+      point.tags.type = "CONTEXT_COMMAND";
       point.fields.command = interaction.commandName;
       point.fields.context = interaction.targetType;
       point.fields.target_id = interaction.targetId;

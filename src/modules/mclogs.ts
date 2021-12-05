@@ -509,27 +509,29 @@ export default class MCLogs extends Module {
         try {
           const uuid = await this.client.util.nameToUUID(user[1]);
           if (!uuid) {
-            this.client.influx([
-              {
-                measurement: "mclogs",
-                tags: {
-                  type: "cracked",
-                  user_id: message.author.id,
-                  cluster: this.client.manager.id.toString(),
-                  shard: message.guild
-                    ? message.guild?.shardId.toString() ?? "0"
-                    : "Unknown",
+            // user has not opted out of data collection for analytics
+            if (!message.hasExperiment(2219986954, 1))
+              this.client.influx([
+                {
+                  measurement: "mclogs",
+                  tags: {
+                    type: "cracked",
+                    user_id: message.author.id,
+                    cluster: this.client.manager.id.toString(),
+                    shard: message.guild
+                      ? message.guild?.shardId.toString() ?? "0"
+                      : "Unknown",
+                  },
+                  fields: {
+                    guild: message.guild
+                      ? `${message.guild?.name} (${message.guildId})`
+                      : "Unknown",
+                    ign: user[1],
+                    haste: haste.url,
+                    raw: haste.raw,
+                  },
                 },
-                fields: {
-                  guild: message.guild
-                    ? `${message.guild?.name} (${message.guildId})`
-                    : "Unknown",
-                  ign: user[1],
-                  haste: haste.url,
-                  raw: haste.raw,
-                },
-              },
-            ]);
+              ]);
             possibleSolutions =
               "It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
           }
