@@ -1,10 +1,13 @@
-import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
+import { IPoint } from "@fire/lib/interfaces/aether";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
-import { Readable } from "stream";
 import * as centra from "centra";
+import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+import { Readable } from "stream";
 import Filters from "./filters";
 
 const { mcLogFilters } = constants;
@@ -24,6 +27,8 @@ const allowedURLs = [
   "127.0.0.1",
   "live.com",
 ];
+
+type Haste = { url: string; raw: string };
 
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
@@ -98,7 +103,7 @@ export default class MCLogs extends Module {
     await this.client.waitUntilReady();
     if (
       !this.client.guilds.cache.some((guild: FireGuild) =>
-        guild.hasExperiment(77266757, 1)
+        guild.hasExperiment(77266757, [1, 2])
       )
     )
       return this.remove();
@@ -118,7 +123,53 @@ export default class MCLogs extends Module {
     }
   }
 
-  public getSolutions(log: string) {
+  private async getSolutionsAnalytics(
+    user: FireMember | FireUser,
+    haste: Haste,
+    solutions: string[],
+    recommendations: string[]
+  ) {
+    // user has not opted out of data collection for analytics
+    if (!user.hasExperiment(2219986954, 1)) {
+      let solutionsHaste: Haste, recommendationsHaste: Haste;
+      if (solutions.length)
+        solutionsHaste = await this.client.util
+          .haste(JSON.stringify(solutions), true, "json", true)
+          .catch(() => undefined);
+      if (recommendations.length)
+        recommendationsHaste = await this.client.util
+          .haste(JSON.stringify(recommendations), true, "json", true)
+          .catch(() => undefined);
+      if (solutionsHaste || recommendationsHaste) {
+        const point: IPoint = {
+          measurement: "mclogs",
+          tags: {
+            type: "bgs",
+            user_id: user.id,
+            cluster: this.client.manager.id.toString(),
+            shard:
+              user instanceof FireMember
+                ? user.guild?.shardId.toString() ?? "0"
+                : "Unknown",
+          },
+          fields: {
+            guild:
+              user instanceof FireMember
+                ? `${user.guild?.name} (${user.guild?.id})`
+                : "Unknown",
+            haste: haste.url,
+            raw: haste.raw,
+          },
+        };
+        if (solutionsHaste) point.fields.solutions = solutionsHaste.url;
+        if (recommendationsHaste)
+          point.fields.recommendations = recommendationsHaste.url;
+        this.client.influx([point]);
+      }
+    }
+  }
+
+  private getSolutions(user: FireMember | FireUser, haste: Haste, log: string) {
     if (
       this.solutions.cheats.some((cheat) =>
         log.toLowerCase().includes(cheat.toLowerCase())
@@ -127,6 +178,31 @@ export default class MCLogs extends Module {
       const found = this.solutions.cheats.filter((cheat) =>
         log.toLowerCase().includes(cheat.toLowerCase())
       );
+      // user has not opted out of data collection for analytics
+      if (!user.hasExperiment(2219986954, 1))
+        this.client.influx([
+          {
+            measurement: "mclogs",
+            tags: {
+              type: "cheats",
+              user_id: user.id,
+              cluster: this.client.manager.id.toString(),
+              shard:
+                user instanceof FireMember
+                  ? user.guild?.shardId.toString() ?? "0"
+                  : "Unknown",
+            },
+            fields: {
+              guild:
+                user instanceof FireMember
+                  ? `${user.guild?.name} (${user.guild?.id})`
+                  : "Unknown",
+              found: found.join(", "),
+              haste: haste.url,
+              raw: haste.raw,
+            },
+          },
+        ]);
       return `Cheat${found.length > 1 ? "s" : ""} found (${found.join(
         ", "
       )}). Bailing out, you are on your own now. Good luck.`;
@@ -185,6 +261,13 @@ export default class MCLogs extends Module {
         currentRecommendations.push(`- ${sol}`);
     }
 
+    this.getSolutionsAnalytics(
+      user,
+      haste,
+      currentSolutions,
+      currentRecommendations
+    );
+
     const solutions = currentSolutions.length
       ? `Possible Solutions:\n${currentSolutions.join("\n")}`
       : "";
@@ -199,7 +282,7 @@ export default class MCLogs extends Module {
 
   async checkLogs(message: FireMessage) {
     if (message.author.bot) return; // you should see what it's like without this lol
-    if (!message.guild.hasExperiment(77266757, 1)) return;
+    if (!message.guild.hasExperiment(77266757, [1, 2])) return;
     if (
       message.member?.roles.cache.some(
         (r) => r.name == "fuckin' loser" || r.name == "no logs"
@@ -264,16 +347,12 @@ export default class MCLogs extends Module {
 
     // this should always be "sent" not "sent a paste containing"
     if (!message.attachments.size && message.content.length > 350) {
-      const [processed, diff] = await this.processLogStream(
-        message,
-        message.content
-      );
+      const processed = await this.processLogStream(message, message.content);
       if (processed && this.hasLogText(processed))
         return await this.handleLogText(
           message,
           processed,
-          reupload != null ? "sent a paste containing" : "sent",
-          diff
+          reupload != null ? "sent a paste containing" : "sent"
         );
     }
 
@@ -290,7 +369,6 @@ export default class MCLogs extends Module {
           .header("User-Agent", this.client.manager.ua)
           .stream()
           .send();
-        let logDiff: string;
         for await (const chunk of stream as unknown as Readable) {
           chunks.push(chunk.toString());
           if (chunks.length >= 5 && !this.hasLogText(chunks.join(""))) {
@@ -331,12 +409,8 @@ export default class MCLogs extends Module {
               }
             }
           }
-          const [data, diff] = await this.processLogStream(
-            message,
-            text.join("")
-          );
+          const data = await this.processLogStream(message, text.join(""));
           if (data) processed.push(data);
-          if (diff) logDiff = diff;
         }
 
         if (triggeredCleaners.length)
@@ -352,12 +426,7 @@ export default class MCLogs extends Module {
           processed.length &&
           processed.some((chunk) => this.hasLogText(chunk))
         )
-          await this.handleLogText(
-            message,
-            processed.join(""),
-            "uploaded",
-            logDiff
-          );
+          await this.handleLogText(message, processed.join(""), "uploaded");
       } catch {
         await message.send("MC_LOG_READ_FAIL");
       }
@@ -374,13 +443,6 @@ export default class MCLogs extends Module {
         else return "[removed url]";
       });
 
-    let diff: string;
-    if (this.regexes.date.test(data)) {
-      this.regexes.date.lastIndex = 0;
-      diff = this.regexes.date.exec(data)[1];
-      this.regexes.date.lastIndex = 0;
-    }
-
     const filters = this.client.getModule("filters") as Filters;
     data = await filters.runReplace(data, message);
 
@@ -388,21 +450,12 @@ export default class MCLogs extends Module {
       .split("\n")
       // filter imports as this often makes java code mistaken for logs
       .filter((line) => !line.startsWith("import "))
-      .filter(
-        (line) =>
-          !mcLogFilters.some((filter) => line.trim().includes(filter.trim()))
-      )
       .join("\n");
 
-    return [data, diff];
+    return data;
   }
 
-  async handleLogText(
-    message: FireMessage,
-    text: string,
-    msgType: string,
-    diff: string
-  ) {
+  async handleLogText(message: FireMessage, text: string, msgType: string) {
     const lines = text.split("\n");
     for (const line of lines) {
       if (this.regexes.secrets.test(line)) {
@@ -420,15 +473,63 @@ export default class MCLogs extends Module {
         .catch((e: Error) => e);
       if (haste instanceof Error)
         return await message.error("MC_LOG_FAILED", { error: haste.message });
+      // user has not opted out of data collection for analytics
+      else if (!message.hasExperiment(2219986954, 1))
+        this.client.influx([
+          {
+            measurement: "mclogs",
+            tags: {
+              type: "upload",
+              user_id: message.author.id,
+              cluster: this.client.manager.id.toString(),
+              shard: message.guild
+                ? message.guild?.shardId.toString() ?? "0"
+                : "Unknown",
+            },
+            fields: {
+              guild: message.guild
+                ? `${message.guild?.name} (${message.guildId})`
+                : "Unknown",
+              msgType,
+              haste: haste.url,
+              raw: haste.raw,
+            },
+          },
+        ]);
       message.delete().catch(() => {});
 
-      let possibleSolutions = this.getSolutions(text);
+      let possibleSolutions = this.getSolutions(
+        message.member ?? message.author,
+        haste,
+        text
+      );
       const user = this.regexes.settingUser.exec(text);
       this.regexes.settingUser.lastIndex = 0;
       if (user?.length) {
         try {
           const uuid = await this.client.util.nameToUUID(user[1]);
           if (!uuid) {
+            this.client.influx([
+              {
+                measurement: "mclogs",
+                tags: {
+                  type: "cracked",
+                  user_id: message.author.id,
+                  cluster: this.client.manager.id.toString(),
+                  shard: message.guild
+                    ? message.guild?.shardId.toString() ?? "0"
+                    : "Unknown",
+                },
+                fields: {
+                  guild: message.guild
+                    ? `${message.guild?.name} (${message.guildId})`
+                    : "Unknown",
+                  ign: user[1],
+                  haste: haste.url,
+                  raw: haste.raw,
+                },
+              },
+            ]);
             possibleSolutions =
               "It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
           }
