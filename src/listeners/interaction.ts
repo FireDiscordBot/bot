@@ -4,12 +4,15 @@ import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
+import { IPoint } from "@fire/lib/interfaces/aether";
 import { constants } from "@fire/lib/util/constants";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
 import {
-  AutocompleteInteraction, ContextMenuInteraction,
-  Interaction, MessageComponentInteraction
+  AutocompleteInteraction,
+  ContextMenuInteraction,
+  Interaction,
+  MessageComponentInteraction,
 } from "discord.js";
 
 const { emojis } = constants;
@@ -24,7 +27,34 @@ export default class InteractionListener extends Listener {
 
   async exec(interaction: Interaction) {
     if (this.blacklistCheck(interaction)) return;
-    else if (interaction.isCommand())
+    const point: IPoint = {
+      measurement: "interaction",
+      tags: {
+        type: interaction.type,
+        user_id: interaction.user?.id,
+        cluster: this.client.manager.id.toString(),
+        shard: interaction.guild?.shardId.toString() ?? "0",
+      },
+      fields: {
+        guild: interaction.guild
+          ? `${interaction.guild.name} (${interaction.guildId})`
+          : "N/A",
+        user: `${interaction.user} (${interaction.user.id})`,
+      },
+    };
+    if (interaction.isCommand()) {
+      point.fields.command = interaction.commandName;
+      point.fields.args = JSON.stringify(interaction.options.data);
+    } else if (interaction.isMessageComponent()) {
+      point.fields.custom_id = interaction.customId;
+      point.fields.component_type = interaction.componentType;
+    } else if (interaction.isContextMenu()) {
+      point.fields.command = interaction.commandName;
+      point.fields.context = interaction.targetType;
+      point.fields.target_id = interaction.targetId;
+    }
+    this.client.influx([point]);
+    if (interaction.isCommand())
       return await this.handleApplicationCommand(
         interaction as CommandInteraction
       );
@@ -34,15 +64,9 @@ export default class InteractionListener extends Listener {
       );
     else if (interaction.isContextMenu())
       return await this.handleContextMenu(interaction);
-    else if (
-      interaction.isMessageComponent() &&
-      interaction.componentType == "BUTTON"
-    )
+    else if (interaction.isButton())
       return await this.handleButton(interaction);
-    else if (
-      interaction.isMessageComponent() &&
-      interaction.componentType == "SELECT_MENU"
-    )
+    else if (interaction.isSelectMenu())
       return await this.handleSelect(interaction);
   }
 

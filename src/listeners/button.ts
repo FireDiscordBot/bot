@@ -2,6 +2,7 @@ import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { FireUser } from "@fire/lib/extensions/user";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { getBranch } from "@fire/lib/util/gitUtils";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
@@ -12,7 +13,6 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
 import {
-  Collection,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
@@ -58,6 +58,7 @@ const validEssentialTypes = [
   "ice",
   "general",
   "testers",
+  "java",
 ];
 
 export default class Button extends Listener {
@@ -628,31 +629,35 @@ export default class Button extends Listener {
           .setCustomId("essentialsupport:crash")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_CRASH"))
           .setStyle("DANGER"),
-        // .setEmoji("895747752443666442"),
         new MessageButton()
           .setCustomId("essentialsupport:bug")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_BUG"))
           .setStyle("DANGER"),
-        // .setEmoji("🐛"),
         new MessageButton()
           .setCustomId("essentialsupport:enquiry")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ENQUIRY"))
           .setStyle("PRIMARY"),
-        // .setEmoji("❓"),
         new MessageButton()
           .setCustomId("essentialsupport:ice")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ICE"))
           .setStyle("PRIMARY"),
         new MessageButton()
-          .setCustomId("essentialsupport:other")
-          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
+          .setCustomId("essentialsupport:java")
+          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_JAVA"))
           .setStyle("PRIMARY"),
-        // .setEmoji("785860532041285673"),
       ];
-      button.flags += 64;
+      if (!(button.flags & 64)) button.flags += 64;
       return await button.edit({
         content: button.language.get("ESSENTIAL_SUPPORT_CHOOSE_ISSUE"),
-        components: [new MessageActionRow().addComponents(choices)],
+        components: [
+          new MessageActionRow().addComponents(choices),
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setCustomId("essentialsupport:other")
+              .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
+              .setStyle("PRIMARY")
+          ),
+        ],
       });
     } else if (button.customId.startsWith("essential_confirm_")) {
       const type = button.customId.slice(18);
@@ -810,6 +815,83 @@ export default class Button extends Listener {
           })
         )
       );
+    }
+
+    if (
+      button.customId.startsWith(`avatar:`) &&
+      (button.customId.includes(":guild:") ||
+        button.customId.includes(":global:"))
+    ) {
+      const [, userId, type, authorId] = button.customId.split(":") as [
+        string,
+        Snowflake,
+        "guild" | "global",
+        Snowflake
+      ];
+      if (type == "guild" && !button.guild)
+        return await button.error("AVATAR_BUTTON_NO_GUILD");
+      const user = (await (type == "global"
+        ? this.client.users
+        : button.guild.members
+      )
+        .fetch(userId)
+        .catch(() => {})) as FireMember | FireUser;
+      if (!user || typeof user.displayAvatarURL != "function")
+        return await button.error(
+          type == "global"
+            ? "USER_NOT_FOUND_COMPONENT"
+            : "MEMBER_NOT_FOUND_COMPONENT"
+        );
+      if (user instanceof FireMember && !user.avatar)
+        return await button.error("AVATAR_NO_GUILD_AVATAR");
+      const embed = new MessageEmbed()
+        .setColor(button.member?.displayHexColor ?? "#FFFFFF")
+        .setTimestamp()
+        .setTitle(
+          button.language.get("AVATAR_TITLE", { user: user.toString() })
+        )
+        .setImage(
+          user.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          })
+        );
+
+      const actionRow = new MessageActionRow().addComponents(
+        new MessageButton()
+          .setLabel(
+            button.language.get(
+              type == "global"
+                ? "AVATAR_SWITCH_TO_GUILD"
+                : "AVATAR_SWITCH_TO_GLOBAL"
+            )
+          )
+          .setStyle("PRIMARY")
+          .setCustomId(
+            `avatar:${userId}:${type == "global" ? "guild" : "global"}:${
+              button.author.id
+            }`
+          )
+      );
+
+      if (authorId == button.author.id)
+        return await button.edit({
+          embeds: [embed],
+          components: [actionRow],
+        });
+      else {
+        button.flags = 64;
+        return await (message.flags.has("EPHEMERAL")
+          ? button.channel.update({
+              embeds: [embed],
+              components: [actionRow],
+            })
+          : button.channel.send({
+              embeds: [embed],
+              components: [actionRow],
+            }));
+      }
     }
 
     if (
