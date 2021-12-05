@@ -58,6 +58,7 @@ const validEssentialTypes = [
   "ice",
   "general",
   "testers",
+  "java",
 ];
 
 export default class Button extends Listener {
