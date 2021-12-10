@@ -251,8 +251,8 @@ export default class Message extends Listener {
         this.client.manager.ws.send(
           MessageUtil.encode(
             new AetherMessage(EventType.FETCH_DISCORD_EXPERIMENTS, {
-              current:
-                this.client.manager.state.discordExperiments?.length ?? 0,
+              current: this.client.manager.state.discordExperiments,
+              sha: message.embeds[0].url.split("commit/")[1],
             })
           )
         );
