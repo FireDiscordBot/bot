@@ -29,6 +29,7 @@ const allowedURLs = [
 ];
 
 type Haste = { url: string; raw: string };
+type ForgeRegexes = { matchText: string; regex: RegExp; solution: string };
 
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
@@ -39,7 +40,7 @@ export default class MCLogs extends Module {
     jvm: RegExp;
     optifine: RegExp;
     exOptifine: RegExp;
-    forge: RegExp;
+    forge: ForgeRegexes[];
     ram: RegExp;
     email: RegExp;
     url: RegExp;
@@ -66,8 +67,21 @@ export default class MCLogs extends Module {
       jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
       optifine: /HD_U_M(?:5|6_pre\d)(?:\.jar)?(\s\d{1,3} mods loaded|$)/im,
       exOptifine: /HD_U_\w\d_MOD/gm,
-      forge:
-        /(?:version |MinecraftForge v|Powered by Forge |forge-?1.8.9-)11\.15\.1\.2318/gim,
+      forge: [
+        {
+          matchText: "11.15.1.",
+          regex:
+            /(?:version |MinecraftForge v|Powered by Forge |forge-?1.8.9-)11\.15\.1\.2318/gim,
+          solution: "- **Update Forge to the latest version. (2318)**I",
+        },
+        {
+          matchText: "14.23.5.",
+          regex:
+            /(?:version |MinecraftForge v|Powered by Forge |forge-?1.12.2-)14\.23\.5\.2859/gim,
+          solution:
+            "- **Update Forge to the latest version (2859) as it includes a patch for the log4j vulnerability**",
+        },
+      ],
       ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
@@ -226,13 +240,10 @@ export default class MCLogs extends Module {
         "- **Update Optifine to one of the latest versions, M6 if on macOS, M5 if not**"
       );
 
-    if (log.includes("11.15.1.") && !log.match(this.regexes.forge))
-      currentSolutions.push("- **Update Forge to the latest version. (2318)**");
-
-    if (log.includes("_MOD") && log.match(this.regexes.exOptifine))
-      currentRecommendations.push(
-        "- Don't extract Optifine, just put it in your mods folder"
-      );
+    for (const config of this.regexes.forge) {
+      if (!log.includes(config.matchText)) continue;
+      if (!log.match(config.regex)) currentSolutions.push(config.solution);
+    }
 
     const isDefault = this.regexes.jvm.test(log);
     this.regexes.jvm.lastIndex = 0;
