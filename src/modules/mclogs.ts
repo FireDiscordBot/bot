@@ -3,6 +3,8 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { IPoint } from "@fire/lib/interfaces/aether";
+import { FabricLoaderVersion } from "@fire/lib/interfaces/fabricmc";
+import { ForgePromotions } from "@fire/lib/interfaces/minecraftforge";
 import { constants } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
@@ -28,8 +30,18 @@ const allowedURLs = [
   "live.com",
 ];
 
+enum Loaders {
+  FORGE = "Forge",
+  FABRIC = "Fabric",
+}
+
 type Haste = { url: string; raw: string };
-type ForgeRegexes = { matchText: string; regex: RegExp; solution: string };
+type LoaderRegexConfig = { loader: Loaders; regexes: RegExp[] };
+type VersionInfo = {
+  loader: Loaders;
+  mcVersion: string;
+  loaderVersion: string;
+};
 
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
@@ -40,12 +52,12 @@ export default class MCLogs extends Module {
     jvm: RegExp;
     optifine: RegExp;
     exOptifine: RegExp;
-    forge: ForgeRegexes[];
     ram: RegExp;
     email: RegExp;
     url: RegExp;
     home: RegExp;
     settingUser: RegExp;
+    loaderVersions: LoaderRegexConfig[];
     date: RegExp;
   };
   logText: string[];
@@ -67,26 +79,50 @@ export default class MCLogs extends Module {
       jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
       optifine: /HD_U_M(?:5|6_pre\d)(?:\.jar)?(\s\d{1,3} mods loaded|$)/im,
       exOptifine: /HD_U_\w\d_MOD/gm,
-      forge: [
-        {
-          matchText: "11.15.1.",
-          regex:
-            /(?:version |MinecraftForge v|Powered by Forge |forge-?1.8.9-)11\.15\.1\.2318/gim,
-          solution: "- **Update Forge to the latest version. (2318)**I",
-        },
-        {
-          matchText: "14.23.5.",
-          regex:
-            /(?:version |MinecraftForge v|Powered by Forge |forge-?1.12.2-)14\.23\.5\.2859/gim,
-          solution:
-            "- **Update Forge to the latest version (2859) as it includes a patch for the log4j vulnerability**",
-        },
-      ],
       ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/[\w\s]+|\/home\/\w+|C:\\Users\\[\w\s]+)/gim,
       settingUser: /\[Client thread\/INFO]: Setting user: (\w{1,16})/gim,
+      loaderVersions: [
+        {
+          loader: Loaders.FABRIC,
+          regexes: [
+            /Loading Minecraft (?<mcver>\d\.\d{1,2}\.\d{1,2}) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+          ],
+        },
+        {
+          loader: Loaders.FABRIC,
+          regexes: [
+            /Loading for game Minecraft (?<mcver>\d\.\d{1,2}\.\d{1,2})/gim,
+            /fabricloader@(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+          ],
+        },
+        {
+          loader: Loaders.FORGE,
+          regexes: [
+            /Forge Mod Loader version (?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}\.\d{1,2}) loading/gim,
+          ],
+        },
+        {
+          loader: Loaders.FORGE,
+          regexes: [
+            /Forge mod loading, version (?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>\d\.\d{1,2}\.\d{1,2})/gim,
+          ],
+        },
+        {
+          loader: Loaders.FORGE,
+          regexes: [
+            /(?<mcver>\d\.\d{1,2}\.\d{1,2})-forge-(?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+          ],
+        },
+        {
+          loader: Loaders.FORGE,
+          regexes: [
+            /forge-(?<mcver>\d\.\d{1,2}\.\d{1,2})-(?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+          ],
+        },
+      ],
       date: /^time: (?<date>[\w \/\.:-]+)$/gim,
     };
     this.logText = [
@@ -183,7 +219,29 @@ export default class MCLogs extends Module {
     }
   }
 
-  private getSolutions(user: FireMember | FireUser, haste: Haste, log: string) {
+  private getMCInfo(log: string): VersionInfo {
+    let loader: Loaders, mcVersion: string, loaderVersion: string;
+
+    for (const config of this.regexes.loaderVersions) {
+      const matches = config.regexes.map((regex) => regex.exec(log));
+      config.regexes.forEach((regex) => (regex.lastIndex = 0));
+      for (const match of matches) {
+        if (match?.groups?.mcver) mcVersion = match.groups.mcver;
+        if (match?.groups?.loaderver) loaderVersion = match.groups.loaderver;
+        if (mcVersion || loaderVersion) loader = config.loader;
+      }
+      if (loader && mcVersion && loaderVersion) break;
+    }
+
+    return { loader, mcVersion, loaderVersion };
+  }
+
+  private async getSolutions(
+    user: FireMember | FireUser,
+    versions: VersionInfo,
+    haste: Haste,
+    log: string
+  ) {
     if (
       this.solutions.cheats.some((cheat) =>
         log.toLowerCase().includes(cheat.toLowerCase())
@@ -240,9 +298,39 @@ export default class MCLogs extends Module {
         "- **Update Optifine to one of the latest versions, M6 if on macOS, M5 if not**"
       );
 
-    for (const config of this.regexes.forge) {
-      if (!log.includes(config.matchText)) continue;
-      if (!log.match(config.regex)) currentSolutions.push(config.solution);
+    if (versions?.loader == Loaders.FABRIC) {
+      const loaderDataReq = await centra(
+        `https://meta.fabricmc.net/v1/versions/loader/${versions.mcVersion}`
+      )
+        .header("User-Agent", this.client.manager.ua)
+        .send();
+      const loaderData: FabricLoaderVersion[] = await loaderDataReq
+        .json()
+        .catch(() => []);
+      if (
+        loaderData.length &&
+        loaderData[0].loader.version != versions.loaderVersion
+      )
+        currentSolutions.push(
+          `- **Update Fabric from ${versions.loaderVersion} to ${loaderData[0].loader.version}**`
+        );
+    } else if (versions?.loader == Loaders.FORGE) {
+      const dataReq = await centra(
+        "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"
+      )
+        .header("User-Agent", this.client.manager.ua)
+        .send();
+      const data: ForgePromotions = await dataReq.json().catch(() => ({
+        homepage: "",
+        promos: {},
+      }));
+      if (`${versions.mcVersion}-latest` in data.promos) {
+        const latestForge = data.promos[`${versions.mcVersion}-latest`];
+        if (latestForge != versions.loaderVersion)
+          currentSolutions.push(
+            `- **Update Forge from ${versions.loaderVersion} to ${latestForge}**`
+          );
+      }
     }
 
     const isDefault = this.regexes.jvm.test(log);
@@ -509,8 +597,11 @@ export default class MCLogs extends Module {
         ]);
       message.delete().catch(() => {});
 
-      let possibleSolutions = this.getSolutions(
+      const mcInfo = this.getMCInfo(text);
+
+      let possibleSolutions = await this.getSolutions(
         message.member ?? message.author,
+        mcInfo,
         haste,
         text
       );
@@ -563,12 +654,18 @@ export default class MCLogs extends Module {
         ]),
       ];
 
-      const logHaste = message.guild.language.get("MC_LOG_HASTE", {
-        extra: msgType == "uploaded" ? message.content : "",
-        user: message.author.toMention(),
-        solutions: possibleSolutions,
-        msgType,
-      });
+      const logHaste = message.guild.language.get(
+        mcInfo.loader ? "MC_LOG_HASTE_WITH_LOADER" : "MC_LOG_HASTE",
+        {
+          extra: msgType == "uploaded" ? message.content : "",
+          user: message.author.toMention(),
+          version: mcInfo.loaderVersion,
+          solutions: possibleSolutions,
+          minecraft: mcInfo.mcVersion,
+          loader: mcInfo.loader,
+          msgType,
+        }
+      );
 
       if (possibleSolutions.length <= 1850)
         return await message.channel.send({
@@ -585,12 +682,18 @@ export default class MCLogs extends Module {
           });
         else
           return await message.channel.send({
-            content: message.guild.language.get("MC_LOG_HASTE", {
-              extra: msgType == "uploaded" ? message.content : "",
-              solutions: message.guild.language.get("MC_LOG_WTF"),
-              user: message.author.toMention(),
-              msgType,
-            }),
+            content: message.guild.language.get(
+              mcInfo.loader ? "MC_LOG_HASTE_WITH_LOADER" : "MC_LOG_HASTE",
+              {
+                extra: msgType == "uploaded" ? message.content : "",
+                solutions: message.guild.language.get("MC_LOG_WTF"),
+                user: message.author.toMention(),
+                version: mcInfo.loaderVersion,
+                minecraft: mcInfo.mcVersion,
+                loader: mcInfo.loader,
+                msgType,
+              }
+            ),
             allowedMentions,
             components,
           });
