@@ -566,6 +566,8 @@ export default class MCLogs extends Module {
 
     text = text.replace(this.regexes.secrets, "[secrets removed]");
 
+    const mcInfo = this.getMCInfo(text);
+
     try {
       const haste = await this.client.util
         .haste(text, false, "", true)
@@ -591,13 +593,14 @@ export default class MCLogs extends Module {
                 : "Unknown",
               msgType,
               haste: haste.url,
+              loader: mcInfo?.loader,
+              loader_version: mcInfo?.loaderVersion,
+              mc_version: mcInfo?.mcVersion,
               raw: haste.raw,
             },
           },
         ]);
       message.delete().catch(() => {});
-
-      const mcInfo = this.getMCInfo(text);
 
       let possibleSolutions = await this.getSolutions(
         message.member ?? message.author,
