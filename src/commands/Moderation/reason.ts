@@ -1,8 +1,8 @@
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
 import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { MessageEmbed, Snowflake } from "discord.js";
+import { MessageEmbed } from "discord.js";
 
 export default class Reason extends Command {
   constructor() {
@@ -36,45 +36,48 @@ export default class Reason extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { case: string; reason?: string }) {
-    if (!args.case) return await message.error("REASON_MISSING_CASE");
+  async run(
+    command: ApplicationCommandMessage,
+    args: { case: string; reason?: string }
+  ) {
+    if (!args.case) return await command.error("REASON_MISSING_CASE");
     const result = await this.client.db
       .query("SELECT * FROM modlogs WHERE caseid=$1 AND gid=$2;", [
         args.case,
-        message.guildId,
+        command.guildId,
       ])
       .first()
       .catch(() => {});
-    if (!result) return await message.error("REASON_UNKNOWN_CASE");
+    if (!result) return await command.error("REASON_UNKNOWN_CASE");
     if (!args.reason) {
       const embed = new MessageEmbed().setColor(
-        message.member?.displayHexColor ?? "#FFFFFF"
-      ).setDescription(`**${message.language.get(
+        command.member?.displayHexColor ?? "#FFFFFF"
+      ).setDescription(`**${command.language.get(
         "MODLOGS_CASE_ID"
       )}**: ${result.get("caseid")}
-**${message.language.get("REASON")}**: ${result.get("reason")}
-**${message.language.get("MODLOGS_MODERATOR_ID")}**: ${
+**${command.language.get("REASON")}**: ${result.get("reason")}
+**${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
         result.get("modid") || "¯\\\\_(ツ)_/¯"
       }
-**${message.language.get("DATE")}**: ${result.get("date")}
-**${message.language.get("TYPE")}**: ${titleCase(
+**${command.language.get("DATE")}**: ${result.get("date")}
+**${command.language.get("TYPE")}**: ${titleCase(
         result.get("type") as string
       )}`);
-      return await message.channel.send({ embeds: [embed] });
+      return await command.channel.send({ embeds: [embed] });
     } else {
       const updated = await this.client.db
         .query("UPDATE modlogs SET reason=$1 WHERE caseid=$2 AND gid=$3;", [
           args.reason,
           args.case,
-          message.guildId,
+          command.guildId,
         ])
         .catch(() => {});
       return updated && updated.status.startsWith("UPDATE ")
-        ? await message.success("REASON_SUCCESSFULLY_UPDATED", {
+        ? await command.success("REASON_SUCCESSFULLY_UPDATED", {
             case: args.case,
             reason: args.reason,
           })
-        : await message.error("REASON_UPDATE_FAILED");
+        : await command.error("REASON_UPDATE_FAILED");
     }
   }
 }
