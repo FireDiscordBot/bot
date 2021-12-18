@@ -23,7 +23,7 @@ const {
 
 export default class GuildCommand extends Command {
   constructor() {
-    super("guild", {
+    super("server", {
       description: (language: Language) =>
         language.get("GUILD_COMMAND_DESCRIPTION"),
       clientPermissions: [
@@ -32,13 +32,12 @@ export default class GuildCommand extends Command {
       ],
       args: [
         {
-          id: "guild",
+          id: "id",
           type: "preview",
           default: undefined,
           required: false,
         },
       ],
-      aliases: ["guildinfo", "infoguild", "serverinfo", "infoserver", "server"],
       enableSlashCommand: true,
       restrictTo: "all",
       slashOnly: true,
