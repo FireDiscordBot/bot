@@ -110,9 +110,7 @@ export default class Rank extends Command {
           (role instanceof Role && role.id == args.role.id) ||
           role == args.role.id
       )
-    ) {
-      if (args.role.id == "595626786549792793")
-        return await message.error("SK1ER_BETA_MOVED");
+    )
       message.member?.roles?.cache?.has(args.role.id)
         ? await message.member?.roles
             ?.remove(
@@ -129,7 +127,7 @@ export default class Rank extends Command {
             .then(() =>
               message.success("RANKS_JOIN_RANK", { role: args.role.name })
             );
-    } else return await message.error("RANKS_INVALID_ROLE");
+    else return await message.error("RANKS_INVALID_ROLE");
   }
 
   static getRankButtons(
