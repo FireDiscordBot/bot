@@ -44,7 +44,7 @@ When you're ready, hit the green button below to continue or the red one to canc
 
 const supportJavaMessage = `Essential's installer requires Java to be installed
 
-If the installer is saying it could not find a valid Java installation, this can usually be fixed by following [this guide](https://essential.gg/support/the-basics/install-java) and restarting your PC.
+If the installer is saying it could not find a valid Java installation, this can usually be fixed by following [this guide](https://essential.gg/support/troubleshooting/install-java) and restarting your PC.
 
 If the guide helped, you can click the red button below to cancel opening a ticket. Otherwise, click the green one to speak to our support team.`;
 
