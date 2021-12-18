@@ -32,7 +32,7 @@ export default class GuildCommand extends Command {
       ],
       args: [
         {
-          id: "id",
+          id: "guild",
           type: "preview",
           default: undefined,
           required: false,
