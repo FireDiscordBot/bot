@@ -88,38 +88,38 @@ export default class MCLogs extends Module {
         {
           loader: Loaders.FABRIC,
           regexes: [
-            /Loading Minecraft (?<mcver>\d\.\d{1,2}\.\d{1,2}) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FABRIC,
           regexes: [
-            /Loading for game Minecraft (?<mcver>\d\.\d{1,2}\.\d{1,2})/gim,
+            /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)/gim,
             /fabricloader@(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Forge Mod Loader version (?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}\.\d{1,2}) loading/gim,
+            /Forge Mod Loader version (?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?) loading/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Forge mod loading, version (?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>\d\.\d{1,2}\.\d{1,2})/gim,
+            /Forge mod loading, version (?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /(?<mcver>\d\.\d{1,2}\.\d{1,2})-forge-(?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-forge-(?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /forge-(?<mcver>\d\.\d{1,2}\.\d{1,2})-(?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /forge-(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-(?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
       ],
