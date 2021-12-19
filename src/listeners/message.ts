@@ -128,6 +128,7 @@ export default class Message extends Listener {
         await message
           .reply({
             content: "You forgot the hyphen! It's Spider-Man*",
+            allowedMentions: { users: [message.author.id] },
           })
           .catch(() => {});
     }
