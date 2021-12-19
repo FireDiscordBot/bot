@@ -120,7 +120,9 @@ export default class Message extends Listener {
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
     if (message.hasExperiment(2779566859, 1)) {
-      const theyForgot = youForgotTheHyphen.test(message.content);
+      const theyForgot = youForgotTheHyphen.test(
+        this.cleanContent(message, false)
+      );
       youForgotTheHyphen.lastIndex = 0;
       if (theyForgot && message.guild?.me?.permissions.has(67584n))
         await message
@@ -342,8 +344,8 @@ export default class Message extends Listener {
     await filters?.runAll(message, this.cleanContent(message)).catch(() => {});
   }
 
-  cleanContent(message: FireMessage) {
-    if (message.embeds.length)
+  cleanContent(message: FireMessage, includeEmbeds = true): string {
+    if (message.embeds.length && includeEmbeds)
       message.embeds = message.embeds.map((embed) => {
         // normalize urls
         if (embed.url) embed.url = decodeURI(new URL(embed.url).toString());
