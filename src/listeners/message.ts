@@ -28,6 +28,9 @@ const cleanMap = {
     [/\/(?:watch\?v=)?dQw4w9WgXcQ/gim],
 };
 
+const youForgotTheHyphen =
+  /spider\s*?[!"#$%&'()*+,./:;<=>?@[\]^_`{|}~]*?\s*?man/gim;
+
 export default class Message extends Listener {
   recentTokens: string[];
   tokenRegex: RegExp;
@@ -115,6 +118,17 @@ export default class Message extends Listener {
 
     if (message.type == "CHANNEL_PINNED_MESSAGE")
       this.client.emit("channelPinsAdd", message.reference, message.member);
+
+    if (message.hasExperiment(2779566859, 1)) {
+      const theyForgot = youForgotTheHyphen.test(message.content);
+      youForgotTheHyphen.lastIndex = 0;
+      if (theyForgot && message.guild?.me?.permissions.has(67584n))
+        await message
+          .reply({
+            content: "You forgot the hyphen! It's Spider-Man*",
+          })
+          .catch(() => {});
+    }
 
     const lowerContent = sanitizer(
       message.content
