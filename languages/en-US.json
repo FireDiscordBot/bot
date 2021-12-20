@@ -683,7 +683,6 @@
   "MUTE_COMMAND_DESCRIPTION": "Mute a user either until manually unmuted or for a time (e.g. 1 hour)",
   "MUTE_USER_REQUIRED": "You must provide a user to mute!",
   "MUTE_FAILED_PARSE_TIME": "I was unable to parse the time in your message",
-  "MUTE_TIME_TOO_SHORT": "That time is too short!",
   "NICKCHANGELOG_OLD_NICK": "Old Nickname",
   "NICKCHANGELOG_NEW_NICK": "New Nickname",
   "NITROPERKS_COMMAND_DESCRIPTION": "Claim the nitro booster cosmetic in Essential",
