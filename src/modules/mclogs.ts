@@ -36,7 +36,10 @@ enum Loaders {
 }
 
 type Haste = { url: string; raw: string };
-type LoaderRegexConfig = { loader: Loaders; regexes: RegExp[] };
+type LoaderRegexConfig = {
+  loader: Loaders;
+  regexes: RegExp[];
+};
 type VersionInfo = {
   loader: Loaders;
   mcVersion: string;
@@ -101,25 +104,31 @@ export default class MCLogs extends Module {
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Forge Mod Loader version (?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?) loading/gim,
+            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?) loading/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Forge mod loading, version (?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)/gim,
+            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-forge-(?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--version, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /forge-(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-(?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /forge-(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+          ],
+        },
+        {
+          loader: Loaders.FORGE,
+          regexes: [
+            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
       ],
@@ -528,7 +537,8 @@ export default class MCLogs extends Module {
           processed.some((chunk) => this.hasLogText(chunk))
         )
           await this.handleLogText(message, processed.join(""), "uploaded");
-      } catch {
+      } catch (e) {
+        this.client.console.debug(`[MCLogs] Failed to process log,`, e.stack);
         await message.send("MC_LOG_READ_FAIL");
       }
     }
