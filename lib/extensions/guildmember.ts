@@ -691,7 +691,7 @@ export class FireMember extends GuildMember {
         .catch(() => {});
     let dbadd: unknown;
     // for less than 5 mins, we should be fine without storing it
-    if (until - +new Date() > 300000) {
+    if (!canTimeOut || until - +new Date() > 300000) {
       this.guild.mutes.set(this.id, until || 0);
       dbadd = await this.client.db
         .query("INSERT INTO mutes (gid, uid, until) VALUES ($1, $2, $3);", [
