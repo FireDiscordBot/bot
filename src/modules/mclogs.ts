@@ -395,13 +395,17 @@ export default class MCLogs extends Module {
 
   async checkLogs(message: FireMessage) {
     if (message.author.bot) return; // you should see what it's like without this lol
-    if (!message.guild.hasExperiment(77266757, [1, 2])) return;
-    if (
+    else if (!message.guild.hasExperiment(77266757, [1, 2])) return;
+    else if (
       message.member?.roles.cache.some(
         (r) => r.name == "fuckin' loser" || r.name == "no logs"
       )
     )
       return;
+    else if (this.client.util.isBlacklisted(
+      message.author.id,
+      message.guild
+    )) return;
 
     if (this.regexes.noRaw.test(message.content)) {
       this.regexes.noRaw.lastIndex = 0;
