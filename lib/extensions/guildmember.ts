@@ -650,7 +650,7 @@ export class FireMember extends GuildMember {
       until &&
       until < +new Date() + 2419199999 &&
       this.guild.hasExperiment(1955682940, 1) &&
-      this.guild.me?.permissions?.has("MODERATE_MEMBERS", false);
+      this.guild.me?.permissions?.has("MODERATE_MEMBERS");
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     if (!this.guild.muteRole && !canTimeOut) {
