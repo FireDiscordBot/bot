@@ -95,7 +95,7 @@ export default class MCLogs extends Module {
           loader: Loaders.FABRIC,
           regexes: [
             /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)/gim,
-            /fabricloader@(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
@@ -225,10 +225,12 @@ export default class MCLogs extends Module {
     for (const config of this.regexes.loaderVersions) {
       const matches = config.regexes.map((regex) => regex.exec(log));
       config.regexes.forEach((regex) => (regex.lastIndex = 0));
+      let matchedMcVer: string, matchedLoaderVer: string;
       for (const match of matches) {
-        if (match?.groups?.mcver) mcVersion = match.groups.mcver;
-        if (match?.groups?.loaderver) loaderVersion = match.groups.loaderver;
-        if (mcVersion || loaderVersion) loader = config.loader;
+        if (match?.groups?.mcver) mcVersion = matchedMcVer = match.groups.mcver;
+        if (match?.groups?.loaderver)
+          loaderVersion = matchedLoaderVer = match.groups.loaderver;
+        if (matchedMcVer || matchedLoaderVer) loader = config.loader;
       }
       if (loader && mcVersion && loaderVersion) break;
     }
