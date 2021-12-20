@@ -655,7 +655,31 @@ export default class MCLogs extends Module {
               ]);
             possibleSolutions =
               "It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
-          }
+          } else if (!message.hasExperiment(2219986954, 1))
+            // user has not opted out of data collection for analytics
+            this.client.influx([
+              {
+                measurement: "mclogs",
+                tags: {
+                  type: "user",
+                  user_id: message.author.id,
+                  cluster: this.client.manager.id.toString(),
+                  shard: message.guild
+                    ? message.guild?.shardId.toString() ?? "0"
+                    : "Unknown",
+                },
+                fields: {
+                  guild: message.guild
+                    ? `${message.guild?.name} (${message.guildId})`
+                    : "Unknown",
+                  user: `${message.author} (${message.author.id})`,
+                  ign: user[1],
+                  uuid,
+                  haste: haste.url,
+                  raw: haste.raw,
+                },
+              },
+            ]);
         } catch {}
       }
 
