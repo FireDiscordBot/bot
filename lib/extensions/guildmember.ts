@@ -1,22 +1,22 @@
+import * as sanitizer from "@aero/sanitizer";
+import { Fire } from "@fire/lib/Fire";
 import {
-  ImageURLOptions,
-  ThreadChannel,
+  Channel,
+  Formatters,
   GuildChannel,
-  MessageEmbed,
-  UserMention,
   GuildMember,
+  ImageURLOptions,
+  MessageEmbed,
   Permissions,
   Structures,
-  Formatters,
-  Channel,
+  ThreadChannel,
+  UserMention,
   Util,
 } from "discord.js";
 import { BaseFakeChannel } from "../interfaces/misc";
-import { FireTextChannel } from "./textchannel";
-import * as sanitizer from "@aero/sanitizer";
-import { FireMessage } from "./message";
-import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
+import { FireMessage } from "./message";
+import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
 export class FireMember extends GuildMember {
@@ -689,14 +689,18 @@ export class FireMember extends GuildMember {
           this.id,
         ])
         .catch(() => {});
-    this.guild.mutes.set(this.id, until || 0);
-    const dbadd = await this.client.db
-      .query("INSERT INTO mutes (gid, uid, until) VALUES ($1, $2, $3);", [
-        this.guild.id,
-        this.id,
-        until?.toString() || "0",
-      ])
-      .catch(() => {});
+    let dbadd: unknown;
+    // for less than 5 mins, we should be fine without storing it
+    if (until - +new Date() > 300000) {
+      this.guild.mutes.set(this.id, until || 0);
+      dbadd = await this.client.db
+        .query("INSERT INTO mutes (gid, uid, until) VALUES ($1, $2, $3);", [
+          this.guild.id,
+          this.id,
+          until?.toString() || "0",
+        ])
+        .catch(() => {});
+    } else dbadd = true;
     const embed = new MessageEmbed()
       .setColor(this.displayColor || "#2ECC71")
       .setTimestamp()
