@@ -40,7 +40,7 @@ export default class GuildMemberUpdate extends Listener {
     ) {
       await this.client.util.sleep(5000); // wait a bit to ensure it isn't from being unmuted
       const until = newMember.guild.mutes.get(newMember.id);
-      if (until == 0 || +new Date() < until)
+      if (+new Date() < until)
         await newMember
           .disableCommunication({ until: new Date(until) })
           .catch(() => {});
