@@ -86,7 +86,8 @@ export default class MCLogs extends Module {
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/[\w\s]+|\/home\/\w+|C:\\Users\\[\w\s]+)/gim,
-      settingUser: /\/INFO]: Setting user: (\w{1,16})/gim,
+      settingUser:
+        /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
       loaderVersions: [
         {
           loader: Loaders.FABRIC,
