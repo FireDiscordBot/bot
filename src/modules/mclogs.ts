@@ -216,6 +216,7 @@ export default class MCLogs extends Module {
               user instanceof FireMember
                 ? `${user.guild?.name} (${user.guild?.id})`
                 : "Unknown",
+            user: `${user} (${user.id})`,
             haste: haste.url,
             raw: haste.raw,
           },
@@ -280,6 +281,7 @@ export default class MCLogs extends Module {
                 user instanceof FireMember
                   ? `${user.guild?.name} (${user.guild?.id})`
                   : "Unknown",
+              user: `${user} (${user.id})`,
               found: found.join(", "),
               haste: haste.url,
               raw: haste.raw,
@@ -603,6 +605,7 @@ export default class MCLogs extends Module {
               guild: message.guild
                 ? `${message.guild?.name} (${message.guildId})`
                 : "Unknown",
+              user: `${message.author} (${message.author.id})`,
               msgType,
               haste: haste.url,
               loader: mcInfo?.loader,
@@ -643,6 +646,7 @@ export default class MCLogs extends Module {
                     guild: message.guild
                       ? `${message.guild?.name} (${message.guildId})`
                       : "Unknown",
+                    user: `${message.author} (${message.author.id})`,
                     ign: user[1],
                     haste: haste.url,
                     raw: haste.raw,
