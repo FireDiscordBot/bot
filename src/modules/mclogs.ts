@@ -33,6 +33,7 @@ const allowedURLs = [
 enum Loaders {
   FORGE = "Forge",
   FABRIC = "Fabric",
+  OPTIFINE = "Vanilla w/Optifine HD U ", // will be shown as "Vanilla w/Optifine HD U H4"
 }
 
 type Haste = { url: string; raw: string };
@@ -74,9 +75,11 @@ export default class MCLogs extends Module {
     super("mclogs");
     this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
     this.regexes = {
-      reupload: /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
+      reupload:
+        /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
       noRaw: /(justpaste\.it)\/(\w+)/gim,
-      secrets: /("access_key":".+"|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken \S+|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+(\?key=|&key=))/gim,
+      secrets:
+        /("access_key":".+"|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken \S+|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+(\?key=|&key=))/gim,
       jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
       optifine: /HD_U_M(?:5|6_pre\d)(?:\.jar)?(\s\d{1,3} mods loaded|$)/im,
       exOptifine: /HD_U_\w\d_MOD/gm,
@@ -84,7 +87,8 @@ export default class MCLogs extends Module {
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/[\w\s]+|\/home\/\w+|C:\\Users\\[\w\s]+)/gim,
-      settingUser: /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
+      settingUser:
+        /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
       loaderVersions: [
         {
           loader: Loaders.FABRIC,
@@ -127,6 +131,12 @@ export default class MCLogs extends Module {
           loader: Loaders.FORGE,
           regexes: [
             /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+          ],
+        },
+        {
+          loader: Loaders.OPTIFINE,
+          regexes: [
+            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-OptiFine_HD_U_(?<loaderver>[A-Z]\d)/gim,
           ],
         },
       ],
@@ -301,13 +311,6 @@ export default class MCLogs extends Module {
       )
         currentSolutions.push(`- **${sol}**`);
     }
-    if (
-      log.includes("OptiFine_1.8.9_HD_U") &&
-      !log.match(this.regexes.optifine)
-    )
-      currentSolutions.push(
-        "- **Update Optifine to one of the latest versions, M6 if on macOS, M5 if not**"
-      );
 
     if (versions?.loader == Loaders.FABRIC) {
       const loaderDataReq = await centra(
@@ -342,6 +345,17 @@ export default class MCLogs extends Module {
             `- **Update Forge from ${versions.loaderVersion} to ${latestForge}**`
           );
       }
+    } else if (versions?.loader == Loaders.OPTIFINE) {
+      const dataReq = await centra(
+        `https://optifine.net/version/${versions.mcVersion}/HD_U.txt`
+      )
+        .header("User-Agent", this.client.manager.ua)
+        .send();
+      const latestOptifine = dataReq.body.toString();
+      if (latestOptifine != versions.loaderVersion)
+        currentSolutions.push(
+          `- **Update Optifine from ${versions.loaderVersion} to ${latestOptifine}**`
+        );
     }
 
     const isDefault = this.regexes.jvm.test(log);
@@ -482,7 +496,7 @@ export default class MCLogs extends Module {
           .header("User-Agent", this.client.manager.ua)
           .stream()
           .send();
-        for await (const chunk of (stream as unknown) as Readable) {
+        for await (const chunk of stream as unknown as Readable) {
           chunks.push(chunk.toString());
           if (chunks.length >= 5 && !this.hasLogText(chunks.join(""))) {
             chunks = [];
