@@ -214,6 +214,7 @@ export default class User extends Command {
           "VIEW_AUDIT_LOG",
           "VIEW_GUILD_INSIGHTS",
           "MANAGE_THREADS",
+          "MODERATE_MEMBERS",
         ];
         for (const permission of keyPerms)
           if (member.permissions.has(permission))

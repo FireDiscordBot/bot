@@ -204,7 +204,8 @@
     "CREATE_PRIVATE_THREADS": "Create Private Threads",
     "CREATE_PUBLIC_THREADS": "Create Public Threads",
     "USE_EXTERNAL_STICKERS": "Use External Stickers",
-    "SEND_MESSAGES_IN_THREADS": "Send Messages in Threads"
+    "SEND_MESSAGES_IN_THREADS": "Send Messages in Threads",
+    "MODERATE_MEMBERS": "Timeout Members"
   },
   "ACTIVITY_TYPES": {
     "1": "Join",
@@ -650,21 +651,6 @@
   "MODLOGS_NONE_FOUND": "No moderation logs found for that user, their record is squeaky clean!",
   "MODLOGS_CASE_ID": "Case ID",
   "MODLOGS_MODERATOR_ID": "Moderator ID",
-  "MCSTATUS_COMMAND_DESCRIPTION": "Check the status of Minecraft services",
-  "MCSTATUS_DISABLED": "This command has been disabled due to the DNS record for status.mojang.com no longer existing",
-  "MCSTATUS_FETCH_FAIL": "Failed to fetch Minecraft status",
-  "MCSTATUS_STATUSES": {
-    "green": "No Issues",
-    "yellow": "Some Issues",
-    "red": "Service Unavailable"
-  },
-  "MCSTATUS_SERVICES": {
-    "minecraft.net": "**Website**",
-    "sessionserver.mojang.com": "**Sessions**",
-    "authserver.mojang.com": "**Auth**",
-    "textures.minecraft.net": "**Skins**",
-    "api.mojang.com": "**API**"
-  },
   "MCUUID_COMMAND_DESCRIPTION": "Get a player's Minecraft UUID",
   "MCUUID_INVALID_IGN": "You must provide a valid IGN to get the UUID of",
   "MCUUID_FETCH_FAIL": "Failed to fetch the UUID, make sure the IGN is a valid player",
@@ -697,7 +683,6 @@
   "MUTE_ARGUMENT_TIME_DESCRIPTION": "The time to mute the user for (e.g. 4h for 4 hours or 7d for 7 days)",
   "MUTE_USER_REQUIRED": "You must provide a user to mute!",
   "MUTE_FAILED_PARSE_TIME": "I was unable to parse the time in your message",
-  "MUTE_TIME_TOO_SHORT": "That time is too short!",
   "NICKCHANGELOG_OLD_NICK": "Old Nickname",
   "NICKCHANGELOG_NEW_NICK": "New Nickname",
   "NITROPERKS_COMMAND_DESCRIPTION": "Claim the nitro booster cosmetic in Essential",

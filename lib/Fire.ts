@@ -186,22 +186,24 @@ export class Fire extends AkairoClient {
         this.nonceHandlers.delete(r.d.nonce);
       }
 
-      if (r.t == Constants.WSEvents.GUILD_CREATE && !r.d?.unavailable) {
-        this.waitUntilReady().then(() => {
-          const member =
-            (this.guilds.cache.get(r.d.id)?.me as FireMember) ??
-            (r.d.members.find(
-              (member: APIGuildMember) => member.user.id == this.user.id
-            ) as APIGuildMember);
-          this.manager.ws?.send(
-            MessageUtil.encode(
-              new Message(EventType.GUILD_CREATE, {
-                id: r.d.id,
-                member: GuildCheckEvent.getMemberJSON(member),
-              })
-            )
-          );
-        });
+      if (
+        r.t == Constants.WSEvents.GUILD_CREATE &&
+        !r.d?.unavailable &&
+        !!this.readyAt
+      ) {
+        const member =
+          (this.guilds.cache.get(r.d.id)?.me as FireMember) ??
+          (r.d.members.find(
+            (member: APIGuildMember) => member.user.id == this.user.id
+          ) as APIGuildMember);
+        this.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.GUILD_CREATE, {
+              id: r.d.id,
+              member: GuildCheckEvent.getMemberJSON(member),
+            })
+          )
+        );
       } else if (r.t == Constants.WSEvents.GUILD_DELETE)
         this.manager.ws?.send(
           MessageUtil.encode(

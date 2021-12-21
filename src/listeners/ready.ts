@@ -1,17 +1,19 @@
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { Command } from "@fire/lib/util/command";
+import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
+import { getCommitHash } from "@fire/lib/util/gitUtils";
+import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import {
-  ApplicationCommandData,
   ApplicationCommand,
+  ApplicationCommandData,
   Collection,
   Snowflake,
 } from "discord.js";
-import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { getCommitHash } from "@fire/lib/util/gitUtils";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { Listener } from "@fire/lib/util/listener";
-import { Command } from "@fire/lib/util/command";
-import { Message } from "@fire/lib/ws/Message";
+import GuildCheckEvent from "../ws/events/GuildCheckEvent";
 
 export default class Ready extends Listener {
   constructor() {
@@ -32,6 +34,19 @@ export default class Ready extends Listener {
         );
       });
     }
+
+    for (const [, guild] of this.client.guilds.cache) {
+      const member = guild?.me as FireMember;
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.GUILD_CREATE, {
+            id: guild.id,
+            member: GuildCheckEvent.getMemberJSON(member),
+          })
+        )
+      );
+    }
+
     try {
       if (typeof process.send == "function") process.send("ready");
       this.client.manager.ws?.send(
@@ -46,7 +61,7 @@ export default class Ready extends Listener {
             id: this.client.manager.id,
             env: process.env.NODE_ENV,
             commit: getCommitHash(),
-            uuid: process.env.pm_id,
+            uuid: process.env.pm_id ?? "0",
           })
         )
       );

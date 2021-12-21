@@ -76,8 +76,6 @@ export default class Mute extends Command {
     } catch {
       return await command.error("MUTE_FAILED_PARSE_TIME");
     }
-    if (minutes != 0 && minutes < 5 && !command.author.isSuperuser())
-      return await command.error("MUTE_TIME_TOO_SHORT");
     const now = new Date();
     let date: number;
     if (minutes) date = now.setMinutes(now.getMinutes() + minutes);

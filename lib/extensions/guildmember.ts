@@ -1,21 +1,21 @@
+import * as sanitizer from "@aero/sanitizer";
+import { Fire } from "@fire/lib/Fire";
 import {
-  ImageURLOptions,
-  ThreadChannel,
+  Channel,
+  Formatters,
   GuildChannel,
-  MessageEmbed,
-  UserMention,
   GuildMember,
+  ImageURLOptions,
+  MessageEmbed,
   Permissions,
   Structures,
-  Formatters,
-  Channel,
+  ThreadChannel,
+  UserMention,
   Util,
 } from "discord.js";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { GuildTextChannel } from "../util/constants";
 import { FakeChannel } from "./appcommandmessage";
-import * as sanitizer from "@aero/sanitizer";
-import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 
@@ -701,11 +701,11 @@ export class FireMember extends GuildMember {
       until &&
       until < +new Date() + 2419199999 &&
       this.guild.hasExperiment(1955682940, 1) &&
-      this.guild.me?.permissions?.has("MODERATE_MEMBERS", false);
+      this.guild.me?.permissions?.has("MODERATE_MEMBERS");
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     let useEdit = false;
-    if (!this.guild.muteRole  && !canTimeOut) {
+    if (!this.guild.muteRole && !canTimeOut) {
       if (channel) {
         useEdit = true;
         await channel.send(this.language.get("MUTE_ROLE_CREATE_REASON"));
@@ -739,14 +739,18 @@ export class FireMember extends GuildMember {
           this.id,
         ])
         .catch(() => {});
-    this.guild.mutes.set(this.id, until || 0);
-    const dbadd = await this.client.db
-      .query("INSERT INTO mutes (gid, uid, until) VALUES ($1, $2, $3);", [
-        this.guild.id,
-        this.id,
-        until?.toString() || "0",
-      ])
-      .catch(() => {});
+    let dbadd: unknown;
+    // for less than 5 mins, we should be fine without storing it
+    if (!canTimeOut || until - +new Date() > 300000) {
+      this.guild.mutes.set(this.id, until || 0);
+      dbadd = await this.client.db
+        .query("INSERT INTO mutes (gid, uid, until) VALUES ($1, $2, $3);", [
+          this.guild.id,
+          this.id,
+          until?.toString() || "0",
+        ])
+        .catch(() => {});
+    } else dbadd = true;
     const embed = new MessageEmbed()
       .setColor(this.displayColor || "#2ECC71")
       .setTimestamp()

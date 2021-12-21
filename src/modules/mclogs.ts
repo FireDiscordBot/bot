@@ -33,10 +33,14 @@ const allowedURLs = [
 enum Loaders {
   FORGE = "Forge",
   FABRIC = "Fabric",
+  OPTIFINE = "Vanilla w/Optifine HD U ", // will be shown as "Vanilla w/Optifine HD U H4"
 }
 
 type Haste = { url: string; raw: string };
-type LoaderRegexConfig = { loader: Loaders; regexes: RegExp[] };
+type LoaderRegexConfig = {
+  loader: Loaders;
+  regexes: RegExp[];
+};
 type VersionInfo = {
   loader: Loaders;
   mcVersion: string;
@@ -77,13 +81,15 @@ export default class MCLogs extends Module {
       secrets:
         /("access_key":".+"|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken \S+|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+(\?key=|&key=))/gim,
       jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
-      optifine: /HD_U_M(?:5|6_pre\d)(?:\.jar)?(\s\d{1,3} mods loaded|$)/im,
+      optifine:
+        /OptiFine_(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
       exOptifine: /HD_U_\w\d_MOD/gm,
       ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/[\w\s]+|\/home\/\w+|C:\\Users\\[\w\s]+)/gim,
-      settingUser: /\[Client thread\/INFO]: Setting user: (\w{1,16})/gim,
+      settingUser:
+        /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
       loaderVersions: [
         {
           loader: Loaders.FABRIC,
@@ -95,31 +101,43 @@ export default class MCLogs extends Module {
           loader: Loaders.FABRIC,
           regexes: [
             /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)/gim,
-            /fabricloader@(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Forge Mod Loader version (?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?) loading/gim,
+            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?) loading/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Forge mod loading, version (?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)/gim,
+            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-forge-(?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--version, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /forge-(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-(?<loaderver>\d{1,2}\.\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /forge-(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+          ],
+        },
+        {
+          loader: Loaders.FORGE,
+          regexes: [
+            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+          ],
+        },
+        {
+          loader: Loaders.OPTIFINE,
+          regexes: [
+            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-OptiFine_HD_U_(?<loaderver>[A-Z]\d)/gim,
           ],
         },
       ],
@@ -207,6 +225,7 @@ export default class MCLogs extends Module {
               user instanceof FireMember
                 ? `${user.guild?.name} (${user.guild?.id})`
                 : "Unknown",
+            user: `${user} (${user.id})`,
             haste: haste.url,
             raw: haste.raw,
           },
@@ -225,10 +244,12 @@ export default class MCLogs extends Module {
     for (const config of this.regexes.loaderVersions) {
       const matches = config.regexes.map((regex) => regex.exec(log));
       config.regexes.forEach((regex) => (regex.lastIndex = 0));
+      let matchedMcVer: string, matchedLoaderVer: string;
       for (const match of matches) {
-        if (match?.groups?.mcver) mcVersion = match.groups.mcver;
-        if (match?.groups?.loaderver) loaderVersion = match.groups.loaderver;
-        if (mcVersion || loaderVersion) loader = config.loader;
+        if (match?.groups?.mcver) mcVersion = matchedMcVer = match.groups.mcver;
+        if (match?.groups?.loaderver)
+          loaderVersion = matchedLoaderVer = match.groups.loaderver;
+        if (matchedMcVer || matchedLoaderVer) loader = config.loader;
       }
       if (loader && mcVersion && loaderVersion) break;
     }
@@ -269,6 +290,7 @@ export default class MCLogs extends Module {
                 user instanceof FireMember
                   ? `${user.guild?.name} (${user.guild?.id})`
                   : "Unknown",
+              user: `${user} (${user.id})`,
               found: found.join(", "),
               haste: haste.url,
               raw: haste.raw,
@@ -290,13 +312,6 @@ export default class MCLogs extends Module {
       )
         currentSolutions.push(`- **${sol}**`);
     }
-    if (
-      log.includes("OptiFine_1.8.9_HD_U") &&
-      !log.match(this.regexes.optifine)
-    )
-      currentSolutions.push(
-        "- **Update Optifine to one of the latest versions, M6 if on macOS, M5 if not**"
-      );
 
     if (versions?.loader == Loaders.FABRIC) {
       const loaderDataReq = await centra(
@@ -331,6 +346,41 @@ export default class MCLogs extends Module {
             `- **Update Forge from ${versions.loaderVersion} to ${latestForge}**`
           );
       }
+      let optifineMatch: RegExpExecArray;
+      while ((optifineMatch = this.regexes.optifine.exec(log))) {
+        if (optifineMatch?.groups?.ofver && optifineMatch?.groups?.mcver) break;
+        else optifineMatch = null;
+      }
+      this.regexes.optifine.lastIndex = 0;
+      if (optifineMatch && !optifineMatch.groups.ofver.includes("_pre")) {
+        const dataReq = await centra(
+          `https://optifine.net/version/${
+            versions.mcVersion ?? optifineMatch.groups.mcver
+          }/HD_U.txt`
+        )
+          .header("User-Agent", this.client.manager.ua)
+          .send();
+        const latestOptifine = dataReq.body.toString().trim();
+        if (
+          latestOptifine.length == 2 &&
+          latestOptifine != optifineMatch.groups.ofver.trim() &&
+          latestOptifine[0] > optifineMatch.groups.ofver[0]
+        )
+          currentSolutions.push(
+            `- **Update Optifine from ${optifineMatch.groups.ofver} to ${latestOptifine}**`
+          );
+      }
+    } else if (versions?.loader == Loaders.OPTIFINE) {
+      const dataReq = await centra(
+        `https://optifine.net/version/${versions.mcVersion}/HD_U.txt`
+      )
+        .header("User-Agent", this.client.manager.ua)
+        .send();
+      const latestOptifine = dataReq.body.toString();
+      if (latestOptifine != versions.loaderVersion)
+        currentSolutions.push(
+          `- **Update Optifine from ${versions.loaderVersion} to ${latestOptifine}**`
+        );
     }
 
     const isDefault = this.regexes.jvm.test(log);
@@ -380,13 +430,16 @@ export default class MCLogs extends Module {
   }
 
   async checkLogs(message: FireMessage) {
-    if (message.author.bot) return; // you should see what it's like without this lol
-    if (!message.guild.hasExperiment(77266757, [1, 2])) return;
-    if (
+    if (message.author.bot) return;
+    // you should see what it's like without this lol
+    else if (!message.guild.hasExperiment(77266757, [1, 2])) return;
+    else if (
       message.member?.roles.cache.some(
         (r) => r.name == "fuckin' loser" || r.name == "no logs"
       )
     )
+      return;
+    else if (this.client.util.isBlacklisted(message.author.id, message.guild))
       return;
 
     if (this.regexes.noRaw.test(message.content)) {
@@ -526,7 +579,8 @@ export default class MCLogs extends Module {
           processed.some((chunk) => this.hasLogText(chunk))
         )
           await this.handleLogText(message, processed.join(""), "uploaded");
-      } catch {
+      } catch (e) {
+        this.client.console.debug(`[MCLogs] Failed to process log,`, e.stack);
         await message.send("MC_LOG_READ_FAIL");
       }
     }
@@ -591,6 +645,7 @@ export default class MCLogs extends Module {
               guild: message.guild
                 ? `${message.guild?.name} (${message.guildId})`
                 : "Unknown",
+              user: `${message.author} (${message.author.id})`,
               msgType,
               haste: haste.url,
               loader: mcInfo?.loader,
@@ -631,6 +686,7 @@ export default class MCLogs extends Module {
                     guild: message.guild
                       ? `${message.guild?.name} (${message.guildId})`
                       : "Unknown",
+                    user: `${message.author} (${message.author.id})`,
                     ign: user[1],
                     haste: haste.url,
                     raw: haste.raw,
@@ -639,7 +695,31 @@ export default class MCLogs extends Module {
               ]);
             possibleSolutions =
               "It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
-          }
+          } else if (!message.hasExperiment(2219986954, 1))
+            // user has not opted out of data collection for analytics
+            this.client.influx([
+              {
+                measurement: "mclogs",
+                tags: {
+                  type: "user",
+                  user_id: message.author.id,
+                  cluster: this.client.manager.id.toString(),
+                  shard: message.guild
+                    ? message.guild?.shardId.toString() ?? "0"
+                    : "Unknown",
+                },
+                fields: {
+                  guild: message.guild
+                    ? `${message.guild?.name} (${message.guildId})`
+                    : "Unknown",
+                  user: `${message.author} (${message.author.id})`,
+                  ign: user[1],
+                  uuid,
+                  haste: haste.url,
+                  raw: haste.raw,
+                },
+              },
+            ]);
         } catch {}
       }
 
