@@ -640,21 +640,6 @@
   "MODLOGS_NONE_FOUND": "No moderation logs found for that user, their record is squeaky clean!",
   "MODLOGS_CASE_ID": "Case ID",
   "MODLOGS_MODERATOR_ID": "Moderator ID",
-  "MCSTATUS_COMMAND_DESCRIPTION": "Check the status of Minecraft services",
-  "MCSTATUS_DISABLED": "This command has been disabled due to the DNS record for status.mojang.com no longer existing",
-  "MCSTATUS_FETCH_FAIL": "Failed to fetch Minecraft status",
-  "MCSTATUS_STATUSES": {
-    "green": "No Issues",
-    "yellow": "Some Issues",
-    "red": "Service Unavailable"
-  },
-  "MCSTATUS_SERVICES": {
-    "minecraft.net": "**Website**",
-    "sessionserver.mojang.com": "**Sessions**",
-    "authserver.mojang.com": "**Auth**",
-    "textures.minecraft.net": "**Skins**",
-    "api.mojang.com": "**API**"
-  },
   "MCUUID_COMMAND_DESCRIPTION": "Get a player's Minecraft UUID",
   "MCUUID_INVALID_IGN": "You must provide a valid IGN to get the UUID of",
   "MCUUID_FETCH_FAIL": "Failed to fetch the UUID, make sure the IGN is a valid player",
