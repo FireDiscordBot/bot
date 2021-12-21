@@ -200,7 +200,8 @@
     "CREATE_PRIVATE_THREADS": "Create Private Threads",
     "CREATE_PUBLIC_THREADS": "Create Public Threads",
     "USE_EXTERNAL_STICKERS": "Use External Stickers",
-    "SEND_MESSAGES_IN_THREADS": "Send Messages in Threads"
+    "SEND_MESSAGES_IN_THREADS": "Send Messages in Threads",
+    "MODERATE_MEMBERS": "Timeout Members"
   },
   "ACTIVITY_TYPES": {
     "1": "Join",
