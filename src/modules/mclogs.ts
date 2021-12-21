@@ -81,7 +81,8 @@ export default class MCLogs extends Module {
       secrets:
         /("access_key":".+"|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken \S+|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+(\?key=|&key=))/gim,
       jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
-      optifine: /HD_U_M(?:5|6_pre\d)(?:\.jar)?(\s\d{1,3} mods loaded|$)/im,
+      optifine:
+        /OptiFine_(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
       exOptifine: /HD_U_\w\d_MOD/gm,
       ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
@@ -343,6 +344,30 @@ export default class MCLogs extends Module {
         if (latestForge != versions.loaderVersion)
           currentSolutions.push(
             `- **Update Forge from ${versions.loaderVersion} to ${latestForge}**`
+          );
+      }
+      let optifineMatch: RegExpExecArray;
+      while ((optifineMatch = this.regexes.optifine.exec(log))) {
+        if (optifineMatch?.groups?.ofver && optifineMatch?.groups?.mcver) break;
+        else optifineMatch = null;
+      }
+      this.regexes.optifine.lastIndex = 0;
+      if (optifineMatch && !optifineMatch.groups.ofver.includes("_pre")) {
+        const dataReq = await centra(
+          `https://optifine.net/version/${
+            versions.mcVersion ?? optifineMatch.groups.mcver
+          }/HD_U.txt`
+        )
+          .header("User-Agent", this.client.manager.ua)
+          .send();
+        const latestOptifine = dataReq.body.toString().trim();
+        if (
+          latestOptifine.length == 2 &&
+          latestOptifine != optifineMatch.groups.ofver.trim() &&
+          latestOptifine[0] > optifineMatch.groups.ofver[0]
+        )
+          currentSolutions.push(
+            `- **Update Optifine from ${optifineMatch.groups.ofver} to ${latestOptifine}**`
           );
       }
     } else if (versions?.loader == Loaders.OPTIFINE) {
