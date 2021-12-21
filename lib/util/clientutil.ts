@@ -394,6 +394,14 @@ export class Util extends ClientUtil {
     else if (typeof user != "string" && user.isSuperuser()) return false;
     else if (typeof user == "string" && this.isSuperuser(user)) return false;
 
+    // If a user is timed out, they should not be allowed interact
+    // so we act as though they're blacklisted
+
+    // Unsure whether or not users being able to interact with bots is intentional
+    // but it is apparently going to be changed so this may be a temporary thing
+    if (user instanceof FireMember && user.communicationDisabledTimestamp)
+      return true;
+
     // convert user/member to id
     if (user instanceof FireMember || user instanceof FireUser) user = user.id;
 
