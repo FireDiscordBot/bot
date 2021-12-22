@@ -35,7 +35,7 @@ const allowedURLs = [
 enum Loaders {
   FORGE = "Forge",
   FABRIC = "Fabric",
-  OPTIFINE = "Vanilla w/Optifine HD U ", // will be shown as "Vanilla w/Optifine HD U H4"
+  OPTIFINE = "Vanilla w/OptiFine HD U ", // will be shown as "Vanilla w/OptiFine HD U H4"
 }
 
 type ModSource = `${string}.jar`;
@@ -361,6 +361,11 @@ export default class MCLogs extends Module {
     haste: Haste,
     log: string
   ) {
+    const language =
+      user instanceof FireMember
+        ? user.guild.language
+        : this.client.getLanguage("en-US");
+
     if (
       this.solutions.cheats.some((cheat) =>
         log.toLowerCase().includes(cheat.toLowerCase())
@@ -425,7 +430,11 @@ export default class MCLogs extends Module {
         loaderData[0].loader.version != versions.loaderVersion
       )
         currentSolutions.push(
-          `- **Update Fabric from ${versions.loaderVersion} to ${loaderData[0].loader.version}**`
+          language.get("MC_LOG_UPDATE", {
+            item: Loaders.FABRIC,
+            current: versions.loaderVersion,
+            latest: loaderData[0].loader.version,
+          })
         );
     } else if (versions?.loader == Loaders.FORGE) {
       const dataReq = await centra(
@@ -441,7 +450,11 @@ export default class MCLogs extends Module {
         const latestForge = data.promos[`${versions.mcVersion}-latest`];
         if (latestForge != versions.loaderVersion)
           currentSolutions.push(
-            `- **Update Forge from ${versions.loaderVersion} to ${latestForge}**`
+            language.get("MC_LOG_UPDATE", {
+              item: Loaders.FORGE,
+              current: versions.loaderVersion,
+              latest: latestForge,
+            })
           );
       }
 
@@ -461,7 +474,11 @@ export default class MCLogs extends Module {
           latestOptifine[0] > versions.optifineVersion[0]
         )
           currentSolutions.push(
-            `- **Update Optifine from ${versions.optifineVersion} to ${latestOptifine}**`
+            language.get("MC_LOG_UPDATE", {
+              item: "OptiFine",
+              current: versions.optifineVersion,
+              latest: latestOptifine,
+            })
           );
       }
     } else if (versions?.loader == Loaders.OPTIFINE) {
@@ -473,7 +490,11 @@ export default class MCLogs extends Module {
       const latestOptifine = dataReq.body.toString();
       if (latestOptifine != versions.loaderVersion)
         currentSolutions.push(
-          `- **Update Optifine from ${versions.loaderVersion} to ${latestOptifine}**`
+          language.get("MC_LOG_UPDATE", {
+            item: "OptiFine",
+            current: versions.optifineVersion,
+            latest: latestOptifine,
+          })
         );
     }
 
@@ -509,7 +530,7 @@ export default class MCLogs extends Module {
         if (mod.modId.toLowerCase() in this.modVersions) {
           const latest =
             this.modVersions[mod.modId.toLowerCase()]?.[versions.mcVersion];
-          if (mod.version == latest) continue;
+          if (mod.version == latest || !latest) continue;
           const isSemVer = this.regexes.semver.test(latest);
           this.regexes.semver.lastIndex = 0;
           let isOutdated = false;
@@ -536,9 +557,11 @@ export default class MCLogs extends Module {
           } else isOutdated = mod.version != latest;
           if (isOutdated)
             currentRecommendations.push(
-              `- Update ${titleCase(mod.modId)} from ${
-                mod.version
-              } to ${latest}`
+              language.get("MC_LOG_UPDATE", {
+                item: titleCase(mod.modId),
+                current: mod.version,
+                latest,
+              })
             );
         }
       }
