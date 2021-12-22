@@ -61,6 +61,7 @@ export default class MCLogs extends Module {
     url: RegExp;
     home: RegExp;
     settingUser: RegExp;
+    devEnvUser: RegExp;
     loaderVersions: LoaderRegexConfig[];
     date: RegExp;
   };
@@ -90,6 +91,7 @@ export default class MCLogs extends Module {
       home: /(\/Users\/[\w\s]+|\/home\/\w+|C:\\Users\\[\w\s]+)/gim,
       settingUser:
         /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
+      devEnvUser: /Player\d{3}/gim,
       loaderVersions: [
         {
           loader: Loaders.FABRIC,
@@ -665,7 +667,10 @@ export default class MCLogs extends Module {
       );
       const user = this.regexes.settingUser.exec(text);
       this.regexes.settingUser.lastIndex = 0;
-      if (user?.length) {
+      const isDevEnv =
+        this.regexes.devEnvUser.test(user[1]) && text.includes("GradleStart");
+      this.regexes.devEnvUser.lastIndex = 0;
+      if (user?.length && !isDevEnv) {
         try {
           const uuid = await this.client.util.nameToUUID(user[1]);
           if (!uuid) {
