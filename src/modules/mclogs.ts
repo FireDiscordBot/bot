@@ -79,6 +79,7 @@ export default class MCLogs extends Module {
     loaderVersions: LoaderRegexConfig[];
     modsTableHeader: RegExp;
     modsTableEntry: RegExp;
+    classicForgeModsEntry: RegExp;
     date: RegExp;
     semver: RegExp;
   };
@@ -114,6 +115,8 @@ export default class MCLogs extends Module {
       modsTableHeader: /\|\sState\s*\|\sID\s*\|\sVersion\s*\|\sSource\s*\|/gim,
       modsTableEntry:
         /^\s*\|\s(?<state>[ULCHIJADE]*)\s\|\s(?<modid>[a-z][a-z0-9_.-]{1,63})\s*\|\s(?<version>[\w.-]*)\s*\|\s(?<source>.*\.jar)\s*\|/gim,
+      classicForgeModsEntry:
+        /^\s*(?<state>[ULCHIJADE]*)\s*(?<modid>[a-z][a-z0-9_.-]{1,63}){(?<version>[\w.-]*)}\s*\[(?<display>[\w\s]*)\]\s*\((?<source>.*\.jar)\)/gim,
       loaderVersions: [
         {
           loader: Loaders.FABRIC,
@@ -334,9 +337,20 @@ export default class MCLogs extends Module {
           source: modMatch.groups.source as ModSource,
         });
       }
+      this.regexes.modsTableHeader.lastIndex = 0;
+      this.regexes.modsTableEntry.lastIndex = 0;
+    } else if (loader == Loaders.FORGE) {
+      let modMatch: RegExpExecArray;
+      while ((modMatch = this.regexes.classicForgeModsEntry.exec(log))) {
+        mods.push({
+          state: modMatch.groups.state,
+          modId: modMatch.groups.modid,
+          version: modMatch.groups.version,
+          source: modMatch.groups.source as ModSource,
+        });
+      }
+      this.regexes.classicForgeModsEntry.lastIndex = 0;
     }
-    this.regexes.modsTableHeader.lastIndex = 0;
-    this.regexes.modsTableEntry.lastIndex = 0;
 
     return { loader, mcVersion, loaderVersion, optifineVersion, mods };
   }
