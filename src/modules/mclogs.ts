@@ -82,6 +82,7 @@ export default class MCLogs extends Module {
     classicForgeModsEntry: RegExp;
     date: RegExp;
     semver: RegExp;
+    majorMinorOnly: RegExp;
   };
   logText: string[];
   solutions: {
@@ -171,6 +172,7 @@ export default class MCLogs extends Module {
       date: /^time: (?<date>[\w \/\.:-]+)$/gim,
       semver:
         /^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/gim,
+      majorMinorOnly: /^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)$/gim,
     };
     this.logText = [
       "net.minecraft.launchwrapper.Launch",
@@ -536,10 +538,12 @@ export default class MCLogs extends Module {
     if (versions.mods.length)
       for (const mod of versions.mods) {
         if (mod.modId.toLowerCase() in this.modVersions) {
-          const latest =
+          let latest =
             this.modVersions[mod.modId.toLowerCase()]?.[versions.mcVersion];
           if (mod.version == latest || !latest) continue;
+          if (this.regexes.majorMinorOnly.test(latest)) latest = `${latest}.0`;
           const isSemVer = this.regexes.semver.test(latest);
+          this.regexes.majorMinorOnly.lastIndex = 0;
           this.regexes.semver.lastIndex = 0;
           let isOutdated = false;
           if (isSemVer) {
@@ -565,11 +569,12 @@ export default class MCLogs extends Module {
           } else isOutdated = mod.version != latest;
           if (isOutdated)
             currentRecommendations.push(
-              language.get("MC_LOG_UPDATE", {
-                item: titleCase(mod.modId),
-                current: mod.version,
-                latest,
-              })
+              "- " +
+                language.get("MC_LOG_UPDATE", {
+                  item: titleCase(mod.modId.replace(/_/g, " ")),
+                  current: mod.version,
+                  latest,
+                })
             );
         }
       }
