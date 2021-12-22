@@ -164,7 +164,7 @@ export default class GuildMemberAdd extends Listener {
         const isMulti = logChannelIds.filter((lid) => lid == id).length > 1;
         if (isMulti) {
           const message = member.guild.language.get(
-            `LOGGING_${type.toUpperCase()}_DISABLED_MEMBERCOUNT` as LanguageKeys
+            (`LOGGING_${type.toUpperCase()}_DISABLED_MEMBERCOUNT` as unknown) as LanguageKeys
           ) as string;
           if (type == "moderation")
             member.guild.modLog(message, "system").catch(() => {});

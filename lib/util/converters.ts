@@ -23,8 +23,7 @@ import { constants } from "./constants";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";
 
-const messageIdRegex =
-  /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
+const messageIdRegex = /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
 const userMentionRegex = /<@!?(\d{15,21})>$/im;
 const channelMentionRegex = /<#(\d{15,21})>$/im;
 const roleMentionRegex = /<@&(\d{15,21})>$/im;
@@ -97,10 +96,10 @@ export const emojiConverter = async (
   if (isUnicode?.length) return isUnicode[0];
   else if (!message.guild) return null;
 
-  const emojis = (await message.guild.emojis.fetch(undefined, {
+  const emojis = ((await message.guild.emojis.fetch(undefined, {
     force: true,
     cache: false,
-  })) as unknown as Collection<Snowflake, GuildEmoji>;
+  })) as unknown) as Collection<Snowflake, GuildEmoji>;
   return message.client.util.resolveEmoji(argument, emojis, false, true);
 };
 

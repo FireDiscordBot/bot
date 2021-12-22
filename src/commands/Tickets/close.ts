@@ -54,9 +54,9 @@ export default class CloseTicket extends Command {
       content: message.language.getError("TICKET_WILL_CLOSE"),
       ...buttonOptions,
     });
-    const willClose = await this.getConfirmationPromise(buttonSnowflake).catch(
-      () => {}
-    );
+    const willClose = await this.getConfirmationPromise(
+      buttonSnowflake
+    ).catch(() => {});
     if (!willClose)
       return message instanceof ApplicationCommandMessage
         ? await message.edit(

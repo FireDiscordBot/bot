@@ -371,9 +371,10 @@ export default class Filters extends Module {
         if (
           embed.provider.name == "Discord" &&
           embed.url &&
-          ["https://cdn.discordapp.com/", "https://discord.com/assets/"].some(
-            (url) => embed.thumbnail.url.includes(url)
-          )
+          [
+            "https://cdn.discordapp.com/",
+            "https://discord.com/assets/",
+          ].some((url) => embed.thumbnail.url.includes(url))
         ) {
           const req = await centra(embed.url)
             .header("User-Agent", this.client.manager.ua)

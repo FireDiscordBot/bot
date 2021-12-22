@@ -87,7 +87,7 @@ export default class Logging extends Command {
       } catch {}
       return deleted
         ? await message.success(
-            `LOGGING_DISABLED_${type.toUpperCase()}` as LanguageKeys
+            (`LOGGING_DISABLED_${type.toUpperCase()}` as unknown) as LanguageKeys
           )
         : await message.error();
     } else {
@@ -108,7 +108,7 @@ export default class Logging extends Command {
       } catch {}
       return set
         ? await message.success(
-            `LOGGING_ENABLED_${type.toUpperCase()}` as LanguageKeys
+            (`LOGGING_ENABLED_${type.toUpperCase()}` as unknown) as LanguageKeys
           )
         : await message.error();
     }

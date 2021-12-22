@@ -24,12 +24,12 @@ const cleanMap = {
   com: [/c.m/gim],
   "discord.gg/$1": [/(^|\s)\.gg\/(?<code>[\w-]{1,25})[^\/]?/gim],
   // always keep this at the end
-  "lets be honest there is no reason to post this other than trying to send rick roll so lol, youtu.be/dQw4w9WgXcQ":
-    [/\/(?:watch\?v=)?dQw4w9WgXcQ/gim],
+  "lets be honest there is no reason to post this other than trying to send rick roll so lol, youtu.be/dQw4w9WgXcQ": [
+    /\/(?:watch\?v=)?dQw4w9WgXcQ/gim,
+  ],
 };
 
-const youForgotTheHyphen =
-  /spider\s*?[!"#$%&'()*+,./:;<=>?@[\]^_`{|}~]*?\s*?man/gim;
+const youForgotTheHyphen = /spider\s*?[!"#$%&'()*+,./:;<=>?@[\]^_`{|}~]*?\s*?man/gim;
 
 export default class Message extends Listener {
   recentTokens: string[];
@@ -40,8 +40,7 @@ export default class Message extends Listener {
       emitter: "client",
       event: "messageCreate",
     });
-    this.tokenRegex =
-      /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27}/gm;
+    this.tokenRegex = /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27}/gm;
     this.recentTokens = [];
   }
 

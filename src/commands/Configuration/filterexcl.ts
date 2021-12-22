@@ -104,7 +104,7 @@ export default class FilterExclude extends Command {
       );
     else
       return await message.success(
-        (removed.length
+        ((removed.length
           ? mentions.length
             ? removed.length == 1
               ? "FILTEREXCL_SET_SOME_REMOVED_SINGLE"
@@ -112,7 +112,7 @@ export default class FilterExclude extends Command {
             : "FILTEREXCL_REMOVE_RESET"
           : mentions.length
           ? "FILTEREXCL_SET"
-          : "FILTEREXCL_RESET") as LanguageKeys,
+          : "FILTEREXCL_RESET") as unknown) as LanguageKeys,
         {
           mention: Object.values(mentions)[0],
           mentions: Object.values(mentions).join(", "),

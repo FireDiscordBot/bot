@@ -9,9 +9,12 @@ import {
   MessagePayload,
   Structures,
   VoiceChannel,
-  Webhook
+  Webhook,
 } from "discord.js";
-import { RawGuildChannelData, RawWebhookData } from "discord.js/typings/rawDataTypes";
+import {
+  RawGuildChannelData,
+  RawWebhookData,
+} from "discord.js/typings/rawDataTypes";
 import { FireGuild } from "./guild";
 import { FireMessage } from "./message";
 

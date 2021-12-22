@@ -756,7 +756,9 @@ export default class Button extends Listener {
         .addOptions(
           Object.entries(reminderSnoozeTimes).map(([key, time]) => {
             return {
-              label: button.author.language.get(key as LanguageKeys),
+              label: button.author.language.get(
+                (key as unknown) as LanguageKeys
+              ),
               value: time,
             };
           })

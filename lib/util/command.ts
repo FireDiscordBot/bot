@@ -1,15 +1,17 @@
+import { Fire } from "@fire/lib/Fire";
 import {
   ArgumentGenerator as AkairoArgumentGenerator,
   ArgumentOptions as AkairoArgumentOptions,
-  CommandOptions as AkairoCommandOptions,
   Command as AkairoCommand,
+  CommandOptions as AkairoCommandOptions,
   Flag,
 } from "discord-akairo";
 import {
-  CommandOptionDataTypeResolvable,
-  ApplicationCommandOptionData,
-  ApplicationCommandData,
   ApplicationCommand,
+  ApplicationCommandData,
+  ApplicationCommandOption,
+  ApplicationCommandOptionData,
+  CommandOptionDataTypeResolvable,
   DiscordAPIError,
   Permissions,
   Snowflake,
@@ -20,7 +22,6 @@ import {
 } from "discord.js/typings/enums";
 import { FireGuild } from "../extensions/guild";
 import { Language } from "./language";
-import { Fire } from "@fire/lib/Fire";
 
 type ArgumentGenerator = (
   ...a: Parameters<AkairoArgumentGenerator>
@@ -202,7 +203,8 @@ export class Command extends AkairoCommand {
   }
 
   getSlashCommandJSON(id?: string) {
-    let data: ApplicationCommandData & { id?: string } = {
+    let data = {
+      id: undefined,
       name: this.id,
       description:
         typeof this.description == "function"
@@ -233,7 +235,7 @@ export class Command extends AkairoCommand {
           .map((arg) => this.getSlashCommandOption(arg)),
       ];
     }
-    return data;
+    return data as ApplicationCommandData;
   }
 
   getSubcommands() {
@@ -295,7 +297,7 @@ export class Command extends AkairoCommand {
     } else if (argument.flag && argument.match == "option") {
       options["name"] = argument.id.toLowerCase();
     }
-    return options;
+    return options as ApplicationCommandOption;
   }
 
   getSubcommand() {

@@ -67,7 +67,7 @@ export default class Quote extends Command {
           !messageLink[0].startsWith("<") &&
           !messageLink[0].endsWith(">")
         )
-          matches.push(messageLink.groups as unknown as MessageLinkMatch);
+          matches.push((messageLink.groups as unknown) as MessageLinkMatch);
       }
 
       if (!matches.length) return;

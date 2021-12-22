@@ -57,7 +57,7 @@ export default class Kick extends Command {
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof yeeted == "string")
       return await message.error(
-        `KICK_FAILED_${yeeted.toUpperCase()}` as LanguageKeys
+        (`KICK_FAILED_${yeeted.toUpperCase()}` as unknown) as LanguageKeys
       );
   }
 }

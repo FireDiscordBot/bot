@@ -171,9 +171,9 @@ export default class Rank extends Command {
       );
       if (emoji) {
         const length = components[components.length - 1].components.length - 1;
-        (
-          components[components.length - 1].components[length] as MessageButton
-        ).setEmoji(emoji);
+        (components[components.length - 1].components[
+          length
+        ] as MessageButton).setEmoji(emoji);
       }
     }
     return components;

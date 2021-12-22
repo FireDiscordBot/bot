@@ -142,7 +142,7 @@ export default class GuildMemberRemove extends Listener {
               .fetch(auditAction.executor)
               .catch(() => {})) as FireMember;
             action = language.get(
-              `AUDIT_ACTION_${auditAction.action}` as LanguageKeys
+              (`AUDIT_ACTION_${auditAction.action}` as unknown) as LanguageKeys
             ) as string;
             reason =
               auditAction.reason ||

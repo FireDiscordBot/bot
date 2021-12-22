@@ -37,7 +37,7 @@ export class FireUser extends User {
   }
 
   toString() {
-    return `${this.username}#${this.discriminator}` as unknown as UserMention;
+    return (`${this.username}#${this.discriminator}` as unknown) as UserMention;
   }
 
   toMention() {

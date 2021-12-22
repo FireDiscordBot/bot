@@ -55,9 +55,7 @@ export default class Remind extends Command {
   async exec(message: FireMessage, args: { reminder?: string }) {
     // handle context menu before actual command
     if (message instanceof ContextCommandMessage) {
-      const clickedMessage = (
-        message as ContextCommandMessage
-      ).getMessage() as FireMessage;
+      const clickedMessage = (message as ContextCommandMessage).getMessage() as FireMessage;
       if (!clickedMessage?.content)
         return await message.error("REMINDER_MISSING_CONTEXT");
       const event = this.client.manager.eventHandler?.store?.get(
@@ -82,7 +80,9 @@ export default class Remind extends Command {
         .addOptions(
           Object.entries(reminderContextTimes).map(([key, time]) => {
             return {
-              label: message.author.language.get(key as LanguageKeys),
+              label: message.author.language.get(
+                (key as unknown) as LanguageKeys
+              ),
               value: time,
             };
           })

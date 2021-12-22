@@ -7,7 +7,7 @@ export default class LoadEvent extends Event {
     super(manager, EventType.LOAD_MODULE);
   }
 
- async run(data: {
+  async run(data: {
     name: string;
     type: "Command" | "Language" | "Listener" | "Module";
     action: "reload" | "unload";

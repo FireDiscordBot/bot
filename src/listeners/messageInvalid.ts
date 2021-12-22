@@ -24,8 +24,7 @@ export default class MessageInvalid extends Listener {
       emitter: "commandHandler",
       event: "messageInvalid",
     });
-    this.botQuoteRegex =
-      /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development|staging)\.)?discord(?:app)?\.com?\/channels\/(?:\d{15,21}\/?){3}/gim;
+    this.botQuoteRegex = /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development|staging)\.)?discord(?:app)?\.com?\/channels\/(?:\d{15,21}\/?){3}/gim;
   }
 
   async exec(message: FireMessage) {
@@ -84,7 +83,7 @@ export default class MessageInvalid extends Listener {
         !messageLink[0].startsWith("<") &&
         !messageLink[0].endsWith(">")
       )
-        matches.push(messageLink.groups as unknown as MessageLinkMatch);
+        matches.push((messageLink.groups as unknown) as MessageLinkMatch);
     }
 
     if (!matches.length) {

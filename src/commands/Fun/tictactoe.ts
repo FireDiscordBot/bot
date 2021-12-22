@@ -104,9 +104,9 @@ export default class TicTacToe extends Command {
         this.client.buttonHandlers.delete(`${authorHasGame}:forfeit`);
         this.games.delete(authorHasGame);
 
-        const existingMessage = (await (
-          this.client.channels.cache.get(existing.channel) as FireTextChannel
-        )?.messages
+        const existingMessage = (await (this.client.channels.cache.get(
+          existing.channel
+        ) as FireTextChannel)?.messages
           .fetch(existing.message)
           .catch(() => {})) as FireMessage;
         if (existingMessage) {
@@ -178,10 +178,11 @@ export default class TicTacToe extends Command {
       });
       if (message instanceof ApplicationCommandMessage)
         return await (message as ApplicationCommandMessage).edit({
-          content: (message.guild ?? message).language.get(
-            "TICTACTOE_REQUEST_EXPIRED_SLASH",
-            { opponent: opponent.toMention() }
-          ) as string,
+          content: (
+            message.guild ?? message
+          ).language.get("TICTACTOE_REQUEST_EXPIRED_SLASH", {
+            opponent: opponent.toMention(),
+          }) as string,
           components: [],
         });
       else return await message.error("TICTACTOE_REQUEST_EXPIRED");

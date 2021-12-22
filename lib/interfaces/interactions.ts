@@ -96,7 +96,7 @@ export enum ApplicationCommandOptionType {
   ROLE,
   MENTIONABLE,
   NUMBER,
-  MESSAGE, // not real, used as a pseudo type 
+  MESSAGE, // not real, used as a pseudo type
 }
 
 export interface APIApplicationCommand {

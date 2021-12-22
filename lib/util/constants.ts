@@ -5,11 +5,18 @@ import {
   MessageActionRow,
   ReplyOptions,
   NewsChannel,
+  GuildChannel,
+  GuildEmoji,
+  Invite,
+  Role,
+  Snowflake,
 } from "discord.js";
 import { FireVoiceChannel } from "../extensions/voicechannel";
 import { FireTextChannel } from "../extensions/textchannel";
-import humanizeDuration = require("humanize-duration");
+import * as humanizeDuration from "humanize-duration";
 import { StringMap, TOptions } from "i18next";
+import { FireGuild } from "../extensions/guild";
+import { FireMember } from "../extensions/guildmember";
 
 const emojiRegex = require("emoji-regex")() as RegExp;
 const emojiRegexStr = emojiRegex.toString();
@@ -55,6 +62,14 @@ export type MemberLogType =
   | "nickname_update";
 
 export type GuildTextChannel = FireTextChannel | FireVoiceChannel | NewsChannel;
+export type GuildResolvable =
+  | FireGuild
+  | GuildChannel
+  | FireMember
+  | GuildEmoji
+  | Invite
+  | Role
+  | Snowflake;
 
 export type i18nOptions = TOptions<StringMap> & {
   components?: (

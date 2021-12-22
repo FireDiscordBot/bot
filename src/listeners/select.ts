@@ -7,8 +7,16 @@ import { Formatters, Snowflake } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 
 const reminderSnoozeTimes = [
-  300000, 1800000, 3600000, 21600000, 43200000, 86400000, 259200000, 604800000,
-  1209600000, 2628060000,
+  300000,
+  1800000,
+  3600000,
+  21600000,
+  43200000,
+  86400000,
+  259200000,
+  604800000,
+  1209600000,
+  2628060000,
 ];
 
 export default class Select extends Listener {

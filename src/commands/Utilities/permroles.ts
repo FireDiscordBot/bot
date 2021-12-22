@@ -108,9 +108,9 @@ export default class PermRoles extends Command {
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
 
-    const channelPerms = (
-      message.channel as TextChannel
-    ).permissionOverwrites.cache.get(args.role.id);
+    const channelPerms = (message.channel as TextChannel).permissionOverwrites.cache.get(
+      args.role.id
+    );
     if (!channelPerms) return await message.error("PERMROLES_NOTHING_TO_COPY");
 
     if (

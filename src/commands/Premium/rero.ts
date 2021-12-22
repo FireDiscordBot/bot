@@ -1,18 +1,17 @@
-import {
-  MessageActionRow,
-  MessageReaction,
-  MessageButton,
-  SnowflakeUtil,
-  MessageEmbed,
-  Permissions,
-  GuildEmoji,
-  Snowflake,
-  Role,
-} from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import {
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  MessageReaction,
+  Permissions,
+  Role,
+  Snowflake,
+  SnowflakeUtil,
+} from "discord.js";
 import * as pEvent from "p-event";
 
 export default class ReactionRole extends Command {

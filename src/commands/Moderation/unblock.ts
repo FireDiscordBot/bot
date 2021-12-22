@@ -78,7 +78,7 @@ export default class Unblock extends Command {
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof blocked == "string")
       return await message.error(
-        `UNBLOCK_FAILED_${blocked.toUpperCase()}` as LanguageKeys
+        (`UNBLOCK_FAILED_${blocked.toUpperCase()}` as unknown) as LanguageKeys
       );
   }
 }

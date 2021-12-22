@@ -4,9 +4,7 @@ import { RateLimitError } from "./RateLimitError";
 import { RESTManager } from "./RESTManager";
 import { APIRequest } from "./APIRequest";
 import * as centra from "centra";
-import { MessageUtil } from "../ws/util/MessageUtil";
-import { Message } from "../ws/Message";
-import { EventType } from "../ws/util/constants";
+import { setTimeout as sleep } from "node:timers/promises";
 
 const {
   Events: { DEBUG, RATE_LIMIT, INVALID_REQUEST_WARNING },
@@ -161,7 +159,7 @@ export class RequestHandler {
         }
         delayPromise = this.manager.globalDelay;
       } else {
-        delayPromise = Util.delayFor(timeout);
+        delayPromise = sleep(timeout);
       }
 
       // Determine whether a RateLimitError should be thrown
@@ -336,7 +334,7 @@ export class RequestHandler {
 
         // If caused by a sublimit, wait it out here so other requests on the route can be handled
         if (sublimitTimeout) {
-          await Util.delayFor(sublimitTimeout);
+          await sleep(sublimitTimeout);
         }
         return this.execute(request);
       }

@@ -116,7 +116,7 @@ export default class Redirect extends Command {
 
     if (typeof created == "string")
       return await message.error(
-        `REDIRECT_ERROR_${created.toUpperCase()}` as LanguageKeys
+        (`REDIRECT_ERROR_${created.toUpperCase()}` as unknown) as LanguageKeys
       );
 
     return await message.success("REDIRECT_CREATED", {

@@ -1,46 +1,46 @@
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Fire } from "@fire/lib/Fire";
+import { PremiumData } from "@fire/lib/interfaces/premium";
+import { Channel, Video } from "@fire/lib/interfaces/youtube";
+import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import * as centra from "centra";
+import { ClientUtil } from "discord-akairo";
 import {
-  version as djsver,
-  LimitedCollection,
-  PermissionString,
+  Collection,
   GuildFeatures,
-  ThreadChannel,
-  MessageEmbed,
   GuildPreview,
+  LimitedCollection,
+  MessageEmbed,
   OAuth2Guild,
   Permissions,
-  Collection,
+  PermissionString,
   Snowflake,
+  ThreadChannel,
+  version as djsver,
   Webhook,
 } from "discord.js";
+import { murmur3 } from "murmurhash-js";
+import { cpus, totalmem } from "os";
+import * as pidusage from "pidusage";
+import { DiscordExperiment } from "../interfaces/aether";
 import {
-  GuildMemberCountFilter,
-  GuildIdRangeFilter,
   ExperimentFilters,
   ExperimentRange,
-  FeatureFilter,
   Experiments,
+  FeatureFilter,
+  GuildIdRangeFilter,
+  GuildMemberCountFilter,
 } from "../interfaces/discord";
-import { GuildTextChannel, humanize, titleCase } from "./constants";
-import { Channel, Video } from "@fire/lib/interfaces/youtube";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { PremiumData } from "@fire/lib/interfaces/premium";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { DiscordExperiment } from "../interfaces/aether";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { FireUser } from "@fire/lib/extensions/user";
-import { Language, LanguageKeys } from "./language";
 import { ClusterStats } from "../interfaces/stats";
-import { PaginatorInterface } from "./paginators";
-import { Message } from "@fire/lib/ws/Message";
-import { ClientUtil } from "discord-akairo";
+import { GuildTextChannel, humanize, titleCase } from "./constants";
 import { getCommitHash } from "./gitUtils";
-import { murmur3 } from "murmurhash-js";
-import { Fire } from "@fire/lib/Fire";
-import * as pidusage from "pidusage";
-import { cpus, totalmem } from "os";
-import * as centra from "centra";
+import { Language, LanguageKeys } from "./language";
+import { PaginatorInterface } from "./paginators";
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -92,7 +92,7 @@ export class Util extends ClientUtil {
     ][];
   }
 
-  sleep(ms: number) {
+  sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
@@ -149,16 +149,14 @@ export class Util extends ClientUtil {
       const fullURL = language
         ? `${url}${h.key}.${language}`
         : `${url}${h.key}`;
-      return (
-        raw
-          ? {
-              url: fullURL,
-              raw: language
-                ? `${url}raw/${h.key}.${language}`
-                : `${url}raw/${h.key}`,
-            }
-          : url + h.key + (language ? "." + language : "")
-      ) as any;
+      return (raw
+        ? {
+            url: fullURL,
+            raw: language
+              ? `${url}raw/${h.key}.${language}`
+              : `${url}raw/${h.key}`,
+          }
+        : url + h.key + (language ? "." + language : "")) as any;
     } catch (e) {
       e.message += ` (Haste Service: ${url})`;
       if (!fallback) return await this.haste(text, true, language, raw);
@@ -322,8 +320,8 @@ export class Util extends ClientUtil {
     else if (typeof permission == "string") name = permission;
     if (!name) return null;
     language = language ?? this.client.getLanguage("en-US");
-    if (language.has(`PERMISSIONS.${name}` as LanguageKeys))
-      return language.get(`PERMISSIONS.${name}` as LanguageKeys);
+    if (language.has((`PERMISSIONS.${name}` as unknown) as LanguageKeys))
+      return language.get((`PERMISSIONS.${name}` as unknown) as LanguageKeys);
     return titleCase(
       name.toLowerCase().replace(/_/gim, " ").replace(/guild/, "server")
     );
@@ -331,8 +329,8 @@ export class Util extends ClientUtil {
 
   cleanFeatureName(feature: string, language?: Language): string {
     language = language ?? this.client.getLanguage("en-US");
-    if (language.has(`FEATURES.${feature}` as LanguageKeys))
-      return language.get(`FEATURES.${feature}` as LanguageKeys);
+    if (language.has((`FEATURES.${feature}` as unknown) as LanguageKeys))
+      return language.get((`FEATURES.${feature}` as unknown) as LanguageKeys);
     return titleCase(
       feature.toLowerCase().replace(/_/gim, " ").replace(/guild/, "server")
     );
@@ -581,15 +579,16 @@ export class Util extends ClientUtil {
     for (const experiment of this.client.manager.state.discordExperiments)
       knownExperiments[experiment.hash] = experiment;
 
-    const { guild_experiments: GuildExperiments } =
-      await this.client.req.experiments
-        .get<Experiments>({ query: { with_guild_experiments: true } })
-        .catch(() => {
-          return {
-            assignments: [],
-            guild_experiments: [],
-          } as Experiments;
-        });
+    const {
+      guild_experiments: GuildExperiments,
+    } = await this.client.req.experiments
+      .get<Experiments>({ query: { with_guild_experiments: true } })
+      .catch(() => {
+        return {
+          assignments: [],
+          guild_experiments: [],
+        } as Experiments;
+      });
 
     const hashAndBucket: (
       | [number, number]
@@ -610,7 +609,7 @@ export class Util extends ClientUtil {
             )
           ) {
             // we hit filters
-            filters = bucketAndRanges as unknown as ExperimentFilters[];
+            filters = (bucketAndRanges as unknown) as ExperimentFilters[];
             continue;
           }
           for (const [b, r] of bucketAndRanges as [

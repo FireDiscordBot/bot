@@ -16,11 +16,10 @@ export class GuildSettings {
     this.guild = guild;
     if (this.shouldMigrate) this.runMigration();
     else
-      this.client.guildSettings.toMigrate =
-        this.client.guildSettings.toMigrate.filter(
-          (id) =>
-            id != (this.guild instanceof FireGuild ? this.guild.id : this.guild)
-        );
+      this.client.guildSettings.toMigrate = this.client.guildSettings.toMigrate.filter(
+        (id) =>
+          id != (this.guild instanceof FireGuild ? this.guild.id : this.guild)
+      );
   }
 
   // will check if migration is needed for the current migration script
@@ -85,11 +84,9 @@ export class UserSettings {
     this.user = user;
     if (this.shouldMigrate) this.runMigration();
     else
-      this.client.userSettings.toMigrate =
-        this.client.userSettings.toMigrate.filter(
-          (id) =>
-            id != (this.user instanceof FireUser ? this.user.id : this.user)
-        );
+      this.client.userSettings.toMigrate = this.client.userSettings.toMigrate.filter(
+        (id) => id != (this.user instanceof FireUser ? this.user.id : this.user)
+      );
   }
 
   // will check if migration is needed for the current migration script

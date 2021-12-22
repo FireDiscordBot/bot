@@ -132,7 +132,7 @@ export default class GuildCommand extends Command {
                   .map((region) =>
                     region && message.language.has(`REGIONS.${region}`)
                       ? message.language.get(
-                          `REGIONS.${region}` as LanguageKeys
+                          (`REGIONS.${region}` as unknown) as LanguageKeys
                         )
                       : message.language.get("REGION_AUTOMATIC")
                   )

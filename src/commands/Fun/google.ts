@@ -140,7 +140,7 @@ export default class Google extends Command {
       return await message.error("PLAYWRIGHT_ERROR_UNKNOWN");
     if (playwrightResponse.error)
       return await message.error(
-        `PLAYWRIGHT_ERROR_${playwrightResponse.error.toUpperCase()}` as LanguageKeys
+        (`PLAYWRIGHT_ERROR_${playwrightResponse.error.toUpperCase()}` as unknown) as LanguageKeys
       );
     else if (playwrightResponse.screenshot) {
       const screenshot = Buffer.from(playwrightResponse.screenshot.data);

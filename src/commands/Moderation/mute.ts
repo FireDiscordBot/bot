@@ -80,7 +80,7 @@ export default class Mute extends Command {
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof muted == "string")
       return await message.error(
-        `MUTE_FAILED_${muted.toUpperCase()}` as LanguageKeys
+        (`MUTE_FAILED_${muted.toUpperCase()}` as unknown) as LanguageKeys
       );
   }
 }

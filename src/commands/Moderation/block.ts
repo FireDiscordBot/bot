@@ -78,7 +78,7 @@ export default class Block extends Command {
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof blocked == "string")
       return await message.error(
-        `BLOCK_FAILED_${blocked.toUpperCase()}` as LanguageKeys
+        (`BLOCK_FAILED_${blocked.toUpperCase()}` as unknown) as LanguageKeys
       );
   }
 }

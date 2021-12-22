@@ -56,7 +56,7 @@ export default class Unmute extends Command {
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (typeof unmuted == "string")
       return await message.error(
-        `UNMUTE_FAILED_${unmuted.toUpperCase()}` as LanguageKeys
+        (`UNMUTE_FAILED_${unmuted.toUpperCase()}` as unknown) as LanguageKeys
       );
   }
 }

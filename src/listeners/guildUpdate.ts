@@ -127,22 +127,22 @@ export default class GuildUpdate extends Listener {
         embed.addField(
           language.get("VERIFICATION_LEVEL"),
           `${language.get(
-            ("GUILD_VERIF_" +
-              before.verificationLevel.toString()) as LanguageKeys
+            (("GUILD_VERIF_" +
+              before.verificationLevel.toString()) as unknown) as LanguageKeys
           )} ➜ ${language.get(
-            ("GUILD_VERIF_" +
-              after.verificationLevel.toString()) as LanguageKeys
+            (("GUILD_VERIF_" +
+              after.verificationLevel.toString()) as unknown) as LanguageKeys
           )}`.replace(/\*/gim, "")
         );
       if (before.explicitContentFilter != after.explicitContentFilter)
         embed.addField(
           language.get("EXPLICIT_CONTENT_FILTER"),
           `${language.get(
-            ("EXPLICIT_CONTENT_FILTER_" +
-              before.explicitContentFilter.toString()) as LanguageKeys
+            (("EXPLICIT_CONTENT_FILTER_" +
+              before.explicitContentFilter.toString()) as unknown) as LanguageKeys
           )} ➜ ${language.get(
-            ("EXPLICIT_CONTENT_FILTER_" +
-              after.explicitContentFilter.toString()) as LanguageKeys
+            (("EXPLICIT_CONTENT_FILTER_" +
+              after.explicitContentFilter.toString()) as unknown) as LanguageKeys
           )}`
         );
       if (before.features.length != after.features.length) {

@@ -85,7 +85,7 @@ export class ComponentMessage {
         new FireMember(client, component.member, this.guild);
     this.author = component.user
       ? (client.users.cache.get(component.user.id) as FireUser) ||
-        new FireUser(client, component.user as unknown as RawUserData)
+        new FireUser(client, (component.user as unknown) as RawUserData)
       : component.member &&
         ((client.users.cache.get(component.member.user.id) as FireUser) ||
           new FireUser(client, component.member.user as RawUserData));

@@ -236,13 +236,17 @@ export default class GuildMemberUpdate extends Listener {
     for (const [, action] of filteredActions) {
       for (const change of action.changes) {
         if (change.key == "$add")
-          await this.logRoleAdd(action, change, newMember.guild).catch(
-            () => {}
-          );
+          await this.logRoleAdd(
+            action,
+            change,
+            newMember.guild
+          ).catch(() => {});
         else if (change.key == "$remove")
-          await this.logRoleRemove(action, change, newMember.guild).catch(
-            () => {}
-          );
+          await this.logRoleRemove(
+            action,
+            change,
+            newMember.guild
+          ).catch(() => {});
       }
     }
   }

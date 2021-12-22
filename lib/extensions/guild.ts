@@ -24,6 +24,7 @@ import {
   Guild,
   Role,
   Util,
+  GuildAuditLogsResolvable,
 } from "discord.js";
 import {
   ActionLogType,
@@ -160,7 +161,9 @@ export class FireGuild extends Guild {
     return super.fetchOwner(options) as Promise<FireMember>;
   }
 
-  async fetchAuditLogs(options?: GuildAuditLogsFetchOptions) {
+  async fetchAuditLogs<T extends GuildAuditLogsResolvable = "ALL">(
+    options?: GuildAuditLogsFetchOptions<T>
+  ) {
     // litecord doesn't have audit logs so we don't even bother with the request
     if (process.env.USE_LITECORD == "true")
       return new GuildAuditLogs(this, {
@@ -439,7 +442,7 @@ export class FireGuild extends Guild {
             this.language.get("UNMUTE_AUTO_FAIL", {
               member: `${member} (${id})`,
               reason: this.language.get(
-                `UNMUTE_FAILED_${unmuted.toUpperCase()}` as LanguageKeys
+                (`UNMUTE_FAILED_${unmuted.toUpperCase()}` as unknown) as LanguageKeys
               ),
             }),
             "unmute"
@@ -1073,8 +1076,8 @@ export class FireGuild extends Guild {
             : 4320,
           reason: this.language.get(
             subject
-              ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
-              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+              ? (("TICKET_SUBJECT_CHANNEL_TOPIC" as unknown) as LanguageKeys)
+              : (("TICKET_CHANNEL_TOPIC" as unknown) as LanguageKeys),
             { author: author.toString(), id: author.id, subject }
           ),
           invitable: this.settings.get("tickets.invitable", true),
@@ -1103,7 +1106,7 @@ export class FireGuild extends Guild {
         }
       }
     } else
-      ticket = (await this.channels
+      ticket = ((await this.channels
         .create(name.slice(0, 50), {
           parent: category,
           permissionOverwrites: [
@@ -1149,18 +1152,18 @@ export class FireGuild extends Guild {
           ],
           topic: this.language.get(
             subject
-              ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
-              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+              ? (("TICKET_SUBJECT_CHANNEL_TOPIC" as unknown) as LanguageKeys)
+              : (("TICKET_CHANNEL_TOPIC" as unknown) as LanguageKeys),
             { author: author.toString(), id: author.id, subject }
           ),
           reason: this.language.get(
             subject
-              ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
-              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+              ? (("TICKET_SUBJECT_CHANNEL_TOPIC" as unknown) as LanguageKeys)
+              : (("TICKET_CHANNEL_TOPIC" as unknown) as LanguageKeys),
             { author: author.toString(), id: author.id, subject }
           ),
         })
-        .catch((e: Error) => e)) as unknown as FireTextChannel;
+        .catch((e: Error) => e)) as unknown) as FireTextChannel;
     if (ticket instanceof Error) {
       locked = false;
       this.ticketLock.lock.release();

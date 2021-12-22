@@ -31,7 +31,9 @@ export default class CommandBlocked extends Listener {
         fields: {
           type: "blocked",
           command: command.id,
-          guild: message.guild ? `${message.guild.name} (${message.guildId})` : "N/A",
+          guild: message.guild
+            ? `${message.guild.name} (${message.guildId})`
+            : "N/A",
           user: `${message.author} (${message.author.id})`,
           message_id: message.id,
           reason,

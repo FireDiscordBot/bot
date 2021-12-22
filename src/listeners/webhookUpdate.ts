@@ -15,8 +15,7 @@ export default class WebhookUpdate extends Listener {
   async exec(channel: FireTextChannel | NewsChannel) {
     const guild = channel.guild as FireGuild;
 
-    if (!guild.logger)
-      guild.logger = new GuildLogManager(this.client, guild);
+    if (!guild.logger) guild.logger = new GuildLogManager(this.client, guild);
 
     if (guild.logger?.hasWebhooks(channel.id))
       await guild.logger.refreshWebhooks().catch(() => {});

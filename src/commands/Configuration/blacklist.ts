@@ -55,7 +55,7 @@ export default class Blacklist extends Command {
     )
       return await message.error("BLACKLIST_FORBIDDEN", {
         manage: message.language.get(
-          "PERMISSIONS.MANAGE_GUILD" as LanguageKeys
+          ("PERMISSIONS.MANAGE_GUILD" as unknown) as LanguageKeys
         ),
       });
 
@@ -75,7 +75,7 @@ export default class Blacklist extends Command {
     else
       return await message.error("BLACKLIST_FORBIDDEN", {
         manage: message.language.get(
-          "PERMISSIONS.MANAGE_GUILD" as LanguageKeys
+          ("PERMISSIONS.MANAGE_GUILD" as unknown) as LanguageKeys
         ),
       });
   }

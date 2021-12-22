@@ -7,7 +7,7 @@ export default class SubscribeUserEvent extends Event {
     super(manager, EventType.SUBSCRIBE_USER);
   }
 
- async run(data: { id: string }) {
+  async run(data: { id: string }) {
     if (!this.manager.ws?.subscribed.includes(data.id))
       this.manager.ws.subscribed.push(data.id);
   }
