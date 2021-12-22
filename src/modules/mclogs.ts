@@ -113,9 +113,10 @@ export default class MCLogs extends Module {
       settingUser:
         /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
       devEnvUser: /Player\d{3}/gim,
-      modsTableHeader: /\|\sState\s*\|\sID\s*\|\sVersion\s*\|\sSource\s*\|/gim,
+      modsTableHeader:
+        /\|\sState\s*\|\sID\s*\|\sVersion\s*\|\sSource\s*\|(?:\sSignature\s*\|)?/gim,
       modsTableEntry:
-        /^\s*\|\s(?<state>[ULCHIJADE]*)\s\|\s(?<modid>[a-z][a-z0-9_.-]{1,63})\s*\|\s(?<version>[\w.-]*)\s*\|\s(?<source>.*\.jar)\s*\|/gim,
+        /^\s*\|\s*(?<state>[ULCHIJADE]*)\s*\|\s*(?<modid>[a-z][a-z0-9_\.'|\-]{1,63})\s*\|\s*(?<version>[\w.-]*)\s*\|\s*(?<source>.*\.jar)\s*\|/gim,
       classicForgeModsEntry:
         /^\s*(?<state>[ULCHIJADE]*)\s*(?<modid>[a-z][a-z0-9_.-]{1,63}){(?<version>[\w.-]*)}\s*\[(?<display>[\w\s]*)\]\s*\((?<source>.*\.jar)\)/gim,
       loaderVersions: [
