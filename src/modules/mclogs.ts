@@ -430,11 +430,13 @@ export default class MCLogs extends Module {
         loaderData[0].loader.version != versions.loaderVersion
       )
         currentSolutions.push(
-          language.get("MC_LOG_UPDATE", {
-            item: Loaders.FABRIC,
-            current: versions.loaderVersion,
-            latest: loaderData[0].loader.version,
-          })
+          "- **" +
+            language.get("MC_LOG_UPDATE", {
+              item: Loaders.FABRIC,
+              current: versions.loaderVersion,
+              latest: loaderData[0].loader.version,
+            }) +
+            "**"
         );
     } else if (versions?.loader == Loaders.FORGE) {
       const dataReq = await centra(
@@ -450,11 +452,13 @@ export default class MCLogs extends Module {
         const latestForge = data.promos[`${versions.mcVersion}-latest`];
         if (latestForge != versions.loaderVersion)
           currentSolutions.push(
-            language.get("MC_LOG_UPDATE", {
-              item: Loaders.FORGE,
-              current: versions.loaderVersion,
-              latest: latestForge,
-            })
+            "- **" +
+              language.get("MC_LOG_UPDATE", {
+                item: Loaders.FORGE,
+                current: versions.loaderVersion,
+                latest: latestForge,
+              }) +
+              "**"
           );
       }
 
@@ -474,11 +478,13 @@ export default class MCLogs extends Module {
           latestOptifine[0] > versions.optifineVersion[0]
         )
           currentSolutions.push(
-            language.get("MC_LOG_UPDATE", {
-              item: "OptiFine",
-              current: versions.optifineVersion,
-              latest: latestOptifine,
-            })
+            "- **" +
+              language.get("MC_LOG_UPDATE", {
+                item: "OptiFine",
+                current: versions.optifineVersion,
+                latest: latestOptifine,
+              }) +
+              "**"
           );
       }
     } else if (versions?.loader == Loaders.OPTIFINE) {
@@ -490,11 +496,13 @@ export default class MCLogs extends Module {
       const latestOptifine = dataReq.body.toString();
       if (latestOptifine != versions.loaderVersion)
         currentSolutions.push(
-          language.get("MC_LOG_UPDATE", {
-            item: "OptiFine",
-            current: versions.optifineVersion,
-            latest: latestOptifine,
-          })
+          "- **" +
+            language.get("MC_LOG_UPDATE", {
+              item: "OptiFine",
+              current: versions.optifineVersion,
+              latest: latestOptifine,
+            }) +
+            "**"
         );
     }
 
