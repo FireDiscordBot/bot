@@ -96,6 +96,7 @@ export const getCommands = (client: Fire) => {
                   .filter((alias) => alias != command.id)
                   .join(", "),
             hidden: command.hidden,
+            parent: command.parent,
           };
         });
 
@@ -131,6 +132,7 @@ export const getAllCommands = (client: Fire) => {
           : command.aliases.filter((alias) => alias != command.id).join(", "),
         hidden: command.hidden,
         category: command.category.toString(),
+        parent: command.parent,
       } as ResponseCommand;
     });
 
