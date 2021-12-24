@@ -208,6 +208,11 @@ export class Command extends AkairoCommand {
     return await command.error("COMMAND_ERROR_500");
   }
 
+  get parentCommand(): Command | null {
+    if (!this.parent) return null;
+    else return this.client.getCommand(this.parent);
+  }
+
   isDisabled(guild: FireGuild) {
     return guild?.settings
       .get<string[]>("disabled.commands", [])
