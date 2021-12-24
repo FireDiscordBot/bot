@@ -33,11 +33,11 @@ export default class ChannelPinsAdd extends Listener {
       const embed = new MessageEmbed()
         .setColor(member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
-        .setAuthor(
-          language.get("PINSADDLOG_AUTHOR", { channel: channel.name }),
-          guild.iconURL({ size: 2048, format: "png", dynamic: true }),
-          message.url
-        )
+        .setAuthor({
+          name: language.get("PINSADDLOG_AUTHOR", { channel: channel.name }),
+          iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+          url: message.url,
+        })
         .addField(language.get("PINNED_BY"), member.toString())
         .setFooter(`${message.id} | ${member.id} | ${channel.id}`);
       await guild.actionLog(embed, "pins_add");

@@ -40,7 +40,7 @@ export default class GuildMemberUpdate extends Listener {
     ) {
       await this.client.util.sleep(5000); // wait a bit to ensure it isn't from being unmuted
       const until = newMember.guild.mutes.get(newMember.id);
-      if (until == 0 || +new Date() < until)
+      if (+new Date() < until)
         await newMember
           .disableCommunication({ until: new Date(until) })
           .catch(() => {});
@@ -332,16 +332,16 @@ export default class GuildMemberUpdate extends Listener {
     );
     const roles = guild.roles.cache.filter((role) => roleIds.includes(role.id));
     const embed = new MessageEmbed()
-      .setAuthor(
-        target ? target.toString() : targetId,
-        target
+      .setAuthor({
+        name: target ? target.toString() : targetId,
+        iconURL: target
           ? target.user.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,
             })
-          : guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+          : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
       .setTimestamp(action.createdTimestamp)
       .setColor(roles.random().hexColor as `#${string}`)
       .addField(
@@ -379,16 +379,16 @@ export default class GuildMemberUpdate extends Listener {
     );
     const roles = guild.roles.cache.filter((role) => roleIds.includes(role.id));
     const embed = new MessageEmbed()
-      .setAuthor(
-        target ? target.toString() : targetId,
-        target
+      .setAuthor({
+        name: target ? target.toString() : targetId,
+        iconURL: target
           ? target.user.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,
             })
-          : guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+          : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
       .setTimestamp(action.createdTimestamp)
       .setColor(roles.random().hexColor as `#${string}`)
       .addField(
@@ -422,16 +422,16 @@ export default class GuildMemberUpdate extends Listener {
     if (executor && executor.user.bot && executor.id != this.client.user.id)
       return;
     const embed = new MessageEmbed()
-      .setAuthor(
-        target ? target.toString() : targetId,
-        target
+      .setAuthor({
+        name: target ? target.toString() : targetId,
+        iconURL: target
           ? target.user.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,
             })
-          : guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+          : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
       .setTimestamp(action.createdTimestamp)
       .setColor(target ? target?.displayColor : "#ffffff")
       .addField(

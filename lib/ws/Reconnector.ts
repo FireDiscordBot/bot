@@ -56,10 +56,14 @@ export class Reconnector {
       // Cluster has attempted to connect multiple times
       // so kill the process and let pm2 restart it
       this.manager.kill("replaced");
-    if (code == 4029)
+    if (code == 4029 && reason != "You are being rate limited")
       // This means that the current process is
       // an extra, so it's unnecessary to keep alive
       this.manager.kill("extra");
+    else if (code == 4029) {
+      // TODO: actually handle ratelimit instead of just reconnecting in 5s
+      this.activate();
+    }
     if (code == 4005) {
       delete this.manager.session;
       delete this.manager.seq;

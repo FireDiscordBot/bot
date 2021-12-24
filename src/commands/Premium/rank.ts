@@ -78,16 +78,18 @@ export default class Rank extends Command {
       const embed = new MessageEmbed()
         .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp()
-        .setAuthor(
-          message.language.get("RANKS_AUTHOR", { guild: message.guild.name }),
-          message.guild.icon
+        .setAuthor({
+          name: message.language.get("RANKS_AUTHOR", {
+            guild: message.guild.name,
+          }),
+          iconURL: message.guild.icon
             ? (message.guild.iconURL({
                 size: 2048,
                 format: "png",
                 dynamic: true,
               }) as string)
-            : undefined
-        );
+            : undefined,
+        });
       let components: MessageActionRow[];
       if (roles.length <= 5)
         components = Rank.getRankButtons(
@@ -108,9 +110,7 @@ export default class Rank extends Command {
           (role instanceof Role && role.id == args.role.id) ||
           role == args.role.id
       )
-    ) {
-      if (args.role.id == "595626786549792793")
-        return await message.error("SK1ER_BETA_MOVED");
+    )
       message.member?.roles?.cache?.has(args.role.id)
         ? await message.member?.roles
             ?.remove(
@@ -127,7 +127,7 @@ export default class Rank extends Command {
             .then(() =>
               message.success("RANKS_JOIN_RANK", { role: args.role.name })
             );
-    } else return await message.error("RANKS_INVALID_ROLE");
+    else return await message.error("RANKS_INVALID_ROLE");
   }
 
   static getRankButtons(

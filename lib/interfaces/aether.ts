@@ -32,11 +32,11 @@ export interface UserExperimentConfig extends ExperimentConfig {
 
 export interface DiscordExperiment {
   id: string;
+  hash: number;
   type: "user" | "guild";
   title: string;
   description: string[];
   buckets: number[];
-  hash: number;
 }
 
 export interface ManagerState {

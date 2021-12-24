@@ -93,17 +93,9 @@ export default class GuildMemberAdd extends Listener {
 
     if (
       member.guild.mutes.has(member.id) &&
-      !member.guild.hasExperiment(1955682940, 1)
-    ) {
+      !member.communicationDisabledTimestamp
+    )
       await member.roles.add(member.guild.muteRole).catch(() => {});
-    } else if (member.guild.mutes.has(member.id)) {
-      // temp until timeouts aren't removed on leave
-      await member
-        .disableCommunication({
-          until: new Date(member.guild.mutes.get(member.id)),
-        })
-        .catch(() => {});
-    }
 
     if (!member.guild.persistedRoles) await member.guild.loadPersistedRoles();
     if (member.guild.persistedRoles.has(member.id)) {
@@ -221,15 +213,17 @@ export default class GuildMemberAdd extends Listener {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
         .setTimestamp()
-        .setAuthor(
-          language.get("MEMBERJOIN_LOG_AUTHOR", { member: member.toString() }),
-          member.displayAvatarURL({
+        .setAuthor({
+          name: language.get("MEMBERJOIN_LOG_AUTHOR", {
+            member: member.toString(),
+          }),
+          iconURL: member.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,
           }),
-          "https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif"
-        )
+          url: "https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif",
+        })
         .addField(
           language.get("ACCOUNT_CREATED"),
           Formatters.time(member.user.createdAt, "R")

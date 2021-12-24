@@ -1,9 +1,14 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { MessageEmbed, Permissions } from "discord.js";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import {
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  Permissions,
+} from "discord.js";
 
 export default class Avatar extends Command {
   constructor() {
@@ -55,6 +60,18 @@ export default class Avatar extends Command {
         })
       );
 
-    return await message.channel.send({ embeds: [embed] });
+    let actionRow: MessageActionRow;
+    if (message.guild && user instanceof FireMember && user.avatar)
+      actionRow = new MessageActionRow().addComponents(
+        new MessageButton()
+          .setLabel(message.language.get("AVATAR_SWITCH_TO_GLOBAL"))
+          .setStyle("PRIMARY")
+          .setCustomId(`avatar:${user.id}:global:${message.author.id}`)
+      );
+
+    return await message.channel.send({
+      embeds: [embed],
+      components: actionRow ? [actionRow] : null,
+    });
   }
 }

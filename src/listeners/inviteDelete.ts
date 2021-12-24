@@ -21,10 +21,10 @@ export default class InviteDelete extends Listener {
       const embed = new MessageEmbed()
         .setColor("#E74C3C")
         .setTimestamp()
-        .setAuthor(
-          language.get("INVDELETE_LOG_AUTHOR", { guild: guild.name }),
-          guild.iconURL({ size: 2048, format: "png", dynamic: true })
-        )
+        .setAuthor({
+          name: language.get("INVDELETE_LOG_AUTHOR", { guild: guild.name }),
+          iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+        })
         .addField(language.get("FILTER_INVITE_LOG_CODE"), invite.code)
         .addField(language.get("CHANNEL"), invite.channel.name)
         .setFooter(invite.channel.id);

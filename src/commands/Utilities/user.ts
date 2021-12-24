@@ -148,9 +148,9 @@ export default class User extends Command {
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
-      .setAuthor(
-        user.toString(),
-        (message.hasExperiment(194480739, 2)
+      .setAuthor({
+        name: user.toString(),
+        iconURL: (message.hasExperiment(194480739, 2)
           ? member ?? user
           : user
         ).displayAvatarURL({
@@ -158,16 +158,17 @@ export default class User extends Command {
           format: "png",
           dynamic: true,
         }),
-        application && application.bot_public
-          ? `https://discord.com/oauth2/authorize?client_id=${
-              application.id
-            }&scope=bot%20applications.commands${
-              application.id == this.client.user.id
-                ? "&permissions=1007021303"
-                : ""
-            }`
-          : null
-      )
+        url:
+          application && application.bot_public
+            ? `https://discord.com/oauth2/authorize?client_id=${
+                application.id
+              }&scope=bot%20applications.commands${
+                application.id == this.client.user.id
+                  ? "&permissions=1007021303"
+                  : ""
+              }`
+            : null,
+      })
       .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
     if (badges.length)
       embed.setDescription(
@@ -212,6 +213,7 @@ export default class User extends Command {
           "VIEW_AUDIT_LOG",
           "VIEW_GUILD_INSIGHTS",
           "MANAGE_THREADS",
+          "MODERATE_MEMBERS",
         ];
         for (const permission of keyPerms)
           if (member.permissions.has(permission))
@@ -681,14 +683,14 @@ export default class User extends Command {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp(snowflake.date)
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setAuthor({
+        name: message.author.toString(),
+        iconURL: message.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setDescription(message.language.get("USER_SNOWFLAKE_DESCRIPTION"))
       .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
 

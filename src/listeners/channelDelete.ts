@@ -41,13 +41,13 @@ export default class ChannelDelete extends Listener {
       const embed = new MessageEmbed()
         .setColor("#E74C3C")
         .setTimestamp()
-        .setAuthor(
-          language.get("CHANNELDELETELOG_AUTHOR", {
+        .setAuthor({
+          name: language.get("CHANNELDELETELOG_AUTHOR", {
             type: titleCase(channel.type.replace(/_/g, " ")),
             guild: guild.name,
           }),
-          guild.iconURL({ size: 2048, format: "png", dynamic: true })
-        )
+          iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+        })
         .addField(language.get("NAME"), channel.name)
         .setFooter(channel.id);
       if (channel instanceof FireTextChannel && channel.topic)

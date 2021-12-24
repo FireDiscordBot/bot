@@ -15,7 +15,7 @@ import { Module } from "@fire/lib/util/module";
 const supportCrashMessage = `Alright, you'll need to provide a log for us to diagnose the cause of the crash. You will be given instructions when the ticket is opened.
 These instructions may not work if you're using a third-party launcher, you may need to consult a guide for that specific launcher.
 
-Hit the thumbs up button below to continue or the thumbs down button to cancel.`;
+Hit the green button below to continue or the red one to cancel.`;
 
 const supportBugMessage = `Bugs can be nasty and require a good amount of information to squash. Below is a list of everything you should have ready to provide but don't worry if you can't get them all...
 
@@ -23,13 +23,13 @@ const supportBugMessage = `Bugs can be nasty and require a good amount of inform
 - Steps to Reproduce (What do you need to do for the bug to happen?)
 - Latest Log
 
-When you're ready, hit the thumbs up button below to continue or the thumbs down button to cancel.`;
+When you're ready, hit the green button below to continue or the red pne to cancel.`;
 
 const supportQuestionMessage = `We (probably) have the answer to your question but we'll need as much detail as you can give.
 
 Firstly, you should check our [support page](<https://essential.gg/support>) to see if your question is answered there!
 
-If our support page didn't answer your question, hit the thumbs up button below to continue or the thumbs down button to cancel.`;
+If our support page didn't answer your question, hit the green button below to continue or the red one to cancel.`;
 
 const supportICEMessage = `Essential's Invite Friends feature is cool but it can't work in all situations.
 
@@ -40,14 +40,31 @@ Lowering your render distance can sometimes help if you're timing out so give th
 
 If you're trying to play with a big modpack, it's important to note that some mods weren't designed to be used with Open to LAN (and therefore inviting friends with Esssential) so you may encounter isssues.
 
-When you're ready, hit the thumbs up button below to continue or the thumbs down button to cancel.`;
+When you're ready, hit the green button below to continue or the red one to cancel.`;
+
+const supportJavaMessage = `Essential's installer requires Java to be installed
+
+If the installer is saying it could not find a valid Java installation, this can usually be fixed by following [this guide](https://essential.gg/support/troubleshooting/install-java) and restarting your PC.
+
+If the guide helped, you can click the red button below to cancel opening a ticket. Otherwise, click the green one to speak to our support team.`;
 
 const supportOtherMessage = `No worries! We can't list every possible issue.
 
 Make sure you have all the details about the issue ready to provide to the support team.
 While we're usually quick to respond, issues outside of the ones listed may take a bit more time to get an answer...
 
-When you're ready, hit the thumbs up button below to continue or the thumbs down button to cancel.`;
+When you're ready, hit the green button below to continue or the red one to cancel.`;
+
+const openButton = () =>
+  new MessageButton()
+    .setStyle("SUCCESS")
+    .setLabel("Open a ticket")
+    .setEmoji("🎟️");
+
+const cancelButton = new MessageButton()
+  .setLabel("Cancel")
+  .setStyle("DANGER")
+  .setCustomId("cancel_me");
 
 export default class Essential extends Module {
   guildId: Snowflake;
@@ -159,19 +176,24 @@ These instructions are designed for the official launcher so if you're using a t
         trigger.realChannel as FireTextChannel,
         category
       );
+    } else if (type == "java") {
+      const category = this.guild.channels.cache.get(
+        "880170184931934328"
+      ) as CategoryChannel;
+      if (!category) return "no category";
+      return await this.guild.createTicket(
+        member,
+        "The Essential installer cannot find a valid Java installation ☕",
+        trigger.realChannel as FireTextChannel,
+        category
+      );
     }
   }
 
   async supportHandleCrash(button: ComponentMessage) {
     const actions = [
-      new MessageButton()
-        .setStyle("SECONDARY")
-        .setEmoji("👍")
-        .setCustomId("essential_confirm_crash"),
-      new MessageButton()
-        .setEmoji("👎")
-        .setStyle("SECONDARY")
-        .setCustomId("cancel_me"),
+      openButton().setCustomId("essential_confirm_crash"),
+      cancelButton,
     ];
     return await button.edit({
       content: supportCrashMessage,
@@ -181,14 +203,8 @@ These instructions are designed for the official launcher so if you're using a t
 
   async supportHandleBug(button: ComponentMessage) {
     const actions = [
-      new MessageButton()
-        .setStyle("SECONDARY")
-        .setEmoji("👍")
-        .setCustomId("essential_confirm_bug"),
-      new MessageButton()
-        .setEmoji("👎")
-        .setStyle("SECONDARY")
-        .setCustomId("cancel_me"),
+      openButton().setCustomId("essential_confirm_bug"),
+      cancelButton,
     ];
     return await button.edit({
       content: supportBugMessage,
@@ -198,14 +214,8 @@ These instructions are designed for the official launcher so if you're using a t
 
   async supportHandleEnquiry(button: ComponentMessage) {
     const actions = [
-      new MessageButton()
-        .setStyle("SECONDARY")
-        .setEmoji("👍")
-        .setCustomId("essential_confirm_enquiry"),
-      new MessageButton()
-        .setEmoji("👎")
-        .setStyle("SECONDARY")
-        .setCustomId("cancel_me"),
+      openButton().setCustomId("essential_confirm_enquiry"),
+      cancelButton,
     ];
     return await button.edit({
       content: supportQuestionMessage,
@@ -215,14 +225,8 @@ These instructions are designed for the official launcher so if you're using a t
 
   async supportHandleIce(button: ComponentMessage) {
     const actions = [
-      new MessageButton()
-        .setStyle("SECONDARY")
-        .setEmoji("👍")
-        .setCustomId("essential_confirm_ice"),
-      new MessageButton()
-        .setEmoji("👎")
-        .setStyle("SECONDARY")
-        .setCustomId("cancel_me"),
+      openButton().setCustomId("essential_confirm_ice"),
+      cancelButton,
     ];
     return await button.edit({
       content: supportICEMessage,
@@ -230,16 +234,21 @@ These instructions are designed for the official launcher so if you're using a t
     });
   }
 
+  async supportHandleJava(button: ComponentMessage) {
+    const actions = [
+      openButton().setCustomId("essential_confirm_java"),
+      cancelButton,
+    ];
+    return await button.edit({
+      content: supportJavaMessage,
+      components: [new MessageActionRow().setComponents(actions)],
+    });
+  }
+
   async supportHandleOther(button: ComponentMessage) {
     const actions = [
-      new MessageButton()
-        .setStyle("SECONDARY")
-        .setEmoji("👍")
-        .setCustomId("essential_confirm_general"),
-      new MessageButton()
-        .setEmoji("👎")
-        .setStyle("SECONDARY")
-        .setCustomId("cancel_me"),
+      openButton().setCustomId("essential_confirm_general"),
+      cancelButton,
     ];
     return await button.edit({
       content: supportOtherMessage,

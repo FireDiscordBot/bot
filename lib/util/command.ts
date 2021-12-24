@@ -254,6 +254,7 @@ export class Command extends AkairoCommand {
         slashCommandTypeMappings[type].includes(argument.type)
       ) as CommandOptionDataTypeResolvable) ||
       ApplicationCommandOptionTypes.STRING;
+    // @ts-ignore (no idea why it's complaining)
     let options: ApplicationCommandOptionData = {
       type,
       name: (argument.slashCommandType

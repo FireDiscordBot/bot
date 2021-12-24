@@ -263,14 +263,14 @@ export default class GuildCommand extends Command {
           : badges.join(" ")
       )
       .setColor(message.member?.displayColor ?? "#FFFFFF")
-      .setAuthor(
-        guild.name,
-        guild.iconURL({
+      .setAuthor({
+        name: guild.name,
+        iconURL: guild.iconURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(guild.id)
       .setTimestamp();
     if (info.length)

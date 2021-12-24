@@ -132,11 +132,16 @@ export default class Remind extends Command {
       return await message.error("REMINDER_SEPARATE_FLAGS");
     args.reminder = args.reminder.replace(stepRegex, "").trimEnd();
     const stepMinutes = parseTime(step) as number;
-    if (step && stepMinutes > 0 && stepMinutes < 2)
+    if (
+      step &&
+      stepMinutes > 0 &&
+      stepMinutes < 2 &&
+      !message.author.isSuperuser()
+    )
       return await message.error("REMINDER_STEP_TOO_SHORT");
     const parsedMinutes = parseTime(args.reminder) as number;
     if (!parsedMinutes) return await message.error("REMINDER_MISSING_TIME");
-    else if (parsedMinutes < 2)
+    else if (parsedMinutes < 2 && !message.author.isSuperuser())
       return await message.error("REMINDER_TOO_SHORT");
     let reminder = parseTime(args.reminder, true) as string;
     if (!reminder.replace(/\s/gim, "").length && !message.reference?.messageId)

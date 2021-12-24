@@ -1,22 +1,22 @@
+import * as sanitizer from "@aero/sanitizer";
+import { Fire } from "@fire/lib/Fire";
 import {
-  ImageURLOptions,
-  ThreadChannel,
+  Channel,
+  Formatters,
   GuildChannel,
-  MessageEmbed,
-  UserMention,
   GuildMember,
+  ImageURLOptions,
+  MessageEmbed,
   Permissions,
   Structures,
-  Formatters,
-  Channel,
+  ThreadChannel,
+  UserMention,
   Util,
 } from "discord.js";
 import { BaseFakeChannel } from "../interfaces/misc";
-import { FireTextChannel } from "./textchannel";
-import * as sanitizer from "@aero/sanitizer";
-import { FireMessage } from "./message";
-import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
+import { FireMessage } from "./message";
+import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
 export class FireMember extends GuildMember {
@@ -316,10 +316,16 @@ export class FireMember extends GuildMember {
     const embed = new MessageEmbed()
       .setColor("#E67E22")
       .setTimestamp()
-      .setAuthor(
-        this.guild.language.get("WARN_LOG_AUTHOR", { user: this.toString() }),
-        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: this.guild.language.get("WARN_LOG_AUTHOR", {
+          user: this.toString(),
+        }),
+        iconURL: this.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
@@ -424,10 +430,16 @@ export class FireMember extends GuildMember {
     const embed = new MessageEmbed()
       .setColor(this.displayColor || "#E74C3C")
       .setTimestamp()
-      .setAuthor(
-        this.guild.language.get("BAN_LOG_AUTHOR", { user: this.toString() }),
-        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: this.guild.language.get("BAN_LOG_AUTHOR", {
+          user: this.toString(),
+        }),
+        iconURL: this.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
@@ -501,10 +513,16 @@ export class FireMember extends GuildMember {
     const embed = new MessageEmbed()
       .setColor(this.displayColor || "#E74C3C")
       .setTimestamp()
-      .setAuthor(
-        this.guild.language.get("KICK_LOG_AUTHOR", { user: this.toString() }),
-        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: this.guild.language.get("KICK_LOG_AUTHOR", {
+          user: this.toString(),
+        }),
+        iconURL: this.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
@@ -576,10 +594,16 @@ export class FireMember extends GuildMember {
     const embed = new MessageEmbed()
       .setColor(this.displayColor || "#E74C3C")
       .setTimestamp()
-      .setAuthor(
-        this.guild.language.get("DERANK_LOG_AUTHOR", { user: this.toString() }),
-        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: this.guild.language.get("DERANK_LOG_AUTHOR", {
+          user: this.toString(),
+        }),
+        iconURL: this.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
@@ -622,9 +646,14 @@ export class FireMember extends GuildMember {
     channel?: FireTextChannel,
     sendDM: boolean = true
   ) {
+    const canTimeOut =
+      until &&
+      until < +new Date() + 2419199999 &&
+      this.guild.hasExperiment(1955682940, 1) &&
+      this.guild.me?.permissions?.has("MODERATE_MEMBERS");
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
-    if (!this.guild.muteRole && !this.guild.hasExperiment(1955682940, 1)) {
+    if (!this.guild.muteRole && !canTimeOut) {
       let settingUp: FireMessage;
       if (channel)
         settingUp = (await channel.send(
@@ -633,13 +662,12 @@ export class FireMember extends GuildMember {
       const role = await this.guild.initMuteRole();
       settingUp?.delete();
       if (!role) return "role";
-    } else if (!this.guild.hasExperiment(1955682940, 1))
-      this.guild.syncMuteRolePermissions();
+    } else if (!canTimeOut) this.guild.syncMuteRolePermissions();
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, "mute", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
-    const muted = this.guild.hasExperiment(1955682940, 1)
+    const muted = canTimeOut
       ? await this.disableCommunication({
           until: new Date(until),
           reason: `${moderator} | ${reason}`,
@@ -661,21 +689,31 @@ export class FireMember extends GuildMember {
           this.id,
         ])
         .catch(() => {});
-    this.guild.mutes.set(this.id, until || 0);
-    const dbadd = await this.client.db
-      .query("INSERT INTO mutes (gid, uid, until) VALUES ($1, $2, $3);", [
-        this.guild.id,
-        this.id,
-        until?.toString() || "0",
-      ])
-      .catch(() => {});
+    let dbadd: unknown;
+    // for less than 5 mins, we should be fine without storing it
+    if (!canTimeOut || until - +new Date() > 300000) {
+      this.guild.mutes.set(this.id, until || 0);
+      dbadd = await this.client.db
+        .query("INSERT INTO mutes (gid, uid, until) VALUES ($1, $2, $3);", [
+          this.guild.id,
+          this.id,
+          until?.toString() || "0",
+        ])
+        .catch(() => {});
+    } else dbadd = true;
     const embed = new MessageEmbed()
       .setColor(this.displayColor || "#2ECC71")
       .setTimestamp()
-      .setAuthor(
-        this.guild.language.get("MUTE_LOG_AUTHOR", { user: this.toString() }),
-        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: this.guild.language.get("MUTE_LOG_AUTHOR", {
+          user: this.toString(),
+        }),
+        iconURL: this.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
@@ -760,7 +798,7 @@ export class FireMember extends GuildMember {
     }
     if (
       !this.roles.cache.has(this.guild.muteRole?.id) &&
-      !this.guild.hasExperiment(1955682940, 1)
+      !this.communicationDisabledUntil
     ) {
       this.guild.mutes.delete(this.id);
       await this.client.db
@@ -770,18 +808,14 @@ export class FireMember extends GuildMember {
         ])
         .catch(() => {});
       return "not_muted";
-    } else if (
-      !this.communicationDisabledUntil &&
-      this.guild.hasExperiment(1955682940, 1)
-    )
-      return "not_muted";
+    }
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, "unmute", reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     const until = this.guild.mutes.get(this.id);
     this.guild.mutes.delete(this.id);
-    const unmuted = this.guild.hasExperiment(1955682940, 1)
+    const unmuted = this.communicationDisabledUntil
       ? await this.disableCommunication({
           until: null,
           reason: `${moderator} | ${reason}`,
@@ -807,10 +841,16 @@ export class FireMember extends GuildMember {
     const embed = new MessageEmbed()
       .setColor(this.displayColor || "#2ECC71")
       .setTimestamp()
-      .setAuthor(
-        this.guild.language.get("UNMUTE_LOG_AUTHOR", { user: this.toString() }),
-        this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: this.guild.language.get("UNMUTE_LOG_AUTHOR", {
+          user: this.toString(),
+        }),
+        iconURL: this.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);

@@ -116,16 +116,16 @@ export default class RolePersist extends Command {
     const embed = new MessageEmbed()
       .setTimestamp()
       .setColor(roles.length ? member.displayColor || "#2ECC71" : "#E74C3C")
-      .setAuthor(
-        member.guild.language.get("ROLEPERSIST_LOG_AUTHOR", {
+      .setAuthor({
+        name: member.guild.language.get("ROLEPERSIST_LOG_AUTHOR", {
           member: member.toString(),
         }),
-        member.displayAvatarURL({
+        iconURL: member.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .addField(member.guild.language.get("MODERATOR"), moderator.toString())
       .setFooter(`${member.id} | ${moderator.id}`);
     if (roles.length)

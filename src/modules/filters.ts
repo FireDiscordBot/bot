@@ -316,14 +316,14 @@ export default class Filters extends Module {
             channel: message.channel.toString(),
           }) as string
         )
-        .setAuthor(
-          message.author.toString(),
-          message.author.displayAvatarURL({
+        .setAuthor({
+          name: message.author.toString(),
+          iconURL: message.author.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,
-          })
-        )
+          }),
+        })
         .setFooter(message.author.id);
       if (invite) {
         if (invite.guild.description.length + embed.description.length < 4000)
@@ -492,14 +492,14 @@ export default class Filters extends Module {
           channel: message.channel.toString(),
         }) as string
       )
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setAuthor({
+        name: message.author.toString(),
+        iconURL: message.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(message.author.id);
     await message.guild.actionLog(embed, "linkfilter").catch(() => {});
   }
@@ -530,14 +530,14 @@ export default class Filters extends Module {
           channel: message.channel.toString(),
         }) as string
       )
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setAuthor({
+        name: message.author.toString(),
+        iconURL: message.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(message.author.id);
     if (video && video.items?.length) {
       const details = video.items[0];
@@ -616,14 +616,14 @@ export default class Filters extends Module {
           channel: message.channel.toString(),
         }) as string
       )
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setAuthor({
+        name: message.author.toString(),
+        iconURL: message.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(message.author.id);
     if (channel && channel.items?.length) {
       const details = channel.items[0];
@@ -693,14 +693,14 @@ export default class Filters extends Module {
           { channel: message.channel.toString() }
         ) as string
       )
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setAuthor({
+        name: message.author.toString(),
+        iconURL: message.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(message.author.id);
     await message.guild.actionLog(embed, "linkfilter").catch(() => {});
   }
@@ -728,14 +728,14 @@ export default class Filters extends Module {
           channel: message.channel.toString(),
         }) as string
       )
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setAuthor({
+        name: message.author.toString(),
+        iconURL: message.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(message.author.id);
     await message.guild.actionLog(embed, "linkfilter").catch(() => {});
   }
@@ -763,14 +763,14 @@ export default class Filters extends Module {
           channel: message.channel.toString(),
         }) as string
       )
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setAuthor({
+        name: message.author.toString(),
+        iconURL: message.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(message.author.id);
     await message.guild.actionLog(embed, "linkfilter").catch(() => {});
   }

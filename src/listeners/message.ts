@@ -28,6 +28,9 @@ const cleanMap = {
     [/\/(?:watch\?v=)?dQw4w9WgXcQ/gim],
 };
 
+const youForgotTheHyphen =
+  /spider\s*?[!"#$%&'()*+,./:;<=>?@[\]^_`{|}~]*?\s*?man/gim;
+
 export default class Message extends Listener {
   recentTokens: string[];
   tokenRegex: RegExp;
@@ -115,6 +118,20 @@ export default class Message extends Listener {
 
     if (message.type == "CHANNEL_PINNED_MESSAGE")
       this.client.emit("channelPinsAdd", message.reference, message.member);
+
+    if (message.hasExperiment(2779566859, 1)) {
+      const theyForgot = youForgotTheHyphen.test(
+        this.cleanContent(message, false)
+      );
+      youForgotTheHyphen.lastIndex = 0;
+      if (theyForgot && message.guild?.me?.permissions.has(67584n))
+        await message
+          .reply({
+            content: "You forgot the hyphen! It's Spider-Man*",
+            allowedMentions: { users: [message.author.id] },
+          })
+          .catch(() => {});
+    }
 
     const lowerContent = sanitizer(
       message.content
@@ -251,8 +268,8 @@ export default class Message extends Listener {
         this.client.manager.ws.send(
           MessageUtil.encode(
             new AetherMessage(EventType.FETCH_DISCORD_EXPERIMENTS, {
-              current:
-                this.client.manager.state.discordExperiments?.length ?? 0,
+              current: this.client.manager.state.discordExperiments,
+              sha: message.embeds[0].url.split("commit/")[1],
             })
           )
         );
@@ -328,8 +345,8 @@ export default class Message extends Listener {
     await filters?.runAll(message, this.cleanContent(message)).catch(() => {});
   }
 
-  cleanContent(message: FireMessage) {
-    if (message.embeds.length)
+  cleanContent(message: FireMessage, includeEmbeds = true): string {
+    if (message.embeds.length && includeEmbeds)
       message.embeds = message.embeds.map((embed) => {
         // normalize urls
         if (embed.url) embed.url = decodeURI(new URL(embed.url).toString());

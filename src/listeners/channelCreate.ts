@@ -83,13 +83,13 @@ export default class ChannelCreate extends Listener {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
         .setTimestamp(channel.createdAt)
-        .setAuthor(
-          language.get("CHANNELCREATELOG_AUTHOR", {
+        .setAuthor({
+          name: language.get("CHANNELCREATELOG_AUTHOR", {
             type: titleCase(channel.type.replace(/_/g, " ")),
             guild: guild.name,
           }),
-          guild.iconURL({ size: 2048, format: "png", dynamic: true })
-        )
+          iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+        })
         .addField(language.get("NAME"), channel.name);
       if (channel instanceof FireTextChannel && channel.topic)
         embed.addField(language.get("TOPIC"), channel.topic);

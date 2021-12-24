@@ -40,14 +40,14 @@ export default class Starboard extends Command {
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(message.language.get("STARBOARD_MAIN_DESCRIPTION"))
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setAuthor({
+        name: message.author.toString(),
+        iconURL: message.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .addField(
         `${message.util.parsed?.prefix}starboard channel [<channel>]`,
         message.language.get("STARBOARD_CHANNEL_DESCRIPTION")
