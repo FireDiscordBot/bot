@@ -39,6 +39,7 @@ export default class CommandCommand extends Command {
       return this.client.commandHandler.modules
         .filter((cmd) => this.filter(cmd, interaction))
         .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+        .filter((cmd) => cmd.name.includes(focused.value.toString()))
         .slice(0, 25);
     return this.client.commandHandler.modules
       .filter((cmd) => this.filter(cmd, interaction))
