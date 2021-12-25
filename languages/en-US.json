@@ -9,6 +9,7 @@
   "INVALID_MEMBER_ID": "Member not found! Make sure the ID is valid.",
   "INVALID_CHANNEL_ID": "Channel not found! Make sure the ID is valid.",
   "INVALID_ROLE_ID": "Role not found! Make sure the ID is valid.",
+  "INVALID_SNOWFLAKE_APPLICATION": "Application not found and argument is not a valid snowflake. Try using an ID if you want to find an application.",
   "INVALID_SNOWFLAKE_USER": "User not found and argument is not a valid snowflake. Try using an ID if you want to find a user.",
   "INVALID_SNOWFLAKE_GUILD": "Server not found or argument is not a valid snowflake. Make sure the ID is correct and try again.",
   "INVALID_MEMBER_ROLE_CHANNEL": "That is not a valid member, role or channel. Make sure the name or ID you're providing is valid.",

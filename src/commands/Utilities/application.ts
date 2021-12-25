@@ -1,7 +1,6 @@
-import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, Permissions } from "discord.js";
-import { FireUser } from "@fire/lib/extensions/user";
+import {APIApplication} from 'discord-api-types'
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -17,9 +16,7 @@ export default class Application extends Command {
       args: [
         {
           id: "application",
-          type: "snowflake",
-          description: (language: Language) =>
-            language.get("USER_SNOWFLAKE_ARGUMENT_DESCRIPTION"),
+          type: "string",
           default: undefined,
           required: true,
         },
@@ -33,18 +30,18 @@ export default class Application extends Command {
 
   async exec(
     message: FireMessage,
-    args: { id: string }
+  {id}: { id: string }
   ) {
-    const application = await this.client.req.applications(id).rpc.get().catch(() => {});
+    const application: APIApplication = await this.client.req.applications(id).rpc.get().catch(() => {});
     if(!application)
-      return await message.error("idk")
+      return await message.error("INVALID_SNOWFLAKE_APPLICATION")
 
     const embed = new MessageEmbed()
       .setTimestamp()
       .setDescription(application.description)
       .setAuthor({
         name: application.name,
-        iconUrl: this.client.http.cdn + '/app-icons/' + application.id + '/' + application.icon + '.png?size=4096'
+        iconUrl: this.client.options.http.cdn + '/app-icons/' + application.id + '/' + application.icon + '.png?size=4096'
       });
 
     return await message.channel.send({ embeds: [embed] });
