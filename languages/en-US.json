@@ -549,6 +549,7 @@
   "MC_LOG_VIEW_RAW": "View Raw Log",
   "MC_LOG_HASTE": "{{user}} {{msgType}} a log, {{extra}}\n{{details}}\n\n{{solutions}}",
   "MC_LOG_HASTE_WITH_LOADER": "{{user}} {{msgType}} a log from {{loader}} {{version}} on {{minecraft}}, {{extra}}\n\n{{solutions}}",
+  "MC_LOG_JVM_INFO": "{{type}}, version {{version}}",
   "MC_LOG_LOADER_INFO": "{{loader}} {{version}} on {{minecraft}}",
   "MC_LOG_OPTIFINE_INFO": "OptiFine {{version}}",
   "MC_LOG_UPDATE": "Update {{item}} from {{current}} to {{latest}}",

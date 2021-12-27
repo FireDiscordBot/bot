@@ -50,6 +50,8 @@ type VersionInfo = {
   mcVersion: MinecraftVersion;
   loaderVersion: string;
   optifineVersion: string;
+  javaVersion: string;
+  jvmType: string;
   mods: ModInfo[];
 };
 type ModInfo = {
@@ -80,6 +82,8 @@ export default class MCLogs extends Module {
     modsTableHeader: RegExp;
     modsTableEntry: RegExp;
     classicForgeModsEntry: RegExp;
+    fullLogJavaVersion: RegExp;
+    crashReportJavaVersion: RegExp;
     date: RegExp;
     semver: RegExp;
     majorMinorOnly: RegExp;
@@ -119,6 +123,10 @@ export default class MCLogs extends Module {
         /^\s*\|\s*(?<state>[ULCHIJADE]*)\s*\|\s*(?<modid>[a-z][a-z0-9_\.'|\-]{1,63})\s*\|\s*(?<version>[\w.-]*)\s*\|\s*(?<source>.*\.jar)\s*\|/gim,
       classicForgeModsEntry:
         /^\s*(?<state>[ULCHIJADE]*)\s*(?<modid>[a-z][a-z0-9_.-]{1,63}){(?<version>[\w.-]*)}\s*\[(?<display>[\w\s]*)\]\s*\((?<source>.*\.jar)\)/gim,
+      fullLogJavaVersion:
+        /Java is (?<name>.* VM), version (?<version>\d*\.\d*\.\d*_\d{1,3}). running on (?<os>(?<osname>[\w\s]*):(?<osarch>\w*):(?<osversion>.*)), installed at (?<path>.*)$/gim,
+      crashReportJavaVersion:
+        /Java Version: (?<version>\d*\.\d*\.\d*_\d{1,3}).*\n\s*Java VM Version: (?<name>.* VM)/gim,
       loaderVersions: [
         {
           loader: Loaders.FABRIC,
@@ -305,7 +313,9 @@ export default class MCLogs extends Module {
       mcVersion: MinecraftVersion,
       loaderVersion: string,
       optifineVersion: string,
-      mods: ModInfo[] = [];
+      mods: ModInfo[] = [],
+      javaVersion: string,
+      javaVendor: string;
 
     for (const config of this.regexes.loaderVersions) {
       const matches = config.regexes.map((regex) => regex.exec(log));
@@ -355,7 +365,27 @@ export default class MCLogs extends Module {
       this.regexes.classicForgeModsEntry.lastIndex = 0;
     }
 
-    return { loader, mcVersion, loaderVersion, optifineVersion, mods };
+    if (this.regexes.fullLogJavaVersion.test(log)) {
+      const javaMatch = this.regexes.fullLogJavaVersion.exec(log);
+      javaVersion = javaMatch?.groups?.version;
+      javaVendor = javaMatch?.groups?.name;
+    } else {
+      const javaMatch = this.regexes.crashReportJavaVersion.exec(log);
+      javaVersion = javaMatch?.groups?.version;
+      javaVendor = javaMatch?.groups?.name;
+    }
+    this.regexes.fullLogJavaVersion.lastIndex = 0;
+    this.regexes.crashReportJavaVersion.lastIndex = 0;
+
+    return {
+      loader,
+      mcVersion,
+      loaderVersion,
+      optifineVersion,
+      javaVersion,
+      jvmType: javaVendor,
+      mods,
+    };
   }
 
   private async getSolutions(
@@ -562,6 +592,8 @@ export default class MCLogs extends Module {
               patch: latestPatch,
               prerelease: latestPrerelease,
             } = latestMatch.groups;
+            if (this.regexes.majorMinorOnly.test(mod.version))
+              mod.version = `${mod.version}.0`;
             const currentMatch = this.regexes.semver.exec(mod.version);
             this.regexes.semver.lastIndex = 0;
             if (!currentMatch) {
@@ -932,6 +964,13 @@ export default class MCLogs extends Module {
       ];
 
       const details = [];
+      if (mcInfo.javaVersion)
+        details.push(
+          message.guild.language.get("MC_LOG_JVM_INFO", {
+            type: mcInfo.jvmType ?? "Unknown JVM type",
+            version: mcInfo.javaVersion,
+          })
+        );
       if (mcInfo.loader)
         details.push(
           message.guild.language.get("MC_LOG_LOADER_INFO", {
