@@ -550,6 +550,12 @@ export default class MCLogs extends Module {
           if (isSemVer) {
             const latestMatch = this.regexes.semver.exec(latest);
             this.regexes.semver.lastIndex = 0;
+            if (!latestMatch) {
+              this.client.console.warn(
+                `[MCLogs] Failed to match semver from latest version "${latest}"`
+              );
+              continue;
+            }
             const {
               major: latestMajor,
               minor: latestMinor,
@@ -558,6 +564,13 @@ export default class MCLogs extends Module {
             } = latestMatch.groups;
             const currentMatch = this.regexes.semver.exec(mod.version);
             this.regexes.semver.lastIndex = 0;
+            if (!currentMatch) {
+              this.client.console.warn(
+                `[MCLogs] Failed to match semver from current version`,
+                mod
+              );
+              continue;
+            }
             const { major, minor, patch, prerelease } = currentMatch.groups;
             const latestSemVer = `${latestMajor}.${latestMinor}.${latestPatch}`;
             const currentSemVer = `${major}.${minor}.${patch}`;
