@@ -12,9 +12,24 @@ export default class CreateInviteDiscoverableEvent extends Event {
     super(manager, EventType.CREATE_INVITE_DISCOVERABLE);
   }
 
+  private noInvite(nonce: string) {
+    this.manager.ws.send(
+      MessageUtil.encode(
+        new Message(
+          EventType.CREATE_INVITE_DISCOVERABLE,
+          {
+            code: null,
+          },
+          nonce
+        )
+      )
+    );
+  }
+
   async run(data: { id: Snowflake; reason?: string }, nonce?: string) {
     const guild = this.manager.client?.guilds.cache.get(data.id) as FireGuild;
-    if (!guild || !guild.features.includes("DISCOVERABLE")) return;
+    if (!guild || !guild.features.includes("DISCOVERABLE"))
+      return this.noInvite(nonce);
 
     if (guild.features.includes("VANITY_URL")) {
       if (guild.vanityURLCode)
@@ -77,5 +92,6 @@ export default class CreateInviteDiscoverableEvent extends Event {
           )
         )
       );
+    else return this.noInvite(nonce);
   }
 }
