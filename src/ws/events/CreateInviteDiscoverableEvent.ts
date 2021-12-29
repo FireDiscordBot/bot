@@ -12,7 +12,7 @@ export default class CreateInviteDiscoverableEvent extends Event {
     super(manager, EventType.CREATE_INVITE_DISCOVERABLE);
   }
 
-  async run(data: { id: Snowflake }, nonce?: string) {
+  async run(data: { id: Snowflake; reason?: string }, nonce?: string) {
     const guild = this.manager.client?.guilds.cache.get(data.id) as FireGuild;
     if (!guild || !guild.features.includes("DISCOVERABLE")) return;
 
@@ -48,7 +48,13 @@ export default class CreateInviteDiscoverableEvent extends Event {
       guild.systemChannel ||
       guild.rulesChannel ||
       (guild.guildChannels.cache
-        .filter((channel) => channel.type == "GUILD_TEXT")
+        .filter(
+          (channel) =>
+            channel.type == "GUILD_TEXT" &&
+            channel
+              .permissionsFor(guild.roles.everyone, false)
+              ?.has("VIEW_CHANNEL")
+        )
         .first() as FireTextChannel) || {
         createInvite: async () => {}, // funny noop for when we somehow end up here without a channel
       }
@@ -58,7 +64,7 @@ export default class CreateInviteDiscoverableEvent extends Event {
         temporary: false,
         maxAge: 300,
         maxUses: 1,
-        reason: guild.language.get("PUBLIC_DISCOVERABLE_INVITE"),
+        reason: data.reason ?? guild.language.get("PUBLIC_DISCOVERABLE_INVITE"),
       })
       .catch(() => {});
     if (invite && invite.code)
