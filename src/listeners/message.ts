@@ -133,13 +133,16 @@ export default class Message extends Listener {
           .catch(() => {});
     }
 
-    const lowerContent = sanitizer(
-      message.content
-        .toLowerCase()
-        .replace(/\s/gim, "")
-        .replace(regexes.zws, "")
-    );
     if (message.guild?.hasExperiment(936071411, 1)) {
+      const lowerContent = sanitizer(
+        (
+          message.content +
+          (message.embeds.map((e) => e.description).join(" ") ?? "")
+        )
+          .toLowerCase()
+          .replace(/\s/gim, "")
+          .replace(regexes.zws, "")
+      );
       const triggerFilter = async (match?: string) => {
         if (process.env.NODE_ENV == "development")
           return await message.reply(
