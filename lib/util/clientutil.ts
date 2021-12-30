@@ -59,12 +59,18 @@ interface MojangProfile {
   id: string;
 }
 
+interface ExperimentData {
+  lastFetch: number;
+  guildExperiments: Experiments["guild_experiments"];
+}
+
 export class Util extends ClientUtil {
   paginators: LimitedCollection<Snowflake, PaginatorInterface>;
   loadedData: { plonked: boolean; premium: boolean };
   permissionFlags: [PermissionString, bigint][];
   premium: Collection<string, PremiumData>;
   uuidCache: Collection<string, string>;
+  experimentData: ExperimentData;
   hasRoleUpdates: string[];
   declare client: Fire;
   plonked: string[];
@@ -85,6 +91,10 @@ export class Util extends ClientUtil {
     this.premium = new Collection();
     this.hasRoleUpdates = [];
     this.plonked = [];
+    this.experimentData = {
+      lastFetch: 0,
+      guildExperiments: [],
+    };
 
     this.permissionFlags = Object.entries(Permissions.FLAGS) as [
       PermissionString,
@@ -581,8 +591,13 @@ export class Util extends ClientUtil {
     for (const experiment of this.client.manager.state.discordExperiments)
       knownExperiments[experiment.hash] = experiment;
 
-    const { guild_experiments: GuildExperiments } =
-      await this.client.req.experiments
+    let guildExperiments: Experiments["guild_experiments"];
+
+    if (
+      !this.experimentData.lastFetch ||
+      +new Date() - this.experimentData.lastFetch > 60000
+    ) {
+      const experiments = await this.client.req.experiments
         .get<Experiments>({ query: { with_guild_experiments: true } })
         .catch(() => {
           return {
@@ -590,12 +605,16 @@ export class Util extends ClientUtil {
             guild_experiments: [],
           } as Experiments;
         });
+      this.experimentData.guildExperiments = guildExperiments =
+        experiments?.guild_experiments ?? [];
+      this.experimentData.lastFetch = +new Date();
+    } else guildExperiments = this.experimentData.guildExperiments;
 
     const hashAndBucket: (
       | [number, number]
-      | [number, number, ExperimentRange]
+      | [number, number, ExperimentRange, ExperimentFilters[]]
     )[] = [];
-    for (const experiment of GuildExperiments) {
+    for (const experiment of guildExperiments) {
       if (experiment.length != 5) continue;
       const override = experiment[4].find((o) => o.k.includes(id));
       if (override && typeof override.b == "number")
@@ -620,9 +639,11 @@ export class Util extends ClientUtil {
             if (b == -1) continue;
             const known = knownExperiments[experiment[0]];
             if (!known) continue;
-            const guildRange = murmur3(`${known.id}:${id}`) % 1e4;
+            const guildRange =
+              murmur3(`${experiment[1] ?? known.id}:${id}`) % 1e4;
             for (const startAndEnd of r)
               if (
+                !hashAndBucket.find(([h, t]) => h == experiment[0] && b == t) &&
                 !(
                   startAndEnd.s == 0 &&
                   startAndEnd.e == 1e4 &&
@@ -632,7 +653,7 @@ export class Util extends ClientUtil {
                 guildRange < startAndEnd.e &&
                 this.applyFilters(guild, filters)
               ) {
-                hashAndBucket.push([experiment[0], b, startAndEnd]);
+                hashAndBucket.push([experiment[0], b, startAndEnd, filters]);
                 continue;
               }
           }
@@ -642,9 +663,9 @@ export class Util extends ClientUtil {
     if (hashAndBucket.length) {
       const friendlyExperiments: string[] = [];
       for (const data of hashAndBucket) {
-        let ranges: ExperimentRange;
+        let ranges: ExperimentRange, filters: ExperimentFilters[];
         const [hash, bucket] = data;
-        if (data.length == 3) ranges = data[2];
+        if (data.length == 4) (ranges = data[2]), (filters = data[3]);
         const experiment = knownExperiments[hash];
         if (experiment) {
           const guildRange = ranges

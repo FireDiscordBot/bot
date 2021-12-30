@@ -146,6 +146,22 @@ export class FireGuild extends Guild {
     };
   }
 
+  get discoverableInviteChannel() {
+    return (
+      this.systemChannel ||
+      this.rulesChannel ||
+      (this.guildChannels.cache
+        .filter(
+          (channel) =>
+            channel.type == "GUILD_TEXT" &&
+            channel
+              .permissionsFor(this.roles.everyone, false)
+              ?.has("VIEW_CHANNEL")
+        )
+        .first() as FireTextChannel)
+    );
+  }
+
   _patch(data: APIGuild) {
     if (data.members)
       data.members = data.members.filter(
@@ -704,7 +720,11 @@ export class FireGuild extends Guild {
       (this.settings.get<boolean>("utils.public", false) &&
         this.memberCount >= 20 &&
         +new Date() - this.createdTimestamp > 2629800000) ||
-      (this.features && this.features.includes("DISCOVERABLE"))
+      (this.features &&
+        this.features.includes("DISCOVERABLE") &&
+        this.me
+          ?.permissionsIn(this.discoverableInviteChannel)
+          ?.has(Permissions.FLAGS.CREATE_INSTANT_INVITE))
     );
   }
 

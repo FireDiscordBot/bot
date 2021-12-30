@@ -4,8 +4,10 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { IPoint } from "@fire/lib/interfaces/aether";
 import { FabricLoaderVersion } from "@fire/lib/interfaces/fabricmc";
+import { Release } from "@fire/lib/interfaces/github";
 import { ForgePromotions } from "@fire/lib/interfaces/minecraftforge";
-import { constants } from "@fire/lib/util/constants";
+import { Sk1erMods } from "@fire/lib/interfaces/sk1ermod";
+import { constants, titleCase } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
@@ -33,9 +35,11 @@ const allowedURLs = [
 enum Loaders {
   FORGE = "Forge",
   FABRIC = "Fabric",
-  OPTIFINE = "Vanilla w/Optifine HD U ", // will be shown as "Vanilla w/Optifine HD U H4"
+  OPTIFINE = "Vanilla w/OptiFine HD U ", // will be shown as "Vanilla w/OptiFine HD U H4"
 }
 
+type ModSource = `${string}.jar`;
+type MinecraftVersion = `${number}.${number}.${number}` | `${number}.${number}`;
 type Haste = { url: string; raw: string };
 type LoaderRegexConfig = {
   loader: Loaders;
@@ -43,9 +47,21 @@ type LoaderRegexConfig = {
 };
 type VersionInfo = {
   loader: Loaders;
-  mcVersion: string;
+  mcVersion: MinecraftVersion;
   loaderVersion: string;
+  optifineVersion: string;
+  javaVersion: string;
+  jvmType: string;
+  mods: ModInfo[];
 };
+type ModInfo = {
+  state: string;
+  modId: string;
+  version: string;
+  source: ModSource;
+};
+
+const excludeMods = ["mcp", "FML", "Forge", "fabricloader", "fabric"];
 
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
@@ -61,8 +77,16 @@ export default class MCLogs extends Module {
     url: RegExp;
     home: RegExp;
     settingUser: RegExp;
+    devEnvUser: RegExp;
     loaderVersions: LoaderRegexConfig[];
+    modsTableHeader: RegExp;
+    modsTableEntry: RegExp;
+    classicForgeModsEntry: RegExp;
+    fullLogJavaVersion: RegExp;
+    crashReportJavaVersion: RegExp;
     date: RegExp;
+    semver: RegExp;
+    majorMinorOnly: RegExp;
   };
   logText: string[];
   solutions: {
@@ -70,9 +94,11 @@ export default class MCLogs extends Module {
     recommendations: { [key: string]: string };
     cheats: string[];
   };
+  modVersions: Record<string, Record<MinecraftVersion, string>>; // map of modid to map of mc version to latest mod version
 
   constructor() {
     super("mclogs");
+    this.modVersions = {};
     this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
     this.regexes = {
       reupload:
@@ -90,6 +116,17 @@ export default class MCLogs extends Module {
       home: /(\/Users\/[\w\s]+|\/home\/\w+|C:\\Users\\[\w\s]+)/gim,
       settingUser:
         /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
+      devEnvUser: /Player\d{3}/gim,
+      modsTableHeader:
+        /\|\sState\s*\|\sID\s*\|\sVersion\s*\|\sSource\s*\|(?:\sSignature\s*\|)?/gim,
+      modsTableEntry:
+        /^\s*\|\s*(?<state>[ULCHIJADE]*)\s*\|\s*(?<modid>[a-z][a-z0-9_\.'|\-]{1,63})\s*\|\s*(?<version>[\w.-]*)\s*\|\s*(?<source>.*\.jar)\s*\|/gim,
+      classicForgeModsEntry:
+        /^\s*(?<state>[ULCHIJADE]*)\s*(?<modid>[a-z][a-z0-9_.-]{1,63}){(?<version>[\w.-]*)}\s*\[(?<display>[\w\s]*)\]\s*\((?<source>.*\.jar)\)/gim,
+      fullLogJavaVersion:
+        /Java is (?<name>.* VM), version (?<version>\d*\.\d*\.\d*_\d{1,3}). running on (?<os>(?<osname>[\w\s]*):(?<osarch>\w*):(?<osversion>.*)), installed at (?<path>.*)$/gim,
+      crashReportJavaVersion:
+        /Java Version: (?<version>\d*\.\d*\.\d*_\d{1,3}).*\n\s*Java VM Version: (?<name>.* VM)/gim,
       loaderVersions: [
         {
           loader: Loaders.FABRIC,
@@ -142,6 +179,9 @@ export default class MCLogs extends Module {
         },
       ],
       date: /^time: (?<date>[\w \/\.:-]+)$/gim,
+      semver:
+        /^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/gim,
+      majorMinorOnly: /^(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)$/gim,
     };
     this.logText = [
       "net.minecraft.launchwrapper.Launch",
@@ -189,6 +229,36 @@ export default class MCLogs extends Module {
           Buffer.from(solutions.content, "base64").toString("ascii")
         );
     }
+    this.fetchSk1erModVersions().catch(() => {});
+    this.fetchLatestSkytilsVersion().catch(() => {});
+  }
+
+  async fetchSk1erModVersions() {
+    const modsReq = await centra("https://api.sk1er.club/mods")
+      .header("User-Agent", this.client.manager.ua)
+      .send();
+    if (modsReq.statusCode != 200) return;
+    const mods = (await modsReq.json().catch(() => {})) as Sk1erMods;
+    if (!mods) return;
+    for (const [modid, data] of Object.entries(mods)) {
+      this.modVersions[modid.toLowerCase()] = data.latest;
+    }
+  }
+
+  async fetchLatestSkytilsVersion() {
+    const releasesReq = await centra(
+      "https://api.github.com/repos/Skytils/SkytilsMod/releases"
+    )
+      .header("User-Agent", this.client.manager.ua)
+      .send();
+    if (releasesReq.statusCode != 200) return;
+    let releases = (await releasesReq.json().catch(() => {})) as Release[];
+    if (!releases) return;
+    releases = releases.sort(
+      (a, b) => +new Date(b.published_at) - +new Date(a.published_at)
+    );
+    const latest = releases[0];
+    this.modVersions["skytils"] = { "1.8.9": latest.tag_name.slice(1) };
   }
 
   private async getSolutionsAnalytics(
@@ -239,14 +309,21 @@ export default class MCLogs extends Module {
   }
 
   private getMCInfo(log: string): VersionInfo {
-    let loader: Loaders, mcVersion: string, loaderVersion: string;
+    let loader: Loaders,
+      mcVersion: MinecraftVersion,
+      loaderVersion: string,
+      optifineVersion: string,
+      mods: ModInfo[] = [],
+      javaVersion: string,
+      javaVendor: string;
 
     for (const config of this.regexes.loaderVersions) {
       const matches = config.regexes.map((regex) => regex.exec(log));
       config.regexes.forEach((regex) => (regex.lastIndex = 0));
-      let matchedMcVer: string, matchedLoaderVer: string;
+      let matchedMcVer: MinecraftVersion, matchedLoaderVer: string;
       for (const match of matches) {
-        if (match?.groups?.mcver) mcVersion = matchedMcVer = match.groups.mcver;
+        if (match?.groups?.mcver)
+          mcVersion = matchedMcVer = match.groups.mcver as MinecraftVersion;
         if (match?.groups?.loaderver)
           loaderVersion = matchedLoaderVer = match.groups.loaderver;
         if (matchedMcVer || matchedLoaderVer) loader = config.loader;
@@ -254,7 +331,61 @@ export default class MCLogs extends Module {
       if (loader && mcVersion && loaderVersion) break;
     }
 
-    return { loader, mcVersion, loaderVersion };
+    let optifineMatch: RegExpExecArray;
+    while ((optifineMatch = this.regexes.optifine.exec(log))) {
+      if (optifineMatch?.groups?.ofver && optifineMatch?.groups?.mcver) break;
+      else optifineMatch = null;
+    }
+    this.regexes.optifine.lastIndex = 0;
+    if (optifineMatch && optifineMatch?.groups?.mcver == mcVersion)
+      optifineVersion = optifineMatch.groups.ofver;
+
+    if (this.regexes.modsTableHeader.test(log)) {
+      let modMatch: RegExpExecArray;
+      while ((modMatch = this.regexes.modsTableEntry.exec(log))) {
+        mods.push({
+          state: modMatch.groups.state,
+          modId: modMatch.groups.modid,
+          version: modMatch.groups.version,
+          source: modMatch.groups.source as ModSource,
+        });
+      }
+      this.regexes.modsTableHeader.lastIndex = 0;
+      this.regexes.modsTableEntry.lastIndex = 0;
+    } else if (loader == Loaders.FORGE) {
+      let modMatch: RegExpExecArray;
+      while ((modMatch = this.regexes.classicForgeModsEntry.exec(log))) {
+        mods.push({
+          state: modMatch.groups.state,
+          modId: modMatch.groups.modid,
+          version: modMatch.groups.version,
+          source: modMatch.groups.source as ModSource,
+        });
+      }
+      this.regexes.classicForgeModsEntry.lastIndex = 0;
+    }
+
+    if (this.regexes.fullLogJavaVersion.test(log)) {
+      const javaMatch = this.regexes.fullLogJavaVersion.exec(log);
+      javaVersion = javaMatch?.groups?.version;
+      javaVendor = javaMatch?.groups?.name;
+    } else {
+      const javaMatch = this.regexes.crashReportJavaVersion.exec(log);
+      javaVersion = javaMatch?.groups?.version;
+      javaVendor = javaMatch?.groups?.name;
+    }
+    this.regexes.fullLogJavaVersion.lastIndex = 0;
+    this.regexes.crashReportJavaVersion.lastIndex = 0;
+
+    return {
+      loader,
+      mcVersion,
+      loaderVersion,
+      optifineVersion,
+      javaVersion,
+      jvmType: javaVendor,
+      mods,
+    };
   }
 
   private async getSolutions(
@@ -263,6 +394,11 @@ export default class MCLogs extends Module {
     haste: Haste,
     log: string
   ) {
+    const language =
+      user instanceof FireMember
+        ? user.guild.language
+        : this.client.getLanguage("en-US");
+
     if (
       this.solutions.cheats.some((cheat) =>
         log.toLowerCase().includes(cheat.toLowerCase())
@@ -327,7 +463,13 @@ export default class MCLogs extends Module {
         loaderData[0].loader.version != versions.loaderVersion
       )
         currentSolutions.push(
-          `- **Update Fabric from ${versions.loaderVersion} to ${loaderData[0].loader.version}**`
+          "- **" +
+            language.get("MC_LOG_UPDATE", {
+              item: Loaders.FABRIC,
+              current: versions.loaderVersion,
+              latest: loaderData[0].loader.version,
+            }) +
+            "**"
         );
     } else if (versions?.loader == Loaders.FORGE) {
       const dataReq = await centra(
@@ -343,31 +485,39 @@ export default class MCLogs extends Module {
         const latestForge = data.promos[`${versions.mcVersion}-latest`];
         if (latestForge != versions.loaderVersion)
           currentSolutions.push(
-            `- **Update Forge from ${versions.loaderVersion} to ${latestForge}**`
+            "- **" +
+              language.get("MC_LOG_UPDATE", {
+                item: Loaders.FORGE,
+                current: versions.loaderVersion,
+                latest: latestForge,
+              }) +
+              "**"
           );
       }
-      let optifineMatch: RegExpExecArray;
-      while ((optifineMatch = this.regexes.optifine.exec(log))) {
-        if (optifineMatch?.groups?.ofver && optifineMatch?.groups?.mcver) break;
-        else optifineMatch = null;
-      }
-      this.regexes.optifine.lastIndex = 0;
-      if (optifineMatch && !optifineMatch.groups.ofver.includes("_pre")) {
+
+      if (
+        versions.optifineVersion &&
+        !versions.optifineVersion.includes("_pre")
+      ) {
         const dataReq = await centra(
-          `https://optifine.net/version/${
-            versions.mcVersion ?? optifineMatch.groups.mcver
-          }/HD_U.txt`
+          `https://optifine.net/version/${versions.mcVersion}/HD_U.txt`
         )
           .header("User-Agent", this.client.manager.ua)
           .send();
         const latestOptifine = dataReq.body.toString().trim();
         if (
           latestOptifine.length == 2 &&
-          latestOptifine != optifineMatch.groups.ofver.trim() &&
-          latestOptifine[0] > optifineMatch.groups.ofver[0]
+          latestOptifine != versions.optifineVersion.trim() &&
+          latestOptifine[0] > versions.optifineVersion[0]
         )
           currentSolutions.push(
-            `- **Update Optifine from ${optifineMatch.groups.ofver} to ${latestOptifine}**`
+            "- **" +
+              language.get("MC_LOG_UPDATE", {
+                item: "OptiFine",
+                current: versions.optifineVersion,
+                latest: latestOptifine,
+              }) +
+              "**"
           );
       }
     } else if (versions?.loader == Loaders.OPTIFINE) {
@@ -379,7 +529,13 @@ export default class MCLogs extends Module {
       const latestOptifine = dataReq.body.toString();
       if (latestOptifine != versions.loaderVersion)
         currentSolutions.push(
-          `- **Update Optifine from ${versions.loaderVersion} to ${latestOptifine}**`
+          "- **" +
+            language.get("MC_LOG_UPDATE", {
+              item: "OptiFine",
+              current: versions.optifineVersion,
+              latest: latestOptifine,
+            }) +
+            "**"
         );
     }
 
@@ -409,6 +565,65 @@ export default class MCLogs extends Module {
       )
         currentRecommendations.push(`- ${sol}`);
     }
+
+    if (versions.mods.length)
+      for (const mod of versions.mods) {
+        if (mod.modId.toLowerCase() in this.modVersions) {
+          let latest =
+            this.modVersions[mod.modId.toLowerCase()]?.[versions.mcVersion];
+          if (mod.version == latest || !latest) continue;
+          if (this.regexes.majorMinorOnly.test(latest)) latest = `${latest}.0`;
+          const isSemVer = this.regexes.semver.test(latest);
+          this.regexes.majorMinorOnly.lastIndex = 0;
+          this.regexes.semver.lastIndex = 0;
+          let isOutdated = false;
+          if (isSemVer) {
+            const latestMatch = this.regexes.semver.exec(latest);
+            this.regexes.semver.lastIndex = 0;
+            if (!latestMatch) {
+              this.client.console.warn(
+                `[MCLogs] Failed to match semver from latest version "${latest}"`
+              );
+              continue;
+            }
+            const {
+              major: latestMajor,
+              minor: latestMinor,
+              patch: latestPatch,
+              prerelease: latestPrerelease,
+            } = latestMatch.groups;
+            if (this.regexes.majorMinorOnly.test(mod.version))
+              mod.version = `${mod.version}.0`;
+            const currentMatch = this.regexes.semver.exec(mod.version);
+            this.regexes.semver.lastIndex = 0;
+            if (!currentMatch) {
+              this.client.console.warn(
+                `[MCLogs] Failed to match semver from current version`,
+                mod
+              );
+              continue;
+            }
+            const { major, minor, patch, prerelease } = currentMatch.groups;
+            const latestSemVer = `${latestMajor}.${latestMinor}.${latestPatch}`;
+            const currentSemVer = `${major}.${minor}.${patch}`;
+            if (prerelease)
+              isOutdated =
+                (currentSemVer < latestSemVer && !latestPrerelease) ||
+                (currentSemVer == latestSemVer &&
+                  prerelease != latestPrerelease);
+            else isOutdated = currentSemVer < latestSemVer;
+          } else isOutdated = mod.version != latest;
+          if (isOutdated)
+            currentRecommendations.push(
+              "- " +
+                language.get("MC_LOG_UPDATE", {
+                  item: titleCase(mod.modId.replace(/_/g, " ")),
+                  current: mod.version,
+                  latest,
+                })
+            );
+        }
+      }
 
     this.getSolutionsAnalytics(
       user,
@@ -621,6 +836,13 @@ export default class MCLogs extends Module {
     text = text.replace(this.regexes.secrets, "[secrets removed]");
 
     const mcInfo = this.getMCInfo(text);
+    let modsHaste: string;
+    if (mcInfo.mods.length) {
+      const haste = await this.client.util
+        .haste(JSON.stringify(mcInfo.mods, null, 2), true, "json", true)
+        .catch((e: Error) => e);
+      if (!(haste instanceof Error) && haste.raw) modsHaste = haste.raw;
+    }
 
     try {
       const haste = await this.client.util
@@ -652,6 +874,7 @@ export default class MCLogs extends Module {
               loader_version: mcInfo?.loaderVersion,
               mc_version: mcInfo?.mcVersion,
               raw: haste.raw,
+              mods: modsHaste,
             },
           },
         ]);
@@ -665,7 +888,10 @@ export default class MCLogs extends Module {
       );
       const user = this.regexes.settingUser.exec(text);
       this.regexes.settingUser.lastIndex = 0;
-      if (user?.length) {
+      const isDevEnv =
+        this.regexes.devEnvUser.test(user?.[1]) && text.includes("GradleStart");
+      this.regexes.devEnvUser.lastIndex = 0;
+      if (user?.length && !isDevEnv) {
         try {
           const uuid = await this.client.util.nameToUUID(user[1]);
           if (!uuid) {
@@ -737,20 +963,40 @@ export default class MCLogs extends Module {
         ]),
       ];
 
-      const logHaste = message.guild.language.get(
-        mcInfo.loader ? "MC_LOG_HASTE_WITH_LOADER" : "MC_LOG_HASTE",
-        {
-          extra: msgType == "uploaded" ? message.content : "",
-          user: message.author.toMention(),
-          version: mcInfo.loaderVersion,
-          solutions: possibleSolutions,
-          minecraft: mcInfo.mcVersion,
-          loader: mcInfo.loader,
-          msgType,
-        }
-      );
+      const details = [];
+      if (mcInfo.javaVersion)
+        details.push(
+          message.guild.language.get("MC_LOG_JVM_INFO", {
+            type: mcInfo.jvmType ?? "Unknown JVM type",
+            version: mcInfo.javaVersion,
+          })
+        );
+      if (mcInfo.loader)
+        details.push(
+          message.guild.language.get("MC_LOG_LOADER_INFO", {
+            version: mcInfo.loaderVersion,
+            minecraft: mcInfo.mcVersion,
+            loader: mcInfo.loader,
+          })
+        );
+      if (mcInfo.optifineVersion)
+        details.push(
+          message.guild.language.get("MC_LOG_OPTIFINE_INFO", {
+            version: mcInfo.optifineVersion,
+          })
+        );
 
-      if (possibleSolutions.length <= 1850)
+      const logHaste = message.guild.language
+        .get("MC_LOG_HASTE", {
+          extra: msgType == "uploaded" ? message.content : "",
+          details: details.map((d) => `- ${d}`).join("\n"),
+          user: message.author.toMention(),
+          solutions: possibleSolutions,
+          msgType,
+        })
+        .trim();
+
+      if (logHaste.length <= 2000)
         return await message.channel.send({
           content: logHaste,
           allowedMentions,
