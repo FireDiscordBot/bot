@@ -5,7 +5,6 @@ import { Role } from "discord.js";
 export default class SelectDemoOne extends Command {
   constructor() {
     super("select-demo-one", {
-      args: [],
       enableSlashCommand: false,
       parent: "select-demo",
       restrictTo: "all",

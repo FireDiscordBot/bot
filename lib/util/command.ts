@@ -266,7 +266,7 @@ export class Command extends AkairoCommand {
           command.getSubcommandGroup()
         ),
         ...subcommands.map((command: Command) => command.getSubcommand()),
-        ...(this.args as ArgumentOptions[])
+        ...((this.args as ArgumentOptions[]) ?? [])
           .filter((arg) => arg.readableType)
           .map((arg) => this.getSlashCommandOption(arg)),
       ];
@@ -344,7 +344,7 @@ export class Command extends AkairoCommand {
   getSubcommand() {
     if (!this.parent) return;
     let data = {
-      name: this.id.split("-").at(-1),
+      name: this.id.split("-").slice(1).join("-"),
       description:
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))

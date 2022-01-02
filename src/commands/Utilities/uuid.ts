@@ -4,9 +4,9 @@ import { Command } from "@fire/lib/util/command";
 
 export default class MinecraftUUID extends Command {
   constructor() {
-    super("mcuuid", {
+    super("minecraft-uuid", {
       description: (language: Language) =>
-        language.get("MCUUID_COMMAND_DESCRIPTION"),
+        language.get("MINECRAFT_UUID_COMMAND_DESCRIPTION"),
       args: [
         {
           id: "ign",
@@ -22,7 +22,8 @@ export default class MinecraftUUID extends Command {
           required: false,
         },
       ],
-      enableSlashCommand: true,
+      enableSlashCommand: false,
+      parent: "minecraft",
       restrictTo: "all",
       ephemeral: true,
       slashOnly: true,
@@ -33,12 +34,12 @@ export default class MinecraftUUID extends Command {
     command: ApplicationCommandMessage,
     args: { ign?: { match: any[]; matches: any[] }; dashed?: string }
   ) {
-    if (!args.ign) return await command.error("MCUUID_INVALID_IGN");
+    if (!args.ign) return await command.error("MINECRAFT_UUID_INVALID_IGN");
     const ign: string = args.ign.match[0];
     const dashed = Boolean(args.dashed);
     let uuid = await this.client.util.nameToUUID(ign);
-    if (!uuid) return await command.error("MCUUID_FETCH_FAIL");
+    if (!uuid) return await command.error("MINECRAFT_UUID_FETCH_FAIL");
     if (dashed) uuid = this.client.util.addDashesToUUID(uuid);
-    return await command.send("MCUUID_UUID", { ign, uuid });
+    return await command.send("MINECRAFT_UUID", { ign, uuid });
   }
 }
