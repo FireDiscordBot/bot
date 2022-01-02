@@ -207,12 +207,23 @@ export default class MCLogs extends Module {
     ];
   }
 
+  private canUse(guild?: FireGuild, user?: FireUser) {
+    if (guild && user) return this.canUse(guild) || this.canUse(null, user);
+    else if (guild)
+      return (
+        guild.hasExperiment(77266757, [1, 2]) ||
+        (guild.premium && guild.settings.get("minecraft.logscan", false))
+      );
+    else if (user) return user.isSuperuser();
+  }
+
   async init() {
     await this.client.waitUntilReady();
     if (
       !this.client.guilds.cache.some((guild: FireGuild) =>
-        guild.hasExperiment(77266757, [1, 2])
-      )
+        this.canUse(guild)
+      ) &&
+      this.client.manager.id != 0 // cluster 0 will always have shard 0 which is what we want (to allow superusers to DM logs)
     )
       return this.remove();
     this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
@@ -645,9 +656,9 @@ export default class MCLogs extends Module {
   }
 
   async checkLogs(message: FireMessage) {
-    if (message.author.bot) return;
     // you should see what it's like without this lol
-    else if (!message.guild.hasExperiment(77266757, [1, 2])) return;
+    if (message.author.bot) return;
+    else if (!this.canUse(message.guild, message.author)) return;
     else if (
       message.member?.roles.cache.some(
         (r) => r.name == "fuckin' loser" || r.name == "no logs"
@@ -756,7 +767,7 @@ export default class MCLogs extends Module {
             if (chunks.length) {
               const chunk = chunks.pop();
               if (
-                !message.guild.hasExperiment(77266757, 2) ||
+                !message.guild?.hasExperiment(77266757, 2) ||
                 !mcLogFilters.some((filter) => chunk.includes(filter))
               )
                 text.push(chunk);
@@ -966,14 +977,14 @@ export default class MCLogs extends Module {
       const details = [];
       if (mcInfo.javaVersion)
         details.push(
-          message.guild.language.get("MC_LOG_JVM_INFO", {
+          (message.guild ?? message).language.get("MC_LOG_JVM_INFO", {
             type: mcInfo.jvmType ?? "Unknown JVM type",
             version: mcInfo.javaVersion,
           })
         );
       if (mcInfo.loader)
         details.push(
-          message.guild.language.get("MC_LOG_LOADER_INFO", {
+          (message.guild ?? message).language.get("MC_LOG_LOADER_INFO", {
             version: mcInfo.loaderVersion,
             minecraft: mcInfo.mcVersion,
             loader: mcInfo.loader,
@@ -981,12 +992,12 @@ export default class MCLogs extends Module {
         );
       if (mcInfo.optifineVersion)
         details.push(
-          message.guild.language.get("MC_LOG_OPTIFINE_INFO", {
+          (message.guild ?? message).language.get("MC_LOG_OPTIFINE_INFO", {
             version: mcInfo.optifineVersion,
           })
         );
 
-      const logHaste = message.guild.language
+      const logHaste = (message.guild ?? message).language
         .get("MC_LOG_HASTE", {
           extra: msgType == "uploaded" ? message.content : "",
           details: details.map((d) => `- ${d}`).join("\n"),
@@ -1011,11 +1022,13 @@ export default class MCLogs extends Module {
           });
         else
           return await message.channel.send({
-            content: message.guild.language.get(
+            content: (message.guild ?? message).language.get(
               mcInfo.loader ? "MC_LOG_HASTE_WITH_LOADER" : "MC_LOG_HASTE",
               {
                 extra: msgType == "uploaded" ? message.content : "",
-                solutions: message.guild.language.get("MC_LOG_WTF"),
+                solutions: (message.guild ?? message).language.get(
+                  "MC_LOG_WTF"
+                ),
                 user: message.author.toMention(),
                 version: mcInfo.loaderVersion,
                 minecraft: mcInfo.mcVersion,

@@ -5,9 +5,9 @@ import { MessageEmbed } from "discord.js";
 
 export default class Skin extends Command {
   constructor() {
-    super("skin", {
+    super("minecraft-skin", {
       description: (language: Language) =>
-        language.get("SKIN_COMMAND_DESCRIPTION"),
+        language.get("MINECRAFT_SKIN_COMMAND_DESCRIPTION"),
       args: [
         {
           id: "ign",
@@ -17,7 +17,8 @@ export default class Skin extends Command {
           required: true,
         },
       ],
-      enableSlashCommand: true,
+      enableSlashCommand: false,
+      parent: "minecraft",
       restrictTo: "all",
       slashOnly: true,
     });
@@ -27,10 +28,10 @@ export default class Skin extends Command {
     message: FireMessage,
     args: { ign?: { match: any[]; matches: any[] } }
   ) {
-    if (!args.ign) return await message.error("SKIN_INVALID_IGN");
+    if (!args.ign) return await message.error("MINECRAFT_SKIN_INVALID_IGN");
     const ign: string = args.ign.match[0];
     let uuid = await this.client.util.nameToUUID(ign);
-    if (!uuid) return await message.error("MCUUID_FETCH_FAIL");
+    if (!uuid) return await message.error("MINECRAFT_UUID_FETCH_FAIL");
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setImage(
