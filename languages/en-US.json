@@ -641,7 +641,7 @@
   "MINECRAFT_LOGSCAN_COMMAND_DESCRIPTION": "Finds logs in messages, removes sensitive info and provides possible solutions and recommendations",
   "MINECRAFT_LOGSCAN_MANUAL": "Log scanning was manually enabled for this server. If you wish to disable it, you'll need to contact support",
   "MINECRAFT_LOGSCAN_TOGGLE_FAIL": "I was unable to toggle log scanning. Please try again or contact support",
-  "MINECRAFT_LOGSCAN_ENABLED": "Log scanning has been enabled!",
+  "MINECRAFT_LOGSCAN_ENABLED": "Log scanning has been enabled!\n\nN.B. This feature collects some data to better understand usage of this feature and to improve it further down the line.\nYou must make the members of the server aware of this! They can learn more (including how to opt out) at https://inv.wtf/mclogs-analytics",
   "MINECRAFT_LOGSCAN_DISABLED": "Log scanning has been disabled!",
   "MODONLY_COMMAND_DESCRIPTION": "Set channels to restrict commands for moderators",
   "MODONLY_NO_CHANNELS": "You must provide valid channel(s) separated by a comma or space for me to toggle moderator only mode in.",

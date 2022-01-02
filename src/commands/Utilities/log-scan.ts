@@ -11,7 +11,6 @@ export default class LogScan extends Command {
       restrictTo: "guild",
       parent: "minecraft",
       slashOnly: true,
-      ephemeral: true,
       premium: true,
     });
   }
