@@ -3,7 +3,6 @@ import { Command } from "@fire/lib/util/command";
 export default class SelectDemo extends Command {
   constructor() {
     super("select-demo", {
-      args: [],
       enableSlashCommand: false,
       restrictTo: "all",
       parent: "select",

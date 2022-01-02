@@ -12,7 +12,6 @@ export default class Select extends Command {
       slashOnly: true,
       ephemeral: true,
       group: true,
-      args: [],
     });
   }
 
