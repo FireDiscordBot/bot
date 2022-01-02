@@ -55,7 +55,7 @@ export class Manager {
 
   set ready(state: boolean) {
     this._ready = state;
-    if (state && this.reconnector.sessionTimeout)
+    if (state && this.reconnector?.sessionTimeout)
       clearTimeout(this.reconnector.sessionTimeout);
   }
 
