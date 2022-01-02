@@ -17,6 +17,8 @@ export default class LogScan extends Command {
   }
 
   async exec(message: FireMessage) {
+    if (message.hasExperiment(77266757, [1, 2]))
+      return await message.error("MINECRAFT_LOGSCAN_MANUAL");
     const current = message.guild.settings.get("minecraft.logscan", false);
     await message.guild.settings.set("minecraft.logscan", !current);
     if (message.guild.settings.get("minecraft.logscan", current) == current)

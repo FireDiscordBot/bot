@@ -639,6 +639,7 @@
   "MINECRAFT_UUID_FETCH_FAIL": "Failed to fetch the UUID, make sure the IGN is a valid player",
   "MINECRAFT_UUID": "{{ign}} has the UUID {{uuid}}",
   "MINECRAFT_LOGSCAN_COMMAND_DESCRIPTION": "Finds logs in messages, removes sensitive info and provides possible solutions and recommendations",
+  "MINECRAFT_LOGSCAN_MANUAL": "Log scanning was manually enabled for this server. If you wish to disable it, you'll need to contact support",
   "MINECRAFT_LOGSCAN_TOGGLE_FAIL": "I was unable to toggle log scanning. Please try again or contact support",
   "MINECRAFT_LOGSCAN_ENABLED": "Log scanning has been enabled!",
   "MINECRAFT_LOGSCAN_DISABLED": "Log scanning has been disabled!",
