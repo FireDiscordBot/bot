@@ -94,6 +94,7 @@ let emojis = {
     OWNER: "<:ownercrown:831858918161776661>",
     FIRE_ADMIN: "<:FireVerified:671243744774848512>",
     FIRE_PREMIUM: "<:FirePremium:680519037704208466>",
+    FUCK_MEE6: "<:fuckmee6allmyhomieshatemee6:909928935310118992>",
   },
   channels: {
     text: "<:channeltext:794243232648921109>",
@@ -139,6 +140,7 @@ if (process.env.EMOJI_SET == "1") {
       OWNER: "",
       FIRE_ADMIN: "<:FireVerified:823121736273887240>",
       FIRE_PREMIUM: "<:FirePremium:823121735774765056>",
+      FUCK_MEE6: "<:fuckmee6allmyhomieshatemee6:823121735774765060>",
     },
     channels: {
       text: "<:channeltext:823154571105927169>",
