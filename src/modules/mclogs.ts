@@ -35,7 +35,7 @@ const allowedURLs = [
 enum Loaders {
   FORGE = "Forge",
   FABRIC = "Fabric",
-  OPTIFINE = "Vanilla w/OptiFine HD U ", // will be shown as "Vanilla w/OptiFine HD U H4"
+  OPTIFINE = "Vanilla w/OptiFine HD U", // will be shown as "Vanilla w/OptiFine HD U H4"
 }
 
 type ModSource = `${string}.jar`;
@@ -60,8 +60,6 @@ type ModInfo = {
   version: string;
   source: ModSource;
 };
-
-const excludeMods = ["mcp", "FML", "Forge", "fabricloader", "fabric"];
 
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
@@ -208,8 +206,7 @@ export default class MCLogs extends Module {
   }
 
   private canUse(guild?: FireGuild, user?: FireUser) {
-    if (guild && user) return this.canUse(guild) || this.canUse(null, user);
-    else if (guild)
+    if (guild)
       return (
         guild.hasExperiment(77266757, [1, 2]) ||
         (guild.premium && guild.settings.get("minecraft.logscan", false))
@@ -275,17 +272,17 @@ export default class MCLogs extends Module {
   private async getSolutionsAnalytics(
     user: FireMember | FireUser,
     haste: Haste,
-    solutions: string[],
-    recommendations: string[]
+    solutions: Set<string>,
+    recommendations: Set<string>
   ) {
     // user has not opted out of data collection for analytics
     if (!user.hasExperiment(2219986954, 1)) {
       let solutionsHaste: Haste, recommendationsHaste: Haste;
-      if (solutions.length)
+      if (solutions.size)
         solutionsHaste = await this.client.util
           .haste(JSON.stringify(solutions), true, "json", true)
           .catch(() => undefined);
-      if (recommendations.length)
+      if (recommendations.size)
         recommendationsHaste = await this.client.util
           .haste(JSON.stringify(recommendations), true, "json", true)
           .catch(() => undefined);
@@ -353,26 +350,26 @@ export default class MCLogs extends Module {
 
     if (this.regexes.modsTableHeader.test(log)) {
       let modMatch: RegExpExecArray;
-      while ((modMatch = this.regexes.modsTableEntry.exec(log))) {
-        mods.push({
-          state: modMatch.groups.state,
-          modId: modMatch.groups.modid,
-          version: modMatch.groups.version,
-          source: modMatch.groups.source as ModSource,
-        });
-      }
+      while ((modMatch = this.regexes.modsTableEntry.exec(log)))
+        if (!mods.find((i) => i.modId == modMatch.groups.modid))
+          mods.push({
+            state: modMatch.groups.state,
+            modId: modMatch.groups.modid,
+            version: modMatch.groups.version,
+            source: modMatch.groups.source as ModSource,
+          });
       this.regexes.modsTableHeader.lastIndex = 0;
       this.regexes.modsTableEntry.lastIndex = 0;
     } else if (loader == Loaders.FORGE) {
       let modMatch: RegExpExecArray;
-      while ((modMatch = this.regexes.classicForgeModsEntry.exec(log))) {
-        mods.push({
-          state: modMatch.groups.state,
-          modId: modMatch.groups.modid,
-          version: modMatch.groups.version,
-          source: modMatch.groups.source as ModSource,
-        });
-      }
+      while ((modMatch = this.regexes.classicForgeModsEntry.exec(log)))
+        if (!mods.find((i) => i.modId == modMatch.groups.modid))
+          mods.push({
+            state: modMatch.groups.state,
+            modId: modMatch.groups.modid,
+            version: modMatch.groups.version,
+            source: modMatch.groups.source as ModSource,
+          });
       this.regexes.classicForgeModsEntry.lastIndex = 0;
     }
 
@@ -449,15 +446,12 @@ export default class MCLogs extends Module {
       )}). Bailing out, you are on your own now. Good luck.`;
     }
 
-    let currentSolutions: string[] = [];
-    let currentRecommendations: string[] = [];
+    let currentSolutions = new Set<string>();
+    let currentRecommendations = new Set<string>();
 
     for (const [err, sol] of Object.entries(this.solutions.solutions)) {
-      if (
-        log.toLowerCase().includes(err.toLowerCase()) &&
-        !currentSolutions.includes(`- **${sol}**`)
-      )
-        currentSolutions.push(`- **${sol}**`);
+      if (log.toLowerCase().includes(err.toLowerCase()))
+        currentSolutions.add(`- **${sol}**`);
     }
 
     if (versions?.loader == Loaders.FABRIC) {
@@ -473,7 +467,7 @@ export default class MCLogs extends Module {
         loaderData.length &&
         loaderData[0].loader.version != versions.loaderVersion
       )
-        currentSolutions.push(
+        currentSolutions.add(
           "- **" +
             language.get("MC_LOG_UPDATE", {
               item: Loaders.FABRIC,
@@ -495,7 +489,7 @@ export default class MCLogs extends Module {
       if (`${versions.mcVersion}-latest` in data.promos) {
         const latestForge = data.promos[`${versions.mcVersion}-latest`];
         if (latestForge != versions.loaderVersion)
-          currentSolutions.push(
+          currentSolutions.add(
             "- **" +
               language.get("MC_LOG_UPDATE", {
                 item: Loaders.FORGE,
@@ -517,11 +511,12 @@ export default class MCLogs extends Module {
           .send();
         const latestOptifine = dataReq.body.toString().trim();
         if (
+          dataReq.statusCode == 200 &&
           latestOptifine.length == 2 &&
           latestOptifine != versions.optifineVersion.trim() &&
           latestOptifine[0] > versions.optifineVersion[0]
         )
-          currentSolutions.push(
+          currentSolutions.add(
             "- **" +
               language.get("MC_LOG_UPDATE", {
                 item: "OptiFine",
@@ -538,8 +533,8 @@ export default class MCLogs extends Module {
         .header("User-Agent", this.client.manager.ua)
         .send();
       const latestOptifine = dataReq.body.toString();
-      if (latestOptifine != versions.loaderVersion)
-        currentSolutions.push(
+      if (dataReq.statusCode == 200 && latestOptifine != versions.loaderVersion)
+        currentSolutions.add(
           "- **" +
             language.get("MC_LOG_UPDATE", {
               item: "OptiFine",
@@ -553,14 +548,14 @@ export default class MCLogs extends Module {
     const isDefault = this.regexes.jvm.test(log);
     this.regexes.jvm.lastIndex = 0;
     if (log.includes("JVM Flags: ") && !isDefault)
-      currentRecommendations.push(
+      currentRecommendations.add(
         "- Unless you know what you're doing, modifying your JVM args could have unintended side effects. It's best to use the defaults."
       );
 
     const allocatedRam = this.regexes.ram.exec(log);
     this.regexes.ram.lastIndex = 0;
     if (parseInt(allocatedRam?.groups?.ram) > 4)
-      currentRecommendations.push(
+      currentRecommendations.add(
         `- Most of the time you don't need more than 2GB RAM allocated (maybe 3-4GB if you use skyblock mods). You may be able to reduce the amount of RAM allocated from ${
           allocatedRam.groups.ram + allocatedRam.groups.type
         } to ${allocatedRam[0].endsWith("G") ? "2G" : "2048M"} or ${
@@ -571,10 +566,9 @@ export default class MCLogs extends Module {
     for (const [rec, sol] of Object.entries(this.solutions.recommendations)) {
       if (
         log.toLowerCase().includes(rec.toLowerCase()) &&
-        !currentRecommendations.includes(`- ${sol}`) &&
-        !currentSolutions.includes(`- **${sol}**`)
+        !currentSolutions.has(`- **${sol}**`)
       )
-        currentRecommendations.push(`- ${sol}`);
+        currentRecommendations.add(`- ${sol}`);
     }
 
     if (versions.mods.length)
@@ -625,7 +619,7 @@ export default class MCLogs extends Module {
             else isOutdated = currentSemVer < latestSemVer;
           } else isOutdated = mod.version != latest;
           if (isOutdated)
-            currentRecommendations.push(
+            currentRecommendations.add(
               "- " +
                 language.get("MC_LOG_UPDATE", {
                   item: titleCase(mod.modId.replace(/_/g, " ")),
@@ -643,13 +637,13 @@ export default class MCLogs extends Module {
       currentRecommendations
     );
 
-    const solutions = currentSolutions.length
-      ? `Possible Solutions:\n${currentSolutions.join("\n")}`
+    const solutions = currentSolutions.size
+      ? `Possible Solutions:\n${[...currentSolutions].join("\n")}`
       : "";
-    const recommendations = currentRecommendations.length
-      ? `${
-          currentSolutions.length ? "\n\n" : ""
-        }Recommendations:\n${currentRecommendations.join("\n")}`
+    const recommendations = currentRecommendations.size
+      ? `${currentSolutions.size ? "\n\n" : ""}Recommendations:\n${[
+          ...currentRecommendations,
+        ].join("\n")}`
       : "";
 
     return solutions + recommendations;
@@ -978,22 +972,22 @@ export default class MCLogs extends Module {
       if (mcInfo.javaVersion)
         details.push(
           (message.guild ?? message).language.get("MC_LOG_JVM_INFO", {
-            type: mcInfo.jvmType ?? "Unknown JVM type",
-            version: mcInfo.javaVersion,
+            type: mcInfo.jvmType.trim() ?? "Unknown JVM type",
+            version: mcInfo.javaVersion.trim(),
           })
         );
       if (mcInfo.loader)
         details.push(
           (message.guild ?? message).language.get("MC_LOG_LOADER_INFO", {
-            version: mcInfo.loaderVersion,
-            minecraft: mcInfo.mcVersion,
-            loader: mcInfo.loader,
+            version: mcInfo.loaderVersion.trim(),
+            minecraft: mcInfo.mcVersion.trim(),
+            loader: mcInfo.loader.trim(),
           })
         );
-      if (mcInfo.optifineVersion)
+      if (mcInfo.optifineVersion && mcInfo.loader != Loaders.OPTIFINE)
         details.push(
           (message.guild ?? message).language.get("MC_LOG_OPTIFINE_INFO", {
-            version: mcInfo.optifineVersion,
+            version: mcInfo.optifineVersion.trim(),
           })
         );
 

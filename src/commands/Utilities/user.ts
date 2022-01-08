@@ -134,8 +134,8 @@ export default class User extends Command {
       user = member.user;
     }
     let color = member ? member.displayColor : command.member?.displayColor;
-    if (user.bot && this.client.config.bots[user.id])
-      color = this.client.config.bots[user.id].color;
+    const botConfig = this.client.config.bots[user.id];
+    if (user.bot && botConfig) color = botConfig.color;
     const badges = this.getBadges(
       user,
       command.author,
@@ -145,7 +145,9 @@ export default class User extends Command {
     const info = this.getInfo(command, member ? member : user);
     let application: Exclude<APIApplication, "rpc_origins" | "owner" | "team">;
     if (user.bot)
-      application = await this.getApplication(user.id).catch(() => null);
+      application = await this.getApplication(
+        botConfig?.appId ?? user.id
+      ).catch(() => null);
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
@@ -298,7 +300,7 @@ export default class User extends Command {
         appInfo.push(
           command.language.getError("USER_BOT_MESSAGE_CONTENT_INTENT")
         );
-      if (user.bot && this.client.config.bots[user.id]?.best)
+      if (user.bot && botConfig?.best)
         appInfo.push(command.language.getSuccess("USER_BOT_BEST"));
       if (application.privacy_policy_url || application.terms_of_service_url)
         appInfo.push(""); // spacing between public/intents and links
@@ -358,6 +360,7 @@ export default class User extends Command {
       emojis.push(badges.DISCORD_EMPLOYEE);
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if (user.premium) emojis.push(badges.FIRE_PREMIUM);
+    if (user.id == "159985870458322944") emojis.push(badges.FUCK_MEE6);
     if (emojis.length) emojis.push(zws);
     return emojis;
   }
