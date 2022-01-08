@@ -35,7 +35,7 @@ const allowedURLs = [
 enum Loaders {
   FORGE = "Forge",
   FABRIC = "Fabric",
-  OPTIFINE = "Vanilla w/OptiFine HD U ", // will be shown as "Vanilla w/OptiFine HD U H4"
+  OPTIFINE = "Vanilla w/OptiFine HD U", // will be shown as "Vanilla w/OptiFine HD U H4"
 }
 
 type ModSource = `${string}.jar`;
@@ -206,8 +206,7 @@ export default class MCLogs extends Module {
   }
 
   private canUse(guild?: FireGuild, user?: FireUser) {
-    if (guild && user) return this.canUse(guild) || this.canUse(null, user);
-    else if (guild)
+    if (guild)
       return (
         guild.hasExperiment(77266757, [1, 2]) ||
         (guild.premium && guild.settings.get("minecraft.logscan", false))
@@ -534,7 +533,7 @@ export default class MCLogs extends Module {
         .header("User-Agent", this.client.manager.ua)
         .send();
       const latestOptifine = dataReq.body.toString();
-      if (latestOptifine != versions.loaderVersion)
+      if (dataReq.statusCode == 200 && latestOptifine != versions.loaderVersion)
         currentSolutions.add(
           "- **" +
             language.get("MC_LOG_UPDATE", {
@@ -973,22 +972,22 @@ export default class MCLogs extends Module {
       if (mcInfo.javaVersion)
         details.push(
           (message.guild ?? message).language.get("MC_LOG_JVM_INFO", {
-            type: mcInfo.jvmType ?? "Unknown JVM type",
-            version: mcInfo.javaVersion,
+            type: mcInfo.jvmType.trim() ?? "Unknown JVM type",
+            version: mcInfo.javaVersion.trim(),
           })
         );
       if (mcInfo.loader)
         details.push(
           (message.guild ?? message).language.get("MC_LOG_LOADER_INFO", {
-            version: mcInfo.loaderVersion,
-            minecraft: mcInfo.mcVersion,
-            loader: mcInfo.loader,
+            version: mcInfo.loaderVersion.trim(),
+            minecraft: mcInfo.mcVersion.trim(),
+            loader: mcInfo.loader.trim(),
           })
         );
-      if (mcInfo.optifineVersion)
+      if (mcInfo.optifineVersion && mcInfo.loader != Loaders.OPTIFINE)
         details.push(
           (message.guild ?? message).language.get("MC_LOG_OPTIFINE_INFO", {
-            version: mcInfo.optifineVersion,
+            version: mcInfo.optifineVersion.trim(),
           })
         );
 
