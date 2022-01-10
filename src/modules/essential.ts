@@ -67,12 +67,16 @@ const cancelButton = new MessageButton()
   .setCustomId("cancel_me");
 
 export default class Essential extends Module {
-  guildId: Snowflake;
-  guild: FireGuild;
+  otherGuildIds: Snowflake[] = ["874755593506803733"];
+  publicGuildId: Snowflake = "864592657572560958";
+  otherGuilds: FireGuild[] = [];
+  publicGuild: FireGuild;
+
+  categoryIds: Snowflake[] = ["880170184931934328", "930070260269318174"];
+  categories: Record<Snowflake, CategoryChannel> = {};
 
   constructor() {
     super("essential");
-    this.guildId = "864592657572560958";
   }
 
   async init() {
@@ -82,47 +86,61 @@ export default class Essential extends Module {
   }
 
   async ready() {
-    this.guild = this.client.guilds.cache.get(this.guildId) as FireGuild;
-    if (!this.guild) {
+    this.publicGuild = this.client.guilds.cache.get(
+      this.publicGuildId
+    ) as FireGuild;
+    this.otherGuilds = this.otherGuildIds
+      .map((id) => this.client.guilds.cache.get(id))
+      .filter((guild) => !!guild) as FireGuild[];
+    if (!this.publicGuild && !this.otherGuilds.length) {
       this.remove();
       return;
+    }
+    for (const id of this.categoryIds) {
+      const channel = this.client.channels.cache
+        .filter((c) => c.type == "GUILD_CATEGORY")
+        .get(id) as CategoryChannel;
+      if (!channel) {
+        this.categoryIds = this.categoryIds.filter((c) => c != id);
+        continue;
+      }
+      this.categories[channel.guildId] = channel;
     }
   }
 
   async handleTicket(trigger: ComponentMessage, type: string) {
     const member = trigger.member
       ? trigger.member
-      : ((await this.guild.members.fetch(trigger.author)) as FireMember);
+      : ((await this.publicGuild.members.fetch(trigger.author)) as FireMember);
     if (!member) return "no member"; // how
     if (!type) return "no type";
     if (type == "general") {
-      const category = this.guild.channels.cache.get(
-        "880170184931934328"
-      ) as CategoryChannel;
+      const category = this.categories[trigger.guildId];
       if (!category) return "no category";
-      return await this.guild.createTicket(
+      return await trigger.guild.createTicket(
         member,
         "General Support",
         trigger.realChannel as FireTextChannel,
         category
       );
     } else if (type == "crash") {
-      const category = this.guild.channels.cache.get(
-        "880170184931934328"
-      ) as CategoryChannel;
+      const category = this.categories[trigger.guildId];
       if (!category) return "no category";
-      const ticket = await this.guild.createTicket(
+      const ticket = await trigger.guild.createTicket(
         member,
         "My game is crashing <:crashwoah:895747752443666442>",
         trigger.realChannel as FireTextChannel,
         category
       );
       if (ticket instanceof Channel) {
-        if (!this.guild.tags) {
-          this.guild.tags = new GuildTagManager(this.client, this.guild);
-          await this.guild.tags.init();
+        if (!this.publicGuild.tags) {
+          this.publicGuild.tags = new GuildTagManager(
+            this.client,
+            this.publicGuild
+          );
+          await this.publicGuild.tags.init();
         }
-        const manager = this.guild.tags;
+        const manager = this.publicGuild.tags;
         const cachedTag = await manager.getTag("latestlog");
         if (!cachedTag) return ticket;
         await manager.useTag(cachedTag.name);
@@ -130,11 +148,9 @@ export default class Essential extends Module {
       }
       return ticket;
     } else if (type == "bug") {
-      const category = this.guild.channels.cache.get(
-        "880170184931934328"
-      ) as CategoryChannel;
+      const category = this.categories[trigger.guildId];
       if (!category) return "no category";
-      const ticket = await this.guild.createTicket(
+      const ticket = await trigger.guild.createTicket(
         member,
         "I found a bug that needs to be squashed 🐛",
         trigger.realChannel as FireTextChannel,
@@ -155,33 +171,27 @@ These instructions are designed for the official launcher so if you're using a t
           .catch(() => {});
       return ticket;
     } else if (type == "enquiry") {
-      const category = this.guild.channels.cache.get(
-        "880170184931934328"
-      ) as CategoryChannel;
+      const category = this.categories[trigger.guildId];
       if (!category) return "no category";
-      return await this.guild.createTicket(
+      return await trigger.guild.createTicket(
         member,
         "I have a question ❓",
         trigger.realChannel as FireTextChannel,
         category
       );
     } else if (type == "ice") {
-      const category = this.guild.channels.cache.get(
-        "880170184931934328"
-      ) as CategoryChannel;
+      const category = this.categories[trigger.guildId];
       if (!category) return "no category";
-      return await this.guild.createTicket(
+      return await trigger.guild.createTicket(
         member,
         "I need help or have encountered issues while inviting friends to a world 🧊",
         trigger.realChannel as FireTextChannel,
         category
       );
     } else if (type == "java") {
-      const category = this.guild.channels.cache.get(
-        "880170184931934328"
-      ) as CategoryChannel;
+      const category = this.categories[trigger.guildId];
       if (!category) return "no category";
-      return await this.guild.createTicket(
+      return await trigger.guild.createTicket(
         member,
         "The Essential installer cannot find a valid Java installation ☕",
         trigger.realChannel as FireTextChannel,
