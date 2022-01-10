@@ -678,7 +678,14 @@ export default class Button extends Listener {
         !(ticket instanceof ThreadChannel)
       ) {
         // how?
-        if (ticket == "author" || ticket == "blacklisted") return;
+        if (ticket == "blacklisted") return;
+        else if (
+          typeof ticket == "string" &&
+          (ticket == "author" || ticket.startsWith("no "))
+        )
+          return await button.edit(
+            button.language.getSlashError("COMMAND_ERROR_500")
+          );
         else if (ticket == "disabled")
           return await button.edit(
             button.language.getSlashError("NEW_TICKET_DISABLED")
