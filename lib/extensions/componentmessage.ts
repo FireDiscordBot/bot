@@ -153,7 +153,15 @@ export class ComponentMessage {
     return this.snowflake.timestamp;
   }
 
-  send(key: LanguageKeys, args?: i18nOptions) {
+  get channelId() {
+    return this.interaction.channelId;
+  }
+
+  get guildId() {
+    return this.interaction.guildId;
+  }
+
+  send(key?: LanguageKeys, args?: i18nOptions) {
     return this.channel.send(
       {
         content: this.language.get(key, args),

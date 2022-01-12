@@ -101,15 +101,17 @@ export default class LeaveMSG extends Command {
           message.language.get("LEAVEMSG_CURRENT_SETTINGS", {
             prefix: message.util?.parsed?.prefix,
           })
-        )
-        .addField(message.language.get("CHANNEL"), channel?.toString())
-        .addField(message.language.get("MESSAGE"), msg)
-        .addField(
-          message.language.get("VARIABLES"),
-          Object.entries(variableMap)
-            .map(([key, val]) => `${key}: ${val}`)
-            .join("\n")
         );
+      if (channel)
+        embed
+          .addField(message.language.get("CHANNEL"), channel?.toString())
+          .addField(message.language.get("MESSAGE"), msg);
+      embed.addField(
+        message.language.get("VARIABLES"),
+        Object.entries(variableMap)
+          .map(([key, val]) => `${key}: ${val}`)
+          .join("\n")
+      );
       return await message.channel.send({ embeds: [embed] });
     } else if (
       typeof args.channel == "string" &&

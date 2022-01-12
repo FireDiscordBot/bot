@@ -1,12 +1,15 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
+import { Permissions } from "discord.js";
 
 export default class LogScan extends Command {
   constructor() {
     super("minecraft-log-scan", {
       description: (language: Language) =>
         language.get("MINECRAFT_LOGSCAN_COMMAND_DESCRIPTION"),
+      clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
+      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       enableSlashCommand: false,
       restrictTo: "guild",
       parent: "minecraft",

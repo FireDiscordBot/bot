@@ -144,6 +144,7 @@ export default class Quote extends Command {
       .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
     if (quoted == "QUOTE_PREMIUM_INCREASED_LENGTH")
       return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
+    else if (quoted == "nsfw") return await message.error("QUOTE_NSFW_TO_SFW");
     else if (args.debug && typeof quoted == "string")
       return !message
         ? await webhook.send({ content: quoted })
