@@ -148,13 +148,23 @@ export default class Message extends Listener {
           return await message.reply(
             "triggered steam/nitro phishing detection"
           );
-        return await message.member?.bean(
-          match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
-          message.guild.me,
-          null,
-          7,
-          message.channel as FireTextChannel
-        );
+        return await message.member
+          ?.bean(
+            match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
+            message.guild.me,
+            null,
+            7,
+            message.channel as FireTextChannel
+          )
+          .then((result) => {
+            if (
+              result instanceof FireMessage &&
+              result.guild?.me
+                ?.permissionsIn(message.channel as FireTextChannel)
+                ?.has("ADD_REACTIONS")
+            )
+              result.react("🎣").catch(() => {});
+          });
       };
       if (
         lowerContent.includes("@everyone") &&
