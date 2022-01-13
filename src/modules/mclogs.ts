@@ -703,7 +703,7 @@ export default class MCLogs extends Module {
           return this;
         },
         contentType: "text/plain; charset=utf-8",
-        name: "message.txt",
+        name: `${domain}/${key}`,
         ephemeral: true,
         id: message.id,
         description: "",
