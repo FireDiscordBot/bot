@@ -1292,7 +1292,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         );
       }
       transcript.push(`${transcript.length} messages, closed by ${author}`);
-      const buffer = Buffer.from(transcript.join("\n\n"), "ascii");
+      const buffer = Buffer.from(transcript.join("\n\n"), "utf-8");
       if (creator)
         await creator
           .send({
