@@ -744,7 +744,7 @@ export default class Button extends Listener {
         essentialModule[`supportHandle${titleCase(choice, "_")}`];
       if (!handler || typeof handler != "function")
         return await button.error("ESSENTIAL_SUPPORT_CHOICE_INVALID");
-      else return await handler(button);
+      else return await handler.bind(essentialModule)(button);
     }
 
     if (button.customId.startsWith("snooze:")) {
