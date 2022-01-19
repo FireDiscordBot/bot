@@ -59,6 +59,7 @@ const validEssentialTypes = [
   "general",
   "testers",
   "java",
+  "network",
 ];
 
 export default class Button extends Listener {
