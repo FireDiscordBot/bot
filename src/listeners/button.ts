@@ -656,7 +656,7 @@ export default class Button extends Listener {
         new MessageButton()
           .setCustomId("essentialsupport:network")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_NETWORK"))
-          .setStyle("PRIMARY"),
+          .setStyle("DANGER"),
         new MessageButton()
           .setCustomId("essentialsupport:other")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
