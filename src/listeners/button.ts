@@ -629,7 +629,7 @@ export default class Button extends Listener {
 
       if (!message) return "no message";
 
-      const choices = [
+      const choicesRowOne = [
         new MessageButton()
           .setCustomId("essentialsupport:crash")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_CRASH"))
@@ -651,17 +651,22 @@ export default class Button extends Listener {
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_JAVA"))
           .setStyle("PRIMARY"),
       ];
+      const choicesRowTwo = [
+        new MessageButton()
+          .setCustomId("essentialsupport:network")
+          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_NETWORK"))
+          .setStyle("PRIMARY"),
+        new MessageButton()
+          .setCustomId("essentialsupport:other")
+          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
+          .setStyle("PRIMARY"),
+      ];
       if (!(button.flags & 64)) button.flags += 64;
       return await button.edit({
         content: button.language.get("ESSENTIAL_SUPPORT_CHOOSE_ISSUE"),
         components: [
-          new MessageActionRow().addComponents(choices),
-          new MessageActionRow().addComponents(
-            new MessageButton()
-              .setCustomId("essentialsupport:other")
-              .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_OTHER"))
-              .setStyle("PRIMARY")
-          ),
+          new MessageActionRow().addComponents(choicesRowOne),
+          new MessageActionRow().addComponents(choicesRowTwo),
         ],
       });
     } else if (button.customId.startsWith("essential_confirm_")) {
@@ -736,7 +741,7 @@ export default class Button extends Listener {
       if (!essentialModule) return;
 
       const handler: Function =
-        essentialModule[`supportHandle${titleCase(choice)}`];
+        essentialModule[`supportHandle${titleCase(choice, "_")}`];
       if (!handler || typeof handler != "function")
         return await button.error("ESSENTIAL_SUPPORT_CHOICE_INVALID");
       else return await handler(button);

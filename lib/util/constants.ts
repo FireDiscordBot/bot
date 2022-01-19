@@ -376,12 +376,12 @@ export const constants = {
   ],
 };
 
-export const titleCase = (string: string) =>
+export const titleCase = (string: string, separator = " ") =>
   string
     .toLowerCase()
-    .split(" ")
+    .split(separator)
     .map((sentence) => sentence.charAt(0).toUpperCase() + sentence.slice(1))
-    .join(" ");
+    .join(separator);
 
 export const zws = "\u200b";
 

@@ -48,6 +48,22 @@ If the installer is saying it could not find a valid Java installation, this can
 
 If the guide helped, you can click the red button below to cancel opening a ticket. Otherwise, click the green one to speak to our support team.`;
 
+const supportNetworkMessage = `Connection to Essential's network is required for most features to function!
+
+The most common reason for not being able to connect is using a cracked/pirated version of Minecraft.
+
+Please select the most appropriate option below to continue.`;
+
+const supportNetworkPurchasedMessage = `There are a few other reasons that may prevent you from connecting...
+
+- Internet issues, such as a bad connection or a firewall blocking essential.gg
+- An outage on our end (Check <#885509698575560724> to see if there's any known issues)
+- A malicious application has tampered with your system preventing you from authenticating with Mojang
+
+Our support team will guide you through troubleshooting the issue in your ticket.
+
+Click the green button below to open a ticket or the red one to cancel.`;
+
 const supportOtherMessage = `No worries! We can't list every possible issue.
 
 Make sure you have all the details about the issue ready to provide to the support team.
@@ -197,6 +213,15 @@ These instructions are designed for the official launcher so if you're using a t
         trigger.realChannel as FireTextChannel,
         category
       );
+    } else if (type == "network") {
+      const category = this.categories[trigger.guildId];
+      if (!category) return "no category";
+      return await trigger.guild.createTicket(
+        member,
+        "I'm having issues connecting to the Essential network <:status_dnd:775514595951378452>",
+        trigger.realChannel as FireTextChannel,
+        category
+      );
     }
   }
 
@@ -252,6 +277,50 @@ These instructions are designed for the official launcher so if you're using a t
     return await button.edit({
       content: supportJavaMessage,
       components: [new MessageActionRow().setComponents(actions)],
+    });
+  }
+
+  async supportHandleNetwork(button: ComponentMessage) {
+    const actions = [
+      new MessageButton()
+        .setStyle("PRIMARY")
+        .setLabel("I have purchased the game")
+        .setEmoji("💵")
+        .setCustomId("essentialsupport:network_purchased"),
+      new MessageButton()
+        .setStyle("PRIMARY")
+        .setLabel("I am using a cracked/pirated version")
+        .setEmoji("🏴‍☠️")
+        .setCustomId("essentialsupport:cracked"),
+      cancelButton,
+    ];
+    return await button.edit({
+      content: supportNetworkMessage,
+      components: [new MessageActionRow().setComponents(actions)],
+    });
+  }
+
+  async supportHandleNetworkPurchased(button: ComponentMessage) {
+    const actions = [
+      openButton().setCustomId("essential_confirm_network"),
+      cancelButton,
+    ];
+    return await button.edit({
+      content: supportNetworkPurchasedMessage,
+      components: [new MessageActionRow().setComponents(actions)],
+    });
+  }
+
+  async supportHandleCracked(button: ComponentMessage) {
+    if (!button.guild.tags) {
+      button.guild.tags = new GuildTagManager(this.client, button.guild);
+      await button.guild.tags.init();
+    }
+    const manager = button.guild.tags;
+    const cachedTag = await manager.getTag("cracked");
+    return await button.edit({
+      content: cachedTag.content,
+      components: [new MessageActionRow().setComponents([cancelButton])],
     });
   }
 
