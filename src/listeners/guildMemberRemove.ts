@@ -62,12 +62,7 @@ export default class GuildMemberRemove extends Listener {
         (channel instanceof FireTextChannel
           ? channel.topic
           : channel.name
-        ).startsWith(
-          member.guild.language.get("TICKET_CHANNEL_TOPIC", {
-            author: member.toString(),
-            id: member.id,
-          }) as string
-        )
+        ).includes(member.id)
       ) {
         const history = await channel.messages
           .fetch({ limit: 20 })
