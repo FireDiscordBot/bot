@@ -229,6 +229,17 @@ export default class ReactionRole extends Command {
           resolve(false);
         }
       });
+
+      setTimeout(() => {
+        if (
+          this.client.buttonHandlers.has(confirm) &&
+          this.client.buttonHandlers.has(deny)
+        ) {
+          this.client.buttonHandlers.delete(confirm);
+          this.client.buttonHandlers.delete(deny);
+          resolve(false);
+        }
+      }, 60000);
     });
   }
 }
