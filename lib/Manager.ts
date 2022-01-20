@@ -38,7 +38,7 @@ export class Manager {
   }
 
   get ua() {
-    return `Fire Discord Bot/${this.version} Node.JS/${process.version} (+https://fire.gaminggeek.dev/)`;
+    return `Fire Discord Bot/${this.version} Node.JS/${process.version} (+https://getfire.bot/)`;
   }
 
   get djsua() {

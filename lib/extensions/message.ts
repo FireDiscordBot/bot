@@ -294,17 +294,11 @@ export class FireMessage extends Message {
 
     // check thread members if private thread
     if (this.channel.type.endsWith("thread")) {
-      const members = await (this.channel as ThreadChannel).members.fetch(
-        false
+      const member = await (this.channel as ThreadChannel).members.fetch(
+        quoter,
+        { cache: false }
       );
-      if (!members?.size || !members.has(quoter.id)) return "permissions";
-
-      // we do not need y'all anymore stop taking up memory geez
-      // @ts-ignore (ThreadMemberManager#cache seemingly exists but is not in the types)
-      this.channel.members.cache?.sweep(
-        (member: ThreadMember) => member.id != this.client.user?.id
-      );
-      members.sweep(() => true);
+      if (!member) return "permissions";
     } else if (!isLurkable)
       if (
         !member ||
@@ -379,9 +373,13 @@ export class FireMessage extends Message {
     this.guild?.quoteHooks.set(destination.id, hook);
     let content = this.content;
     if (content) {
-      content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
-      const filters = this.client.getModule("filters") as Filters;
-      content = await filters.runReplace(content, quoter);
+      if (!quoter?.isSuperuser()) {
+        content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
+        const filters = this.client.getModule("filters") as Filters;
+        content = await filters
+          .runReplace(content, quoter)
+          .catch(() => content);
+      }
       for (const [, user] of this.mentions.users)
         content = content.replace((user as FireUser).toMention(), `@${user}`);
       for (const [, role] of this.mentions.roles)

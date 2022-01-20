@@ -172,10 +172,10 @@ export const constants = {
   reactions,
   // urls
   url: {
-    discovery: "https://fire.gaminggeek.dev/discover",
+    discovery: "https://getfire.bot/discover",
     discordStatus: "https://discordstatus.com",
     fireStatus: "https://firestatus.link",
-    website: "https://fire.gaminggeek.dev/",
+    website: "https://getfire.bot/",
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",
     premium: "https://inv.wtf/premium",
@@ -378,12 +378,12 @@ export const constants = {
   ],
 };
 
-export const titleCase = (string: string) =>
+export const titleCase = (string: string, separator = " ") =>
   string
     .toLowerCase()
-    .split(" ")
+    .split(separator)
     .map((sentence) => sentence.charAt(0).toUpperCase() + sentence.slice(1))
-    .join(" ");
+    .join("");
 
 export const zws = "\u200b";
 

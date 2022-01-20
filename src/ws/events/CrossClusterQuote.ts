@@ -8,7 +8,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import Quote from "@fire/src/commands/Utilities/quote";
-import { NewsChannel, Snowflake } from "discord.js";
+import { NewsChannel, Snowflake, ThreadChannel } from "discord.js";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
 
@@ -42,11 +42,8 @@ export default class CrossClusterQuote extends Event {
         `[Aether] Attempted cross cluster quote with unknown member`
       );
     const channel = guild.channels.cache
-      .filter(
-        (channel) =>
-          channel.type == "GUILD_TEXT" || channel.type == "GUILD_NEWS"
-      )
-      .get(data.channel_id) as FireTextChannel | NewsChannel;
+      .filter((channel) => channel.isText() || channel.isThread())
+      .get(data.channel_id) as FireTextChannel | NewsChannel | ThreadChannel;
     if (!channel)
       return this.manager.client.console.warn(
         `[Aether] Attempted cross cluster quote with unknown channel`
