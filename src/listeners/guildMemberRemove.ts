@@ -1,4 +1,10 @@
-import { Formatters, MessageEmbed, Permissions, Snowflake } from "discord.js";
+import {
+  Formatters,
+  MessageEmbed,
+  Permissions,
+  Snowflake,
+  ThreadChannel,
+} from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -64,6 +70,7 @@ export default class GuildMemberRemove extends Listener {
           : channel.name
         ).includes(member.id)
       ) {
+        if (channel instanceof ThreadChannel && channel.archived) continue;
         const history = await channel.messages
           .fetch({ limit: 20 })
           .catch(() => {});
