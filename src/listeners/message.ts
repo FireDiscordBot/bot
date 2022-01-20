@@ -133,7 +133,7 @@ export default class Message extends Listener {
           .catch(() => {});
     }
 
-    if (message.guild?.hasExperiment(936071411, 1)) {
+    if (message.guild?.hasExperiment(936071411, [1, 2])) {
       const lowerContent = sanitizer(
         (
           message.content +
@@ -154,7 +154,9 @@ export default class Message extends Listener {
             message.guild.me,
             null,
             7,
-            message.channel as FireTextChannel
+            message.guild?.hasExperiment(936071411, 1)
+              ? (message.channel as FireTextChannel)
+              : undefined
           )
           .then((result) => {
             if (
