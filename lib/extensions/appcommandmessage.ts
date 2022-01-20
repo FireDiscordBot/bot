@@ -471,7 +471,7 @@ export class FakeChannel extends BaseFakeChannel {
   }
 
   sendTyping() {
-    return new Promise(() => {});
+    return new Promise((r) => r(null));
   }
 
   bulkDelete(
