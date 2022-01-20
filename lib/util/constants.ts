@@ -170,10 +170,10 @@ export const constants = {
   reactions,
   // urls
   url: {
-    discovery: "https://fire.gaminggeek.dev/discover",
+    discovery: "https://getfire.bot/discover",
     discordStatus: "https://discordstatus.com",
     fireStatus: "https://firestatus.link",
-    website: "https://fire.gaminggeek.dev/",
+    website: "https://getfire.bot/",
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",
     premium: "https://inv.wtf/premium",

@@ -121,7 +121,7 @@ export default class Help extends Command {
       new MessageActionRow().addComponents([
         new MessageButton()
           .setStyle("LINK")
-          .setURL("https://fire.gaminggeek.dev/")
+          .setURL("https://getfire.bot/")
           .setLabel(message.language.get("HELP_BUTTON_WEBSITE")),
         new MessageButton()
           .setStyle("LINK")
