@@ -250,6 +250,21 @@ export default class Message extends Listener {
         lowerContent.includes("steam")
       )
         return await triggerFilter("Nitro/Steam Link");
+      else if (
+        lowerContent.includes("gift") &&
+        message.embeds.length &&
+        message.embeds.some((e) => {
+          const lowerDescription = e.description?.toLowerCase() ?? "";
+          return (
+            (e.title == "Yоu've been giftеd а subscriptiоn!" &&
+              lowerDescription.includes("nitro")) ||
+            (lowerDescription.includes("nitro") &&
+              lowerDescription.includes("discord") &&
+              lowerDescription.includes("month"))
+          );
+        })
+      )
+        return await triggerFilter("Fake gift link");
     }
 
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
