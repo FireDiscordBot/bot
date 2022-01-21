@@ -14,6 +14,12 @@ import { StringMap, TOptions } from "i18next";
 const emojiRegex = require("emoji-regex")() as RegExp;
 const emojiRegexStr = emojiRegex.toString();
 
+export enum CouponType {
+  BOOSTER = "BOOSTER",
+  TWITCHSUB = "TWITCHSUB",
+  BOOSTER_AND_SUB = "TWITCHBOOST",
+}
+
 export type ActionLogType =
   | "system"
   | "public_toggle"

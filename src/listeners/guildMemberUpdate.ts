@@ -10,6 +10,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import EssentialNitro from "../modules/essentialnitro";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
+import { CouponType } from "@fire/lib/util/constants";
 
 export default class GuildMemberUpdate extends Listener {
   constructor() {
@@ -23,6 +24,29 @@ export default class GuildMemberUpdate extends Listener {
     // Both of these will check permissions & whether
     // dehoist/decancer is enabled so no need for checks here
     newMember.dehoistAndDecancer();
+
+    if (newMember.guild?.id == this.client.config.fireguildId) {
+      if (newMember.settings?.has("premium.coupon")) {
+        const coupon: CouponType =
+          newMember.settings.get<CouponType>("premium.coupon");
+        if (
+          coupon == CouponType.BOOSTER &&
+          !newMember.roles.cache.has("620512846232551427")
+        )
+          this.client.util.deleteSpecialCoupon(newMember);
+        else if (
+          coupon == CouponType.TWITCHSUB &&
+          !newMember.roles.cache.has("745392985151111338")
+        )
+          this.client.util.deleteSpecialCoupon(newMember);
+        else if (
+          coupon == CouponType.BOOSTER_AND_SUB &&
+          (!newMember.roles.cache.has("620512846232551427") ||
+            !newMember.roles.cache.has("745392985151111338"))
+        )
+          this.client.util.deleteSpecialCoupon(newMember);
+      }
+    }
 
     if (
       !newMember.guild.hasExperiment(1955682940, 1) &&

@@ -11,6 +11,7 @@ import {
   Collection,
   Snowflake,
   Webhook,
+  SnowflakeUtil,
 } from "discord.js";
 import {
   GuildMemberCountFilter,
@@ -20,7 +21,7 @@ import {
   FeatureFilter,
   Experiments,
 } from "../interfaces/discord";
-import { GuildTextChannel, humanize, titleCase } from "./constants";
+import { CouponType, GuildTextChannel, humanize, titleCase } from "./constants";
 import { Channel, Video } from "@fire/lib/interfaces/youtube";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -63,6 +64,17 @@ interface ExperimentData {
   lastFetch: number;
   guildExperiments: Experiments["guild_experiments"];
 }
+
+type SpecialCouponCreateResponse =
+  | {
+      success: false;
+      reason: LanguageKeys;
+    }
+  | {
+      success: true;
+      code: string;
+      expires: number;
+    };
 
 export class Util extends ClientUtil {
   paginators: LimitedCollection<Snowflake, PaginatorInterface>;
@@ -849,5 +861,44 @@ export class Util extends ClientUtil {
           })
         ),
     ];
+  }
+
+  async createSpecialCoupon(
+    user: FireUser | FireMember,
+    code: CouponType
+  ): Promise<SpecialCouponCreateResponse> {
+    return new Promise((resolve, reject) => {
+      const nonce = SnowflakeUtil.generate();
+      this.client.manager.ws.handlers.set(nonce, resolve);
+      this.client.manager.ws.send(
+        MessageUtil.encode(
+          new Message(
+            EventType.SPECIAL_COUPON,
+            { action: "create", user: user.id, code },
+            nonce
+          )
+        )
+      );
+
+      setTimeout(() => {
+        // if still there, a response has not been received
+        if (this.client.manager.ws.handlers.has(nonce)) {
+          this.client.manager.ws.handlers.delete(nonce);
+          reject();
+        }
+      }, 30000);
+    });
+  }
+
+  async deleteSpecialCoupon(user: FireUser | FireMember) {
+    this.client.manager.ws.send(
+      MessageUtil.encode(
+        new Message(EventType.SPECIAL_COUPON, {
+          action: "remove",
+          user: user.id,
+        })
+      )
+    );
+    user.settings.delete("premium.coupon");
   }
 }

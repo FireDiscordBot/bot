@@ -39,6 +39,12 @@ export default class GuildMemberRemove extends Listener {
         )
       );
 
+    if (
+      member.guild?.id == this.client.config.fireguildId &&
+      member.settings.has("premium.coupon")
+    )
+      this.client.util.deleteSpecialCoupon(member);
+
     const essentialModule = this.client.getModule(
       "essentialnitro"
     ) as EssentialNitro;
