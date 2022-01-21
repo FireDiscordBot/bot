@@ -1,3 +1,4 @@
+import * as sanitizer from "@aero/sanitizer";
 import { Fire } from "@fire/lib/Fire";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { CommandUtil } from "@fire/lib/util/commandutil";
@@ -25,7 +26,6 @@ import {
   ReplyMessageOptions,
   Structures,
   ThreadChannel,
-  ThreadMember,
   Webhook,
   WebhookClient,
 } from "discord.js";
@@ -835,6 +835,176 @@ export class FireMessage extends Message {
       ).length
     )
       return await this.delete().catch(() => {});
+  }
+
+  async runPhishFilters() {
+    if (!this.guild || !this.guild?.hasExperiment(936071411, [1, 2])) return;
+    const lowerContent = sanitizer(
+      (this.content + (this.embeds.map((e) => e.description).join(" ") ?? ""))
+        .toLowerCase()
+        .replace(/\s/gim, "")
+        .replace(regexes.zws, "")
+    );
+    const triggerFilter = async (match?: string) => {
+      let embedsHaste: { url: string; raw: string };
+      if (this.embeds.length)
+        embedsHaste = await this.client.util.haste(
+          JSON.stringify(this.embeds.map((e) => e.toJSON())),
+          true,
+          "json",
+          true
+        );
+      const URLs = [];
+      try {
+        let urlMatch: RegExpExecArray;
+        while ((urlMatch = regexes.URL.exec(this.content)))
+          if (urlMatch?.length) URLs.push(urlMatch[0]);
+      } catch {}
+      let linkHaste: { url: string; raw: string };
+      if (URLs.length)
+        linkHaste = await this.client.util.haste(
+          JSON.stringify(URLs),
+          true,
+          "json",
+          true
+        );
+      this.client.influx([
+        {
+          measurement: "phishing",
+          tags: {
+            user_id: this.author.id,
+            guild_id: this.guild.id,
+            cluster: this.client.manager.id.toString(),
+            shard: this.guild.shardId.toString(),
+          },
+          fields: {
+            guild: `${this.guild?.name} (${this.guild?.id})`,
+            user: `${this.author} (${this.author.id})`,
+            match,
+            content: this.content,
+            embeds: embedsHaste?.url,
+            embeds_raw: embedsHaste?.raw,
+            links: linkHaste?.url,
+            links_raw: linkHaste?.raw,
+          },
+        },
+      ]);
+      if (process.env.NODE_ENV == "development")
+        return await this.reply("triggered steam/nitro phishing detection");
+      return await this.member
+        ?.bean(
+          match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
+          this.guild.me,
+          null,
+          7,
+          this.guild?.hasExperiment(936071411, 1)
+            ? (this.channel as FireTextChannel)
+            : undefined
+        )
+        .then((result) => {
+          if (
+            result instanceof FireMessage &&
+            result.guild?.me
+              ?.permissionsIn(this.channel as FireTextChannel)
+              ?.has("ADD_REACTIONS")
+          )
+            result.react("🎣").catch(() => {});
+        });
+    };
+    if (
+      lowerContent.includes("@everyone") &&
+      (lowerContent.includes("nitro") ||
+        lowerContent.includes("cs:go") ||
+        lowerContent.includes("tradeoffer") ||
+        lowerContent.includes("partner"))
+    )
+      return await triggerFilter("Common Words");
+    else if (
+      lowerContent.includes("steam") &&
+      lowerContent.includes("http") &&
+      (lowerContent.includes("tradeoffer") ||
+        lowerContent.includes("partner") ||
+        lowerContent.includes("cs:go"))
+    )
+      return await triggerFilter("CS:GO Trade/Partner Link");
+    else if (
+      lowerContent.includes("nitro") &&
+      lowerContent.includes("steam") &&
+      lowerContent.includes("http")
+    )
+      return await triggerFilter("Nitro/Steam Link");
+    else if (
+      lowerContent.includes("nitro") &&
+      lowerContent.includes("distributiоn") &&
+      lowerContent.includes("free")
+    )
+      return await triggerFilter("Free Nitro Link");
+    else if (
+      lowerContent.includes("discord") &&
+      lowerContent.includes("steam") &&
+      lowerContent.includes("http")
+    )
+      return await triggerFilter("Discord/Steam Link");
+    else if (
+      lowerContent.includes("cs") &&
+      lowerContent.includes("go") &&
+      lowerContent.includes("skin") &&
+      lowerContent.includes("http")
+    )
+      return await triggerFilter("CS:GO Skin");
+    else if (
+      lowerContent.includes("nitro") &&
+      lowerContent.includes("gift") &&
+      lowerContent.includes(".ru")
+    )
+      return await triggerFilter(".ru Nitro Gift Link");
+    else if (
+      lowerContent.includes("leaving") &&
+      lowerContent.includes("fucking") &&
+      lowerContent.includes("game")
+    )
+      return await triggerFilter('"Rage Quit"');
+    else if (
+      lowerContent.includes("gift") &&
+      lowerContent.includes("http") &&
+      lowerContent.includes("@everyone")
+    )
+      return await triggerFilter("@everyone Mention w/Gift Link");
+    else if (
+      lowerContent.includes("gift") &&
+      lowerContent.includes("http") &&
+      lowerContent.includes("bro")
+    )
+      // copilot generated this and I can't stop laughing at it
+      return await triggerFilter("Bro Mention w/Gift Link");
+    else if (
+      lowerContent.includes("gift") &&
+      lowerContent.includes("http") &&
+      lowerContent.includes("for you")
+    )
+      return await triggerFilter("gift 4 you bro");
+    else if (lowerContent.includes("airdrop") && lowerContent.includes("nitro"))
+      return await triggerFilter("Nitro Airdrop");
+    else if (lowerContent.includes("/n@") && lowerContent.includes("nitro"))
+      return await triggerFilter("Epic Newline Fail");
+    else if (
+      lowerContent.includes("distribution") &&
+      lowerContent.includes("nitro") &&
+      lowerContent.includes("steam")
+    )
+      return await triggerFilter("Nitro/Steam Link");
+    else if (
+      lowerContent.includes("dis") &&
+      lowerContent.includes(".gift") &&
+      !lowerContent.includes("discord.gift/")
+    )
+      return await triggerFilter("Fake gift link");
+    else if (
+      lowerContent.includes("dis") &&
+      lowerContent.includes(".gift") &&
+      lowerContent.includes("who is")
+    )
+      return await triggerFilter("Fake gift link");
   }
 }
 

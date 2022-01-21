@@ -1,6 +1,5 @@
 import * as sanitizer from "@aero/sanitizer";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Message as AetherMessage } from "@fire/lib/ws/Message";
@@ -30,6 +29,22 @@ const cleanMap = {
 
 const youForgotTheHyphen =
   /spider\s*?[!"#$%&'()*+,./:;<=>?@[\]^_`{|}~]*?\s*?man/gim;
+
+const safeDecodeURI = (encodedURI: string) => {
+  try {
+    return decodeURI(encodedURI);
+  } catch {
+    return encodedURI;
+  }
+};
+
+const safeDecodeURIComponent = (encodedURIComponent: string) => {
+  try {
+    return decodeURIComponent(encodedURIComponent);
+  } catch {
+    return encodedURIComponent;
+  }
+};
 
 export default class Message extends Listener {
   recentTokens: string[];
@@ -133,142 +148,6 @@ export default class Message extends Listener {
           .catch(() => {});
     }
 
-    if (message.guild?.hasExperiment(936071411, [1, 2])) {
-      const lowerContent = sanitizer(
-        (
-          message.content +
-          (message.embeds.map((e) => e.description).join(" ") ?? "")
-        )
-          .toLowerCase()
-          .replace(/\s/gim, "")
-          .replace(regexes.zws, "")
-      );
-      const triggerFilter = async (match?: string) => {
-        if (process.env.NODE_ENV == "development")
-          return await message.reply(
-            "triggered steam/nitro phishing detection"
-          );
-        return await message.member
-          ?.bean(
-            match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
-            message.guild.me,
-            null,
-            7,
-            message.guild?.hasExperiment(936071411, 1)
-              ? (message.channel as FireTextChannel)
-              : undefined
-          )
-          .then((result) => {
-            if (
-              result instanceof FireMessage &&
-              result.guild?.me
-                ?.permissionsIn(message.channel as FireTextChannel)
-                ?.has("ADD_REACTIONS")
-            )
-              result.react("🎣").catch(() => {});
-          });
-      };
-      if (
-        lowerContent.includes("@everyone") &&
-        (lowerContent.includes("nitro") ||
-          lowerContent.includes("cs:go") ||
-          lowerContent.includes("tradeoffer") ||
-          lowerContent.includes("partner"))
-      )
-        return await triggerFilter("Common Words");
-      else if (
-        lowerContent.includes(".ru") &&
-        (lowerContent.includes("tradeoffer") ||
-          lowerContent.includes("partner") ||
-          lowerContent.includes("cs:go"))
-      )
-        return await triggerFilter(".ru CS:GO Trade/Partner Link");
-      else if (
-        lowerContent.includes("nitro") &&
-        lowerContent.includes("steam") &&
-        lowerContent.includes("http")
-      )
-        return await triggerFilter("Nitro/Steam Link");
-      else if (
-        lowerContent.includes("nitro") &&
-        lowerContent.includes("distributiоn") &&
-        lowerContent.includes("free")
-      )
-        return await triggerFilter("Free Nitro Link");
-      else if (
-        lowerContent.includes("discord") &&
-        lowerContent.includes("steam") &&
-        lowerContent.includes("http")
-      )
-        return await triggerFilter("Discord/Steam Link");
-      else if (
-        lowerContent.includes("cs") &&
-        lowerContent.includes("go") &&
-        lowerContent.includes("skin") &&
-        lowerContent.includes("http")
-      )
-        return await triggerFilter("CS:GO Skin");
-      else if (
-        lowerContent.includes("nitro") &&
-        lowerContent.includes("gift") &&
-        lowerContent.includes(".ru")
-      )
-        return await triggerFilter(".ru Nitro Gift Link");
-      else if (
-        lowerContent.includes("leaving") &&
-        lowerContent.includes("fucking") &&
-        lowerContent.includes("game")
-      )
-        return await triggerFilter('"Rage Quit"');
-      else if (
-        lowerContent.includes("gift") &&
-        lowerContent.includes("http") &&
-        lowerContent.includes("@everyone")
-      )
-        return await triggerFilter("@everyone Mention w/Gift Link");
-      else if (
-        lowerContent.includes("gift") &&
-        lowerContent.includes("http") &&
-        lowerContent.includes("bro")
-      )
-        // copilot generated this and I can't stop laughing at it
-        return await triggerFilter("Bro Mention w/Gift Link");
-      else if (
-        lowerContent.includes("gift") &&
-        lowerContent.includes("http") &&
-        lowerContent.includes("for you")
-      )
-        return await triggerFilter("gift 4 you bro");
-      else if (
-        lowerContent.includes("airdrop") &&
-        lowerContent.includes("nitro")
-      )
-        return await triggerFilter("Nitro Airdrop");
-      else if (lowerContent.includes("/n@") && lowerContent.includes("nitro"))
-        return await triggerFilter("Epic Newline Fail");
-      else if (
-        lowerContent.includes("distribution") &&
-        lowerContent.includes("nitro") &&
-        lowerContent.includes("steam")
-      )
-        return await triggerFilter("Nitro/Steam Link");
-      else if (
-        lowerContent.includes("gift") &&
-        message.embeds.length &&
-        message.embeds.some((e) => {
-          const lowerDescription = e.description?.toLowerCase() ?? "";
-          return (
-            (e.title == "Yоu've been giftеd а subscriptiоn!" &&
-              lowerDescription.includes("nitro")) ||
-            (lowerDescription.includes("nitro") &&
-              lowerDescription.includes("discord") &&
-              lowerDescription.includes("month"))
-          );
-        })
-      )
-        return await triggerFilter("Fake gift link");
-    }
-
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
     // These won't run if the modules aren't loaded
     await mcLogsModule?.checkLogs(message).catch(() => {});
@@ -282,6 +161,7 @@ export default class Message extends Listener {
     }
 
     await message.runAntiFilters().catch(() => {});
+    await message.runPhishFilters().catch(() => {});
 
     let toSearch = (
       message.content +
@@ -379,13 +259,15 @@ export default class Message extends Listener {
     if (message.embeds.length && includeEmbeds)
       message.embeds = message.embeds.map((embed) => {
         // normalize urls
-        if (embed.url) embed.url = decodeURI(new URL(embed.url).toString());
+        if (embed.url) embed.url = safeDecodeURI(new URL(embed.url).toString());
         if (embed.thumbnail?.url)
-          embed.thumbnail.url = decodeURI(
+          embed.thumbnail.url = safeDecodeURI(
             new URL(embed.thumbnail.url).toString()
           );
         if (embed.author?.url)
-          embed.author.url = decodeURI(new URL(embed.author.url).toString());
+          embed.author.url = safeDecodeURI(
+            new URL(embed.author.url).toString()
+          );
         return embed;
       });
 
@@ -398,7 +280,7 @@ export default class Message extends Listener {
           const uri = new URL(match[0]);
           content = content.replace(
             match[0],
-            decodeURIComponent(uri.toString())
+            safeDecodeURIComponent(uri.toString())
           );
         } catch {}
 
