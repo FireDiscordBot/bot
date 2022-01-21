@@ -838,7 +838,13 @@ export class FireMessage extends Message {
   }
 
   async runPhishFilters() {
-    if (!this.guild || !this.guild?.hasExperiment(936071411, [1, 2])) return;
+    if (
+      !this.guild ||
+      this.author?.bot ||
+      this.webhookId ||
+      !this.guild?.hasExperiment(936071411, [1, 2])
+    )
+      return;
     const lowerContent = sanitizer(
       (this.content + (this.embeds.map((e) => e.description).join(" ") ?? ""))
         .toLowerCase()
