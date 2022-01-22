@@ -47,7 +47,7 @@
     "module-alias": "^2.2.2",
     "moment": "^2.29.1",
     "murmurhash-js": "^1.0.0",
-    "nanoid": "^3.1.30",
+    "nanoid": "^3.1.31",
     "node-color-log": "^7.0.0",
     "nodejs-assistant": "^0.8.0",
     "p-event": "^4.2.0",
