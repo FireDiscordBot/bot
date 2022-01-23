@@ -1,4 +1,10 @@
-import { Formatters, MessageEmbed, Permissions, Snowflake } from "discord.js";
+import {
+  Formatters,
+  MessageEmbed,
+  Permissions,
+  Snowflake,
+  ThreadChannel,
+} from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -33,6 +39,12 @@ export default class GuildMemberRemove extends Listener {
         )
       );
 
+    if (
+      member.guild?.id == this.client.config.fireguildId &&
+      member.settings.has("premium.coupon")
+    )
+      this.client.util.deleteSpecialCoupon(member);
+
     const essentialModule = this.client.getModule(
       "essentialnitro"
     ) as EssentialNitro;
@@ -62,13 +74,9 @@ export default class GuildMemberRemove extends Listener {
         (channel instanceof FireTextChannel
           ? channel.topic
           : channel.name
-        ).startsWith(
-          member.guild.language.get("TICKET_CHANNEL_TOPIC", {
-            author: member.toString(),
-            id: member.id,
-          }) as string
-        )
+        ).includes(member.id)
       ) {
+        if (channel instanceof ThreadChannel && channel.archived) continue;
         const history = await channel.messages
           .fetch({ limit: 20 })
           .catch(() => {});

@@ -24,6 +24,7 @@ export default class MessageUpdate extends Listener {
       after.member.dehoistAndDecancer();
 
     await after.runAntiFilters().catch(() => {});
+    await after.runPhishFilters().catch(() => {});
 
     const messageListener = this.client.getListener("message") as Message;
 

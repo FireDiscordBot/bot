@@ -44,7 +44,7 @@ import Semaphore from "semaphore-async-await";
 import { v4 as uuidv4 } from "uuid";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { PermRolesData } from "../interfaces/permroles";
-import { DiscoverableGuild } from "../interfaces/stats";
+import { BadgeType, DiscoverableGuild } from "../interfaces/stats";
 import { MessageIterator } from "../util/iterators";
 import { LanguageKeys } from "../util/language";
 import { GuildLogManager } from "../util/logmanager";
@@ -728,6 +728,16 @@ export class FireGuild extends Guild {
     );
   }
 
+  get guildBadge(): BadgeType {
+    if (!this.features.length) return null;
+    if (this.features.includes("VERIFIED")) return "VERIFIED";
+    else if (this.features.includes("PARTNERED")) return "PARTNERED";
+    else if (this.premiumTier == "TIER_1") return "BOOST_FRIENDS";
+    else if (this.premiumTier == "TIER_2") return "BOOST_GROUPS";
+    else if (this.premiumTier == "TIER_3") return "BOOST_COMMUNITIES";
+    return null;
+  }
+
   getDiscoverableData(): DiscoverableGuild {
     let splash = "https://i.imgur.com/jWRMBRd.png";
     if (!this.available)
@@ -738,6 +748,7 @@ export class FireGuild extends Guild {
         splash,
         vanity: `https://discover.inv.wtf/${this.id}`,
         members: 0,
+        badge: this.guildBadge,
         featured: false,
         shard: this.shardId,
         cluster: this.client.manager.id,
@@ -766,6 +777,7 @@ export class FireGuild extends Guild {
       splash,
       vanity: `https://discover.inv.wtf/${this.id}`,
       members: this.memberCount,
+      badge: this.guildBadge,
       featured: this.settings.get<boolean>(
         "utils.featured",
         this.features.includes("FEATURABLE")
