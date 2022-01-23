@@ -36,7 +36,7 @@ import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import TicketName from "@fire/src/commands/Tickets/name";
 import { PermRolesData } from "../interfaces/permroles";
 import { GuildSettings } from "@fire/lib/util/settings";
-import { DiscoverableGuild } from "../interfaces/stats";
+import { BadgeType, DiscoverableGuild } from "../interfaces/stats";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildLogManager } from "../util/logmanager";
 import { BaseFakeChannel } from "../interfaces/misc";
@@ -727,6 +727,16 @@ export class FireGuild extends Guild {
     );
   }
 
+  get guildBadge(): BadgeType {
+    if (!this.features.length) return null;
+    if (this.features.includes("VERIFIED")) return "VERIFIED";
+    else if (this.features.includes("PARTNERED")) return "PARTNERED";
+    else if (this.premiumTier == "TIER_1") return "BOOST_FRIENDS";
+    else if (this.premiumTier == "TIER_2") return "BOOST_GROUPS";
+    else if (this.premiumTier == "TIER_3") return "BOOST_COMMUNITIES";
+    return null;
+  }
+
   getDiscoverableData(): DiscoverableGuild {
     let splash = "https://i.imgur.com/jWRMBRd.png";
     if (!this.available)
@@ -737,6 +747,7 @@ export class FireGuild extends Guild {
         splash,
         vanity: `https://discover.inv.wtf/${this.id}`,
         members: 0,
+        badge: this.guildBadge,
         featured: false,
         shard: this.shardId,
         cluster: this.client.manager.id,
@@ -765,6 +776,7 @@ export class FireGuild extends Guild {
       splash,
       vanity: `https://discover.inv.wtf/${this.id}`,
       members: this.memberCount,
+      badge: this.guildBadge,
       featured: this.settings.get<boolean>(
         "utils.featured",
         this.features.includes("FEATURABLE")
