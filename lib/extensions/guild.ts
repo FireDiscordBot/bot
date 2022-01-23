@@ -738,7 +738,7 @@ export class FireGuild extends Guild {
   }
 
   getDiscoverableData(): DiscoverableGuild {
-    let splash = "https://i.imgur.com/jWRMBRd.png";
+    let splash = "https://discover-imgs.inv.wtf/splash/default";
     if (!this.available)
       return {
         name: this.name || "Unavailable Guild",
