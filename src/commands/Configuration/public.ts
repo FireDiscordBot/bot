@@ -31,11 +31,13 @@ export default class Public extends Command {
     const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
     if (vanityurls.blacklisted.includes(message.guild.id))
       return await message.error("PUBLIC_VANITY_BLACKLIST");
-    const vanitys = await this.client.db.query(
-      "SELECT code FROM vanity WHERE gid=$1 AND redirect IS NULL",
-      [message.guild.id]
-    );
-    if (!vanitys.rows.length)
+    const vanitys = await this.client.db
+      .query("SELECT code FROM vanity WHERE gid=$1 AND redirect IS NULL", [
+        message.guild.id,
+      ])
+      .first()
+      .catch(() => {});
+    if (!vanitys || !vanitys.get("code"))
       return await message.error("PUBLIC_VANITY_REQUIRED", {
         prefix: message.util?.parsed?.prefix,
       });
@@ -50,7 +52,7 @@ export default class Public extends Command {
             })
           )
         );
-      await message.success("PUBLIC_ENABLED", { vanity: vanitys.rows[0][0] });
+      await message.success("PUBLIC_ENABLED", { vanity: vanitys.get("code") });
       await message.guild.actionLog(
         `${constants.emojis.statuspage.operational} ${message.language.get(
           "PUBLIC_ENABLED_LOG",
