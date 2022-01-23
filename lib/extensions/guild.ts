@@ -739,7 +739,7 @@ export class FireGuild extends Guild {
   }
 
   getDiscoverableData(): DiscoverableGuild {
-    let splash = "https://discover-imgs.inv.wtf/splash/default";
+    let splash = "";
     if (!this.available)
       return {
         name: this.name || "Unavailable Guild",
@@ -755,14 +755,14 @@ export class FireGuild extends Guild {
       };
     if (this.splash)
       splash = this.splashURL({
-        size: 2048,
+        size: 16,
         format: "png",
-      }).replace("size=2048", "size=320");
+      }).replace("size=16", "size=320");
     else if (this.discoverySplash)
       splash = this.discoverySplashURL({
-        size: 2048,
+        size: 16,
         format: "png",
-      }).replace("size=2048", "size=320");
+      }).replace("size=16", "size=320");
     const icon =
       this.iconURL({
         format: "png",
