@@ -40,7 +40,7 @@ export default class Avatar extends Command {
     args: { user: FireMember | FireUser | null }
   ) {
     let user = args.user;
-    if (typeof user == "undefined") user = command.member || command.author;
+    if (typeof user == "undefined") user = command.member ?? command.author;
     else if (!user) return;
 
     const color =
@@ -61,7 +61,12 @@ export default class Avatar extends Command {
       );
 
     let actionRow: MessageActionRow;
-    if (command.guild && user instanceof FireMember && user.avatar)
+    if (
+      command.guild &&
+      user instanceof FireMember &&
+      user.avatar &&
+      user.avatar != user.user.avatar
+    )
       actionRow = new MessageActionRow().addComponents(
         new MessageButton()
           .setLabel(command.language.get("AVATAR_SWITCH_TO_GLOBAL"))
