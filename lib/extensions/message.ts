@@ -1002,7 +1002,7 @@ export class FireMessage extends Message {
     else if (
       lowerContent.includes("dis") &&
       lowerContent.includes(".gift") &&
-      !lowerContent.includes("discord.gift/")
+      !lowerContent.includes("discord.gift")
     )
       return await triggerFilter("Fake gift link");
     else if (
