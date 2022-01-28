@@ -822,7 +822,13 @@ export default class MCLogs extends Module {
     data = data
       .split("\n")
       // filter imports as this often makes java code mistaken for logs
-      .filter((line) => !line.startsWith("import "))
+
+      // and the essential relaunch warning since people are stupid and
+      // think they should add it
+      .filter(
+        (line) =>
+          !line.startsWith("import ") && !line.includes('Add "-Dessential')
+      )
       .join("\n");
 
     return data;

@@ -23,7 +23,7 @@ const supportBugMessage = `Bugs can be nasty and require a good amount of inform
 - Steps to Reproduce (What do you need to do for the bug to happen?)
 - Latest Log
 
-When you're ready, hit the green button below to continue or the red pne to cancel.`;
+When you're ready, hit the green button below to continue or the red one to cancel.`;
 
 const supportQuestionMessage = `We (probably) have the answer to your question but we'll need as much detail as you can give.
 
