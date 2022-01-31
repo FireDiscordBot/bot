@@ -157,7 +157,7 @@ export default class Lockdown extends Command {
         await message
           .success("LOCKDOWN_FINISH", {
             time: humanize(end - start, message.language.id.split("-")[0]),
-            locked: locked.length,
+            lockcount: locked.length,
           })
           .then((m) => {
             if (m instanceof FireMessage) {
