@@ -741,7 +741,7 @@ export default class Button extends Listener {
       if (!essentialModule) return;
 
       const handler: Function =
-        essentialModule[`supportHandle${titleCase(choice, "_")}`];
+        essentialModule[`supportHandle${titleCase(choice, "_", false)}`];
       if (!handler || typeof handler != "function")
         return await button.error("BUTTON_SUPPORT_CHOICE_INVALID");
       else return await handler.bind(essentialModule)(button);
@@ -894,7 +894,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       if (!sparkModule) return;
 
       const handler: Function =
-        sparkModule[`supportHandle${titleCase(choice, "_")}`];
+        sparkModule[`supportHandle${titleCase(choice, "_", false)}`];
       if (!handler || typeof handler != "function")
         return await button.error("BUTTON_SUPPORT_CHOICE_INVALID");
       else return await handler.bind(sparkModule)(button);

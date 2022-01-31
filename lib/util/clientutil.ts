@@ -355,9 +355,7 @@ export class Util extends ClientUtil {
     language = language ?? this.client.getLanguage("en-US");
     if (language.has(`FEATURES.${feature}` as LanguageKeys))
       return language.get(`FEATURES.${feature}` as LanguageKeys);
-    return titleCase(
-      feature.toLowerCase().replace(/_/gim, " ").replace(/guild/, "server")
-    );
+    return titleCase(feature.toLowerCase().replace(/guild/, "server"), "_");
   }
 
   bitToPermissionString(permission: bigint) {
