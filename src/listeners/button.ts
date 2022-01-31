@@ -181,21 +181,6 @@ export default class Button extends Listener {
       )
         return;
       if (guild.tickets.find((ticket) => ticket.id == channelId)) {
-        // edit with disabled button
-        await button
-          .edit({
-            components:
-              button.message instanceof FireMessage
-                ? button.message.components.map((row) => {
-                    row.components = row.components.map((component) => {
-                      component.setDisabled(true);
-                      return component;
-                    });
-                    return row;
-                  })
-                : [],
-          })
-          .catch(() => {});
         const closure = await guild
           .closeTicket(
             channel,
