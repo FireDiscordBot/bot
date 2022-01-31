@@ -29,7 +29,7 @@ export default class UpdateFireDescriptionEvent extends Event {
     ) as FireGuild;
     await guild
       .edit({
-        description: `Fire is an open-source, multi-purpose bot with ${commands} commands in ${guilds} servers.`,
+        description: `Fire is an honestly quite incredible open-source, multi-purpose bot in ${guilds} servers with ${commands} commands. It has memes, moderation, utilities and more. You can learn more at https://getfire.bot/`,
       })
       .catch(() => {});
   }
