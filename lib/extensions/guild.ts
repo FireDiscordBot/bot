@@ -20,6 +20,7 @@ import {
   GuildAuditLogs,
   GuildAuditLogsFetchOptions,
   GuildChannel,
+  GuildFeatures,
   MessageActionRow,
   MessageAttachment,
   MessageButton,
@@ -717,14 +718,15 @@ export class FireGuild extends Guild {
     // node_env is only "development" for local testing, it's "staging" for fire beta
     if (process.env.NODE_ENV == "development") return true;
     return (
-      (this.settings.get<boolean>("utils.public", false) &&
+      !this.features.includes("DISCOVERABLE_DISABLED" as GuildFeatures) &&
+      ((this.settings.get<boolean>("utils.public", false) &&
         this.memberCount >= 20 &&
         +new Date() - this.createdTimestamp > 2629800000) ||
-      (this.features &&
-        this.features.includes("DISCOVERABLE") &&
-        this.me
-          ?.permissionsIn(this.discoverableInviteChannel)
-          ?.has(Permissions.FLAGS.CREATE_INSTANT_INVITE))
+        (this.features &&
+          this.features.includes("DISCOVERABLE") &&
+          this.me
+            ?.permissionsIn(this.discoverableInviteChannel)
+            ?.has(Permissions.FLAGS.CREATE_INSTANT_INVITE)))
     );
   }
 
@@ -1035,7 +1037,8 @@ export class FireGuild extends Guild {
     author: FireMember,
     subject: string,
     channel?: FireTextChannel,
-    category?: CategoryChannel
+    category?: CategoryChannel,
+    descriptionOverride?: string
   ) {
     if (channel instanceof BaseFakeChannel)
       channel = channel.real as FireTextChannel;
@@ -1222,7 +1225,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .setColor(author.displayColor ?? "#FFFFFF")
       .addField(this.language.get("SUBJECT"), subject)
       .addField(this.language.get("USER"), authorInfo);
-    const description = this.settings.get<string>("tickets.description");
+    const description =
+      descriptionOverride ?? this.settings.get<string>("tickets.description");
     if (description) embed.setDescription(description);
     const alertId = this.settings.get<Snowflake>("tickets.alert");
     const alert = this.roles.cache.get(alertId);

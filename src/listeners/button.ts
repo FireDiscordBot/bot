@@ -27,6 +27,7 @@ import { codeblockTypeCaster } from "../arguments/codeblock";
 import Rank from "../commands/Premium/rank";
 import Essential from "../modules/essential";
 import Sk1er from "../modules/sk1er";
+import SparkUniverse from "../modules/sparkuniverse";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 
 const { url, emojis } = constants;
@@ -60,6 +61,19 @@ const validEssentialTypes = [
   "testers",
   "java",
   "network",
+];
+
+const validSparkTypes = [
+  "marketplace_bug",
+  "marketplace_bug_",
+  "marketplace_feedback",
+  "marketplace_general",
+  "java_bug",
+  "java_bug_",
+  "java_crash",
+  "java_crash_",
+  "java_feedback",
+  "java_general",
 ];
 
 export default class Button extends Listener {
@@ -162,21 +176,6 @@ export default class Button extends Listener {
       )
         return;
       if (guild.tickets.find((ticket) => ticket.id == channelId)) {
-        // edit with disabled button
-        await button
-          .edit({
-            components:
-              button.message instanceof FireMessage
-                ? button.message.components.map((row) => {
-                    row.components = row.components.map((component) => {
-                      component.setDisabled(true);
-                      return component;
-                    });
-                    return row;
-                  })
-                : [],
-          })
-          .catch(() => {});
         const closure = await guild
           .closeTicket(
             channel,
@@ -737,13 +736,166 @@ export default class Button extends Listener {
       if (!essentialModule) return;
 
       const handler: Function =
-        essentialModule[`supportHandle${titleCase(choice, "_")}`];
+        essentialModule[`supportHandle${titleCase(choice, "_", false)}`];
       if (!handler || typeof handler != "function")
-        return await button.error("ESSENTIAL_SUPPORT_CHOICE_INVALID");
+        return await button.error("BUTTON_SUPPORT_CHOICE_INVALID");
       else return await handler.bind(essentialModule)(button);
     }
 
-    if (button.customId.startsWith(`snooze:${button.author.id}:`)) {
+    // below is a ton of duplicated code since it needs to be kept separate to allow for easy changes
+    if (button.customId.startsWith("spark_support_")) {
+      // handle limit first so we can give a better msg and give it right away
+      if (
+        button.guild?.getTickets(button.author.id).length >=
+        button.guild?.settings.get<number>("tickets.limit", 1)
+      )
+        return await button.edit(
+          button.language.getSlashError("NEW_TICKET_LIMIT")
+        );
+
+      const sparkModule = this.client.getModule(
+        "sparkuniverse"
+      ) as SparkUniverse;
+      if (!sparkModule) return;
+
+      if (!message) return "no message";
+
+      let choices: MessageButton[];
+      if (button.channelId == "722502261107851285")
+        choices = [
+          new MessageButton()
+            .setCustomId("sparksupport:marketplace_bug")
+            .setLabel("Bug Report")
+            .setStyle("DANGER"),
+          new MessageButton()
+            .setCustomId("spark_confirm_marketplace_feedback")
+            .setLabel("Feedback")
+            .setStyle("PRIMARY"),
+          new MessageButton()
+            .setCustomId("spark_confirm_marketplace_general")
+            .setLabel("General Questions")
+            .setStyle("PRIMARY"),
+        ];
+      else if (button.channelId == "937795539850903622")
+        choices = [
+          new MessageButton()
+            // .setCustomId("sparksupport:java_bug")
+            .setCustomId("spark_confirm_java_bug")
+            .setLabel("Bug Report")
+            .setStyle("DANGER"),
+          new MessageButton()
+            // .setCustomId("sparksupport:java_crash")
+            .setCustomId("spark_confirm_java_crash")
+            .setLabel("The game is crashing")
+            .setStyle("DANGER"),
+          new MessageButton()
+            .setCustomId("spark_confirm_java_feedback")
+            .setLabel("Feedback")
+            .setStyle("PRIMARY"),
+          new MessageButton()
+            .setCustomId("spark_confirm_java_general")
+            .setLabel("General Questions")
+            .setStyle("PRIMARY"),
+        ];
+
+      if (!(button.flags & 64)) button.flags += 64;
+      return await button.edit({
+        content: `Hey, welcome to <:SparkStar:815934576056205352> Spark Universe support 👋
+
+To provide you with the best support possible, I will walk you through getting the information you need ready. To start, please use the buttons below to indicate what type of issue you are having.
+
+Please choose accurately as it will allow us to help you as quick as possible! ⚡`,
+        components: [new MessageActionRow().addComponents(choices)],
+      });
+    } else if (button.customId.startsWith("spark_confirm_")) {
+      const type = button.customId.slice(14);
+      if (
+        !type ||
+        !validSparkTypes.find((t) =>
+          t.endsWith("_") ? type.startsWith(t) : type == t
+        )
+      )
+        return;
+      const sparkModule = this.client.getModule(
+        "sparkuniverse"
+      ) as SparkUniverse;
+      if (!sparkModule) return;
+
+      const ticket = await sparkModule
+        .handleTicket(button, type)
+        .catch((e: Error) => e);
+      if (
+        !(ticket instanceof FireTextChannel) &&
+        !(ticket instanceof ThreadChannel)
+      ) {
+        // how?
+        if (ticket == "blacklisted") return;
+        else if (
+          typeof ticket == "string" &&
+          (ticket == "author" || ticket.startsWith("no "))
+        )
+          return await button.edit(
+            button.language.getSlashError("COMMAND_ERROR_500")
+          );
+        else if (ticket == "disabled")
+          return await button.edit(
+            button.language.getSlashError("NEW_TICKET_DISABLED")
+          );
+        else if (ticket == "limit")
+          return await button.edit(
+            button.language.getSlashError("NEW_TICKET_LIMIT")
+          );
+        else if (ticket == "lock")
+          return await button.edit(
+            button.language.getSlashError("NEW_TICKET_LOCK", {
+              limit: button.guild.settings.get<number>("tickets.limit", 1),
+            })
+          );
+        else if (ticket instanceof Error)
+          this.client.sentry.captureException(ticket, {
+            user: {
+              username: button.author.toString(),
+              id: button.author.id,
+            },
+            extra: {
+              "message.id": button.id,
+              "guild.id": button.guild?.id,
+              "guild.name": button.guild?.name,
+              "guild.shard": button.guild?.shardId || 0,
+              "button.customid": button.customId,
+              env: process.env.NODE_ENV,
+            },
+          });
+        return await button.error("BUTTON_SUPPORT_FAIL", {
+          reason: ticket.toString(),
+        });
+      } else
+        await button
+          .edit({
+            content: `${emojis.success} ${button.language.get(
+              "NEW_TICKET_CREATED",
+              {
+                channel: ticket.toString(),
+              }
+            )}`,
+            components: [],
+          })
+          .catch(() => {});
+    } else if (button.customId.startsWith("sparksupport:")) {
+      const choice = button.customId.slice(13);
+      const sparkModule = this.client.getModule(
+        "sparkuniverse"
+      ) as SparkUniverse;
+      if (!sparkModule) return;
+
+      const handler: Function =
+        sparkModule[`supportHandle${titleCase(choice, "_", false)}`];
+      if (!handler || typeof handler != "function")
+        return await button.error("BUTTON_SUPPORT_CHOICE_INVALID");
+      else return await handler.bind(sparkModule)(button);
+    }
+
+    if (button.customId.startsWith("snooze:")) {
       const event = this.client.manager.eventHandler?.store?.get(
         EventType.REMINDER_SEND
       ) as ReminderSendEvent;
