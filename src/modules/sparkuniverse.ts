@@ -45,10 +45,10 @@ const cancelButton = new MessageButton()
   .setCustomId("cancel_me");
 
 export default class SparkUniverse extends Module {
-  guildId: Snowflake = "864592657572560958";
+  guildId: Snowflake = "501820725884223488";
   guild: FireGuild;
 
-  categoryIds: Snowflake[] = ["585863245479542795", ""];
+  categoryIds: Snowflake[] = ["585863245479542795", "937795247411429386"];
   categories: Record<Snowflake, CategoryChannel> = {};
 
   constructor() {
