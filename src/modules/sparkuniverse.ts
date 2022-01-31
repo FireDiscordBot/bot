@@ -26,7 +26,7 @@ const productNames = {
   furniture: "Furniture Series",
   dragons: "Dragons++",
   zombies: "Zombies",
-  other: "Other",
+  other: null,
 };
 
 const modpackNames = {
@@ -91,7 +91,9 @@ export default class SparkUniverse extends Module {
       if (!category) return "no category";
       return await trigger.guild.createTicket(
         member,
-        `I found a bug with ${product} that needs to be squashed 🐛`,
+        product
+          ? `I found a bug with ${product} that needs to be squashed 🐛`
+          : "I found a bug that needs to be squashed 🐛",
         trigger.realChannel as FireTextChannel,
         category,
         `Please provide us with as much detail as possible about the bug you found.
