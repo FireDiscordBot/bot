@@ -7,7 +7,7 @@ import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
-import { Permissions } from "discord.js";
+import { GuildFeatures, Permissions } from "discord.js";
 
 export default class Public extends Command {
   constructor() {
@@ -26,6 +26,10 @@ export default class Public extends Command {
       return await message.error("PUBLIC_MEMBER_COUNT_TOO_SMALL");
     else if (+new Date() - message.guild.createdTimestamp < 2629800000)
       return await message.error("PUBLIC_GUILD_TOO_YOUNG");
+    else if (
+      message.guild.features.includes("DISCOVERABLE_DISABLED" as GuildFeatures)
+    )
+      return await message.error("PUBLIC_DISCOVERABLE_DISABLED");
 
     const current = message.guild.settings.get<boolean>("utils.public", false);
     const vanityurls = this.client.getModule("vanityurls") as VanityURLs;

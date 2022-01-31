@@ -24,6 +24,7 @@ import {
   Guild,
   Role,
   Util,
+  GuildFeatures,
 } from "discord.js";
 import {
   ActionLogType,
@@ -716,14 +717,15 @@ export class FireGuild extends Guild {
     // node_env is only "development" for local testing, it's "staging" for fire beta
     if (process.env.NODE_ENV == "development") return true;
     return (
-      (this.settings.get<boolean>("utils.public", false) &&
+      !this.features.includes("DISCOVERABLE_DISABLED" as GuildFeatures) &&
+      ((this.settings.get<boolean>("utils.public", false) &&
         this.memberCount >= 20 &&
         +new Date() - this.createdTimestamp > 2629800000) ||
-      (this.features &&
-        this.features.includes("DISCOVERABLE") &&
-        this.me
-          ?.permissionsIn(this.discoverableInviteChannel)
-          ?.has(Permissions.FLAGS.CREATE_INSTANT_INVITE))
+        (this.features &&
+          this.features.includes("DISCOVERABLE") &&
+          this.me
+            ?.permissionsIn(this.discoverableInviteChannel)
+            ?.has(Permissions.FLAGS.CREATE_INSTANT_INVITE)))
     );
   }
 
