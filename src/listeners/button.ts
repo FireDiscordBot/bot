@@ -788,12 +788,10 @@ export default class Button extends Listener {
             .setLabel("Bug Report")
             .setStyle("DANGER"),
           new MessageButton()
-            // .setCustomId("sparksupport:marketplace_feedback")
             .setCustomId("spark_confirm_marketplace_feedback")
             .setLabel("Feedback")
             .setStyle("PRIMARY"),
           new MessageButton()
-            // .setCustomId("sparksupport:marketplace_general")
             .setCustomId("spark_confirm_marketplace_general")
             .setLabel("General Questions")
             .setStyle("PRIMARY"),
@@ -801,20 +799,20 @@ export default class Button extends Listener {
       else if (button.channelId == "937795539850903622")
         choices = [
           new MessageButton()
-            .setCustomId("sparksupport:java_bug")
+            // .setCustomId("sparksupport:java_bug")
+            .setCustomId("spark_confirm_java_bug")
             .setLabel("Bug Report")
             .setStyle("DANGER"),
           new MessageButton()
-            .setCustomId("sparksupport:java_crash")
+            // .setCustomId("sparksupport:java_crash")
+            .setCustomId("spark_confirm_java_crash")
             .setLabel("The game is crashing")
             .setStyle("DANGER"),
           new MessageButton()
-            // .setCustomId("sparksupport:java_feedback")
             .setCustomId("spark_confirm_java_feedback")
             .setLabel("Feedback")
             .setStyle("PRIMARY"),
           new MessageButton()
-            // .setCustomId("sparksupport:java_general")
             .setCustomId("spark_confirm_java_general")
             .setLabel("General Questions")
             .setStyle("PRIMARY"),
