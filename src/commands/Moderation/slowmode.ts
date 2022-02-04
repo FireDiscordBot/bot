@@ -1,13 +1,13 @@
-import {
-  MessageReaction,
-  CategoryChannel,
-  GuildChannel,
-  Permissions,
-} from "discord.js";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { CategoryChannel, GuildChannel, Permissions } from "discord.js";
+
+// TODO: make this more slash command friendly
+
+// this command isn't used enough to justify revamping
+// for the initial merge of the feature/better-slash-commands branch
 
 export default class Slowmode extends Command {
   constructor() {
