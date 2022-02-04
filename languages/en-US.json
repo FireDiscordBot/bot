@@ -403,6 +403,8 @@
   "DERANK_FAILED_DERANK": "Failed to derank user, please try again.",
   "DERANK_FAILED_DERANK_AND_ENTRY": "Failed to derank user (although some roles may have been removed) and was unable to delete the created mod log entry.",
   "DERANK_COMMAND_DESCRIPTION": "Remove all roles from a user",
+  "DERANK_ARGUMENT_USER_DESCRIPTION": "The user you would like to derank",
+  "DERANK_ARGUMENT_REASON_DESCRIPTION": "The reason for removing the user's roles (shown in mod logs, not to the user)",
   "DERANK_USER_REQUIRED": "You must provide a user to derank!",
   "STATUS_LATEST_INCIDENT": "Latest Incident",
   "STATUSPAGE_PAGE_DESCRIPTIONS": {
@@ -1183,7 +1185,7 @@
   "UNBLOCK_FAILED_BLOCK_AND_ENTRY": "Failed to unblock user and was unable to delete the created mod log entry.",
   "UNBLOCK_COMMAND_DESCRIPTION": "Unblock a user or role and allow them to chat in this channel",
   "UNBLOCK_ARGUMENT_WHO_DESCRIPTION": "The user or role you would like to unblock from chatting here",
-  "UNBLOCK_ARGUMENT_REASON_DESCRIPTION": "The reason for unblocking the user/role (shown in mod logs)",
+  "UNBLOCK_ARGUMENT_REASON_DESCRIPTION": "The reason for unblocking the user/role (shown in mod logs, not to the user)",
   "UNBLOCK_ARG_REQUIRED": "You must provide a user or role to unblock from this channel",
   "UNBLOCK_GOD": "That user has a role higher than or equal to your highest and are too powerful for you to unblock",
   "UNBLOCK_ROLE_HIGH": "That role is higher than or equal to your highest and is too powerful for you to unblock",
