@@ -55,15 +55,14 @@ export class CommandHandler extends AkairoCommandHandler {
         ret = await command.exec(message, args);
       } catch (err) {
         if (err instanceof UseRun) {
-          // uh oh, we can't use this command because Command#run is slash only
-          // so instead, we'll pretend they ran into the slashonly inhibitor
-          this.emit(
-            CommandHandlerEvents.COMMAND_BLOCKED,
-            message,
-            command,
-            "slashonly"
+          // if we got here, the slash only inhibitor returned false
+          // meaning the user is allowed run slashOnly commands via msg commands
+          // so we call the run method instead which may break but that's what you get for
+          // not using slash commands
+          ret = await command.run(
+            message as unknown as ApplicationCommandMessage,
+            args
           );
-          return;
         } else throw err;
       }
       this.emit(
