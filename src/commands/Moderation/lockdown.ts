@@ -25,6 +25,13 @@ const update = (
   return overwrite;
 };
 
+// TODO: full overhaul
+// change action arg to subcommands
+// slash only changes (argument descriptions, exec -> run, FireMessage -> ApplicationCommandMessage etc.)
+// store existing overwrites in full
+// clear overwrites and replace with just lockdown ones
+//.on end, restore overwrites with stored
+
 export default class Lockdown extends Command {
   constructor() {
     super("lockdown", {
@@ -56,6 +63,7 @@ export default class Lockdown extends Command {
       enableSlashCommand: true,
       moderatorOnly: true,
       restrictTo: "guild",
+      hidden: true, // hides from commands page
     });
   }
 
