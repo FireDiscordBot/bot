@@ -132,7 +132,6 @@ export default class Blacklist extends Command {
     command: ApplicationCommandMessage,
     args: { user: FireMember | FireUser; reason?: string }
   ) {
-    await command.delete().catch(() => {});
     let current = command.guild.settings.get<string[]>("utils.plonked", []);
     const isPlonked = current.includes(args.user.id);
     if (isPlonked) current = current.filter((id) => id != args.user.id);
