@@ -67,7 +67,7 @@ export default class Mute extends Command {
     try {
       minutes = parseTime(args.time) as number;
     } catch {
-      return await command.error("MUTE_FAILED_PARSE_TIME");
+      return await command.error("TIME_PARSING_FAILED");
     }
     const now = new Date();
     let date: number;
