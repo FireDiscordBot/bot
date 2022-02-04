@@ -24,7 +24,12 @@ export default class AdminOnlyInhibitor extends Inhibitor {
         message.command.ephemeral
       )
         return false;
-      return !message.member.isAdmin(message.channel);
+      const cantRun = !message.member.isAdmin(message.channel);
+      if (cantRun && message instanceof ApplicationCommandMessage) {
+        if ((message.flags & 64) != 64)
+          (message as ApplicationCommandMessage).flags = 64;
+        return false;
+      } else return cantRun;
     }
     return false;
   }

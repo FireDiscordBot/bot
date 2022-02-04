@@ -3,14 +3,14 @@ import {
   memberConverter,
   snowflakeConverter,
 } from "@fire/lib/util/converters";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { DeconstructedSnowflake, Snowflake } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
-import { ArgumentTypeCaster } from "discord-akairo";
 
-export const userMemberSnowflakeTypeCaster: ArgumentTypeCaster = async (
-  message: FireMessage,
+export const userMemberSnowflakeTypeCaster = async (
+  message: FireMessage | ApplicationCommandMessage,
   phrase
 ): Promise<
   | FireMember

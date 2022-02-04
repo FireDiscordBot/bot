@@ -5,6 +5,11 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
+// TODO: make this more slash command friendly
+
+// the flags aren't used enough to justify revamping
+// for the initial merge of the feature/better-slash-commands branch
+
 export default class Purge extends Command {
   constructor() {
     super("purge", {

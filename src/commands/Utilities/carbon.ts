@@ -1,8 +1,9 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { CommandInteractionOption, MessageAttachment } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Codeblock } from "@fire/src/arguments/codeblock";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { MessageAttachment } from "discord.js";
 import * as fuzz from "fuzzball";
 import * as centra from "centra";
 
@@ -72,6 +73,25 @@ const languageMapping = {
   ini: "toml",
 };
 
+const getFuzzy = (
+  items: string[],
+  name: string,
+  limit = 20,
+  forceRatio?: number
+) => {
+  let ratio = forceRatio ?? 90;
+  let fuzzy: string[] = [];
+  while (!fuzzy.length && ratio >= (forceRatio ?? 60)) {
+    fuzzy = items.filter(
+      (item) =>
+        fuzz.ratio(name.trim().toLowerCase(), item.trim().toLowerCase()) >=
+        ratio--
+    );
+  }
+  if (!fuzzy.length) fuzzy = items.filter((item) => item.startsWith(name));
+  return fuzzy.slice(0, limit).map((value) => ({ name: value, value }));
+};
+
 export default class Carbon extends Command {
   constructor() {
     super("carbon", {
@@ -91,6 +111,7 @@ export default class Carbon extends Command {
           id: "theme",
           type: "string",
           required: false,
+          autocomplete: true,
           match: "option",
           flag: "--theme",
           default: null,
@@ -99,6 +120,7 @@ export default class Carbon extends Command {
           id: "font",
           type: "string",
           required: false,
+          autocomplete: true,
           match: "option",
           flag: "--font",
           default: null,
@@ -109,6 +131,24 @@ export default class Carbon extends Command {
       typing: true,
       lock: "user",
     });
+  }
+
+  async autocomplete(
+    _: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (focused.name == "theme") {
+      if (!focused.value)
+        return validThemes
+          .slice(0, 25)
+          .map((value) => ({ name: value, value }));
+      else return getFuzzy(validThemes, focused.value?.toString());
+    } else if (focused.name == "font") {
+      if (!focused.value)
+        return validFonts.slice(0, 25).map((value) => ({ name: value, value }));
+      else return getFuzzy(validFonts, focused.value?.toString());
+    }
+    return [];
   }
 
   async exec(

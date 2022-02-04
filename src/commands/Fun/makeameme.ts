@@ -34,7 +34,8 @@ export default class MakeAMeme extends Command {
   }
 
   async exec(message: FireMessage, args: { image: string; text: string }) {
-    if (!process.env.MEME_TOKEN) return await message.error();
+    if (!process.env.MEME_TOKEN)
+      return await message.error("ERROR_CONTACT_SUPPORT");
     let image: string, text: string[];
     if (!args.image && !message.attachments.size)
       return await message.error("MAKEAMEME_NO_IMAGE");
@@ -61,7 +62,8 @@ export default class MakeAMeme extends Command {
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", process.env.MEME_TOKEN)
       .send();
-    if (memeReq.statusCode != 200) return await message.error();
+    if (memeReq.statusCode != 200)
+      return await message.error("ERROR_CONTACT_SUPPORT");
     else {
       const meme = memeReq.body;
       if (meme.byteLength >= 8e6)

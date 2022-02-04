@@ -1,20 +1,19 @@
-import {
-  MessageComponentInteraction,
-  ContextMenuInteraction,
-  Interaction,
-} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
-import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { constants } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
+import { IPoint } from "@fire/lib/interfaces/aether";
+import { constants } from "@fire/lib/util/constants";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
-import { Message } from "@fire/lib/ws/Message";
+import {
+  AutocompleteInteraction,
+  ContextMenuInteraction,
+  Interaction,
+  MessageComponentInteraction,
+} from "discord.js";
 
 const { emojis } = constants;
 
@@ -28,21 +27,47 @@ export default class InteractionListener extends Listener {
 
   async exec(interaction: Interaction) {
     if (this.blacklistCheck(interaction)) return;
-    else if (interaction.isCommand())
+    const point: IPoint = {
+      measurement: "interaction",
+      tags: {
+        type: interaction.type,
+        user_id: interaction.user?.id,
+        cluster: this.client.manager.id.toString(),
+        shard: interaction.guild?.shardId.toString() ?? "0",
+      },
+      fields: {
+        guild: interaction.guild
+          ? `${interaction.guild.name} (${interaction.guildId})`
+          : "N/A",
+        user: `${interaction.user} (${interaction.user.id})`,
+      },
+    };
+    if (interaction.isCommand()) {
+      point.fields.command = interaction.commandName;
+      point.fields.args = JSON.stringify(interaction.options.data);
+    } else if (interaction.isMessageComponent()) {
+      point.fields.custom_id = interaction.customId;
+      point.fields.component_type = interaction.componentType;
+    } else if (interaction.isContextMenu()) {
+      point.tags.type = "CONTEXT_COMMAND";
+      point.fields.command = interaction.commandName;
+      point.fields.context = interaction.targetType;
+      point.fields.target_id = interaction.targetId;
+    }
+    this.client.influx([point]);
+    if (interaction.isCommand())
       return await this.handleApplicationCommand(
         interaction as CommandInteraction
       );
+    else if (interaction.isAutocomplete())
+      return await this.handleCommandAutocomplete(
+        interaction as AutocompleteInteraction
+      );
     else if (interaction.isContextMenu())
       return await this.handleContextMenu(interaction);
-    else if (
-      interaction.isMessageComponent() &&
-      interaction.componentType == "BUTTON"
-    )
+    else if (interaction.isButton())
       return await this.handleButton(interaction);
-    else if (
-      interaction.isMessageComponent() &&
-      interaction.componentType == "SELECT_MENU"
-    )
+    else if (interaction.isSelectMenu())
       return await this.handleSelect(interaction);
   }
 
@@ -55,7 +80,30 @@ export default class InteractionListener extends Listener {
         await command.guild.tags.init();
       }
       const message = new ApplicationCommandMessage(this.client, command);
-      await message.channel.ack((message.flags & 64) != 0);
+      if (
+        message.command.requiresExperiment?.id &&
+        !message.hasExperiment(
+          message.command.requiresExperiment.id,
+          message.command.requiresExperiment.bucket
+        )
+      ) {
+        await message.error("COMMAND_EXPERIMENT_REQUIRED");
+        if (message.guild)
+          return await message.guild.commands
+            .delete(message.slashCommand.id)
+            .catch((e: Error) =>
+              this.client.console.error(
+                `[Commands] Failed to delete locked slash command "${message.command.id}" in ${message.guild.name} (${message.guild.id})\n${e.stack}`
+              )
+            );
+        else return;
+      }
+
+      this.client.console.debug(
+        message.guild
+          ? `[Commands] Handling slash command request for command /${command.commandName} from ${message.author} (${message.author.id}) in ${message.guild.name} (${message.guild.id})`
+          : `[Commands] Handling slash command request for command /${command.commandName} from ${message.author} (${message.author.id})`
+      );
       if (!message.command) {
         this.client.console.warn(
           `[Commands] Got slash command request for unknown command, /${command.commandName}`
@@ -65,9 +113,8 @@ export default class InteractionListener extends Listener {
         return await message.error("SLASH_COMMAND_BOT_REQUIRED", {
           invite: this.client.config.inviteLink,
         });
-      await message.generateContent();
-      // @ts-ignore
-      await this.client.commandHandler.handle(message);
+      // await message.generateContent();
+      await this.client.commandHandler.handleSlash(message);
       // if (message.sent != "message")
       //   await message.sourceMessage?.delete().catch(() => {});
     } catch (error) {
@@ -94,6 +141,20 @@ export default class InteractionListener extends Listener {
         sentry.setUser(null);
       }
     }
+  }
+
+  async handleCommandAutocomplete(interaction: AutocompleteInteraction) {
+    const message = new ApplicationCommandMessage(this.client, interaction);
+    if (!message.command || typeof message.command.autocomplete !== "function")
+      return;
+    const focused = interaction.options.data.find((option) => option.focused);
+    if (!focused) return await interaction.respond([]);
+    const autocomplete = await message.command.autocomplete(message, focused);
+    return await interaction.respond(
+      Array.isArray(autocomplete) && autocomplete.length <= 25
+        ? autocomplete
+        : []
+    );
   }
 
   async handleButton(button: MessageComponentInteraction) {
@@ -177,6 +238,7 @@ export default class InteractionListener extends Listener {
         return await message.error("SLASH_COMMAND_BOT_REQUIRED", {
           invite: this.client.config.inviteLink,
         });
+      // TODO: change to handleSlash and remove content
       await message.generateContent();
       // @ts-ignore
       await this.client.commandHandler.handle(message);

@@ -57,7 +57,7 @@ export default class ReminderSendEvent extends Event {
     const components = [
       new MessageActionRow().addComponents(
         new MessageButton()
-          .setCustomId(`!snooze:${data.timestamp}`)
+          .setCustomId(`!snooze:${user.id}:${data.timestamp}`)
           .setStyle("PRIMARY")
           .setLabel(user.language.get("REMINDER_SNOOZE_BUTTON"))
       ),

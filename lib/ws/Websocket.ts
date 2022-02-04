@@ -52,6 +52,8 @@ export class Websocket extends Client {
       this.on("pong", () => {
         this.waitingForPong = false;
         this.pongs++;
+        if (this.manager.client?.user?.presence?.status == "idle")
+          this.manager.client.setReadyPresence();
       });
       this.manager.client.getModule("aetherstats").init();
       this.send(

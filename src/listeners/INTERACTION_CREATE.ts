@@ -1,7 +1,11 @@
 // The case of the file name is just to signify that
 // this is listening to an event directly from the gateway
 
-import { Interaction } from "@fire/lib/interfaces/interactions";
+import {
+  ApplicationCommandAutocompleteInteraction,
+  ApplicationCommandOptionType,
+  Interaction,
+} from "@fire/lib/interfaces/interactions";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -20,7 +24,12 @@ export default class InteractionCreate extends Listener {
     if (!interaction) return;
     if (this.blacklistCheck(interaction)) return;
     // slash command or message component, use client interaction event
-    else if (interaction.type == 2 || interaction.type == 3) return;
+    else if (
+      interaction.type == 2 ||
+      interaction.type == 3 ||
+      interaction.type == 4
+    )
+      return;
     else {
       const haste = await this.client.util.haste(
         JSON.stringify(interaction, null, 4),

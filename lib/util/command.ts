@@ -1,26 +1,35 @@
+import { Fire } from "@fire/lib/Fire";
 import {
   ArgumentGenerator as AkairoArgumentGenerator,
   ArgumentOptions as AkairoArgumentOptions,
-  CommandOptions as AkairoCommandOptions,
   Command as AkairoCommand,
+  CommandOptions as AkairoCommandOptions,
   Flag,
 } from "discord-akairo";
 import {
-  CommandOptionDataTypeResolvable,
-  ApplicationCommandOptionData,
-  ApplicationCommandData,
   ApplicationCommand,
+  ApplicationCommandData,
+  ApplicationCommandOptionChoice,
+  ApplicationCommandOptionData,
+  CommandInteractionOption,
+  CommandOptionDataTypeResolvable,
   DiscordAPIError,
   Permissions,
+  Role,
   Snowflake,
 } from "discord.js";
 import {
   ApplicationCommandOptionTypes,
   ChannelTypes,
 } from "discord.js/typings/enums";
+import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { FireGuild } from "../extensions/guild";
+import { FireMember } from "../extensions/guildmember";
+import { FireMessage } from "../extensions/message";
+import { FireUser } from "../extensions/user";
+import { SlashArgumentTypeCaster } from "./commandhandler";
+import { UseExec, UseRun } from "./constants";
 import { Language } from "./language";
-import { Fire } from "@fire/lib/Fire";
 
 type ArgumentGenerator = (
   ...a: Parameters<AkairoArgumentGenerator>
@@ -61,6 +70,15 @@ const slashCommandTypeMappings = {
   MENTIONABLE: ["member|role"],
 };
 
+const canAcceptMember = [
+  "member",
+  "user|member",
+  "user|member|snowflake",
+  "memberSilent",
+];
+
+const mustBeMember = ["member", "memberSilent"];
+
 const channelTypeMapping: Record<
   string,
   Exclude<ChannelTypes, ChannelTypes.UNKNOWN>[]
@@ -94,11 +112,12 @@ const channelTypeMapping: Record<
 export class Command extends AkairoCommand {
   requiresExperiment?: { id: number; bucket: number };
   declare description: (language: Language) => string;
-  args?: ArgumentOptions[] | ArgumentGenerator;
   declare channel?: "guild" | "dm";
   enableSlashCommand: boolean;
+  args?: ArgumentOptions[];
   moderatorOnly: boolean;
   superuserOnly: boolean;
+  deferAnyways: boolean;
   declare client: Fire;
   guilds: Snowflake[];
   slashOnly: boolean;
@@ -160,20 +179,44 @@ export class Command extends AkairoCommand {
     this.requiresExperiment = options.requiresExperiment || null;
     this.superuserOnly = options.superuserOnly || false;
     this.moderatorOnly = options.moderatorOnly || false;
+    this.deferAnyways = options.deferAnyways || false;
     this.slashOnly = options.slashOnly || false;
     this.ephemeral = options.ephemeral || false;
     this.premium = options.premium || false;
     this.hidden = options.hidden || false;
     this.parent = options.parent || null;
+    this.context = options.context || [];
     this.group = options.group || false;
     this.guilds = options.guilds || [];
     this.args = options.args;
-    this.context = options.context || [];
   }
 
   async init(): Promise<any> {}
 
   async unload(): Promise<any> {}
+
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ): Promise<ApplicationCommandOptionChoice[]> {
+    return [];
+  }
+
+  async exec(message: FireMessage, args: Record<string, any>): Promise<any> {
+    throw new UseRun();
+  }
+
+  async run(
+    command: ApplicationCommandMessage,
+    args: Record<string, any>
+  ): Promise<any> {
+    throw new UseExec();
+  }
+
+  get parentCommand(): Command | null {
+    if (!this.parent) return null;
+    else return this.client.getCommand(this.parent);
+  }
 
   isDisabled(guild: FireGuild) {
     return guild?.settings
@@ -228,12 +271,22 @@ export class Command extends AkairoCommand {
           command.getSubcommandGroup()
         ),
         ...subcommands.map((command: Command) => command.getSubcommand()),
-        ...(this.args as ArgumentOptions[])
+        ...((this.args as ArgumentOptions[]) ?? [])
           .filter((arg) => arg.readableType)
           .map((arg) => this.getSlashCommandOption(arg)),
       ];
     }
     return data;
+  }
+
+  private getSlashCommandArgName(argument: ArgumentOptions) {
+    return (
+      argument.slashCommandType
+        ? argument.slashCommandType
+        : argument.readableType.split("|")[0]
+    )
+      .replace("Silent", "")
+      .toLowerCase();
   }
 
   getSubcommands() {
@@ -254,21 +307,17 @@ export class Command extends AkairoCommand {
         slashCommandTypeMappings[type].includes(argument.type)
       ) as CommandOptionDataTypeResolvable) ||
       ApplicationCommandOptionTypes.STRING;
+    // @ts-ignore (no idea why it's complaining)
     let options: ApplicationCommandOptionData = {
       type,
-      name: (argument.slashCommandType
-        ? argument.slashCommandType
-        : argument.readableType.split("|")[0]
-      )
-        .replace("Silent", "")
-        .toLowerCase(),
+      name: this.getSlashCommandArgName(argument),
       description:
         typeof argument.description == "function"
           ? argument.description(this.client.getLanguage("en-US"))
           : argument.description || "No Description Provided",
       required: argument.required,
+      autocomplete: argument.autocomplete,
     };
-    if (!options.description) delete options.description;
     if (
       options.type == ApplicationCommandOptionTypes.CHANNEL ||
       options.type == "CHANNEL"
@@ -300,7 +349,7 @@ export class Command extends AkairoCommand {
   getSubcommand() {
     if (!this.parent) return;
     let data = {
-      name: this.id.split("-").at(-1),
+      name: this.id.split("-").slice(1).join("-"),
       description:
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
@@ -338,6 +387,117 @@ export class Command extends AkairoCommand {
     return [
       ...subcommands.map((command) => [command.id, ...command.aliases]),
     ].flat(1);
+  }
+
+  async parseSlash(message: ApplicationCommandMessage) {
+    const args = {};
+    if (this.args?.length) {
+      for (const arg of this.args) {
+        let name = this.getSlashCommandArgName(arg);
+        if (arg.flag && arg.readableType == "boolean")
+          name = arg.id.toLowerCase();
+        const [type] =
+          arg.flag && !arg.type
+            ? ["BOOLEAN"]
+            : Object.entries(slashCommandTypeMappings).find(([, types]) =>
+                types.includes(arg.type?.toString())
+              ) ?? ["STRING"];
+        switch (type) {
+          case "STRING": {
+            args[arg.id] =
+              message.slashCommand.options.getString(name) ?? arg.default;
+            if (
+              this.client.commandHandler.resolver.types.has(
+                arg.type.toString()
+              ) &&
+              args[arg.id]
+            ) {
+              const resolver = this.client.commandHandler.resolver.types.get(
+                arg.type.toString()
+              ) as unknown as SlashArgumentTypeCaster;
+              args[arg.id] = await resolver(message, args[arg.id]);
+            } else if (typeof arg.type == "function" && args[arg.id]) {
+              args[arg.id] = await (
+                arg.type as unknown as SlashArgumentTypeCaster
+              ).bind(this)(
+                message,
+                message.slashCommand.options.get(name)?.value.toString()
+              );
+            }
+            break;
+          }
+          case "INTEGER": {
+            args[arg.id] =
+              message.slashCommand.options.getInteger(name) ?? arg.default;
+            break;
+          }
+          case "BOOLEAN": {
+            args[arg.id] =
+              message.slashCommand.options.getBoolean(name) ?? arg.default;
+            break;
+          }
+          case "USER": {
+            if (mustBeMember.includes(arg.type?.toString()))
+              args[arg.id] =
+                message.slashCommand.options.getMember(name, false) ??
+                arg.default;
+            else if (canAcceptMember.includes(arg.type?.toString()))
+              args[arg.id] =
+                message.slashCommand.options.getMember(name, false) ??
+                message.slashCommand.options.getUser(name, false) ??
+                arg.default;
+            else
+              args[arg.id] =
+                message.slashCommand.options.getUser(name, false) ??
+                arg.default;
+            break;
+          }
+          case "CHANNEL": {
+            const resolvedChannel =
+              message.slashCommand.options.getChannel(name);
+            if (this.client.channels.cache.has(resolvedChannel.id))
+              args[arg.id] = this.client.channels.cache.get(resolvedChannel.id);
+            else args[arg.id] = arg.default;
+            break;
+          }
+          case "ROLE": {
+            const role = message.slashCommand.options.getRole(name);
+            if (role instanceof Role) args[arg.id] = role;
+            else args[arg.id] = arg.default;
+            break;
+          }
+          case "MENTIONABLE": {
+            const mentionable =
+              message.slashCommand.options.getMentionable(name);
+            if (
+              mentionable instanceof Role ||
+              mentionable instanceof FireMember
+            )
+              args[arg.id] = mentionable;
+            else if (mentionable instanceof FireUser && message.guild) {
+              const member = await message.guild.members
+                .fetch(mentionable)
+                .catch(() => {});
+              if (member) args[arg.id] = member;
+            } else args[arg.id] = arg.default;
+            break;
+          }
+        }
+        if (!args[arg.id] && typeof arg.type == "function") {
+          try {
+            args[arg.id] = await (
+              arg.type as unknown as SlashArgumentTypeCaster
+            ).bind(this)(
+              message,
+              message.slashCommand.options.get(name, true)?.value.toString()
+            );
+          } catch {
+            args[arg.id] = arg.default;
+          }
+        } else if (!args[arg.id]) args[arg.id] = arg.default;
+      }
+    }
+    return args;
   }
 
   async registerSlashCommand() {
@@ -390,11 +550,12 @@ export class Command extends AkairoCommand {
 export interface CommandOptions extends AkairoCommandOptions {
   description?: ((language: Language) => string) | string;
   requiresExperiment?: { id: number; bucket: number };
-  args?: ArgumentOptions[] | ArgumentGenerator;
   restrictTo?: "guild" | "dm" | "all";
   enableSlashCommand?: boolean;
+  args?: ArgumentOptions[];
   superuserOnly?: boolean;
   moderatorOnly?: boolean;
+  deferAnyways?: boolean;
   guilds?: Snowflake[];
   slashOnly?: boolean;
   ephemeral?: boolean;
@@ -410,6 +571,7 @@ export interface ArgumentOptions extends AkairoArgumentOptions {
   description?: ((language: Language) => string) | string;
   slashCommandOptions?: Array<string>;
   slashCommandType?: string;
+  autocomplete?: boolean;
   readableType?: string;
   required?: boolean;
 }

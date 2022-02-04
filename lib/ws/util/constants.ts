@@ -40,6 +40,7 @@ export enum EventType {
   API_REQUEST,
   ALIAS_SYNC,
   WRITE_INFLUX_POINTS,
+  SPECIAL_COUPON,
 }
 
 export enum WebsocketStates {

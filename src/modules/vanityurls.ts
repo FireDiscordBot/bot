@@ -165,10 +165,10 @@ export default class VanityURLs extends Module {
         })
         .replace("size=2048", "size=320");
     const embed = new MessageEmbed()
-      .setAuthor(
-        guild.name,
-        guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: guild.name,
+        iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
       .setColor("#2ECC71")
       .addField("URL", `https://inv.wtf/${code}`)
       .setTimestamp();

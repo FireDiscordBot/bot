@@ -4,13 +4,13 @@ import { constants } from "@fire/lib/util/constants";
 import { MessageAttachment, Role } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Argument } from "discord-akairo";
 import * as tinycolor from "tinycolor2";
 import * as centra from "centra";
 
-const maybeColor = (_: FireMessage, phrase: string) =>
+const maybeColor = (phrase: string) =>
   phrase
-    ? tinycolor(phrase).isValid()
+    ? typeof tinycolor(phrase)?.isValid == "function" &&
+      tinycolor(phrase).isValid()
       ? tinycolor(phrase)
       : undefined
     : tinycolor.random();
@@ -23,7 +23,6 @@ export default class Color extends Command {
       args: [
         {
           id: "color",
-          type: Argument.union("roleSilent", "memberSilent", maybeColor),
           readableType: "color",
           required: false,
           default: undefined,
@@ -35,16 +34,9 @@ export default class Color extends Command {
     });
   }
 
-  async exec(
-    message: FireMessage,
-    args: { color?: Role | FireMember | tinycolor.Instance }
-  ) {
-    let color: tinycolor.Instance;
-    if (args.color instanceof Role) color = tinycolor(args.color.hexColor);
-    else if (args.color instanceof FireMember)
-      color = tinycolor(args.color.displayHexColor ?? "#FFFFFF");
-    else color = args.color;
-    if (!color || !color.isValid()) {
+  async exec(message: FireMessage, args: { color?: string }) {
+    const color: tinycolor.Instance = maybeColor(args.color);
+    if (!color || typeof color.isValid != "function" || !color.isValid()) {
       return await message.error("COLOR_ARGUMENT_INVALID", {
         random: tinycolor.random().toHexString(),
       });

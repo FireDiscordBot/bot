@@ -36,10 +36,14 @@ export default class GuildBanRemove extends Listener {
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
       .setTimestamp()
-      .setAuthor(
-        guild.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),
-        user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: guild.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),
+        iconURL: user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .addField(guild.language.get("MODERATOR"), action.executor.toString())
       .addField(
         guild.language.get("REASON"),

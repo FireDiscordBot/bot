@@ -10,6 +10,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import EssentialNitro from "../modules/essentialnitro";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
+import { CouponType } from "@fire/lib/util/constants";
 
 export default class GuildMemberUpdate extends Listener {
   constructor() {
@@ -23,6 +24,29 @@ export default class GuildMemberUpdate extends Listener {
     // Both of these will check permissions & whether
     // dehoist/decancer is enabled so no need for checks here
     newMember.dehoistAndDecancer();
+
+    if (newMember.guild?.id == this.client.config.fireguildId) {
+      if (newMember.settings?.has("premium.coupon")) {
+        const coupon: CouponType =
+          newMember.settings.get<CouponType>("premium.coupon");
+        if (
+          coupon == CouponType.BOOSTER &&
+          !newMember.roles.cache.has("620512846232551427")
+        )
+          this.client.util.deleteSpecialCoupon(newMember);
+        else if (
+          coupon == CouponType.TWITCHSUB &&
+          !newMember.roles.cache.has("745392985151111338")
+        )
+          this.client.util.deleteSpecialCoupon(newMember);
+        else if (
+          coupon == CouponType.BOOSTER_AND_SUB &&
+          (!newMember.roles.cache.has("620512846232551427") ||
+            !newMember.roles.cache.has("745392985151111338"))
+        )
+          this.client.util.deleteSpecialCoupon(newMember);
+      }
+    }
 
     if (
       !newMember.guild.hasExperiment(1955682940, 1) &&
@@ -40,7 +64,7 @@ export default class GuildMemberUpdate extends Listener {
     ) {
       await this.client.util.sleep(5000); // wait a bit to ensure it isn't from being unmuted
       const until = newMember.guild.mutes.get(newMember.id);
-      if (until == 0 || +new Date() < until)
+      if (+new Date() < until)
         await newMember
           .disableCommunication({ until: new Date(until) })
           .catch(() => {});
@@ -332,16 +356,16 @@ export default class GuildMemberUpdate extends Listener {
     );
     const roles = guild.roles.cache.filter((role) => roleIds.includes(role.id));
     const embed = new MessageEmbed()
-      .setAuthor(
-        target ? target.toString() : targetId,
-        target
+      .setAuthor({
+        name: target ? target.toString() : targetId,
+        iconURL: target
           ? target.user.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,
             })
-          : guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+          : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
       .setTimestamp(action.createdTimestamp)
       .setColor(roles.random().hexColor as `#${string}`)
       .addField(
@@ -379,16 +403,16 @@ export default class GuildMemberUpdate extends Listener {
     );
     const roles = guild.roles.cache.filter((role) => roleIds.includes(role.id));
     const embed = new MessageEmbed()
-      .setAuthor(
-        target ? target.toString() : targetId,
-        target
+      .setAuthor({
+        name: target ? target.toString() : targetId,
+        iconURL: target
           ? target.user.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,
             })
-          : guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+          : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
       .setTimestamp(action.createdTimestamp)
       .setColor(roles.random().hexColor as `#${string}`)
       .addField(
@@ -422,16 +446,16 @@ export default class GuildMemberUpdate extends Listener {
     if (executor && executor.user.bot && executor.id != this.client.user.id)
       return;
     const embed = new MessageEmbed()
-      .setAuthor(
-        target ? target.toString() : targetId,
-        target
+      .setAuthor({
+        name: target ? target.toString() : targetId,
+        iconURL: target
           ? target.user.displayAvatarURL({
               size: 2048,
               format: "png",
               dynamic: true,
             })
-          : guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+          : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
       .setTimestamp(action.createdTimestamp)
       .setColor(target ? target?.displayColor : "#ffffff")
       .addField(

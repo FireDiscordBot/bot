@@ -88,14 +88,14 @@ export default class MessageDelete extends Listener {
       const embed = new MessageEmbed()
         .setColor(message.member?.displayColor ?? "#FFFFFF")
         .setTimestamp(message.createdAt)
-        .setAuthor(
-          message.author.toString(),
-          message.author.displayAvatarURL({
+        .setAuthor({
+          name: message.author.toString(),
+          iconURL: message.author.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,
-          })
-        )
+          }),
+        })
         .setDescription(description + content)
         .setFooter(
           `${message.author.id} | ${message.id} | ${message.channelId}`

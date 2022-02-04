@@ -37,9 +37,7 @@ export default class APIRequestEvent extends Event {
           )
         );
     } catch (e) {
-      this.manager.client.console.warn(
-        `[Aether] Forwarded API request failed\n${e.stack}`
-      );
+      this.manager.client.console.warn(`[Aether] Forwarded API request failed`);
       return this.manager.ws.send(
         MessageUtil.encode(new Message(EventType.API_REQUEST, null, nonce))
       );

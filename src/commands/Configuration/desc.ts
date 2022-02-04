@@ -1,4 +1,4 @@
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { Language } from "@fire/lib/util/language";
@@ -43,25 +43,25 @@ export default class Description extends Command {
       .catch(() => {});
   }
 
-  async exec(message: FireMessage, args: { desc: string }) {
+  async run(command: ApplicationCommandMessage, args: { desc: string }) {
     const vanity = await this.client.db.query(
       "SELECT * FROM vanity WHERE gid=$1;",
-      [message.guild.id]
+      [command.guild.id]
     );
 
     if (!vanity.rows.length) {
-      return await message.error("DESC_NO_VANITY", {
-        prefix: message.util?.parsed?.prefix,
+      return await command.error("DESC_NO_VANITY", {
+        prefix: command.util?.parsed?.prefix,
       });
     }
 
     try {
-      await this.setDesc(message.guild, args.desc);
+      await this.setDesc(command.guild, args.desc);
       return args.desc
-        ? await message.success("DESC_SET")
-        : await message.success("DESC_RESET");
+        ? await command.success("DESC_SET")
+        : await command.success("DESC_RESET");
     } catch (e) {
-      return await message.error("DESC_FAILED");
+      return await command.error("DESC_FAILED");
     }
   }
 }

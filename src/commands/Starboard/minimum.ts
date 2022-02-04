@@ -1,8 +1,8 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Permissions, Snowflake } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 export default class StarboardMinimum extends Command {
   constructor() {
@@ -24,39 +24,39 @@ export default class StarboardMinimum extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { minimum?: number }) {
+  async run(command: ApplicationCommandMessage, args: { minimum?: number }) {
     if (args.minimum && args.minimum < 2)
-      return await message.error("STARBOARD_MINIMUM_TOO_LOW");
+      return await command.error("STARBOARD_MINIMUM_TOO_LOW");
     if (!args.minimum || args.minimum == 5) {
-      message.guild.settings.delete("starboard.minimum");
-      this.check(message, 5);
-      return message.guild.settings.has("starboard.minimum")
-        ? await message.error()
-        : await message.success("STARBOARD_MINIMUM_RESET");
+      await command.guild.settings.delete("starboard.minimum");
+      this.check(command, 5);
+      return command.guild.settings.has("starboard.minimum")
+        ? await command.error("ERROR_CONTACT_SUPPORT")
+        : await command.success("STARBOARD_MINIMUM_RESET");
     }
 
-    message.guild.settings.set<number>("starboard.minimum", args.minimum);
-    this.check(message, args.minimum);
-    return await message.success("STARBOARD_MINIMUM_SET", {
+    command.guild.settings.set<number>("starboard.minimum", args.minimum);
+    this.check(command, args.minimum);
+    return await command.success("STARBOARD_MINIMUM_SET", {
       min: args.minimum,
     });
   }
 
-  async check(message: FireMessage, minimum: number) {
-    const starboard = message.guild.starboard;
+  async check(command: ApplicationCommandMessage, minimum: number) {
+    const starboard = command.guild.starboard;
     if (!starboard) return;
-    if (!message.guild.starboardReactions)
-      await message.guild.loadStarboardReactions();
-    if (!message.guild.starboardMessages)
-      await message.guild.loadStarboardMessages();
-    for (const [id, reactions] of message.guild.starboardReactions) {
-      if (reactions < minimum && message.guild.starboardMessages.has(id)) {
-        const starboardId = message.guild.starboardMessages.get(id);
+    if (!command.guild.starboardReactions)
+      await command.guild.loadStarboardReactions();
+    if (!command.guild.starboardMessages)
+      await command.guild.loadStarboardMessages();
+    for (const [id, reactions] of command.guild.starboardReactions) {
+      if (reactions < minimum && command.guild.starboardMessages.has(id)) {
+        const starboardId = command.guild.starboardMessages.get(id);
         const starboardMsg = await starboard.messages
           .fetch(starboardId)
           .catch(() => {});
         if (starboardMsg) await starboardMsg.delete();
-        message.guild.starboardMessages.delete(starboardId);
+        command.guild.starboardMessages.delete(starboardId);
       }
     }
   }

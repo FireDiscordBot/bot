@@ -114,20 +114,22 @@ export default class ChannelUpdate extends Listener {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
         .setTimestamp()
-        .setAuthor(
-          language.get("CHANNELUPDATELOG_AUTHOR", {
+        .setAuthor({
+          name: language.get("CHANNELUPDATELOG_AUTHOR", {
             type: titleCase(after.type.replace(/_/g, " ")),
             channel: after.name,
           }),
-          guild.iconURL({ size: 2048, format: "png", dynamic: true })
-        )
+          iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+        })
         .setFooter(after.id);
       if (before.name != after.name)
         embed.addField(language.get("NAME"), `${before.name} ➜ ${after.name}`);
       if (before.parentId != after.parentId)
         embed.addField(
           language.get("CATEGORY"),
-          `${before.parent?.name || "¯\\\\_(ツ)_/¯"} ➜ ${after.parent?.name || "¯\\\\_(ツ)_/¯"}`
+          `${before.parent?.name || "¯\\\\_(ツ)_/¯"} ➜ ${
+            after.parent?.name || "¯\\\\_(ツ)_/¯"
+          }`
         );
       // @ts-ignore
       if (before.topic != after.topic)

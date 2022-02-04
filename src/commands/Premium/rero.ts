@@ -96,7 +96,7 @@ export default class ReactionRole extends Command {
           emoji: reaction.emoji.toString(),
           role: args.role.toString(),
         });
-      } else return await message.error();
+      } else return await message.error("ERROR_CONTACT_SUPPORT");
     }
 
     const yesSnowflake = SnowflakeUtil.generate();
@@ -153,17 +153,17 @@ export default class ReactionRole extends Command {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#2ECC71")
       .setTimestamp()
-      .setAuthor(
-        message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {
+      .setAuthor({
+        name: message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {
           guild: message.guild.name,
         }),
-        message.guild.iconURL({
+        iconURL: message.guild.iconURL({
           size: 2048,
           format: "png",
           dynamic: true,
         }),
-        reaction.message?.url
-      )
+        url: reaction.message?.url,
+      })
       .addField(
         message.guild.language.get("MODERATOR"),
         message.author.toString()
@@ -185,17 +185,17 @@ export default class ReactionRole extends Command {
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
       .setTimestamp()
-      .setAuthor(
-        message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {
+      .setAuthor({
+        name: message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {
           guild: message.guild.name,
         }),
-        message.guild.iconURL({
+        iconURL: message.guild.iconURL({
           size: 2048,
           format: "png",
           dynamic: true,
         }),
-        reaction.message?.url
-      )
+        url: reaction.message?.url,
+      })
       .addField(
         message.guild.language.get("MODERATOR"),
         message.author.toString()
@@ -229,6 +229,17 @@ export default class ReactionRole extends Command {
           resolve(false);
         }
       });
+
+      setTimeout(() => {
+        if (
+          this.client.buttonHandlers.has(confirm) &&
+          this.client.buttonHandlers.has(deny)
+        ) {
+          this.client.buttonHandlers.delete(confirm);
+          this.client.buttonHandlers.delete(deny);
+          resolve(false);
+        }
+      }, 60000);
     });
   }
 }

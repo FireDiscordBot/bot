@@ -1,8 +1,9 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { CommandInteractionOption, Permissions } from "discord.js";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
 
 export default class TagDelete extends Command {
   constructor() {
@@ -18,6 +19,7 @@ export default class TagDelete extends Command {
         {
           id: "tag",
           type: "string",
+          autocomplete: true,
           default: null,
           required: true,
         },
@@ -36,6 +38,22 @@ export default class TagDelete extends Command {
     });
   }
 
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (!interaction.guild.tags) {
+      interaction.guild.tags = new GuildTagManager(
+        this.client,
+        interaction.guild
+      );
+      await interaction.guild.tags.init();
+    }
+    if (focused.value)
+      return interaction.guild.tags.getFuzzyMatches(focused.value?.toString());
+    return interaction.guild.tags.names.slice(0, 25);
+  }
+
   async exec(message: FireMessage, args: { tag?: string }) {
     if (!args.tag) return await message.error("TAGS_DELETE_MISSING_ARG");
     const { tag } = args;
@@ -46,8 +64,17 @@ export default class TagDelete extends Command {
     const manager = message.guild.tags;
     const cachedTag = await manager.getTag(tag, false);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
+    if (typeof cachedTag.createdBy != "string")
+      cachedTag.createdBy = cachedTag.createdBy.id;
+    delete cachedTag.uses;
+
+    const data = await this.client.util
+      .haste(JSON.stringify(cachedTag, null, 4), false, "json")
+      .catch(() => {});
+    if (!data) return await message.error("ERROR_CONTACT_SUPPORT");
     const deleted = await manager.deleteTag(tag).catch(() => false);
-    if (typeof deleted == "boolean" && !deleted) return await message.error();
-    else return await message.success();
+    if (typeof deleted == "boolean" && !deleted)
+      return await message.error("TAG_DELETE_FAILED", { haste: data });
+    else return await message.success("TAG_DELETE_SUCCESS");
   }
 }

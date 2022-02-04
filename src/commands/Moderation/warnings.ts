@@ -1,69 +1,20 @@
-import {
-  PaginatorEmbedInterface,
-  WrappedPaginator,
-} from "@fire/lib/util/paginators";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
-import { MessageEmbed, Util } from "discord.js";
+import { Language } from "@fire/lib/util/language";
 
 export default class Warnings extends Command {
   constructor() {
     super("warnings", {
       description: (language: Language) =>
         language.get("WARNINGS_COMMAND_DESCRIPTION"),
+      args: [],
       enableSlashCommand: true,
-      args: [
-        {
-          id: "user",
-          type: "user|member",
-          required: true,
-          default: null,
-        },
-      ],
       restrictTo: "guild",
-      moderatorOnly: true,
-      aliases: ["warns"],
       slashOnly: true,
+      ephemeral: true,
+      group: true,
     });
   }
 
-  async exec(message: FireMessage, args: { user: FireMember | FireUser }) {
-    if (!args.user) return;
-    const warnings = await this.client.db
-      .query("SELECT * FROM modlogs WHERE uid=$1 AND gid=$2 AND type=$3;", [
-        args.user.id,
-        message.guild.id,
-        "warn",
-      ])
-      .catch(() => {});
-    if (!warnings || !warnings.rows.length)
-      return await message.error("WARNINGS_NONE_FOUND");
-    const paginator = new WrappedPaginator("", "", 800);
-    for await (const warn of warnings) {
-      paginator.addLine(
-        Util.escapeItalic(`**${message.language.get(
-          "MODLOGS_CASE_ID"
-        )}**: ${warn.get("caseid")}
-**${message.language.get("REASON")}**: ${warn.get("reason")}
-**${message.language.get("MODLOGS_MODERATOR_ID")}**: ${
-          warn.get("modid") || "¯\\\\_(ツ)_/¯"
-        }
-**${message.language.get("DATE")}**: ${warn.get("date")}
-**-----------------**`)
-      );
-    }
-    const embed = new MessageEmbed()
-      .setFooter(args.user.id)
-      .setColor("#E67E22")
-      .setTimestamp();
-    const paginatorInterface = new PaginatorEmbedInterface(
-      this.client,
-      paginator,
-      { owner: message.member, embed }
-    );
-    return await paginatorInterface.send(message.channel);
-  }
+  async run(command: ApplicationCommandMessage) {}
 }

@@ -9,53 +9,36 @@ import {
 import { Snowflake } from "discord.js";
 
 export type Interaction =
-  | {
-      member?: APIGuildMember;
-      channel_id: Snowflake;
-      guild_id?: Snowflake;
-      data: CommandData;
-      user?: APIUser;
-      token: string;
-      id: Snowflake;
-      type: 2;
-    }
-  | {
-      message: APIMessage & { components: APIComponent[] };
-      application_id: Snowflake;
-      member?: APIGuildMember;
-      data: ComponentData;
-      channel_id: Snowflake;
-      guild_id: Snowflake;
-      version: number;
-      user?: APIUser;
-      token: string;
-      id: Snowflake;
-      type: 3;
-    };
+  | ApplicationCommandInteraction
+  | ButtonInteraction
+  | ApplicationCommandAutocompleteInteraction;
 
-export interface SlashCommand {
-  member?: APIGuildMember;
-  channel_id: string;
-  data: CommandData;
-  guild_id?: string;
-  user?: APIUser;
-  token: string;
-  id: string;
-  type: 2;
-}
-
-export interface Button {
-  message: APIMessage & { components: APIComponent[] };
+interface BaseInteraction {
   application_id: Snowflake;
   member?: APIGuildMember;
   channel_id: Snowflake;
-  data: ComponentData;
-  guild_id: Snowflake;
+  guild_id?: Snowflake;
+  type: 2 | 3 | 4;
   version: number;
   user?: APIUser;
-  token: string;
   id: Snowflake;
+  token: string;
+}
+
+export interface ApplicationCommandInteraction extends BaseInteraction {
+  data: CommandData;
+  type: 2;
+}
+
+export interface ButtonInteraction extends BaseInteraction {
+  message: APIMessage & { components: APIComponent[] };
+  data: ComponentData;
   type: 3;
+}
+
+export interface ApplicationCommandAutocompleteInteraction extends BaseInteraction {
+  data: CommandData;
+  type: 4;
 }
 
 export interface CommandData {
@@ -68,6 +51,7 @@ export interface Option {
   type?: ApplicationCommandOptionType;
   value?: string | number | boolean;
   options?: Option[];
+  focused?: boolean;
   name: string;
 }
 
@@ -96,7 +80,7 @@ export enum ApplicationCommandOptionType {
   ROLE,
   MENTIONABLE,
   NUMBER,
-  MESSAGE, // not real, used as a pseudo type 
+  MESSAGE, // not real, used as a pseudo type
 }
 
 export interface APIApplicationCommand {

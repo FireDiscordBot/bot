@@ -1,19 +1,27 @@
 import {
-  Category,
   CommandHandler as AkairoCommandHandler,
   CommandHandlerOptions,
   Constants,
+  Category,
 } from "discord-akairo";
+import { DiscordAPIError, ThreadChannel, Collection } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ContextCommandMessage } from "../extensions/contextcommandmessage";
-import { DiscordAPIError, ThreadChannel, Collection } from "discord.js";
 import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Fire } from "@fire/lib/Fire";
 import { Command } from "./command";
+import { UseExec, UseRun } from "./constants";
 
 const { CommandHandlerEvents } = Constants;
 const allowedTypes = ["DEFAULT", "REPLY"];
+
+export type SlashArgumentTypeCaster = (
+  message: ApplicationCommandMessage,
+  phrase: string
+) => any;
+
+// TODO: replace as unknown when fully switched to slash
 
 export class CommandHandler extends AkairoCommandHandler {
   declare categories: Collection<string, Category<string, Command>>;
@@ -41,7 +49,22 @@ export class CommandHandler extends AkairoCommandHandler {
 
     this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
     try {
-      const ret = await command.exec(message, args);
+      let ret: any;
+      try {
+        // always attempt to use exec first for message commands
+        ret = await command.exec(message, args);
+      } catch (err) {
+        if (err instanceof UseRun) {
+          // if we got here, the slash only inhibitor returned false
+          // meaning the user is allowed run slashOnly commands via msg commands
+          // so we call the run method instead which may break but that's what you get for
+          // not using slash commands
+          ret = await command.run(
+            message as unknown as ApplicationCommandMessage,
+            args
+          );
+        } else throw err;
+      }
       this.emit(
         CommandHandlerEvents.COMMAND_FINISHED,
         message,
@@ -51,6 +74,38 @@ export class CommandHandler extends AkairoCommandHandler {
       );
     } catch (err) {
       this.emit("commandError", message, command, args, err);
+    }
+  }
+
+  async runSlashCommand(
+    message: ApplicationCommandMessage,
+    command: Command,
+    args: Record<string, unknown>
+  ) {
+    await message.channel.ack((message.flags & 64) != 0);
+
+    this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
+    try {
+      let ret: any;
+      try {
+        // always attempt to use run first for slash commands
+        ret = await command.run(message, args);
+      } catch (err) {
+        if (err instanceof UseExec)
+          ret = await command.exec(message as unknown as FireMessage, args);
+        else throw err;
+      }
+      this.emit(
+        CommandHandlerEvents.COMMAND_FINISHED,
+        message,
+        command,
+        args,
+        ret
+      );
+      return true;
+    } catch (err) {
+      this.emit("commandError", message, command, args, err);
+      return false;
     }
   }
 
@@ -119,6 +174,152 @@ export class CommandHandler extends AkairoCommandHandler {
     }
   }
 
+  async handleSlash(message: ApplicationCommandMessage) {
+    try {
+      if (await this.runAllTypeInhibitorsSlash(message)) return false;
+
+      if (this.commandUtils.has(message.id))
+        message.util = this.commandUtils.get(message.id);
+      else {
+        message.util = new CommandUtil(this, message);
+        this.commandUtils.set(message.id, message.util);
+      }
+
+      if (await this.runPreTypeInhibitorsSlash(message)) return false;
+
+      const parsed = (message.util.parsed = {
+        alias: message.command.id,
+        command: message.command,
+        afterPrefix: "",
+        content: "",
+        prefix: "/",
+      });
+
+      let ran = false;
+      if (parsed.command)
+        ran = await this.handleDirectSlashCommand(message, parsed.command);
+
+      if (ran === false) {
+        this.emit(CommandHandlerEvents.MESSAGE_INVALID, message);
+        return false;
+      }
+
+      return ran;
+    } catch (err) {
+      if (err instanceof DiscordAPIError && err.code == 10007) return null;
+
+      this.emitError(err, message as unknown as FireMessage);
+      return null;
+    }
+  }
+
+  async runAllTypeInhibitorsSlash(message: ApplicationCommandMessage) {
+    const reason = this.inhibitorHandler
+      ? await this.inhibitorHandler.test(
+          "all",
+          message as unknown as FireMessage,
+          message.command
+        )
+      : null;
+
+    if (reason != null) {
+      this.emit(
+        CommandHandlerEvents.COMMAND_BLOCKED,
+        message,
+        message.command,
+        reason
+      );
+    } else if (this.blockClient && message.author.id === this.client.user.id) {
+      this.emit(
+        CommandHandlerEvents.COMMAND_BLOCKED,
+        message,
+        message.command,
+        Constants.BuiltInReasons.CLIENT
+      );
+    } else if (this.blockBots && message.author.bot) {
+      this.emit(
+        CommandHandlerEvents.COMMAND_BLOCKED,
+        message,
+        message.command,
+        Constants.BuiltInReasons.BOT
+      );
+    } else {
+      return false;
+    }
+
+    return true;
+  }
+
+  async runPreTypeInhibitorsSlash(message: ApplicationCommandMessage) {
+    const reason = this.inhibitorHandler
+      ? await this.inhibitorHandler.test(
+          "pre",
+          message as unknown as FireMessage
+        )
+      : null;
+
+    if (reason != null) {
+      this.emit(
+        CommandHandlerEvents.COMMAND_BLOCKED,
+        message,
+        message.command,
+        reason
+      );
+    } else {
+      return false;
+    }
+
+    return true;
+  }
+
+  async handleDirectSlashCommand(
+    message: ApplicationCommandMessage,
+    command: Command,
+    ignore = false
+  ) {
+    let key;
+    try {
+      if (
+        !ignore &&
+        (await this.runPostTypeInhibitors(
+          message as unknown as FireMessage,
+          command
+        ))
+      )
+        return false;
+
+      await command.before(message as unknown as FireMessage);
+
+      const args = await command.parseSlash(message).catch((e) => {
+        this.client.sentry.captureException(e);
+        return null;
+      });
+      if (args == null) return null;
+
+      if (!ignore) {
+        if (command.lock)
+          key = command.lock(message as unknown as FireMessage, args);
+        if (this.client.util.isPromise(key)) await key;
+        if (key) {
+          if (command.locker.has(key)) {
+            key = null;
+            this.emit(CommandHandlerEvents.COMMAND_LOCKED, message, command);
+            return true;
+          }
+
+          command.locker.add(key);
+        }
+      }
+
+      await this.runSlashCommand(message, command, args);
+    } catch (err) {
+      this.emitError(err, message as unknown as FireMessage, command);
+      return null;
+    } finally {
+      if (key) command.locker.delete(key);
+    }
+  }
+
   async preThreadChecks(message: FireMessage | ApplicationCommandMessage) {
     if (
       message instanceof ApplicationCommandMessage ||
@@ -166,7 +367,10 @@ export class CommandHandler extends AkairoCommandHandler {
             }
             if (o.content.trim() == m.content.trim()) return;
             if (o.paginator) this.client.util.paginators.delete(o.id);
-            if (this.handleEdits) this.handle(m);
+            if (this.handleEdits) {
+              m.sentUpsell = false;
+              this.handle(m);
+            }
           }
         );
       }

@@ -1,58 +1,60 @@
-import {
-  PermissionOverwriteOptions,
-  GuildAuditLogsFetchOptions,
-  PermissionResolvable,
-  MessageEmbedOptions,
-  MessageAttachment,
-  BaseFetchOptions,
-  MessageActionRow,
-  CategoryChannel,
-  GuildAuditLogs,
-  MessageButton,
-  WebhookClient,
-  ThreadChannel,
-  MessageEmbed,
-  StageChannel,
-  GuildChannel,
-  Permissions,
-  NewsChannel,
-  Structures,
-  Collection,
-  Formatters,
-  Snowflake,
-  Webhook,
-  Guild,
-  Role,
-  Util,
-} from "discord.js";
+import { Fire } from "@fire/lib/Fire";
+import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import {
   ActionLogType,
+  GuildTextChannel,
   MemberLogType,
   ModLogType,
 } from "@fire/lib/util/constants";
-import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import { RawGuildData } from "discord.js/typings/rawDataTypes";
-import { ReactionRoleData } from "@fire/lib/interfaces/rero";
-import TicketName from "@fire/src/commands/Tickets/name";
-import { PermRolesData } from "../interfaces/permroles";
-import { GuildSettings } from "@fire/lib/util/settings";
-import { DiscoverableGuild } from "../interfaces/stats";
 import { getIDMatch } from "@fire/lib/util/converters";
-import { GuildLogManager } from "../util/logmanager";
-import { BaseFakeChannel } from "../interfaces/misc";
-import { MessageIterator } from "../util/iterators";
-import { FireVoiceChannel } from "./voicechannel";
-import { LanguageKeys } from "../util/language";
-import { FireTextChannel } from "./textchannel";
-import Semaphore from "semaphore-async-await";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
+import { GuildSettings } from "@fire/lib/util/settings";
+import TicketName from "@fire/src/commands/Tickets/name";
 import { APIGuild } from "discord-api-types";
+import {
+  BaseFetchOptions,
+  CategoryChannel,
+  Collection,
+  Formatters,
+  Guild,
+  GuildAuditLogs,
+  GuildAuditLogsFetchOptions,
+  GuildChannel,
+  GuildFeatures,
+  MessageActionRow,
+  MessageAttachment,
+  MessageButton,
+  MessageEmbed,
+  MessageEmbedOptions,
+  PermissionOverwriteOptions,
+  PermissionResolvable,
+  Permissions,
+  Role,
+  Snowflake,
+  StageChannel,
+  Structures,
+  ThreadChannel,
+  Util,
+  Webhook,
+  WebhookClient,
+} from "discord.js";
+import { RawGuildData } from "discord.js/typings/rawDataTypes";
+import { murmur3 } from "murmurhash-js";
+import { nanoid } from "nanoid";
+import Semaphore from "semaphore-async-await";
+import { v4 as uuidv4 } from "uuid";
+import { BaseFakeChannel } from "../interfaces/misc";
+import { PermRolesData } from "../interfaces/permroles";
+import { BadgeType, DiscoverableGuild } from "../interfaces/stats";
+import { MessageIterator } from "../util/iterators";
+import { LanguageKeys } from "../util/language";
+import { GuildLogManager } from "../util/logmanager";
+import { FakeChannel } from "./appcommandmessage";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
-import { murmur3 } from "murmurhash-js";
-import { Fire } from "@fire/lib/Fire";
-import { v4 as uuidv4 } from "uuid";
+import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
-import { nanoid } from "nanoid";
+import { FireVoiceChannel } from "./voicechannel";
 
 const BOOST_TIERS = {
   NONE: 0,
@@ -155,6 +157,22 @@ export class FireGuild extends Guild {
           !(channel instanceof ThreadChannel) && !!channel.permissionOverwrites
       ) as Collection<Snowflake, GuildChannel>,
     };
+  }
+
+  get discoverableInviteChannel() {
+    return (
+      this.systemChannel ||
+      this.rulesChannel ||
+      (this.guildChannels.cache
+        .filter(
+          (channel) =>
+            channel.type == "GUILD_TEXT" &&
+            channel
+              .permissionsFor(this.roles.everyone, false)
+              ?.has("VIEW_CHANNEL")
+        )
+        .first() as FireTextChannel)
+    );
   }
 
   _patch(data: APIGuild) {
@@ -465,10 +483,10 @@ export class FireGuild extends Guild {
         const embed = new MessageEmbed()
           .setColor("#2ECC71")
           .setTimestamp(now)
-          .setAuthor(
-            this.language.get("UNMUTE_LOG_AUTHOR", { user: id }),
-            this.iconURL({ size: 2048, format: "png", dynamic: true })
-          )
+          .setAuthor({
+            name: this.language.get("UNMUTE_LOG_AUTHOR", { user: id }),
+            iconURL: this.iconURL({ size: 2048, format: "png", dynamic: true }),
+          })
           .addField(this.language.get("MODERATOR"), me.toString())
           .setFooter(id.toString());
         if (!dbremove)
@@ -712,15 +730,30 @@ export class FireGuild extends Guild {
     // node_env is only "development" for local testing, it's "staging" for fire beta
     if (process.env.NODE_ENV == "development") return true;
     return (
-      (this.settings.get<boolean>("utils.public", false) &&
+      !this.features.includes("DISCOVERABLE_DISABLED" as GuildFeatures) &&
+      ((this.settings.get<boolean>("utils.public", false) &&
         this.memberCount >= 20 &&
         +new Date() - this.createdTimestamp > 2629800000) ||
-      (this.features && this.features.includes("DISCOVERABLE"))
+        (this.features &&
+          this.features.includes("DISCOVERABLE") &&
+          this.me
+            ?.permissionsIn(this.discoverableInviteChannel)
+            ?.has(Permissions.FLAGS.CREATE_INSTANT_INVITE)))
     );
   }
 
+  get guildBadge(): BadgeType {
+    if (!this.features.length) return null;
+    if (this.features.includes("VERIFIED")) return "VERIFIED";
+    else if (this.features.includes("PARTNERED")) return "PARTNERED";
+    else if (this.premiumTier == "TIER_1") return "BOOST_FRIENDS";
+    else if (this.premiumTier == "TIER_2") return "BOOST_GROUPS";
+    else if (this.premiumTier == "TIER_3") return "BOOST_COMMUNITIES";
+    return null;
+  }
+
   getDiscoverableData(): DiscoverableGuild {
-    let splash = "https://i.imgur.com/jWRMBRd.png";
+    let splash = "";
     if (!this.available)
       return {
         name: this.name || "Unavailable Guild",
@@ -729,20 +762,21 @@ export class FireGuild extends Guild {
         splash,
         vanity: `https://discover.inv.wtf/${this.id}`,
         members: 0,
+        badge: this.guildBadge,
         featured: false,
         shard: this.shardId,
         cluster: this.client.manager.id,
       };
     if (this.splash)
       splash = this.splashURL({
-        size: 2048,
+        size: 16,
         format: "png",
-      }).replace("size=2048", "size=320");
+      }).replace("size=16", "size=320");
     else if (this.discoverySplash)
       splash = this.discoverySplashURL({
-        size: 2048,
+        size: 16,
         format: "png",
-      }).replace("size=2048", "size=320");
+      }).replace("size=16", "size=320");
     const icon =
       this.iconURL({
         format: "png",
@@ -757,6 +791,7 @@ export class FireGuild extends Guild {
       splash,
       vanity: `https://discover.inv.wtf/${this.id}`,
       members: this.memberCount,
+      badge: this.guildBadge,
       featured: this.settings.get<boolean>(
         "utils.featured",
         this.features.includes("FEATURABLE")
@@ -1014,7 +1049,8 @@ export class FireGuild extends Guild {
     author: FireMember,
     subject: string,
     channel?: FireTextChannel,
-    category?: CategoryChannel
+    category?: CategoryChannel,
+    descriptionOverride?: string
   ) {
     if (channel instanceof BaseFakeChannel)
       channel = channel.real as FireTextChannel;
@@ -1201,7 +1237,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .setColor(author.displayColor ?? "#FFFFFF")
       .addField(this.language.get("SUBJECT"), subject)
       .addField(this.language.get("USER"), authorInfo);
-    const description = this.settings.get<string>("tickets.description");
+    const description =
+      descriptionOverride ?? this.settings.get<string>("tickets.description");
     if (description) embed.setDescription(description);
     const alertId = this.settings.get<Snowflake>("tickets.alert");
     const alert = this.roles.cache.get(alertId);
@@ -1283,7 +1320,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         );
       }
       transcript.push(`${transcript.length} messages, closed by ${author}`);
-      const buffer = Buffer.from(transcript.join("\n\n"), "ascii");
+      const buffer = Buffer.from(transcript.join("\n\n"), "utf-8");
       if (creator)
         await creator
           .send({
@@ -1413,7 +1450,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     user: FireUser,
     reason: string,
     moderator: FireMember,
-    channel?: FireTextChannel
+    channel?: FakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -1442,10 +1479,14 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
       .setTimestamp()
-      .setAuthor(
-        this.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),
-        user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: this.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),
+        iconURL: user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${user.id} | ${moderator.id}`);
@@ -1457,11 +1498,6 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
             user: Util.escapeMarkdown(user.toString()),
             guild: Util.escapeMarkdown(this.name),
           }),
-          embeds:
-            channel instanceof BaseFakeChannel ||
-            moderator.id == this.client.user?.id
-              ? []
-              : this.client.util.getModCommandSlashWarning(this),
         })
         .catch(() => {});
   }
@@ -1470,7 +1506,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     blockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: FireTextChannel | FireVoiceChannel | NewsChannel
+    channel: FakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -1506,20 +1542,21 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         blockee instanceof FireMember ? blockee.displayColor : null || "#E74C3C"
       )
       .setTimestamp()
-      .setAuthor(
-        this.language.get("BLOCK_LOG_AUTHOR", {
+      .setAuthor({
+        name: this.language.get("BLOCK_LOG_AUTHOR", {
           blockee:
             blockee instanceof FireMember ? blockee.toString() : blockee.name,
         }),
-        blockee instanceof FireMember
-          ? blockee.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            })
-          : this.iconURL({ size: 2048, format: "png", dynamic: true }),
-        "https://static.inv.wtf/blocked.gif" // hehe
-      )
+        iconURL:
+          blockee instanceof FireMember
+            ? blockee.displayAvatarURL({
+                size: 2048,
+                format: "png",
+                dynamic: true,
+              })
+            : this.iconURL({ size: 2048, format: "png", dynamic: true }),
+        url: "https://static.inv.wtf/blocked.gif", // hehe
+      })
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
@@ -1531,11 +1568,6 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
             blockee instanceof FireMember ? blockee.toString() : blockee.name
           ),
         }),
-        embeds:
-          channel instanceof BaseFakeChannel ||
-          moderator.id == this.client.user?.id
-            ? []
-            : this.client.util.getModCommandSlashWarning(this),
       })
       .catch(() => {});
   }
@@ -1544,7 +1576,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     unblockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: FireTextChannel | FireVoiceChannel | NewsChannel
+    channel: FakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -1592,21 +1624,22 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
           : null || "#2ECC71"
       )
       .setTimestamp()
-      .setAuthor(
-        this.language.get("UNBLOCK_LOG_AUTHOR", {
+      .setAuthor({
+        name: this.language.get("UNBLOCK_LOG_AUTHOR", {
           unblockee:
             unblockee instanceof FireMember
               ? unblockee.toString()
               : unblockee.name,
         }),
-        unblockee instanceof FireMember
-          ? unblockee.displayAvatarURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            })
-          : this.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+        iconURL:
+          unblockee instanceof FireMember
+            ? unblockee.displayAvatarURL({
+                size: 2048,
+                format: "png",
+                dynamic: true,
+              })
+            : this.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
@@ -1620,11 +1653,6 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
               : unblockee.name
           ),
         }),
-        embeds:
-          channel instanceof BaseFakeChannel ||
-          moderator.id == this.client.user?.id
-            ? []
-            : this.client.util.getModCommandSlashWarning(this),
       })
       .catch(() => {});
   }

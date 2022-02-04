@@ -13,7 +13,7 @@ type Assignment = [number, number, number, number, number];
 // buckets is typed as unkown because typing it would be pain
 type GuildExperiment = [
   number,
-  number,
+  string | null,
   number,
   ExperimentBuckets,
   GuildExperimentOverride[]

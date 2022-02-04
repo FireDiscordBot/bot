@@ -32,13 +32,24 @@ export interface Shard {
   status: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 }
 
+export type BadgeType =
+  | null
+  | "PARTNERED"
+  | "VERIFIED"
+  | "BOOST_FRIENDS"
+  | "BOOST_GROUPS"
+  | "BOOST_COMMUNITIES";
+
 export interface DiscoverableGuild {
   name: string;
   id: string;
   icon: string;
+  iconProxy?: string;
   splash: string;
+  splashProxy?: string;
   vanity: string;
   members: number;
+  badge: BadgeType;
   featured: boolean;
   shard?: number;
   cluster?: number;

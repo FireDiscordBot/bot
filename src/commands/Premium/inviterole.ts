@@ -59,14 +59,14 @@ export default class InviteRole extends Command {
         const embed = new MessageEmbed()
           .setTimestamp()
           .setColor("#E74C3C")
-          .setAuthor(
-            message.guild.language.get("INVITEROLE_LOG_AUTHOR"),
-            message.guild.iconURL({
+          .setAuthor({
+            name: message.guild.language.get("INVITEROLE_LOG_AUTHOR"),
+            iconURL: message.guild.iconURL({
               size: 2048,
               format: "png",
               dynamic: true,
-            })
-          )
+            }),
+          })
           .addField(message.guild.language.get("INVITE"), invite)
           .addField(message.guild.language.get("ROLE"), role.name)
           .addField(
@@ -99,14 +99,14 @@ export default class InviteRole extends Command {
       const embed = new MessageEmbed()
         .setTimestamp()
         .setColor("#2ECC71")
-        .setAuthor(
-          message.guild.language.get("INVITEROLE_LOG_AUTHOR"),
-          message.guild.iconURL({
+        .setAuthor({
+          name: message.guild.language.get("INVITEROLE_LOG_AUTHOR"),
+          iconURL: message.guild.iconURL({
             size: 2048,
             format: "png",
             dynamic: true,
-          })
-        )
+          }),
+        })
         .addField(message.guild.language.get("INVITE"), invite)
         .addField(message.guild.language.get("ROLE"), role.name)
         .addField(

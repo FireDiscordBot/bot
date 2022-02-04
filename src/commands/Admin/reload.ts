@@ -44,7 +44,7 @@ export default class Reload extends Command {
       broadcast?: string;
     }
   ) {
-    if (!args.module) return await message.error();
+    if (!args.module) return;
     if (args.module == "*") {
       if (this.client.manager.ws)
         this.client.manager.ws.send(
@@ -78,10 +78,10 @@ export default class Reload extends Command {
             this.client.listenerHandler,
             this.client.modules,
           ].forEach((handler) => handler.reloadAll());
-          return await message.success();
+          return await message.success("SLASH_COMMAND_HANDLE_SUCCESS");
         }
       } catch {
-        return await message.error();
+        return await message.error("ERROR_CONTACT_SUPPORT");
       }
     }
     try {
@@ -111,10 +111,10 @@ export default class Reload extends Command {
         return await message.react("🔁");
       } else {
         args.module.reload();
-        return await message.success();
+        return await message.success("SLASH_COMMAND_HANDLE_SUCCESS");
       }
     } catch {
-      return await message.error();
+      return await message.error("ERROR_CONTACT_SUPPORT");
     }
   }
 }

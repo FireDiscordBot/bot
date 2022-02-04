@@ -1,7 +1,7 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageEmbed, Permissions } from "discord.js";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -32,56 +32,55 @@ export default class Blacklist extends Command {
         },
       ],
       enableSlashCommand: true,
-      aliases: ["plonk", "unblacklist", "unplonk"],
       restrictTo: "all",
       ephemeral: true,
       slashOnly: true,
     });
   }
 
-  async exec(
-    message: FireMessage,
+  async run(
+    command: ApplicationCommandMessage,
     args: { user: FireMember | FireUser; reason: string }
   ) {
     if (!args.user && typeof args.user == "undefined")
-      return await message.error("BLACKLIST_USER_REQUIRED");
+      return await command.error("BLACKLIST_USER_REQUIRED");
     else if (!args.user) return;
 
     if (args.user instanceof FireMember ? args.user.user.bot : args.user.bot)
-      return await message.error("BLACKLIST_BOT");
+      return await command.error("BLACKLIST_BOT");
     if (
-      !message.author.isSuperuser() &&
-      !message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+      !command.author.isSuperuser() &&
+      !command.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
     )
-      return await message.error("BLACKLIST_FORBIDDEN", {
-        manage: message.language.get(
+      return await command.error("BLACKLIST_FORBIDDEN", {
+        manage: command.language.get(
           "PERMISSIONS.MANAGE_GUILD" as LanguageKeys
         ),
       });
 
     if (
-      args.user.id == message.author.id ||
+      args.user.id == command.author.id ||
       (args.user instanceof FireMember &&
         (args.user.isModerator() || args.user.user.bot) &&
-        message.author.id != message.guild.ownerId) ||
+        command.author.id != command.guild.ownerId) ||
       (args.user.isSuperuser() && !this.client.util.isBlacklisted(args.user))
     )
-      return await message.error("MODERATOR_ACTION_DISALLOWED");
+      return await command.error("MODERATOR_ACTION_DISALLOWED");
 
-    if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
-      await this.localBlacklist(message, args);
-    else if (message.author.isSuperuser())
-      await this.globalBlacklist(message, args);
+    if (command.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+      await this.localBlacklist(command, args);
+    else if (command.author.isSuperuser())
+      await this.globalBlacklist(command, args);
     else
-      return await message.error("BLACKLIST_FORBIDDEN", {
-        manage: message.language.get(
+      return await command.error("BLACKLIST_FORBIDDEN", {
+        manage: command.language.get(
           "PERMISSIONS.MANAGE_GUILD" as LanguageKeys
         ),
       });
   }
 
   async globalBlacklist(
-    message: FireMessage,
+    command: ApplicationCommandMessage,
     args: { user: FireMember | FireUser; reason: string }
   ) {
     if (this.client.util.isBlacklisted(args.user)) {
@@ -90,54 +89,63 @@ export default class Blacklist extends Command {
         this.client.manager.ws.send(
           MessageUtil.encode(
             new Message(EventType.ADMIN_ACTION, {
-              user: `${message.author} (${message.author.id})`,
-              guild: message.guild
-                ? `${message.guild} (${message.guild.id})`
+              user: `${command.author} (${command.author.id})`,
+              guild: command.guild
+                ? `${command.guild} (${command.guild.id})`
                 : "N/A",
-              shard: message.guild ? message.guild.shardId : 0,
+              shard: command.guild ? command.guild.shardId : 0,
               action: `${args.user} (${args.user.id}) was unblacklisted`,
             })
           )
         );
-      return unblacklisted ? await message.success() : await message.error();
+      return unblacklisted
+        ? await command.success("UNBLACKLIST_SUCCESS", {
+            user: args.user.toString(),
+            guild: "Fire (Global Blacklist)",
+          })
+        : await command.error("ERROR_CONTACT_SUPPORT");
     } else {
       const blacklisted = await args.user.blacklist(args.reason);
       if (this.client.manager.ws && blacklisted)
         this.client.manager.ws.send(
           MessageUtil.encode(
             new Message(EventType.ADMIN_ACTION, {
-              user: `${message.author} (${message.author.id})`,
-              guild: message.guild
-                ? `${message.guild} (${message.guild.id})`
+              user: `${command.author} (${command.author.id})`,
+              guild: command.guild
+                ? `${command.guild} (${command.guild.id})`
                 : "N/A",
-              shard: message.guild ? message.guild.shardId : 0,
+              shard: command.guild ? command.guild.shardId : 0,
               action: `${args.user} (${args.user.id}) was blacklisted`,
             })
           )
         );
-      return blacklisted ? await message.success() : await message.error();
+      return blacklisted
+        ? await command.success("BLACKLIST_SUCCESS", {
+            user: args.user.toString(),
+            guild: "Fire (Global Blacklist)",
+          })
+        : await command.error("ERROR_CONTACT_SUPPORT");
     }
   }
 
   async localBlacklist(
-    message: FireMessage,
+    command: ApplicationCommandMessage,
     args: { user: FireMember | FireUser; reason?: string }
   ) {
-    await message.delete().catch(() => {});
-    let current = message.guild.settings.get<string[]>("utils.plonked", []);
+    let current = command.guild.settings.get<string[]>("utils.plonked", []);
     const isPlonked = current.includes(args.user.id);
     if (isPlonked) current = current.filter((id) => id != args.user.id);
     else current.push(args.user.id);
 
     if (current.length)
-      message.guild.settings.set<string[]>("utils.plonked", current);
-    else message.guild.settings.delete("utils.plonked");
-    await message.guild.createModLogEntry(
+      command.guild.settings.set<string[]>("utils.plonked", current);
+    else command.guild.settings.delete("utils.plonked");
+    await command.guild.createModLogEntry(
       args.user,
-      message.member,
+      command.member,
       isPlonked ? "unblacklist" : "blacklist",
       args.reason ||
-        (message.guild.language.get(
+        (command.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string)
     );
@@ -153,36 +161,36 @@ export default class Blacklist extends Command {
           : "#E74C3C"
       )
       .setTimestamp()
-      .setAuthor(
-        isPlonked
-          ? message.guild.language.get("UNBLACKLIST_LOG_AUTHOR", {
+      .setAuthor({
+        name: isPlonked
+          ? command.guild.language.get("UNBLACKLIST_LOG_AUTHOR", {
               user: args.user.toString(),
             })
-          : message.guild.language.get("BLACKLIST_LOG_AUTHOR", {
+          : command.guild.language.get("BLACKLIST_LOG_AUTHOR", {
               user: args.user.toString(),
             }),
-        args.user.displayAvatarURL({
+        iconURL: args.user.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
+        }),
+      })
+      .addField(
+        command.guild.language.get("MODERATOR"),
+        command.author.toString()
       )
       .addField(
-        message.guild.language.get("MODERATOR"),
-        message.author.toString()
-      )
-      .addField(
-        message.guild.language.get("REASON"),
+        command.guild.language.get("REASON"),
         args.reason ||
-          (message.guild.language.get(
+          (command.guild.language.get(
             "MODERATOR_ACTION_DEFAULT_REASON"
           ) as string)
       )
-      .setFooter(`${args.user.id} | ${message.author.id}`);
-    await message.guild.modLog(embed, isPlonked ? "unblacklist" : "blacklist");
-    return await message.success(
+      .setFooter(`${args.user.id} | ${command.author.id}`);
+    await command.guild.modLog(embed, isPlonked ? "unblacklist" : "blacklist");
+    return await command.success(
       isPlonked ? "UNBLACKLIST_SUCCESS" : "BLACKLIST_SUCCESS",
-      { user: args.user.toString(), guild: message.guild.name }
+      { user: args.user.toString(), guild: command.guild.name }
     );
   }
 }

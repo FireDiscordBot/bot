@@ -1,18 +1,24 @@
 import {
   BaseMessageComponentOptions,
+  MessageActionRow,
   MessageActionRowOptions,
   MessageMentionOptions,
-  MessageActionRow,
-  ReplyOptions,
   NewsChannel,
+  ReplyOptions,
 } from "discord.js";
-import { FireVoiceChannel } from "../extensions/voicechannel";
-import { FireTextChannel } from "../extensions/textchannel";
-import humanizeDuration = require("humanize-duration");
 import { StringMap, TOptions } from "i18next";
+import { FireTextChannel } from "../extensions/textchannel";
+import { FireVoiceChannel } from "../extensions/voicechannel";
+import humanizeDuration = require("humanize-duration");
 
 const emojiRegex = require("emoji-regex")() as RegExp;
 const emojiRegexStr = emojiRegex.toString();
+
+export enum CouponType {
+  BOOSTER = "BOOSTER",
+  TWITCHSUB = "TWITCHSUB",
+  BOOSTER_AND_SUB = "TWITCHBOOST",
+}
 
 export type ActionLogType =
   | "system"
@@ -35,6 +41,7 @@ export type ActionLogType =
 export type ModLogType =
   | "system"
   | "warn"
+  | "note"
   | "ban"
   | "unban"
   | "kick"
@@ -63,7 +70,12 @@ export type i18nOptions = TOptions<StringMap> & {
   )[];
   allowedMentions?: MessageMentionOptions;
   reply?: ReplyOptions;
+  includeSlashUpsell?: boolean;
 };
+
+// errors thrown by the base command class exec & run methods telling you to use the other method
+export class UseExec extends Error {}
+export class UseRun extends Error {}
 
 let emojis = {
   // shoutout to blobhub for the ebic emotes, https://inv.wtf/blobhub
@@ -94,6 +106,7 @@ let emojis = {
     OWNER: "<:ownercrown:831858918161776661>",
     FIRE_ADMIN: "<:FireVerified:671243744774848512>",
     FIRE_PREMIUM: "<:FirePremium:680519037704208466>",
+    FUCK_MEE6: "<:fuckmee6allmyhomieshatemee6:909928935310118992>",
   },
   channels: {
     text: "<:channeltext:794243232648921109>",
@@ -139,6 +152,7 @@ if (process.env.EMOJI_SET == "1") {
       OWNER: "",
       FIRE_ADMIN: "<:FireVerified:823121736273887240>",
       FIRE_PREMIUM: "<:FirePremium:823121735774765056>",
+      FUCK_MEE6: "<:fuckmee6allmyhomieshatemee6:823121735774765060>",
     },
     channels: {
       text: "<:channeltext:823154571105927169>",
@@ -168,10 +182,10 @@ export const constants = {
   reactions,
   // urls
   url: {
-    discovery: "https://fire.gaminggeek.dev/discover",
+    discovery: "https://getfire.bot/discover",
     discordStatus: "https://discordstatus.com",
     fireStatus: "https://firestatus.link",
-    website: "https://fire.gaminggeek.dev/",
+    website: "https://getfire.bot/",
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",
     premium: "https://inv.wtf/premium",
@@ -374,12 +388,16 @@ export const constants = {
   ],
 };
 
-export const titleCase = (string: string) =>
+export const titleCase = (
+  string: string,
+  separator = " ",
+  joinWithSpace = true
+) =>
   string
     .toLowerCase()
-    .split(" ")
+    .split(separator)
     .map((sentence) => sentence.charAt(0).toUpperCase() + sentence.slice(1))
-    .join(" ");
+    .join(joinWithSpace ? " " : "");
 
 export const zws = "\u200b";
 
@@ -427,6 +445,30 @@ export const parseTime = (content: string, replace: boolean = false) => {
   if (matches.months) minutes += parseInt(matches.months || "0") * 43800;
 
   return minutes;
+};
+
+export const pluckTime = (content: string) => {
+  if (!content) return null;
+  else if (!content) return content;
+  const {
+    regexes: { time: regexes },
+  } = constants;
+  // to try reduce false positives for the time
+  // it requires a space before the time
+  // so here we add a space before the content
+  // in case the time is at the start
+  content = " " + content;
+  const matches = [
+    [regexes.month.exec(content)?.groups?.months, "mo"],
+    [regexes.week.exec(content)?.groups?.weeks, "w"],
+    [regexes.day.exec(content)?.groups?.days, "d"],
+    [regexes.hours.exec(content)?.groups?.hours, "h"],
+    [regexes.minutes.exec(content)?.groups?.minutes, "m"],
+    [regexes.seconds.exec(content)?.groups?.seconds, "s"],
+  ]
+    .filter((match) => !!match[0])
+    .map(([match, unit]) => match + unit);
+  return matches.join(" ");
 };
 
 export const shortURLs = [

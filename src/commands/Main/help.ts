@@ -8,7 +8,9 @@ import {
   GuildChannel,
   MessageEmbed,
   Permissions,
+  CommandInteractionOption,
 } from "discord.js";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { titleCase } from "@fire/lib/util/constants";
@@ -31,6 +33,7 @@ export default class Help extends Command {
         {
           id: "command",
           type: "command",
+          autocomplete: true,
           default: undefined,
           required: false,
         },
@@ -41,7 +44,26 @@ export default class Help extends Command {
     });
   }
 
-  private filter(command: Command, message: FireMessage) {
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (focused.value)
+      return this.client.commandHandler.modules
+        .filter((cmd) => this.filter(cmd, interaction))
+        .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+        .filter((cmd) => cmd.name.includes(focused.value.toString()))
+        .slice(0, 25);
+    return this.client.commandHandler.modules
+      .filter((cmd) => this.filter(cmd, interaction))
+      .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+      .slice(0, 25);
+  }
+
+  private filter(
+    command: Command,
+    message: FireMessage | ApplicationCommandMessage
+  ) {
     if (!(command instanceof Command)) return false;
     else if (command.hidden && !message.author.isSuperuser()) return false;
     else if (command.ownerOnly && this.client.ownerID != message.author.id)
@@ -67,7 +89,7 @@ export default class Help extends Command {
     else if (
       (command.userPermissions as PermissionString[])?.length &&
       (message.channel as GuildChannel)
-        .permissionsFor(message.author)
+        .permissionsFor(message.member ?? message.author)
         .missing(
           command.userPermissions as BitFieldResolvable<
             PermissionString,
@@ -121,7 +143,7 @@ export default class Help extends Command {
       new MessageActionRow().addComponents([
         new MessageButton()
           .setStyle("LINK")
-          .setURL("https://fire.gaminggeek.dev/")
+          .setURL("https://getfire.bot/")
           .setLabel(message.language.get("HELP_BUTTON_WEBSITE")),
         new MessageButton()
           .setStyle("LINK")

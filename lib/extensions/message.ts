@@ -1,42 +1,42 @@
+import * as sanitizer from "@aero/sanitizer";
+import { Fire } from "@fire/lib/Fire";
+import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
+import { CommandUtil } from "@fire/lib/util/commandutil";
 import {
-  EmojiIdentifierResolvable,
-  ReplyMessageOptions,
-  MessageAttachment,
-  DiscordAPIError,
-  MessageReaction,
-  MessagePayload,
-  ThreadChannel,
-  WebhookClient,
-  ThreadMember,
-  MessageEmbed,
-  GuildChannel,
-  Permissions,
-  NewsChannel,
-  Collection,
-  Structures,
-  DMChannel,
-  Webhook,
-  Message,
-  Channel,
-} from "discord.js";
-import {
+  constants,
   GuildTextChannel,
   i18nOptions,
-  constants,
 } from "@fire/lib/util/constants";
-import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
-import { RawMessageData } from "discord.js/typings/rawDataTypes";
-import { CommandUtil } from "@fire/lib/util/commandutil";
-import { FireVoiceChannel } from "./voicechannel";
 import Filters from "@fire/src/modules/filters";
-import { FireTextChannel } from "./textchannel";
-import { LanguageKeys } from "../util/language";
-import Semaphore from "semaphore-async-await";
-import { FireMember } from "./guildmember";
-import { Fire } from "@fire/lib/Fire";
-import { FireGuild } from "./guild";
-import { FireUser } from "./user";
 import * as centra from "centra";
+import {
+  Channel,
+  Collection,
+  DiscordAPIError,
+  DMChannel,
+  EmojiIdentifierResolvable,
+  GuildChannel,
+  Message,
+  MessageAttachment,
+  MessageEmbed,
+  MessagePayload,
+  MessageReaction,
+  NewsChannel,
+  Permissions,
+  ReplyMessageOptions,
+  Structures,
+  ThreadChannel,
+  Webhook,
+  WebhookClient,
+} from "discord.js";
+import { RawMessageData } from "discord.js/typings/rawDataTypes";
+import Semaphore from "semaphore-async-await";
+import { LanguageKeys } from "../util/language";
+import { FireGuild } from "./guild";
+import { FireMember } from "./guildmember";
+import { FireTextChannel } from "./textchannel";
+import { FireUser } from "./user";
+import { FireVoiceChannel } from "./voicechannel";
 
 const { emojis, reactions, regexes, imageExts, audioExts, videoExts } =
   constants;
@@ -51,6 +51,7 @@ export class FireMessage extends Message {
   starLock: Semaphore;
   selfDelete: boolean;
   util?: CommandUtil;
+  sentUpsell = false;
   silent?: boolean;
 
   constructor(client: Fire, data: RawMessageData) {
@@ -100,13 +101,55 @@ export class FireMessage extends Message {
     return this.client.util.paginators.get(this.id) ?? null;
   }
 
-  send(key?: LanguageKeys, args?: i18nOptions) {
+  // TODO: remove when djs Util.removeMentions is removed
+  // @ts-ignore (it is a getter, not a property)
+  get cleanContent() {
+    return this.content == null
+      ? null
+      : this.content
+          .replace(/<@!?[0-9]+>/g, (input) => {
+            const id = input.replace(/<|!|>|@/g, "");
+            if (this.channel.type === "DM") {
+              const user = this.channel.client.users.cache.get(id);
+              return user ? `@${user.username}` : input;
+            }
+
+            const member = this.channel.guild.members.cache.get(id);
+            if (member) {
+              return `@${member.displayName}`;
+            } else {
+              const user = this.channel.client.users.cache.get(id);
+              return user ? `@${user.username}` : input;
+            }
+          })
+          .replace(/<#[0-9]+>/g, (input) => {
+            const mentionedChannel = this.client.channels.cache.get(
+              input.replace(/<|#|>/g, "")
+            );
+            return mentionedChannel
+              ? `#${(mentionedChannel as GuildChannel).name}`
+              : input;
+          })
+          .replace(/<@&[0-9]+>/g, (input) => {
+            if (this.channel.type === "DM") return input;
+            const role = this.channel.guild.roles.cache.get(
+              input.replace(/<|@|>|&/g, "")
+            );
+            return role ? `@${role.name}` : input;
+          });
+  }
+
+  async send(key: LanguageKeys, args?: i18nOptions) {
     if (this.channel.deleted) return;
+    let upsell: MessageEmbed | false;
+    if (args?.includeSlashUpsell)
+      upsell = await this.client.util.getSlashUpsellEmbed(this);
     return this.channel.send({
       content: this.language.get(key, args),
       allowedMentions: args?.allowedMentions,
       components: args?.components,
       reply: args?.reply,
+      embeds: upsell ? [upsell] : undefined,
     });
   }
 
@@ -119,11 +162,14 @@ export class FireMessage extends Message {
     return (await super.reply(options)) as FireMessage;
   }
 
-  success(
-    key?: LanguageKeys,
+  async success(
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
+    let upsell: MessageEmbed | false;
+    if (args?.includeSlashUpsell)
+      upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
       ? this.react(reactions.success).catch(() => {})
       : this.channel.send({
@@ -131,14 +177,18 @@ export class FireMessage extends Message {
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           reply: args?.reply,
+          embeds: upsell ? [upsell] : undefined,
         });
   }
 
-  warn(
-    key?: LanguageKeys,
+  async warn(
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
+    let upsell: MessageEmbed | false;
+    if (args?.includeSlashUpsell)
+      upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
       ? this.react(reactions.warning).catch(() => {})
       : this.reply({
@@ -146,14 +196,18 @@ export class FireMessage extends Message {
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           failIfNotExists: false,
+          embeds: upsell ? [upsell] : undefined,
         });
   }
 
-  error(
-    key?: LanguageKeys,
+  async error(
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
     if ((!key && this.deleted) || this.channel.deleted) return;
+    let upsell: MessageEmbed | false;
+    if (args?.includeSlashUpsell)
+      upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
       ? this.react(reactions.error).catch(() => {})
       : this.reply({
@@ -161,18 +215,19 @@ export class FireMessage extends Message {
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           failIfNotExists: false,
+          embeds: upsell ? [upsell] : undefined,
         });
   }
 
-  react(emoji: EmojiIdentifierResolvable) {
+  async react(emoji: EmojiIdentifierResolvable) {
     if (
       (this.channel instanceof ThreadChannel && this.channel.archived) ||
       this.channel.deleted
     )
       return;
     if (process.env.USE_LITECORD == "true")
-      return super.react(emoji).catch(() => this.reactions.cache.first());
-    return super.react(emoji);
+      return await super.react(emoji).catch(() => this.reactions.cache.first());
+    return await super.react(emoji);
   }
 
   hasExperiment(id: number, bucket: number | number[]) {
@@ -239,17 +294,11 @@ export class FireMessage extends Message {
 
     // check thread members if private thread
     if (this.channel.type.endsWith("thread")) {
-      const members = await (this.channel as ThreadChannel).members.fetch(
-        false
+      const member = await (this.channel as ThreadChannel).members.fetch(
+        quoter,
+        { cache: false }
       );
-      if (!members?.size || !members.has(quoter.id)) return "permissions";
-
-      // we do not need y'all anymore stop taking up memory geez
-      // @ts-ignore (ThreadMemberManager#cache seemingly exists but is not in the types)
-      this.channel.members.cache?.sweep(
-        (member: ThreadMember) => member.id != this.client.user?.id
-      );
-      members.sweep(() => true);
+      if (!member) return "permissions";
     } else if (!isLurkable)
       if (
         !member ||
@@ -324,9 +373,13 @@ export class FireMessage extends Message {
     this.guild?.quoteHooks.set(destination.id, hook);
     let content = this.content;
     if (content) {
-      content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
-      const filters = this.client.getModule("filters") as Filters;
-      content = await filters.runReplace(content, quoter);
+      if (!quoter?.isSuperuser()) {
+        content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
+        const filters = this.client.getModule("filters") as Filters;
+        content = await filters
+          .runReplace(content, quoter)
+          .catch(() => content);
+      }
       for (const [, user] of this.mentions.users)
         content = content.replace((user as FireUser).toMention(), `@${user}`);
       for (const [, role] of this.mentions.roles)
@@ -472,18 +525,19 @@ export class FireMessage extends Message {
     const embed = new MessageEmbed()
       .setColor(member?.displayColor || quoter.displayColor)
       .setTimestamp(this.createdAt)
-      .setAuthor(
-        member && member.nickname
-          ? `${member.nickname} (${this.author
-              .toString()
-              .replace(/#0000/gim, "")})`
-          : this.author.toString().replace(/#0000/gim, ""),
-        (member ?? this.author).displayAvatarURL({
+      .setAuthor({
+        name:
+          member && member.nickname
+            ? `${member.nickname} (${this.author
+                .toString()
+                .replace(/#0000/gim, "")})`
+            : this.author.toString().replace(/#0000/gim, ""),
+        iconURL: (member ?? this.author).displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      );
+        }),
+      });
     if (this.content) {
       let content = this.content;
       const imageMatches = regexes.imageURL.exec(content);
@@ -664,14 +718,14 @@ export class FireMessage extends Message {
   getStarboardMessage(emoji: string, stars: number): [string, MessageEmbed] {
     const embed = new MessageEmbed()
       .setTimestamp(this.createdTimestamp)
-      .setAuthor(
-        this.author.toString(),
-        this.author.displayAvatarURL({
+      .setAuthor({
+        name: this.author.toString(),
+        iconURL: this.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setColor(this.member?.displayColor ?? "#FFFFFF")
       .setFooter(this.id);
     if (this.content) embed.setDescription(this.content);
@@ -798,6 +852,182 @@ export class FireMessage extends Message {
       ).length
     )
       return await this.delete().catch(() => {});
+  }
+
+  async runPhishFilters() {
+    if (
+      !this.guild ||
+      this.author?.bot ||
+      this.webhookId ||
+      !this.guild?.hasExperiment(936071411, [1, 2])
+    )
+      return;
+    const lowerContent = sanitizer(
+      (this.content + (this.embeds.map((e) => e.description).join(" ") ?? ""))
+        .toLowerCase()
+        .replace(/\s/gim, "")
+        .replace(regexes.zws, "")
+    );
+    const triggerFilter = async (match?: string) => {
+      let embedsHaste: { url: string; raw: string };
+      if (this.embeds.length)
+        embedsHaste = await this.client.util.haste(
+          JSON.stringify(this.embeds.map((e) => e.toJSON())),
+          true,
+          "json",
+          true
+        );
+      const URLs = [];
+      try {
+        let urlMatch: RegExpExecArray;
+        while ((urlMatch = regexes.URL.exec(this.content)))
+          if (urlMatch?.length) URLs.push(urlMatch[0]);
+      } catch {}
+      let linkHaste: { url: string; raw: string };
+      if (URLs.length)
+        linkHaste = await this.client.util.haste(
+          JSON.stringify(URLs),
+          true,
+          "json",
+          true
+        );
+      this.client.influx([
+        {
+          measurement: "phishing",
+          tags: {
+            user_id: this.author.id,
+            guild_id: this.guild.id,
+            cluster: this.client.manager.id.toString(),
+            shard: this.guild.shardId.toString(),
+          },
+          fields: {
+            guild: `${this.guild?.name} (${this.guild?.id})`,
+            user: `${this.author} (${this.author.id})`,
+            match,
+            content: this.content,
+            embeds: embedsHaste?.url,
+            embeds_raw: embedsHaste?.raw,
+            links: linkHaste?.url,
+            links_raw: linkHaste?.raw,
+          },
+        },
+      ]);
+      if (process.env.NODE_ENV == "development")
+        return await this.reply("triggered steam/nitro phishing detection");
+      return await this.member
+        ?.bean(
+          match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
+          this.guild.me,
+          null,
+          7,
+          this.guild?.hasExperiment(936071411, 1)
+            ? (this.channel as FireTextChannel)
+            : undefined
+        )
+        .then((result) => {
+          if (
+            result instanceof FireMessage &&
+            result.guild?.me
+              ?.permissionsIn(this.channel as FireTextChannel)
+              ?.has("ADD_REACTIONS")
+          )
+            result.react("🎣").catch(() => {});
+        });
+    };
+    if (
+      lowerContent.includes("@everyone") &&
+      (lowerContent.includes("nitro") ||
+        lowerContent.includes("cs:go") ||
+        lowerContent.includes("tradeoffer") ||
+        lowerContent.includes("partner"))
+    )
+      return await triggerFilter("Common Words");
+    else if (
+      lowerContent.includes("steam") &&
+      lowerContent.includes("http") &&
+      (lowerContent.includes("tradeoffer") ||
+        lowerContent.includes("partner") ||
+        lowerContent.includes("cs:go"))
+    )
+      return await triggerFilter("CS:GO Trade/Partner Link");
+    else if (
+      lowerContent.includes("nitro") &&
+      lowerContent.includes("steam") &&
+      lowerContent.includes("http")
+    )
+      return await triggerFilter("Nitro/Steam Link");
+    else if (
+      lowerContent.includes("nitro") &&
+      lowerContent.includes("distributiоn") &&
+      lowerContent.includes("free")
+    )
+      return await triggerFilter("Free Nitro Link");
+    else if (
+      lowerContent.includes("discord") &&
+      lowerContent.includes("steam") &&
+      lowerContent.includes("http")
+    )
+      return await triggerFilter("Discord/Steam Link");
+    else if (
+      lowerContent.includes("cs") &&
+      lowerContent.includes("go") &&
+      lowerContent.includes("skin") &&
+      lowerContent.includes("http")
+    )
+      return await triggerFilter("CS:GO Skin");
+    else if (
+      lowerContent.includes("nitro") &&
+      lowerContent.includes("gift") &&
+      lowerContent.includes(".ru")
+    )
+      return await triggerFilter(".ru Nitro Gift Link");
+    else if (
+      lowerContent.includes("leaving") &&
+      lowerContent.includes("fucking") &&
+      lowerContent.includes("game")
+    )
+      return await triggerFilter('"Rage Quit"');
+    else if (
+      lowerContent.includes("gift") &&
+      lowerContent.includes("http") &&
+      lowerContent.includes("@everyone")
+    )
+      return await triggerFilter("@everyone Mention w/Gift Link");
+    else if (
+      lowerContent.includes("gift") &&
+      lowerContent.includes("http") &&
+      lowerContent.includes("bro")
+    )
+      // copilot generated this and I can't stop laughing at it
+      return await triggerFilter("Bro Mention w/Gift Link");
+    else if (
+      lowerContent.includes("gift") &&
+      lowerContent.includes("http") &&
+      lowerContent.includes("for you")
+    )
+      return await triggerFilter("gift 4 you bro");
+    else if (lowerContent.includes("airdrop") && lowerContent.includes("nitro"))
+      return await triggerFilter("Nitro Airdrop");
+    else if (lowerContent.includes("/n@") && lowerContent.includes("nitro"))
+      return await triggerFilter("Epic Newline Fail");
+    else if (
+      lowerContent.includes("distribution") &&
+      lowerContent.includes("nitro") &&
+      lowerContent.includes("steam")
+    )
+      return await triggerFilter("Nitro/Steam Link");
+    else if (
+      lowerContent.includes("dis") &&
+      lowerContent.includes(".gift") &&
+      !lowerContent.includes("discord.gift")
+    )
+      return await triggerFilter("Fake gift link");
+    else if (
+      lowerContent.includes("dis") &&
+      lowerContent.includes(".gift") &&
+      lowerContent.includes("who is")
+    )
+      return await triggerFilter("Fake gift link");
   }
 }
 

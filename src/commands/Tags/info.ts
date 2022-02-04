@@ -1,9 +1,11 @@
 import {
+  CommandInteractionOption,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
   Permissions,
 } from "discord.js";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { GuildTagManager, Tag } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
@@ -22,6 +24,7 @@ export default class TagInfo extends Command {
         {
           id: "tag",
           type: "string",
+          autocomplete: true,
           default: null,
           required: true,
         },
@@ -30,6 +33,22 @@ export default class TagInfo extends Command {
       restrictTo: "guild",
       parent: "tag",
     });
+  }
+
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (!interaction.guild.tags) {
+      interaction.guild.tags = new GuildTagManager(
+        this.client,
+        interaction.guild
+      );
+      await interaction.guild.tags.init();
+    }
+    if (focused.value)
+      return interaction.guild.tags.getFuzzyMatches(focused.value?.toString());
+    return interaction.guild.tags.names.slice(0, 25);
   }
 
   async exec(message: FireMessage, args: { tag?: string }) {
@@ -44,10 +63,14 @@ export default class TagInfo extends Command {
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
 
     const embed = new MessageEmbed()
-      .setAuthor(
-        message.guild.name,
-        message.guild.iconURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: message.guild.name,
+        iconURL: message.guild.iconURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .setDescription(
         cachedTag.content.length < 250

@@ -15,14 +15,15 @@ import {
   GuildPreview,
 } from "discord.js";
 import {
+  ApplicationFlags,
   APIApplication,
   APIChannel,
-  ApplicationFlags,
 } from "discord-api-types";
-import { constants, humanize, zws } from "@fire/lib/util/constants";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { constants, zws } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
@@ -71,7 +72,6 @@ export default class User extends Command {
           required: false,
         },
       ],
-      aliases: ["userinfo", "infouser", "whois", "u"],
       enableSlashCommand: true,
       restrictTo: "all",
       context: ["user"],
@@ -79,8 +79,8 @@ export default class User extends Command {
     });
   }
 
-  async exec(
-    message: FireMessage,
+  async run(
+    command: ApplicationCommandMessage,
     args: {
       user?:
         | FireMember
@@ -89,13 +89,13 @@ export default class User extends Command {
     }
   ) {
     if (typeof args.user == "undefined")
-      args.user = message.member || message.author;
+      args.user = command.member || command.author;
     else if (
       args.user?.hasOwnProperty("snowflake") ||
-      message.util?.parsed?.alias == "snowflake"
+      command.util?.parsed?.alias == "snowflake"
     )
       return await this.snowflakeInfo(
-        message,
+        command,
         args.user?.hasOwnProperty("snowflake")
           ? (args.user as { snowflake: string } & DeconstructedSnowflake)
           : (args.user as any)
@@ -107,10 +107,10 @@ export default class User extends Command {
       user = member.user;
     } else user = args.user as FireUser;
     if (!user) {
-      if (message.member) {
-        member = message.member;
+      if (command.member) {
+        member = command.member;
         user = member.user;
-      } else user = message.author;
+      } else user = command.author;
     }
     if (user instanceof FireMember) {
       member = user;
@@ -127,30 +127,32 @@ export default class User extends Command {
         })
         .catch(() => {})) as FireMember;
     // revert back to message member if fetching w/presence fails
-    if (!member && user.id == message.author.id) member = message.member;
+    if (!member && user.id == command.author.id) member = command.member;
     if (user instanceof ClientUser) {
-      member = message.guild?.members.cache.get(user.id) as FireMember;
+      member = command.guild?.members.cache.get(user.id) as FireMember;
       user = member.user;
     }
-    let color = member ? member.displayColor : message.member?.displayColor;
-    if (user.bot && this.client.config.bots[user.id])
-      color = this.client.config.bots[user.id].color;
+    let color = member ? member.displayColor : command.member?.displayColor;
+    const botConfig = this.client.config.bots[user.id];
+    if (user.bot && botConfig) color = botConfig.color;
     const badges = this.getBadges(
       user,
-      message.author,
-      message.guild,
-      message.content
+      command.author,
+      command.guild,
+      command.content
     );
-    const info = this.getInfo(message, member ? member : user);
+    const info = this.getInfo(command, member ? member : user);
     let application: Exclude<APIApplication, "rpc_origins" | "owner" | "team">;
     if (user.bot)
-      application = await this.getApplication(user.id).catch(() => null);
+      application = await this.getApplication(
+        botConfig?.appId ?? user.id
+      ).catch(() => null);
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
-      .setAuthor(
-        user.toString(),
-        (message.hasExperiment(194480739, 2)
+      .setAuthor({
+        name: user.toString(),
+        iconURL: (command.hasExperiment(194480739, 2)
           ? member ?? user
           : user
         ).displayAvatarURL({
@@ -158,17 +160,18 @@ export default class User extends Command {
           format: "png",
           dynamic: true,
         }),
-        application && application.bot_public
-          ? `https://discord.com/oauth2/authorize?client_id=${
-              application.id
-            }&scope=bot%20applications.commands${
-              application.id == this.client.user.id
-                ? "&permissions=1007021303"
-                : ""
-            }`
-          : null
-      )
-      .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
+        url:
+          application && application.bot_public
+            ? `https://discord.com/oauth2/authorize?client_id=${
+                application.id
+              }&scope=bot%20applications.commands${
+                application.id == this.client.user.id
+                  ? "&permissions=1007021303"
+                  : ""
+              }`
+            : null,
+      })
+      .addField(`» ${command.language.get("ABOUT")}`, info.join("\n"));
     if (badges.length)
       embed.setDescription(
         application
@@ -178,7 +181,7 @@ export default class User extends Command {
     else if (application) embed.setDescription(application.description);
     if (member) {
       if (
-        message.hasExperiment(194480739, 1) &&
+        command.hasExperiment(194480739, 1) &&
         member?.avatar &&
         member?.avatar != user.avatar
       )
@@ -186,12 +189,12 @@ export default class User extends Command {
           member.avatarURL({ size: 2048, format: "png", dynamic: true })
         );
       const roles = member.roles.cache
-        .filter((role) => role.id != message.guild.id)
+        .filter((role) => role.id != command.guild.id)
         .sorted((roleA, roleB) => roleA.position - roleB.position)
         .map((role) => role.toString());
       if (roles.length)
         embed.addField(
-          `» ${message.language.get("ROLES")} [${member.roles.cache.size - 1}]`,
+          `» ${command.language.get("ROLES")} [${member.roles.cache.size - 1}]`,
           this.client.util.shorten(roles, 1000, " - "),
           false
         );
@@ -212,34 +215,35 @@ export default class User extends Command {
           "VIEW_AUDIT_LOG",
           "VIEW_GUILD_INSIGHTS",
           "MANAGE_THREADS",
+          "MODERATE_MEMBERS",
         ];
         for (const permission of keyPerms)
           if (member.permissions.has(permission))
             perms.push(
-              this.client.util.cleanPermissionName(permission, message.language)
+              this.client.util.cleanPermissionName(permission, command.language)
             );
         if (perms.length)
           embed.addField(
-            `» ${message.language.get("KEY_PERMISSIONS")}`,
+            `» ${command.language.get("KEY_PERMISSIONS")}`,
             perms.join(", "),
             false
           );
       } else
         embed.addField(
-          `» ${message.language.get("PERMISSIONS_TEXT")}`,
+          `» ${command.language.get("PERMISSIONS_TEXT")}`,
           this.client.util.cleanPermissionName(
             "ADMINISTRATOR",
-            message.language
+            command.language
           ),
           false
         );
     }
     if (!user.bot) {
-      const ksoftBan = await this.getKsoftBan(message, user);
+      const ksoftBan = await this.getKsoftBan(command, user);
       const notes = [ksoftBan].filter((note) => !!note);
       if (notes.length)
         embed.addField(
-          `» ${message.language.get("NOTES")}`,
+          `» ${command.language.get("NOTES")}`,
           notes.join("\n"),
           false
         );
@@ -247,8 +251,8 @@ export default class User extends Command {
     if (application) {
       const appInfo: string[] = [];
       if (application.bot_public)
-        appInfo.push(message.language.getSuccess("USER_BOT_PUBLIC"));
-      else appInfo.push(message.language.getError("USER_BOT_PRIVATE"));
+        appInfo.push(command.language.getSuccess("USER_BOT_PUBLIC"));
+      else appInfo.push(command.language.getError("USER_BOT_PRIVATE"));
       if (
         (application.flags & ApplicationFlags.GatewayGuildMembers) ==
           ApplicationFlags.GatewayGuildMembers ||
@@ -260,9 +264,9 @@ export default class User extends Command {
             application.flags & ApplicationFlags.GatewayGuildMembers
               ? emojis.success
               : emojis.warning
-          } ${message.language.get("USER_BOT_MEMBERS_INTENT")}`
+          } ${command.language.get("USER_BOT_MEMBERS_INTENT")}`
         );
-      else appInfo.push(message.language.getError("USER_BOT_MEMBERS_INTENT"));
+      else appInfo.push(command.language.getError("USER_BOT_MEMBERS_INTENT"));
       if (
         (application.flags & ApplicationFlags.GatewayPresence) ==
           ApplicationFlags.GatewayPresence ||
@@ -274,9 +278,9 @@ export default class User extends Command {
             application.flags & ApplicationFlags.GatewayPresence
               ? emojis.success
               : emojis.warning
-          } ${message.language.get("USER_BOT_PRESENCE_INTENT")}`
+          } ${command.language.get("USER_BOT_PRESENCE_INTENT")}`
         );
-      else appInfo.push(message.language.getError("USER_BOT_PRESENCE_INTENT"));
+      else appInfo.push(command.language.getError("USER_BOT_PRESENCE_INTENT"));
       if (
         (application.flags & NewApplicationFlags.GatewayMessageContent) ==
           NewApplicationFlags.GatewayMessageContent ||
@@ -289,14 +293,14 @@ export default class User extends Command {
             application.flags & NewApplicationFlags.GatewayMessageContent
               ? emojis.success
               : emojis.warning
-          } ${message.language.get("USER_BOT_MESSAGE_CONTENT_INTENT")}`
+          } ${command.language.get("USER_BOT_MESSAGE_CONTENT_INTENT")}`
         );
       else
         appInfo.push(
-          message.language.getError("USER_BOT_MESSAGE_CONTENT_INTENT")
+          command.language.getError("USER_BOT_MESSAGE_CONTENT_INTENT")
         );
-      if (user.bot && this.client.config.bots[user.id]?.best)
-        appInfo.push(message.language.getSuccess("USER_BOT_BEST"));
+      if (user.bot && botConfig?.best)
+        appInfo.push(command.language.getSuccess("USER_BOT_BEST"));
       if (application.privacy_policy_url || application.terms_of_service_url)
         appInfo.push(""); // spacing between public/intents and links
 
@@ -305,7 +309,7 @@ export default class User extends Command {
         isValidURL(application.privacy_policy_url)
       )
         appInfo.push(
-          `[${message.language.get("USER_BOT_PRIVACY_POLICY")}](${
+          `[${command.language.get("USER_BOT_PRIVACY_POLICY")}](${
             application.privacy_policy_url
           })`
         );
@@ -314,12 +318,12 @@ export default class User extends Command {
         isValidURL(application.terms_of_service_url)
       )
         appInfo.push(
-          `[${message.language.get("USER_BOT_TERMS")}](${
+          `[${command.language.get("USER_BOT_TERMS")}](${
             application.terms_of_service_url
           })`
         );
 
-      embed.addField(`» ${message.language.get("BOT")}`, appInfo.join("\n"));
+      embed.addField(`» ${command.language.get("BOT")}`, appInfo.join("\n"));
     }
     member?.presence?.clientStatus
       ? embed.setFooter(
@@ -331,7 +335,7 @@ export default class User extends Command {
             : statusEmojis[member.presence.status]
         )
       : embed.setFooter(user.id);
-    return await message.channel.send({ embeds: [embed] });
+    return await command.channel.send({ embeds: [embed] });
   }
 
   getBadges(
@@ -355,48 +359,49 @@ export default class User extends Command {
       emojis.push(badges.DISCORD_EMPLOYEE);
     if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
     if (user.premium) emojis.push(badges.FIRE_PREMIUM);
+    if (user.id == "159985870458322944") emojis.push(badges.FUCK_MEE6);
     if (emojis.length) emojis.push(zws);
     return emojis;
   }
 
-  getInfo(message: FireMessage, member: FireMember | FireUser) {
+  getInfo(command: ApplicationCommandMessage, member: FireMember | FireUser) {
     let user = member instanceof FireMember ? member.user : member;
     const now = moment();
     const cakeDay =
       now.dayOfYear() == moment(user.createdAt).dayOfYear() &&
       now.year() != moment(user.createdAt).year();
     let info = [
-      `**${message.language.get("MENTION")}:** ${user.toMention()}`,
-      `**${message.language.get("CREATED")}** ${Formatters.time(
+      `**${command.language.get("MENTION")}:** ${user.toMention()}`,
+      `**${command.language.get("CREATED")}** ${Formatters.time(
         user.createdAt,
         "R"
       )}${cakeDay ? " 🎂" : ""}`,
     ];
     if (member instanceof FireMember) {
       if (
-        message.guild &&
-        message.guild.ownerId == member.id &&
-        member.joinedTimestamp - message.guild.createdTimestamp < 5000
+        command.guild &&
+        command.guild.ownerId == member.id &&
+        member.joinedTimestamp - command.guild.createdTimestamp < 5000
       )
         info.push(
-          `**${message.language.get("CREATED_GUILD")}** ${Formatters.time(
+          `**${command.language.get("CREATED_GUILD")}** ${Formatters.time(
             member.joinedAt,
             "R"
           )}`
         );
       else
         info.push(
-          `**${message.language.get("JOINED")}** ${Formatters.time(
+          `**${command.language.get("JOINED")}** ${Formatters.time(
             member.joinedAt,
             "R"
           )}`
         );
       if (
-        message.guild &&
-        message.guild.members.cache.size / message.guild.memberCount > 0.98
+        command.guild &&
+        command.guild.members.cache.size / command.guild.memberCount > 0.98
       ) {
         const joinPos =
-          message.guild.members.cache
+          command.guild.members.cache
             .sorted(
               (memberA, memberB) =>
                 memberA.joinedTimestamp - memberB.joinedTimestamp
@@ -404,14 +409,14 @@ export default class User extends Command {
             .toJSON()
             .indexOf(member) + 1;
         info.push(
-          `**${message.language.get(
+          `**${command.language.get(
             "JOIN_POSITION"
-          )}:** ${joinPos.toLocaleString(message.language.id)}`
+          )}:** ${joinPos.toLocaleString(command.language.id)}`
         );
       }
       if (member && member.nickname && member.nickname != member.user.username)
         info.push(
-          `**${message.language.get("NICKNAME")}:** ${member.nickname}`
+          `**${command.language.get("NICKNAME")}:** ${member.nickname}`
         );
     }
     return info;
@@ -423,11 +428,11 @@ export default class User extends Command {
       .rpc.get<Exclude<APIApplication, "rpc_origins" | "owner" | "team">>();
   }
 
-  async getKsoftBan(message: FireMessage, user: FireUser) {
+  async getKsoftBan(command: ApplicationCommandMessage, user: FireUser) {
     if (!this.client.ksoft) return "";
     const banned = await this.client.ksoft.bans.info(user.id);
     if (banned instanceof Ban && banned.active)
-      return `${emojis.error} ${message.language.get("USER_KSOFT_BANNED", {
+      return `${emojis.error} ${command.language.get("USER_KSOFT_BANNED", {
         user: banned.user.id,
         reason: banned.reason,
         proof: banned.proof,
@@ -436,7 +441,7 @@ export default class User extends Command {
   }
 
   async snowflakeInfo(
-    message: FireMessage,
+    command: ApplicationCommandMessage,
     snowflake: { snowflake: Snowflake } & DeconstructedSnowflake
   ) {
     let user: FireUser;
@@ -451,7 +456,7 @@ export default class User extends Command {
     } else if (snowflake instanceof FireMember) {
       user =
         // check cache for non reference member
-        (message.guild?.members.cache.get(snowflake.id) as FireMember).user ??
+        (command.guild?.members.cache.get(snowflake.id) as FireMember).user ??
         snowflake.user;
       snowflake = {
         snowflake: snowflake.id,
@@ -460,51 +465,51 @@ export default class User extends Command {
     }
 
     let info = [
-      `**${message.language.get("CREATED")}** ${Formatters.time(
+      `**${command.language.get("CREATED")}** ${Formatters.time(
         snowflake.date,
         "R"
       )}`,
-      `**${message.language.get("TIMESTAMP")}:** ${snowflake.timestamp}`,
-      `**${message.language.get("WORKER_ID")}:** ${snowflake.workerId}`,
-      `**${message.language.get("PROCESS_ID")}:** ${snowflake.processId}`,
-      `**${message.language.get("INCREMENT")}:** ${snowflake.increment}`,
+      `**${command.language.get("TIMESTAMP")}:** ${snowflake.timestamp}`,
+      `**${command.language.get("WORKER_ID")}:** ${snowflake.workerId}`,
+      `**${command.language.get("PROCESS_ID")}:** ${snowflake.processId}`,
+      `**${command.language.get("INCREMENT")}:** ${snowflake.increment}`,
     ];
 
-    if (user && !message.guild?.members.cache.has(snowflake.snowflake))
+    if (user && !command.guild?.members.cache.has(snowflake.snowflake))
       info.push(
-        message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-          type: message.language.get("USER"),
+        command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+          type: command.language.get("USER"),
           extra: user.toString(),
         })
       );
     else if (user)
       info.push(
-        message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-          type: message.language.get("MEMBER"),
+        command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+          type: command.language.get("MEMBER"),
           extra: user.toString(),
         })
       );
 
     if (this.client.guilds.cache.has(snowflake.snowflake)) {
       const guild = this.client.guilds.cache.get(snowflake.snowflake);
-      const member = await guild.members.fetch(message.author).catch(() => {});
+      const member = await guild.members.fetch(command.author).catch(() => {});
       info.push(
         !!member
-          ? message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-              type: message.language.get("GUILD"),
+          ? command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+              type: command.language.get("GUILD"),
               extra: guild.name,
             })
-          : message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
-              type: message.language.get("GUILD"),
+          : command.language.get("USER_SNOWFLAKE_BELONGS_TO", {
+              type: command.language.get("GUILD"),
             })
       );
     }
 
-    if (message.guild && message.guild.roles.cache.has(snowflake.snowflake))
+    if (command.guild && command.guild.roles.cache.has(snowflake.snowflake))
       info.push(
-        message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-          type: message.language.get("ROLE"),
-          extra: message.guild.roles.cache.get(snowflake.snowflake).toString(),
+        command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+          type: command.language.get("ROLE"),
+          extra: command.guild.roles.cache.get(snowflake.snowflake).toString(),
         })
       );
 
@@ -519,8 +524,8 @@ export default class User extends Command {
       maybeEmoji.headers["content-type"].includes("image/")
     )
       info.push(
-        message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-          type: message.language.get("EMOJI"),
+        command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+          type: command.language.get("EMOJI"),
           extra:
             maybeEmoji.headers["content-type"] == "image/gif"
               ? `<a:emoji:${snowflake.snowflake}>`
@@ -531,46 +536,46 @@ export default class User extends Command {
     if (this.client.channels.cache.has(snowflake.snowflake)) {
       const channel = this.client.channels.cache.get(snowflake.snowflake);
       if (channel.type == "DM") {
-        if ((channel as DMChannel).recipient.id == message.author.id)
+        if ((channel as DMChannel).recipient.id == command.author.id)
           info.push(
-            message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-              type: message.language.get("CHANNEL"),
-              extra: message.language.get("DM_CHANNEL"),
+            command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+              type: command.language.get("CHANNEL"),
+              extra: command.language.get("DM_CHANNEL"),
             })
           );
         else
           info.push(
-            message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
-              type: message.language.get("CHANNEL"),
+            command.language.get("USER_SNOWFLAKE_BELONGS_TO", {
+              type: command.language.get("CHANNEL"),
             })
           );
       } else if (channel instanceof ThreadChannel) {
         const members = await channel.members.fetch(false).catch(() => {});
         info.push(
-          members && members.has(message.author.id)
-            ? message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-                type: message.language.get("THREAD"),
+          members && members.has(command.author.id)
+            ? command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+                type: command.language.get("THREAD"),
                 extra: channel.toString(),
               })
-            : message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
-                type: message.language.get("THREAD"),
+            : command.language.get("USER_SNOWFLAKE_BELONGS_TO", {
+                type: command.language.get("THREAD"),
               })
         );
         members && members.sweep(() => true);
       } else {
         const member = (channel as GuildChannel).guild.members.cache.get(
-          message.author.id
+          command.author.id
         );
         info.push(
           member
             ?.permissionsIn(channel as GuildChannel)
             .has(Permissions.FLAGS.VIEW_CHANNEL)
-            ? message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-                type: message.language.get("CHANNEL"),
+            ? command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+                type: command.language.get("CHANNEL"),
                 extra: channel.toString(),
               })
-            : message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
-                type: message.language.get("CHANNEL"),
+            : command.language.get("USER_SNOWFLAKE_BELONGS_TO", {
+                type: command.language.get("CHANNEL"),
               })
         );
       }
@@ -591,12 +596,12 @@ export default class User extends Command {
       const channel = snowflakeMessage.channel;
       if (
         channel.type == "DM" &&
-        (channel as DMChannel).recipient.id == message.author.id
+        (channel as DMChannel).recipient.id == command.author.id
       )
         viewable = true;
       else {
         const member = (channel as GuildChannel).guild.members.cache.get(
-          message.author.id
+          command.author.id
         );
         if (
           member
@@ -607,14 +612,14 @@ export default class User extends Command {
       }
       info.push(
         viewable
-          ? message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-              type: message.language.get("MESSAGE"),
-              extra: `[${message.language.get("CLICK_TO_VIEW")}](${
+          ? command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+              type: command.language.get("MESSAGE"),
+              extra: `[${command.language.get("CLICK_TO_VIEW")}](${
                 snowflakeMessage.url
               })`,
             })
-          : message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
-              type: message.language.get("MESSAGE"),
+          : command.language.get("USER_SNOWFLAKE_BELONGS_TO", {
+              type: command.language.get("MESSAGE"),
             })
       );
     }
@@ -634,12 +639,12 @@ export default class User extends Command {
       const channel = snowflakeMessage.channel;
       if (
         channel.type == "DM" &&
-        (channel as DMChannel).recipient.id == message.author.id
+        (channel as DMChannel).recipient.id == command.author.id
       )
         viewable = true;
       else {
         const member = (channel as GuildChannel).guild.members.cache.get(
-          message.author.id
+          command.author.id
         );
         if (
           member
@@ -650,14 +655,14 @@ export default class User extends Command {
       }
       info.push(
         viewable && snowflakeMessage.attachments.get(snowflake.snowflake)?.url
-          ? message.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
-              type: message.language.get("ATTACHMENT"),
-              extra: `[${message.language.get("CLICK_TO_VIEW")}](${
+          ? command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
+              type: command.language.get("ATTACHMENT"),
+              extra: `[${command.language.get("CLICK_TO_VIEW")}](${
                 snowflakeMessage.attachments.get(snowflake.snowflake).url
               })`,
             })
-          : message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
-              type: message.language.get("ATTACHMENT"),
+          : command.language.get("USER_SNOWFLAKE_BELONGS_TO", {
+              type: command.language.get("ATTACHMENT"),
             })
       );
     }
@@ -671,33 +676,33 @@ export default class User extends Command {
         .catch((e) => e instanceof DiscordAPIError && e.code == 50001);
       if (maybeGuild == true) {
         info.push(
-          message.language.get("USER_SNOWFLAKE_BELONGS_TO", {
-            type: message.language.get("GUILD"),
+          command.language.get("USER_SNOWFLAKE_BELONGS_TO", {
+            type: command.language.get("GUILD"),
           })
         );
       }
     }
 
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor ?? "#FFFFFF")
       .setTimestamp(snowflake.date)
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setAuthor({
+        name: command.author.toString(),
+        iconURL: command.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
-      .setDescription(message.language.get("USER_SNOWFLAKE_DESCRIPTION"))
-      .addField(`» ${message.language.get("ABOUT")}`, info.join("\n"));
+        }),
+      })
+      .setDescription(command.language.get("USER_SNOWFLAKE_DESCRIPTION"))
+      .addField(`» ${command.language.get("ABOUT")}`, info.join("\n"));
 
-    if (user || message.util?.parsed?.command?.id == "snowflake")
+    if (user || command.util?.parsed?.command?.id == "snowflake")
       embed.description = embed.description.split("\n").slice(2).join("\n");
 
     if (
       (this.client.guilds.cache.has(snowflake.snowflake) || maybeGuild) &&
-      message.hasExperiment(4026299021, 1) &&
+      command.hasExperiment(4026299021, 1) &&
       this.client.manager.state.discordExperiments?.length
     ) {
       let guild: FireGuild | GuildPreview = this.client.guilds.cache.get(
@@ -713,11 +718,11 @@ export default class User extends Command {
       );
       if (experiments.length)
         embed.addField(
-          message.language.get("GUILD_EXPERIMENTS"),
+          command.language.get("GUILD_EXPERIMENTS"),
           experiments.join("\n")
         );
     }
 
-    return await message.channel.send({ embeds: [embed] });
+    return await command.channel.send({ embeds: [embed] });
   }
 }

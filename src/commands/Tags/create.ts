@@ -73,7 +73,8 @@ export default class TagCreate extends Command {
     if (manager.names.length >= 20 && !message.guild.premium)
       return await message.error("TAGS_CREATE_LIMIT");
     const newTag = await manager.createTag(tag, content, message.member);
-    if (typeof newTag == "boolean" && !newTag) return await message.error();
-    else return await message.success();
+    if (typeof newTag == "boolean" && !newTag)
+      return await message.error("TAGS_CREATE_FAILED");
+    else return await message.success("TAGS_CREATE_SUCCESS", { tag });
   }
 }

@@ -5,10 +5,10 @@ import {
   Formatters,
   DMChannel,
 } from "discord.js";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { snowflakeConverter } from "@fire/lib/util/converters";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { constants, zws } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
@@ -23,7 +23,7 @@ const {
 
 export default class GuildCommand extends Command {
   constructor() {
-    super("guild", {
+    super("server", {
       description: (language: Language) =>
         language.get("GUILD_COMMAND_DESCRIPTION"),
       clientPermissions: [
@@ -38,7 +38,7 @@ export default class GuildCommand extends Command {
           required: false,
         },
       ],
-      aliases: ["guildinfo", "infoguild", "serverinfo", "infoserver", "server"],
+      aliases: ["guild"], // for slash only warning to alert users to it being /server now
       enableSlashCommand: true,
       restrictTo: "all",
       slashOnly: true,
@@ -59,10 +59,13 @@ export default class GuildCommand extends Command {
     return emojis;
   }
 
-  async getInfo(message: FireMessage, guild: FireGuild | GuildPreview) {
+  async getInfo(
+    command: ApplicationCommandMessage,
+    guild: FireGuild | GuildPreview
+  ) {
     if (guild instanceof FireGuild) await guild.fetch(); // gets approximatePresenceCount
 
-    const guildSnowflake = await snowflakeConverter(message, guild.id);
+    const guildSnowflake = await snowflakeConverter(command, guild.id);
     let owner: FireMember;
     if (guild instanceof FireGuild) owner = await guild.fetchOwner();
     const ownerString =
@@ -74,7 +77,7 @@ export default class GuildCommand extends Command {
           : "Unknown#0000"
         : null;
     let messages = [
-      message.language.get(
+      command.language.get(
         ownerString ? "GUILD_CREATED_BY" : "GUILD_CREATED_AT",
         {
           owner: ownerString,
@@ -84,27 +87,27 @@ export default class GuildCommand extends Command {
           ),
         }
       ),
-      `**${message.language.get("MEMBERS")}:** ${(guild instanceof FireGuild
+      `**${command.language.get("MEMBERS")}:** ${(guild instanceof FireGuild
         ? guild.memberCount
         : guild.approximateMemberCount
-      ).toLocaleString(message.language.id)}`,
+      ).toLocaleString(command.language.id)}`,
       guild.approximatePresenceCount
-        ? `**${message.language.get(
+        ? `**${command.language.get(
             "ONLINE"
           )}:** ${guild.approximatePresenceCount.toLocaleString(
-            message.language.id
+            command.language.id
           )}`
         : null,
       guild instanceof GuildPreview && guild.emojis.size
-        ? `**${message.language.get(
+        ? `**${command.language.get(
             "EMOJIS"
-          )}:** ${guild.emojis.size.toLocaleString(message.language.id)}`
+          )}:** ${guild.emojis.size.toLocaleString(command.language.id)}`
         : null,
       guild instanceof FireGuild
-        ? `**${message.language.get(
+        ? `**${command.language.get(
             "CHANNELS"
           )}:** ${guild.channels.cache.size.toLocaleString(
-            message.language.id
+            command.language.id
           )} (${channels.text} ${
             guild.channels.cache.filter(
               (channel) => channel.type == "GUILD_TEXT"
@@ -124,20 +127,20 @@ export default class GuildCommand extends Command {
           })`
         : null,
       guild instanceof FireGuild
-        ? `**${message.language.get(
+        ? `**${command.language.get(
             guild.regions.length > 1 ? "REGION_PLURAL" : "REGION"
           )}:** ${
             guild.regions.length > 1
               ? guild.regions
                   .map((region) =>
-                    region && message.language.has(`REGIONS.${region}`)
-                      ? message.language.get(
+                    region && command.language.has(`REGIONS.${region}`)
+                      ? command.language.get(
                           `REGIONS.${region}` as LanguageKeys
                         )
-                      : message.language.get("REGION_AUTOMATIC")
+                      : command.language.get("REGION_AUTOMATIC")
                   )
                   .join(", ")
-              : message.language.get("REGION_AUTOMATIC")
+              : command.language.get("REGION_AUTOMATIC")
           }`
         : null,
     ];
@@ -146,19 +149,22 @@ export default class GuildCommand extends Command {
       guild.members.cache.size / guild.memberCount > 0.98
     )
       messages.push(
-        message.language.get("GUILD_JOIN_POS", {
+        command.language.get("GUILD_JOIN_POS", {
           pos: (
             guild.members.cache
               .sort((one, two) => (one.joinedAt > two.joinedAt ? 1 : -1))
               .toJSON()
-              .indexOf(message.member) + 1
-          ).toLocaleString(message.language.id),
+              .indexOf(command.member) + 1
+          ).toLocaleString(command.language.id),
         })
       );
     return messages.filter((message) => !!message);
   }
 
-  getSecurity(message: FireMessage, guild: FireGuild | GuildPreview) {
+  getSecurity(
+    command: ApplicationCommandMessage,
+    guild: FireGuild | GuildPreview
+  ) {
     const info: string[] = [];
     if (!(guild instanceof FireGuild)) return info;
 
@@ -172,7 +178,7 @@ export default class GuildCommand extends Command {
 
     const emoji = VERIFICATION_LEVEL_EMOJI[guild.verificationLevel];
     info.push(
-      `${emoji} ${message.language.get(
+      `${emoji} ${command.language.get(
         `GUILD_VERIF_${guild.verificationLevel}`
       )}`
     );
@@ -180,21 +186,21 @@ export default class GuildCommand extends Command {
     switch (guild.explicitContentFilter) {
       case "ALL_MEMBERS":
         info.push(
-          `${constants.emojis.statuspage.operational} ${message.language.get(
+          `${constants.emojis.statuspage.operational} ${command.language.get(
             "GUILD_FILTER_ALL"
           )}`
         );
         break;
       case "MEMBERS_WITHOUT_ROLES":
         info.push(
-          `${constants.emojis.statuspage.partial_outage} ${message.language.get(
+          `${constants.emojis.statuspage.partial_outage} ${command.language.get(
             "GUILD_FILTER_NO_ROLE"
           )}`
         );
         break;
       case "DISABLED":
         info.push(
-          `${constants.emojis.statuspage.major_outage} ${message.language.get(
+          `${constants.emojis.statuspage.major_outage} ${command.language.get(
             "GUILD_FILTER_NONE"
           )}`
         );
@@ -203,26 +209,26 @@ export default class GuildCommand extends Command {
 
     if (guild.defaultMessageNotifications == "ONLY_MENTIONS")
       info.push(
-        `${constants.emojis.statuspage.operational} ${message.language.get(
+        `${constants.emojis.statuspage.operational} ${command.language.get(
           "GUILD_NOTIFS_MENTIONS"
         )}`
       );
     else
       info.push(
-        `${constants.emojis.statuspage.partial_outage} ${message.language.get(
+        `${constants.emojis.statuspage.partial_outage} ${command.language.get(
           "GUILD_NOTIFS_ALL"
         )}`
       );
 
     if (guild.mfaLevel)
       info.push(
-        `${constants.emojis.statuspage.operational} ${message.language.get(
+        `${constants.emojis.statuspage.operational} ${command.language.get(
           "GUILD_MFA_ENABLED"
         )}`
       );
     else
       info.push(
-        `${constants.emojis.statuspage.major_outage} ${message.language.get(
+        `${constants.emojis.statuspage.major_outage} ${command.language.get(
           "GUILD_MFA_NONE"
         )}`
       );
@@ -230,20 +236,23 @@ export default class GuildCommand extends Command {
     return info;
   }
 
-  async exec(message: FireMessage, args: { guild?: GuildPreview | FireGuild }) {
-    if (message.channel instanceof DMChannel && !args.guild)
-      return await message.error("COMMAND_GUILD_ONLY", {
+  async run(
+    command: ApplicationCommandMessage,
+    args: { guild?: GuildPreview | FireGuild }
+  ) {
+    if (command.channel instanceof DMChannel && !args.guild)
+      return await command.error("COMMAND_GUILD_ONLY", {
         invite: this.client.config.inviteLink,
       });
     if (!args.guild && typeof args.guild != "undefined") return;
-    const guild = args.guild ? args.guild : message.guild;
+    const guild = args.guild ? args.guild : command.guild;
 
-    const badges = this.getBadges(guild, message.author);
-    const info = await this.getInfo(message, guild);
-    const security = this.getSecurity(message, guild);
+    const badges = this.getBadges(guild, command.author);
+    const info = await this.getInfo(command, guild);
+    const security = this.getSecurity(command, guild);
 
     const features: string[] = guild.features.map((feature) =>
-      this.client.util.cleanFeatureName(feature, message.language)
+      this.client.util.cleanFeatureName(feature, command.language)
     );
 
     const roles =
@@ -252,7 +261,7 @@ export default class GuildCommand extends Command {
             .sort((one, two) => (one.position > two.position ? 1 : -1))
             .filter((role) => guild.id != role.id)
             .map((role) =>
-              guild == message.guild ? role.toString() : role.name
+              guild == command.guild ? role.toString() : role.name
             )
         : null;
 
@@ -262,41 +271,41 @@ export default class GuildCommand extends Command {
           ? `${badges.join(" ")}\n\n${guild.description}`
           : badges.join(" ")
       )
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
-      .setAuthor(
-        guild.name,
-        guild.iconURL({
+      .setColor(command.member?.displayColor ?? "#FFFFFF")
+      .setAuthor({
+        name: guild.name,
+        iconURL: guild.iconURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(guild.id)
       .setTimestamp();
     if (info.length)
-      embed.addField(message.language.get("GUILD_ABOUT"), info.join("\n"));
+      embed.addField(command.language.get("GUILD_ABOUT"), info.join("\n"));
     if (security.length)
       embed.addField(
-        message.language.get("GUILD_SECURITY"),
+        command.language.get("GUILD_SECURITY"),
         security.join("\n")
       );
 
     if (features.length > 0) {
       embed.addField(
-        message.language.get("GUILD_FEATURES"),
+        command.language.get("GUILD_FEATURES"),
         features.join(", ")
       );
     }
 
     if (guild instanceof FireGuild && roles?.length)
       embed.addField(
-        message.language.get("GUILD_ROLES") +
+        command.language.get("GUILD_ROLES") +
           ` [${guild.roles.cache.size - 1}]`,
         this.client.util.shorten(roles, 1000, " - ")
       );
 
     if (
-      message.hasExperiment(4026299021, 1) &&
+      command.hasExperiment(4026299021, 1) &&
       this.client.manager.state.discordExperiments?.length
     ) {
       const experiments = await this.client.util.getFriendlyGuildExperiments(
@@ -305,12 +314,12 @@ export default class GuildCommand extends Command {
       );
       if (experiments.length)
         embed.addField(
-          message.language.get("GUILD_EXPERIMENTS"),
+          command.language.get("GUILD_EXPERIMENTS"),
           experiments.join("\n")
         );
     }
 
-    if (message.author.isSuperuser() && this.client.manager.ws?.open) {
+    if (command.author.isSuperuser() && this.client.manager.ws?.open) {
       // we make a request so we can get the cluster id too
       const shardReq: ShardInfo = await (
         await centra(
@@ -325,18 +334,18 @@ export default class GuildCommand extends Command {
         .catch(() => ({ shardId: -1, clusterId: -1 }));
       if (shardReq.shardId != -1)
         embed.addField(
-          message.language.get("SHARD"),
+          command.language.get("SHARD"),
           shardReq.shardId.toString(),
           true
         );
       if (shardReq.clusterId != -1)
         embed.addField(
-          message.language.get("CLUSTER"),
+          command.language.get("CLUSTER"),
           shardReq.clusterId.toString(),
           true
         );
     }
 
-    await message.channel.send({ embeds: [embed] });
+    await command.channel.send({ embeds: [embed] });
   }
 }

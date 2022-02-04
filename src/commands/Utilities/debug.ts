@@ -5,11 +5,13 @@ import {
   MessageEmbed,
   Permissions,
   DMChannel,
+  CommandInteractionOption,
 } from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
+import { Option } from "@fire/lib/interfaces/interactions";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { constants } from "@fire/lib/util/constants";
 import { Command } from "@fire/lib/util/command";
 import { TOptions, StringMap } from "i18next";
@@ -27,6 +29,7 @@ export default class Debug extends Command {
         {
           id: "command",
           type: "command",
+          autocomplete: true,
           default: null,
           required: true,
         },
@@ -37,47 +40,60 @@ export default class Debug extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { command: Command }) {
-    const cmd = args.command;
-    const channel =
-      message instanceof ApplicationCommandMessage
-        ? message.realChannel
-        : message.channel;
+  async autocomplete(
+    _: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (focused.value)
+      return this.client.commandHandler.modules
+        .filter((cmd) => cmd.id.includes(focused.value?.toString()))
+        .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+        .slice(0, 25);
+    return this.client.commandHandler.modules
+      .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
+      .slice(0, 25);
+  }
 
-    if (!cmd) return await this.sendSingleError(message, "DEBUG_NO_COMMAND");
-    if (!cmd.id) return await this.sendSingleError(message, "UNKNOWN_COMMAND");
+  async run(command: ApplicationCommandMessage, args: { command: Command }) {
+    const cmd = args.command;
+    const channel = command.realChannel;
+
+    if (!cmd) return await this.sendSingleError(command, "DEBUG_NO_COMMAND");
+    if (!cmd.id) return await this.sendSingleError(command, "UNKNOWN_COMMAND");
     if (cmd.id == this.id)
-      return await this.sendSingleSuccess(message, "DEBUGGING_DEBUG");
-    if (this.client.util.isBlacklisted(message.author.id, message.guild))
-      return await this.sendSingleError(message, "DEBUG_BLACKLISTED");
-    if (+new Date() - message.author.createdTimestamp < 86400000)
-      return await this.sendSingleError(message, "COMMAND_ACCOUNT_TOO_YOUNG");
-    if (cmd.ownerOnly && !this.client.isOwner(message.author))
-      return await this.sendSingleError(message, "COMMAND_OWNER_ONLY");
-    if (cmd.superuserOnly && !message.author.isSuperuser())
-      return await this.sendSingleError(message, "COMMAND_SUPERUSER_ONLY");
-    if (cmd.moderatorOnly && !message.member?.isModerator())
-      return await this.sendSingleError(message, "COMMAND_MODERATOR_ONLY");
-    if (cmd.channel == "guild" && !message.guild)
-      return await this.sendSingleError(message, "COMMAND_GUILD_ONLY", {
+      return await this.sendSingleSuccess(command, "DEBUGGING_DEBUG");
+    if (this.client.util.isBlacklisted(command.author.id, command.guild))
+      return await this.sendSingleError(command, "DEBUG_BLACKLISTED");
+    if (+new Date() - command.author.createdTimestamp < 86400000)
+      return await this.sendSingleError(command, "COMMAND_ACCOUNT_TOO_YOUNG");
+    if (cmd.ownerOnly && !this.client.isOwner(command.author))
+      return await this.sendSingleError(command, "COMMAND_OWNER_ONLY");
+    if (cmd.superuserOnly && !command.author.isSuperuser())
+      return await this.sendSingleError(command, "COMMAND_SUPERUSER_ONLY");
+    if (cmd.moderatorOnly && !command.member?.isModerator())
+      return await this.sendSingleError(command, "COMMAND_MODERATOR_ONLY");
+    if (cmd.channel == "guild" && !command.guild)
+      return await this.sendSingleError(command, "COMMAND_GUILD_ONLY", {
         invite: this.client.config.inviteLink,
       });
-    if (cmd.guilds.length && !cmd.guilds.includes(message.guild?.id))
-      return await this.sendSingleError(message, "COMMAND_GUILD_LOCKED");
-    if (cmd.premium && !message.guild?.premium)
-      return await this.sendSingleError(message, "COMMAND_PREMIUM_GUILD_ONLY");
+    if (cmd.guilds.length && !cmd.guilds.includes(command.guild?.id))
+      return await this.sendSingleError(command, "COMMAND_GUILD_LOCKED");
+    if (cmd.premium && !command.guild?.premium)
+      return await this.sendSingleError(command, "COMMAND_PREMIUM_GUILD_ONLY");
 
     const requiresExperiment = cmd.requiresExperiment;
     if (requiresExperiment) {
       const experiment = this.client.experiments.get(requiresExperiment.id);
       if (!experiment)
         return await this.sendSingleError(
-          message,
+          command,
           "COMMAND_EXPERIMENT_REQUIRED"
         );
-      else if (!message.hasExperiment(experiment.hash, requiresExperiment.bucket))
+      else if (
+        !command.hasExperiment(experiment.hash, requiresExperiment.bucket)
+      )
         return await this.sendSingleError(
-          message,
+          command,
           "COMMAND_EXPERIMENT_REQUIRED"
         );
     }
@@ -99,7 +115,7 @@ export default class Debug extends Command {
       channel instanceof DMChannel
         ? (cmd.userPermissions as PermissionString[])
         : channel
-            .permissionsFor(message.member)
+            .permissionsFor(command.member)
             .missing(
               cmd.userPermissions as BitFieldResolvable<
                 PermissionString,
@@ -109,57 +125,57 @@ export default class Debug extends Command {
 
     const permissionChecks = clientMissing?.length || userMissing?.length;
 
-    if (permissionChecks && message.guild) {
+    if (permissionChecks && command.guild) {
       const user = userMissing
         .map((permission) =>
-          this.client.util.cleanPermissionName(permission, message.language)
+          this.client.util.cleanPermissionName(permission, command.language)
         )
         .filter((permission) => !!permission);
 
       const client = clientMissing
         .map((permission) =>
-          this.client.util.cleanPermissionName(permission, message.language)
+          this.client.util.cleanPermissionName(permission, command.language)
         )
         .filter((permission) => !!permission);
 
       let permMsgUser: string, permMsgClient: string;
       if (user.length)
-        permMsgUser = message.language.get("DEBUG_PERMS_FAIL_USER", {
+        permMsgUser = command.language.get("DEBUG_PERMS_FAIL_USER", {
           missing: user.join(", "),
         });
       if (client.length)
-        permMsgUser = message.language.get("DEBUG_PERMS_FAIL_CLIENT", {
+        permMsgUser = command.language.get("DEBUG_PERMS_FAIL_CLIENT", {
           missing: user.join(", "),
         });
 
       if (permMsgUser || permMsgClient)
         details.push(
-          `${error} ${message.language.get("DEBUG_PERMS_CHECKS_FAIL")}` +
+          `${error} ${command.language.get("DEBUG_PERMS_CHECKS_FAIL")}` +
             (permMsgUser ? `\n${permMsgUser}` : "") +
             (permMsgClient ? `\n${permMsgClient}` : "")
         );
     } else if (permissionChecks)
-      details.push(`${error} ${message.language.get("DEBUG_REQUIRES_PERMS")}`);
-    else details.push(`${success} ${message.language.get("DEBUG_PERMS_PASS")}`);
+      details.push(`${error} ${command.language.get("DEBUG_REQUIRES_PERMS")}`);
+    else details.push(`${success} ${command.language.get("DEBUG_PERMS_PASS")}`);
 
     const disabledCommands =
-      message.guild?.settings.get<string[]>("disabled.commands", []) ?? [];
+      command.guild?.settings.get<string[]>("disabled.commands", []) ?? [];
 
     if (disabledCommands.includes(cmd.id)) {
-      if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
+      if (command.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
         details.push(
-          `${success} ${message.language.get("DEBUG_COMMAND_DISABLE_BYPASS")}`
+          `${success} ${command.language.get("DEBUG_COMMAND_DISABLE_BYPASS")}`
         );
       else
         details.push(
-          `${error} ${message.language.get("DEBUG_COMMAND_DISABLED")}`
+          `${error} ${command.language.get("DEBUG_COMMAND_DISABLED")}`
         );
-    } else if (message.guild)
+    } else if (command.guild)
       details.push(
-        `${success} ${message.language.get("DEBUG_COMMAND_NOT_DISABLED")}`
+        `${success} ${command.language.get("DEBUG_COMMAND_NOT_DISABLED")}`
       );
 
-    if (cmd.id == "mute" && message.guild && channel instanceof GuildChannel) {
+    if (cmd.id == "mute" && command.guild && channel instanceof GuildChannel) {
       const canSend = channel.permissionOverwrites.cache
         .filter((overwrite) =>
           overwrite.allow.has(Permissions.FLAGS.SEND_MESSAGES)
@@ -167,9 +183,9 @@ export default class Debug extends Command {
         .map((overwrite) => overwrite.id);
       const roles = [
         ...canSend
-          .map((id) => message.guild.roles.cache.get(id))
+          .map((id) => command.guild.roles.cache.get(id))
           .filter((role) => !!role),
-        ...message.guild.roles.cache
+        ...command.guild.roles.cache
           .filter(
             (role) =>
               role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
@@ -181,9 +197,9 @@ export default class Debug extends Command {
         (id) => !roles.find((role) => role.id == id)
       );
       // owner can always bypass
-      memberIds.push(message.guild.ownerId);
+      memberIds.push(command.guild.ownerId);
       const members: string[] = memberIds.length
-        ? await message.guild.members
+        ? await command.guild.members
             .fetch({ user: memberIds })
             .then((found) =>
               found.map((member: FireMember) => member.toMention())
@@ -195,70 +211,70 @@ export default class Debug extends Command {
 
       if (bypass.length > 0)
         details.push(
-          `${error} ${message.language.get("DEBUG_MUTE_BYPASS", {
+          `${error} ${command.language.get("DEBUG_MUTE_BYPASS", {
             channel: channel.toString(),
             bypass: bypass.map((b) => b.toString()).join(", "),
           })}`
         );
       else
         details.push(
-          `${success} ${message.language.get("DEBUG_MUTE_NO_BYPASS", {
+          `${success} ${command.language.get("DEBUG_MUTE_NO_BYPASS", {
             channel: channel.toString(),
           })}`
         );
     }
 
     if (
-      !message.guild ||
-      (message.guild &&
-        message.guild.me?.permissions.has(Permissions.FLAGS.EMBED_LINKS))
+      !command.guild ||
+      (command.guild &&
+        command.guild.me?.permissions.has(Permissions.FLAGS.EMBED_LINKS))
     )
-      return await message.channel.send({
-        embeds: [this.createEmbed(message, details)],
+      return await command.channel.send({
+        embeds: [this.createEmbed(command, details)],
       });
     else {
-      details.push(`${error} ${message.language.get("DEBUG_NO_EMBEDS")}`);
-      return await message.channel.send({ content: details.join("\n") });
+      details.push(`${error} ${command.language.get("DEBUG_NO_EMBEDS")}`);
+      return await command.channel.send({ content: details.join("\n") });
     }
   }
 
-  private createEmbed(message: FireMessage, details: string[]) {
+  private createEmbed(command: ApplicationCommandMessage, details: string[]) {
     const issues = details.filter((detail) => detail.startsWith(error));
     return new MessageEmbed()
       .setTitle(
-        message.language.get(
+        command.language.get(
           issues.length ? "DEBUG_ISSUES_FOUND" : "DEBUG_NO_ISSUES",
           { issues: issues.length }
         )
       )
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
       .setDescription(details.join("\n"));
   }
 
   private async sendSingleError(
-    message: FireMessage,
+    command: ApplicationCommandMessage,
     key: LanguageKeys,
     args?: TOptions<StringMap>
   ) {
-    return await message.channel.send({
+    return await command.channel.send({
       embeds: [
-        this.createEmbed(message, [
-          `${error} ${message.language.get(key, args)}`,
+        this.createEmbed(command, [
+          `${error} ${command.language.get(key, args)}`,
         ]),
       ],
     });
   }
 
   private async sendSingleSuccess(
-    message: FireMessage,
+    command: ApplicationCommandMessage,
     key: LanguageKeys,
     args?: TOptions<StringMap>
   ) {
-    return await message.channel.send({
+    return await command.channel.send({
       embeds: [
-        this.createEmbed(message, [
-          `${success} ${message.language.get(key, args)}`,
+        this.createEmbed(command, [
+          `${success} ${command.language.get(key, args)}`,
         ]),
       ],
     });

@@ -1,8 +1,9 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { CommandInteractionOption, Permissions } from "discord.js";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
 
 export default class TagEdit extends Command {
   constructor() {
@@ -18,6 +19,7 @@ export default class TagEdit extends Command {
         {
           id: "tag",
           type: "string",
+          autocomplete: true,
           default: null,
           required: true,
         },
@@ -42,6 +44,22 @@ export default class TagEdit extends Command {
     });
   }
 
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (!interaction.guild.tags) {
+      interaction.guild.tags = new GuildTagManager(
+        this.client,
+        interaction.guild
+      );
+      await interaction.guild.tags.init();
+    }
+    if (focused.value)
+      return interaction.guild.tags.getFuzzyMatches(focused.value?.toString());
+    return interaction.guild.tags.names.slice(0, 25);
+  }
+
   async exec(message: FireMessage, args: { tag?: string; content?: string }) {
     if (!args.tag) return await message.error("TAGS_EDIT_MISSING_NAME");
     else if (!args.content)
@@ -62,10 +80,10 @@ export default class TagEdit extends Command {
       return await message.error("TAGS_EDIT_LIMIT");
     try {
       const edited = await manager.editTag(tag, content);
-      if (typeof edited == "boolean" && !edited) return await message.error();
-      return await message.success();
+      if (typeof edited == "boolean" && !edited) return await message.error("TAG_EDIT_FAILED");
+      return await message.success("TAG_EDIT_SUCCESS");
     } catch {
-      return await message.error();
+      return await message.error("ERROR_CONTACT_SUPPORT");
     }
   }
 }

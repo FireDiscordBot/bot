@@ -1,5 +1,5 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { FireMessage } from "@fire/lib/extensions/message";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -39,67 +39,63 @@ export default class VanityURL extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { code?: string; invite?: Invite }) {
+  async run(
+    command: ApplicationCommandMessage,
+    args: { code?: string; invite?: Invite }
+  ) {
     if (!this.module)
       this.module = this.client.getModule("vanityurls") as VanityURLs;
     if (!args.code) {
       const current = await this.client.db
-        .query("SELECT * FROM vanity WHERE gid=$1 LIMIT 1;", [message.guild.id])
+        .query("SELECT * FROM vanity WHERE gid=$1 LIMIT 1;", [command.guild.id])
         .first()
         .catch(() => {});
-      if (!current) return await message.error("VANITYURL_CODE_REQUIRED");
+      if (!current) return await command.error("VANITYURL_CODE_REQUIRED");
       else
-        return await message.channel.send({
+        return await command.channel.send({
           embeds: [
             await this.module.current(
-              message.guild,
+              command.guild,
               current.get("code") as string,
-              message.language
+              command.language
             ),
           ],
         });
     }
 
     if (deleteKeywords.includes(args.code)) {
-      await this.module.delete(message.guild);
-      return await message.success();
+      await this.module.delete(command.guild);
+      return await command.success("VANITYURL_DELETED");
     }
 
-    if (!validityRegex.test(args.code) && !message.author.isSuperuser()) {
+    if (!validityRegex.test(args.code) && !command.author.isSuperuser()) {
       validityRegex.lastIndex = 0;
-      return await message.error("VANITYURL_REGEX_FAIL");
+      return await command.error("VANITYURL_REGEX_FAIL");
     }
     validityRegex.lastIndex = 0;
 
     const exists = await this.module.getVanity(args.code).catch(() => true);
     if (
       exists &&
-      ((typeof exists == "object" && exists.gid != message.guild.id) ||
+      ((typeof exists == "object" && exists.gid != command.guild.id) ||
         exists === true)
     )
-      return await message.error("VANITYURL_ALREADY_EXISTS");
+      return await command.error("VANITYURL_ALREADY_EXISTS");
 
     let invite = args.invite;
     if (!invite) {
       if (
-        message.guild.features.includes("VANITY_URL") &&
-        message.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+        command.guild.features.includes("VANITY_URL") &&
+        command.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
       ) {
-        if (message.guild.vanityURLCode)
-          invite = await this.client
-            .fetchInvite(message.guild.vanityURLCode)
-            .catch();
-        else {
-          const vanity = await message.guild.fetchVanityData().catch(() => {});
-          if (vanity)
-            invite = await this.client.fetchInvite(vanity.code).catch();
-        }
+        const vanity = await command.guild.fetchVanityData().catch(() => {});
+        if (vanity) invite = await this.client.fetchInvite(vanity.code).catch();
       }
 
       const channel =
-        message.guild.systemChannel || (message.channel as FireTextChannel);
+        command.guild.systemChannel || (command.realChannel as FireTextChannel);
       if (typeof channel.createInvite != "function")
-        return await message.error();
+        return await command.error("ERROR_CONTACT_SUPPORT");
 
       // this will be false if above failed
       if (!invite)
@@ -108,22 +104,22 @@ export default class VanityURL extends Command {
             unique: true,
             temporary: false,
             maxAge: 0,
-            reason: message.guild.language.get(
+            reason: command.guild.language.get(
               "VANITYURL_INVITE_CREATE_REASON"
             ) as string,
           })
           .catch();
 
       // if all that failed, return error
-      if (!invite) return await message.error("VANITYURL_INVITE_FAILED");
+      if (!invite) return await command.error("VANITYURL_INVITE_FAILED");
     }
 
-    const vanity = await this.module.create(message.guild, args.code, invite);
-    if (!vanity) return await message.error();
+    const vanity = await this.module.create(command.guild, args.code, invite);
+    if (!vanity) return await command.error("ERROR_CONTACT_SUPPORT");
     else if (vanity == "blacklisted")
-      return await message.error("VANITYURL_BLACKLISTED");
+      return await command.error("VANITYURL_BLACKLISTED");
     else
-      return await message.success("VANITYURL_CREATED", {
+      return await command.success("VANITYURL_CREATED", {
         vanity: `https://${
           process.env.NODE_ENV == "production" ? "" : "test."
         }inv.wtf/${args.code}`,

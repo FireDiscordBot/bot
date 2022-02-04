@@ -21,14 +21,14 @@ export default class Purge extends Listener {
           channel: message.channel.toString(),
         })
       )
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setAuthor({
+        name: message.author.toString(),
+        iconURL: message.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
-      )
+        }),
+      })
       .setFooter(
         message.guild.language.get("PURGE_LOG_FOOTER", {
           user: message.author.id,

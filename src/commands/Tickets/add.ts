@@ -9,7 +9,7 @@ export default class TicketAdd extends Command {
   constructor() {
     super("add", {
       description: (language: Language) =>
-        language.get("TICKETADD_COMMAND_DESCRIPTION"),
+        language.get("TICKET_ADD_COMMAND_DESCRIPTION"),
       clientPermissions: [
         Permissions.FLAGS.SEND_MESSAGES,
         Permissions.FLAGS.MANAGE_ROLES,
@@ -60,6 +60,12 @@ export default class TicketAdd extends Command {
         }
       )
       .catch(() => {});
-    return updated ? await message.success() : await message.error();
+    return updated
+      ? await message.success("TICKET_ADD_SUCCESS", {
+          user: args.user.toString(),
+        })
+      : await message.error("TICKET_ADD_FAILURE", {
+          user: args.user.toString(),
+        });
   }
 }

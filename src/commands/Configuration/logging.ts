@@ -31,10 +31,8 @@ export default class Logging extends Command {
       args: [
         {
           id: "type",
-          type: valid,
-          slashCommandOptions: ["moderation", "actions", "members"],
-          readableType: "mod|action|member",
-          slashCommandType: "type",
+          type: "string",
+          autocomplete: true,
           required: true,
           default: null,
         },
@@ -49,6 +47,11 @@ export default class Logging extends Command {
       enableSlashCommand: true,
       restrictTo: "guild",
     });
+  }
+
+  async autocomplete() {
+    // allows it to be immediately updated rather than waiting for the command to propogate
+    return Object.keys(typeMapping).map((value) => ({ name: value, value }));
   }
 
   async exec(
@@ -89,7 +92,7 @@ export default class Logging extends Command {
         ? await message.success(
             `LOGGING_DISABLED_${type.toUpperCase()}` as LanguageKeys
           )
-        : await message.error();
+        : await message.error("ERROR_CONTACT_SUPPORT");
     } else {
       let set: any;
       try {
@@ -110,7 +113,7 @@ export default class Logging extends Command {
         ? await message.success(
             `LOGGING_ENABLED_${type.toUpperCase()}` as LanguageKeys
           )
-        : await message.error();
+        : await message.error("ERROR_CONTACT_SUPPORT");
     }
   }
 }

@@ -65,33 +65,16 @@ export default class Embed extends Command {
     if (embeds instanceof Array) {
       const instances = embeds
         .map((e) => new MessageEmbed(e))
-        .filter((e) => !this.isEmpty(e))
+        .filter((e) => !this.client.util.isEmbedEmpty(e))
         .slice(0, 10);
-      await args.channel.send({ content, embeds: instances });
-      return await message.success();
+      return await args.channel.send({ content, embeds: instances });
     } else if (typeof embeds == "object") {
       const instance = new MessageEmbed(embeds);
-      if (this.isEmpty(instance))
+      if (this.client.util.isEmbedEmpty(instance))
         return await message.error("EMBED_OBJECT_INVALID");
       return content
         ? await args.channel.send({ content, embeds: [instance] })
         : await args.channel.send({ embeds: [instance] });
     } else return await message.error("EMBED_OBJECT_INVALID");
-  }
-
-  private isEmpty(embed: MessageEmbed) {
-    return (
-      !embed.title &&
-      !embed.description &&
-      !embed.url &&
-      !embed.timestamp &&
-      !embed.footer?.text &&
-      !embed.footer?.iconURL &&
-      !embed.image?.url &&
-      !embed.thumbnail?.url &&
-      !embed.author?.name &&
-      !embed.author?.url &&
-      !embed.fields?.length
-    );
   }
 }

@@ -24,6 +24,7 @@ export default class MessageUpdate extends Listener {
       after.member.dehoistAndDecancer();
 
     await after.runAntiFilters().catch(() => {});
+    await after.runPhishFilters().catch(() => {});
 
     const messageListener = this.client.getListener("message") as Message;
 
@@ -50,7 +51,7 @@ export default class MessageUpdate extends Listener {
         );
         if (
           currentStarboardMsg.content != updatedContent ||
-          !currentStarboardMsg.embeds[0].equals(updatedEmbed)
+          !currentStarboardMsg.embeds[0]?.equals(updatedEmbed)
         )
           await currentStarboardMsg
             .edit({
@@ -93,15 +94,15 @@ export default class MessageUpdate extends Listener {
       const embed = new MessageEmbed()
         .setColor(after.member.displayColor ?? "#FFFFFF")
         .setTimestamp(after.editedAt)
-        .setAuthor(
-          after.author.toString(),
-          after.author.displayAvatarURL({
+        .setAuthor({
+          name: after.author.toString(),
+          iconURL: after.author.displayAvatarURL({
             size: 2048,
             format: "png",
             dynamic: true,
           }),
-          after.url
-        )
+          url: after.url,
+        })
         .setDescription(
           guild.language.get("MSGEDITLOG_DESCRIPTION", {
             author: after.author.toMention(),

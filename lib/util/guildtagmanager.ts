@@ -41,6 +41,21 @@ export class GuildTagManager {
     return this.guild.settings.get<boolean>("tags.ephemeral", true);
   }
 
+  getFuzzyMatches(tag: string, limit = 20, forceRatio?: number) {
+    let ratio = forceRatio ?? 90;
+    let fuzzy = [];
+    while (!fuzzy.length && ratio >= (forceRatio ?? 60)) {
+      fuzzy = this.names.filter(
+        (name) =>
+          fuzz.ratio(tag.trim().toLowerCase(), name.trim().toLowerCase()) >=
+          ratio--
+      );
+    }
+    if (!fuzzy.length)
+      fuzzy = this.names.filter((name) => name.startsWith(tag));
+    return fuzzy.slice(0, limit);
+  }
+
   async init() {
     const result = await this.client.db
       .query("SELECT name FROM tags WHERE gid=$1;", [this.guild.configId])
@@ -53,7 +68,7 @@ export class GuildTagManager {
       );
     }
     if (this.names.length && !this.preparedSlashCommands)
-      await this.prepareSlashCommands();
+      this.prepareSlashCommands();
     return this.size;
   }
 
@@ -76,7 +91,7 @@ export class GuildTagManager {
       fuzz.ratio(tag.trim().toLowerCase(), bestMatch.trim().toLowerCase()) >= 60
     )
       return await this.fetchTag(bestMatch, includeCreator);
-    else return await this.fetchTag(tag, includeCreator);
+    else return null;
   }
 
   private async fetchTag(name: string, includeCreator = false): Promise<Tag> {

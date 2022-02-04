@@ -1,5 +1,5 @@
 import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { DeconstructedSnowflake } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
@@ -29,15 +29,17 @@ export default class Snowflake extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { snowflake: string }) {
-    let { snowflake } = args;
-    if (!snowflake) return;
-    snowflake = await userMemberSnowflakeTypeCaster(message, snowflake);
+  async run(command: ApplicationCommandMessage, args: { snowflake: string }) {
+    if (!args.snowflake) return;
+    const snowflake = await userMemberSnowflakeTypeCaster(
+      command,
+      args.snowflake
+    );
     if (!this.userCommand)
       this.userCommand = this.client.getCommand("user") as User;
     if (!this.userCommand || !snowflake) return;
     return await this.userCommand.snowflakeInfo(
-      message,
+      command,
       // @ts-ignore (i can't figure out why this complains)
       snowflake
     );

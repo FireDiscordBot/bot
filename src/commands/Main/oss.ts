@@ -1,4 +1,4 @@
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -7,7 +7,6 @@ export default class OpenSource extends Command {
     super("oss", {
       description: (language: Language) =>
         language.get("OSS_COMMAND_DESCRIPTION"),
-      aliases: ["github", "source", "code"],
       enableSlashCommand: true,
       restrictTo: "all",
       slashOnly: true,
@@ -15,7 +14,7 @@ export default class OpenSource extends Command {
     });
   }
 
-  async exec(message: FireMessage) {
-    await message.send("OSS_MESSAGE");
+  async run(command: ApplicationCommandMessage) {
+    await command.send("OSS_MESSAGE");
   }
 }

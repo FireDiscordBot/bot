@@ -119,10 +119,14 @@ export default class Redirects extends Module {
     const data = await this.getRedirect(code);
     if (typeof data == "boolean") return;
     const embed = new MessageEmbed()
-      .setAuthor(
-        user.username,
-        user.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
-      )
+      .setAuthor({
+        name: user.username,
+        iconURL: user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
       .setColor("#2ECC71")
       .addField(language.get("REDIRECT_SHORT_URL"), `https://inv.wtf/${code}`)
       .addField("URL", data.url)

@@ -1,8 +1,9 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { CommandInteractionOption, Permissions } from "discord.js";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
 
 const markdownRegex = /[_\\~|\*`]/gim;
 
@@ -19,6 +20,7 @@ export default class TagRaw extends Command {
         {
           id: "tag",
           type: "string",
+          autocomplete: true,
           default: null,
           required: true,
         },
@@ -27,6 +29,22 @@ export default class TagRaw extends Command {
       restrictTo: "guild",
       parent: "tag",
     });
+  }
+
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ) {
+    if (!interaction.guild.tags) {
+      interaction.guild.tags = new GuildTagManager(
+        this.client,
+        interaction.guild
+      );
+      await interaction.guild.tags.init();
+    }
+    if (focused.value)
+      return interaction.guild.tags.getFuzzyMatches(focused.value?.toString());
+    return interaction.guild.tags.names.slice(0, 25);
   }
 
   async exec(message: FireMessage, args: { tag?: string }) {

@@ -64,7 +64,7 @@ export default class CloseTicket extends Command {
               "TICKET_CONFIRMATION_EXPIRED"
             )}`
           )
-        : await message.error();
+        : await message.error("ERROR_CONTACT_SUPPORT");
     const closure = await message.guild.closeTicket(
       message.channel as FireTextChannel,
       message.member,
@@ -85,8 +85,15 @@ export default class CloseTicket extends Command {
   }
 
   private getConfirmationPromise(customId: string) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       this.client.buttonHandlersOnce.set(customId, resolve);
+
+      setTimeout(() => {
+        if (this.client.buttonHandlersOnce.has(customId)) {
+          this.client.buttonHandlersOnce.delete(customId);
+          reject(false);
+        }
+      }, 30000);
     });
   }
 }

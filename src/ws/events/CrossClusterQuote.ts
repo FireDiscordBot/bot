@@ -1,16 +1,17 @@
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import Quote from "@fire/src/commands/Utilities/quote";
-import { NewsChannel, Snowflake } from "discord.js";
-import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
+import { LanguageKeys } from "@fire/lib/util/language";
+import { Event } from "@fire/lib/ws/event/Event";
+import { EventType } from "@fire/lib/ws/util/constants";
+import Quote from "@fire/src/commands/Utilities/quote";
+import { NewsChannel, Snowflake, ThreadChannel } from "discord.js";
 
 export default class CrossClusterQuote extends Event {
   constructor(manager: Manager) {
@@ -36,17 +37,16 @@ export default class CrossClusterQuote extends Event {
     const guild = this.manager.client.guilds.cache.get(data.guild_id);
     if (!guild) return;
     destination.guild = guild as FireGuild;
-    const member = await guild.members.fetch(data.quoter).catch(() => {});
+    const member = (await guild.members
+      .fetch(data.quoter)
+      .catch(() => {})) as FireMember;
     if (!member)
       return this.manager.client.console.warn(
         `[Aether] Attempted cross cluster quote with unknown member`
       );
     const channel = guild.channels.cache
-      .filter(
-        (channel) =>
-          channel.type == "GUILD_TEXT" || channel.type == "GUILD_NEWS"
-      )
-      .get(data.channel_id) as FireTextChannel | NewsChannel;
+      .filter((channel) => channel.isText() || channel.isThread())
+      .get(data.channel_id) as FireTextChannel | NewsChannel | ThreadChannel;
     if (!channel)
       return this.manager.client.console.warn(
         `[Aether] Attempted cross cluster quote with unknown channel`
@@ -62,11 +62,18 @@ export default class CrossClusterQuote extends Event {
       return this.manager.client.console.warn(
         `[Aether] Attempted cross cluster quote with unknown message`
       );
-    await quoteCommand.exec(null, {
+    const quoted = await quoteCommand.exec(null, {
       quote: message as FireMessage,
       quoter: member as FireMember,
       webhook: data.webhook,
       destination,
     });
+    if (typeof quoted == "string" && member.isSuperuser()) {
+      const language = this.manager.client.getLanguage("en-US");
+      return this.manager.client.console.warn(
+        `[Aether] Attempted cross cluster quote for ${member} but failed due to`,
+        language.has(quoted) ? language.get(quoted as LanguageKeys) : quoted
+      );
+    }
   }
 }

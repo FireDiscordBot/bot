@@ -1,6 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
+import { MessageFlags } from "discord.js";
 
 export default class ModOnlyInhibitor extends Inhibitor {
   constructor() {
@@ -13,11 +14,6 @@ export default class ModOnlyInhibitor extends Inhibitor {
 
   async exec(message: FireMessage) {
     if (
-      message instanceof ApplicationCommandMessage &&
-      (message.flags & 64) == 64
-    )
-      return false;
-    if (
       message.guild &&
       message.guild.settings
         .get<string[]>("commands.modonly", [])
@@ -29,7 +25,12 @@ export default class ModOnlyInhibitor extends Inhibitor {
         message.command.ephemeral
       )
         return false;
-      return !message.member.isModerator(message.channel);
+      const cantRun = !message.member.isModerator(message.channel);
+      if (cantRun && message instanceof ApplicationCommandMessage) {
+        if ((message.flags & 64) != 64)
+          (message as ApplicationCommandMessage).flags = 64;
+        return false;
+      } else return cantRun;
     }
     return false;
   }

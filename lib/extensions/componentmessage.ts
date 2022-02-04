@@ -153,6 +153,14 @@ export class ComponentMessage {
     return this.snowflake.timestamp;
   }
 
+  get channelId() {
+    return this.interaction.channelId;
+  }
+
+  get guildId() {
+    return this.interaction.guildId;
+  }
+
   send(key?: LanguageKeys, args?: i18nOptions) {
     return this.channel.send(
       {
@@ -165,7 +173,7 @@ export class ComponentMessage {
   }
 
   success(
-    key?: LanguageKeys,
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
@@ -191,7 +199,7 @@ export class ComponentMessage {
   }
 
   warn(
-    key?: LanguageKeys,
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
@@ -217,7 +225,7 @@ export class ComponentMessage {
   }
 
   error(
-    key?: LanguageKeys,
+    key: LanguageKeys,
     args?: i18nOptions
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
@@ -381,7 +389,7 @@ export class FakeChannel extends BaseFakeChannel {
   }
 
   sendTyping() {
-    return new Promise(() => {});
+    return new Promise((r) => r(null));
   }
 
   bulkDelete(

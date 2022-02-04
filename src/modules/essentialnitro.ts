@@ -165,8 +165,7 @@ export default class EssentialNitro extends Module {
 
   async removeNitroCosmetic(user: FireMember | FireUser, uuid?: string) {
     if (!this.auth) return false;
-    // TODO: switch to ??= when I can update to Node 16
-    uuid = uuid ?? (await this.getUUID(user));
+    uuid ??= (await this.getUUID(user));
     if (!uuid) return false;
 
     this.client.console.warn(

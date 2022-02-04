@@ -58,7 +58,7 @@ const getRoleMentionMatch = (argument: string) => {
 };
 
 export const snowflakeConverter = async (
-  message: FireMessage,
+  message: FireMessage | ApplicationCommandMessage,
   argument: string,
   silent = false
 ): Promise<({ snowflake: Snowflake } & DeconstructedSnowflake) | null> => {
@@ -172,7 +172,7 @@ export const guildPreviewConverter = async (
 };
 
 export const memberConverter = async (
-  message: FireMessage,
+  message: FireMessage | ApplicationCommandMessage,
   argument: string,
   silent = false
 ): Promise<FireMember | null> => {
@@ -189,7 +189,7 @@ export const memberConverter = async (
 
   const guild = message.guild;
   if (!guild) {
-    if (!silent) await message.error();
+    if (!silent) await message.error("ERROR_CONTACT_SUPPORT");
     return null;
   }
 
@@ -208,7 +208,7 @@ export const memberConverter = async (
       .fetch({ limit: 5 })
       .catch(() => {});
     if (!messages || !messages.size) {
-      await message.error();
+      await message.error("ERROR_CONTACT_SUPPORT");
       return null;
     }
     const authoredMessage = messages
@@ -263,7 +263,7 @@ export const memberConverter = async (
 };
 
 export const userConverter = async (
-  message: FireMessage,
+  message: FireMessage | ApplicationCommandMessage,
   argument: string,
   silent = false
 ): Promise<FireUser | null> => {
@@ -287,7 +287,7 @@ export const userConverter = async (
       .fetch({ limit: 5 })
       .catch(() => {});
     if (!messages || !messages.size) {
-      await message.error();
+      await message.error("ERROR_CONTACT_SUPPORT");
       return null;
     }
     const authoredMessage = messages
@@ -295,7 +295,7 @@ export const userConverter = async (
       .last() as FireMessage;
     if (authoredMessage.author) return authoredMessage.author as FireUser;
     else {
-      await message.error();
+      await message.error("INVALID_USER_ID");
       return null;
     }
   }
@@ -416,7 +416,7 @@ export const guildChannelConverter = async (
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
-    if (!silent) await message.error();
+    if (!silent) await message.error("ERROR_CONTACT_SUPPORT");
     return null;
   }
 
@@ -447,7 +447,7 @@ export const textChannelConverter = async (
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
-    if (!silent) await message.error();
+    if (!silent) await message.error("ERROR_CONTACT_SUPPORT");
     return null;
   }
 
@@ -486,7 +486,7 @@ export const voiceChannelConverter = async (
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
-    if (!silent) await message.error();
+    if (!silent) await message.error("ERROR_CONTACT_SUPPORT");
     return null;
   }
 
@@ -528,7 +528,7 @@ export const categoryChannelConverter = async (
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
-    if (!silent) await message.error();
+    if (!silent) await message.error("ERROR_CONTACT_SUPPORT");
     return null;
   }
 
@@ -567,7 +567,7 @@ export const roleConverter = async (
   const match = getIDMatch(argument) || getRoleMentionMatch(argument);
   const guild = message.guild;
   if (!guild) {
-    if (!silent) await message.error();
+    if (!silent) await message.error("ERROR_CONTACT_SUPPORT");
     return null;
   }
 

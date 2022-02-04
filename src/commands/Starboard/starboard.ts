@@ -1,3 +1,4 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageEmbed, Permissions } from "discord.js";
 import { Language } from "@fire/lib/util/language";
@@ -25,42 +26,37 @@ export default class Starboard extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { action?: string }) {
-    if (this.getChildren().includes(`starboard-${args.action}`)) {
-      message.content = message.content.replace(
-        `${message.util?.parsed?.alias || "starboard"} ${args.action}`,
-        `starboard-${args.action}`
-      );
-      return await this.client.commandHandler.handle(message);
-    } else return await this.sendDefaultMessage(message);
+  async run(command: ApplicationCommandMessage) {
+    return await this.sendDefaultMessage(command);
   }
 
-  async sendDefaultMessage(message: FireMessage) {
+  // this is no longer needed since slash commands w/subcommands cannot have the base command executed
+  async sendDefaultMessage(command: ApplicationCommandMessage) {
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor ?? "#FFFFFF")
       .setTimestamp()
-      .setDescription(message.language.get("STARBOARD_MAIN_DESCRIPTION"))
-      .setAuthor(
-        message.author.toString(),
-        message.author.displayAvatarURL({
+      .setDescription(command.language.get("STARBOARD_MAIN_DESCRIPTION"))
+      .setAuthor({
+        name: command.author.toString(),
+        iconURL: command.author.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
-        })
+        }),
+      })
+      .addField(
+        `${command.util.parsed?.prefix}starboard channel [<channel>]`,
+        command.language.get("STARBOARD_CHANNEL_DESCRIPTION")
       )
       .addField(
-        `${message.util.parsed?.prefix}starboard channel [<channel>]`,
-        message.language.get("STARBOARD_CHANNEL_DESCRIPTION")
-      )
-      .addField(
-        `${message.util.parsed?.prefix}starboard minimum <number>`,
-        message.language.get("STARBOARD_MINIMUM_DESCRIPTION")
+        `${command.util.parsed?.prefix}starboard minimum <number>`,
+        command.language.get("STARBOARD_MINIMUM_DESCRIPTION")
       )
       .addField(
         // for now, this will be a premium perk but I am open to changing it
-        `${message.util.parsed?.prefix}starboard emoji [<emoji>]`,
-        message.language.get("STARBOARD_EMOJI_DESCRIPTION")
+        `${command.util.parsed?.prefix}starboard emoji [<emoji>]`,
+        command.language.get("STARBOARD_EMOJI_DESCRIPTION")
       );
-    return await message.channel.send({ embeds: [embed] });
+    return await command.channel.send({ embeds: [embed] });
   }
 }
