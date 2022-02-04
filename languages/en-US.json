@@ -319,7 +319,7 @@
   "BAN_FAILED_ENTRY": "Failed to create mod log entry, user was not banned.",
   "BAN_FAILED_BAN": "Failed to ban user, please try again.",
   "BAN_FAILED_BAN_AND_ENTRY": "Failed to ban user and was unable to delete the created mod log entry.",
-  "BAN_COMMAND_DESCRIPTION": "Ban a user from the server. Use the --days flag to delete message history",
+  "BAN_COMMAND_DESCRIPTION": "Ban a user from the server.",
   "BAN_ARGUMENT_USER_DESCRIPTION": "The user you would like to ban",
   "BAN_ARGUMENT_REASON_DESCRIPTION": "The reason for banning the user (shown to the user & in mod logs)",
   "BAN_ARGUMENT_TIME_DESCRIPTION": "The time to ban the user for (e.g. 4h for 4 hours or 7d for 7 days)",
