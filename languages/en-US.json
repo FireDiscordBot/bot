@@ -573,6 +573,8 @@
   "KICK_FAILED_KICK": "Failed to kick user, please try again.",
   "KICK_FAILED_KICK_AND_ENTRY": "Failed to kick user and was unable to delete the created mod log entry.",
   "KICK_COMMAND_DESCRIPTION": "Kick a user from the server",
+  "KICK_ARGUMENT_USER_DESCRIPTION": "The user you would like to kick",
+  "KICK_ARGUMENT_REASON_DESCRIPTION": "The reason for kicking the user (shown to the user & in mod logs)",
   "KICK_USER_REQUIRED": "You must provide a user to kick!",
   "MC_LOG_NO_REUPLOAD": "{{user}} I am unable to read your log to remove sensitive information & provide solutions to your issue. Please upload the log directly :)",
   "MC_LOG_READ_FAIL": "I was unable to read the attachment, try reupload it. If it still doesn't work, yell at Geek :)",
