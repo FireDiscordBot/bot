@@ -14,6 +14,8 @@ export default class ClearWarnings extends Command {
         {
           id: "user",
           type: "memberSilent",
+          description: (language: Language) =>
+            language.get("WARNINGS_CLEAR_ARGUMENT_USER_DESCRIPTION"),
           readableType: "user",
           required: false,
           default: null,
@@ -21,6 +23,8 @@ export default class ClearWarnings extends Command {
         {
           id: "caseid",
           type: "string",
+          description: (language: Language) =>
+            language.get("WARNINGS_CLEAR_ARGUMENT_CASEID_DESCRIPTION"),
           required: false,
           default: null,
         },
@@ -37,6 +41,8 @@ export default class ClearWarnings extends Command {
     command: ApplicationCommandMessage,
     args: { user?: FireMember; caseid?: string }
   ) {
+    if (args.user && args.caseid)
+      return await command.error("WARNINGS_CLEAR_ARGUMENTS_EXCLUSIVE");
     const userOrCaseId = args.user ?? args.caseid;
     if (!userOrCaseId)
       return await command.error("WARNINGS_CLEAR_ARGUMENT_REQUIRED");
@@ -48,11 +54,6 @@ export default class ClearWarnings extends Command {
     )
       // you can't warn mods anyways
       return await command.error("MODERATOR_ACTION_DISALLOWED");
-    if (
-      typeof userOrCaseId != "string" &&
-      ["clearwarning", "clearwarn"].includes(command.util?.parsed?.alias)
-    )
-      return await command.error("WARNINGS_CLEAR_CASEID_REQUIRED");
     const typeOrCountResult = await this.client.db
       .query(
         typeof userOrCaseId == "string"

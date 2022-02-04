@@ -19,6 +19,8 @@ export default class Warnings extends Command {
         {
           id: "user",
           type: "user|member",
+          description: (language: Language) =>
+            language.get("WARNINGS_VIEW_ARGUMENT_USER_DESCRIPTION"),
           required: true,
           default: null,
         },
