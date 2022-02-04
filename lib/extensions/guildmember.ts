@@ -370,11 +370,6 @@ export class FireMember extends GuildMember {
                 user: Util.escapeMarkdown(this.toString()),
                 times,
               }),
-              embeds:
-                channel instanceof BaseFakeChannel ||
-                moderator.id == this.client.user?.id
-                  ? []
-                  : this.client.util.getModCommandSlashWarning(this.guild),
             })
             .catch(() => {})
         : await channel
@@ -383,11 +378,6 @@ export class FireMember extends GuildMember {
                 user: Util.escapeMarkdown(this.toString()),
                 times,
               }),
-              embeds:
-                channel instanceof BaseFakeChannel ||
-                moderator.id == this.client.user?.id
-                  ? []
-                  : this.client.util.getModCommandSlashWarning(this.guild),
             })
             .catch(() => {});
   }
@@ -430,11 +420,6 @@ export class FireMember extends GuildMember {
             user: Util.escapeMarkdown(this.toString()),
             times,
           }),
-          embeds:
-            channel instanceof BaseFakeChannel ||
-            moderator.id == this.client.user?.id
-              ? []
-              : this.client.util.getModCommandSlashWarning(this.guild),
         })
         .catch(() => {});
   }
@@ -534,11 +519,6 @@ export class FireMember extends GuildMember {
             (this.id == "159985870458322944"
               ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
               : ""),
-          embeds:
-            channel instanceof BaseFakeChannel ||
-            moderator.id == this.client.user?.id
-              ? []
-              : this.client.util.getModCommandSlashWarning(this.guild),
         })
         .catch(() => {});
   }
@@ -601,11 +581,6 @@ export class FireMember extends GuildMember {
           content: this.guild.language.getSuccess("KICK_SUCCESS", {
             user: Util.escapeMarkdown(this.toString()),
           }),
-          embeds:
-            channel instanceof BaseFakeChannel ||
-            moderator.id == this.client.user?.id
-              ? []
-              : this.client.util.getModCommandSlashWarning(this.guild),
         })
         .catch(() => {});
   }
@@ -682,11 +657,6 @@ export class FireMember extends GuildMember {
             : this.guild.language.getSuccess("DERANK_SUCCESS", {
                 user: Util.escapeMarkdown(this.toString()),
               }),
-          embeds:
-            channel instanceof BaseFakeChannel ||
-            moderator.id == this.client.user?.id
-              ? []
-              : this.client.util.getModCommandSlashWarning(this.guild),
         })
         .catch(() => {});
   }
@@ -801,11 +771,6 @@ export class FireMember extends GuildMember {
             : this.guild.language.getWarning("MUTE_SEMI_SUCCESS", {
                 user: Util.escapeMarkdown(this.toString()),
               }),
-          embeds:
-            channel instanceof BaseFakeChannel ||
-            moderator.id == this.client.user?.id
-              ? []
-              : this.client.util.getModCommandSlashWarning(this.guild),
         })
         .catch(() => {});
   }
@@ -917,11 +882,6 @@ export class FireMember extends GuildMember {
           content: this.guild.language.getSuccess("UNMUTE_SUCCESS", {
             user: Util.escapeMarkdown(this.toString()),
           }),
-          embeds:
-            channel instanceof BaseFakeChannel ||
-            moderator.id == this.client.user?.id
-              ? []
-              : this.client.util.getModCommandSlashWarning(this.guild),
         })
         .catch(() => {});
   }

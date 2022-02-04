@@ -1486,11 +1486,6 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
             user: Util.escapeMarkdown(user.toString()),
             guild: Util.escapeMarkdown(this.name),
           }),
-          embeds:
-            channel instanceof BaseFakeChannel ||
-            moderator.id == this.client.user?.id
-              ? []
-              : this.client.util.getModCommandSlashWarning(this),
         })
         .catch(() => {});
   }
@@ -1561,11 +1556,6 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
             blockee instanceof FireMember ? blockee.toString() : blockee.name
           ),
         }),
-        embeds:
-          channel instanceof BaseFakeChannel ||
-          moderator.id == this.client.user?.id
-            ? []
-            : this.client.util.getModCommandSlashWarning(this),
       })
       .catch(() => {});
   }
@@ -1651,11 +1641,6 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
               : unblockee.name
           ),
         }),
-        embeds:
-          channel instanceof BaseFakeChannel ||
-          moderator.id == this.client.user?.id
-            ? []
-            : this.client.util.getModCommandSlashWarning(this),
       })
       .catch(() => {});
   }

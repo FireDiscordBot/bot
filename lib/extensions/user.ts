@@ -243,11 +243,6 @@ export class FireUser extends User {
             (this.id == "159985870458322944"
               ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
               : ""),
-          embeds:
-            channel instanceof BaseFakeChannel ||
-            moderator.id == this.client.user?.id
-              ? []
-              : this.client.util.getModCommandSlashWarning(guild),
         })
         .catch(() => {});
   }

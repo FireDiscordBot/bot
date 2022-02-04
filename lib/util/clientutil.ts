@@ -867,26 +867,6 @@ export class Util extends ClientUtil {
     return upsellEmbed;
   }
 
-  getModCommandSlashWarning(guild: FireGuild) {
-    if (!guild.hasExperiment(966055531, 1)) return [];
-    return [
-      new MessageEmbed()
-        .setColor("RED")
-        .setAuthor({
-          name: "Fire",
-          iconURL: this.client.user.displayAvatarURL({
-            size: 2048,
-            format: "png",
-          }),
-        })
-        .setDescription(
-          guild.language.get("COMMAND_NOTICE_MOD_SLASH", {
-            invite: this.client.config.commandsInvite(this.client, guild.id),
-          })
-        ),
-    ];
-  }
-
   async createSpecialCoupon(
     user: FireUser | FireMember,
     code: CouponType
