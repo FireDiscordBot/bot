@@ -7,7 +7,6 @@ export default class OpenSource extends Command {
     super("oss", {
       description: (language: Language) =>
         language.get("OSS_COMMAND_DESCRIPTION"),
-      aliases: ["github", "source", "code"],
       enableSlashCommand: true,
       restrictTo: "all",
       slashOnly: true,

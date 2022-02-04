@@ -23,7 +23,6 @@ export default class TicketDescription extends Command {
           default: null,
         },
       ],
-      aliases: ["tickets-description"],
       parent: "ticket",
     });
   }

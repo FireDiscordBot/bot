@@ -39,17 +39,10 @@ export default class Mute extends Command {
         },
       ],
       clientPermissions: [
-        // Permissions.FLAGS.SEND_MESSAGES_IN_THREADS,
-        // Permissions.FLAGS.CREATE_PRIVATE_THREADS,
-        // Permissions.FLAGS.CREATE_PUBLIC_THREADS,
-        // Permissions.FLAGS.REQUEST_TO_SPEAK,
+        Permissions.FLAGS.MODERATE_MEMBERS,
         Permissions.FLAGS.MANAGE_CHANNELS,
-        // Permissions.FLAGS.SEND_MESSAGES,
-        // Permissions.FLAGS.ADD_REACTIONS,
         Permissions.FLAGS.MANAGE_ROLES,
-        // Permissions.FLAGS.SPEAK,
       ],
-      aliases: ["silence", "tempmute", "403"],
       enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
@@ -80,7 +73,7 @@ export default class Mute extends Command {
     let date: number;
     if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
     const muted = await args.user.mute(
-      args.reason ||
+      args.reason?.trim() ||
         (command.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),

@@ -72,7 +72,6 @@ export default class User extends Command {
           required: false,
         },
       ],
-      aliases: ["userinfo", "infouser", "whois", "u"],
       enableSlashCommand: true,
       restrictTo: "all",
       context: ["user"],

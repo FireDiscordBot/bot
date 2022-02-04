@@ -13,7 +13,6 @@ export default class TagList extends Command {
         Permissions.FLAGS.SEND_MESSAGES,
         Permissions.FLAGS.EMBED_LINKS,
       ],
-      aliases: ["tags-list", "dtag-list", "dtags-list"],
       restrictTo: "guild",
       slashOnly: true,
       parent: "tag",

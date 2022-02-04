@@ -25,7 +25,6 @@ export default class Warnings extends Command {
       ],
       restrictTo: "guild",
       moderatorOnly: true,
-      aliases: ["warns"],
       slashOnly: true,
     });
   }

@@ -17,7 +17,6 @@ export default class Eightball extends Command {
           default: null,
         },
       ],
-      aliases: ["eightball"],
       restrictTo: "all",
       slashOnly: true,
     });
@@ -26,9 +25,9 @@ export default class Eightball extends Command {
   async run(command: ApplicationCommandMessage, args: { question?: string }) {
     if (!args.question?.trim().endsWith("?"))
       return await command.send("EIGHTBALL_NO_QUESTION");
-    const responses = (command.language.get("EIGHTBALL_ANSWER", {
+    const responses = command.language.get("EIGHTBALL_ANSWER", {
       returnObjects: true,
-    }) as unknown) as string[];
+    }) as unknown as string[];
     await command.channel.send(
       responses[Math.floor(Math.random() * responses.length)]
     );

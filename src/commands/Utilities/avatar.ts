@@ -19,7 +19,6 @@ export default class Avatar extends Command {
         Permissions.FLAGS.SEND_MESSAGES,
         Permissions.FLAGS.EMBED_LINKS,
       ],
-      aliases: ["av"],
       args: [
         {
           id: "user",

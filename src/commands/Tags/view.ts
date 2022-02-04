@@ -22,7 +22,6 @@ export default class TagView extends Command {
           default: null,
         },
       ],
-      aliases: ["tags-view", "dtag-view", "dtags-view"],
       restrictTo: "guild",
       slashOnly: true,
       parent: "tag",
