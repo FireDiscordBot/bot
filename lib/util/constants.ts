@@ -73,6 +73,10 @@ export type i18nOptions = TOptions<StringMap> & {
   includeSlashUpsell?: boolean;
 };
 
+// errors thrown by the base command class exec & run methods telling you to use the other method
+export class UseExec extends Error {}
+export class UseRun extends Error {}
+
 let emojis = {
   // shoutout to blobhub for the ebic emotes, https://inv.wtf/blobhub
   success: "<:yes:534174796888408074>",

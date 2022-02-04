@@ -11,6 +11,7 @@ import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Fire } from "@fire/lib/Fire";
 import { Command } from "./command";
+import { UseExec, UseRun } from "./constants";
 
 const { CommandHandlerEvents } = Constants;
 const allowedTypes = ["DEFAULT", "REPLY"];
@@ -48,7 +49,23 @@ export class CommandHandler extends AkairoCommandHandler {
 
     this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
     try {
-      const ret = await command.exec(message, args);
+      let ret: any;
+      try {
+        // always attempt to use exec first for message commands
+        ret = await command.exec(message, args);
+      } catch (err) {
+        if (err instanceof UseRun) {
+          // uh oh, we can't use this command because Command#run is slash only
+          // so instead, we'll pretend they ran into the slashonly inhibitor
+          this.emit(
+            CommandHandlerEvents.COMMAND_BLOCKED,
+            message,
+            command,
+            "slashonly"
+          );
+          return;
+        } else throw err;
+      }
       this.emit(
         CommandHandlerEvents.COMMAND_FINISHED,
         message,
@@ -70,12 +87,15 @@ export class CommandHandler extends AkairoCommandHandler {
 
     this.emit(CommandHandlerEvents.COMMAND_STARTED, message, command, args);
     try {
-      // all commands will eventually be switched to use run instead of exec
-      // for now, this is the best way I could find to determine whether or not it's the
-      // Command class method or whether it has been overwritten
-      const ret = !command.run.toString().includes("method_must_be_overwritten")
-        ? await command.run(message, args)
-        : await command.exec(message as unknown as FireMessage, args);
+      let ret: any;
+      try {
+        // always attempt to use run first for slash commands
+        ret = await command.run(message, args);
+      } catch (err) {
+        if (err instanceof UseExec)
+          ret = await command.exec(message as unknown as FireMessage, args);
+        else throw err;
+      }
       this.emit(
         CommandHandlerEvents.COMMAND_FINISHED,
         message,

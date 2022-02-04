@@ -25,8 +25,10 @@ import {
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { FireGuild } from "../extensions/guild";
 import { FireMember } from "../extensions/guildmember";
+import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
 import { SlashArgumentTypeCaster } from "./commandhandler";
+import { UseExec, UseRun } from "./constants";
 import { Language } from "./language";
 
 type ArgumentGenerator = (
@@ -200,12 +202,15 @@ export class Command extends AkairoCommand {
     return [];
   }
 
+  async exec(message: FireMessage, args: Record<string, any>): Promise<any> {
+    throw new UseRun();
+  }
+
   async run(
     command: ApplicationCommandMessage,
     args: Record<string, any>
   ): Promise<any> {
-    // method_must_be_overwritten
-    return await command.error("COMMAND_ERROR_500");
+    throw new UseExec();
   }
 
   get parentCommand(): Command | null {
