@@ -38,6 +38,7 @@ export default class GuildCommand extends Command {
           required: false,
         },
       ],
+      aliases: ["guild"], // for slash only warning to alert users to it being /server now
       enableSlashCommand: true,
       restrictTo: "all",
       slashOnly: true,
