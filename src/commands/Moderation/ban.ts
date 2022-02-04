@@ -1,10 +1,9 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { parseTime } from "@fire/lib/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
+import { parseTime } from "@fire/lib/util/constants";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Permissions } from "discord.js";
 
 export default class Ban extends Command {
@@ -13,107 +12,112 @@ export default class Ban extends Command {
       description: (language: Language) =>
         language.get("BAN_COMMAND_DESCRIPTION"),
       clientPermissions: [Permissions.FLAGS.BAN_MEMBERS],
-      enableSlashCommand: true,
       args: [
         {
           id: "user",
           type: "user|member",
+          description: (language: Language) =>
+            language.get("BAN_ARGUMENT_USER_DESCRIPTION"),
           required: true,
           default: null,
         },
         {
           id: "reason",
           type: "string",
+          description: (language: Language) =>
+            language.get("BAN_ARGUMENT_REASON_DESCRIPTION"),
+          required: false,
+          default: null,
+          match: "rest",
+        },
+        {
+          id: "time",
+          type: "string",
+          description: (language: Language) =>
+            language.get("BAN_ARGUMENT_TIME_DESCRIPTION"),
           required: false,
           default: null,
           match: "rest",
         },
         {
           id: "days",
-          flag: "--days",
-          match: "option",
-          required: false,
           type: "number",
+          description: (language: Language) =>
+            language.get("BAN_ARGUMENT_DAYS_DESCRIPTION"),
+          required: false,
+          default: 0,
+          match: "rest",
+          // TODO: add min/max to this
         },
       ],
-      aliases: [
-        "banish",
-        "begone",
-        "perish",
-        "fire",
-        "gtfo",
-        "410",
-        "bonk",
-        "bean",
-        "bam",
-      ],
+      enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
+      deferAnyways: true,
+      slashOnly: true,
+      ephemeral: true,
     });
   }
 
-  async exec(
-    message: FireMessage,
-    args: { user: FireMember | FireUser; days?: number; reason?: string }
+  async run(
+    command: ApplicationCommandMessage,
+    args: {
+      user: FireMember | FireUser;
+      reason?: string;
+      time?: string;
+      days?: number;
+    }
   ) {
     if (typeof args.user == "undefined")
-      return await message.error("BAN_USER_REQUIRED");
+      return await command.error("BAN_USER_REQUIRED");
     else if (!args.user) return;
-    if (
-      args.user.id == this.client.user.id &&
-      message.util?.parsed?.prefix.trim() == "fire" &&
-      message.util?.parsed?.alias.trim() == "fire"
-    )
-      return await message.error("BAN_SMTH_SPECIAL");
     else if (
       args.user instanceof FireMember &&
-      args.user.isModerator(message.channel) &&
-      message.author.id != message.guild.ownerId
+      args.user.isModerator(command.channel) &&
+      command.author.id != command.guild.ownerId
     )
-      return await message.error("MODERATOR_ACTION_DISALLOWED");
+      return await command.error("MODERATOR_ACTION_DISALLOWED");
     if (args.days && (args.days < 1 || args.days > 7))
-      return await message.error("BAN_INVALID_DAYS");
+      return await command.error("BAN_INVALID_DAYS");
     let minutes: number;
     try {
-      minutes = parseTime(args.reason) as number;
+      minutes = parseTime(args.time) as number;
     } catch {
-      return await message.error("BAN_FAILED_PARSE_TIME");
+      return await command.error("TIME_PARSING_FAILED");
     }
-    if (minutes != 0 && minutes < 30 && !message.author.isSuperuser())
-      return await message.error("BAN_TIME_TOO_SHORT");
+    if (minutes != 0 && minutes < 30 && !command.author.isSuperuser())
+      return await command.error("BAN_TIME_TOO_SHORT");
     else if (minutes && args.user instanceof FireUser)
-      return await message.error("BAN_MEMBER_REQUIRED");
+      return await command.error("BAN_MEMBER_REQUIRED");
     const now = new Date();
     let date: number;
     if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
-    const reason = parseTime(args.reason, true) as string;
-    await message.delete().catch(() => {});
     const beaned =
       args.user instanceof FireMember
         ? await args.user.bean(
-            reason?.trim() ||
-              (message.guild.language.get(
+            args.reason?.trim() ||
+              (command.guild.language.get(
                 "MODERATOR_ACTION_DEFAULT_REASON"
               ) as string),
-            message.member,
+            command.member,
             date,
-            args.days || 0,
-            message.channel as FireTextChannel
+            args.days,
+            command.channel
           )
         : await args.user.bean(
-            message.guild,
-            reason?.trim() ||
-              (message.guild.language.get(
+            command.guild,
+            args.reason?.trim() ||
+              (command.guild.language.get(
                 "MODERATOR_ACTION_DEFAULT_REASON"
               ) as string),
-            message.member,
-            args.days || 0,
-            message.channel as FireTextChannel
+            command.member,
+            args.days,
+            command.channel
           );
     if (beaned == "forbidden")
-      return await message.error("COMMAND_MODERATOR_ONLY");
+      return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof beaned == "string")
-      return await message.error(
+      return await command.error(
         `BAN_FAILED_${beaned.toUpperCase()}` as LanguageKeys
       );
   }

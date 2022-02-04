@@ -4,53 +4,62 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 
 export default class Unban extends Command {
   constructor() {
     super("unban", {
       description: (language: Language) =>
         language.get("UNBAN_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
       clientPermissions: [Permissions.FLAGS.BAN_MEMBERS],
       args: [
         {
           id: "user",
           type: "user",
+          description: (language: Language) =>
+            language.get("UNBAN_ARGUMENT_USER_DESCRIPTION"),
           required: true,
           default: undefined,
         },
         {
           id: "reason",
           type: "string",
+          description: (language: Language) =>
+            language.get("UNBAN_ARGUMENT_REASON_DESCRIPTION"),
           required: false,
           default: null,
           match: "rest",
         },
       ],
-      aliases: ["unbanish"],
+      enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
+      deferAnyways: true,
+      slashOnly: true,
+      ephemeral: true,
     });
   }
 
-  async exec(message: FireMessage, args: { user: FireUser; reason?: string }) {
+  async run(
+    command: ApplicationCommandMessage,
+    args: { user: FireUser; reason?: string }
+  ) {
     if (typeof args.user == "undefined")
-      return await message.error("UNBAN_USER_REQUIRED");
+      return await command.error("UNBAN_USER_REQUIRED");
     else if (!args.user) return;
-    await message.delete().catch(() => {});
-    const unbanned = await message.guild.unban(
+    const unbanned = await command.guild.unban(
       args.user,
       args.reason?.trim() ||
-        (message.guild.language.get(
+        (command.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
-      message.member,
-      message.channel as FireTextChannel
+      command.member,
+      command.channel
     );
     if (unbanned == "forbidden")
-      return await message.error("COMMAND_MODERATOR_ONLY");
+      return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof unbanned == "string")
-      return await message.error(
+      return await command.error(
         `UNBAN_FAILED_${unbanned.toUpperCase()}` as LanguageKeys
       );
   }

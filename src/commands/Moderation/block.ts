@@ -1,8 +1,9 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
 import { Command } from "@fire/lib/util/command";
+import { GuildTextChannel } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { NewsChannel, Permissions, Role, ThreadChannel } from "discord.js";
 
@@ -11,73 +12,77 @@ export default class Block extends Command {
     super("block", {
       description: (language: Language) =>
         language.get("BLOCK_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
       clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
       args: [
         {
-          id: "toblock",
+          id: "who",
           type: "member|role",
+          readableType: "member/role",
+          slashCommandType: "member-or-role",
+          description: (language: Language) =>
+            language.get("BLOCK_ARGUMENT_WHO_DESCRIPTION"),
           required: true,
           default: null,
         },
         {
           id: "reason",
           type: "string",
+          description: (language: Language) =>
+            language.get("BLOCK_ARGUMENT_REASON_DESCRIPTION"),
           required: false,
           default: null,
           match: "rest",
         },
       ],
+      enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
+      deferAnyways: true,
+      slashOnly: true,
+      ephemeral: true,
     });
   }
 
-  async exec(
-    message: FireMessage,
-    args: { toblock: FireMember | Role; reason?: string }
+  async run(
+    command: ApplicationCommandMessage,
+    args: { who: FireMember | Role; reason?: string }
   ) {
-    if (!args.toblock) return await message.error("BLOCK_ARG_REQUIRED");
+    if (!args.who) return await command.error("BLOCK_ARG_REQUIRED");
     else if (
-      args.toblock instanceof FireMember &&
-      args.toblock.isModerator(message.channel) &&
-      message.author.id != message.guild.ownerId
+      args.who instanceof FireMember &&
+      args.who.isModerator(command.channel) &&
+      command.author.id != command.guild.ownerId
     )
-      return await message.error("MODERATOR_ACTION_DISALLOWED");
+      return await command.error("MODERATOR_ACTION_DISALLOWED");
     else if (
-      args.toblock instanceof FireMember &&
-      args.toblock.roles.highest.rawPosition >=
-        message.member?.roles?.highest?.rawPosition
+      args.who instanceof FireMember &&
+      args.who.roles.highest.rawPosition >=
+        command.member?.roles?.highest?.rawPosition
     )
-      return await message.error("BLOCK_GOD");
+      return await command.error("BLOCK_GOD");
     else if (
-      args.toblock instanceof Role &&
-      args.toblock.rawPosition >= message.member?.roles?.highest?.rawPosition
+      args.who instanceof Role &&
+      args.who.rawPosition >= command.member?.roles?.highest?.rawPosition
     )
-      return await message.error("BLOCK_ROLE_HIGH");
+      return await command.error("BLOCK_ROLE_HIGH");
 
-    let channel = message.channel as
-      | FireTextChannel
-      | FireVoiceChannel
-      | NewsChannel
-      | ThreadChannel;
+    let channel = command.channel.real as GuildTextChannel | ThreadChannel;
     if (channel instanceof ThreadChannel)
-      channel = channel.parent as FireTextChannel | NewsChannel;
+      channel = channel.parent as GuildTextChannel;
 
-    await message.delete().catch(() => {});
-    const blocked = await message.guild.block(
-      args.toblock,
+    const blocked = await command.guild.block(
+      args.who,
       args.reason?.trim() ||
-        (message.guild.language.get(
+        (command.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
-      message.member,
+      command.member,
       channel
     );
     if (blocked == "forbidden")
-      return await message.error("COMMAND_MODERATOR_ONLY");
+      return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof blocked == "string")
-      return await message.error(
+      return await command.error(
         `BLOCK_FAILED_${blocked.toUpperCase()}` as LanguageKeys
       );
   }
