@@ -120,6 +120,7 @@ export class FireMember extends GuildMember {
     if (this.id == this.client.user?.id) return true;
     if (this.id == this.guild.ownerId) return true;
     if (channel instanceof BaseFakeChannel) channel = channel.real;
+    else if (channel instanceof ThreadChannel) channel = channel.parent;
     if (this.isAdmin(channel)) return true;
     const moderators = this.guild.settings.get<string[]>(
       "utils.moderators",
@@ -133,7 +134,7 @@ export class FireMember extends GuildMember {
     } else return null;
   }
 
-  isAdmin(channel?: Channel) {
+  isAdmin(channel?: Channel | BaseFakeChannel) {
     if (this.id == this.client.user?.id) return true;
     if (this.id == this.guild.ownerId) return true;
     if (channel instanceof BaseFakeChannel) channel = channel.real;

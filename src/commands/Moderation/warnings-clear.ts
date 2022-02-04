@@ -1,14 +1,14 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 import { Util } from "discord.js";
 
 export default class ClearWarnings extends Command {
   constructor() {
-    super("clearwarnings", {
+    super("warnings-clear", {
       description: (language: Language) =>
-        language.get("CLEARWARNINGS_COMMAND_DESCRIPTION"),
+        language.get("WARNINGS_CLEAR_COMMAND_DESCRIPTION"),
       enableSlashCommand: true,
       args: [
         {
@@ -25,71 +25,73 @@ export default class ClearWarnings extends Command {
           default: null,
         },
       ],
-      aliases: ["clearwarns", "clearwarning", "clearwarn"],
       restrictTo: "guild",
       moderatorOnly: true,
+      parent: "warnings",
+      slashOnly: true,
+      ephemeral: true,
     });
   }
 
-  async exec(
-    message: FireMessage,
+  async run(
+    command: ApplicationCommandMessage,
     args: { user?: FireMember; caseid?: string }
   ) {
     const userOrCaseId = args.user ?? args.caseid;
     if (!userOrCaseId)
-      return await message.error("CLEARWARNINGS_ARGUMENT_REQUIRED");
+      return await command.error("WARNINGS_CLEAR_ARGUMENT_REQUIRED");
     else if (
       userOrCaseId instanceof FireMember &&
-      userOrCaseId.isModerator(message.channel) &&
-      !userOrCaseId.isAdmin(message.channel) &&
-      message.author.id != message.guild.ownerId
+      userOrCaseId.isModerator(command.channel) &&
+      !userOrCaseId.isAdmin(command.channel) &&
+      command.author.id != command.guild.ownerId
     )
       // you can't warn mods anyways
-      return await message.error("MODERATOR_ACTION_DISALLOWED");
+      return await command.error("MODERATOR_ACTION_DISALLOWED");
     if (
       typeof userOrCaseId != "string" &&
-      ["clearwarning", "clearwarn"].includes(message.util?.parsed?.alias)
+      ["clearwarning", "clearwarn"].includes(command.util?.parsed?.alias)
     )
-      return await message.error("CLEARWARN_CASEID_REQUIRED");
+      return await command.error("WARNINGS_CLEAR_CASEID_REQUIRED");
     const typeOrCountResult = await this.client.db
       .query(
         typeof userOrCaseId == "string"
           ? "SELECT type FROM modlogs WHERE gid = $1 AND caseid = $2;"
           : "SELECT COUNT(*) FROM modlogs WHERE gid = $1 AND uid = $2;",
         [
-          message.guild.id,
+          command.guild.id,
           typeof userOrCaseId == "string" ? userOrCaseId : userOrCaseId.id,
         ]
       )
       .first()
       .catch(() => {});
-    if (!typeOrCountResult) return await message.error("CLEARWARN_FAILED");
+    if (!typeOrCountResult) return await command.error("WARNINGS_CLEAR_FAILED");
     const type = (typeOrCountResult.get("type") as string) ?? "warn",
       amount = (typeOrCountResult.get("count") as number) ?? 0;
     if (type != "warn" && type != "note")
-      return await message.error("CLEARWARN_INVALID_CASE_TYPE");
+      return await command.error("WARNINGS_CLEAR_INVALID_CASE_TYPE");
     const cleared = await this.client.db
       .query(
         typeof userOrCaseId == "string"
           ? "DELETE FROM modlogs WHERE gid = $1 AND caseid = $2;"
           : "DELETE FROM modlogs WHERE gid = $1 AND uid = $2;",
         [
-          message.guild.id,
+          command.guild.id,
           typeof userOrCaseId == "string" ? userOrCaseId : userOrCaseId.id,
         ]
       )
       .catch(() => {});
     // even if it deletes nothing just pretend it works
     return cleared && cleared.status.startsWith("DELETE")
-      ? await message.success(
+      ? await command.success(
           typeof userOrCaseId == "string"
-            ? "CLEARWARN_SINGLE_SUCCESS"
-            : "CLEARWARN_ALL_SUCCESS",
+            ? "WARNINGS_CLEAR_SINGLE_SUCCESS"
+            : "WARNINGS_CLEAR_ALL_SUCCESS",
           {
             amount: amount,
             user: Util.escapeMarkdown(userOrCaseId.toString()),
           }
         )
-      : await message.error("CLEARWARN_FAILED");
+      : await command.error("WARNINGS_CLEAR_FAILED");
   }
 }
