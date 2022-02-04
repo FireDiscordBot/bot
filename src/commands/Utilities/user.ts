@@ -152,10 +152,7 @@ export default class User extends Command {
       .setTimestamp()
       .setAuthor({
         name: user.toString(),
-        iconURL: (command.hasExperiment(194480739, 2)
-          ? member ?? user
-          : user
-        ).displayAvatarURL({
+        iconURL: user.displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
@@ -180,11 +177,7 @@ export default class User extends Command {
       );
     else if (application) embed.setDescription(application.description);
     if (member) {
-      if (
-        command.hasExperiment(194480739, 1) &&
-        member?.avatar &&
-        member?.avatar != user.avatar
-      )
+      if (member?.avatar && member?.avatar != user.avatar)
         embed.setThumbnail(
           member.avatarURL({ size: 2048, format: "png", dynamic: true })
         );
