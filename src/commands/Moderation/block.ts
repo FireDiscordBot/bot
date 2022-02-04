@@ -66,10 +66,6 @@ export default class Block extends Command {
     )
       return await command.error("BLOCK_ROLE_HIGH");
 
-    let channel = command.channel.real as GuildTextChannel | ThreadChannel;
-    if (channel instanceof ThreadChannel)
-      channel = channel.parent as GuildTextChannel;
-
     const blocked = await command.guild.block(
       args.who,
       args.reason?.trim() ||
@@ -77,7 +73,7 @@ export default class Block extends Command {
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
       command.member,
-      channel
+      command.channel
     );
     if (blocked == "forbidden")
       return await command.error("COMMAND_MODERATOR_ONLY");

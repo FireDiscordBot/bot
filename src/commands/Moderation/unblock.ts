@@ -64,10 +64,6 @@ export default class Unblock extends Command {
     )
       return await command.error("UNBLOCK_ROLE_HIGH");
 
-    let channel = command.channel.real as GuildTextChannel | ThreadChannel;
-    if (channel instanceof ThreadChannel)
-      channel = channel.parent as GuildTextChannel;
-
     const blocked = await command.guild.unblock(
       args.who,
       args.reason?.trim() ||
@@ -75,7 +71,7 @@ export default class Unblock extends Command {
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
       command.member,
-      channel
+      command.channel
     );
     if (blocked == "forbidden")
       return await command.error("COMMAND_MODERATOR_ONLY");
