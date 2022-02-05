@@ -26,7 +26,7 @@ export default class Skin extends Command {
 
   async run(
     command: ApplicationCommandMessage,
-    args: { ign?: { match: any[]; matches: any[] } }
+    args: { ign?: { match: RegExpMatchArray; matches: RegExpExecArray[] } }
   ) {
     if (!args.ign) return await command.error("MINECRAFT_SKIN_INVALID_IGN");
     const ign: string = args.ign.match[0];

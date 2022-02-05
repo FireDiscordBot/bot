@@ -424,6 +424,21 @@ export class Command extends AkairoCommand {
                 message,
                 message.slashCommand.options.get(name)?.value.toString()
               );
+            } else if (arg.type instanceof RegExp) {
+              const match = (args[arg.id] as string).match(type);
+              if (!match) args[arg.id] = null;
+
+              const matches: RegExpExecArray[] = [];
+
+              if (arg.type.global) {
+                let matched: RegExpExecArray;
+
+                while ((matched = arg.type.exec(args[arg.id])) != null) {
+                  matches.push(matched);
+                }
+              }
+
+              args[arg.id] = { match, matches };
             }
             break;
           }

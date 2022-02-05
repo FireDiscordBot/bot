@@ -32,7 +32,10 @@ export default class MinecraftUUID extends Command {
 
   async run(
     command: ApplicationCommandMessage,
-    args: { ign?: { match: any[]; matches: any[] }; dashed?: string }
+    args: {
+      ign?: { match: RegExpMatchArray; matches: RegExpExecArray[] };
+      dashed?: string;
+    }
   ) {
     if (!args.ign) return await command.error("MINECRAFT_UUID_INVALID_IGN");
     const ign: string = args.ign.match[0];
