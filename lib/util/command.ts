@@ -166,6 +166,7 @@ export class Command extends AkairoCommand {
           arg.readableType = "boolean";
         else if (arg.flag && arg.match == "option" && !arg.type)
           arg.type = arg.readableType = "string";
+        else if (!arg.type) arg.type = "string";
         if (!arg.slashCommandType) {
           arg.slashCommandType =
             arg.readableType?.split("|")[0] ?? arg.type.toString();
@@ -463,7 +464,10 @@ export class Command extends AkairoCommand {
           case "CHANNEL": {
             const resolvedChannel =
               message.slashCommand.options.getChannel(name);
-            if (this.client.channels.cache.has(resolvedChannel.id))
+            if (
+              resolvedChannel &&
+              this.client.channels.cache.has(resolvedChannel.id)
+            )
               args[arg.id] = this.client.channels.cache.get(resolvedChannel.id);
             else args[arg.id] = arg.default;
             break;

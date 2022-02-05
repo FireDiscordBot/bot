@@ -79,51 +79,61 @@ export class ApplicationCommandMessage {
     this.id = command.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
     this.slashCommand = command;
-    if (command.options.data.find((opt) => opt.type == "SUB_COMMAND")) {
-      command.commandName = `${
-        command.commandName
-      }-${command.options.getSubcommand()}`;
-      command.options = new CommandInteractionOptionResolver(
-        client,
-        command.options.data.find((opt) => opt.type == "SUB_COMMAND").options ??
-          [],
-        command.options.resolved
+  }
+
+  async init() {
+    if (
+      this.slashCommand.options.data.find((opt) => opt.type == "SUB_COMMAND")
+    ) {
+      this.slashCommand.commandName = `${
+        this.slashCommand.commandName
+      }-${this.slashCommand.options.getSubcommand()}`;
+      this.slashCommand.options = new CommandInteractionOptionResolver(
+        this.client,
+        this.slashCommand.options.data.find((opt) => opt.type == "SUB_COMMAND")
+          .options ?? [],
+        this.slashCommand.options.resolved
       );
     } else if (
-      command.options.data.find((opt) => opt.type == "SUB_COMMAND_GROUP")
+      this.slashCommand.options.data.find(
+        (opt) => opt.type == "SUB_COMMAND_GROUP"
+      )
     ) {
-      command.commandName = `${
-        command.commandName
-      }-${command.options.getSubcommandGroup()}-${command.options.getSubcommand()}`;
-      command.options = new CommandInteractionOptionResolver(
-        client,
-        command.options.data
+      this.slashCommand.commandName = `${
+        this.slashCommand.commandName
+      }-${this.slashCommand.options.getSubcommandGroup()}-${this.slashCommand.options.getSubcommand()}`;
+      this.slashCommand.options = new CommandInteractionOptionResolver(
+        this.client,
+        this.slashCommand.options.data
           .find((opt) => opt.type == "SUB_COMMAND_GROUP")
           .options.find(
-            (option) => option.name == command.options.getSubcommand()
+            (option) => option.name == this.slashCommand.options.getSubcommand()
           ).options ?? [],
-        command.options.resolved
+        this.slashCommand.options.resolved
       );
     }
-    this.guild = client.guilds.cache.get(command.guildId) as FireGuild;
+    this.guild = this.client.guilds.cache.get(
+      this.slashCommand.guildId
+    ) as FireGuild;
     this.command =
-      this.client.getCommand(command.commandName) ||
-      this.client.getContextCommand(command.commandName);
+      this.client.getCommand(this.slashCommand.commandName) ||
+      this.client.getContextCommand(this.slashCommand.commandName);
     this._flags = 0;
     if (
-      this.guild?.tags?.slashCommands[command.commandId] == command.commandName
+      this.guild?.tags?.slashCommands[this.slashCommand.commandId] ==
+      this.slashCommand.commandName
     ) {
       this.command = this.client.getCommand("tag");
-      command.options = new CommandInteractionOptionResolver(
-        client,
+      this.slashCommand.options = new CommandInteractionOptionResolver(
+        this.client,
         [
           {
             name: "tag",
-            value: command.commandName,
+            value: this.slashCommand.commandName,
             type: "STRING",
           },
         ],
-        command.options.resolved
+        this.slashCommand.options.resolved
       );
       if (this.guild.tags.ephemeral) this.flags = 64;
     }
@@ -132,14 +142,14 @@ export class ApplicationCommandMessage {
     this.mentions = new MessageMentions(this, [], [], false);
     this.attachments = new Collection();
     // @mason pls just always include user ty
-    const user = command.user ?? command.member?.user;
+    const user = this.slashCommand.user ?? this.slashCommand.member?.user;
     this.author =
-      (client.users.cache.get(user.id) as FireUser) ||
-      new FireUser(client, user as RawUserData);
+      (this.client.users.cache.get(user.id) as FireUser) ||
+      new FireUser(this.client, user as RawUserData);
     if (this.guild) {
       this.member =
         (this.guild.members.cache.get(this.author.id) as FireMember) ||
-        new FireMember(client, command.member, this.guild);
+        new FireMember(this.client, this.slashCommand.member, this.guild);
     }
     this.language =
       (this.author?.settings.has("utils.language")
@@ -147,7 +157,7 @@ export class ApplicationCommandMessage {
           this.guild?.language.id != "en-US"
           ? this.guild?.language
           : this.author.language
-        : this.guild?.language) ?? client.getLanguage("en-US");
+        : this.guild?.language) ?? this.client.getLanguage("en-US");
     this.realChannel = this.client.channels.cache.get(
       this.slashCommand.channelId
     ) as FireTextChannel | NewsChannel | DMChannel;
@@ -159,18 +169,18 @@ export class ApplicationCommandMessage {
       // or if a slash command is invoked in DMs (discord/discord-api-docs #2568)
       this.channel = new FakeChannel(
         this,
-        client,
-        command.id,
-        command.token,
-        command.guildId ? null : this.author.dmChannel
+        this.client,
+        this.slashCommand.id,
+        this.slashCommand.token,
+        this.slashCommand.guildId ? null : this.author.dmChannel
       );
       return this;
     }
     this.channel = new FakeChannel(
       this,
-      client,
-      command.id,
-      command.token,
+      this.client,
+      this.slashCommand.id,
+      this.slashCommand.token,
       this.realChannel
     );
   }
@@ -323,7 +333,7 @@ export class ApplicationCommandMessage {
   }
 
   get nonce() {
-    return "deez nuts"
+    return "deez nuts";
   }
 
   async generateContent() {

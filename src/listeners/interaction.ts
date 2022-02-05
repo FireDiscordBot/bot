@@ -80,8 +80,9 @@ export default class InteractionListener extends Listener {
         await command.guild.tags.init();
       }
       const message = new ApplicationCommandMessage(this.client, command);
+      await message.init();
       if (
-        message.command.requiresExperiment?.id &&
+        message.command?.requiresExperiment?.id &&
         !message.hasExperiment(
           message.command.requiresExperiment.id,
           message.command.requiresExperiment.bucket
@@ -145,6 +146,7 @@ export default class InteractionListener extends Listener {
 
   async handleCommandAutocomplete(interaction: AutocompleteInteraction) {
     const message = new ApplicationCommandMessage(this.client, interaction);
+    await message.init();
     if (!message.command || typeof message.command.autocomplete !== "function")
       return;
     const focused = interaction.options.data.find((option) => option.focused);
