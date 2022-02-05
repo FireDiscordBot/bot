@@ -425,7 +425,7 @@ export class Command extends AkairoCommand {
                 message.slashCommand.options.get(name)?.value.toString()
               );
             } else if (arg.type instanceof RegExp) {
-              const match = (args[arg.id] as string).match(type);
+              const match = (args[arg.id] as string).match(arg.type);
               if (!match) args[arg.id] = null;
 
               const matches: RegExpExecArray[] = [];
