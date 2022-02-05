@@ -49,25 +49,22 @@ export default class GuildMemberUpdate extends Listener {
     }
 
     if (
-      !newMember.guild.hasExperiment(1955682940, 1) &&
       newMember.guild.mutes.has(newMember.id) &&
-      !newMember.roles.cache.has(newMember.guild.muteRole?.id)
+      !newMember.roles.cache.has(newMember.guild.muteRole?.id) &&
+      !newMember.communicationDisabledTimestamp
     ) {
       await this.client.util.sleep(5000); // wait a bit to ensure it isn't from being unmuted
       const until = newMember.guild.mutes.get(newMember.id);
+      const canTimeOut =
+        until &&
+        until < +new Date() + 2419199999 &&
+        newMember.guild.me?.permissions?.has("MODERATE_MEMBERS");
       if (until == 0 || +new Date() < until)
-        await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
-    } else if (
-      newMember.guild.hasExperiment(1955682940, 1) &&
-      newMember.guild.mutes.has(newMember.id) &&
-      !newMember.communicationDisabledUntil
-    ) {
-      await this.client.util.sleep(5000); // wait a bit to ensure it isn't from being unmuted
-      const until = newMember.guild.mutes.get(newMember.id);
-      if (+new Date() < until)
-        await newMember
-          .disableCommunication({ until: new Date(until) })
-          .catch(() => {});
+        canTimeOut
+          ? await newMember
+              .disableCommunication({ until: new Date(until) })
+              .catch(() => {})
+          : await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
     }
 
     // maybe fix role persist removing on member upddte shortly after joining

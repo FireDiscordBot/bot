@@ -671,7 +671,6 @@ export class FireMember extends GuildMember {
     const canTimeOut =
       until &&
       until < +new Date() + 2419199999 &&
-      this.guild.hasExperiment(1955682940, 1) &&
       this.guild.me?.permissions?.has("MODERATE_MEMBERS");
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -783,34 +782,30 @@ export class FireMember extends GuildMember {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     if (!this.guild.mutes.has(this.id)) {
-      if (this.guild.hasExperiment(1955682940, 1)) {
-        if (this.communicationDisabledUntil) {
-          const unmuted = await this.disableCommunication({
-            until: null,
-            reason: `${moderator} | ${reason}`,
-          }).catch(() => {});
-          if (channel && unmuted && !this.communicationDisabledUntil)
-            return await channel.send(
-              this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
-            );
-          else return "unknown";
-        } else return "not_muted";
-      } else {
-        if (this.roles.cache.has(this.guild.muteRole?.id)) {
-          const unmuted = await this.roles
-            .remove(this.guild.muteRole, `${moderator} | ${reason}`)
-            .catch(() => {});
-          if (
-            channel &&
-            unmuted &&
-            !this.roles.cache.has(this.guild.muteRole?.id)
-          )
-            return await channel.send(
-              this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
-            );
-          else return "unknown";
-        } else return "not_muted";
-      }
+      if (this.communicationDisabledUntil) {
+        const unmuted = await this.disableCommunication({
+          until: null,
+          reason: `${moderator} | ${reason}`,
+        }).catch(() => {});
+        if (channel && unmuted && !this.communicationDisabledUntil)
+          return await channel.send(
+            this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
+          );
+        else return "unknown";
+      } else if (this.roles.cache.has(this.guild.muteRole?.id)) {
+        const unmuted = await this.roles
+          .remove(this.guild.muteRole, `${moderator} | ${reason}`)
+          .catch(() => {});
+        if (
+          channel &&
+          unmuted &&
+          !this.roles.cache.has(this.guild.muteRole?.id)
+        )
+          return await channel.send(
+            this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
+          );
+        else return "unknown";
+      } else return "not_muted";
     }
     if (
       !this.roles.cache.has(this.guild.muteRole?.id) &&
