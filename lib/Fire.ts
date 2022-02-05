@@ -1,5 +1,6 @@
 import { KSoftClient } from "@aero/ksoft";
 import { config } from "@fire/config/index";
+import { attachmentTypeCaster } from "@fire/src/arguments/attachment";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import {
   categoryChannelSilentTypeCaster,
@@ -312,7 +313,8 @@ export class Fire extends AkairoClient {
 
     this.commandHandler.resolver.addTypes({
       "member|role|channel|category": memberRoleChannelCategoryTypeCaster,
-      "user|member|snowflake": userMemberSnowflakeTypeCaster as ArgumentTypeCaster,
+      "user|member|snowflake":
+        userMemberSnowflakeTypeCaster as ArgumentTypeCaster,
       "member|role|channel": memberRoleChannelTypeCaster,
       guildChannelSilent: guildChannelSilentTypeCaster,
       categorySilent: categoryChannelSilentTypeCaster,
@@ -329,6 +331,7 @@ export class Fire extends AkairoClient {
       codeblock: codeblockTypeCaster,
       language: languageTypeCaster,
       listener: listenerTypeCaster,
+      image: attachmentTypeCaster,
       preview: previewTypeCaster,
       boolean: booleanTypeCaster,
       command: commandTypeCaster,

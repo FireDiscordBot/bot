@@ -23,10 +23,12 @@ import {
   ChannelTypes,
 } from "discord.js/typings/enums";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
+import { CommandInteraction } from "../extensions/commandinteraction";
 import { FireGuild } from "../extensions/guild";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
+import { ApplicationCommandOptionType } from "../interfaces/interactions";
 import { SlashArgumentTypeCaster } from "./commandhandler";
 import { UseExec, UseRun } from "./constants";
 import { Language } from "./language";
@@ -68,6 +70,7 @@ const slashCommandTypeMappings = {
   ],
   ROLE: ["role", "roleSilent"],
   MENTIONABLE: ["member|role"],
+  ATTACHMENT: ["image"],
 };
 
 const canAcceptMember = [
@@ -309,7 +312,12 @@ export class Command extends AkairoCommand {
       ApplicationCommandOptionTypes.STRING;
     // @ts-ignore (no idea why it's complaining)
     let options: ApplicationCommandOptionData = {
-      type,
+      type:
+        typeof type == "string"
+          ? (ApplicationCommandOptionType[
+              type
+            ] as unknown as ApplicationCommandOptionTypes)
+          : type,
       name: this.getSlashCommandArgName(argument),
       description:
         typeof argument.description == "function"
@@ -481,6 +489,22 @@ export class Command extends AkairoCommand {
               if (member) args[arg.id] = member;
             } else args[arg.id] = arg.default;
             break;
+          }
+          case "ATTACHMENT": {
+            args[arg.id] =
+              (
+                message.slashCommand as CommandInteraction
+              ).options.getAttachment(name) ?? arg.default;
+          }
+          default: {
+            const resolver = this.client.commandHandler.resolver.types.get(
+              arg.type.toString()
+            ) as unknown as SlashArgumentTypeCaster;
+            if (typeof resolver == "function")
+              args[arg.id] = await resolver(
+                message,
+                message.slashCommand.options.get(name, true)?.value.toString()
+              );
           }
         }
         if (!args[arg.id] && typeof arg.type == "function") {

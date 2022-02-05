@@ -1,43 +1,40 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
+import { Language } from "@fire/lib/util/language";
 import * as centra from "centra";
+import { MessageAttachment } from "discord.js";
 
 export default class Deepfry extends Command {
   constructor() {
     super("deepfry", {
       description: (language: Language) =>
         language.get("DEEPFRY_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.ATTACH_FILES,
-      ],
-      restrictTo: "all",
       args: [
         {
           id: "image",
-          type: "string",
+          type: "image",
+          description: (language: Language) =>
+            language.get("DEEPFRY_ARGUMENTS_IMAGE_DESCRIPTION"),
           default: null,
           required: false,
         },
       ],
       enableSlashCommand: true,
-      aliases: ["df"],
+      restrictTo: "all",
+      slashOnly: true,
     });
   }
 
-  async exec(message: FireMessage, args: { image: string }) {
-    if (!process.env.MEME_TOKEN) return await message.error("ERROR_CONTACT_SUPPORT");
+  async exec(message: FireMessage, args: { image: MessageAttachment }) {
+    if (!process.env.MEME_TOKEN)
+      return await message.error("ERROR_CONTACT_SUPPORT");
     let image: string;
-    if (!args.image && !message.attachments.size)
+    if (!args.image)
       image = message.author.displayAvatarURL({
         format: "png",
         dynamic: false,
       });
-    else if (message.attachments.size) {
-      image = message.attachments.first().url;
-    } else image = args.image as string;
+    else image = args.image.url;
     if (!image) return await message.error("MEME_NO_VALID_IMAGE");
     try {
       const url = new URL(image);
@@ -55,7 +52,8 @@ export default class Deepfry extends Command {
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", process.env.MEME_TOKEN)
       .send();
-    if (deepfryReq.statusCode != 200) return await message.error("ERROR_CONTACT_SUPPORT");
+    if (deepfryReq.statusCode != 200)
+      return await message.error("ERROR_CONTACT_SUPPORT");
     else {
       const fried = deepfryReq.body;
       if (fried.byteLength >= 8e6)
