@@ -1074,20 +1074,4 @@ Please choose accurately as it will allow us to help you as quick as possible! â
     )
       await message?.delete().catch(() => {});
   }
-
-  private isEmbedEmpty(embed: MessageEmbed) {
-    return (
-      !embed.title &&
-      !embed.description &&
-      !embed.url &&
-      !embed.timestamp &&
-      !embed.footer?.text &&
-      !embed.footer?.iconURL &&
-      !embed.image?.url &&
-      !embed.thumbnail?.url &&
-      !embed.author?.name &&
-      !embed.author?.url &&
-      !embed.fields?.length
-    );
-  }
 }
