@@ -456,7 +456,10 @@ export class Command extends AkairoCommand {
           case "CHANNEL": {
             const resolvedChannel =
               message.slashCommand.options.getChannel(name);
-            if (this.client.channels.cache.has(resolvedChannel.id))
+            if (
+              resolvedChannel &&
+              this.client.channels.cache.has(resolvedChannel.id)
+            )
               args[arg.id] = this.client.channels.cache.get(resolvedChannel.id);
             else args[arg.id] = arg.default;
             break;
