@@ -59,12 +59,14 @@ export default class Pride extends Command {
     message: FireMessage,
     args?: { flag: string; user?: FireMember | FireUser; overlay?: boolean }
   ) {
-    if (!args.user && typeof args.user == "object") return;
-    if (!flagTypes.includes(args.flag)) return; // shouldn't be possible with slash cmd so I ain't giving an error
+    if (!flagTypes.includes(args.flag))
+      return await message.error("PRIDE_INVALID_FLAG");
     const user =
       args.user instanceof FireMember
         ? args.user.user
-        : args.user || message.author;
+        : args.user instanceof FireUser
+        ? args.user
+        : message.author;
     const overlay = !args.overlay;
     const prideReq = await centra(
       `https://api.ravy.lgbt/${overlay ? "overlay" : "circle"}`
