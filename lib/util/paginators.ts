@@ -1,25 +1,26 @@
 import {
-  TextBasedChannels,
-  MessageActionRow,
-  EmojiResolvable,
-  ThreadChannel,
-  MessageButton,
-  MessageEmbed,
-  NewsChannel,
-  DMChannel,
-} from "discord.js";
-import {
   ApplicationCommandMessage,
   FakeChannel as AppFakeChannel,
 } from "@fire/lib/extensions/appcommandmessage";
-import { FakeChannel as ContextFakeChannel } from "../extensions/contextcommandmessage";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { ComponentMessage } from "../extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
-import Semaphore from "semaphore-async-await";
 import { Fire } from "@fire/lib/Fire";
+import {
+  DMChannel,
+  EmojiResolvable,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  NewsChannel,
+  TextBasedChannels,
+  ThreadChannel,
+} from "discord.js";
+import Semaphore from "semaphore-async-await";
+import { ComponentMessage } from "../extensions/componentmessage";
+import { FakeChannel as ContextFakeChannel } from "../extensions/contextcommandmessage";
+import { BaseFakeChannel } from "../interfaces/misc";
 
 export interface PaginatorEmojiSettings {
   start: EmojiResolvable;
@@ -268,7 +269,7 @@ export class PaginatorInterface {
     );
   }
 
-  get sendArgs(): string | MessageEmbed {
+  get sendArgs(): string | MessageEmbed | MessageEmbed[] {
     const displayPage = this.displayPage;
     const pageNum = `\nPage ${displayPage + 1}/${this.pageCount}`;
     return this.pages[displayPage] + pageNum;
@@ -311,10 +312,24 @@ export class PaginatorInterface {
       | AppFakeChannel
       | ContextFakeChannel
   ) {
+    const embeds = [];
+    let content: string;
+    const args = this.sendArgs;
+    if (typeof args == "string") content = args;
+    else if (args instanceof MessageEmbed) embeds.push(args);
+    else if (
+      Array.isArray(args) &&
+      args.every((arg) => arg instanceof MessageEmbed)
+    )
+      embeds.push(...args);
     const message = (await destination.send({
-      content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-      embeds: this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-      components: this.getButtons(),
+      content,
+      embeds,
+      components: this.getButtons(
+        destination instanceof BaseFakeChannel && destination.message.flags & 64
+          ? false
+          : true
+      ),
     })) as FireMessage | ApplicationCommandMessage;
     if (message instanceof ApplicationCommandMessage) {
       this.slashMessage = message;
@@ -329,8 +344,9 @@ export class PaginatorInterface {
     return this;
   }
 
-  private getButtons() {
-    if (this.pageCount == 1)
+  private getButtons(includeStop = true) {
+    if (this.pageCount == 1 && !includeStop) return [];
+    else if (this.pageCount == 1)
       return [
         new MessageActionRow().addComponents(
           new MessageButton()
@@ -341,32 +357,36 @@ export class PaginatorInterface {
       ];
     else
       return [
-        new MessageActionRow().addComponents([
-          new MessageButton()
-            .setEmoji("835140711606124574")
-            .setDisabled(this.displayPage == 0)
-            .setStyle("PRIMARY")
-            .setCustomId("start"),
-          new MessageButton()
-            .setEmoji("835140710982352907")
-            .setDisabled(this.displayPage == 0)
-            .setStyle("PRIMARY")
-            .setCustomId("back"),
-          new MessageButton()
-            .setStyle("DANGER")
-            .setCustomId("close")
-            .setEmoji("835140711489863701"),
-          new MessageButton()
-            .setEmoji("835140711476494346")
-            .setDisabled(this.displayPage == this.pageCount - 1)
-            .setStyle("PRIMARY")
-            .setCustomId("forward"),
-          new MessageButton()
-            .setEmoji("835140711388676116")
-            .setDisabled(this.displayPage == this.pageCount - 1)
-            .setStyle("PRIMARY")
-            .setCustomId("end"),
-        ]),
+        new MessageActionRow().addComponents(
+          [
+            new MessageButton()
+              .setEmoji("835140711606124574")
+              .setDisabled(this.displayPage == 0)
+              .setStyle("PRIMARY")
+              .setCustomId("start"),
+            new MessageButton()
+              .setEmoji("835140710982352907")
+              .setDisabled(this.displayPage == 0)
+              .setStyle("PRIMARY")
+              .setCustomId("back"),
+            includeStop
+              ? new MessageButton()
+                  .setStyle("DANGER")
+                  .setCustomId("close")
+                  .setEmoji("835140711489863701")
+              : undefined,
+            new MessageButton()
+              .setEmoji("835140711476494346")
+              .setDisabled(this.displayPage == this.pageCount - 1)
+              .setStyle("PRIMARY")
+              .setCustomId("forward"),
+            new MessageButton()
+              .setEmoji("835140711388676116")
+              .setDisabled(this.displayPage == this.pageCount - 1)
+              .setStyle("PRIMARY")
+              .setCustomId("end"),
+          ].filter((c) => !!c)
+        ),
       ];
   }
 
@@ -378,19 +398,27 @@ export class PaginatorInterface {
     try {
       if (!this.message) await this.bot.util.sleep(1000);
 
+      const embeds = [];
+      let content: string;
+      const args = this.sendArgs;
+      if (typeof args == "string") content = args;
+      else if (args instanceof MessageEmbed) embeds.push(args);
+      else if (
+        Array.isArray(args) &&
+        args.every((arg) => arg instanceof MessageEmbed)
+      )
+        embeds.push(...args);
+      const options = {
+        content,
+        embeds,
+        components: this.getButtons(
+          this.slashMessage && this.slashMessage.flags & 64 ? false : true
+        ),
+      };
+
       this.slashMessage
-        ? await this.slashMessage.edit({
-            content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-            embeds:
-              this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-            components: this.getButtons(),
-          })
-        : await this.message.edit({
-            content: typeof this.sendArgs == "string" ? this.sendArgs : null,
-            embeds:
-              this.sendArgs instanceof MessageEmbed ? [this.sendArgs] : null,
-            components: this.getButtons(),
-          });
+        ? await this.slashMessage.edit(options)
+        : await this.message.edit(options);
     } catch {}
     this.updateLock.release();
   }
@@ -398,6 +426,7 @@ export class PaginatorInterface {
 
 export class PaginatorEmbedInterface extends PaginatorInterface {
   embed: MessageEmbed;
+  embeds: MessageEmbed[];
   footer: { text: string; iconURL?: string };
 
   constructor(
@@ -411,14 +440,21 @@ export class PaginatorEmbedInterface extends PaginatorInterface {
       maxPageSize?: number;
       updateMax?: number;
       embed: MessageEmbed;
+      embeds?: MessageEmbed[];
       footer?: { text: string; iconURL?: string };
     }
   ) {
+    if (options.embeds?.length >= 10)
+      throw new Error(
+        "Paginator cannot include more than 10 embeds (including the paginated one)"
+      );
+
     if (options.maxPageSize > 4096 || typeof options.maxPageSize == "undefined")
       options.maxPageSize = 4096;
     super(bot, paginator, options);
     this.embed = options.embed;
-    this.footer = options.footer || { text: "" };
+    this.embeds = options.embeds ?? [];
+    this.footer = options.footer ?? { text: "" };
   }
 
   get sendArgs() {
@@ -434,7 +470,7 @@ export class PaginatorEmbedInterface extends PaginatorInterface {
             `Page ${displayPage + 1}/${this.pageCount} | ${this.footer.text}`
           );
     else this.embed.setFooter(`Page ${displayPage + 1}/${this.pageCount}`);
-    return this.embed;
+    return this.embeds.length ? [this.embed, ...this.embeds] : this.embed;
   }
 
   get pageSize() {

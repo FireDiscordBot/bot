@@ -28,6 +28,7 @@ export default class Warnings extends Command {
       restrictTo: "guild",
       moderatorOnly: true,
       parent: "warnings",
+      deferAnyways: true,
       slashOnly: true,
       ephemeral: true,
     });
@@ -65,10 +66,15 @@ export default class Warnings extends Command {
       .setFooter(args.user.id)
       .setColor("#E67E22")
       .setTimestamp();
+    const footer = {
+      text: command.language.get("WARNINGS_VIEW_FOOTER", {
+        count: warnings.rows.length,
+      }),
+    };
     const paginatorInterface = new PaginatorEmbedInterface(
       this.client,
       paginator,
-      { owner: command.member, embed }
+      { owner: command.member, embed, footer }
     );
     return await paginatorInterface.send(command.channel);
   }

@@ -43,9 +43,9 @@ export class ComponentMessage {
   sourceMessage: FireMessage;
   type: MessageComponentType;
   latestResponse: Snowflake;
+  ephemeralSource: boolean;
   private _flags: number;
   channel: FakeChannel;
-  ephemeralSource: boolean;
   member: FireMember;
   language: Language;
   customId: string;

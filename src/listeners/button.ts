@@ -97,8 +97,7 @@ export default class Button extends Listener {
         })
         .catch(() => {});
 
-    let message: FireMessage;
-    if (!button.ephemeralSource) message = button.message as FireMessage;
+    const message = button.message as FireMessage;
 
     // Run handlers
     try {
