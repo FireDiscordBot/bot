@@ -23,6 +23,7 @@ export default class Color extends Command {
       args: [
         {
           id: "color",
+          type: "string",
           readableType: "color",
           required: false,
           default: undefined,
