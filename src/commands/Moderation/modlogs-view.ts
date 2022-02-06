@@ -50,7 +50,7 @@ export default class ModlogsView extends Command {
           default: null,
         },
       ],
-      context: ["modlogs"],
+      context: ["moderation logs"],
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,

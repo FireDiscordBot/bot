@@ -21,7 +21,7 @@ export default class ModlogsStats extends Command {
           default: null,
         },
       ],
-      context: ["modlogs"],
+      context: ["moderaction log stats"],
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,
