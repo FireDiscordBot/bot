@@ -6,7 +6,6 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { IPoint } from "@fire/lib/interfaces/aether";
 import { constants } from "@fire/lib/util/constants";
-import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
 import {
   ApplicationCommandOptionChoice,
@@ -76,10 +75,6 @@ export default class InteractionListener extends Listener {
     try {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(command.channelId).catch(() => {});
-      if (command.guild && !command.guild?.tags) {
-        command.guild.tags = new GuildTagManager(this.client, command.guild);
-        await command.guild.tags.init();
-      }
       const message = new ApplicationCommandMessage(this.client, command);
       await message.init();
       if (

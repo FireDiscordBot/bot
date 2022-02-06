@@ -68,7 +68,7 @@ export class GuildTagManager {
       );
     }
     if (this.names.length && !this.preparedSlashCommands)
-      this.prepareSlashCommands();
+      await this.prepareSlashCommands();
     return this.size;
   }
 
