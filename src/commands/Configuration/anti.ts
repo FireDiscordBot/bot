@@ -34,7 +34,7 @@ export default class Anti extends Command {
 
   async autocomplete() {
     // allows it to be immediately updated rather than waiting for the command to propogate
-    return valid.map((value) => ({ name: value, value}));
+    return valid;
   }
 
   // todo: make "ui" with components rather than using an argument

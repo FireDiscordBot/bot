@@ -199,7 +199,7 @@ export class Command extends AkairoCommand {
   async autocomplete(
     interaction: ApplicationCommandMessage,
     focused: CommandInteractionOption
-  ): Promise<ApplicationCommandOptionChoice[]> {
+  ): Promise<ApplicationCommandOptionChoice[] | string[]> {
     return [];
   }
 

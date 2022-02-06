@@ -9,6 +9,7 @@ import { constants } from "@fire/lib/util/constants";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
 import {
+  ApplicationCommandOptionChoice,
   AutocompleteInteraction,
   ContextMenuInteraction,
   Interaction,
@@ -151,11 +152,17 @@ export default class InteractionListener extends Listener {
       return;
     const focused = interaction.options.data.find((option) => option.focused);
     if (!focused) return await interaction.respond([]);
-    const autocomplete = await message.command.autocomplete(message, focused);
+    let autocomplete = await message.command.autocomplete(message, focused);
+    // @ts-ignore no idea why this is complaining but whatever
+    if (autocomplete.every((option) => typeof option === "string"))
+      // allow returning an array of strings if name & value should be the same
+      autocomplete = autocomplete.map((a) => ({
+        name: a,
+        value: a,
+      }));
+    if (autocomplete.length > 25) autocomplete = autocomplete.slice(0, 25);
     return await interaction.respond(
-      Array.isArray(autocomplete) && autocomplete.length <= 25
-        ? autocomplete
-        : []
+      autocomplete as ApplicationCommandOptionChoice[]
     );
   }
 

@@ -1,47 +1,51 @@
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Fire } from "@fire/lib/Fire";
+import { PremiumData } from "@fire/lib/interfaces/premium";
+import { Channel, Video } from "@fire/lib/interfaces/youtube";
+import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import * as centra from "centra";
+import { ClientUtil } from "discord-akairo";
 import {
-  version as djsver,
-  LimitedCollection,
-  PermissionString,
+  BitFieldResolvable,
+  Collection,
+  GuildChannel,
   GuildFeatures,
-  ThreadChannel,
-  MessageEmbed,
   GuildPreview,
+  LimitedCollection,
+  MessageEmbed,
   OAuth2Guild,
   Permissions,
-  Collection,
+  PermissionString,
   Snowflake,
-  Webhook,
   SnowflakeUtil,
+  ThreadChannel,
+  version as djsver,
+  Webhook,
 } from "discord.js";
+import { murmur3 } from "murmurhash-js";
+import { cpus, totalmem } from "os";
+import * as pidusage from "pidusage";
+import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
+import { DiscordExperiment } from "../interfaces/aether";
 import {
-  GuildMemberCountFilter,
-  GuildIdRangeFilter,
   ExperimentFilters,
   ExperimentRange,
-  FeatureFilter,
   Experiments,
+  FeatureFilter,
+  GuildIdRangeFilter,
+  GuildMemberCountFilter,
 } from "../interfaces/discord";
-import { CouponType, GuildTextChannel, humanize, titleCase } from "./constants";
-import { Channel, Video } from "@fire/lib/interfaces/youtube";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { PremiumData } from "@fire/lib/interfaces/premium";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { DiscordExperiment } from "../interfaces/aether";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { FireUser } from "@fire/lib/extensions/user";
-import { Language, LanguageKeys } from "./language";
 import { ClusterStats } from "../interfaces/stats";
-import { PaginatorInterface } from "./paginators";
-import { Message } from "@fire/lib/ws/Message";
-import { ClientUtil } from "discord-akairo";
+import { Command } from "./command";
+import { CouponType, GuildTextChannel, humanize, titleCase } from "./constants";
 import { getCommitHash } from "./gitUtils";
-import { murmur3 } from "murmurhash-js";
-import { Fire } from "@fire/lib/Fire";
-import * as pidusage from "pidusage";
-import { cpus, totalmem } from "os";
-import * as centra from "centra";
+import { Language, LanguageKeys } from "./language";
+import { PaginatorInterface } from "./paginators";
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -394,6 +398,47 @@ export class Util extends ClientUtil {
     )
       suffixed = suffixed.toString() + "th";
     return suffixed;
+  }
+
+  usableCommandFilter(
+    command: Command,
+    context: FireMessage | ApplicationCommandMessage
+  ) {
+    if (!(command instanceof Command)) return false;
+    else if (command.hidden && !context.author.isSuperuser()) return false;
+    else if (command.ownerOnly && this.client.ownerID != context.author.id)
+      return false;
+    else if (command.superuserOnly && !context.author.isSuperuser())
+      return false;
+    else if (
+      command.moderatorOnly &&
+      !context.member?.isModerator(context.channel)
+    )
+      return false;
+    else if (
+      command.guilds.length &&
+      !command.guilds.includes(context.guild?.id)
+    )
+      return false;
+    else if (command.channel == "guild" && !context.guild) return false;
+    else if (
+      (command.userPermissions as PermissionString[])?.length &&
+      !context.guild
+    )
+      return false;
+    else if (
+      (command.userPermissions as PermissionString[])?.length &&
+      (context.channel as GuildChannel)
+        .permissionsFor(context.member ?? context.author)
+        .missing(
+          command.userPermissions as BitFieldResolvable<
+            PermissionString,
+            bigint
+          >
+        ).length
+    )
+      return false;
+    return true;
   }
 
   isSuperuser(user: Snowflake) {

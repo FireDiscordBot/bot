@@ -41,9 +41,9 @@ export class GuildTagManager {
     return this.guild.settings.get<boolean>("tags.ephemeral", true);
   }
 
-  getFuzzyMatches(tag: string, limit = 20, forceRatio?: number) {
+  getFuzzyMatches(tag: string, limit = 25, forceRatio?: number) {
     let ratio = forceRatio ?? 90;
-    let fuzzy = [];
+    let fuzzy: string[] = [];
     while (!fuzzy.length && ratio >= (forceRatio ?? 60)) {
       fuzzy = this.names.filter(
         (name) =>

@@ -7,7 +7,9 @@ import {
   ApplicationCommandOptionChoice,
   CommandInteractionOption,
   MessageActionRow,
-  MessageButton, Snowflake, SnowflakeUtil
+  MessageButton,
+  Snowflake,
+  SnowflakeUtil,
 } from "discord.js";
 
 export default class RemindersDelete extends Command {
@@ -44,16 +46,21 @@ export default class RemindersDelete extends Command {
     const reminders: ApplicationCommandOptionChoice[] = [];
     for await (const reminder of remindersResult) {
       const date = reminder.get("forwhen") as Date;
+      const timeString = interaction.language.get("FROM_NOW", {
+        time: humanize(
+          +new Date() - +date,
+          interaction.language.id.split("-")[0]
+        ),
+      });
+      const reminderText = reminder.get("reminder") as string;
       reminders.push({
-        name: `${reminder.get("reminder")} - ${interaction.language.get(
-          "FROM_NOW",
-          {
-            time: humanize(
-              +new Date() - +date,
-              interaction.language.id.split("-")[0]
-            ),
-          }
-        )}`,
+        name:
+          reminderText.length < 95 - timeString.length
+            ? `${reminder.get("reminder")} - ${timeString}`
+            : `${reminderText.substr(
+                0,
+                95 - timeString.length
+              )}... - ${timeString}`,
         value: (+date).toString(),
       });
     }
@@ -66,7 +73,8 @@ export default class RemindersDelete extends Command {
 
   async run(command: ApplicationCommandMessage, args: { reminder?: string }) {
     const timestamp = +args.reminder;
-    if (!args.reminder) return await command.error("REMINDERS_DELETE_MISSING_ARG");
+    if (!args.reminder)
+      return await command.error("REMINDERS_DELETE_MISSING_ARG");
     const remindersResult = await this.client.db
       .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2 LIMIT 1;", [
         command.author.id,
@@ -74,7 +82,8 @@ export default class RemindersDelete extends Command {
       ])
       .first()
       .catch(() => {});
-    if (!remindersResult) return await command.error("REMINDERS_LIST_NONE_FOUND");
+    if (!remindersResult)
+      return await command.error("REMINDERS_LIST_NONE_FOUND");
     const date = remindersResult.get("forwhen") as Date;
     const reminder = {
       user: remindersResult.get("uid") as Snowflake,

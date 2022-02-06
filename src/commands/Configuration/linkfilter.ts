@@ -40,7 +40,7 @@ export default class LinkFilter extends Command {
 
   async autocomplete() {
     // allows it to be immediately updated rather than waiting for the command to propogate
-    return valid.map((value) => ({ name: value, value }));
+    return valid;
   }
 
   async run(

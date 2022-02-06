@@ -52,14 +52,13 @@ export default class EmojiLock extends Command {
     return emojis
       .map((emoii) => ({
         name: emoii.name,
-        value: emoii.toString(),
+        value: emoii.id,
       }))
       .filter((emoji) =>
         emoji.name
           .toLowerCase()
           .includes(focused.value?.toString().toLowerCase())
-      )
-      .slice(0, 25);
+      );
   }
 
   async exec(message: FireMessage, args: { emoji: GuildEmoji; role: Role }) {

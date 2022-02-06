@@ -1168,6 +1168,7 @@
   "TICKET_REMOVE_SUCCESS": "Successfully removed {{user}} from this ticket!",
   "TICKET_REMOVE_FAILURE": "Failed to remove {{user}} from this ticket!",
   "PRIDE_COMMAND_DESCRIPTION": "Generate various kinds of pride avatars",
+  "PRIDE_INVALID_FLAG": "That isn't a flag supported by this command. Use `/pride` to see a list of flags",
   "PRIDE_IMAGE_ALT_OVERLAY": "{{user}}'s avatar overlayed with the {{flag}} flag",
   "PRIDE_IMAGE_ALT_CIRCLE": "{{user}}'s avatar with the {{flag}} flag in a circle surrounding it",
   "TEST_COMMAND_DESCRIPTION": "test?",

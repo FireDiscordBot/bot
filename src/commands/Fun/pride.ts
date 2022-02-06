@@ -52,7 +52,7 @@ export default class Pride extends Command {
 
   async autocomplete() {
     // allows it to be immediately updated rather than waiting for the command to propogate
-    return flagTypes.map((value) => ({ name: value, value }));
+    return flagTypes;
   }
 
   async exec(

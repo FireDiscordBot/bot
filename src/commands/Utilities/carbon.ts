@@ -73,15 +73,10 @@ const languageMapping = {
   ini: "toml",
 };
 
-const getFuzzy = (
-  items: string[],
-  name: string,
-  limit = 20,
-  forceRatio?: number
-) => {
-  let ratio = forceRatio ?? 90;
+const getFuzzy = (items: string[], name: string) => {
+  let ratio = 90;
   let fuzzy: string[] = [];
-  while (!fuzzy.length && ratio >= (forceRatio ?? 60)) {
+  while (!fuzzy.length && ratio >= 60) {
     fuzzy = items.filter(
       (item) =>
         fuzz.ratio(name.trim().toLowerCase(), item.trim().toLowerCase()) >=
@@ -89,7 +84,7 @@ const getFuzzy = (
     );
   }
   if (!fuzzy.length) fuzzy = items.filter((item) => item.startsWith(name));
-  return fuzzy.slice(0, limit).map((value) => ({ name: value, value }));
+  return fuzzy;
 };
 
 export default class Carbon extends Command {
@@ -138,15 +133,11 @@ export default class Carbon extends Command {
     focused: CommandInteractionOption
   ) {
     if (focused.name == "theme") {
-      if (!focused.value)
-        return validThemes
-          .slice(0, 25)
-          .map((value) => ({ name: value, value }));
-      else return getFuzzy(validThemes, focused.value?.toString());
+      if (!focused.value) return validThemes;
+      else return getFuzzy(validThemes, focused.value.toString());
     } else if (focused.name == "font") {
-      if (!focused.value)
-        return validFonts.slice(0, 25).map((value) => ({ name: value, value }));
-      else return getFuzzy(validFonts, focused.value?.toString());
+      if (!focused.value) return validFonts;
+      else return getFuzzy(validFonts, focused.value.toString());
     }
     return [];
   }

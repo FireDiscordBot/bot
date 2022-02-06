@@ -51,7 +51,7 @@ export default class Logging extends Command {
 
   async autocomplete() {
     // allows it to be immediately updated rather than waiting for the command to propogate
-    return Object.keys(typeMapping).map((value) => ({ name: value, value }));
+    return Object.keys(typeMapping);
   }
 
   async exec(

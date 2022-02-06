@@ -50,55 +50,12 @@ export default class Help extends Command {
   ) {
     if (focused.value)
       return this.client.commandHandler.modules
-        .filter((cmd) => this.filter(cmd, interaction))
+        .filter((cmd) => this.client.util.usableCommandFilter(cmd, interaction))
         .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
-        .filter((cmd) => cmd.name.includes(focused.value.toString()))
-        .slice(0, 25);
+        .filter((cmd) => cmd.name.includes(focused.value.toString()));
     return this.client.commandHandler.modules
-      .filter((cmd) => this.filter(cmd, interaction))
-      .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }))
-      .slice(0, 25);
-  }
-
-  private filter(
-    command: Command,
-    message: FireMessage | ApplicationCommandMessage
-  ) {
-    if (!(command instanceof Command)) return false;
-    else if (command.hidden && !message.author.isSuperuser()) return false;
-    else if (command.ownerOnly && this.client.ownerID != message.author.id)
-      return false;
-    else if (command.superuserOnly && !message.author.isSuperuser())
-      return false;
-    else if (
-      command.moderatorOnly &&
-      !message.member?.isModerator(message.channel)
-    )
-      return false;
-    else if (
-      command.guilds.length &&
-      !command.guilds.includes(message.guild?.id)
-    )
-      return false;
-    else if (command.channel == "guild" && !message.guild) return false;
-    else if (
-      (command.userPermissions as PermissionString[])?.length &&
-      !message.guild
-    )
-      return false;
-    else if (
-      (command.userPermissions as PermissionString[])?.length &&
-      (message.channel as GuildChannel)
-        .permissionsFor(message.member ?? message.author)
-        .missing(
-          command.userPermissions as BitFieldResolvable<
-            PermissionString,
-            bigint
-          >
-        ).length
-    )
-      return false;
-    return true;
+      .filter((cmd) => this.client.util.usableCommandFilter(cmd, interaction))
+      .map((cmd) => ({ name: cmd.id.replace("-", " "), value: cmd.id }));
   }
 
   async exec(message: FireMessage, args: { command: Command }) {
@@ -114,7 +71,7 @@ export default class Help extends Command {
         if (category.id == "Admin" && !message.author.isSuperuser())
           return false;
         const commands = category.filter((command: Command) =>
-          this.filter(command, message)
+          this.client.util.usableCommandFilter(command, message)
         );
         return commands.size > 0;
       });

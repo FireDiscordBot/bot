@@ -44,7 +44,7 @@ export default class TagRaw extends Command {
     }
     if (focused.value)
       return interaction.guild.tags.getFuzzyMatches(focused.value?.toString());
-    return interaction.guild.tags.names.slice(0, 25);
+    return interaction.guild.tags.names;
   }
 
   async exec(message: FireMessage, args: { tag?: string }) {

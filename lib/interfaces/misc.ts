@@ -1,22 +1,16 @@
 import {
-  PermissionOverwrites,
-  ThreadChannel,
+  DMChannel,
   GuildChannel,
   NewsChannel,
-  Permissions,
-  Collection,
-  DMChannel,
   Snowflake,
-  Util,
-  Role,
+  ThreadChannel,
 } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
-import { ContextCommandMessage } from "../extensions/contextcommandmessage";
 import { ComponentMessage } from "../extensions/componentmessage";
-import { FireTextChannel } from "../extensions/textchannel";
-import { FireMember } from "../extensions/guildmember";
-import { FireMessage } from "../extensions/message";
+import { ContextCommandMessage } from "../extensions/contextcommandmessage";
 import { FireGuild } from "../extensions/guild";
+import { FireMessage } from "../extensions/message";
+import { FireTextChannel } from "../extensions/textchannel";
 import { Fire } from "../Fire";
 
 // basefakechannel more like basedfakechannel amirite
