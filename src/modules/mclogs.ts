@@ -36,6 +36,7 @@ enum Loaders {
   FORGE = "Forge",
   FABRIC = "Fabric",
   OPTIFINE = "Vanilla w/OptiFine HD U", // will be shown as "Vanilla w/OptiFine HD U H4"
+  FEATHER = "Feather",
 }
 
 type ModSource = `${string}.jar`;
@@ -126,6 +127,23 @@ export default class MCLogs extends Module {
       crashReportJavaVersion:
         /Java Version: (?<version>\d*\.\d*\.\d*_\d{1,3}).*\n\s*Java VM Version: (?<name>.* VM)/gim,
       loaderVersions: [
+        // this needs to be at the top as otherwise it'd trip another regex first
+        // since feather is just a mod, not a loader
+        {
+          loader: Loaders.FEATHER,
+          regexes: [
+            /Started Feather \((?<loaderver>\w*)\)/gim,
+
+            // Feather isn't nice and doesn't log the mc version so we need to try the Forge/Fabric regexes too
+            /Forge Mod Loader version (?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5} for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?) loading/gim,
+            /Forge mod loading, version (?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}, for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)/gim,
+            /--version, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-forge-(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}/gim,
+            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?)-(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}/gim,
+            /forge-(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)-(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}/gim,
+            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?) with Fabric Loader \d\.\d{1,3}\.\d{1,3}/gim,
+            /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?)/gim,
+          ],
+        },
         {
           loader: Loaders.FABRIC,
           regexes: [
@@ -406,6 +424,40 @@ export default class MCLogs extends Module {
       user instanceof FireMember
         ? user.guild.language
         : this.client.getLanguage("en-US");
+
+    if (
+      versions.loader == Loaders.FEATHER ||
+      versions.mods.find((m) => m.modId == "feather")
+    ) {
+      // user has not opted out of data collection for analytics
+      if (!user.hasExperiment(2219986954, 1))
+        // i need better ways of detecting feather
+        // so I need more log samples
+        this.client.influx([
+          {
+            measurement: "mclogs",
+            tags: {
+              type: "feather",
+              user_id: user.id,
+              cluster: this.client.manager.id.toString(),
+              shard:
+                user instanceof FireMember
+                  ? user.guild?.shardId.toString() ?? "0"
+                  : "Unknown",
+            },
+            fields: {
+              guild:
+                user instanceof FireMember
+                  ? `${user.guild?.name} (${user.guild?.id})`
+                  : "Unknown",
+              user: `${user} (${user.id})`,
+              haste: haste.url,
+              raw: haste.raw,
+            },
+          },
+        ]);
+      return `Feather "Client" is not supported. Any issues that occur while using it must be reported to Feather's support team.`;
+    }
 
     if (
       this.solutions.cheats.some((cheat) =>
