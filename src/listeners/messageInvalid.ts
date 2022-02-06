@@ -65,7 +65,7 @@ export default class MessageInvalid extends Listener {
       if (!inhibited) {
         const text = message.content.replace("--remind", " ").trim();
         await remindCommand
-          .exec(message, {
+          .run(message, {
             reminder: parseTime(text, true) as string,
             time: pluckTime(text),
           })
