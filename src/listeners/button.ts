@@ -429,7 +429,8 @@ export default class Button extends Listener {
       const tag = await button.guild.tags.getTag(name, false, true);
       if (!tag) return;
 
-      if (typeof tag.createdBy != "string") tag.createdBy = tag.createdBy.id;
+      if (tag.createdBy && typeof tag.createdBy != "string")
+        tag.createdBy = tag.createdBy.id;
       delete tag.uses;
 
       const data = await this.client.util
