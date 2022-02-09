@@ -36,7 +36,8 @@ export interface ButtonInteraction extends BaseInteraction {
   type: 3;
 }
 
-export interface ApplicationCommandAutocompleteInteraction extends BaseInteraction {
+export interface ApplicationCommandAutocompleteInteraction
+  extends BaseInteraction {
   data: CommandData;
   type: 4;
 }
@@ -80,7 +81,7 @@ export enum ApplicationCommandOptionType {
   ROLE,
   MENTIONABLE,
   NUMBER,
-  MESSAGE, // not real, used as a pseudo type
+  ATTACHMENT,
 }
 
 export interface APIApplicationCommand {
