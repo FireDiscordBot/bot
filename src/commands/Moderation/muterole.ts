@@ -36,6 +36,15 @@ export default class MuteRole extends Command {
 
   async exec(message: FireMessage, args: { role: Role }) {
     if (!args.role) return;
+    if (
+      args.role &&
+      (args.role.managed ||
+        args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
+        args.role.id == message.guild.roles.everyone.id ||
+        (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
+          message.guild.ownerId != message.author.id))
+    )
+      return await message.error("ERROR_ROLE_UNUSABLE");
     const settingUp = await message.send("MUTE_ROLE_CREATE_REASON");
     const changed = await message.guild
       .changeMuteRole(args.role)
