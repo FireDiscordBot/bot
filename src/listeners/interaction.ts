@@ -174,7 +174,8 @@ export default class InteractionListener extends Listener {
       if (message.customId.startsWith("?")) await message.channel.defer(true);
       if (
         !message.customId.startsWith("!") &&
-        !message.customId.startsWith("?")
+        !message.customId.startsWith("?") &&
+        !message.customId.startsWith("ticket_close") // temp, new tickets start with !
       )
         await message.channel.ack();
       else message.customId = message.customId.slice(1);
