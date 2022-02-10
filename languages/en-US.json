@@ -1155,7 +1155,7 @@
   "TICKET_CLOSER_TITLE": "Ticket {{channel}} was closed",
   "TICKET_CLOSER_CLOSED_BY": "Closed by",
   "TICKET_THREAD_CLOSED": "Your ticket in {{guild}} was closed for the reason \"{{reason}}\".\n\nYou can use the button below to view the thread and send a message to reopen it",
-  "TICKET_THREAD_CLOSED_MODERATOR": "Your ticket in {{guild}} was closed for the reason \"{{reason}}\" by {{closer}}.\n\nYou can use the button below to view the thread",
+  "TICKET_THREAD_CLOSED_MODERATOR": "Your ticket in {{guild}} was closed for the reason \"{{reason}}\".\n\nYou can use the button below to view the thread",
   "TICKET_CLOSE_ARCHIVE": "This ticket has been closed, sending a message will unlock & unarchive the thread.",
   "TICKET_CLOSE_ARCHIVE_MODERATOR": "This ticket has been closed, moderators can send a message to unlock & unarchive the thread.",
   "TICKET_VIEW_THREAD": "View Thread",
