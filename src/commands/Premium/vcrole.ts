@@ -41,6 +41,7 @@ export default class VCRole extends Command {
     args: { channel?: FireVoiceChannel | StageChannel; role?: Role }
   ) {
     if (!args.channel) return await message.error("VCROLE_CHANNEL_REQUIRED");
+    if (!message.guild.vcRoles) await message.guild.loadVcRoles();
     if (args.channel && !args.role) {
       const existing = message.guild.vcRoles.get(args.channel.id);
       if (!existing) return await message.error("VCROLE_ROLE_REQUIRED");
