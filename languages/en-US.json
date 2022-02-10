@@ -1147,7 +1147,7 @@
   "TICKET_WILL_CLOSE": "Are you sure you want to close this ticket? Click the button below to confirm",
   "TICKET_CONFIRMATION_EXPIRED": "You didn't respond quick enough! If you want to close the ticket, rerun the command",
   "TICKET_CLOSE_BUTTON_TEXT": "Close Ticket",
-  "TICKET_CLOSE_MODAL_TITLE": "Closing ticket #{{name}}",
+  "TICKET_CLOSE_MODAL_TITLE": "Closing ticket",
   "TICKET_CLOSE_REASON": "Enter the reason for closing this ticket",
   "TICKET_CLOSED_REASON": "Ticket closed by {{user}} with reason \"{{reason}}\"",
   "TICKET_CLOSE_TRANSCRIPT_STICKER": "Message contained sticker, {{name}}",
