@@ -66,7 +66,7 @@ export const snowflakeConverter = async (
 
   if (argument == "@me") argument = message.author.id;
 
-  const type = message.util?.parsed?.command?.id == "guild" ? "GUILD" : "USER";
+  const type = message.util?.parsed?.command?.id == "server" ? "GUILD" : "USER";
 
   const snowflake = getIDMatch(argument.trim());
   if (!snowflake) {

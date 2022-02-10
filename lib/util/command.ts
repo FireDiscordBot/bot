@@ -526,7 +526,10 @@ export class Command extends AkairoCommand {
               );
           }
         }
-        if (!args[arg.id] && typeof arg.type == "function") {
+        if (
+          typeof args[arg.id] == "undefined" &&
+          typeof arg.type == "function"
+        ) {
           try {
             args[arg.id] = await (
               arg.type as unknown as SlashArgumentTypeCaster
@@ -537,7 +540,8 @@ export class Command extends AkairoCommand {
           } catch {
             args[arg.id] = arg.default;
           }
-        } else if (!args[arg.id]) args[arg.id] = arg.default;
+        } else if (typeof args[arg.id] == "undefined")
+          args[arg.id] = arg.default;
       }
     }
     return args;

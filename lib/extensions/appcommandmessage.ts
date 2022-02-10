@@ -523,9 +523,7 @@ export class ApplicationCommandMessage {
         data,
         files,
       })
-      .catch((e) => {
-        console.log(e.stack);
-      });
+      .catch((e) => {});
     return this;
   }
 
