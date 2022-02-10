@@ -60,7 +60,8 @@ export default class Help extends Command {
 
   async exec(message: FireMessage, args: { command: Command }) {
     if (typeof args.command == "undefined") return await this.sendHelp(message);
-    else if (!args.command) return await message.error("HELP_NO_COMMAND");
+    else if (!args.command || !(args.command instanceof Command))
+      return await message.error("HELP_NO_COMMAND");
     else return await this.sendUsage(message, args.command);
   }
 
