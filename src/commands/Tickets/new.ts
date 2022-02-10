@@ -30,6 +30,7 @@ export default class NewTicket extends Command {
       ],
       enableSlashCommand: true,
       aliases: ["newticket"],
+      ephemeral: true,
     });
   }
 
