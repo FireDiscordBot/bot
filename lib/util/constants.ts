@@ -294,6 +294,7 @@ export const constants = {
     "613425648685547541", // DDevs
     "197038439483310086", // Testers
     "169256939211980800", // Townhall
+    "917882129487134730", // Snowsgaming
     "81384788765712384", // DAPI
     "670065151621332992", // Demo Server (do invites for this even exist anymore?)
     "831646372519346186", // Poker Night
