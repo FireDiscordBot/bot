@@ -178,7 +178,8 @@ export default class InteractionListener extends Listener {
         !message.customId.startsWith("ticket_close") // temp, new tickets start with !
       )
         await message.channel.ack();
-      else message.customId = message.customId.slice(1);
+      else if (!message.customId.startsWith("ticket_close"))
+        message.customId = message.customId.slice(1);
       this.client.emit("button", message);
       if (!message.message) await message.getRealMessage().catch(() => {});
     } catch (error) {
