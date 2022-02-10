@@ -669,6 +669,7 @@ export class Fire extends AkairoClient {
       );
       if (command) return command as Command;
     }
+    return null;
   }
 
   getContextCommand(id: string) {
