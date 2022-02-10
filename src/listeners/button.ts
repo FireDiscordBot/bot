@@ -207,8 +207,14 @@ export default class Button extends Listener {
                 )
               )
           );
-        } catch {
-          return await button.error("COMMAND_ERROR_GENERIC", { id: "close" });
+        } catch (e) {
+          return this.client.commandHandler.emit(
+            "commandError",
+            button,
+            this.client.getCommand("close"),
+            {},
+            e
+          );
         }
       } else return;
     }

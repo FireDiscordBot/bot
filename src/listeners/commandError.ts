@@ -96,7 +96,7 @@ export default class CommandError extends Listener {
     try {
       if (!message.author.isSuperuser()) {
         return await message.error("COMMAND_ERROR_GENERIC", {
-          id: message.util?.parsed?.alias,
+          id: message?.util?.parsed?.alias ?? command.id,
         });
       } else {
         return await message.channel.send("```js\n" + error.stack + "```");
