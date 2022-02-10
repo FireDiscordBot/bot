@@ -27,7 +27,8 @@ export default class InteractionCreate extends Listener {
     else if (
       interaction.type == 2 ||
       interaction.type == 3 ||
-      interaction.type == 4
+      interaction.type == 4 ||
+      interaction.type == 5
     )
       return;
     else {

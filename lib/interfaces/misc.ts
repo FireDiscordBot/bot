@@ -10,6 +10,7 @@ import { ComponentMessage } from "../extensions/componentmessage";
 import { ContextCommandMessage } from "../extensions/contextcommandmessage";
 import { FireGuild } from "../extensions/guild";
 import { FireMessage } from "../extensions/message";
+import { ModalMessage } from "../extensions/modalmessage";
 import { FireTextChannel } from "../extensions/textchannel";
 import { Fire } from "../Fire";
 
@@ -108,7 +109,11 @@ export class BaseFakeChannel {
       ? this.real.permissionOverwrites
       : undefined;
   }
-  message: ApplicationCommandMessage | ContextCommandMessage | ComponentMessage;
+  message:
+    | ApplicationCommandMessage
+    | ContextCommandMessage
+    | ComponentMessage
+    | ModalMessage;
   real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
   interactionId: Snowflake;
   guild?: FireGuild;

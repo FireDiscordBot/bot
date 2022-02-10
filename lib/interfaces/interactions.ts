@@ -5,20 +5,24 @@ import {
   APIMessage,
   APIUser,
   APIRole,
+  APIActionRowComponent,
 } from "discord-api-types";
 import { Snowflake } from "discord.js";
 
 export type Interaction =
   | ApplicationCommandInteraction
   | ButtonInteraction
-  | ApplicationCommandAutocompleteInteraction;
+  | ApplicationCommandAutocompleteInteraction
+  | ModalInteraction;
 
 interface BaseInteraction {
   application_id: Snowflake;
   member?: APIGuildMember;
+  guild_locale?: string;
   channel_id: Snowflake;
   guild_id?: Snowflake;
-  type: 2 | 3 | 4;
+  type: 2 | 3 | 4 | 5;
+  locale?: string;
   version: number;
   user?: APIUser;
   id: Snowflake;
@@ -31,7 +35,7 @@ export interface ApplicationCommandInteraction extends BaseInteraction {
 }
 
 export interface ButtonInteraction extends BaseInteraction {
-  message: APIMessage & { components: APIComponent[] };
+  message: APIMessage;
   data: ComponentData;
   type: 3;
 }
@@ -40,6 +44,12 @@ export interface ApplicationCommandAutocompleteInteraction
   extends BaseInteraction {
   data: CommandData;
   type: 4;
+}
+
+export interface ModalInteraction extends BaseInteraction {
+  message: APIMessage;
+  data: ModalData;
+  type: 5;
 }
 
 export interface CommandData {
@@ -116,6 +126,11 @@ export interface ApplicationCommandPermissions {
 export interface ComponentData {
   component_type: number;
   custom_id: string;
+}
+
+export interface ModalData {
+  custom_id: string;
+  components: APIActionRowComponent[];
 }
 
 export enum ButtonStyle {

@@ -1239,7 +1239,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
           new MessageActionRow().addComponents(
             new MessageButton()
               .setStyle("DANGER")
-              .setCustomId(`ticket_close_${ticket.id}`)
+              .setCustomId(`!ticket_close_${ticket.id}`)
               .setLabel(this.language.get("TICKET_CLOSE_BUTTON_TEXT"))
               .setEmoji("534174796938870792")
           ),
@@ -1256,10 +1256,9 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     return ticket;
   }
 
-  async closeTicket(
+  async canCloseTicket(
     channel: FireTextChannel | ThreadChannel,
-    author: FireMember,
-    reason: string
+    author: FireMember
   ) {
     if (channel instanceof BaseFakeChannel)
       channel = channel.real as FireTextChannel;
@@ -1267,8 +1266,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     if (author instanceof FireUser)
       author = (await this.members.fetch(author).catch(() => {})) as FireMember;
     if (!author) return "forbidden";
-    let channels = this.tickets;
-    if (!channels.includes(channel)) return "nonticket";
+    if (!this.tickets.includes(channel)) return "nonticket";
     if (
       !author.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS) &&
       (channel instanceof FireTextChannel
@@ -1276,7 +1274,17 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         : !channel.name.includes(author.id))
     )
       return "forbidden";
-    channels = channels.filter((c) => c && c.id != channel.id);
+    return true;
+  }
+
+  async closeTicket(
+    channel: FireTextChannel | ThreadChannel,
+    author: FireMember,
+    reason: string
+  ) {
+    const canClose = await this.canCloseTicket(channel, author);
+    if (typeof canClose == "string") return canClose;
+    let channels = this.tickets.filter((c) => c && c.id != channel.id);
     // threads don't get closed, they get archived and can be reopened so we don't remove it
     if (channels.length && channel.type == "GUILD_TEXT")
       this.settings.set<string[]>(
@@ -1354,16 +1362,57 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         })
         .catch(() => {});
       return (await channel
-        .delete(this.language.get("TICKET_CLOSE_REASON"))
+        .delete(
+          this.language.get("TICKET_CLOSED_REASON", {
+            user: author.toString(),
+            reason,
+          })
+        )
         .catch((e: Error) => e)) as FireTextChannel | Error;
     } else {
-      await channel.send(this.language.get("TICKET_CLOSE_ARCHIVE"));
-      if (author.isModerator())
-        await channel.setLocked(true, this.language.get("TICKET_CLOSE_REASON"));
-      return await channel.setArchived(
-        true,
-        this.language.get("TICKET_CLOSE_REASON")
+      await channel.send(
+        this.language.get(
+          author.isModerator()
+            ? "TICKET_CLOSE_ARCHIVE_MODERATOR"
+            : "TICKET_CLOSE_ARCHIVE"
+        )
       );
+      if (author.isModerator())
+        await channel.setLocked(
+          true,
+          this.language.get("TICKET_CLOSED_REASON", {
+            user: author.toString(),
+            reason,
+          })
+        );
+      await channel.setArchived(
+        true,
+        this.language.get("TICKET_CLOSED_REASON", {
+          user: author.toString(),
+          reason,
+        })
+      );
+      if (creator)
+        await creator.send({
+          content: creator.language.get(
+            author.isModerator()
+              ? "TICKET_THREAD_CLOSED_MODERATOR"
+              : "TICKET_THREAD_CLOSED",
+            {
+              guild: this.name,
+              reason,
+            }
+          ),
+          components: [
+            new MessageActionRow().addComponents(
+              new MessageButton()
+                .setStyle("LINK")
+                .setLabel(creator.language.get("TICKET_VIEW_THREAD"))
+                // why doesn't ThreadChannel have a url property????
+                .setURL(`https://discord.com/channels/${this.id}/${channel.id}`)
+            ),
+          ],
+        });
     }
   }
 

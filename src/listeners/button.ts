@@ -17,12 +17,16 @@ import {
   MessageButton,
   MessageEmbed,
   MessageSelectMenu,
+  Modal,
+  ModalActionRowComponent,
   NewsChannel,
   Permissions,
   Snowflake,
   SnowflakeUtil,
+  TextInputComponent,
   ThreadChannel,
 } from "discord.js";
+import { TextInputStyles } from "discord.js/typings/enums";
 import { codeblockTypeCaster } from "../arguments/codeblock";
 import Rank from "../commands/Premium/rank";
 import Essential from "../modules/essential";
@@ -175,17 +179,37 @@ export default class Button extends Listener {
       )
         return;
       if (guild.tickets.find((ticket) => ticket.id == channelId)) {
-        const closure = await guild
-          .closeTicket(
-            channel,
-            button.member,
-            guild.language.get("TICKET_CLOSE_BUTTON")
-          )
-          .catch(() => {});
-        if (closure == "forbidden")
+        const canClose = await button.guild.canCloseTicket(
+          channel,
+          button.member
+        );
+        if (canClose == "forbidden")
           return await button.error("TICKET_CLOSE_FORBIDDEN");
-        else if (closure == "nonticket")
+        else if (canClose == "nonticket")
           return await button.error("TICKET_NON_TICKET");
+        try {
+          return await button.interaction.presentModal(
+            new Modal()
+              .setTitle(
+                button.language.get("TICKET_CLOSE_MODAL_TITLE", {
+                  name: button.channel.name ?? "Unknown",
+                })
+              )
+              .setCustomId(button.customId)
+              .addComponents(
+                new MessageActionRow<ModalActionRowComponent>().addComponents(
+                  new TextInputComponent()
+                    .setCustomId("close_reason")
+                    .setRequired(true)
+                    .setLabel(button.language.get("TICKET_CLOSE_REASON"))
+                    .setStyle(TextInputStyles.SHORT)
+                    .setMaxLength(60)
+                )
+              )
+          );
+        } catch {
+          return await button.error("COMMAND_ERROR_GENERIC", { id: "close" });
+        }
       } else return;
     }
 

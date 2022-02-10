@@ -3,6 +3,7 @@ import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireUser } from "@fire/lib/extensions/user";
 import { IPoint } from "@fire/lib/interfaces/aether";
 import { constants } from "@fire/lib/util/constants";
@@ -10,9 +11,11 @@ import { Listener } from "@fire/lib/util/listener";
 import {
   ApplicationCommandOptionChoice,
   AutocompleteInteraction,
+  CacheType,
   ContextMenuInteraction,
   Interaction,
   MessageComponentInteraction,
+  ModalSubmitInteraction,
 } from "discord.js";
 
 const { emojis } = constants;
@@ -69,6 +72,8 @@ export default class InteractionListener extends Listener {
       return await this.handleButton(interaction);
     else if (interaction.isSelectMenu())
       return await this.handleSelect(interaction);
+    else if (interaction.isModalSubmit())
+      return await this.handleModalSubmit(interaction);
   }
 
   async handleApplicationCommand(command: CommandInteraction) {
@@ -227,6 +232,36 @@ export default class InteractionListener extends Listener {
     }
   }
 
+  async handleModalSubmit(modal: ModalSubmitInteraction) {
+    try {
+      // should be cached if in guild or fetch if dm channel
+      await this.client.channels.fetch(modal.channelId).catch(() => {});
+      const message = new ModalMessage(this.client, modal);
+      this.client.emit("modal", message);
+    } catch (error) {
+      const guild = this.client.guilds.cache.get(modal.guildId);
+      if (!guild)
+        await this.error(modal, error).catch(() => {
+          modal.reply(`${emojis.error} Something went wrong...`);
+        });
+      if (typeof this.client.sentry != "undefined") {
+        const sentry = this.client.sentry;
+        sentry.setExtras({
+          modal: JSON.stringify(modal),
+          member: modal.member
+            ? `${modal.member.user.username}#${modal.member.user.discriminator}`
+            : `${modal.user.username}#${modal.user.discriminator}`,
+          channel_id: modal.channelId,
+          guild_id: modal.guildId,
+          env: process.env.NODE_ENV,
+        });
+        sentry.captureException(error);
+        sentry.setExtras(null);
+        sentry.setUser(null);
+      }
+    }
+  }
+
   async handleContextMenu(context: ContextMenuInteraction) {
     try {
       // should be cached if in guild or fetch if dm channel
@@ -276,7 +311,8 @@ export default class InteractionListener extends Listener {
     interaction:
       | CommandInteraction
       | ContextMenuInteraction
-      | MessageComponentInteraction,
+      | MessageComponentInteraction
+      | ModalSubmitInteraction,
     error: Error
   ) {
     return interaction.reply({
