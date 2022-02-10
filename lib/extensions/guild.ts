@@ -1413,6 +1413,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
             ),
           ],
         });
+      return channel;
     }
   }
 
