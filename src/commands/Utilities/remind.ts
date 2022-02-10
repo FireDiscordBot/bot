@@ -16,8 +16,8 @@ export default class Remind extends Command {
           type: "string",
           description: (language: Language) =>
             language.get("REMINDERS_CREATE_MSG_ARG_DESCRIPTION"),
-          match: "rest",
           default: null,
+          match: "rest",
           required: true,
         },
         {
@@ -28,6 +28,22 @@ export default class Remind extends Command {
           default: null,
           required: true,
         },
+        {
+          id: "repeat",
+          type: "number",
+          description: (language: Language) =>
+            language.get("REMINDERS_CREATE_REPEAT_ARG_DESCRIPTION"),
+          default: 0,
+          required: false,
+        },
+        {
+          id: "step",
+          type: "string",
+          description: (language: Language) =>
+            language.get("REMINDERS_CREATE_STEP_ARG_DESCRIPTION"),
+          default: null,
+          required: false,
+        },
       ],
       enableSlashCommand: true,
       ephemeral: true,
@@ -36,20 +52,37 @@ export default class Remind extends Command {
 
   async run(
     command: ApplicationCommandMessage,
-    args: { reminder: string; time: string }
+    args: { reminder: string; time: string; repeat: number; step: string }
   ) {
     // we're coming from a slash command with the proper args so we can jump right into the real command
     return await this.client.getCommand("reminders-create").run(command, args);
   }
 
-  async exec(message: FireMessage, args: { reminder: string; time: string }) {
-    // we're coming from a message with a single argument so we need to split it before we can run the command
-    args = {
-      reminder: parseTime(args.reminder, true) as string,
-      time: pluckTime(args.reminder),
-    };
-    return await (
-      this.client.getCommand("reminders-create") as RemindersCreate
-    ).run(message, args);
+  async exec(
+    message: FireMessage,
+    args: { reminder: string; time: string; repeat: number; step: string }
+  ) {
+    const remindCommand = this.client.getCommand(
+      "reminders-create"
+    ) as RemindersCreate;
+
+    // we're coming from a message with a single argument so we need to split it before we can run the commandss
+    let content = args.reminder;
+    let repeat: number, step: string;
+    const repeatExec = remindCommand.repeatRegex.exec(content);
+    if (repeatExec?.length == 2) repeat = parseInt(repeatExec[1]);
+    else repeat = 0;
+    remindCommand.repeatRegex.lastIndex = 0;
+    content = content.replace(remindCommand.repeatRegex, "");
+    const stepExec = remindCommand.stepRegex.exec(content);
+    remindCommand.stepRegex.lastIndex = 0;
+    step = stepExec?.[1] || "";
+    content = content.replace(remindCommand.stepRegex, "").trimEnd();
+    return await remindCommand.run(message, {
+      reminder: parseTime(content, true) as string,
+      time: pluckTime(content),
+      repeat,
+      step,
+    });
   }
 }

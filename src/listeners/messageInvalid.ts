@@ -35,7 +35,7 @@ export default class MessageInvalid extends Listener {
 
   async exec(message: FireMessage) {
     if (
-      (this.client.config.dev && process.env.USE_LITECORD != "true") ||
+      // (this.client.config.dev && process.env.USE_LITECORD != "true") ||
       this.botQuoteRegex.test(message.content) ||
       !message.guild ||
       message.editedAt
@@ -57,17 +57,43 @@ export default class MessageInvalid extends Listener {
         "reminders-create"
       ) as RemindersCreate;
       for (const inhibitor of inhibitors) {
-        if (inhibited) continue;
+        if (inhibited || inhibitor.id == "slashonly") continue;
         let exec = inhibitor.exec(message, remindCommand);
         if (this.client.util.isPromise(exec)) exec = await exec;
         if (exec) inhibited = true;
       }
       if (!inhibited) {
-        const text = message.content.replace("--remind", " ").trim();
+        let content = message.content;
+        let reminder: string, repeat: number, step: string;
+        const repeatExec = remindCommand.repeatRegex.exec(content);
+        if (repeatExec?.length == 2) repeat = parseInt(repeatExec[1]);
+        else repeat = 0;
+        remindCommand.repeatRegex.lastIndex = 0;
+        content = content.replace(remindCommand.repeatRegex, "");
+        const stepExec = remindCommand.stepRegex.exec(content);
+        remindCommand.stepRegex.lastIndex = 0;
+        step = stepExec?.[1] ?? "";
+        content = content.replace(remindCommand.stepRegex, "").trimEnd();
+        if (message.reference) {
+          const ref = await message.fetchReference().catch(() => {});
+          if (!ref)
+            reminder = parseTime(
+              content.replace("--remind", " ").trim(),
+              true
+            ) as string;
+          else reminder = ref.content;
+        } else {
+          reminder = parseTime(
+            content.replace("--remind", " ").trim(),
+            true
+          ) as string;
+        }
         await remindCommand
           .run(message, {
-            reminder: parseTime(text, true) as string,
-            time: pluckTime(text),
+            reminder,
+            time: pluckTime(message.content),
+            repeat,
+            step,
           })
           .catch(() => {});
       }

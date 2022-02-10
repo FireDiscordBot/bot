@@ -880,6 +880,8 @@
   "REMINDERS_CREATE_COMMAND_DESCRIPTION": "Ask me to remember something and I'll remind you at the time you specified",
   "REMINDERS_CREATE_MSG_ARG_DESCRIPTION": "Your reminder message",
   "REMINDERS_CREATE_TIME_ARG_DESCRIPTION": "How long until you want to be reminded, in the format \"X mins X days\" etc.",
+  "REMINDERS_CREATE_REPEAT_ARG_DESCRIPTION": "The amount of times the reminder should repeat, up to a maximum of 5 (requires step argument)",
+  "REMINDERS_CREATE_STEP_ARG_DESCRIPTION": "The amount of time between each repeat, in the format \"X mins X days\" etc.",
   "REMINDER_MISSING_ARG": "I can't remind you about nothing, you need to provide the reminder text and duration",
   "REMINDER_MISSING_CONTEXT": "Something went wrong while creating a reminder. Make sure the message you choose has content",
   "REMINDER_INVALID_REPEAT": "The repeat flag value is invalid, it must range from 1 to 5",

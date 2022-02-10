@@ -31,6 +31,8 @@ const reminderContextTimes = {
 };
 
 export default class RemindersCreate extends Command {
+  repeatRegex = /--repeat (\d*)/gim;
+  stepRegex = /--step ([^-]*)/gim;
   constructor() {
     super("reminders-create", {
       description: (language: Language) =>
@@ -52,6 +54,22 @@ export default class RemindersCreate extends Command {
           default: null,
           required: true,
         },
+        {
+          id: "repeat",
+          type: "number",
+          description: (language: Language) =>
+            language.get("REMINDERS_CREATE_REPEAT_ARG_DESCRIPTION"),
+          default: 0,
+          required: false,
+        },
+        {
+          id: "step",
+          type: "string",
+          description: (language: Language) =>
+            language.get("REMINDERS_CREATE_STEP_ARG_DESCRIPTION"),
+          default: null,
+          required: false,
+        },
       ],
       context: ["remind me"],
       parent: "reminders",
@@ -65,9 +83,10 @@ export default class RemindersCreate extends Command {
     // Command#run will usually never have FireMessage, this is temporary to allow the remind command to work as a message command
     // for familiarity and to prompt with an upsell
     command: ApplicationCommandMessage | ContextCommandMessage | FireMessage,
-    args: { reminder: string; time: string }
+    args: { reminder: string; time: string; repeat: number; step: string }
   ) {
-    let { reminder } = args;
+    let { reminder, repeat, step } = args;
+    repeat++;
     // handle context menu before actual command
     if (command instanceof ContextCommandMessage) {
       const clickedMessage = (
@@ -134,25 +153,14 @@ export default class RemindersCreate extends Command {
       return await command.error("REMINDER_MISSING_ARG", {
         includeSlashUpsell: true,
       });
-    let repeat: number, step: string;
-    const repeatExec = repeatRegex.exec(reminder);
-    if (repeatExec?.length == 2) repeat = parseInt(repeatExec[1]);
-    else repeat = 0;
-    repeatRegex.lastIndex = 0;
-    repeat++;
     if (!repeat || repeat > 6 || repeat < 1)
       return await command.error("REMINDER_INVALID_REPEAT", {
         includeSlashUpsell: true,
       });
-    reminder = reminder.replace(repeatRegex, "");
-    const stepExec = stepRegex.exec(reminder) || [""];
-    stepRegex.lastIndex = 0;
-    step = stepExec[0] || "";
     if ((!step && repeat > 1) || (step && repeat == 1))
       return await command.error("REMINDER_SEPARATE_FLAGS", {
         includeSlashUpsell: true,
       });
-    reminder = reminder.replace(stepRegex, "").trimEnd();
     const stepMinutes = parseTime(step) as number;
     if (
       step &&
