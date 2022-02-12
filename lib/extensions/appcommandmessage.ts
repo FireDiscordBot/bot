@@ -121,6 +121,13 @@ export class ApplicationCommandMessage {
     this._flags = 0;
     if (!this.command && this.guild && !this.guild?.tags) {
       // this might take a couple seconds so we will ack now
+      this.channel = new FakeChannel(
+        this,
+        this.client,
+        this.slashCommand.id,
+        this.slashCommand.token,
+        this.realChannel
+      );
       this.channel.ack(
         this.guild.settings.get<boolean>("tags.ephemeral", true)
       );
@@ -183,14 +190,14 @@ export class ApplicationCommandMessage {
         this.slashCommand.guildId ? null : this.author.dmChannel
       );
       return this;
-    }
-    this.channel = new FakeChannel(
-      this,
-      this.client,
-      this.slashCommand.id,
-      this.slashCommand.token,
-      this.realChannel
-    );
+    } else if (!this.channel)
+      this.channel = new FakeChannel(
+        this,
+        this.client,
+        this.slashCommand.id,
+        this.slashCommand.token,
+        this.realChannel
+      );
   }
 
   set flags(flags: number) {
