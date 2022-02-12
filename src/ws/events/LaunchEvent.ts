@@ -13,6 +13,7 @@ export default class LaunchEvent extends Event {
     state: ManagerState;
     shardCount: number;
     shards: number[];
+    interval: number;
     session: string;
     id: number;
   }) {
@@ -20,6 +21,8 @@ export default class LaunchEvent extends Event {
       `[Aether] Received launch event with cluster id ${data.id}.`
     );
     this.manager.state = data.state;
+    this.manager.ws.heartbeatInterval = data.interval;
+    this.manager.ws.startHeartbeat();
     this.manager.launch(
       data || { id: 0, session: "", shardCount: 1, shards: [0] }
     );

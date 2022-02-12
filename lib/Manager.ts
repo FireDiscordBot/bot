@@ -80,7 +80,7 @@ export class Manager {
     });
 
     this.ws.once("close", (code: number, reason: string) => {
-      this.client.console.warn("[Sharder] WS closed.");
+      this.client.console.warn("[Sharder] WS closed");
       if (this.client.readyAt) this.client.setPartialOutageStatus();
       this.ws.subscribed = [];
       this.reconnector.handleClose(code, reason);

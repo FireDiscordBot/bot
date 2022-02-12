@@ -31,15 +31,14 @@ export class Reconnector {
   }
 
   handleClose(code: number, reason: string) {
-    clearInterval(this.manager.ws?.keepAlive);
+    clearTimeout(this.manager.ws?.keepAlive);
     this.manager.ready = false;
-    if (
-      this.state == WebsocketStates.CONNECTED ||
-      this.state == WebsocketStates.CLOSING
-    ) {
+    if (this.state != WebsocketStates.CLOSED) {
       this.state = WebsocketStates.CLOSED;
       this.manager.client.console.warn(
-        `[Aether] Disconnected from Websocket with code ${code} and reason ${reason}.`
+        `[Aether] Disconnected from Websocket (${
+          this.manager.ws?.clientSideClose ? "client" : "server"
+        }) with code ${code} and reason ${reason}.`
       );
     }
     if (code == 1006) this.manager.ws?.terminate();

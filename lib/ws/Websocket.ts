@@ -1,17 +1,19 @@
-import { EventType, WebsocketStates } from "./util/constants";
-import { MessageUtil } from "./util/MessageUtil";
 import { Manager } from "@fire/lib/Manager";
 import { Collection } from "discord.js";
-import { Message } from "./Message";
 import * as Client from "ws";
+import { Message } from "./Message";
+import { EventType } from "./util/constants";
+import { MessageUtil } from "./util/MessageUtil";
 
 export class Websocket extends Client {
   handlers: Collection<string, (value: unknown) => void>;
+  clientSideClose: boolean;
+  heartbeatInterval: number;
   keepAlive: NodeJS.Timeout;
   waitingForPong: boolean;
   subscribed: string[];
   manager: Manager;
-  pongs: number;
+  seq: number;
 
   constructor(manager: Manager) {
     const headers = {
@@ -31,30 +33,9 @@ export class Websocket extends Client {
     this.waitingForPong = false;
     this.manager = manager;
     this.subscribed = [];
-    this.pongs = 0;
+    this.seq = 0;
     this.once("open", () => {
-      this.keepAlive = setInterval(() => {
-        if (this.waitingForPong) {
-          this.manager.client.console.warn(
-            `[Aether] Did not receive pong in time. Closing connection with ${this.pongs} pongs...`
-          );
-          this.manager.reconnector.state = WebsocketStates.CLOSING;
-          return this.open
-            ? this.close(4009, "Did not receive pong in time")
-            : (() => {
-                this.terminate();
-                this.manager.reconnector.activate();
-              })();
-        }
-        this.waitingForPong = true;
-        this.ping();
-      }, this.manager.client.config.aetherPingTimeout);
-      this.on("pong", () => {
-        this.waitingForPong = false;
-        this.pongs++;
-        if (this.manager.client?.user?.presence?.status == "idle")
-          this.manager.client.setReadyPresence();
-      });
+      delete this.clientSideClose;
       this.manager.client.getModule("aetherstats").init();
       this.send(
         MessageUtil.encode(
@@ -72,8 +53,17 @@ export class Websocket extends Client {
 
   init() {
     this.on("message", (message) => {
+      if (!this.open) {
+        this.manager.client?.console?.warn(
+          `[Aether] Received message on non-open socket, closing to initiate reconnect.`
+        );
+        return this.close(1006, "Received message on non-open socket");
+      }
+
       const decoded = MessageUtil.decode(message.toString());
       if (!decoded) return;
+
+      this.seq = decoded.s;
 
       if (decoded.n && this.handlers.has(decoded.n)) {
         this.handlers.get(decoded.n)(decoded.d);
@@ -86,6 +76,42 @@ export class Websocket extends Client {
         );
       });
     });
+  }
+
+  startHeartbeat() {
+    this.manager.client?.console?.log(
+      `[Aether] Starting heartbeat with interval ${this.heartbeatInterval}ms`
+    );
+    this.keepAlive = setTimeout(() => {
+      this.close(4004, "Did not receive heartbeat ack");
+    }, this.heartbeatInterval + 10000);
+    setTimeout(() => {
+      clearTimeout(this.keepAlive);
+      this.keepAlive = setTimeout(() => {
+        this.close(4004, "Did not receive heartbeat ack");
+      }, this.heartbeatInterval / 2);
+      this.send(
+        MessageUtil.encode(
+          new Message(EventType.HEARTBEAT, this.seq || null, "HEARTBEAT_TASK")
+        )
+      );
+      setInterval(() => {
+        clearTimeout(this.keepAlive);
+        this.keepAlive = setTimeout(() => {
+          this.close(4004, "Did not receive heartbeat ack");
+        }, this.heartbeatInterval / 2);
+        this.send(
+          MessageUtil.encode(
+            new Message(EventType.HEARTBEAT, this.seq || null, "HEARTBEAT_TASK")
+          )
+        );
+      }, this.heartbeatInterval);
+    }, this.heartbeatInterval * Math.random());
+  }
+
+  close(code?: number, data?: string | Buffer) {
+    this.clientSideClose = true;
+    super.close(code, data);
   }
 
   get open() {
