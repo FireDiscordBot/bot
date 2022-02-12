@@ -17,10 +17,7 @@ export default class LinkFilter extends Command {
     super("linkfilter", {
       description: (language: Language) =>
         language.get("LINKFILTER_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_MESSAGES,
-      ],
+      clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
       userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       args: [
         {

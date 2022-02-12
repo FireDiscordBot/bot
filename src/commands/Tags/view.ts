@@ -1,18 +1,14 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { CommandInteractionOption, Permissions } from "discord.js";
+import { Command } from "@fire/lib/util/command";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
+import { CommandInteractionOption } from "discord.js";
 
 export default class TagView extends Command {
   constructor() {
     super("tag-view", {
       description: (language: Language) =>
         language.get("TAG_VIEW_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
-      ],
       args: [
         {
           id: "tag",

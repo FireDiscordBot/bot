@@ -1,12 +1,12 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireUser } from "@fire/lib/extensions/user";
+import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
 import { MessageEmbed, Util } from "discord.js";
 
 export default class Warnings extends Command {
@@ -14,7 +14,6 @@ export default class Warnings extends Command {
     super("warnings-view", {
       description: (language: Language) =>
         language.get("WARNINGS_VIEW_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
       args: [
         {
           id: "user",
@@ -25,10 +24,11 @@ export default class Warnings extends Command {
           default: null,
         },
       ],
-      restrictTo: "guild",
+      enableSlashCommand: true,
       moderatorOnly: true,
-      parent: "warnings",
+      restrictTo: "guild",
       deferAnyways: true,
+      parent: "warnings",
       slashOnly: true,
       ephemeral: true,
     });

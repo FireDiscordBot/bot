@@ -1,13 +1,13 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { Assistant, AssistantLanguage } from "nodejs-assistant";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { SnowflakeUtil, Permissions } from "discord.js";
 import { Command } from "@fire/lib/util/command";
-import Filters from "@fire/src/modules/filters";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import Filters from "@fire/src/modules/filters";
+import { SnowflakeUtil } from "discord.js";
+import { Assistant, AssistantLanguage } from "nodejs-assistant";
 
 type PlaywrightResponse = {
   screenshot: { type: "Buffer"; data: number[] };
@@ -21,10 +21,6 @@ export default class Google extends Command {
     super("google", {
       description: (language: Language) =>
         language.get("GOOGLE_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.ATTACH_FILES,
-      ],
       restrictTo: "all",
       args: [
         {
@@ -38,7 +34,6 @@ export default class Google extends Command {
       slashOnly: true,
       cooldown: 5000,
       lock: "user",
-      typing: true, // This command takes a hot sec to run, especially when running locally so type while waiting
     });
     if (
       process.env.ASSISTANT_CLIENT_ID &&

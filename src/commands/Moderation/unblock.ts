@@ -1,9 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
-import { GuildTextChannel } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { Permissions, Role, ThreadChannel } from "discord.js";
+import { Permissions, Role } from "discord.js";
 
 export default class Unblock extends Command {
   constructor() {

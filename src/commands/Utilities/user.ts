@@ -1,36 +1,36 @@
-import {
-  DeconstructedSnowflake,
-  PermissionString,
-  UserFlagsString,
-  DiscordAPIError,
-  ThreadChannel,
-  SnowflakeUtil,
-  GuildChannel,
-  MessageEmbed,
-  Permissions,
-  ClientUser,
-  Formatters,
-  DMChannel,
-  Snowflake,
-  GuildPreview,
-} from "discord.js";
-import {
-  ApplicationFlags,
-  APIApplication,
-  APIChannel,
-} from "discord-api-types";
+import { Ban } from "@aero/ksoft";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { constants, zws } from "@fire/lib/util/constants";
-import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Ban } from "@aero/ksoft";
-import * as moment from "moment";
+import { constants, zws } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
 import * as centra from "centra";
+import {
+  APIApplication,
+  APIChannel,
+  ApplicationFlags,
+} from "discord-api-types";
+import {
+  ClientUser,
+  DeconstructedSnowflake,
+  DiscordAPIError,
+  DMChannel,
+  Formatters,
+  GuildChannel,
+  GuildPreview,
+  MessageEmbed,
+  Permissions,
+  PermissionString,
+  Snowflake,
+  SnowflakeUtil,
+  ThreadChannel,
+  UserFlagsString,
+} from "discord.js";
+import * as moment from "moment";
 
 const {
   emojis,
@@ -58,10 +58,6 @@ export default class User extends Command {
     super("user", {
       description: (language: Language) =>
         language.get("USER_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
-      ],
       args: [
         {
           id: "user",

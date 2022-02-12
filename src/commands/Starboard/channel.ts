@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 import { Permissions } from "discord.js";
 
 export default class StarboardChannel extends Command {
@@ -24,7 +24,10 @@ export default class StarboardChannel extends Command {
     });
   }
 
-  async run(command: ApplicationCommandMessage, args: { channel?: FireTextChannel }) {
+  async run(
+    command: ApplicationCommandMessage,
+    args: { channel?: FireTextChannel }
+  ) {
     if (!args.channel) {
       await this.client.db
         .query("DELETE FROM starboard WHERE gid=$1;", [command.guild.id])

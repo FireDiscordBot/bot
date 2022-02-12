@@ -3,22 +3,13 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
-import {
-  MessageActionRow,
-  MessageButton,
-  MessageEmbed,
-  Permissions,
-} from "discord.js";
+import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 
 export default class Avatar extends Command {
   constructor() {
     super("avatar", {
       description: (language: Language) =>
         language.get("AVATAR_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
-      ],
       args: [
         {
           id: "user",

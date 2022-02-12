@@ -1,9 +1,9 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import VanityURLs from "@fire/src/modules/vanityurls";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions, Invite } from "discord.js";
+import { Language } from "@fire/lib/util/language";
+import VanityURLs from "@fire/src/modules/vanityurls";
+import { Invite, Permissions } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];
 const validityRegex = /[a-zA-Z0-9]{3,25}/gim;

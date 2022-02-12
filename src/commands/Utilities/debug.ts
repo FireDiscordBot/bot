@@ -1,20 +1,18 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { Command } from "@fire/lib/util/command";
+import { constants } from "@fire/lib/util/constants";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import {
   BitFieldResolvable,
-  PermissionString,
+  CommandInteractionOption,
+  DMChannel,
   GuildChannel,
   MessageEmbed,
   Permissions,
-  DMChannel,
-  CommandInteractionOption,
+  PermissionString,
 } from "discord.js";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { Option } from "@fire/lib/interfaces/interactions";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { constants } from "@fire/lib/util/constants";
-import { Command } from "@fire/lib/util/command";
-import { TOptions, StringMap } from "i18next";
+import { StringMap, TOptions } from "i18next";
 
 const {
   emojis: { success, error },

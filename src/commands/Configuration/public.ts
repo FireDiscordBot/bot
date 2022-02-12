@@ -1,12 +1,12 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
-import VanityURLs from "@fire/src/modules/vanityurls";
+import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import VanityURLs from "@fire/src/modules/vanityurls";
 import { GuildFeatures, Permissions } from "discord.js";
 
 export default class Public extends Command {

@@ -1,8 +1,7 @@
-import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { DeconstructedSnowflake } from "discord.js";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
 import User from "./user";
 
 export default class Snowflake extends Command {

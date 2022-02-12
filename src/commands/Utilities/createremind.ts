@@ -15,8 +15,6 @@ import {
 } from "discord.js";
 import * as moment from "moment";
 
-const repeatRegex = /--repeat (\d*)/gim;
-const stepRegex = /--step ([^-]*)/gim;
 const reminderContextTimes = {
   REMINDER_SNOOZE_FIVEMIN: "300000",
   REMINDER_SNOOZE_HALFHOUR: "1800000",

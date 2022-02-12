@@ -1,8 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { MessageEmbed, Permissions } from "discord.js";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 import * as centra from "centra";
+import { MessageEmbed } from "discord.js";
 
 export default class Levelhead extends Command {
   removeColor: RegExp;
@@ -11,10 +11,6 @@ export default class Levelhead extends Command {
     super("levelhead", {
       description: (language: Language) =>
         language.get("LEVELHEAD_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
-      ],
       args: [
         {
           id: "player",

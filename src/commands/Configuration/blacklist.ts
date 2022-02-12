@@ -13,10 +13,6 @@ export default class Blacklist extends Command {
     super("blacklist", {
       description: (language: Language) =>
         language.get("BLACKLIST_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.ADD_REACTIONS,
-      ],
       args: [
         {
           id: "user",

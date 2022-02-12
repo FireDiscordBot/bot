@@ -1,11 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
 import { Command } from "@fire/lib/util/command";
-import { GuildTextChannel } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { NewsChannel, Permissions, Role, ThreadChannel } from "discord.js";
+import { Permissions, Role } from "discord.js";
 
 export default class Block extends Command {
   constructor() {

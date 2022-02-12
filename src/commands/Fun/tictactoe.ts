@@ -1,18 +1,18 @@
-import {
-  MessageActionRow,
-  SnowflakeUtil,
-  MessageButton,
-  Collection,
-  Snowflake,
-} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { constants } from "@fire/lib/util/constants";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { constants } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import {
+  Collection,
+  MessageActionRow,
+  MessageButton,
+  Snowflake,
+  SnowflakeUtil,
+} from "discord.js";
 
 type TicTacToeSymbol = "x" | "o";
 type TicTacToeButtons = { [location: number]: ButtonData };

@@ -1,7 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { CouponType } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
 
 export default class Discount extends Command {
   constructor() {

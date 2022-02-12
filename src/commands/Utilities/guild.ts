@@ -1,19 +1,13 @@
-import {
-  GuildPreview,
-  MessageEmbed,
-  Permissions,
-  Formatters,
-  DMChannel,
-} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { snowflakeConverter } from "@fire/lib/util/converters";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { constants, zws } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
+import { constants, zws } from "@fire/lib/util/constants";
+import { snowflakeConverter } from "@fire/lib/util/converters";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import * as centra from "centra";
+import { DMChannel, Formatters, GuildPreview, MessageEmbed } from "discord.js";
 
 type ShardInfo = { shardId: number; clusterId: number };
 
@@ -26,10 +20,6 @@ export default class GuildCommand extends Command {
     super("server", {
       description: (language: Language) =>
         language.get("GUILD_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
-      ],
       args: [
         {
           id: "guild",

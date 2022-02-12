@@ -2,7 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import * as centra from "centra";
-import { MessageAttachment, Permissions } from "discord.js";
+import { MessageAttachment } from "discord.js";
 
 export default class MakeAMeme extends Command {
   constructor() {

@@ -134,7 +134,7 @@ export class Command extends AkairoCommand {
   constructor(id: string, options?: CommandOptions) {
     if (!options?.aliases?.length) options.aliases = [id];
     else options?.aliases?.push(id);
-    if (!options?.clientPermissions)
+    if (!options?.clientPermissions && !options?.slashOnly)
       options.clientPermissions = [
         Permissions.FLAGS.USE_EXTERNAL_EMOJIS,
         Permissions.FLAGS.SEND_MESSAGES,

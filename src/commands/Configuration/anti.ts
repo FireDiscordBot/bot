@@ -1,12 +1,8 @@
-import {
-  AutocompleteInteraction,
-  CommandInteractionOption,
-  Permissions,
-} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
+import { Permissions } from "discord.js";
 
 const valid = ["everyone", "zws", "spoiler", "selfbot"];
 

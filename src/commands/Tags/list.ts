@@ -1,18 +1,14 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import { MessageEmbed, Permissions } from "discord.js";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
+import { Language } from "@fire/lib/util/language";
+import { MessageEmbed } from "discord.js";
 
 export default class TagList extends Command {
   constructor() {
     super("tag-list", {
       description: (language: Language) =>
         language.get("TAG_LIST_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
-      ],
       restrictTo: "guild",
       slashOnly: true,
       parent: "tag",

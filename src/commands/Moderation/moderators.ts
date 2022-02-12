@@ -1,8 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
-import { MessageEmbed, Snowflake } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { MessageEmbed, Snowflake } from "discord.js";
 
 export default class Moderators extends Command {
   constructor() {

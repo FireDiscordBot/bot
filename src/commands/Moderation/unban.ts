@@ -1,10 +1,8 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { FireMessage } from "@fire/lib/extensions/message";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Permissions } from "discord.js";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 
 export default class Unban extends Command {
   constructor() {

@@ -1,14 +1,13 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 
 export default class Warn extends Command {
   constructor() {
     super("warn", {
       description: (language: Language) =>
         language.get("WARN_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
       args: [
         {
           id: "user",
@@ -28,8 +27,9 @@ export default class Warn extends Command {
           match: "rest",
         },
       ],
-      restrictTo: "guild",
+      enableSlashCommand: true,
       moderatorOnly: true,
+      restrictTo: "guild",
       deferAnyways: true,
       slashOnly: true,
       ephemeral: true,

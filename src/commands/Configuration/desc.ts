@@ -10,13 +10,8 @@ export default class Description extends Command {
 
   constructor() {
     super("description", {
-      aliases: ["desc"],
       description: (language: Language) =>
         language.get("DESC_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.EMBED_LINKS,
-        Permissions.FLAGS.SEND_MESSAGES,
-      ],
       userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       args: [
         {

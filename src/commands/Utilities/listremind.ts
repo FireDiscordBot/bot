@@ -3,7 +3,7 @@ import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import {
   PaginatorEmbedInterface,
-  WrappedPaginator
+  WrappedPaginator,
 } from "@fire/lib/util/paginators";
 import { Formatters, MessageEmbed } from "discord.js";
 

@@ -1,17 +1,13 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { MessageEmbed, Permissions } from "discord.js";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { MessageEmbed } from "discord.js";
 
 export default class Icon extends Command {
   constructor() {
     super("icon", {
       description: (language: Language) =>
         language.get("ICON_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
-      ],
       enableSlashCommand: true,
       restrictTo: "guild",
       slashOnly: true,

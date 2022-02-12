@@ -1,8 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { parseTime } from "@fire/lib/util/constants";
 import { Command } from "@fire/lib/util/command";
+import { parseTime } from "@fire/lib/util/constants";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Permissions } from "discord.js";
 
 export default class Mute extends Command {

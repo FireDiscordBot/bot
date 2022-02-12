@@ -12,7 +12,6 @@ export default class ModlogsStats extends Command {
     super("modlogs-stats", {
       description: (language: Language) =>
         language.get("MODLOGS_STATS_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
       args: [
         {
           id: "user",
@@ -22,6 +21,7 @@ export default class ModlogsStats extends Command {
         },
       ],
       context: ["moderation log stats"],
+      enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,

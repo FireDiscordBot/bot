@@ -1,5 +1,5 @@
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 
 export default class Select extends Command {
   constructor() {

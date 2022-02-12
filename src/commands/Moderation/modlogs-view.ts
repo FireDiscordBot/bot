@@ -34,7 +34,6 @@ export default class ModlogsView extends Command {
     super("modlogs-view", {
       description: (language: Language) =>
         language.get("MODLOGS_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
       args: [
         {
           id: "user",
@@ -51,6 +50,7 @@ export default class ModlogsView extends Command {
         },
       ],
       context: ["moderation logs"],
+      enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,

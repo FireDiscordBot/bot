@@ -1,8 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
-import Redirects from "@fire/src/modules/redirects";
 import { Command } from "@fire/lib/util/command";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import Filters from "@fire/src/modules/filters";
+import Redirects from "@fire/src/modules/redirects";
 import { MessageEmbed } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];
