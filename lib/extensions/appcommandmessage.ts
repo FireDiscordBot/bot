@@ -671,7 +671,7 @@ export class FakeChannel extends BaseFakeChannel {
   async ack(ephemeral = false) {
     if (
       ((ephemeral || (this.flags & 64) != 0) &&
-        !this.message.command.deferAnyways) ||
+        !this.message.command?.deferAnyways) ||
       this.message.slashCommand.isAutocomplete()
     )
       return;
