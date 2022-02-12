@@ -49,7 +49,6 @@ export default class TagSlash extends Command {
       await message.guild.tags.init();
     }
     if (!current) {
-      message.channel.sendTyping();
       const prepared = await message.guild.tags?.prepareSlashCommands();
       if (prepared == null) {
         message.guild.settings.set<boolean>("tags.slashcommands", false);

@@ -181,22 +181,32 @@ export class GuildTagManager {
     else return fetchedTag.get("aliases") as string[];
   }
 
-  private async getTagSlashCommandJSON(cached: Tag) {
+  private getTagSlashCommandJSON(cached: Tag) {
     if (!slashCommandNameRegex.test(cached.name)) {
       slashCommandNameRegex.lastIndex = 0;
       return null;
     }
     slashCommandNameRegex.lastIndex = 0;
 
-    const description =
-      (this.guild.language.get("TAG_SLASH_DESCRIPTION", {
-        tag: cached.name,
-      }) as string) + "\u200b"; // the zws will be used to idenfity tag commands
+    const description = this.guild.language.get("TAG_SLASH_DESCRIPTION", {
+      tag: cached.name,
+    }) as string;
 
     return {
       name: cached.name,
       description,
     };
+  }
+
+  private isSlashTag(cmd: APIApplicationCommand) {
+    return (
+      !cmd.options?.length &&
+      this.names.includes(cmd.name) &&
+      cmd.description ==
+        this.guild.language.get("TAG_SLASH_DESCRIPTION", {
+          tag: cmd.name,
+        })
+    );
   }
 
   async prepareSlashCommands() {
@@ -221,81 +231,39 @@ export class GuildTagManager {
     )
       return false;
 
+    for (const slashTag of current.filter((cmd) => this.isSlashTag(cmd)))
+      this.slashCommands[slashTag.id] = slashTag.name;
+
     const tags = await this.fetchTags();
 
-    let commandData = await Promise.all(
-      tags.map((tag) => this.getTagSlashCommandJSON(tag))
-    );
-    commandData = commandData.filter((tag) => !!tag);
-    if (!commandData.length) this.preparedSlashCommands = true;
-
-    commandData = commandData
+    let commandData = tags
+      .map((tag) => this.getTagSlashCommandJSON(tag))
+      .filter((tag) => !!tag)
       .filter(
         (tag) =>
-          !current.find((cmd) => cmd.name == tag.name) ||
-          current.find(
-            (cmd) => cmd.name == tag.name && cmd.description.endsWith("\u200b")
-          )
-      )
-      .filter(
-        (tag) =>
-          // remove those with options as they're not going to be tags
-          !current.find((cmd) => cmd.name == tag.name && cmd.options?.length)
+          // we only want to have slash tags that don't already exist
+          !current.find((cmd) => cmd.name == tag.name && this.isSlashTag(cmd))
       );
-
-    if (
-      current.filter((cmd) =>
-        commandData.find(
-          (tag) => tag.name == cmd.name && tag.description == cmd.description
-        )
-      ).length == commandData.length
-    )
-      this.preparedSlashCommands = true;
+    if (!commandData.length) return (this.preparedSlashCommands = true);
 
     current = current.filter(
-      (cmd) =>
-        !commandData.find((tag) => tag.name == cmd.name) &&
-        !(cmd.id in this.slashCommands && !tags.has(cmd.name))
+      (cmd) => !(cmd.id in this.slashCommands && !tags.has(cmd.name))
     );
 
     await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
       .commands.put({ data: [...current, ...commandData] })
-      .then(
-        (
-          updated: {
-            // typing the other fields is unnecessary
-            // since we only need these
-            id: string;
-            name: string;
-            description: string;
-            options: any[];
-          }[]
-        ) => {
-          if (!this.preparedSlashCommands)
-            this.client.console.info(
-              `[Commands] Successfully bulk updated ${updated.length} slash command tag(s) for guild ${this.guild.name}`
-            );
-          const slashTags = updated.filter(
-            (command) =>
-              !command.options?.length &&
-              (commandData.find(
-                (tag) =>
-                  tag.name == command.name &&
-                  tag.description == command.description &&
-                  command.description.endsWith("\u200b")
-              ) ||
-                current.find(
-                  (tag) =>
-                    tag.name == command.name &&
-                    tag.description == command.description &&
-                    command.description.endsWith("\u200b")
-                ))
+      .then((updated: APIApplicationCommand[]) => {
+        if (!this.preparedSlashCommands)
+          this.client.console.info(
+            `[Commands] Successfully bulk updated ${updated.length} slash command tag(s) for guild ${this.guild.name}`
           );
-          for (const tag of slashTags) this.slashCommands[tag.id] = tag.name;
-        }
-      )
+        const slashTags = updated.filter((command) => this.isSlashTag(command));
+        for (const tag of slashTags)
+          if (this.slashCommands[tag.id] != tag.name)
+            this.slashCommands[tag.id] = tag.name;
+      })
       .catch((e: DiscordAPIError) => {
         this.client.console.error(
           `[Commands] Failed to update slash command tags for guild ${
@@ -303,9 +271,7 @@ export class GuildTagManager {
           }\n${e.code ?? 0}: ${e.stack}`
         );
         if (
-          e.message.includes(
-            "Maximum number of application commands reached (100)"
-          )
+          e.message.includes("Maximum number of application commands reached")
         )
           this.guild.settings.set<boolean>("tags.slashcommands", null);
       });
@@ -313,6 +279,10 @@ export class GuildTagManager {
   }
 
   async removeSlashCommands() {
+    if (!this.preparedSlashCommands)
+      await this.prepareSlashCommands().catch(() => {});
+    if (!Object.keys(this.slashCommands).length) return false;
+
     let current = (await this.client.req
       .applications(this.client.user.id)
       .guilds(this.guild.id)
@@ -328,35 +298,7 @@ export class GuildTagManager {
     )
       return false;
 
-    const tags = await this.fetchTags();
-
-    // used to compare existing guild commands with possible slash commands
-    let commandData = await Promise.all(
-      tags.map((tag) => this.getTagSlashCommandJSON(tag))
-    );
-    commandData = commandData.filter((tag) => !!tag);
-    if (!commandData.length) return (this.preparedSlashCommands = true);
-
-    commandData = commandData
-      .filter(
-        (tag) =>
-          !current.find((cmd) => cmd.name == tag.name) ||
-          current.find(
-            (cmd) => cmd.name == tag.name && cmd.description.endsWith("\u200b")
-          )
-      )
-      .filter(
-        (tag) =>
-          // remove those with options as they're not going to be tags
-          !current.find((cmd) => cmd.name == tag.name && cmd.options?.length)
-      );
-
-    current = current.filter(
-      (cmd) =>
-        !commandData.find(
-          (tag) => tag.name == cmd.name && tag.description == cmd.description
-        )
-    );
+    current = current.filter((cmd) => !this.slashCommands[cmd.id]);
 
     const removed = await this.client.req
       .applications(this.client.user.id)

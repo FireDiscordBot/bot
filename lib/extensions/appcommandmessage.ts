@@ -120,6 +120,10 @@ export class ApplicationCommandMessage {
       this.client.getContextCommand(this.slashCommand.commandName);
     this._flags = 0;
     if (!this.command && this.guild && !this.guild?.tags) {
+      // this might take a couple seconds so we will ack now
+      this.channel.ack(
+        this.guild.settings.get<boolean>("tags.ephemeral", true)
+      );
       this.guild.tags = new GuildTagManager(this.client, this.guild);
       await this.guild.tags.init();
     }
@@ -664,6 +668,7 @@ export class FakeChannel extends BaseFakeChannel {
       this.message.slashCommand.isAutocomplete()
     )
       return;
+    if (this.message.sent) return;
     await this.message.slashCommand
       .deferReply({
         ephemeral: ephemeral || !!((this.flags & 64) == 64),
