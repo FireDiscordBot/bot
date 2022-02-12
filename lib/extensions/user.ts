@@ -151,7 +151,11 @@ export class FireUser extends User {
     if (!this.client.manager.ws?.open)
       return process.env.NODE_ENV == "development";
     const timestamp = +when;
-    if (isNaN(timestamp) || timestamp < +new Date() + 60000) return false;
+    if (
+      isNaN(timestamp) ||
+      (timestamp < +new Date() + 60000 && !this.isSuperuser())
+    )
+      return false;
     const reminder = await this.client.db
       .query(
         "INSERT INTO remind (uid, forwhen, reminder, link) VALUES ($1, $2, $3, $4);",
