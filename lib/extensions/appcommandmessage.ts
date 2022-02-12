@@ -138,7 +138,7 @@ export class ApplicationCommandMessage {
       this.guild?.tags?.slashCommands?.[this.slashCommand.commandId] ==
       this.slashCommand.commandName
     ) {
-      this.command = this.client.getCommand("tag");
+      this.command = this.client.getCommand("tag-view");
       this.slashCommand.options = new CommandInteractionOptionResolver(
         this.client,
         [
@@ -151,8 +151,7 @@ export class ApplicationCommandMessage {
         this.slashCommand.options.resolved
       );
       if (this.guild.tags.ephemeral) this.flags = 64;
-    }
-    if (this.command?.ephemeral) this.flags = 64;
+    } else if (this.command?.ephemeral) this.flags = 64;
     // @ts-ignore
     this.mentions = new MessageMentions(this, [], [], false);
     this.attachments = new Collection();
