@@ -75,6 +75,6 @@ export default class TagDelete extends Command {
     const deleted = await manager.deleteTag(tag).catch(() => false);
     if (typeof deleted == "boolean" && !deleted)
       return await message.error("TAG_DELETE_FAILED", { haste: data });
-    else return await message.success("TAG_DELETE_SUCCESS");
+    else return await message.success("TAG_DELETE_SUCCESS", { haste: data });
   }
 }
