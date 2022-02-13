@@ -720,7 +720,7 @@ export class FireMessage extends Message {
       .setTimestamp(this.createdTimestamp)
       .setAuthor({
         name: this.author.toString(),
-        iconURL: this.author.displayAvatarURL({
+        iconURL: (this.member ?? this.author).displayAvatarURL({
           size: 2048,
           format: "png",
           dynamic: true,
