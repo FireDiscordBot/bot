@@ -1284,6 +1284,9 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
   ) {
     const canClose = await this.canCloseTicket(channel, author);
     if (typeof canClose == "string") return canClose;
+    if (channel instanceof BaseFakeChannel)
+      channel = channel.real as FireTextChannel;
+
     let channels = this.tickets.filter((c) => c && c.id != channel.id);
     // threads don't get closed, they get archived and can be reopened so we don't remove it
     if (channels.length && channel.type == "GUILD_TEXT")
@@ -1369,7 +1372,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
           })
         )
         .catch((e: Error) => e)) as FireTextChannel | Error;
-    } else {
+    } else if (channel instanceof ThreadChannel) {
       await channel.send(
         this.language.get(
           author.isModerator()
