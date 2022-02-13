@@ -1028,6 +1028,13 @@ export class FireMessage extends Message {
       lowerContent.includes("who is")
     )
       return await triggerFilter("Fake gift link");
+    else if (
+      lowerContent.includes("test") &&
+      lowerContent.includes("game") &&
+      !lowerContent.includes("http") &&
+      lowerContent.includes("password")
+    )
+      return await triggerFilter("Try my game scam");
   }
 }
 
