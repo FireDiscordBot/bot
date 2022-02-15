@@ -25,7 +25,7 @@ export default class MakeAMeme extends Command {
             language.get("MAKEAMEME_ARGUMENTS_TOP_DESCRIPTION"),
           match: "rest",
           default: null,
-          required: true,
+          required: false,
         },
         {
           id: "bottom",
@@ -34,7 +34,7 @@ export default class MakeAMeme extends Command {
             language.get("MAKEAMEME_ARGUMENTS_BOTTOM_DESCRIPTION"),
           match: "rest",
           default: null,
-          required: true,
+          required: false,
         },
       ],
       enableSlashCommand: true,
@@ -49,6 +49,9 @@ export default class MakeAMeme extends Command {
   ) {
     if (!process.env.MEME_TOKEN)
       return await command.error("ERROR_CONTACT_SUPPORT");
+    if (!args.top && !args.bottom)
+      return await command.error("MAKEAMEME_NO_TEXT");
+
     let image = args.image?.url;
     try {
       const url = new URL(image);
