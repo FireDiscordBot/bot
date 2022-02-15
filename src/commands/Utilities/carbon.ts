@@ -104,7 +104,6 @@ export default class Carbon extends Command {
       restrictTo: "all",
       slashOnly: true,
       ephemeral: true, // we need this so we don't acknowledge the slash command
-      lock: "user",
     });
   }
 
