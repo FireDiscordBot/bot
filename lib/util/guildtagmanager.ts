@@ -255,11 +255,11 @@ export class GuildTagManager {
       .guilds(this.guild.id)
       .commands.put({ data: [...current, ...commandData] })
       .then((updated: APIApplicationCommand[]) => {
+        const slashTags = updated.filter((command) => this.isSlashTag(command));
         if (!this.preparedSlashCommands)
           this.client.console.info(
-            `[Commands] Successfully bulk updated ${updated.length} slash command tag(s) for guild ${this.guild.name}`
+            `[Commands] Successfully bulk updated ${slashTags.length} slash command tags for guild ${this.guild.name}`
           );
-        const slashTags = updated.filter((command) => this.isSlashTag(command));
         for (const tag of slashTags)
           if (this.slashCommands[tag.id] != tag.name)
             this.slashCommands[tag.id] = tag.name;
@@ -480,6 +480,19 @@ export class GuildTagManager {
       "UPDATE tags SET content=$1 WHERE name=$2 AND gid=$3;",
       [newContent, name, this.guild.id]
     );
+    return true;
+  }
+
+  async renameTag(name: string, newName: string) {
+    name = name.toLowerCase();
+    const tagExists = await this.doesTagExist(name);
+    if (!tagExists) return false;
+    await this.client.db.query(
+      "UPDATE tags SET name=$1 WHERE name=$2 AND gid=$3;",
+      [newName, name, this.guild.id]
+    );
+    this.names = this.names.filter((n) => n != name);
+    this.names.push(newName);
     return true;
   }
 }

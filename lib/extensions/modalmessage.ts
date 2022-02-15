@@ -406,8 +406,7 @@ export class FakeChannel extends BaseFakeChannel {
           query: { wait: true },
         })
         .catch(() => {});
-      if (message && message.id && this.message.latestResponse == "@original")
-        this.message.latestResponse = message.id;
+      if (message && message.id) this.message.latestResponse = message.id;
       else this.message.latestResponse = "@original" as Snowflake;
     }
     return this.message;

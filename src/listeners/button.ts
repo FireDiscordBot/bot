@@ -307,122 +307,33 @@ export default class Button extends Listener {
         await button.guild.tags.init();
       }
       const tag = await button.guild.tags.getTag(name, false);
+      if (!tag) return await button.error("TAG_INVALID_TAG", { tag: name });
 
-      let cancelled = false;
-      const cancelSnowflake = SnowflakeUtil.generate();
-      this.client.buttonHandlersOnce.set(cancelSnowflake, () => {
-        if (button.ephemeralSource) return;
-        cancelled = true;
-        const cancelledEmbed = new MessageEmbed()
-          .setAuthor({
-            name: button.guild.name,
-            iconURL: button.guild.iconURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            }),
-          })
-          .setColor(button.member?.displayColor ?? "#FFFFFF")
-          .setDescription(button.language.get("TAG_EDIT_BUTTON_CANCEL_EMBED"))
-          .setTimestamp();
-        return (button.message as FireMessage).edit({
-          embeds: [cancelledEmbed],
-          components: [],
-        });
-      });
-      const editEmbed = new MessageEmbed()
-        .setAuthor({
-          name: button.guild.name,
-          iconURL: button.guild.iconURL({
-            size: 2048,
-            format: "png",
-            dynamic: true,
-          }),
-        })
-        .setColor(button.member?.displayColor ?? "#FFFFFF")
-        .setDescription(button.language.get("TAG_EDIT_BUTTON_EMBED"))
-        .setTimestamp();
-      await button.channel.update({
-        embeds: [editEmbed],
-        components: [
-          new MessageActionRow().addComponents(
-            new MessageButton()
-              .setLabel(button.language.get("TAG_EDIT_CANCEL_BUTTON"))
-              .setStyle("DANGER")
-              .setCustomId(cancelSnowflake)
-          ),
-        ],
-      });
-
-      const newContent = await button.channel
-        .awaitMessages({
-          max: 1,
-          time: 150000,
-          errors: ["time"],
-          filter: (m: FireMessage) =>
-            m.author.id == button.author.id &&
-            m.channel.id == button.interaction.channelId,
-        })
-        .catch(() => {});
-      if (cancelled || !newContent || !newContent.first()?.content) return;
-      this.client.buttonHandlersOnce.delete(cancelSnowflake);
-
-      if (newContent.first()?.content.length > 2000)
-        return await button.error("TAGS_CREATE_CONTENT_TOO_LONG");
-
-      if (!button.ephemeralSource && !cancelled) {
-        const editingEmbed = new MessageEmbed()
-          .setAuthor({
-            name: button.guild.name,
-            iconURL: button.guild.iconURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            }),
-          })
-          .setColor(button.member?.displayColor ?? "#FFFFFF")
-          .setDescription(button.language.get("TAG_EDIT_BUTTON_EDITING_EMBED"))
-          .setTimestamp();
-        await (button.message as FireMessage).edit({
-          embeds: [editingEmbed],
-          components: [],
-        });
-      }
-
-      button.flags = 0;
-      await newContent
-        .first()
-        ?.delete()
-        .catch(() => {});
-
-      const edited = await button.guild.tags
-        .editTag(tag.name, newContent.first()?.content)
-        .catch(() => {});
-      if (!button.ephemeralSource && !cancelled) {
-        const editingEmbed = new MessageEmbed()
-          .setAuthor({
-            name: button.guild.name,
-            iconURL: button.guild.iconURL({
-              size: 2048,
-              format: "png",
-              dynamic: true,
-            }),
-          })
-          .setColor(button.member?.displayColor ?? "#FFFFFF")
-          .setDescription(
-            !edited
-              ? button.language.getSlashError("TAG_EDIT_FAILED")
-              : button.language.getSuccess("TAG_EDIT_SUCCESS")
+      return await button.interaction.presentModal(
+        new Modal()
+          .setTitle(button.language.get("TAG_EDIT_MODAL_TITLE"))
+          .setCustomId(button.customId)
+          .addComponents(
+            new MessageActionRow<ModalActionRowComponent>().addComponents(
+              new TextInputComponent()
+                .setCustomId("tag_name")
+                .setRequired(false)
+                .setLabel(button.language.get("TAG_EDIT_MODAL_NAME_FIELD"))
+                .setValue(tag.name)
+                .setStyle(TextInputStyles.SHORT)
+                .setMaxLength(25)
+            ),
+            new MessageActionRow<ModalActionRowComponent>().addComponents(
+              new TextInputComponent()
+                .setCustomId("tag_content")
+                .setRequired(true)
+                .setLabel(button.language.get("TAG_EDIT_MODAL_CONTENT_FIELD"))
+                .setValue(tag.content)
+                .setStyle(TextInputStyles.PARAGRAPH)
+                .setMaxLength(2000)
+            )
           )
-          .setTimestamp();
-        return await (button.message as FireMessage).edit({
-          embeds: [editingEmbed],
-          components: [],
-        });
-      } else {
-        if (!edited) return await button.error("TAG_EDIT_FAILED");
-        else return await button.success("TAG_EDIT_SUCCESS");
-      }
+      );
     }
 
     if (button.customId.startsWith(`tag_view:`) && button.guild) {

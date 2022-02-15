@@ -81,7 +81,7 @@ export default class TagEdit extends Command {
     try {
       const edited = await manager.editTag(tag, content);
       if (typeof edited == "boolean" && !edited)
-        return await message.error("TAG_EDIT_FAILED");
+        return await message.error("TAG_EDIT_CONTENT_FAILED");
       return await message.success("TAG_EDIT_SUCCESS");
     } catch {
       return await message.error("ERROR_CONTACT_SUPPORT");
