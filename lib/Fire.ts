@@ -64,6 +64,7 @@ import { ContextCommandMessage } from "./extensions/contextcommandmessage";
 import { FireGuild } from "./extensions/guild";
 import { FireMember } from "./extensions/guildmember";
 import { FireMessage } from "./extensions/message";
+import { ModalMessage } from "./extensions/modalmessage";
 import { FireUser } from "./extensions/user";
 import { IPoint, IWriteOptions } from "./interfaces/aether";
 import { GuildApplicationCommandsUpdate } from "./interfaces/discord";
@@ -87,6 +88,7 @@ import { MessageUtil } from "./ws/util/MessageUtil";
 const i18n = i18next as unknown as typeof i18next.default;
 
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
+type ModalHandler = (modal: ModalMessage) => Promise<any> | any;
 type NonceHandler = (data: unknown) => Promise<any> | any;
 type SelectHandler = (data: unknown) => void;
 
@@ -118,6 +120,10 @@ export class Fire extends AkairoClient {
   // Buttons
   buttonHandlersOnce: Collection<string, ButtonHandler>;
   buttonHandlers: Collection<string, ButtonHandler>;
+
+  // Modals
+  modalHandlers: Collection<string, ModalHandler>;
+  modalHandlersOnce: Collection<string, ModalHandler>;
 
   // Gateway Events
   nonceHandlers: Collection<string, NonceHandler>;
@@ -405,6 +411,8 @@ export class Fire extends AkairoClient {
     this.buttonHandlers = new Collection();
     this.buttonHandlersOnce = new Collection();
     this.selectHandlers = new Collection();
+    this.modalHandlers = new Collection();
+    this.modalHandlersOnce = new Collection();
   }
 
   get req() {

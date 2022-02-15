@@ -16,6 +16,19 @@ export default class Modal extends Listener {
   async exec(modal: ModalMessage) {
     const guild = modal.guild;
 
+    // Run handlers
+    try {
+      if (this.client.modalHandlers.has(modal.customId))
+        this.client.modalHandlers.get(modal.customId)(modal);
+    } catch {}
+    try {
+      if (this.client.modalHandlersOnce.has(modal.customId)) {
+        const handler = this.client.modalHandlersOnce.get(modal.customId);
+        this.client.modalHandlersOnce.delete(modal.customId);
+        handler(modal);
+      }
+    } catch {}
+
     if (modal.customId.startsWith("ticket_close")) {
       const channelId = modal.customId.slice(13) as Snowflake;
       const channel = this.client.channels.cache.get(channelId) as

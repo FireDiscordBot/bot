@@ -382,33 +382,15 @@ export class FakeChannel extends BaseFakeChannel {
     )
       data.flags -= 64;
 
-    if (!this.message.sent)
-      await this.client.req
-        .interactions(this.interactionId)(this.token)
-        .callback.post({
-          data: {
-            type: 4,
-            data,
-          },
-          files,
-        })
-        .then(() => {
-          this.message.sent = "message";
-          this.message.latestResponse = "@original" as Snowflake;
-        })
-        .catch(() => {});
-    else {
-      const message = await this.client.req
-        .webhooks(this.client.user.id)(this.token)
-        .post<APIMessage>({
-          data,
-          files,
-          query: { wait: true },
-        })
-        .catch(() => {});
-      if (message && message.id) this.message.latestResponse = message.id;
-      else this.message.latestResponse = "@original" as Snowflake;
-    }
+    const message = await this.client.req
+      .webhooks(this.client.user.id)(this.token)
+      .post<APIMessage>({
+        data,
+        files,
+        query: { wait: true },
+      })
+      .catch(() => {});
+    if (message && message.id) this.message.latestResponse = message.id;
     return this.message;
   }
 

@@ -1,11 +1,22 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { CommandInteractionOption, MessageAttachment } from "discord.js";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { Codeblock } from "@fire/src/arguments/codeblock";
-import { Language } from "@fire/lib/util/language";
+import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
+import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { Command } from "@fire/lib/util/command";
-import * as fuzz from "fuzzball";
+import { Language } from "@fire/lib/util/language";
+import { Codeblock } from "@fire/src/arguments/codeblock";
 import * as centra from "centra";
+import {
+  CommandInteractionOption,
+  MessageActionRow,
+  MessageAttachment,
+  Modal,
+  ModalActionRowComponent,
+  Snowflake,
+  SnowflakeUtil,
+  TextInputComponent,
+} from "discord.js";
+import { TextInputStyles } from "discord.js/typings/enums";
+import * as fuzz from "fuzzball";
 
 const validThemes = [
   "3024-night",
@@ -53,30 +64,11 @@ const validFonts = [
   "Space Mono",
   "Ubuntu Mono",
 ];
-const languageMapping = {
-  objectivec: "text/x-objectivec",
-  bash: "application/x-sh",
-  json: "application/json",
-  apache: "text/apache",
-  cpp: "text/x-c++src",
-  kt: "text/x-kotlin",
-  cs: "text/x-csharp",
-  diff: "text/x-diff",
-  java: "text/x-java",
-  sql: "text/x-mysql",
-  php: "text/x-php",
-  js: "javascript",
-  ts: "typescript",
-  xml: "htmlmixed",
-  go: "text/x-go",
-  py: "python",
-  ini: "toml",
-};
 
 const getFuzzy = (items: string[], name: string) => {
   let ratio = 90;
   let fuzzy: string[] = [];
-  while (!fuzzy.length && ratio >= 60) {
+  while (!fuzzy.length && ratio >= 40) {
     fuzzy = items.filter(
       (item) =>
         fuzz.ratio(name.trim().toLowerCase(), item.trim().toLowerCase()) >=
@@ -94,21 +86,10 @@ export default class Carbon extends Command {
         language.get("CARBON_COMMAND_DESCRIPTION"),
       args: [
         {
-          id: "code",
-          match: "rest",
-          type: "codeblock",
-          readableType: "code|listthemes|listfonts",
-          slashCommandType: "code",
-          default: null,
-          required: true,
-        },
-        {
           id: "theme",
           type: "string",
           required: false,
           autocomplete: true,
-          match: "option",
-          flag: "--theme",
           default: null,
         },
         {
@@ -116,14 +97,13 @@ export default class Carbon extends Command {
           type: "string",
           required: false,
           autocomplete: true,
-          match: "option",
-          flag: "--font",
           default: null,
         },
       ],
       enableSlashCommand: true,
       restrictTo: "all",
-      typing: true,
+      slashOnly: true,
+      ephemeral: true, // we need this so we don't acknowledge the slash command
       lock: "user",
     });
   }
@@ -142,10 +122,9 @@ export default class Carbon extends Command {
     return [];
   }
 
-  async exec(
-    message: FireMessage,
+  async run(
+    command: ApplicationCommandMessage,
     args: {
-      code: Codeblock;
       theme: string;
       font: string;
     }
@@ -155,14 +134,8 @@ export default class Carbon extends Command {
       !process.env.WS_AUTH ||
       !this.client.manager.ws?.open
     )
-      return await message.error("CARBON_NOT_READY");
+      return await command.error("CARBON_NOT_READY");
 
-    if (!args.code.content) return await message.error("CARBON_CODE_REQUIRED");
-    if (args.code.content == "listthemes")
-      return await message.channel.send({ content: validThemes.join(", ") });
-    else if (args.code.content == "listfonts")
-      return await message.channel.send({ content: validFonts.join(", ") });
-    const language = languageMapping[args.code.language] || "auto";
     let theme = "one-dark";
     let font = "JetBrains Mono";
     if (args.theme)
@@ -182,11 +155,40 @@ export default class Carbon extends Command {
           ) >= 85
       );
 
+    const modalPromise = this.waitForModal(command);
+    await (command.slashCommand as CommandInteraction).presentModal(
+      new Modal()
+        .setTitle(command.language.get("CARBON_MODAL_TITLE"))
+        .setCustomId(`carbon:${command.author.id}`)
+        .addComponents(
+          new MessageActionRow<ModalActionRowComponent>().addComponents(
+            new TextInputComponent()
+              .setCustomId("code")
+              .setRequired(true)
+              .setLabel(command.language.get("CARBON_MODAL_FIELD_NAME"))
+              .setPlaceholder(
+                command.language.get("CARBON_MODAL_FIELD_PLACEHOLDER")
+              )
+              .setStyle(TextInputStyles.PARAGRAPH)
+          )
+        )
+    );
+
+    const modal = await modalPromise;
+    await modal.channel.ack();
+    modal.flags = 64;
+
+    const code = modal.interaction.getTextInputValue("code");
+    if (!code?.length)
+      return await modal.error("COMMAND_ERROR_GENERIC", { id: "carbon" });
+
+    await modal.channel.send(modal.language.get("CARBON_IMAGE_PROCESSING"));
+
     const body = {
-      code: args.code.content,
+      code,
       windowControls: false,
       fontFamily: font,
-      language,
+      language: "auto",
       theme,
     };
 
@@ -203,10 +205,18 @@ export default class Carbon extends Command {
       .catch(() => {});
 
     if (!image || image.statusCode != 200)
-      return await message.error("CARBON_IMAGE_FAILED");
+      return await modal.edit("CARBON_IMAGE_FAILED");
     else {
+      await modal.edit(modal.language.get("CARBON_IMAGE_UPLOADING"));
+      modal.flags = 0;
       const attach = new MessageAttachment(image.body, "code.png");
-      return await message.channel.send({ files: [attach] });
+      return await modal.channel.send({ files: [attach] });
     }
+  }
+
+  waitForModal(command: ApplicationCommandMessage): Promise<ModalMessage> {
+    return new Promise((resolve) => {
+      this.client.modalHandlersOnce.set(`carbon:${command.author.id}`, resolve);
+    });
   }
 }
