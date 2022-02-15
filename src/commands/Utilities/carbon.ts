@@ -204,9 +204,20 @@ export default class Carbon extends Command {
       .send()
       .catch(() => {});
 
-    if (!image || image.statusCode != 200)
-      return await modal.edit("CARBON_IMAGE_FAILED");
-    else {
+    if (!image || image.statusCode != 200) {
+      if (!image || !modal.author.isSuperuser())
+        return await modal.edit(modal.language.getError("CARBON_IMAGE_FAILED"));
+      const response = await this.client.util.haste(
+        image.body.toString(),
+        true
+      );
+      return await modal.edit(
+        modal.language.getError("CARBON_IMAGE_FAILED_SUPERUSER", {
+          status: image.statusCode,
+          body: response,
+        })
+      );
+    } else {
       await modal.edit(modal.language.get("CARBON_IMAGE_UPLOADING"));
       modal.flags = 0;
       const attach = new MessageAttachment(image.body, "code.png");

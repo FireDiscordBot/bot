@@ -350,6 +350,7 @@
   "CARBON_MODAL_FIELD_PLACEHOLDER": "Enter your code here",
   "CARBON_IMAGE_PROCESSING": "Turning your code into an image...",
   "CARBON_IMAGE_FAILED": "Failed to generate image!",
+  "CARBON_IMAGE_FAILED_SUPERUSER": "Failed to generate image! Response Status: {{status}}, Response Body: {{body}}",
   "CARBON_IMAGE_UPLOADING": "Image generated, uploading now...",
   "CHANNELCREATELOG_AUTHOR": "{{type}} Channel Create | {{guild}}",
   "CHANNELCREATELOG_MUTE_PERMS_FAIL": "I was unable to set permissions for the muted role in this channel, users may be able to bypass mutes here.\nMake sure I have permission to manage roles",
