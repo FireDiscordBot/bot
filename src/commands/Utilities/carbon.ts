@@ -40,13 +40,13 @@ const validThemes = [
 ];
 const validFonts = [
   "Anonymous Pro",
+  "Cascadia Code",
   "Droid Sans Mono",
   "Fantasque Sans Mono",
   "Fira Code",
   "Hack",
   "IBM Plex Mono",
   "Inconsolata",
-  "Iosevka",
   "JetBrains Mono",
   "Monoid",
   "Source Code Pro",
