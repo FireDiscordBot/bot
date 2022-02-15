@@ -344,6 +344,8 @@
   "BLOCK_GOD": "That user has a role higher than or equal to your highest and are too powerful for you to block",
   "BLOCK_ROLE_HIGH": "That role is higher than or equal to your highest and is too powerful for you to block",
   "CARBON_COMMAND_DESCRIPTION": "Create and share beautiful images of your code.",
+  "CARBON_ARGUMENT_THEME_DESCRIPTION": "The theme to use",
+  "CARBON_ARGUMENT_FONT_DESCRIPTION": "The font to use",
   "CARBON_NOT_READY": "Seems some environment variables are missing or I am not connected to Aether. This should *rarely* happen in production but if it does, wait a few minutes and try again",
   "CARBON_MODAL_TITLE": "Carbon",
   "CARBON_MODAL_FIELD_NAME": "Code",

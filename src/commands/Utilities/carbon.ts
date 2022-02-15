@@ -88,6 +88,8 @@ export default class Carbon extends Command {
         {
           id: "theme",
           type: "string",
+          description: (language: Language) =>
+            language.get("CARBON_ARGUMENT_THEME_DESCRIPTION"),
           required: false,
           autocomplete: true,
           default: null,
@@ -95,6 +97,8 @@ export default class Carbon extends Command {
         {
           id: "font",
           type: "string",
+          description: (language: Language) =>
+            language.get("CARBON_ARGUMENT_FONT_DESCRIPTION"),
           required: false,
           autocomplete: true,
           default: null,
