@@ -24,7 +24,7 @@ export default class MakeAMeme extends Command {
           description: (language: Language) =>
             language.get("MAKEAMEME_ARGUMENTS_TOP_DESCRIPTION"),
           match: "rest",
-          default: null,
+          default: "",
           required: false,
         },
         {
@@ -33,7 +33,7 @@ export default class MakeAMeme extends Command {
           description: (language: Language) =>
             language.get("MAKEAMEME_ARGUMENTS_BOTTOM_DESCRIPTION"),
           match: "rest",
-          default: null,
+          default: "",
           required: false,
         },
       ],
