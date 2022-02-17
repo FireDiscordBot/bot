@@ -35,7 +35,8 @@ export type ExperimentRange = { s: LowerBound; e: UpperBound };
 export type ExperimentFilters =
   | FeatureFilter
   | GuildIdRangeFilter
-  | GuildMemberCountFilter;
+  | GuildMemberCountFilter
+  | GuildIdFilter;
 
 // these are purely for clarity
 type Bucket = number;
@@ -57,6 +58,11 @@ export type GuildMemberCountFilter = [
   2918402255, // murmur3("guild_member_count_range")
   [3399957344, string | null], // murmur3("min_id"), minimum member count
   [1238858341, string | null] // murmur3("max_id"), maximum member count
+];
+
+export type GuildIdFilter = [
+  3013771838, // murmur3("guild_ids")
+  [[3013771838, Snowflake[]]] // murmur3("guild_ids"), array of guild ids
 ];
 
 export interface GuildApplicationCommandsUpdate {

@@ -37,6 +37,7 @@ import {
   ExperimentRange,
   Experiments,
   FeatureFilter,
+  GuildIdFilter,
   GuildIdRangeFilter,
   GuildMemberCountFilter,
 } from "../interfaces/discord";
@@ -706,7 +707,7 @@ export class Util extends ClientUtil {
                 ) &&
                 guildRange >= startAndEnd.s &&
                 guildRange < startAndEnd.e &&
-                this.applyFilters(guild, filters)
+                this.applyFilters(guild ?? { id, features: [] }, filters)
               ) {
                 hashAndBucket.push([experiment[0], b, startAndEnd, filters]);
                 continue;
@@ -744,7 +745,11 @@ export class Util extends ClientUtil {
   }
 
   private applyFilters(
-    guild: FireGuild | GuildPreview | OAuth2Guild,
+    guild:
+      | FireGuild
+      | GuildPreview
+      | OAuth2Guild
+      | { id: Snowflake; features: string[] },
     filters: ExperimentFilters[]
   ) {
     if (!filters.length) return true;
@@ -757,6 +762,9 @@ export class Util extends ClientUtil {
     const idRangeFilters = filters.filter(
       (filter) => filter[0] == 2404720969
     ) as GuildIdRangeFilter[];
+    const guildIdFilters = filters.filter(
+      (filter) => filter[0] == 3013771838
+    ) as GuildIdFilter[];
     const memberCountFilters = filters.filter(
       (filter) => filter[0] == 2918402255
     ) as GuildMemberCountFilter[];
@@ -784,6 +792,13 @@ export class Util extends ClientUtil {
             const max =
               typeof filter[2][1] == "string" ? BigInt(filter[2][1]) : null;
             return (min == null || id >= min) && (max == null || id <= max);
+          });
+      if (guildIdFilters.length)
+        isEligible =
+          isEligible &&
+          guildIdFilters.every((filter) => {
+            const ids = filter[1].flatMap(([, ids]) => ids);
+            return ids.includes(guild.id);
           });
       if (memberCountFilters.length)
         isEligible =
