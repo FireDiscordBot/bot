@@ -25,7 +25,7 @@ const validThemes = [
   "base16-dark",
   "base16-light",
   "cobalt",
-  "dracula",
+  "dracula-pro",
   "duotone-dark",
   "hopscotch",
   "lucario",
