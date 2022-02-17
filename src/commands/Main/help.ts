@@ -124,12 +124,19 @@ export default class Help extends Command {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor ?? "#FFFFFF")
       .addField(
-        message.language.get("HELP_CREDITS_NAME"),
-        message.language.get("HELP_CREDITS_VALUE", {
+        message.language.get("HELP_SOFTWARE_CREDITS_NAME"),
+        message.language.get("HELP_SOFTWARE_CREDITS_VALUE", {
           links:
             "[Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/)",
         }) +
-          "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n[@aero/ksoft](https://www.npmjs.com/package/@aero/ksoft)\n[Aether](https://git.farfrom.earth/aero/aether)\n"
+          "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n[@aero/ksoft](https://www.npmjs.com/package/@aero/ksoft)\n[Aether](https://ravy.dev/aero/aether)\n"
+      )
+      .addField(
+        message.language.get("HELP_EMOJI_CREDITS_NAME"),
+        message.language.get("HELP_EMOJI_CREDITS_VALUE", {
+          links:
+            "[Blob Hub Studios](https://inv.wtf/blobhub) & [Icons](https://inv.wtf/icons)",
+        })
       )
       .setFooter(
         message.language.get("HELP_FOOTER", {
