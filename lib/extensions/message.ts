@@ -1037,6 +1037,24 @@ export class FireMessage extends Message {
       lowerContent.includes("password")
     )
       return await triggerFilter("Try my game scam");
+    else if (
+      lowerContent.includes("bro") &&
+      lowerContent.includes("game") &&
+      lowerContent.includes("test")
+    )
+      return await triggerFilter("Try my game scam");
+    else if (
+      lowerContent.includes("game") &&
+      lowerContent.includes("test") &&
+      lowerContent.includes(".rar")
+    )
+      return await triggerFilter("Try my game scam");
+    else if (
+      lowerContent.includes("game") &&
+      lowerContent.includes("test") &&
+      lowerContent.includes(".exe")
+    )
+      return await triggerFilter("Try my game scam");
   }
 }
 
