@@ -140,7 +140,7 @@ export class FireMessage extends Message {
   }
 
   async send(key: LanguageKeys, args?: i18nOptions) {
-    if (this.channel.deleted) return;
+    if (!this.channel || this.channel.deleted) return;
     let upsell: MessageEmbed | false;
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
@@ -155,6 +155,7 @@ export class FireMessage extends Message {
 
   async reply(options: string | MessagePayload | ReplyMessageOptions) {
     if (
+      !this.channel ||
       this.channel.deleted ||
       (this.guild && !this.guild.me?.permissions.has("READ_MESSAGE_HISTORY"))
     )
@@ -166,7 +167,7 @@ export class FireMessage extends Message {
     key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
-    if ((!key && this.deleted) || this.channel.deleted) return;
+    if (!this.channel || this.channel.deleted) return;
     let upsell: MessageEmbed | false;
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
@@ -185,7 +186,7 @@ export class FireMessage extends Message {
     key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
-    if ((!key && this.deleted) || this.channel.deleted) return;
+    if (!this.channel || this.channel.deleted) return;
     let upsell: MessageEmbed | false;
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
@@ -204,7 +205,7 @@ export class FireMessage extends Message {
     key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
-    if ((!key && this.deleted) || this.channel.deleted) return;
+    if (!this.channel || this.channel.deleted) return;
     let upsell: MessageEmbed | false;
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
@@ -222,6 +223,7 @@ export class FireMessage extends Message {
   async react(emoji: EmojiIdentifierResolvable) {
     if (
       (this.channel instanceof ThreadChannel && this.channel.archived) ||
+      !this.channel ||
       this.channel.deleted
     )
       return;
