@@ -513,7 +513,7 @@ export class Command extends AkairoCommand {
             args[arg.id] =
               (
                 message.slashCommand as CommandInteraction
-              ).options.getAttachment(name) ?? arg.default;
+              ).options?.getAttachment?.(name) ?? arg.default;
           }
           default: {
             const resolver = this.client.commandHandler.resolver.types.get(
