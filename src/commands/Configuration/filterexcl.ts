@@ -30,6 +30,8 @@ export default class FilterExclude extends Command {
     });
   }
 
+  // soon:tm:
+
   async exec(
     message: FireMessage,
     args: { toexclude?: FireMember | Role | FireTextChannel | CategoryChannel }
