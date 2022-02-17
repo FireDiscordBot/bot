@@ -28,6 +28,7 @@ import {
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
 import { codeblockTypeCaster } from "../arguments/codeblock";
+import Anti from "../commands/Configuration/anti";
 import Rank from "../commands/Premium/rank";
 import Essential from "../modules/essential";
 import Sk1er from "../modules/sk1er";
@@ -286,6 +287,81 @@ export default class Button extends Listener {
           return await button.error("COMMAND_ERROR_GENERIC", { id: "rank" });
         else
           return await button.success("RANKS_JOIN_RANK", { role: role.name });
+      }
+    }
+
+    if (button.customId.startsWith("anti:") && button.guild) {
+      button.flags = 64;
+      if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
+        return await button
+          .error("MISSING_PERMISSIONS_USER", {
+            permissions: this.client.util.cleanPermissionName(
+              "MANAGE_MESSAGES",
+              button.language
+            ),
+            command: "anti",
+          })
+          .catch(() => {});
+
+      const anti = this.client.getCommand("anti") as Anti;
+
+      const update = async () =>
+        button.channel.update({
+          content: button.language.get("ANTI_CURRENT_OPTIONS"),
+          components: anti.getMenuComponents(button),
+        });
+
+      const type = button.customId.slice(5);
+      switch (type) {
+        case "everyone": {
+          const current = button.guild.settings.get<boolean>(
+            "mod.antieveryone",
+            false
+          );
+          button.guild.settings.set<boolean>("mod.antieveryone", !current);
+          await update();
+          return current
+            ? await button.success("ANTI_EVERYONE_DISABLED")
+            : await button.success("ANTI_EVERYONE_ENABLED");
+        }
+        case "zws": {
+          const current = button.guild.settings.get<boolean>(
+            "mod.antizws",
+            false
+          );
+          button.guild.settings.set<boolean>("mod.antizws", !current);
+          await update();
+          return current
+            ? await button.success("ANTI_ZWS_DISABLED")
+            : await button.success("ANTI_ZWS_ENABLED");
+        }
+        case "spoiler": {
+          const current = button.guild.settings.get<boolean>(
+            "mod.antispoilers",
+            false
+          );
+          button.guild.settings.set<boolean>("mod.antispoilers", !current);
+          await update();
+          return current
+            ? await button.success("ANTI_SPOILER_DISABLED")
+            : await button.success("ANTI_SPOILER_ENABLED");
+        }
+        case "selfbot": {
+          const current = button.guild.settings.get<boolean>(
+            "mod.antiselfbot",
+            false
+          );
+          button.guild.settings.set<boolean>("mod.antiselfbot", !current);
+          await update();
+          return current
+            ? await button.success("ANTI_SELFBOT_DISABLED")
+            : await button.success("ANTI_SELFBOT_ENABLED");
+        }
+        default: {
+          return await button.error("ANTI_UNKNOWN", {
+            valid: anti.valid.join(", "),
+          });
+        }
       }
     }
 
