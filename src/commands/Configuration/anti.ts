@@ -1,6 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import { Command } from "@fire/lib/util/command";
+import { CommonContext } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { MessageActionRow, MessageButton, Permissions } from "discord.js";
 
@@ -26,7 +26,7 @@ export default class Anti extends Command {
     });
   }
 
-  getMenuComponents(context: { guild?: FireGuild; language: Language }) {
+  getMenuComponents(context: CommonContext) {
     if (!context.guild) return [];
     return [
       new MessageActionRow().addComponents(

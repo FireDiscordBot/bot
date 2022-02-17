@@ -1,74 +1,109 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
+import { CommonContext } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { MessageActionRow, MessageSelectMenu, Permissions } from "discord.js";
 
-const valid = [
-  "discord",
-  "paypal",
-  "youtube",
-  "twitch",
-  "twitter",
-  "shorteners",
-];
+export type LinkFilters =
+  | "discord"
+  | "paypal"
+  | "youtube"
+  | "twitch"
+  | "twitter"
+  | "shorteners";
 
 export default class LinkFilter extends Command {
+  valid = {
+    names: ["discord", "paypal", "youtube", "twitch", "twitter", "shorteners"],
+    options: (context: CommonContext) => {
+      if (!context.guild) return [];
+      const enabled = context.guild.settings.get<LinkFilters[]>(
+        "mod.linkfilter",
+        []
+      );
+      return [
+        {
+          label: "Discord",
+          value: "discord",
+          emoji: "866329296020701218",
+          description: context.language.get("LINKFILTER_DISCORD"),
+          default: enabled.includes("discord"),
+        },
+        {
+          label: "PayPal",
+          value: "paypal",
+          emoji: "866997310332207134", // placeholder emoji
+          description: context.language.get("LINKFILTER_PAYPAL"),
+          default: enabled.includes("paypal"),
+        },
+        {
+          label: "YouTube",
+          value: "youtube",
+          emoji: "861863653962416128",
+          description: context.language.get("LINKFILTER_YOUTUBE"),
+          default: enabled.includes("youtube"),
+        },
+        {
+          label: "Twitch",
+          value: "twitch",
+          emoji: "908592812046573588",
+          description: context.language.get("LINKFILTER_TWITCH"),
+          default: enabled.includes("twitch"),
+        },
+        {
+          label: "Twitter",
+          value: "twitter",
+          emoji: "861863654097682452",
+          description: context.language.get("LINKFILTER_TWITTER"),
+          default: enabled.includes("twitter"),
+        },
+        {
+          label: "Link Shorteners",
+          value: "shorteners",
+          emoji: "859388126875484180",
+          description: context.language.get("LINKFILTER_SHORTENERS"),
+          default: enabled.includes("shorteners"),
+        },
+        {
+          label: "Disable All Filters",
+          value: "disable",
+          emoji: "859388130636988436",
+          description: context.language.get("LINKFILTER_DISABLE"),
+        },
+      ];
+    },
+  };
   constructor() {
     super("linkfilter", {
       description: (language: Language) =>
         language.get("LINKFILTER_COMMAND_DESCRIPTION"),
       clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
       userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
-      args: [
-        {
-          id: "filters",
-          type: "string",
-          readableType: "filters",
-          autocomplete: true,
-          required: false,
-          default: null,
-        },
-      ],
       enableSlashCommand: true,
       restrictTo: "guild",
       slashOnly: true,
+      args: [],
     });
   }
 
-  async autocomplete() {
-    // allows it to be immediately updated rather than waiting for the command to propogate
-    return valid;
+  async run(command: ApplicationCommandMessage) {
+    return await command.send("LINKFILTER_FILTER_LIST", {
+      components: this.getMenuComponents(command),
+    });
   }
 
-  async run(
-    command: ApplicationCommandMessage,
-    args: {
-      filters:
-        | "discord"
-        | "paypal"
-        | "youtube"
-        | "twitch"
-        | "twitter"
-        | "shorteners";
-    }
-  ) {
-    if (!args.filters || !valid.includes(args.filters))
-      return await command.error("LINKFILTER_FILTER_LIST", {
-        valid: valid.join(", "),
-      });
-    else {
-      let current = command.guild.settings.get<string[]>("mod.linkfilter", []);
-      const filter = args.filters;
-      if (current.includes(filter))
-        current = current.filter((f) => f != filter && valid.includes(f));
-      else current.push(filter);
-      if (current.length)
-        command.guild.settings.set<string[]>("mod.linkfilter", current);
-      else command.guild.settings.delete("mod.linkfilter");
-      return await command.success(
-        current.length ? "LINKFILTER_SET" : "LINKFILTER_RESET",
-        { enabled: current.join(", ") }
-      );
-    }
+  getMenuComponents(context: CommonContext) {
+    if (!context.guild) return [];
+    const options = this.valid.options(context);
+    return [
+      new MessageActionRow().addComponents(
+        new MessageSelectMenu()
+          .setPlaceholder(context.language.get("LINKFILTER_PLACEHOLDER"))
+          .setCustomId(`!linkfilters`)
+          .addOptions(options)
+          .setMinValues(1)
+          .setMaxValues(options.length)
+      ),
+    ];
   }
 }

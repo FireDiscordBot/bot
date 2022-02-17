@@ -3,8 +3,9 @@ import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { Formatters, Snowflake } from "discord.js";
+import { Formatters, Permissions, Snowflake } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
+import LinkFilter from "../commands/Configuration/linkfilter";
 
 const reminderSnoozeTimes = [
   300000, 1800000, 3600000, 21600000, 43200000, 86400000, 259200000, 604800000,
@@ -190,6 +191,58 @@ export default class Select extends Listener {
           embeds: message.embeds,
         });
       }
+    }
+
+    if (select.customId == "linkfilters" && select.guild) {
+      select.flags = 64;
+      if (!select.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+        return await select
+          .error("MISSING_PERMISSIONS_USER", {
+            permissions: this.client.util.cleanPermissionName(
+              "MANAGE_GUILD",
+              select.language
+            ),
+            command: "linkfilter",
+          })
+          .catch(() => {});
+
+      const linkfilter = this.client.getCommand("linkfilter") as LinkFilter;
+
+      // handle disable first
+      if (select.values.includes("disable")) {
+        select.guild.settings.delete("mod.linkfilter");
+        await select.channel.update({
+          content: select.language.get("LINKFILTER_FILTER_LIST"),
+          components: linkfilter.getMenuComponents(select),
+        });
+        if (!select.guild.settings.has("mod.linkfilter"))
+          return await select.success("LINKFILTER_RESET");
+        else
+          return await select.error("COMMAND_ERROR_GENERIC", {
+            id: "linkfilter",
+          });
+      }
+
+      const values = select.values.filter((f) =>
+        linkfilter.valid.names.includes(f)
+      );
+      select.guild.settings.set("mod.linkfilter", values);
+      await select.channel.update({
+        content: select.language.get("LINKFILTER_FILTER_LIST"),
+        components: linkfilter.getMenuComponents(select),
+      });
+      if (
+        select.guild.settings
+          .get("mod.linkfilter", [])
+          .every((f) => values.includes(f))
+      )
+        return await select.success("LINKFILTER_SET", {
+          enabled: values.join(", "),
+        });
+      else
+        return await select.error("COMMAND_ERROR_GENERIC", {
+          id: "linkfilter",
+        });
     }
   }
 }

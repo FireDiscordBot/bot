@@ -8,6 +8,7 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Module } from "@fire/lib/util/module";
 import * as sanitizer from "@aero/sanitizer";
 import * as centra from "centra";
+import { LinkFilters } from "../commands/Configuration/linkfilter";
 
 const { regexes } = constants;
 
@@ -66,7 +67,8 @@ export default class Filters extends Module {
     const guild = message?.guild ?? member?.guild;
     if ((message && message.author.bot) || (user && user.bot)) return false;
     if (!guild && !member) return false;
-    if (!guild.settings.get("mod.linkfilter", []).length) return false;
+    if (!guild.settings.get<LinkFilters[]>("mod.linkfilter", []).length)
+      return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
     const excluded =
       guild?.settings.get<Snowflake[]>("excluded.filter", []) ?? [];
@@ -90,7 +92,10 @@ export default class Filters extends Module {
     exclude: string[] = []
   ) {
     if (!this.shouldRun(message)) return;
-    const enabled = message.guild.settings.get<string[]>("mod.linkfilter", []);
+    const enabled = message.guild.settings.get<LinkFilters[]>(
+      "mod.linkfilter",
+      []
+    );
     if (this.debug.includes(message.guild.id) && enabled.length)
       this.client.console.warn(
         `[Filters] Running handler(s) for filters ${enabled.join(
@@ -102,7 +107,7 @@ export default class Filters extends Module {
       extra,
     ])) as [FireMessage, string];
     for (const name of Object.keys(this.filters))
-      if (!exclude.includes(name) && enabled.includes(name)) {
+      if (!exclude.includes(name) && enabled.includes(name as LinkFilters)) {
         if (this.debug.includes(message.guild.id))
           this.client.console.warn(`[Filters] Running handler(s) for ${name}`);
         this.filters[name].map(
@@ -129,7 +134,7 @@ export default class Filters extends Module {
     const enabled: string[] =
       !context || context instanceof FireUser
         ? []
-        : context.guild?.settings.get<string[]>("mod.linkfilter", []);
+        : context.guild?.settings.get<LinkFilters[]>("mod.linkfilter", []);
     for (const [name, regexes] of Object.entries(this.regexes)) {
       if (!enabled.includes(name)) continue;
       for (const regex of regexes) {

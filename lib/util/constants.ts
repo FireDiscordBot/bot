@@ -10,6 +10,8 @@ import { StringMap, TOptions } from "i18next";
 import { FireTextChannel } from "../extensions/textchannel";
 import { FireVoiceChannel } from "../extensions/voicechannel";
 import humanizeDuration = require("humanize-duration");
+import { FireGuild } from "../extensions/guild";
+import { Language } from "./language";
 
 const emojiRegex = require("emoji-regex")() as RegExp;
 const emojiRegexStr = emojiRegex.toString();
@@ -72,6 +74,8 @@ export type i18nOptions = TOptions<StringMap> & {
   reply?: ReplyOptions;
   includeSlashUpsell?: boolean;
 };
+
+export type CommonContext = { guild?: FireGuild; language: Language };
 
 // errors thrown by the base command class exec & run methods telling you to use the other method
 export class UseExec extends Error {}
