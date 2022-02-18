@@ -25,18 +25,40 @@ export default class Color extends Command {
           id: "color",
           type: "string",
           readableType: "color",
+          description: (language: Language) =>
+            language.get("COLOR_ARGUMENT_COLOR_DESCRIPTION"),
+          required: false,
+          default: undefined,
+        },
+        {
+          id: "member",
+          type: "member",
+          description: (language: Language) =>
+            language.get("COLOR_ARGUMENT_MEMBER_DESCRIPTION"),
+          required: false,
+          default: undefined,
+        },
+        {
+          id: "role",
+          type: "role",
+          description: (language: Language) =>
+            language.get("COLOR_ARGUMENT_ROLE_DESCRIPTION"),
           required: false,
           default: undefined,
         },
       ],
-      aliases: ["colour", "colors", "colours"],
       enableSlashCommand: true,
-      restrictTo: "all",
+      slashOnly: true,
     });
   }
 
-  async exec(message: FireMessage, args: { color?: string }) {
-    const color: tinycolor.Instance = maybeColor(args.color);
+  async exec(
+    message: FireMessage,
+    args: { color?: string; member?: FireMember; role?: Role }
+  ) {
+    const colorStr =
+      args.member?.displayHexColor ?? args.role?.hexColor ?? args.color;
+    const color: tinycolor.Instance = maybeColor(colorStr);
     if (!color || typeof color.isValid != "function" || !color.isValid()) {
       return await message.error("COLOR_ARGUMENT_INVALID", {
         random: tinycolor.random().toHexString(),
