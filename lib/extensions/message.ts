@@ -857,13 +857,7 @@ export class FireMessage extends Message {
   }
 
   async runPhishFilters() {
-    if (
-      !this.guild ||
-      this.author?.bot ||
-      this.webhookId ||
-      !this.guild?.hasExperiment(936071411, [1, 2])
-    )
-      return;
+    if (!this.guild || this.author?.bot || this.webhookId) return;
     const lowerContent = sanitizer(
       (this.content + (this.embeds.map((e) => e.description).join(" ") ?? ""))
         .toLowerCase()
@@ -911,10 +905,11 @@ export class FireMessage extends Message {
             embeds_raw: embedsHaste?.raw,
             links: linkHaste?.url,
             links_raw: linkHaste?.raw,
-            nonce: this.nonce,
+            nonce: this.nonce ?? "none",
           },
         },
       ]);
+      if (!this.guild?.hasExperiment(936071411, [1, 2])) return;
       if (process.env.NODE_ENV == "development")
         return await this.reply("triggered steam/nitro phishing detection");
       return await this.member
