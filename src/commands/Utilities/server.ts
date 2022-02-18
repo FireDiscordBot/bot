@@ -24,6 +24,8 @@ export default class GuildCommand extends Command {
         {
           id: "guild",
           type: "preview",
+          description: (language: Language) =>
+            language.get("GUILD_ARGUMENT_PREVIEW_DESCRIPTION"),
           default: undefined,
           required: false,
         },
