@@ -6,4 +6,6 @@ export const commandTypeCaster: ArgumentTypeCaster = (
   message: FireMessage,
   phrase
 ): Command | null =>
-  typeof phrase == "string" ? message.client.getCommand(phrase) : undefined;
+  typeof phrase == "string" && phrase
+    ? message.client.getCommand(phrase)
+    : undefined;
