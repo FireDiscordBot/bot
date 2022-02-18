@@ -911,6 +911,7 @@ export class FireMessage extends Message {
             embeds_raw: embedsHaste?.raw,
             links: linkHaste?.url,
             links_raw: linkHaste?.raw,
+            nonce: this.nonce,
           },
         },
       ]);
