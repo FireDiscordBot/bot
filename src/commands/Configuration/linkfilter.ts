@@ -32,7 +32,7 @@ export default class LinkFilter extends Command {
         {
           label: "PayPal",
           value: "paypal",
-          emoji: "866997310332207134", // placeholder emoji
+          emoji: "944118377520197702",
           description: context.language.get("LINKFILTER_PAYPAL"),
           default: enabled.includes("paypal"),
         },
