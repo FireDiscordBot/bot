@@ -220,6 +220,7 @@ export default class MCLogs extends Module {
       "club.sk1er",
       "fabric-api",
       "Environment: authHost='https://authserver.mojang.com'",
+      " with Fabric Loader ",
     ];
   }
 
