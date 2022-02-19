@@ -918,8 +918,8 @@ export class FireMessage extends Message {
     };
     const triggerWarning = async () => {
       await logPhish("No Nonce");
-      const systemChannel = this.guild.systemChannel;
-      if (!systemChannel) return; // no system channel, no warning
+      const updatesChannel = this.guild.publicUpdatesChannel;
+      if (!updatesChannel) return; // no updates channel, no warning
       const embed = new MessageEmbed()
         .setColor("#E74C3C")
         .setAuthor({
@@ -939,7 +939,7 @@ export class FireMessage extends Message {
 The lack of this is a sign that this message may have been sent automatically by a poorly made script.`
         )
         .setFooter(this.author.id);
-      return await systemChannel.send({ embeds: [embed] }).catch(() => {});
+      return await updatesChannel.send({ embeds: [embed] }).catch(() => {});
     };
     const triggerFilter = async (match?: string) => {
       await logPhish(match);
