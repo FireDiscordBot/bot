@@ -50,7 +50,7 @@ If the guide helped, you can click the red button below to cancel opening a tick
 
 const supportNetworkMessage = `Connection to Essential's network is required for most features to function!
 
-The most common reason for not being able to connect is using a cracked/pirated version of Minecraft.
+The most common reason for not being able to connect is using or having previously used a cracked/pirated version of Minecraft or account "generator" software.
 
 Please select the most appropriate option below to continue.`;
 
