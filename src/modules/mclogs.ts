@@ -605,16 +605,18 @@ export default class MCLogs extends Module {
         "- Unless you know what you're doing, modifying your JVM args could have unintended side effects. It's best to use the defaults."
       );
 
-    const allocatedRam = this.regexes.ram.exec(log);
-    this.regexes.ram.lastIndex = 0;
-    if (parseInt(allocatedRam?.groups?.ram) > 4)
-      currentRecommendations.add(
-        `- Most of the time you don't need more than 2GB RAM allocated (maybe 3-4GB if you use skyblock mods). You may be able to reduce the amount of RAM allocated from ${
-          allocatedRam.groups.ram + allocatedRam.groups.type
-        } to ${allocatedRam[0].endsWith("G") ? "2G" : "2048M"} or ${
-          allocatedRam[0].endsWith("G") ? "3G" : "3072M"
-        }`
-      );
+    if (versions?.mcVersion == "1.8.9") {
+      const allocatedRam = this.regexes.ram.exec(log);
+      this.regexes.ram.lastIndex = 0;
+      if (parseInt(allocatedRam?.groups?.ram) > 4)
+        currentRecommendations.add(
+          `- Most of the time you don't need more than 2GB RAM allocated (maybe 3-4GB if you use skyblock mods). You may be able to reduce the amount of RAM allocated from ${
+            allocatedRam.groups.ram + allocatedRam.groups.type
+          } to ${allocatedRam[0].endsWith("G") ? "2G" : "2048M"} or ${
+            allocatedRam[0].endsWith("G") ? "3G" : "3072M"
+          }`
+        );
+    }
 
     for (const [rec, sol] of Object.entries(this.solutions.recommendations)) {
       if (
