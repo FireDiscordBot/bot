@@ -857,14 +857,20 @@ export class FireMessage extends Message {
   }
 
   async runPhishFilters() {
-    if (!this.guild || this.author?.bot || this.webhookId) return;
+    if (
+      !this.guild ||
+      this.author?.bot ||
+      this.webhookId ||
+      !this.guild?.hasExperiment(936071411, [1, 2])
+    )
+      return;
     const lowerContent = sanitizer(
       (this.content + (this.embeds.map((e) => e.description).join(" ") ?? ""))
         .toLowerCase()
         .replace(/\s/gim, "")
         .replace(regexes.zws, "")
     );
-    const triggerFilter = async (match?: string) => {
+    const logPhish = async (match?: string) => {
       let embedsHaste: { url: string; raw: string };
       if (this.embeds.length)
         embedsHaste = await this.client.util.haste(
@@ -909,28 +915,74 @@ export class FireMessage extends Message {
           },
         },
       ]);
-      if (!this.guild?.hasExperiment(936071411, [1, 2])) return;
+    };
+    const triggerWarning = async () => {
+      await logPhish("No Nonce");
+      const systemChannel = this.guild.systemChannel;
+      if (!systemChannel) return; // no system channel, no warning
+      const embed = new MessageEmbed()
+        .setColor("#E74C3C")
+        .setAuthor({
+          name: this.author.toString(),
+          iconURL: (this.member ?? this.author).displayAvatarURL({
+            format: "png",
+            dynamic: true,
+            size: 2048,
+          }),
+        })
+        .setTitle("Suspicious Message")
+        .setURL(this.url)
+        .setDescription(this.content)
+        .addField(
+          "Why?",
+          `This message was sent with no "nonce" which is used for message deduplication by Discord's official clients.
+The lack of this is a sign that this message may have been sent automatically by a poorly made script.`
+        )
+        .setFooter(this.author.id);
+      return await systemChannel.send({ embeds: [embed] }).catch(() => {});
+    };
+    const triggerFilter = async (match?: string) => {
+      await logPhish(match);
       if (process.env.NODE_ENV == "development")
         return await this.reply("triggered steam/nitro phishing detection");
-      return await this.member
-        ?.bean(
-          match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
-          this.guild.me,
-          null,
-          7,
-          this.guild?.hasExperiment(936071411, 1)
-            ? (this.channel as FireTextChannel)
-            : undefined
-        )
-        .then((result) => {
-          if (
-            result instanceof FireMessage &&
-            result.guild?.me
-              ?.permissionsIn(this.channel as FireTextChannel)
-              ?.has("ADD_REACTIONS")
+      if (!this.nonce)
+        return await this.member
+          ?.bean(
+            match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
+            this.guild.me,
+            null,
+            7,
+            this.guild?.hasExperiment(936071411, 1)
+              ? (this.channel as FireTextChannel)
+              : undefined
           )
-            result.react("🎣").catch(() => {});
-        });
+          .then((result) => {
+            if (
+              result instanceof FireMessage &&
+              result.guild?.me
+                ?.permissionsIn(this.channel as FireTextChannel)
+                ?.has("ADD_REACTIONS")
+            )
+              result.react("🎣").catch(() => {});
+          });
+      else
+        return await this.member
+          ?.yeet(
+            match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
+            this.guild.me,
+            this.guild?.hasExperiment(936071411, 1)
+              ? (this.channel as FireTextChannel)
+              : undefined
+          )
+          .then((result) => {
+            if (
+              result instanceof FireMessage &&
+              result.guild?.me
+                ?.permissionsIn(this.channel as FireTextChannel)
+                ?.has("ADD_REACTIONS")
+            )
+              result.react("🎣").catch(() => {});
+          });
     };
     if (
       lowerContent.includes("@everyone") &&
@@ -1051,6 +1103,9 @@ export class FireMessage extends Message {
       lowerContent.includes(".exe")
     )
       return await triggerFilter("Try my game scam");
+    // always keep this last
+    else if (lowerContent.includes("http") && !this.nonce)
+      return await triggerWarning();
   }
 }
 
