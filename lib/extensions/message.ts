@@ -864,6 +864,11 @@ export class FireMessage extends Message {
       !this.guild?.hasExperiment(936071411, [1, 2])
     )
       return;
+    if (
+      this.editedTimestamp &&
+      this.editedTimestamp - this.createdTimestamp > 60000
+    )
+      return;
     const lowerContent = sanitizer(
       (this.content + (this.embeds.map((e) => e.description).join(" ") ?? ""))
         .toLowerCase()
