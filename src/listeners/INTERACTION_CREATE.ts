@@ -1,14 +1,11 @@
 // The case of the file name is just to signify that
 // this is listening to an event directly from the gateway
 
-import {
-  ApplicationCommandAutocompleteInteraction,
-  ApplicationCommandOptionType,
-  Interaction,
-} from "@fire/lib/interfaces/interactions";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { Interaction } from "@fire/lib/interfaces/interactions";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { Severity } from "@sentry/node";
 
 const { emojis } = constants;
 
@@ -38,7 +35,7 @@ export default class InteractionCreate extends Listener {
         "json"
       );
       this.client.sentry.captureEvent({
-        level: this.client.sentry.Severity.fromString("warning"),
+        level: Severity.Warning,
         message: "Unknown Interaction Type",
         timestamp: +new Date(),
         extra: {

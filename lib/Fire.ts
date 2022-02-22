@@ -57,7 +57,7 @@ import {
 } from "discord.js";
 import * as fuzz from "fuzzball";
 import * as i18next from "i18next";
-import { Client as PGClient } from "ts-postgres";
+import { Client as PGClient, SSLMode } from "ts-postgres";
 import { ApplicationCommandMessage } from "./extensions/appcommandmessage";
 import { ComponentMessage } from "./extensions/componentmessage";
 import { ContextCommandMessage } from "./extensions/contextcommandmessage";
@@ -437,6 +437,7 @@ export class Fire extends AkairoClient {
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASS,
       database: process.env.POSTGRES_DB,
+      ssl: SSLMode.Disable, // we're connecting locally
     });
     this.db.on("error", (err) =>
       this.console.error(`[DB] An error occured\n${err.stack}`)

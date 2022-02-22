@@ -358,8 +358,8 @@ export class Util extends ClientUtil {
 
   cleanFeatureName(feature: string, language?: Language): string {
     language = language ?? this.client.getLanguage("en-US");
-    if (language.has(`FEATURES.${feature}` as LanguageKeys))
-      return language.get(`FEATURES.${feature}` as LanguageKeys);
+    if (language.has(`FEATURES.${feature}` as unknown as LanguageKeys))
+      return language.get(`FEATURES.${feature}` as unknown as LanguageKeys);
     return titleCase(feature.toLowerCase().replace(/guild/, "server"), "_");
   }
 

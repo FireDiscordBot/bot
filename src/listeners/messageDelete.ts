@@ -116,7 +116,7 @@ export default class MessageDelete extends Listener {
             message.guild.language.get("MSGDELETELOG_ACTIVITY", {
               partyID: message.activity.partyId,
               type: message.guild.language.get(
-                `ACTIVITY_TYPES.${message.activity.type}` as LanguageKeys
+                `ACTIVITY_TYPES.${message.activity.type}` as unknown as LanguageKeys
               ),
             })
         );

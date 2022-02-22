@@ -150,11 +150,13 @@ export default class ChannelUpdate extends Listener {
           embed.addField(
             language.get("REGION"),
             `${
-              language.get(`REGIONS.${before.rtcRegion}` as LanguageKeys) ||
-              "¯\\\\_(ツ)_/¯"
+              language.get(
+                `REGIONS.${before.rtcRegion}` as unknown as LanguageKeys
+              ) || "¯\\\\_(ツ)_/¯"
             } ➜ ${
-              language.get(`REGIONS.${after.rtcRegion}` as LanguageKeys) ||
-              "¯\\\\_(ツ)_/¯"
+              language.get(
+                `REGIONS.${after.rtcRegion}` as unknown as LanguageKeys
+              ) || "¯\\\\_(ツ)_/¯"
             }`
           );
         }

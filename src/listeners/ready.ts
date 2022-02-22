@@ -9,7 +9,7 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import {
   ApplicationCommand,
-  ApplicationCommandData,
+  ApplicationCommandDataResolvable,
   Collection,
   Snowflake,
 } from "discord.js";
@@ -110,9 +110,11 @@ export default class Ready extends Listener {
     const appCommands = await this.client.application.commands.fetch();
 
     if (appCommands?.size || process.env.NODE_ENV == "development") {
-      let commands: (ApplicationCommandData & { id?: string })[] = appCommands
+      let commands = appCommands
         .filter((cmd) => cmd.type != "CHAT_INPUT")
         .toJSON();
+
+      type CommandItem = typeof commands[0];
 
       for (const cmd of this.client.commandHandler.modules.values()) {
         if (
@@ -125,7 +127,7 @@ export default class Ready extends Listener {
           commands.push(
             cmd.getSlashCommandJSON(
               appCommands.findKey((s) => s.name == cmd.id)
-            )
+            ) as CommandItem
           );
         else if (
           cmd.enableSlashCommand &&
@@ -133,7 +135,7 @@ export default class Ready extends Listener {
           !cmd.requiresExperiment &&
           !cmd.parent
         )
-          commands.push(cmd.getSlashCommandJSON());
+          commands.push(cmd.getSlashCommandJSON() as CommandItem);
       }
 
       if (process.env.NODE_ENV == "development") {
@@ -142,7 +144,7 @@ export default class Ready extends Listener {
         );
         for (const [, guild] of this.client.guilds.cache) {
           const updated = await guild.commands
-            .set(commands)
+            .set(commands as ApplicationCommandDataResolvable[])
             .catch((e: Error) => {
               this.client.console.error(
                 `[Commands] Failed to update slash commands in ${guild.name} (${guild.id})\n${e.stack}`
@@ -156,7 +158,7 @@ export default class Ready extends Listener {
         }
       } else {
         const updated = await this.client.application.commands
-          .set(commands)
+          .set(commands as ApplicationCommandDataResolvable[])
           .catch((e: Error) => {
             this.client.console.error(
               `[Commands] Failed to update slash commands\n${e.stack}`
