@@ -2,6 +2,7 @@ import { Fire } from "@fire/lib/Fire";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import {
   ActionLogType,
+  constants,
   GuildTextChannel,
   MemberLogType,
   ModLogType,
@@ -1452,7 +1453,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         name: message.stickers.map((sticker) => sticker.name)[0],
       })}`;
 
-    return text.trim() || "¯\\\\_(ツ)_/¯";
+    return text.trim() || constants.escapedShruggie;
   }
 
   async createModLogEntry(

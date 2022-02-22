@@ -1,12 +1,12 @@
-import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
+import { constants } from "@fire/lib/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
-import { GuildFeature } from "discord-api-types";
 import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { MessageEmbed } from "discord.js";
 
 export default class GuildUpdate extends Listener {
@@ -76,8 +76,8 @@ export default class GuildUpdate extends Listener {
       if (before.systemChannelId != after.systemChannelId)
         embed.addField(
           language.get("SYSTEM_CHANNEL"),
-          `${before.systemChannel?.name || "¯\\\\_(ツ)_/¯"} ➜ ${
-            after.systemChannel?.name || "¯\\\\_(ツ)_/¯"
+          `${before.systemChannel?.name || constants.escapedShruggie} ➜ ${
+            after.systemChannel?.name || constants.escapedShruggie
           }`
         );
       if (before.ownerId != after.ownerId)
@@ -93,10 +93,10 @@ export default class GuildUpdate extends Listener {
               size: 128,
               format: "png",
               dynamic: true,
-            }) || "¯\\\\_(ツ)_/¯"
+            }) || constants.escapedShruggie
           } ➜ ${
             after.iconURL({ size: 128, format: "png", dynamic: true }) ||
-            "¯\\\\_(ツ)_/¯"
+            constants.escapedShruggie
           }`
         );
       if (before.splash != after.splash)
@@ -106,9 +106,10 @@ export default class GuildUpdate extends Listener {
             before.splashURL({
               size: 2048,
               format: "png",
-            }) || "¯\\\\_(ツ)_/¯"
+            }) || constants.escapedShruggie
           } ➜ ${
-            after.splashURL({ size: 2048, format: "png" }) || "¯\\\\_(ツ)_/¯"
+            after.splashURL({ size: 2048, format: "png" }) ||
+            constants.escapedShruggie
           }`
         );
       if (before.banner != after.banner)
@@ -118,9 +119,10 @@ export default class GuildUpdate extends Listener {
             before.bannerURL({
               size: 2048,
               format: "png",
-            }) || "¯\\\\_(ツ)_/¯"
+            }) || constants.escapedShruggie
           } ➜ ${
-            after.bannerURL({ size: 2048, format: "png" }) || "¯\\\\_(ツ)_/¯"
+            after.bannerURL({ size: 2048, format: "png" }) ||
+            constants.escapedShruggie
           }`
         );
       if (before.verificationLevel != after.verificationLevel)

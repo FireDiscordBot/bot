@@ -2,6 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
+import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import {
   PaginatorEmbedInterface,
@@ -56,7 +57,7 @@ export default class Warnings extends Command {
         )}**: ${warn.get("caseid")}
 **${command.language.get("REASON")}**: ${warn.get("reason")}
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
-          warn.get("modid") || "¯\\\\_(ツ)_/¯"
+          warn.get("modid") || constants.escapedShruggie
         }
 **${command.language.get("DATE")}**: ${warn.get("date")}
 **-----------------**`)

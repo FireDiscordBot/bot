@@ -1,17 +1,17 @@
-import {
-  PermissionResolvable,
-  ThreadChannel,
-  MessageEmbed,
-  GuildChannel,
-  StageChannel,
-  Permissions,
-  DMChannel,
-} from "discord.js";
-import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
-import { LanguageKeys } from "@fire/lib/util/language";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { titleCase } from "@fire/lib/util/constants";
+import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
+import { constants, titleCase } from "@fire/lib/util/constants";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
+import {
+  DMChannel,
+  GuildChannel,
+  MessageEmbed,
+  PermissionResolvable,
+  Permissions,
+  StageChannel,
+  ThreadChannel,
+} from "discord.js";
 
 export default class ChannelUpdate extends Listener {
   constructor() {
@@ -127,8 +127,8 @@ export default class ChannelUpdate extends Listener {
       if (before.parentId != after.parentId)
         embed.addField(
           language.get("CATEGORY"),
-          `${before.parent?.name || "¯\\\\_(ツ)_/¯"} ➜ ${
-            after.parent?.name || "¯\\\\_(ツ)_/¯"
+          `${before.parent?.name || constants.escapedShruggie} ➜ ${
+            after.parent?.name || constants.escapedShruggie
           }`
         );
       // @ts-ignore
@@ -152,11 +152,11 @@ export default class ChannelUpdate extends Listener {
             `${
               language.get(
                 `REGIONS.${before.rtcRegion}` as unknown as LanguageKeys
-              ) || "¯\\\\_(ツ)_/¯"
+              ) || constants.escapedShruggie
             } ➜ ${
               language.get(
                 `REGIONS.${after.rtcRegion}` as unknown as LanguageKeys
-              ) || "¯\\\\_(ツ)_/¯"
+              ) || constants.escapedShruggie
             }`
           );
         }

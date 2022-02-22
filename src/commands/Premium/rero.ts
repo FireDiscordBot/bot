@@ -14,6 +14,7 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as pEvent from "p-event";
+import { constants } from "@fire/lib/util/constants";
 
 export default class ReactionRole extends Command {
   constructor() {
@@ -170,7 +171,7 @@ export default class ReactionRole extends Command {
       )
       .addField(
         message.guild.language.get("EMOJI"),
-        reaction.emoji?.toString() || "¯\\\\_(ツ)_/¯"
+        reaction.emoji?.toString() || constants.escapedShruggie
       )
       .addField(message.guild.language.get("ROLE"), role.toString())
       .setFooter(`${role.id} | ${message.author.id}`);
@@ -202,7 +203,7 @@ export default class ReactionRole extends Command {
       )
       .addField(
         message.guild.language.get("EMOJI"),
-        reaction.emoji?.toString() || "¯\\\\_(ツ)_/¯"
+        reaction.emoji?.toString() || constants.escapedShruggie
       )
       .addField(message.guild.language.get("ROLE"), role.toString())
       .setFooter(`${role.id} | ${message.author.id}`);

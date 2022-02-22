@@ -1,16 +1,16 @@
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { constants, CouponType } from "@fire/lib/util/constants";
+import { Listener } from "@fire/lib/util/listener";
+import RolePersist from "@fire/src/commands/Premium/rolepersist";
 import {
-  GuildAuditLogsEntry,
   AuditLogChange,
+  GuildAuditLogsEntry,
   MessageEmbed,
   Permissions,
   Snowflake,
 } from "discord.js";
-import RolePersist from "@fire/src/commands/Premium/rolepersist";
-import { FireMember } from "@fire/lib/extensions/guildmember";
 import EssentialNitro from "../modules/essentialnitro";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { Listener } from "@fire/lib/util/listener";
-import { CouponType } from "@fire/lib/util/constants";
 
 export default class GuildMemberUpdate extends Listener {
   constructor() {
@@ -369,11 +369,9 @@ export default class GuildMemberUpdate extends Listener {
         guild.language.get("ROLEADDLOG_FIELD_TITLE"),
         roles.map((role) => role.toString()).join(" - ")
       )
-      .addField(
-        guild.language.get("MODERATOR"),
-        executor ? executor.toString() : "¯\\\\_(ツ)_/¯"
-      )
       .setFooter(targetId);
+    if (executor && executor.id != targetId)
+      embed.addField(guild.language.get("MODERATOR"), executor.toString());
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);
     await guild.memberLog(embed, "roles_add").catch(() => {});
@@ -416,11 +414,9 @@ export default class GuildMemberUpdate extends Listener {
         guild.language.get("ROLEREMOVELOG_FIELD_TITLE"),
         roles.map((role) => role.toString()).join(" - ")
       )
-      .addField(
-        guild.language.get("MODERATOR"),
-        executor ? executor.toString() : "¯\\\\_(ツ)_/¯"
-      )
       .setFooter(targetId);
+    if (executor && executor.id != targetId)
+      embed.addField(guild.language.get("MODERATOR"), executor.toString());
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);
     await guild.memberLog(embed, "roles_remove").catch(() => {});
@@ -455,20 +451,18 @@ export default class GuildMemberUpdate extends Listener {
       })
       .setTimestamp(action.createdTimestamp)
       .setColor(target ? target?.displayColor : "#ffffff")
-      .addField(
-        guild.language.get("MODERATOR"),
-        executor ? executor.toString() : "¯\\\\_(ツ)_/¯"
-      )
       .setFooter(targetId);
+    if (executor && executor.id != targetId)
+      embed.addField(guild.language.get("MODERATOR"), executor.toString());
     if (change.old)
       embed.addField(
         guild.language.get("NICKCHANGELOG_OLD_NICK"),
-        change.old.toString() || "¯\\\\_(ツ)_/¯"
+        change.old.toString() || constants.escapedShruggie
       );
     if (change.new)
       embed.addField(
         guild.language.get("NICKCHANGELOG_NEW_NICK"),
-        change.new.toString() || "¯\\\\_(ツ)_/¯"
+        change.new.toString() || constants.escapedShruggie
       );
     if (embed.fields.length <= 1) return;
     if (action.reason)

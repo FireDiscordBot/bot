@@ -1,6 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
-import { titleCase } from "@fire/lib/util/constants";
+import { constants, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { MessageEmbed } from "discord.js";
 
@@ -57,7 +57,7 @@ export default class Reason extends Command {
       )}**: ${result.get("caseid")}
 **${command.language.get("REASON")}**: ${result.get("reason")}
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
-        result.get("modid") || "¯\\\\_(ツ)_/¯"
+        result.get("modid") || constants.escapedShruggie
       }
 **${command.language.get("DATE")}**: ${result.get("date")}
 **${command.language.get("TYPE")}**: ${titleCase(

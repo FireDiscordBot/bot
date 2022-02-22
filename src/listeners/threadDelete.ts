@@ -1,6 +1,7 @@
-import { ThreadChannel, MessageEmbed, Formatters } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { Formatters, MessageEmbed, ThreadChannel } from "discord.js";
 
 export default class ThreadDelete extends Listener {
   constructor() {
@@ -48,7 +49,7 @@ export default class ThreadDelete extends Listener {
         .addField(language.get("NAME"), thread.name)
         .addField(
           language.get("CHANNEL"),
-          thread.parent?.toString() ?? "¯\\\\_(ツ)_/¯"
+          thread.parent?.toString() ?? constants.escapedShruggie
         )
         .addField(language.get("ARCHIVE"), Formatters.time(autoArchiveAt, "R"))
         .addField(

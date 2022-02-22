@@ -279,6 +279,7 @@ export const constants = {
     haste:
       /(?<uploader>hastebin\.com|hasteb\.in|hst\.sh|h\.inv\.wtf)\/(?<key>\w{1,20})/gim,
   },
+  escapedShruggie: "¯\\_(ツ)_/¯",
   blockedGifts: [
     "690195254191849478",
     "712716640940326962",

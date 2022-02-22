@@ -3,7 +3,7 @@ import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { ModLogType, titleCase } from "@fire/lib/util/constants";
+import { constants, ModLogType, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import {
   PaginatorEmbedInterface,
@@ -102,7 +102,7 @@ export default class ModlogsView extends Command {
         )}**: ${action.get("caseid")}
 **${command.language.get("REASON")}**: ${action.get("reason")}
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
-          action.get("modid") || "¯\\\\_(ツ)_/¯"
+          action.get("modid") || constants.escapedShruggie
         }
 **${command.language.get("DATE")}**: ${action.get("date")}${typeInfo}
 **-----------------**`)
