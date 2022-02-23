@@ -1,5 +1,5 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { constants } from "@fire/lib/util/constants";
+import { ActionLogTypes, constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Invite, MessageEmbed } from "discord.js";
 
@@ -33,7 +33,9 @@ export default class InviteCreate extends Listener {
           invite.inviter?.toString() || constants.escapedShruggie
         )
         .setFooter(`${invite.channel.id} | ${invite.inviter?.id || ""}`);
-      await guild.actionLog(embed, "invite_create").catch(() => {});
+      await guild
+        .actionLog(embed, ActionLogTypes.INVITE_CREATE)
+        .catch(() => {});
     }
   }
 }

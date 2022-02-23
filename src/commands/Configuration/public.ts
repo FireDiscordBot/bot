@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { Command } from "@fire/lib/util/command";
-import { constants } from "@fire/lib/util/constants";
+import { ActionLogTypes, constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -64,7 +64,7 @@ export default class Public extends Command {
             user: command.author.toString(),
           }
         )}`,
-        "public_toggle"
+        ActionLogTypes.PUBLIC_TOGGLE
       );
     } else {
       if (this.client.manager.ws?.open)
@@ -84,7 +84,7 @@ export default class Public extends Command {
             user: command.author.toString(),
           }
         )}`,
-        "public_toggle"
+        ActionLogTypes.PUBLIC_TOGGLE
       );
     }
   }

@@ -3,7 +3,7 @@ import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { ModLogType, titleCase } from "@fire/lib/util/constants";
+import { ModLogTypesEnumToString, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { MessageEmbed } from "discord.js";
 
@@ -36,22 +36,8 @@ export default class ModlogsStats extends Command {
     args: { user: FireMember | FireUser; type?: string }
   ) {
     if (!args.user) return;
-    const types: Record<ModLogType, number> = {
-      system: 0,
-      warn: 0,
-      note: 0,
-      ban: 0,
-      unban: 0,
-      kick: 0,
-      block: 0,
-      unblock: 0,
-      derank: 0,
-      mute: 0,
-      unmute: 0,
-      role_persist: 0,
-      blacklist: 0,
-      unblacklist: 0,
-    };
+    const types: Record<string, number> = {};
+    for (const type of Object.values(ModLogTypesEnumToString)) types[type] = 0;
     const logs = await this.client.db
       .query("SELECT type FROM modlogs WHERE uid=$1 AND gid=$2;", [
         args.user.id,
@@ -61,7 +47,7 @@ export default class ModlogsStats extends Command {
     if (!logs || !logs.rows.length)
       return await command.error("MODLOGS_NONE_FOUND");
     for await (const action of logs) {
-      const type = action.get("type") as ModLogType;
+      const type = action.get("type") as string;
       types[type]++;
     }
     const countsEmbed = new MessageEmbed()

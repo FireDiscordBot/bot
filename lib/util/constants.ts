@@ -22,46 +22,66 @@ export enum CouponType {
   BOOSTER_AND_SUB = "TWITCHBOOST",
 }
 
-export type ActionLogType =
-  | "system"
-  | "public_toggle"
-  | "purge"
-  | "linkfilter"
-  | "message_edit"
-  | "message_delete"
-  | "invite_role_create"
-  | "invite_role_delete"
-  | "channel_create"
-  | "channel_update"
-  | "channel_delete"
-  | "invite_create"
-  | "invite_delete"
-  | "guild_update"
-  | "user_unban"
-  | "pins_add"
-  | "reactrole";
-export type ModLogType =
-  | "system"
-  | "warn"
-  | "note"
-  | "ban"
-  | "unban"
-  | "kick"
-  | "block"
-  | "unblock"
-  | "derank"
-  | "mute"
-  | "unmute"
-  | "role_persist"
-  | "blacklist"
-  | "unblacklist";
-export type MemberLogType =
-  | "system"
-  | "join"
-  | "leave"
-  | "roles_add"
-  | "roles_remove"
-  | "nickname_update";
+export enum ActionLogTypes {
+  SYSTEM,
+  PUBLIC_TOGGLE,
+  PURGE,
+  LINKFILTER,
+  MESSAGE_EDIT,
+  MESSAGE_DELETE,
+  INVITE_ROLE_CREATE,
+  INVITE_ROLE_DELETE,
+  CHANNEL_CREATE,
+  CHANNEL_UPDATE,
+  CHANNEL_DELETE,
+  INVITE_CREATE,
+  INVITE_DELETE,
+  GUILD_UPDATE,
+  USER_UNBAN,
+  PINS_ADD,
+  REACTION_ROLE,
+}
+export enum ModLogTypes {
+  SYSTEM,
+  WARN,
+  NOTE,
+  BAN,
+  UNBAN,
+  KICK,
+  BLOCK,
+  UNBLOCK,
+  DERANK,
+  MUTE,
+  UNMUTE,
+  ROLE_PERSIST,
+  BLACKLIST,
+  UNBLACKLIST,
+}
+export enum MemberLogTypes {
+  SYSTEM,
+  JOIN,
+  LEAVE,
+  ROLES_ADD,
+  ROLES_REMOVE,
+  NICKNAME_UPDATE,
+}
+
+export const ModLogTypesEnumToString: Record<ModLogTypes, string> = {
+  [ModLogTypes.SYSTEM]: "system", // only here to please the typings, should never be used
+  [ModLogTypes.WARN]: "warn",
+  [ModLogTypes.NOTE]: "note",
+  [ModLogTypes.BAN]: "ban",
+  [ModLogTypes.UNBAN]: "unban",
+  [ModLogTypes.KICK]: "kick",
+  [ModLogTypes.BLOCK]: "block",
+  [ModLogTypes.UNBLOCK]: "unblock",
+  [ModLogTypes.DERANK]: "derank",
+  [ModLogTypes.MUTE]: "mute",
+  [ModLogTypes.UNMUTE]: "unmute",
+  [ModLogTypes.ROLE_PERSIST]: "role_persist",
+  [ModLogTypes.BLACKLIST]: "blacklist",
+  [ModLogTypes.UNBLACKLIST]: "unblacklist",
+};
 
 export type LinkfilterExcluded = LinkfilterExcludedItem[];
 

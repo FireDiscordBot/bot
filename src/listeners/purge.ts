@@ -1,4 +1,5 @@
 import { FireMessage } from "@fire/lib/extensions/message";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { MessageEmbed } from "discord.js";
 
@@ -51,6 +52,6 @@ export default class Purge extends Listener {
         );
       }
     }
-    return await message.guild.actionLog(embed, "purge");
+    return await message.guild.actionLog(embed, ActionLogTypes.PURGE);
   }
 }

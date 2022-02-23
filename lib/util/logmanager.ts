@@ -1,16 +1,16 @@
+import RateLimit from "@fire/src/listeners/rateLimit";
 import {
-  MessageEmbedOptions,
   DiscordAPIError,
   MessageEmbed,
+  MessageEmbedOptions,
   Snowflake,
   Webhook,
 } from "discord.js";
-import { ActionLogType, MemberLogType, ModLogType } from "./constants";
-import { FireTextChannel } from "../extensions/textchannel";
-import RateLimit from "@fire/src/listeners/rateLimit";
-import { FireGuild } from "../extensions/guild";
 import Semaphore from "semaphore-async-await";
+import { FireGuild } from "../extensions/guild";
+import { FireTextChannel } from "../extensions/textchannel";
 import { Fire } from "../Fire";
+import { ActionLogTypes, MemberLogTypes, ModLogTypes } from "./constants";
 
 type logContent = string | MessageEmbed | MessageEmbedOptions;
 
@@ -19,21 +19,21 @@ export class GuildLogManager {
   client: Fire;
   private _data: {
     moderation: {
-      queue: { content: logContent; type: ModLogType }[];
+      queue: { content: logContent; type: ModLogTypes }[];
       forceFullQueue: boolean;
       webhook: Webhook;
       lock: Semaphore;
       locked: any;
     };
     members: {
-      queue: { content: logContent; type: MemberLogType }[];
+      queue: { content: logContent; type: MemberLogTypes }[];
       forceFullQueue: boolean;
       webhook: Webhook;
       lock: Semaphore;
       locked: any;
     };
     action: {
-      queue: { content: logContent; type: ActionLogType }[];
+      queue: { content: logContent; type: ActionLogTypes }[];
       forceFullQueue: boolean;
       webhook: Webhook;
       lock: Semaphore;
@@ -87,7 +87,7 @@ export class GuildLogManager {
       .length;
   }
 
-  async handleModeration(content: logContent, type: ModLogType) {
+  async handleModeration(content: logContent, type: ModLogTypes) {
     if (!this.rateLimitListener)
       this.rateLimitListener = this.client.getListener(
         "rateLimit"
@@ -137,7 +137,7 @@ export class GuildLogManager {
       if (!data.webhook) return data.queue.push({ content, type });
     }
 
-    const sending: { content: logContent; type: ModLogType }[] = [
+    const sending: { content: logContent; type: ModLogTypes }[] = [
       { content, type },
     ];
     if (data.queue.length) {
@@ -189,7 +189,7 @@ export class GuildLogManager {
     }
   }
 
-  async handleMembers(content: logContent, type: MemberLogType) {
+  async handleMembers(content: logContent, type: MemberLogTypes) {
     if (!this.rateLimitListener)
       this.rateLimitListener = this.client.getListener(
         "rateLimit"
@@ -239,7 +239,7 @@ export class GuildLogManager {
       if (!data.webhook) return;
     }
 
-    const sending: { content: logContent; type: MemberLogType }[] = [
+    const sending: { content: logContent; type: MemberLogTypes }[] = [
       { content, type },
     ];
     if (data.queue.length) {
@@ -291,7 +291,7 @@ export class GuildLogManager {
     }
   }
 
-  async handleAction(content: logContent, type: ActionLogType) {
+  async handleAction(content: logContent, type: ActionLogTypes) {
     if (!this.rateLimitListener)
       this.rateLimitListener = this.client.getListener(
         "rateLimit"
@@ -341,7 +341,7 @@ export class GuildLogManager {
       if (!data.webhook) return;
     }
 
-    const sending: { content: logContent; type: ActionLogType }[] = [
+    const sending: { content: logContent; type: ActionLogTypes }[] = [
       { content, type },
     ];
     if (data.queue.length) {

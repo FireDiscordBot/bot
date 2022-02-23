@@ -1,4 +1,5 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { MessageEmbed, Invite } from "discord.js";
 
@@ -28,7 +29,9 @@ export default class InviteDelete extends Listener {
         .addField(language.get("FILTER_INVITE_LOG_CODE"), invite.code)
         .addField(language.get("CHANNEL"), invite.channel.name)
         .setFooter(invite.channel.id);
-      await guild.actionLog(embed, "invite_delete").catch(() => {});
+      await guild
+        .actionLog(embed, ActionLogTypes.INVITE_DELETE)
+        .catch(() => {});
     }
   }
 }

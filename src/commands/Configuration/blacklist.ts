@@ -7,6 +7,7 @@ import { MessageEmbed, Permissions } from "discord.js";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
+import { ModLogTypes } from "@fire/lib/util/constants";
 
 export default class Blacklist extends Command {
   constructor() {
@@ -139,7 +140,7 @@ export default class Blacklist extends Command {
     await command.guild.createModLogEntry(
       args.user,
       command.member,
-      isPlonked ? "unblacklist" : "blacklist",
+      isPlonked ? ModLogTypes.UNBLACKLIST : ModLogTypes.BLACKLIST,
       args.reason ||
         (command.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
@@ -183,7 +184,10 @@ export default class Blacklist extends Command {
           ) as string)
       )
       .setFooter(`${args.user.id} | ${command.author.id}`);
-    await command.guild.modLog(embed, isPlonked ? "unblacklist" : "blacklist");
+    await command.guild.modLog(
+      embed,
+      isPlonked ? ModLogTypes.UNBLACKLIST : ModLogTypes.BLACKLIST
+    );
     return await command.success(
       isPlonked ? "UNBLACKLIST_SUCCESS" : "BLACKLIST_SUCCESS",
       { user: args.user.toString(), guild: command.guild.name }

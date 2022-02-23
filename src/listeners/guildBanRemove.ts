@@ -2,6 +2,7 @@ import { GuildAuditLogsEntry, MessageEmbed, Permissions } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 
 export default class GuildBanRemove extends Listener {
   constructor() {
@@ -50,6 +51,6 @@ export default class GuildBanRemove extends Listener {
         action.reason || guild.language.get("MODERATOR_ACTION_DEFAULT_REASON")
       )
       .setFooter(`${user.id} | ${action.executor.id}`);
-    return await guild.actionLog(embed, "user_unban");
+    return await guild.actionLog(embed, ActionLogTypes.USER_UNBAN);
   }
 }

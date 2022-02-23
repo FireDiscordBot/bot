@@ -1,6 +1,7 @@
-import { Formatters, MessageEmbed, ThreadChannel } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { Formatters, MessageEmbed, ThreadChannel } from "discord.js";
 
 // Totally not copied from channelCreate lol
 export default class ThreadCreate extends Listener {
@@ -86,7 +87,9 @@ export default class ThreadCreate extends Listener {
 
       // unsure on whether or not I'll make thread events separate
       // for now they will follow their channel_ counterparts
-      await guild.actionLog(embed, "channel_create").catch(() => {});
+      await guild
+        .actionLog(embed, ActionLogTypes.CHANNEL_CREATE)
+        .catch(() => {});
     }
   }
 }

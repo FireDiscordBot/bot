@@ -3,6 +3,7 @@ import { MessageEmbed, Permissions, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { ModLogTypes } from "@fire/lib/util/constants";
 
 export default class RolePersist extends Command {
   constructor() {
@@ -104,7 +105,7 @@ export default class RolePersist extends Command {
       .createModLogEntry(
         member,
         moderator,
-        "role_persist",
+        ModLogTypes.ROLE_PERSIST,
         member.guild.language.get(
           roles.length
             ? "ROLEPERSIST_MODLOG_REASON"
@@ -133,6 +134,8 @@ export default class RolePersist extends Command {
         member.guild.language.get("ROLES"),
         roles.map((role) => role.toString()).join(" - ")
       );
-    return await member.guild.modLog(embed, "role_persist").catch(() => {});
+    return await member.guild
+      .modLog(embed, ModLogTypes.ROLE_PERSIST)
+      .catch(() => {});
   }
 }

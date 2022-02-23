@@ -1,7 +1,7 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
-import { constants } from "@fire/lib/util/constants";
+import { ActionLogTypes, constants } from "@fire/lib/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
@@ -198,7 +198,9 @@ export default class GuildUpdate extends Listener {
           `${before.description} ➜ ${after.description}`
         );
       if (embed.fields.length)
-        await after.actionLog(embed, "guild_update").catch(() => {});
+        await after
+          .actionLog(embed, ActionLogTypes.GUILD_UPDATE)
+          .catch(() => {});
     }
   }
 }

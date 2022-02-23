@@ -1,6 +1,6 @@
 import { GuildChannel, MessageEmbed, Permissions, DMChannel } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { humanize, titleCase } from "@fire/lib/util/constants";
+import { ActionLogTypes, humanize, titleCase } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
 
@@ -110,7 +110,9 @@ export default class ChannelDelete extends Listener {
         }
       }
       if (raw) embed.addField(language.get("RAW"), raw);
-      await guild.actionLog(embed, "channel_delete").catch(() => {});
+      await guild
+        .actionLog(embed, ActionLogTypes.CHANNEL_DELETE)
+        .catch(() => {});
     }
   }
 }

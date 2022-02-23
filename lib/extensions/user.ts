@@ -4,7 +4,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { UserSettings } from "@fire/lib/util/settings";
 import { BaseFakeChannel } from "../interfaces/misc";
-import { GuildTextChannel } from "../util/constants";
+import { GuildTextChannel, ModLogTypes } from "../util/constants";
 import { FakeChannel } from "./appcommandmessage";
 import { Message } from "@fire/lib/ws/Message";
 import { FireMember } from "./guildmember";
@@ -210,7 +210,7 @@ export class FireUser extends User {
     const already = await guild.bans.fetch(this).catch(() => {});
     if (already) return "already";
     const logEntry = await guild
-      .createModLogEntry(this, moderator, "ban", reason)
+      .createModLogEntry(this, moderator, ModLogTypes.BAN, reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     const banned = await guild.members
@@ -235,7 +235,7 @@ export class FireUser extends User {
       .addField(guild.language.get("MODERATOR"), moderator.toString())
       .addField(guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
-    await guild.modLog(embed, "ban").catch(() => {});
+    await guild.modLog(embed, ModLogTypes.BAN).catch(() => {});
     if (channel)
       return await channel
         .send({

@@ -1,11 +1,12 @@
 import { Fire } from "@fire/lib/Fire";
 import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import {
-  ActionLogType,
+  ActionLogTypes,
   constants,
   GuildTextChannel,
-  MemberLogType,
-  ModLogType,
+  MemberLogTypes,
+  ModLogTypes,
+  ModLogTypesEnumToString,
 } from "@fire/lib/util/constants";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
@@ -461,7 +462,7 @@ export class FireGuild extends Guild {
                 `UNMUTE_FAILED_${unmuted.toUpperCase()}` as LanguageKeys
               ),
             }),
-            "unmute"
+            ModLogTypes.UNMUTE
           );
         } else continue;
       } else {
@@ -483,7 +484,7 @@ export class FireGuild extends Guild {
             this.language.get("ERROR"),
             this.language.get("UNMUTE_FAILED_DB_REMOVE")
           );
-        await this.modLog(embed, "unmute").catch(() => {});
+        await this.modLog(embed, ModLogTypes.UNMUTE).catch(() => {});
       }
     }
   }
@@ -817,7 +818,7 @@ export class FireGuild extends Guild {
 
   async actionLog(
     log: string | MessageEmbed | MessageEmbedOptions,
-    type: ActionLogType
+    type: ActionLogTypes
   ) {
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.action")
@@ -839,7 +840,7 @@ export class FireGuild extends Guild {
 
   async modLog(
     log: string | MessageEmbed | MessageEmbedOptions,
-    type: ModLogType
+    type: ModLogTypes
   ) {
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.moderation")
@@ -861,7 +862,7 @@ export class FireGuild extends Guild {
 
   async memberLog(
     log: string | MessageEmbed | MessageEmbedOptions,
-    type: MemberLogType
+    type: MemberLogTypes
   ) {
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.members")
@@ -1459,15 +1460,16 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
   async createModLogEntry(
     user: FireUser | FireMember,
     moderator: FireMember,
-    type: ModLogType,
+    type: ModLogTypes,
     reason: string
   ) {
+    const typeString = ModLogTypesEnumToString[type];
     const date = new Date().toLocaleString(this.language.id);
     const caseID = nanoid();
     const entryResult = await this.client.db
       .query(
         "INSERT INTO modlogs (gid, uid, modid, reason, date, type, caseid) VALUES ($1, $2, $3, $4, $5, $6, $7);",
-        [this.id, user.id, moderator.id, reason, date, type, caseID]
+        [this.id, user.id, moderator.id, reason, date, typeString, caseID]
       )
       .catch(() => {});
     if (!entryResult) return false;
@@ -1501,7 +1503,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     const logEntry = await this.createModLogEntry(
       user,
       moderator,
-      "unban",
+      ModLogTypes.UNBAN,
       reason
     ).catch(() => {});
     if (!logEntry) return "entry";
@@ -1532,7 +1534,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${user.id} | ${moderator.id}`);
-    await this.modLog(embed, "unban").catch(() => {});
+    await this.modLog(embed, ModLogTypes.UNBAN).catch(() => {});
     if (channel)
       return await channel
         .send({
@@ -1558,7 +1560,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       logEntry = await this.createModLogEntry(
         blockee,
         moderator,
-        "block",
+        ModLogTypes.BLOCK,
         `#${channel.name} | ${reason}`
       ).catch(() => {});
       if (!logEntry) return "entry";
@@ -1602,7 +1604,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
-    await this.modLog(embed, "block").catch(() => {});
+    await this.modLog(embed, ModLogTypes.BLOCK).catch(() => {});
     return await channel
       .send({
         content: this.language.getSuccess("BLOCK_SUCCESS", {
@@ -1627,7 +1629,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       logEntry = await this.createModLogEntry(
         unblockee,
         moderator,
-        "unblock",
+        ModLogTypes.UNBLOCK,
         `#${channel.name} | ${reason}`
       ).catch(() => {});
       if (!logEntry) return "entry";
@@ -1685,7 +1687,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
-    await this.modLog(embed, "unblock").catch(() => {});
+    await this.modLog(embed, ModLogTypes.UNBLOCK).catch(() => {});
     return await channel
       .send({
         content: this.language.getSuccess("UNBLOCK_SUCCESS", {

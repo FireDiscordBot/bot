@@ -3,6 +3,7 @@ import { LanguageKeys } from "@fire/lib/util/language";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
 import { MessageEmbed } from "discord.js";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 
 export default class MessageDelete extends Listener {
   constructor() {
@@ -126,7 +127,7 @@ export default class MessageDelete extends Listener {
           message.guild.me?.toString() ?? this.client.user?.toString()
         );
       if (embed.description != description || embed.fields.length)
-        await message.guild.actionLog(embed, "message_delete");
+        await message.guild.actionLog(embed, ActionLogTypes.MESSAGE_DELETE);
     }
   }
 }

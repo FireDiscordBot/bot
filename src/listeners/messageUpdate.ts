@@ -3,6 +3,7 @@ import { MessageEmbed, Snowflake } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
 import Message from "./message";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 
 export default class MessageUpdate extends Listener {
   constructor() {
@@ -122,7 +123,7 @@ export default class MessageUpdate extends Listener {
             : after.content.slice(0, 1001) + "..."
         )
         .setFooter(`${after.author.id} | ${after.id} | ${after.channel.id}`);
-      await guild.actionLog(embed, "message_edit");
+      await guild.actionLog(embed, ActionLogTypes.MESSAGE_EDIT);
     }
   }
 }
