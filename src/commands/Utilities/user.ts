@@ -22,6 +22,8 @@ import {
   Formatters,
   GuildChannel,
   GuildPreview,
+  MessageActionRow,
+  MessageButton,
   MessageEmbed,
   Permissions,
   PermissionString,
@@ -52,6 +54,14 @@ enum NewApplicationFlags {
   GatewayMessageContent = 262144,
   GatewayMessageContentLimited = 524288,
 }
+
+type InstallParams = {
+  install_params?: {
+    scopes: string[];
+    permissions: string;
+  };
+  custom_install_url?: string;
+};
 
 export default class User extends Command {
   constructor() {
@@ -138,11 +148,13 @@ export default class User extends Command {
       command.content
     );
     const info = this.getInfo(command, member ? member : user);
-    let application: Exclude<APIApplication, "rpc_origins" | "owner" | "team">;
+    let application: Exclude<APIApplication, "rpc_origins" | "owner" | "team"> &
+      InstallParams;
     if (user.bot)
       application = await this.getApplication(
         botConfig?.appId ?? user.id
       ).catch(() => null);
+    const components: MessageActionRow[] = [];
     const embed = new MessageEmbed()
       .setColor(color)
       .setTimestamp()
@@ -238,6 +250,7 @@ export default class User extends Command {
         );
     }
     if (application) {
+      components.push(new MessageActionRow());
       const appInfo: string[] = [];
       if (application.bot_public)
         appInfo.push(command.language.getSuccess("USER_BOT_PUBLIC"));
@@ -290,26 +303,49 @@ export default class User extends Command {
         );
       if (user.bot && botConfig?.best)
         appInfo.push(command.language.getSuccess("USER_BOT_BEST"));
-      if (application.privacy_policy_url || application.terms_of_service_url)
-        appInfo.push(""); // spacing between public/intents and links
 
       if (
         application.privacy_policy_url &&
         isValidURL(application.privacy_policy_url)
       )
-        appInfo.push(
-          `[${command.language.get("USER_BOT_PRIVACY_POLICY")}](${
-            application.privacy_policy_url
-          })`
+        components[0].addComponents(
+          new MessageButton()
+            .setStyle("LINK")
+            .setLabel(command.language.get("USER_BOT_PRIVACY_POLICY"))
+            .setURL(application.privacy_policy_url)
         );
       if (
         application.terms_of_service_url &&
         isValidURL(application.terms_of_service_url)
       )
-        appInfo.push(
-          `[${command.language.get("USER_BOT_TERMS")}](${
-            application.terms_of_service_url
-          })`
+        components[0].addComponents(
+          new MessageButton()
+            .setStyle("LINK")
+            .setLabel(command.language.get("USER_BOT_TERMS"))
+            .setURL(application.terms_of_service_url)
+        );
+
+      if (application.install_params?.scopes.length) {
+        let addURL = `https://discord.com/oauth2/authorize?client_id=${
+          application.id
+        }&scope=${application.install_params.scopes.join("%20")}`;
+        if (application.install_params.permissions)
+          addURL += `&permissions=${application.install_params.permissions}`;
+        components[0].addComponents(
+          new MessageButton()
+            .setStyle("LINK")
+            .setLabel(command.language.get("USER_BOT_ADD_TO_SERVER"))
+            .setURL(addURL)
+        );
+      } else if (
+        application.custom_install_url &&
+        isValidURL(application.custom_install_url)
+      )
+        components[0].addComponents(
+          new MessageButton()
+            .setStyle("LINK")
+            .setLabel(command.language.get("USER_BOT_ADD_TO_SERVER"))
+            .setURL(application.custom_install_url)
         );
 
       embed.addField(`» ${command.language.get("BOT")}`, appInfo.join("\n"));
@@ -324,7 +360,7 @@ export default class User extends Command {
             : statusEmojis[member.presence.status]
         )
       : embed.setFooter(user.id);
-    return await command.channel.send({ embeds: [embed] });
+    return await command.channel.send({ embeds: [embed], components });
   }
 
   getBadges(

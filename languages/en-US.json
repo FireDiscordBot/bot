@@ -1052,6 +1052,7 @@
   "USER_BOT_BEST": "Best Bot",
   "USER_BOT_PRIVACY_POLICY": "Privacy Policy",
   "USER_BOT_TERMS": "Terms of Service",
+  "USER_BOT_ADD_TO_SERVER": "Add to Server",
   "PERMROLES_COMMAND_DESCRIPTION": "Copy the permissions of a role from the current channel and automatically apply it to all channels",
   "PERMROLES_CHANNEL_LIMIT": "Permission roles cannot be used with more than 100 channels",
   "PERMROLES_NONE_FOUND": "There doesn't seem to be any permission roles set in this server...",
