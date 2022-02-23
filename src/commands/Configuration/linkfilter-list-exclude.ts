@@ -20,7 +20,7 @@ export default class LinkfilterListExclude extends Command {
 
   async run(command: ApplicationCommandMessage) {
     const current =
-      command.guild.settings.get<LinkfilterExcluded>("linkfilter.exclude");
+      command.guild.settings.get<LinkfilterExcluded>("linkfilter.exclude", []);
     if (!current.length)
       return await command.error("LINKFILTER_LIST_EXCLUDE_NOTHING");
     const embed = new MessageEmbed()

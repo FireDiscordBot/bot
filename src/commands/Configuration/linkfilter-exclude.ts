@@ -97,8 +97,10 @@ export default class LinkfilterExclude extends Command {
       return await command.error("LINKFILTER_EXCLUDE_ROLE_NOT_GUILD");
     const excluded: Excludable[] = [];
     const unexcluded: Excludable[] = [];
-    let current =
-      command.guild.settings.get<LinkfilterExcluded>("linkfilter.exclude");
+    let current = command.guild.settings.get<LinkfilterExcluded>(
+      "linkfilter.exclude",
+      []
+    );
     const beforeLength = current.length;
     if (user) {
       const id: LinkfilterExcludedItem = `user:${user.id}`;
@@ -160,8 +162,10 @@ export default class LinkfilterExclude extends Command {
       .fetch(user)
       .catch(() => {})) as FireMember;
     if (!member) return await command.error("MEMBER_NOT_FOUND_COMPONENT");
-    let current =
-      command.guild.settings.get<LinkfilterExcluded>("linkfilter.exclude");
+    let current = command.guild.settings.get<LinkfilterExcluded>(
+      "linkfilter.exclude",
+      []
+    );
     let direction: "exclude" | "unexclude";
     const id: LinkfilterExcludedItem = `user:${user.id}`;
     if (!current.includes(id)) {
@@ -194,8 +198,10 @@ export default class LinkfilterExclude extends Command {
       return await command.error("COMMAND_ERROR_GENERIC", {
         id: this.id,
       });
-    let current =
-      command.guild.settings.get<LinkfilterExcluded>("linkfilter.exclude");
+    let current = command.guild.settings.get<LinkfilterExcluded>(
+      "linkfilter.exclude",
+      []
+    );
     const { users, roles, channels } = message.mentions;
     if (!users?.size && !roles?.size && !channels?.size)
       return await command.error("LINKFILTER_EXCLUDE_CONTEXT_MENTIONS");
