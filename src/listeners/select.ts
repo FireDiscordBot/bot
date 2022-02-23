@@ -1,11 +1,23 @@
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
-import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { Formatters, Permissions, Snowflake } from "discord.js";
+import {
+  ActionLogTypes,
+  MemberLogTypes,
+  ModLogTypes,
+  titleCase,
+} from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { EventType } from "@fire/lib/ws/util/constants";
+import {
+  Formatters,
+  MessageActionRow,
+  Permissions,
+  Snowflake,
+} from "discord.js";
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
+import LoggingConfig from "../commands/Configuration/logging-configure";
+import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 
 const reminderSnoozeTimes = [
   300000, 1800000, 3600000, 21600000, 43200000, 86400000, 259200000, 604800000,
@@ -245,6 +257,58 @@ export default class Select extends Listener {
         return await select.error("COMMAND_ERROR_GENERIC", {
           id: "linkfilter",
         });
+    }
+
+    if (select.customId.startsWith("logging-configure:") && select.guild) {
+      const guild = select.guild;
+      select.flags = 64;
+      if (!select.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+        return await select
+          .error("MISSING_PERMISSIONS_USER", {
+            permissions: this.client.util.cleanPermissionName(
+              "MANAGE_GUILD",
+              select.language
+            ),
+            command: "logging configure",
+          })
+          .catch(() => {});
+
+      const type = select.customId.split(":")[1];
+      const loggingConfigure = this.client.getCommand(
+        "logging-configure"
+      ) as LoggingConfig;
+      let flags = 0;
+      let typeEnum:
+        | typeof ModLogTypes
+        | typeof ActionLogTypes
+        | typeof MemberLogTypes;
+      switch (type) {
+        case "moderation":
+          typeEnum = ModLogTypes;
+          break;
+        case "action":
+          typeEnum = ActionLogTypes;
+          break;
+        case "members":
+          typeEnum = MemberLogTypes;
+          break;
+      }
+      for (const action of select.values) flags |= typeEnum[action];
+      guild.settings.set(`logging.${type}.flags`, flags);
+      const components = [
+        loggingConfigure.getModLogsSelect(select),
+        loggingConfigure.getActionLogsSelect(select),
+        loggingConfigure.getMemberLogsSelect(select),
+      ] as MessageActionRow[];
+      await select.channel.update({
+        components,
+      });
+      await select.success("LOGGING_CONFIG_SUCCESS", {
+        type: type,
+        logs: select.values
+          .map((v) => titleCase(v, v.includes("_") ? "_" : " "))
+          .join(", "),
+      });
     }
   }
 }

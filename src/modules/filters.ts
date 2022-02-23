@@ -385,7 +385,7 @@ export default class Filters extends Module {
           false
         );
       await message.guild
-        .actionLog(embed, ActionLogTypes.LINKFILTER)
+        .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
         .catch(() => {});
     }
   }
@@ -527,7 +527,7 @@ export default class Filters extends Module {
       })
       .setFooter(message.author.id);
     await message.guild
-      .actionLog(embed, ActionLogTypes.LINKFILTER)
+      .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
       .catch(() => {});
   }
 
@@ -613,7 +613,7 @@ export default class Filters extends Module {
             : description
         );
       await message.guild
-        .actionLog(embed, ActionLogTypes.LINKFILTER)
+        .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
         .catch(() => {});
     }
   }
@@ -693,7 +693,7 @@ export default class Filters extends Module {
       );
     }
     await message.guild
-      .actionLog(embed, ActionLogTypes.LINKFILTER)
+      .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
       .catch(() => {});
   }
 
@@ -734,7 +734,7 @@ export default class Filters extends Module {
       })
       .setFooter(message.author.id);
     await message.guild
-      .actionLog(embed, ActionLogTypes.LINKFILTER)
+      .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
       .catch(() => {});
   }
 
@@ -771,7 +771,7 @@ export default class Filters extends Module {
       })
       .setFooter(message.author.id);
     await message.guild
-      .actionLog(embed, ActionLogTypes.LINKFILTER)
+      .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
       .catch(() => {});
   }
 
@@ -808,7 +808,7 @@ export default class Filters extends Module {
       })
       .setFooter(message.author.id);
     await message.guild
-      .actionLog(embed, ActionLogTypes.LINKFILTER)
+      .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
       .catch(() => {});
   }
 }

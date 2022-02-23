@@ -64,7 +64,7 @@ export default class Public extends Command {
             user: command.author.toString(),
           }
         )}`,
-        ActionLogTypes.PUBLIC_TOGGLE
+        ActionLogTypes.SYSTEM
       );
     } else {
       if (this.client.manager.ws?.open)
@@ -84,7 +84,7 @@ export default class Public extends Command {
             user: command.author.toString(),
           }
         )}`,
-        ActionLogTypes.PUBLIC_TOGGLE
+        ActionLogTypes.SYSTEM
       );
     }
   }

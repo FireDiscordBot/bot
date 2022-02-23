@@ -3,6 +3,9 @@ import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import {
   ActionLogTypes,
   constants,
+  DEFAULT_ACTION_LOG_FLAGS,
+  DEFAULT_MEMBER_LOG_FLAGS,
+  DEFAULT_MOD_LOG_FLAGS,
   GuildTextChannel,
   MemberLogTypes,
   ModLogTypes,
@@ -825,6 +828,12 @@ export class FireGuild extends Guild {
     );
     if (!channel || channel.type != "GUILD_TEXT") return;
 
+    const flags = this.settings.get(
+      "logging.action.flags",
+      DEFAULT_ACTION_LOG_FLAGS
+    );
+    if (type != ActionLogTypes.SYSTEM && (flags & type) != type) return;
+
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
       return await (channel as FireTextChannel)
         .send({
@@ -847,6 +856,12 @@ export class FireGuild extends Guild {
     );
     if (!channel || channel.type != "GUILD_TEXT") return;
 
+    const flags = this.settings.get(
+      "logging.moderation.flags",
+      DEFAULT_MOD_LOG_FLAGS
+    );
+    if (type != ModLogTypes.SYSTEM && (flags & type) != type) return;
+
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
       return await (channel as FireTextChannel)
         .send({
@@ -868,6 +883,12 @@ export class FireGuild extends Guild {
       this.settings.get<Snowflake>("log.members")
     );
     if (!channel || channel.type != "GUILD_TEXT") return;
+
+    const flags = this.settings.get(
+      "logging.members.flags",
+      DEFAULT_MEMBER_LOG_FLAGS
+    );
+    if (type != MemberLogTypes.SYSTEM && (flags & type) != type) return;
 
     if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
       return await (channel as FireTextChannel)
