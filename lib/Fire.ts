@@ -22,7 +22,6 @@ import {
 } from "@fire/src/arguments/member";
 import { memberRoleTypeCaster } from "@fire/src/arguments/memberRole";
 import { memberRoleChannelTypeCaster } from "@fire/src/arguments/memberRoleChannel";
-import { memberRoleChannelCategoryTypeCaster } from "@fire/src/arguments/memberRoleChannelCategory";
 import { messageTypeCaster } from "@fire/src/arguments/message";
 import { moduleTypeCaster } from "@fire/src/arguments/module";
 import {
@@ -318,7 +317,6 @@ export class Fire extends AkairoClient {
     });
 
     this.commandHandler.resolver.addTypes({
-      "member|role|channel|category": memberRoleChannelCategoryTypeCaster,
       "user|member|snowflake":
         userMemberSnowflakeTypeCaster as ArgumentTypeCaster,
       "member|role|channel": memberRoleChannelTypeCaster,

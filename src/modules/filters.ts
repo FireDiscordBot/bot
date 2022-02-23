@@ -1,14 +1,22 @@
+import * as sanitizer from "@aero/sanitizer";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { constants, shortURLs } from "@fire/lib/util/constants";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageEmbed, Snowflake, Invite } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
+import {
+  constants,
+  LinkfilterExcluded,
+  shortURLs,
+} from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
-import * as sanitizer from "@aero/sanitizer";
 import * as centra from "centra";
-import { LinkFilters } from "../commands/Configuration/linkfilter";
+import {
+  CategoryChannel,
+  GuildChannel,
+  Invite,
+  MessageEmbed,
+} from "discord.js";
+import { LinkFilters } from "../commands/Configuration/linkfilter-toggle";
 
 const { regexes } = constants;
 
@@ -70,17 +78,26 @@ export default class Filters extends Module {
     if (!guild.settings.get<LinkFilters[]>("mod.linkfilter", []).length)
       return false;
     if (message?.member?.isModerator() || member?.isModerator()) return false;
-    const excluded =
-      guild?.settings.get<Snowflake[]>("excluded.filter", []) ?? [];
+    const excluded = guild?.settings.get<LinkfilterExcluded>(
+      "linkfilter.exclude",
+      []
+    );
+    if (!excluded.length) return true;
     const roleIds = message
       ? message.member?.roles.cache.map((role) => role.id)
       : member?.roles.cache.map((role) => role.id);
-    if (
-      excluded?.length &&
-      (excluded.includes(message?.author?.id || user?.id) ||
-        excluded.includes(message?.channel?.id) ||
-        excluded.includes((message?.channel as FireTextChannel)?.parentId) ||
-        excluded.some((id) => roleIds?.includes(id)))
+    const channel =
+      message instanceof ApplicationCommandMessage
+        ? message.realChannel
+        : message?.channel;
+    if (excluded.includes(`user:${user?.id}`)) return false;
+    else if (roleIds.some((id) => excluded.includes(`role:${id}`)))
+      return false;
+    else if (
+      excluded.includes(`channel:${channel?.id}`) ||
+      (channel instanceof GuildChannel &&
+        !(channel instanceof CategoryChannel) &&
+        excluded.includes(`channel:${channel?.parentId}`))
     )
       return false;
     return true;

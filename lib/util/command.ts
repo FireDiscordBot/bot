@@ -24,6 +24,7 @@ import {
 } from "discord.js/typings/enums";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { CommandInteraction } from "../extensions/commandinteraction";
+import { ContextCommandMessage } from "../extensions/contextcommandmessage";
 import { FireGuild } from "../extensions/guild";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
@@ -60,6 +61,7 @@ const slashCommandTypeMappings = {
     "memberSilent",
   ],
   CHANNEL: [
+    "channel",
     "textChannel",
     "voiceChannel",
     "textChannelSilent",
@@ -211,7 +213,7 @@ export class Command extends AkairoCommand {
   }
 
   async run(
-    command: ApplicationCommandMessage,
+    command: ApplicationCommandMessage | ContextCommandMessage,
     args: Record<string, any>
   ): Promise<any> {
     throw new UseExec();
@@ -398,7 +400,11 @@ export class Command extends AkairoCommand {
     ].flat(1);
   }
 
-  async parseSlash(message: ApplicationCommandMessage) {
+  async parseSlash(message: ApplicationCommandMessage | ContextCommandMessage) {
+    const interaction =
+      message instanceof ApplicationCommandMessage
+        ? message.slashCommand
+        : message.contextCommand;
     const args = {};
     if (this.args?.length) {
       for (const arg of this.args) {
@@ -414,7 +420,10 @@ export class Command extends AkairoCommand {
         switch (type) {
           case "STRING": {
             args[arg.id] =
-              message.slashCommand.options.getString(name) ?? arg.default;
+              (interaction as CommandInteraction).options.getString(
+                name,
+                arg.required
+              ) ?? arg.default;
             if (
               this.client.commandHandler.resolver.types.has(
                 arg.type.toString()
@@ -430,7 +439,7 @@ export class Command extends AkairoCommand {
                 arg.type as unknown as SlashArgumentTypeCaster
               ).bind(this)(
                 message,
-                message.slashCommand.options.get(name)?.value.toString()
+                interaction.options.get(name)?.value.toString()
               );
             } else if (arg.type instanceof RegExp) {
               const match = (args[arg.id] as string).match(arg.type);
@@ -452,33 +461,39 @@ export class Command extends AkairoCommand {
           }
           case "INTEGER": {
             args[arg.id] =
-              message.slashCommand.options.getInteger(name) ?? arg.default;
+              (interaction as CommandInteraction).options.getInteger(
+                name,
+                arg.required
+              ) ?? arg.default;
             break;
           }
           case "BOOLEAN": {
             args[arg.id] =
-              message.slashCommand.options.getBoolean(name) ?? arg.default;
+              (interaction as CommandInteraction).options.getBoolean(
+                name,
+                arg.required
+              ) ?? arg.default;
             break;
           }
           case "USER": {
             if (mustBeMember.includes(arg.type?.toString()))
               args[arg.id] =
-                message.slashCommand.options.getMember(name, false) ??
+                interaction.options.getMember(name, arg.required) ??
                 arg.default;
             else if (canAcceptMember.includes(arg.type?.toString()))
               args[arg.id] =
-                message.slashCommand.options.getMember(name, false) ??
-                message.slashCommand.options.getUser(name, false) ??
+                interaction.options.getMember(name, arg.required) ??
+                interaction.options.getUser(name, arg.required) ??
                 arg.default;
             else
               args[arg.id] =
-                message.slashCommand.options.getUser(name, false) ??
-                arg.default;
+                interaction.options.getUser(name, arg.required) ?? arg.default;
             break;
           }
           case "CHANNEL": {
-            const resolvedChannel =
-              message.slashCommand.options.getChannel(name);
+            const resolvedChannel = (
+              interaction as CommandInteraction
+            ).options.getChannel(name);
             if (
               resolvedChannel &&
               this.client.channels.cache.has(resolvedChannel.id)
@@ -488,14 +503,17 @@ export class Command extends AkairoCommand {
             break;
           }
           case "ROLE": {
-            const role = message.slashCommand.options.getRole(name);
+            const role = (interaction as CommandInteraction).options.getRole(
+              name
+            );
             if (role instanceof Role) args[arg.id] = role;
             else args[arg.id] = arg.default;
             break;
           }
           case "MENTIONABLE": {
-            const mentionable =
-              message.slashCommand.options.getMentionable(name);
+            const mentionable = (
+              interaction as CommandInteraction
+            ).options.getMentionable(name);
             if (
               mentionable instanceof Role ||
               mentionable instanceof FireMember
@@ -511,9 +529,11 @@ export class Command extends AkairoCommand {
           }
           case "ATTACHMENT": {
             args[arg.id] =
-              (
-                message.slashCommand as CommandInteraction
-              ).options?.getAttachment?.(name) ?? arg.default;
+              (interaction as CommandInteraction).options?.getAttachment?.(
+                name,
+                arg.required
+              ) ?? arg.default;
+            break;
           }
           default: {
             const resolver = this.client.commandHandler.resolver.types.get(
@@ -522,7 +542,7 @@ export class Command extends AkairoCommand {
             if (typeof resolver == "function")
               args[arg.id] = await resolver(
                 message,
-                message.slashCommand.options.get(name, true)?.value.toString()
+                interaction.options.get(name, arg.required)?.value.toString()
               );
           }
         }
@@ -535,7 +555,7 @@ export class Command extends AkairoCommand {
               arg.type as unknown as SlashArgumentTypeCaster
             ).bind(this)(
               message,
-              message.slashCommand.options.get(name, true)?.value.toString()
+              interaction.options.get(name, true)?.value.toString()
             );
           } catch {
             args[arg.id] = arg.default;

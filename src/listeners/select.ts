@@ -5,7 +5,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Formatters, Permissions, Snowflake } from "discord.js";
 import { Listener } from "@fire/lib/util/listener";
-import LinkFilter from "../commands/Configuration/linkfilter";
+import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 
 const reminderSnoozeTimes = [
   300000, 1800000, 3600000, 21600000, 43200000, 86400000, 259200000, 604800000,
@@ -206,13 +206,15 @@ export default class Select extends Listener {
           })
           .catch(() => {});
 
-      const linkfilter = this.client.getCommand("linkfilter") as LinkFilter;
+      const linkfilter = this.client.getCommand(
+        "linkfilter"
+      ) as LinkfilterToggle;
 
       // handle disable first
       if (select.values.includes("disable")) {
         select.guild.settings.delete("mod.linkfilter");
         await select.channel.update({
-          content: select.language.get("LINKFILTER_FILTER_LIST"),
+          content: select.language.get("LINKFILTER_TOGGLE_FILTER_LIST"),
           components: linkfilter.getMenuComponents(select),
         });
         if (!select.guild.settings.has("mod.linkfilter"))
@@ -228,7 +230,7 @@ export default class Select extends Listener {
       );
       select.guild.settings.set("mod.linkfilter", values);
       await select.channel.update({
-        content: select.language.get("LINKFILTER_FILTER_LIST"),
+        content: select.language.get("LINKFILTER_TOGGLE_FILTER_LIST"),
         components: linkfilter.getMenuComponents(select),
       });
       if (

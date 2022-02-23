@@ -14,7 +14,14 @@ export class GuildSettings {
   constructor(client: Fire, guild: Snowflake | FireGuild) {
     this.client = client;
     this.guild = guild;
-    if (this.shouldMigrate) this.runMigration();
+    if (this.shouldMigrate)
+      this.runMigration().then(() =>
+        this.client.console.log(
+          `[GuildSettings] Migration complete for`,
+          this.guild instanceof FireGuild ? this.guild.name : this.guild,
+          `${this.guild instanceof FireGuild ? "(" + this.guild.id + ")" : ""}`
+        )
+      );
     else
       this.client.guildSettings.toMigrate =
         this.client.guildSettings.toMigrate.filter(
@@ -25,11 +32,43 @@ export class GuildSettings {
 
   // will check if migration is needed for the current migration script
   get shouldMigrate() {
-    return false;
+    return this.get("excluded.filter", []).length;
+    // return false;
   }
 
   // will be empty unless there's a migration to run
-  async runMigration() {}
+  async runMigration() {
+    if (!(this.guild instanceof FireGuild)) return;
+    await this.client.waitUntilReady();
+    const guild = this.guild as FireGuild;
+    const current = this.get<string[]>("excluded.filter", []);
+    this.delete("excluded.filter");
+    const roleIds = current
+      .filter((id) => guild.roles.cache.has(id))
+      .map((id) => `role:${id}`);
+    const channelIds = current
+      .filter((id) => guild.channels.cache.has(id))
+      .map((id) => `channel:${id}`);
+    const theRest = current.filter(
+      (id) => !guild.roles.cache.has(id) && !guild.channels.cache.has(id)
+    );
+    let memberIds = [];
+    const members = await guild.members
+      .fetch({ user: theRest })
+      .catch(() => {});
+    if (members && members.size) memberIds = members.map((m) => `user:${m.id}`);
+    const all: (`role:${string}` | `channel:${string}` | `user:${string}`)[] = [
+      ...roleIds,
+      ...channelIds,
+      ...memberIds,
+    ];
+    if (all.length) this.set("linkfilter.exclude", all);
+    this.client.guildSettings.toMigrate =
+      this.client.guildSettings.toMigrate.filter(
+        (id) =>
+          id != (this.guild instanceof FireGuild ? this.guild.id : this.guild)
+      );
+  }
 
   has(option: string) {
     const guild = this.guild instanceof FireGuild ? this.guild.id : this.guild;
@@ -83,7 +122,14 @@ export class UserSettings {
   constructor(client: Fire, user: Snowflake | FireUser) {
     this.client = client;
     this.user = user;
-    if (this.shouldMigrate) this.runMigration();
+    if (this.shouldMigrate)
+      this.runMigration().then(() =>
+        this.client.console.log(
+          `[GuildSettings] Migration complete for`,
+          this.user instanceof FireUser ? this.user.toString() : this.user,
+          `${this.user instanceof FireUser ? "(" + this.user.id + ")" : ""}`
+        )
+      );
     else
       this.client.userSettings.toMigrate =
         this.client.userSettings.toMigrate.filter(

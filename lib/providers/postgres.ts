@@ -31,7 +31,7 @@ export class PostgresProvider extends Provider {
 
     // if migration is needed on a table,
     // this will be tableName == "table"
-    this.currentMigration = false;
+    this.currentMigration = tableName == "guildconfig";
     this.migrationLock = new Semaphore(2);
   }
 

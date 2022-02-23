@@ -63,6 +63,13 @@ export type MemberLogType =
   | "roles_remove"
   | "nickname_update";
 
+export type LinkfilterExcluded = LinkfilterExcludedItem[];
+
+export type LinkfilterExcludedItem =
+  | `role:${string}`
+  | `channel:${string}`
+  | `user:${string}`;
+
 export type GuildTextChannel = FireTextChannel | FireVoiceChannel | NewsChannel;
 
 export type i18nOptions = TOptions<StringMap> & {

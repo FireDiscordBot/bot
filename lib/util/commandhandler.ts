@@ -17,7 +17,7 @@ const { CommandHandlerEvents } = Constants;
 const allowedTypes = ["DEFAULT", "REPLY"];
 
 export type SlashArgumentTypeCaster = (
-  message: ApplicationCommandMessage,
+  message: ApplicationCommandMessage | ContextCommandMessage,
   phrase: string
 ) => any;
 
@@ -78,7 +78,7 @@ export class CommandHandler extends AkairoCommandHandler {
   }
 
   async runSlashCommand(
-    message: ApplicationCommandMessage,
+    message: ApplicationCommandMessage | ContextCommandMessage,
     command: Command,
     args: Record<string, unknown>
   ) {
@@ -174,7 +174,9 @@ export class CommandHandler extends AkairoCommandHandler {
     }
   }
 
-  async handleSlash(message: ApplicationCommandMessage) {
+  async handleSlash(
+    message: ApplicationCommandMessage | ContextCommandMessage
+  ) {
     try {
       if (await this.runAllTypeInhibitorsSlash(message)) return false;
 
@@ -213,7 +215,9 @@ export class CommandHandler extends AkairoCommandHandler {
     }
   }
 
-  async runAllTypeInhibitorsSlash(message: ApplicationCommandMessage) {
+  async runAllTypeInhibitorsSlash(
+    message: ApplicationCommandMessage | ContextCommandMessage
+  ) {
     const reason = this.inhibitorHandler
       ? await this.inhibitorHandler.test(
           "all",
@@ -250,7 +254,9 @@ export class CommandHandler extends AkairoCommandHandler {
     return true;
   }
 
-  async runPreTypeInhibitorsSlash(message: ApplicationCommandMessage) {
+  async runPreTypeInhibitorsSlash(
+    message: ApplicationCommandMessage | ContextCommandMessage
+  ) {
     const reason = this.inhibitorHandler
       ? await this.inhibitorHandler.test(
           "pre",
@@ -273,7 +279,7 @@ export class CommandHandler extends AkairoCommandHandler {
   }
 
   async handleDirectSlashCommand(
-    message: ApplicationCommandMessage,
+    message: ApplicationCommandMessage | ContextCommandMessage,
     command: Command,
     ignore = false
   ) {
