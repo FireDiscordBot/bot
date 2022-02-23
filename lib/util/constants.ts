@@ -24,47 +24,56 @@ export enum CouponType {
 
 export enum ActionLogTypes {
   SYSTEM,
-  PUBLIC_TOGGLE,
-  PURGE,
-  LINKFILTER,
-  MESSAGE_EDIT,
-  MESSAGE_DELETE,
-  INVITE_ROLE_CREATE,
-  INVITE_ROLE_DELETE,
-  CHANNEL_CREATE,
-  CHANNEL_UPDATE,
-  CHANNEL_DELETE,
-  INVITE_CREATE,
-  INVITE_DELETE,
-  GUILD_UPDATE,
-  USER_UNBAN,
-  PINS_ADD,
-  REACTION_ROLE,
+  PUBLIC_TOGGLE = 1 << 0,
+  PURGE = 1 << 1,
+  LINKFILTER = 1 << 2,
+  MESSAGE_EDIT = 1 << 3,
+  MESSAGE_DELETE = 1 << 4,
+  INVITE_ROLE_CREATE = 1 << 5,
+  INVITE_ROLE_DELETE = 1 << 6,
+  CHANNEL_CREATE = 1 << 7,
+  CHANNEL_UPDATE = 1 << 8,
+  CHANNEL_DELETE = 1 << 9,
+  INVITE_CREATE = 1 << 10,
+  INVITE_DELETE = 1 << 11,
+  GUILD_UPDATE = 1 << 12,
+  USER_UNBAN = 1 << 13,
+  PINS_ADD = 1 << 14,
+  REACTION_ROLE = 1 << 15,
 }
+export const DEFAULT_ACTION_LOG_FLAGS = Object.values(ActionLogTypes)
+  .filter((v) => typeof v == "number")
+  .reduce((a, b: ActionLogTypes) => a | b, 0);
 export enum ModLogTypes {
   SYSTEM,
-  WARN,
-  NOTE,
-  BAN,
-  UNBAN,
-  KICK,
-  BLOCK,
-  UNBLOCK,
-  DERANK,
-  MUTE,
-  UNMUTE,
-  ROLE_PERSIST,
-  BLACKLIST,
-  UNBLACKLIST,
+  WARN = 1 << 0,
+  NOTE = 1 << 1,
+  BAN = 1 << 2,
+  UNBAN = 1 << 3,
+  KICK = 1 << 4,
+  BLOCK = 1 << 5,
+  UNBLOCK = 1 << 6,
+  DERANK = 1 << 7,
+  MUTE = 1 << 8,
+  UNMUTE = 1 << 9,
+  ROLE_PERSIST = 1 << 10,
+  BLACKLIST = 1 << 11,
+  UNBLACKLIST = 1 << 12,
 }
+export const DEFAULT_MOD_LOG_FLAGS = Object.values(ModLogTypes)
+  .filter((v) => typeof v == "number")
+  .reduce((a, b: ModLogTypes) => a | b, 0);
 export enum MemberLogTypes {
   SYSTEM,
-  JOIN,
-  LEAVE,
-  ROLES_ADD,
-  ROLES_REMOVE,
-  NICKNAME_UPDATE,
+  JOIN = 1 << 0,
+  LEAVE = 1 << 1,
+  ROLES_ADD = 1 << 2,
+  ROLES_REMOVE = 1 << 3,
+  NICKNAME_UPDATE = 1 << 4,
 }
+export const DEFAULT_MEMBER_LOG_FLAGS = Object.values(MemberLogTypes)
+  .filter((v) => typeof v == "number")
+  .reduce((a, b: MemberLogTypes) => a | b, 0);
 
 export const ModLogTypesEnumToString: Record<ModLogTypes, string> = {
   [ModLogTypes.SYSTEM]: "system", // only here to please the typings, should never be used
