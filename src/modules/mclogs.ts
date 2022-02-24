@@ -12,6 +12,7 @@ import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import { Readable } from "stream";
+import { getCodeblockMatch } from "../arguments/codeblock";
 import Filters from "./filters";
 
 const { mcLogFilters } = constants;
@@ -716,6 +717,9 @@ export default class MCLogs extends Module {
       return;
     else if (this.client.util.isBlacklisted(message.author.id, message.guild))
       return;
+
+    const codeblock = getCodeblockMatch(message.content);
+    if (codeblock && codeblock.language) return; // likely not a log
 
     if (this.regexes.noRaw.test(message.content)) {
       this.regexes.noRaw.lastIndex = 0;
