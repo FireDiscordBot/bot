@@ -50,6 +50,7 @@ export class ContextCommandMessage {
   mentions: MessageMentions;
   latestResponse: Snowflake;
   private _flags: number;
+  content: string = "";
   channel: FakeChannel;
   member?: FireMember;
   language: Language;
@@ -58,7 +59,6 @@ export class ContextCommandMessage {
   command: Command;
   author: FireUser;
   webhookId = null;
-  content: string;
   id: Snowflake;
   client: Fire;
 
