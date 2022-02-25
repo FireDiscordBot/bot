@@ -296,11 +296,11 @@ export class CommandHandler extends AkairoCommandHandler {
 
       await command.before(message as unknown as FireMessage);
 
-      const args = await command.parseSlash(message).catch((e) => {
-        this.client.sentry.captureException(e);
+      const args = await command.parseSlash(message).catch((e) => e);
+      if (args instanceof Error) {
+        this.emit("commandError", message, command, {}, args);
         return null;
-      });
-      if (args == null) return null;
+      } else if (args == null) return null;
 
       if (!ignore) {
         if (command.lock)
