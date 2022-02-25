@@ -1,6 +1,6 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
-import { constants, titleCase } from "@fire/lib/util/constants";
+import { ActionLogTypes, constants, titleCase } from "@fire/lib/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import {
@@ -171,7 +171,9 @@ export default class ChannelUpdate extends Listener {
           removedOverwrites.join(" - ")
         );
       if (embed.fields.length)
-        await guild.actionLog(embed, "channel_update").catch(() => {});
+        await guild
+          .actionLog(embed, ActionLogTypes.CHANNEL_UPDATE)
+          .catch(() => {});
     }
   }
 }

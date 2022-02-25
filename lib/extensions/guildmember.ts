@@ -14,7 +14,7 @@ import {
   Util,
 } from "discord.js";
 import { BaseFakeChannel } from "../interfaces/misc";
-import { GuildTextChannel } from "../util/constants";
+import { GuildTextChannel, ModLogTypes } from "../util/constants";
 import { FakeChannel } from "./appcommandmessage";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
@@ -335,7 +335,7 @@ export class FireMember extends GuildMember {
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     const logEntry = await this.guild
-      .createModLogEntry(this, moderator, "warn", reason)
+      .createModLogEntry(this, moderator, ModLogTypes.WARN, reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     let noDM: boolean = false;
@@ -352,7 +352,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("ERROR"),
         this.guild.language.get("WARN_LOG_DM_FAIL")
       );
-    await this.guild.modLog(embed, "warn").catch(() => {});
+    await this.guild.modLog(embed, ModLogTypes.WARN).catch(() => {});
     const count = await this.client.db
       .query("SELECT * FROM modlogs WHERE gid=$1 AND type=$2 AND uid=$3;", [
         this.guild.id,
@@ -400,10 +400,10 @@ export class FireMember extends GuildMember {
       .addField(this.guild.language.get("REASON"), reason)
       .setFooter(`${this.id} | ${moderator.id}`);
     const logEntry = await this.guild
-      .createModLogEntry(this, moderator, "note", reason)
+      .createModLogEntry(this, moderator, ModLogTypes.NOTE, reason)
       .catch(() => {});
     if (!logEntry) return "entry";
-    await this.guild.modLog(embed, "note").catch(() => {});
+    await this.guild.modLog(embed, ModLogTypes.NOTE).catch(() => {});
     const count = await this.client.db
       .query(
         "SELECT COUNT(*) FROM modlogs WHERE gid=$1 AND type=$2 AND uid=$3;",
@@ -435,7 +435,7 @@ export class FireMember extends GuildMember {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     const logEntry = await this.guild
-      .createModLogEntry(this, moderator, "ban", reason)
+      .createModLogEntry(this, moderator, ModLogTypes.BAN, reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     if (this.guild.mutes.has(this.id))
@@ -502,7 +502,7 @@ export class FireMember extends GuildMember {
           this.guild.language.get("DM_FAIL")
         );
     }
-    await this.guild.modLog(embed, "ban").catch(() => {});
+    await this.guild.modLog(embed, ModLogTypes.BAN).catch(() => {});
     if (channel)
       return await channel
         .send({
@@ -532,7 +532,7 @@ export class FireMember extends GuildMember {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     const logEntry = await this.guild
-      .createModLogEntry(this, moderator, "kick", reason)
+      .createModLogEntry(this, moderator, ModLogTypes.KICK, reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     const kicked = await this.kick(`${moderator} | ${reason}`).catch(() => {});
@@ -574,7 +574,7 @@ export class FireMember extends GuildMember {
           this.guild.language.get("DM_FAIL")
         );
     }
-    await this.guild.modLog(embed, "kick").catch(() => {});
+    await this.guild.modLog(embed, ModLogTypes.KICK).catch(() => {});
     if (channel)
       return await channel
         .send({
@@ -593,7 +593,7 @@ export class FireMember extends GuildMember {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     const logEntry = await this.guild
-      .createModLogEntry(this, moderator, "derank", reason)
+      .createModLogEntry(this, moderator, ModLogTypes.DERANK, reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     let failed = false;
@@ -642,7 +642,7 @@ export class FireMember extends GuildMember {
           .map((role) => role.toString())
           .join(", ")
       );
-    await this.guild.modLog(embed, "derank").catch(() => {});
+    await this.guild.modLog(embed, ModLogTypes.DERANK).catch(() => {});
     if (channel)
       return await channel
         .send({
@@ -684,7 +684,7 @@ export class FireMember extends GuildMember {
       if (!role) return "role";
     } else if (!canTimeOut) this.guild.syncMuteRolePermissions();
     const logEntry = await this.guild
-      .createModLogEntry(this, moderator, "mute", reason)
+      .createModLogEntry(this, moderator, ModLogTypes.MUTE, reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     const muted = canTimeOut
@@ -759,7 +759,7 @@ export class FireMember extends GuildMember {
           this.guild.language.get("DM_FAIL")
         );
     }
-    await this.guild.modLog(embed, "mute").catch(() => {});
+    await this.guild.modLog(embed, ModLogTypes.MUTE).catch(() => {});
     if (channel)
       return await channel
         .send({
@@ -821,7 +821,7 @@ export class FireMember extends GuildMember {
       return "not_muted";
     }
     const logEntry = await this.guild
-      .createModLogEntry(this, moderator, "unmute", reason)
+      .createModLogEntry(this, moderator, ModLogTypes.UNMUTE, reason)
       .catch(() => {});
     if (!logEntry) return "entry";
     const until = this.guild.mutes.get(this.id);
@@ -870,7 +870,7 @@ export class FireMember extends GuildMember {
         this.guild.language.get("ERROR"),
         this.guild.language.get("UNMUTE_FAILED_DB_REMOVE")
       );
-    await this.guild.modLog(embed, "unmute").catch(() => {});
+    await this.guild.modLog(embed, ModLogTypes.UNMUTE).catch(() => {});
     if (channel)
       return await channel
         .send({

@@ -22,46 +22,74 @@ export enum CouponType {
   BOOSTER_AND_SUB = "TWITCHBOOST",
 }
 
-export type ActionLogType =
-  | "system"
-  | "public_toggle"
-  | "purge"
-  | "linkfilter"
-  | "message_edit"
-  | "message_delete"
-  | "invite_role_create"
-  | "invite_role_delete"
-  | "channel_create"
-  | "channel_update"
-  | "channel_delete"
-  | "invite_create"
-  | "invite_delete"
-  | "guild_update"
-  | "user_unban"
-  | "pins_add"
-  | "reactrole";
-export type ModLogType =
-  | "system"
-  | "warn"
-  | "note"
-  | "ban"
-  | "unban"
-  | "kick"
-  | "block"
-  | "unblock"
-  | "derank"
-  | "mute"
-  | "unmute"
-  | "role_persist"
-  | "blacklist"
-  | "unblacklist";
-export type MemberLogType =
-  | "system"
-  | "join"
-  | "leave"
-  | "roles_add"
-  | "roles_remove"
-  | "nickname_update";
+export enum ActionLogTypes {
+  SYSTEM,
+  PURGE = 1 << 0,
+  LINKFILTER_TRIGGERED = 1 << 1,
+  MESSAGE_EDIT = 1 << 2,
+  MESSAGE_DELETE = 1 << 3,
+  INVITE_ROLE_CREATE = 1 << 4,
+  INVITE_ROLE_DELETE = 1 << 5,
+  CHANNEL_CREATE = 1 << 6,
+  CHANNEL_UPDATE = 1 << 7,
+  CHANNEL_DELETE = 1 << 8,
+  INVITE_CREATE = 1 << 9,
+  INVITE_DELETE = 1 << 10,
+  GUILD_UPDATE = 1 << 11,
+  USER_UNBAN = 1 << 12,
+  PINS_ADD = 1 << 13,
+  REACTION_ROLE = 1 << 14,
+}
+export const DEFAULT_ACTION_LOG_FLAGS = Object.values(ActionLogTypes)
+  .filter((v) => typeof v == "number")
+  .reduce((a, b: ActionLogTypes) => a | b, 0);
+export enum ModLogTypes {
+  SYSTEM,
+  WARN = 1 << 0,
+  NOTE = 1 << 1,
+  BAN = 1 << 2,
+  UNBAN = 1 << 3,
+  KICK = 1 << 4,
+  BLOCK = 1 << 5,
+  UNBLOCK = 1 << 6,
+  DERANK = 1 << 7,
+  MUTE = 1 << 8,
+  UNMUTE = 1 << 9,
+  ROLE_PERSIST = 1 << 10,
+  BLACKLIST = 1 << 11,
+  UNBLACKLIST = 1 << 12,
+}
+export const DEFAULT_MOD_LOG_FLAGS = Object.values(ModLogTypes)
+  .filter((v) => typeof v == "number")
+  .reduce((a, b: ModLogTypes) => a | b, 0);
+export enum MemberLogTypes {
+  SYSTEM,
+  JOIN = 1 << 0,
+  LEAVE = 1 << 1,
+  ROLES_ADD = 1 << 2,
+  ROLES_REMOVE = 1 << 3,
+  NICKNAME_UPDATE = 1 << 4,
+}
+export const DEFAULT_MEMBER_LOG_FLAGS = Object.values(MemberLogTypes)
+  .filter((v) => typeof v == "number")
+  .reduce((a, b: MemberLogTypes) => a | b, 0);
+
+export const ModLogTypesEnumToString: Record<ModLogTypes, string> = {
+  [ModLogTypes.SYSTEM]: "system", // only here to please the typings, should never be used
+  [ModLogTypes.WARN]: "warn",
+  [ModLogTypes.NOTE]: "note",
+  [ModLogTypes.BAN]: "ban",
+  [ModLogTypes.UNBAN]: "unban",
+  [ModLogTypes.KICK]: "kick",
+  [ModLogTypes.BLOCK]: "block",
+  [ModLogTypes.UNBLOCK]: "unblock",
+  [ModLogTypes.DERANK]: "derank",
+  [ModLogTypes.MUTE]: "mute",
+  [ModLogTypes.UNMUTE]: "unmute",
+  [ModLogTypes.ROLE_PERSIST]: "role_persist",
+  [ModLogTypes.BLACKLIST]: "blacklist",
+  [ModLogTypes.UNBLACKLIST]: "unblacklist",
+};
 
 export type LinkfilterExcluded = LinkfilterExcludedItem[];
 

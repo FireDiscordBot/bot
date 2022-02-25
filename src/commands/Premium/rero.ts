@@ -14,7 +14,7 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import * as pEvent from "p-event";
-import { constants } from "@fire/lib/util/constants";
+import { ActionLogTypes, constants } from "@fire/lib/util/constants";
 
 export default class ReactionRole extends Command {
   constructor() {
@@ -175,7 +175,7 @@ export default class ReactionRole extends Command {
       )
       .addField(message.guild.language.get("ROLE"), role.toString())
       .setFooter(`${role.id} | ${message.author.id}`);
-    return await message.guild.actionLog(embed, "reactrole");
+    return await message.guild.actionLog(embed, ActionLogTypes.REACTION_ROLE);
   }
 
   async logDeletion(
@@ -207,7 +207,7 @@ export default class ReactionRole extends Command {
       )
       .addField(message.guild.language.get("ROLE"), role.toString())
       .setFooter(`${role.id} | ${message.author.id}`);
-    return await message.guild.actionLog(embed, "reactrole");
+    return await message.guild.actionLog(embed, ActionLogTypes.REACTION_ROLE);
   }
 
   private async awaitConfirmation(

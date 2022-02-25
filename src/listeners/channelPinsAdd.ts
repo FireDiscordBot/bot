@@ -3,6 +3,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageReference, MessageEmbed } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 
 export default class ChannelPinsAdd extends Listener {
   constructor() {
@@ -40,7 +41,7 @@ export default class ChannelPinsAdd extends Listener {
         })
         .addField(language.get("PINNED_BY"), member.toString())
         .setFooter(`${message.id} | ${member.id} | ${channel.id}`);
-      await guild.actionLog(embed, "pins_add");
+      await guild.actionLog(embed, ActionLogTypes.PINS_ADD);
     }
   }
 }

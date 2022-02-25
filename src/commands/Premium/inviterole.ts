@@ -2,6 +2,7 @@ import { MessageEmbed, Permissions, Invite, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 
 export default class InviteRole extends Command {
   constructor() {
@@ -75,7 +76,7 @@ export default class InviteRole extends Command {
           )
           .setFooter(`${role.id} | ${message.author.id}`);
         await message.guild
-          .actionLog(embed, "invite_role_delete")
+          .actionLog(embed, ActionLogTypes.INVITE_ROLE_DELETE)
           .catch(() => {});
       }
       return deleted && deleted.status.startsWith("DELETE")
@@ -115,7 +116,7 @@ export default class InviteRole extends Command {
         )
         .setFooter(`${role.id} | ${message.author.id}`);
       await message.guild
-        .actionLog(embed, "invite_role_create")
+        .actionLog(embed, ActionLogTypes.INVITE_ROLE_CREATE)
         .catch(() => {});
     }
     return added &&

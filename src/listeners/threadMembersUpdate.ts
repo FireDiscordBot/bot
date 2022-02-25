@@ -2,6 +2,7 @@ import { ThreadMember, MessageEmbed, Collection, Snowflake } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 
 export default class ThreadMembersUpdate extends Listener {
   constructor() {
@@ -59,7 +60,9 @@ export default class ThreadMembersUpdate extends Listener {
       }
 
       if (embed.fields.length)
-        await guild.actionLog(embed, "channel_update").catch(() => {});
+        await guild
+          .actionLog(embed, ActionLogTypes.CHANNEL_UPDATE)
+          .catch(() => {});
     }
   }
 }

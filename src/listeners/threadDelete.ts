@@ -1,5 +1,5 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { constants } from "@fire/lib/util/constants";
+import { ActionLogTypes, constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Formatters, MessageEmbed, ThreadChannel } from "discord.js";
 
@@ -112,7 +112,9 @@ export default class ThreadDelete extends Listener {
       //   }
       // }
       if (raw) embed.addField(language.get("RAW"), raw);
-      await guild.actionLog(embed, "channel_delete").catch(() => {});
+      await guild
+        .actionLog(embed, ActionLogTypes.CHANNEL_DELETE)
+        .catch(() => {});
     }
   }
 }

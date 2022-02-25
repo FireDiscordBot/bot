@@ -1,6 +1,10 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { constants, CouponType } from "@fire/lib/util/constants";
+import {
+  constants,
+  CouponType,
+  MemberLogTypes,
+} from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
 import {
@@ -374,7 +378,7 @@ export default class GuildMemberUpdate extends Listener {
       embed.addField(guild.language.get("MODERATOR"), executor.toString());
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);
-    await guild.memberLog(embed, "roles_add").catch(() => {});
+    await guild.memberLog(embed, MemberLogTypes.ROLES_ADD).catch(() => {});
   }
 
   async logRoleRemove(
@@ -419,7 +423,7 @@ export default class GuildMemberUpdate extends Listener {
       embed.addField(guild.language.get("MODERATOR"), executor.toString());
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);
-    await guild.memberLog(embed, "roles_remove").catch(() => {});
+    await guild.memberLog(embed, MemberLogTypes.ROLES_REMOVE).catch(() => {});
   }
 
   async logNickChange(
@@ -467,6 +471,8 @@ export default class GuildMemberUpdate extends Listener {
     if (embed.fields.length <= 1) return;
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);
-    await guild.memberLog(embed, "nickname_update").catch(() => {});
+    await guild
+      .memberLog(embed, MemberLogTypes.NICKNAME_UPDATE)
+      .catch(() => {});
   }
 }

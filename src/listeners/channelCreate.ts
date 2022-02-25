@@ -6,7 +6,7 @@ import {
   DMChannel,
 } from "discord.js";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { humanize, titleCase } from "@fire/lib/util/constants";
+import { ActionLogTypes, humanize, titleCase } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
 
@@ -152,7 +152,9 @@ export default class ChannelCreate extends Listener {
             );
         }
       }
-      await guild.actionLog(embed, "channel_create").catch(() => {});
+      await guild
+        .actionLog(embed, ActionLogTypes.CHANNEL_CREATE)
+        .catch(() => {});
     }
   }
 }

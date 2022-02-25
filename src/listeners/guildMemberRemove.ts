@@ -12,7 +12,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
 import EssentialNitro from "../modules/essentialnitro";
-import { constants } from "@fire/lib/util/constants";
+import { constants, MemberLogTypes } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 
@@ -193,7 +193,7 @@ export default class GuildMemberRemove extends Listener {
         if (roles && roles.length <= 1024)
           embed.addField(language.get("ROLES"), roles);
       }
-      await member.guild.memberLog(embed, "leave");
+      await member.guild.memberLog(embed, MemberLogTypes.LEAVE);
     }
   }
 }

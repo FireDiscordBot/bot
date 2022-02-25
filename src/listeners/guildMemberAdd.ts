@@ -5,7 +5,12 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
-import { constants } from "@fire/lib/util/constants";
+import {
+  ActionLogTypes,
+  constants,
+  MemberLogTypes,
+  ModLogTypes,
+} from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 
@@ -167,11 +172,15 @@ export default class GuildMemberAdd extends Listener {
             `LOGGING_${type.toUpperCase()}_DISABLED_MEMBERCOUNT` as LanguageKeys
           ) as string;
           if (type == "moderation")
-            member.guild.modLog(message, "system").catch(() => {});
+            member.guild.modLog(message, ModLogTypes.SYSTEM).catch(() => {});
           else if (type == "action")
-            member.guild.actionLog(message, "system").catch(() => {});
+            member.guild
+              .actionLog(message, ActionLogTypes.SYSTEM)
+              .catch(() => {});
           else if (type == "members")
-            member.guild.memberLog(message, "system").catch(() => {});
+            member.guild
+              .memberLog(message, MemberLogTypes.SYSTEM)
+              .catch(() => {});
           member.guild.settings.delete(`log.${type}`);
         }
       });
@@ -267,7 +276,7 @@ export default class GuildMemberAdd extends Listener {
           member.guild.language.get("MUTE_WILL_BE_UNMUTED"),
           `${Formatters.time(new Date(member.guild.mutes.get(member.id)), "R")}`
         );
-      await member.guild.memberLog(embed, "join");
+      await member.guild.memberLog(embed, MemberLogTypes.JOIN);
     }
   }
 }

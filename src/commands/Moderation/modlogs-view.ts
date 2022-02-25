@@ -3,31 +3,17 @@ import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { constants, ModLogType, titleCase } from "@fire/lib/util/constants";
+import {
+  constants,
+  ModLogTypesEnumToString,
+  titleCase,
+} from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
 import { CommandInteractionOption, MessageEmbed, Util } from "discord.js";
-
-// the type makes it yell if one is missing and allows me to add it with a click
-const types: Record<ModLogType, null> = {
-  system: undefined,
-  warn: undefined,
-  note: undefined,
-  ban: undefined,
-  unban: undefined,
-  kick: undefined,
-  block: undefined,
-  unblock: undefined,
-  derank: undefined,
-  mute: undefined,
-  unmute: undefined,
-  role_persist: undefined,
-  blacklist: undefined,
-  unblacklist: undefined,
-};
 
 export default class ModlogsView extends Command {
   constructor() {
@@ -66,7 +52,7 @@ export default class ModlogsView extends Command {
   ) {
     if (focused.name != "type") return [];
     // allows it to be immediately updated rather than waiting for the command to propogates
-    return Object.keys(types).filter((type) =>
+    return Object.values(ModLogTypesEnumToString).filter((type) =>
       focused.value ? type.includes(focused.value.toString()) : true
     );
   }
