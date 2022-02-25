@@ -408,6 +408,8 @@ export class Command extends AkairoCommand {
     const args = {};
     if (this.args?.length) {
       for (const arg of this.args) {
+        let required = arg.required;
+        if (message instanceof ContextCommandMessage) required = false;
         let name = this.getSlashCommandArgName(arg);
         if (arg.flag && arg.readableType == "boolean")
           name = arg.id.toLowerCase();
@@ -422,7 +424,7 @@ export class Command extends AkairoCommand {
             args[arg.id] =
               (interaction as CommandInteraction).options.getString(
                 name,
-                arg.required
+                required
               ) ?? arg.default;
             if (
               this.client.commandHandler.resolver.types.has(
@@ -463,7 +465,7 @@ export class Command extends AkairoCommand {
             args[arg.id] =
               (interaction as CommandInteraction).options.getInteger(
                 name,
-                arg.required
+                required
               ) ?? arg.default;
             break;
           }
@@ -471,23 +473,22 @@ export class Command extends AkairoCommand {
             args[arg.id] =
               (interaction as CommandInteraction).options.getBoolean(
                 name,
-                arg.required
+                required
               ) ?? arg.default;
             break;
           }
           case "USER": {
             if (mustBeMember.includes(arg.type?.toString()))
               args[arg.id] =
-                interaction.options.getMember(name, arg.required) ??
-                arg.default;
+                interaction.options.getMember(name, required) ?? arg.default;
             else if (canAcceptMember.includes(arg.type?.toString()))
               args[arg.id] =
-                interaction.options.getMember(name, arg.required) ??
-                interaction.options.getUser(name, arg.required) ??
+                interaction.options.getMember(name, required) ??
+                interaction.options.getUser(name, required) ??
                 arg.default;
             else
               args[arg.id] =
-                interaction.options.getUser(name, arg.required) ?? arg.default;
+                interaction.options.getUser(name, required) ?? arg.default;
             break;
           }
           case "CHANNEL": {
@@ -531,7 +532,7 @@ export class Command extends AkairoCommand {
             args[arg.id] =
               (interaction as CommandInteraction).options?.getAttachment?.(
                 name,
-                arg.required
+                required
               ) ?? arg.default;
             break;
           }
@@ -542,7 +543,7 @@ export class Command extends AkairoCommand {
             if (typeof resolver == "function")
               args[arg.id] = await resolver(
                 message,
-                interaction.options.get(name, arg.required)?.value.toString()
+                interaction.options.get(name, required)?.value.toString()
               );
           }
         }
