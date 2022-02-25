@@ -483,7 +483,7 @@ export class Command extends AkairoCommand {
                 interaction.options.getMember(name, required) ?? arg.default;
             else if (canAcceptMember.includes(arg.type?.toString()))
               args[arg.id] =
-                interaction.options.getMember(name, required) ??
+                interaction.options.getMember(name, false) ??
                 interaction.options.getUser(name, required) ??
                 arg.default;
             else
