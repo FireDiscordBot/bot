@@ -207,7 +207,7 @@ export default class Select extends Listener {
           .catch(() => {});
 
       const linkfilter = this.client.getCommand(
-        "linkfilter"
+        "linkfilter-toggle"
       ) as LinkfilterToggle;
 
       // handle disable first
