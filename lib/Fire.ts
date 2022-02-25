@@ -584,7 +584,8 @@ export class Fire extends AkairoClient {
     this.options.presence = {
       activities: [
         {
-          name: "with fire",
+          name: "#StandWithUkraine 🇺🇦",
+          // name: "with fire",
           type: "PLAYING",
         },
       ],
@@ -595,9 +596,11 @@ export class Fire extends AkairoClient {
       this.presence.set({
         activities: [
           {
-            name: this.manager.ws
-              ? `with fire | ${shard.id + 1}/${this.options.shardCount}`
-              : "with fire",
+            name: "#StandWithUkraine 🇺🇦",
+            // name:
+            //   this.manager.ws && this.options.shardCount != 1
+            //     ? `with fire | ${shard.id + 1}/${this.options.shardCount}`
+            //     : "with fire",
             type: "PLAYING",
           },
         ],
