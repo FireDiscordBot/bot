@@ -30,7 +30,11 @@ export default class Stats extends Command {
   }
 
   async exec(message: FireMessage, args: { cluster?: number }) {
-    if (!this.client.manager.ws?.open || args.cluster == this.client.manager.id)
+    if (
+      !this.client.manager.ws?.open ||
+      args.cluster == null ||
+      args.cluster == this.client.manager.id
+    )
       return await this.singularStats(message);
     let clusterStats: ClusterStats;
     const stats: ClusterStats[] = await (
