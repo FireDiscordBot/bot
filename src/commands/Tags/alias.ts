@@ -73,6 +73,10 @@ export default class TagAlias extends Command {
       return await message.error("TAGS_EDIT_LIMIT");
     const aliased = await manager.addAlias(tag, alias);
     if (!aliased) return await message.error("TAGS_ALIAS_FAILED");
-    else return await message.success("TAGS_ALIAS_ADDED");
+    else
+      return await message.success("TAGS_ALIAS_ADDED", {
+        tag: cachedTag.name,
+        alias,
+      });
   }
 }
