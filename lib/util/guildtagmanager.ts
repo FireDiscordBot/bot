@@ -202,10 +202,12 @@ export class GuildTagManager {
     return (
       !cmd.options?.length &&
       this.names.includes(cmd.name) &&
-      cmd.description ==
-        this.guild.language.get("TAG_SLASH_DESCRIPTION", {
-          tag: cmd.name,
-        })
+      cmd.description.trim() ==
+        this.guild.language
+          .get("TAG_SLASH_DESCRIPTION", {
+            tag: cmd.name,
+          })
+          .trim()
     );
   }
 
@@ -275,7 +277,10 @@ export class GuildTagManager {
         )
           this.guild.settings.set<boolean>("tags.slashcommands", null);
       });
-    return (this.preparedSlashCommands = true);
+    return (
+      (this.preparedSlashCommands = true) &&
+      this.guild.settings.get<boolean>("tags.slashcommands")
+    );
   }
 
   async removeSlashCommands() {
