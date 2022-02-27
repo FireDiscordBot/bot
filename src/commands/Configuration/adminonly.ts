@@ -6,6 +6,8 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Util } from "@fire/lib/util/clientutil";
 
+// TODO: rewrite this hot mess
+
 export default class AdminOnly extends Command {
   constructor() {
     super("adminonly", {
@@ -29,7 +31,7 @@ export default class AdminOnly extends Command {
   async exec(message: FireMessage, args: { channels: FireTextChannel[] }) {
     let channels = args.channels;
     if (channels instanceof FireTextChannel) channels = [channels];
-    if (!channels.length) return message.error("ADMINONLY_NO_CHANNELS");
+    if (!channels?.length) return message.error("ADMINONLY_NO_CHANNELS");
     let current = message.guild.settings.get<Snowflake[]>(
       "commands.adminonly",
       []
