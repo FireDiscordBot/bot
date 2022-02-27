@@ -24,7 +24,7 @@ export default class CloseTicket extends Command {
         {
           id: "reason",
           type: "string",
-          default: "No reason provided.",
+          default: null,
           required: false,
         },
       ],
@@ -68,7 +68,8 @@ export default class CloseTicket extends Command {
     const closure = await message.guild.closeTicket(
       message.channel as FireTextChannel,
       message.member,
-      args.reason
+      args.reason ??
+        message.guild.language.get("MODERATOR_ACTION_DEFAULT_REASON")
     );
     if (closure == "forbidden")
       return await message.error("TICKET_CLOSE_FORBIDDEN");
