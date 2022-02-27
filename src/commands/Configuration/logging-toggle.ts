@@ -51,10 +51,9 @@ export default class LoggingToggle extends Command {
       channel: FireTextChannel;
     }
   ) {
-    args.type = args.type?.toLowerCase() as validTypes;
+    const type = args.type?.toLowerCase() as validTypes;
     if (!args.type || !valid.includes(args.type))
       return await command.error("LOGGING_INVALID_TYPE", langKeys);
-    const [type] = valid.find(([, names]) => names.includes(args.type));
     const otherTypes = valid.filter((t) => t != type);
     const otherChannels = otherTypes.map((t) =>
       command.guild.settings.get<string>(`log.${t}`)
