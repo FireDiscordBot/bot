@@ -402,9 +402,9 @@ export class Fire extends AkairoClient {
     });
     this.modules.loadAll();
 
-    this.ksoft = process.env.KSOFT_TOKEN
-      ? new KSoftClient(process.env.KSOFT_TOKEN)
-      : undefined;
+    // this.ksoft = process.env.KSOFT_TOKEN
+    //   ? new KSoftClient(process.env.KSOFT_TOKEN)
+    //   : undefined;
 
     this.buttonHandlers = new Collection();
     this.buttonHandlersOnce = new Collection();
