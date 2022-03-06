@@ -749,7 +749,11 @@ export class FireMember extends GuildMember {
         this.language.get("MUTE_DM", {
           guild: Util.escapeMarkdown(this.guild.name),
           reason,
-        })
+        }) +
+          this.id ==
+          "249287049482338305"
+          ? "\nhttps://static.inv.wtf/muted.mp4"
+          : ""
       ).catch(() => {
         noDM = true;
       });
