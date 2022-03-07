@@ -102,7 +102,7 @@ export default class MCLogs extends Module {
     this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
     this.regexes = {
       reupload:
-        /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
+        /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|toptal\.com\/developers\/hastebin|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets:
         /("access_key":".+"|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken \S+|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+(\?key=|&key=))/gim,

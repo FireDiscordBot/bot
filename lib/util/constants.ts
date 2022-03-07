@@ -312,7 +312,7 @@ export const constants = {
       seconds: / (?<seconds>\d+)(?: ?s(?:ec)?(?:onds?)?)/im,
     },
     haste:
-      /(?<uploader>hastebin\.com|hasteb\.in|hst\.sh|h\.inv\.wtf)\/(?<key>\w{1,20})/gim,
+      /(?<uploader>toptal\.com\/developers\/hastebin|hastebin\.com|hasteb\.in|hst\.sh|h\.inv\.wtf)\/(?<key>\w{1,20})/gim,
   },
   escapedShruggie: "¯\\_(ツ)_/¯",
   blockedGifts: [
