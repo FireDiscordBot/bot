@@ -454,7 +454,7 @@ export class RequestHandler {
           status: response?.statusCode ?? 500,
           method: request.method,
           retries: request.retries,
-          limit: this.limit ?? -1,
+          limit: this.limit || 0,
           remaining: this.remaining ?? -1,
         },
       },
