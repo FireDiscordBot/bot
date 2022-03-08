@@ -441,6 +441,17 @@ export class RequestHandler {
   }
 
   logRequest(request: APIRequest, response?: centra.Response) {
+    const fields = {
+      path: request.path,
+      status: response?.statusCode ?? 500,
+      method: request.method,
+      retries: request.retries,
+      limit: 0,
+      remaining: 0,
+    };
+    if (typeof this.limit == "number" && this.limit) fields.limit = this.limit;
+    if (typeof this.remaining == "number" && this.remaining)
+      fields.remaining = this.remaining;
     this.manager.client.influx([
       {
         measurement: "requests",
@@ -449,14 +460,7 @@ export class RequestHandler {
           // TODO: maybe figure out if we can figure out the shard
           // belonging to any item (guild, channel, message etc.) in the request
         },
-        fields: {
-          path: request.path,
-          status: response?.statusCode ?? 500,
-          method: request.method,
-          retries: request.retries,
-          limit: this.limit || 0,
-          remaining: this.remaining ?? -1,
-        },
+        fields,
       },
     ]);
   }
