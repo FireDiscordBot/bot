@@ -274,7 +274,7 @@ export default class GuildMemberAdd extends Listener {
       if (member.guild.mutes.has(member.id))
         embed.addField(
           member.guild.language.get("MUTE_WILL_BE_UNMUTED"),
-          `${Formatters.time(new Date(member.guild.mutes.get(member.id)), "R")}`
+          Formatters.time(new Date(member.guild.mutes.get(member.id)), "R")
         );
       await member.guild.memberLog(embed, MemberLogTypes.JOIN);
     }

@@ -68,7 +68,7 @@ export enum MemberLogTypes {
   LEAVE = 1 << 1,
   ROLES_ADD = 1 << 2,
   ROLES_REMOVE = 1 << 3,
-  NICKNAME_UPDATE = 1 << 4,
+  MEMBER_UPDATE = 1 << 4,
 }
 export const DEFAULT_MEMBER_LOG_FLAGS = Object.values(MemberLogTypes)
   .filter((v) => typeof v == "number")

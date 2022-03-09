@@ -483,7 +483,7 @@ export class FireMember extends GuildMember {
     if (until) {
       embed.addField(
         this.guild.language.get("BAN_WILL_BE_UNBANNED"),
-        `${Formatters.time(new Date(until), "R")}`
+        Formatters.time(new Date(until), "R")
       );
     }
     let noDM: boolean = false;
@@ -740,7 +740,7 @@ export class FireMember extends GuildMember {
     if (until) {
       embed.addField(
         this.guild.language.get("MUTE_WILL_BE_UNMUTED"),
-        `${Formatters.time(new Date(until), "R")}`
+        Formatters.time(new Date(until), "R")
       );
     }
     let noDM: boolean = false;

@@ -9,6 +9,7 @@ import { Listener } from "@fire/lib/util/listener";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
 import {
   AuditLogChange,
+  Formatters,
   GuildAuditLogsEntry,
   MessageEmbed,
   Permissions,
@@ -195,7 +196,10 @@ export default class GuildMemberUpdate extends Listener {
     const isPartial = oldMember.partial && newMember.partial;
     const hasRoleUpdates =
       oldMember?.roles?.cache.size != newMember.roles.cache.size;
-    const hasNickUpdate = oldMember?.nickname != newMember.nickname;
+    const hasMemberUpdate =
+      oldMember?.nickname != newMember.nickname ||
+      oldMember?.communicationDisabledTimestamp !=
+        newMember.communicationDisabledTimestamp;
 
     if (
       !newMember.guild.fetchingRoleUpdates &&
@@ -208,10 +212,10 @@ export default class GuildMemberUpdate extends Listener {
 
     if (
       !newMember.guild.fetchingMemberUpdates &&
-      !(!isPartial && !hasNickUpdate)
+      !(!isPartial && !hasMemberUpdate)
     ) {
       newMember.guild.fetchingMemberUpdates = true;
-      await this.checkNicknameUpdates(newMember);
+      await this.checkMemberUpdates(newMember);
       newMember.guild.fetchingMemberUpdates = false;
     }
   }
@@ -224,7 +228,7 @@ export default class GuildMemberUpdate extends Listener {
 
     const auditLogActions = await newMember.guild
       .fetchAuditLogs({
-        limit: latestId == "0" ? 3 : 10,
+        limit: latestId == "0" ? 5 : 15,
         type: "MEMBER_ROLE_UPDATE",
       })
       .catch(() => {});
@@ -272,7 +276,7 @@ export default class GuildMemberUpdate extends Listener {
     }
   }
 
-  async checkNicknameUpdates(newMember: FireMember) {
+  async checkMemberUpdates(newMember: FireMember) {
     const latestId = newMember.guild.settings.get<string>(
       "auditlog.member_update.latestid",
       "0"
@@ -281,7 +285,7 @@ export default class GuildMemberUpdate extends Listener {
     setTimeout(() => (newMember.guild.fetchingMemberUpdates = false), 30000);
     const auditLogActions = await newMember.guild
       .fetchAuditLogs({
-        limit: latestId == "0" ? 3 : 10,
+        limit: latestId == "0" ? 5 : 15,
         type: "MEMBER_UPDATE",
       })
       .catch(() => {});
@@ -308,9 +312,11 @@ export default class GuildMemberUpdate extends Listener {
         ) &&
         !!entry.changes.filter(
           (change) =>
-            change.key == "nick" &&
-            change.old != badName &&
-            change.new != badName
+            (change.key == "nick" &&
+              change.old != badName &&
+              change.new != badName) ||
+            // @ts-ignore (not in discord-api-types version used)
+            change.key == "communication_disabled_until"
         ).length
     );
     if (!filteredActions.size) return;
@@ -326,12 +332,19 @@ export default class GuildMemberUpdate extends Listener {
     for (const [, action] of filteredActions) {
       for (const change of action.changes) {
         if (
-          change.key != "nick" ||
-          change.old == badName ||
-          change.new == badName
+          change.key == "nick" &&
+          !(
+            (!change.old && change.new == badName) ||
+            (!change.new && change.old == badName)
+          )
         )
-          continue;
-        await this.logNickChange(action, change, newMember.guild);
+          await this.logNickChange(action, change, newMember.guild);
+        else if (
+          // @ts-ignore (not in discord-api-types version used)
+          change.key == "communication_disabled_until" &&
+          (change.new || change.old)
+        )
+          await this.logTimeout(action, change, newMember.guild);
       }
     }
   }
@@ -426,6 +439,58 @@ export default class GuildMemberUpdate extends Listener {
     await guild.memberLog(embed, MemberLogTypes.ROLES_REMOVE).catch(() => {});
   }
 
+  async logTimeout(
+    action: GuildAuditLogsEntry,
+    change: AuditLogChange,
+    guild: FireGuild
+  ) {
+    // @ts-ignore
+    const targetId = action.target.id;
+    const target =
+      action.target instanceof FireMember
+        ? action.target
+        : await guild.members.fetch(targetId).catch(() => {});
+    const executor = await guild.members
+      .fetch(action.executor.id)
+      .catch(() => {});
+    const embed = new MessageEmbed()
+      .setAuthor({
+        name: target ? target.toString() : targetId,
+        iconURL: target
+          ? target.user.displayAvatarURL({
+              size: 2048,
+              format: "png",
+              dynamic: true,
+            })
+          : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
+      .setTimestamp(action.createdTimestamp)
+      .setColor(target ? target?.displayColor : "#ffffff")
+      .setFooter(targetId);
+    if (executor && executor.id != targetId)
+      embed.addField(guild.language.get("MODERATOR"), executor.toString());
+    if (change.old)
+      embed.addField(
+        guild.language.get("TIMEOUTLOG_REMOVED"),
+        `${guild.language.get("UNTIL")} ${Formatters.time(
+          new Date(change.old as string),
+          "R"
+        )}`
+      );
+    if (change.new)
+      embed.addField(
+        guild.language.get("TIMEOUTLOG_GIVEN"),
+        `${guild.language.get("UNTIL")} ${Formatters.time(
+          new Date(change.new as string),
+          "R"
+        )}`
+      );
+    if (embed.fields.length <= 1) return;
+    if (action.reason)
+      embed.addField(guild.language.get("REASON"), action.reason);
+    await guild.memberLog(embed, MemberLogTypes.MEMBER_UPDATE).catch(() => {});
+  }
+
   async logNickChange(
     action: GuildAuditLogsEntry,
     change: AuditLogChange,
@@ -471,8 +536,6 @@ export default class GuildMemberUpdate extends Listener {
     if (embed.fields.length <= 1) return;
     if (action.reason)
       embed.addField(guild.language.get("REASON"), action.reason);
-    await guild
-      .memberLog(embed, MemberLogTypes.NICKNAME_UPDATE)
-      .catch(() => {});
+    await guild.memberLog(embed, MemberLogTypes.MEMBER_UPDATE).catch(() => {});
   }
 }
