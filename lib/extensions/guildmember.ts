@@ -72,6 +72,15 @@ export class FireMember extends GuildMember {
     return super._clone();
   }
 
+  equals(member: FireMember) {
+    return (
+      // @ts-ignore
+      super.equals(member) &&
+      this.communicationDisabledTimestamp ===
+        member.communicationDisabledTimestamp
+    );
+  }
+
   get communicationDisabledUntil() {
     return this.communicationDisabledTimestamp
       ? new Date(this.communicationDisabledTimestamp)
