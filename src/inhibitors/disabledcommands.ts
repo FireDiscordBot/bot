@@ -12,6 +12,7 @@ export default class DisabledCommandsInhibitor extends Inhibitor {
   }
 
   async exec(message: FireMessage, command: Command) {
+    if (message.author.isSuperuser()) return false;
     if (
       message.guild &&
       message.guild.settings
