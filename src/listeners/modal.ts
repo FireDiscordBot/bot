@@ -45,7 +45,7 @@ export default class Modal extends Listener {
         return await modal.error("TICKET_CLOSE_FORBIDDEN");
       else if (canClose == "nonticket")
         return await modal.error("TICKET_NON_TICKET");
-      const reason = modal.interaction.getTextInputValue("close_reason");
+      const reason = modal.interaction.fields.getTextInputValue("close_reason");
       if (!reason)
         return await modal.error("COMMAND_ERROR_GENERIC", { id: "close" });
       const closure = await guild
@@ -77,13 +77,14 @@ export default class Modal extends Listener {
       const tag = await modal.guild.tags.getTag(name, false);
       if (!tag) return await modal.error("TAG_INVALID_TAG", { tag: name });
 
-      const newName = modal.interaction.getTextInputValue("tag_name");
+      const newName = modal.interaction.fields.getTextInputValue("tag_name");
       if (newName.length && newName != name) {
         const renamed = await modal.guild.tags.renameTag(name, newName);
         if (!renamed) return await modal.error("TAG_EDIT_NAME_FAILED");
       }
 
-      const newContent = modal.interaction.getTextInputValue("tag_content");
+      const newContent =
+        modal.interaction.fields.getTextInputValue("tag_content");
       if (newContent.length) {
         const edited = await modal.guild.tags.editTag(
           newName || name,

@@ -640,14 +640,14 @@ discord-api-types@^0.24.0:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.24.0.tgz#9e429b8a1ddb4147134dfb3109093422de7ec549"
   integrity sha512-X0uA2a92cRjowUEXpLZIHWl4jiX1NsUpDhcEOpa1/hpO1vkaokgZ8kkPtPih9hHth5UVQ3mHBu/PpB4qjyfJ4A==
 
-discord-api-types@^0.25.0:
-  version "0.25.2"
-  resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.25.2.tgz#e50ed152e6d48fe7963f5de1002ca6f2df57c61b"
-  integrity sha512-O243LXxb5gLLxubu5zgoppYQuolapGVWPw3ll0acN0+O8TnPUE2kFp9Bt3sTRYodw8xFIknOVxjSeyWYBpVcEQ==
+discord-api-types@^0.27.1:
+  version "0.27.3"
+  resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.27.3.tgz#518e99a548b62a7912a09e94ad90d0612e2053c6"
+  integrity sha512-HOG64DTpZ7CB5EU9eKbjHD50H5qG1pxKG8pmFfHUMKjKvEWeLBHfw0c9xF1cruiYLnBb3+n7m3jBWxZ3H1hcgQ==
 
 discord.js@FireDiscordBot/discord.js:
   version "13.4.0-dev"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/0ce43186c6e4a98f30528d691aac649a136b133c"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/fe3a3ffb4a65267826000757a66cc4e4271be913"
   dependencies:
     "@discordjs/builders" "^0.8.2"
     "@discordjs/collection" "^0.3.2"
@@ -655,7 +655,7 @@ discord.js@FireDiscordBot/discord.js:
     "@sapphire/async-queue" "^1.1.8"
     "@types/node-fetch" "^2.5.12"
     "@types/ws" "^8.2.0"
-    discord-api-types "^0.25.0"
+    discord-api-types "^0.27.1"
     node-fetch "^2.6.1"
     ws "^8.2.3"
 

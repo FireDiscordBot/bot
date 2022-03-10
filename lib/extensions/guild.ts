@@ -187,6 +187,7 @@ export class FireGuild extends Guild {
     // litecord doesn't have audit logs so we don't even bother with the request
     if (process.env.USE_LITECORD == "true")
       return new GuildAuditLogs(this, {
+        guild_scheduled_events: [],
         audit_log_entries: [],
         integrations: [],
         webhooks: [],

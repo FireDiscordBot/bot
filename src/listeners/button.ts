@@ -189,7 +189,7 @@ export default class Button extends Listener {
         else if (canClose == "nonticket")
           return await button.error("TICKET_NON_TICKET");
         try {
-          return await button.interaction.presentModal(
+          return await button.interaction.showModal(
             new Modal()
               .setTitle(
                 button.language.get("TICKET_CLOSE_MODAL_TITLE", {
@@ -385,7 +385,7 @@ export default class Button extends Listener {
       const tag = await button.guild.tags.getTag(name, false);
       if (!tag) return await button.error("TAG_INVALID_TAG", { tag: name });
 
-      return await button.interaction.presentModal(
+      return await button.interaction.showModal(
         new Modal()
           .setTitle(button.language.get("TAG_EDIT_MODAL_TITLE"))
           .setCustomId(button.customId)

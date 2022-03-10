@@ -156,7 +156,7 @@ export default class Carbon extends Command {
       );
 
     const modalPromise = this.waitForModal(command);
-    await (command.slashCommand as CommandInteraction).presentModal(
+    await (command.slashCommand as CommandInteraction).showModal(
       new Modal()
         .setTitle(command.language.get("CARBON_MODAL_TITLE"))
         .setCustomId(`carbon:${command.author.id}`)
@@ -178,7 +178,7 @@ export default class Carbon extends Command {
     await modal.channel.ack();
     modal.flags = 64;
 
-    const code = modal.interaction.getTextInputValue("code");
+    const code = modal.interaction.fields.getTextInputValue("code");
     if (!code?.length)
       return await modal.error("COMMAND_ERROR_GENERIC", { id: "carbon" });
 

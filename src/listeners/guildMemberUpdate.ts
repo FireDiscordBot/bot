@@ -315,7 +315,6 @@ export default class GuildMemberUpdate extends Listener {
             (change.key == "nick" &&
               change.old != badName &&
               change.new != badName) ||
-            // @ts-ignore (not in discord-api-types version used)
             change.key == "communication_disabled_until"
         ).length
     );
@@ -340,7 +339,6 @@ export default class GuildMemberUpdate extends Listener {
         )
           await this.logNickChange(action, change, newMember.guild);
         else if (
-          // @ts-ignore (not in discord-api-types version used)
           change.key == "communication_disabled_until" &&
           (change.new || change.old)
         )
