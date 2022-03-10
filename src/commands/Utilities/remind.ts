@@ -68,6 +68,10 @@ export default class Remind extends Command {
 
     // we're coming from a message with a single argument so we need to split it before we can run the commandss
     let content = args.reminder;
+    if (!args.reminder)
+      return await message.error("REMINDER_MISSING_ARG", {
+        includeSlashUpsell: true,
+      });
     let repeat: number, step: string;
     const repeatExec = remindCommand.repeatRegex.exec(content);
     if (repeatExec?.length == 2) repeat = parseInt(repeatExec[1]);
