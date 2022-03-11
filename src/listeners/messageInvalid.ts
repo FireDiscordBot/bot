@@ -52,7 +52,10 @@ export default class MessageInvalid extends Listener {
       (a, b) => b.priority - a.priority
     );
 
-    if (message.content.includes("--remind")) {
+    if (
+      message.content.includes("--remind") &&
+      process.env.NODE_ENV == "production"
+    ) {
       const remindCommand = this.client.getCommand(
         "reminders-create"
       ) as RemindersCreate;
@@ -102,7 +105,8 @@ export default class MessageInvalid extends Listener {
     const quoteCommand = this.client.getCommand("quote") as Quote;
 
     if (
-      quoteCommand.isDisabled(message.guild) ||
+      (quoteCommand.isDisabled(message.guild) &&
+        !message.author?.isSuperuser()) ||
       process.env.NODE_ENV != "production"
     ) {
       this.cleanCommandUtil(message);
