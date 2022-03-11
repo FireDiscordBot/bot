@@ -1,16 +1,15 @@
-import { MessageEmbed, UserMention, Structures, User, Util } from "discord.js";
-import { RawUserData } from "discord.js/typings/rawDataTypes";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
+import { Fire } from "@fire/lib/Fire";
 import { UserSettings } from "@fire/lib/util/settings";
-import { BaseFakeChannel } from "../interfaces/misc";
+import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { MessageEmbed, Structures, User, UserMention, Util } from "discord.js";
+import { RawUserData } from "discord.js/typings/rawDataTypes";
+import { murmur3 } from "murmurhash-js";
 import { GuildTextChannel, ModLogTypes } from "../util/constants";
 import { FakeChannel } from "./appcommandmessage";
-import { Message } from "@fire/lib/ws/Message";
-import { FireMember } from "./guildmember";
-import { murmur3 } from "murmurhash-js";
-import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "./guild";
+import { FireMember } from "./guildmember";
 
 type Primitive = string | boolean | number | null;
 
@@ -54,51 +53,7 @@ export class FireUser extends User {
   }
 
   hasExperiment(id: number, bucket: number | number[]): boolean {
-    // if (this.client.config.dev) return true;
-    const experiment = this.client.experiments.get(id);
-    if (!experiment || experiment.kind != "user") return false;
-    if (!experiment.active) return true;
-    if (Array.isArray(bucket))
-      return bucket
-        .map((b) => this.hasExperiment(id, b))
-        .some((hasexp) => !!hasexp);
-    if (bucket == 0)
-      return experiment.buckets
-        .slice(1)
-        .map((b) => this.hasExperiment(id, b))
-        .every((hasexp) => hasexp == false);
-    if (!!experiment.data.find(([i, b]) => i == this.id && b == bucket))
-      // override
-      return true;
-    else if (!!experiment.data.find(([i, b]) => i == this.id && b != bucket))
-      // override for another bucket, stop here and ignore filters
-      return false;
-    let hasExperiment: boolean | number = 1;
-    const filters = experiment.filters.find(
-      (filter) => filter.bucket == bucket
-    );
-    if (!filters) return false;
-    if (
-      typeof filters.min_range == "number" &&
-      murmur3(`${experiment.id}:${this.id}`) % 1e4 < filters.min_range
-    )
-      return false;
-    if (
-      typeof filters.max_range == "number" &&
-      murmur3(`${experiment.id}:${this.id}`) % 1e4 >= filters.max_range
-    )
-      return false;
-    if (
-      typeof filters.min_id == "string" &&
-      BigInt(this.id) < BigInt(filters.min_id)
-    )
-      return false;
-    if (
-      typeof filters.max_id == "string" &&
-      BigInt(this.id) >= BigInt(filters.max_id)
-    )
-      return false;
-    return true;
+    return this.client.util.userHasExperiment(this.id, id, bucket);
   }
 
   async giveExperiment(id: number, bucket: number) {

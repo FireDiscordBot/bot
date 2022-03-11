@@ -450,6 +450,57 @@ export class Util extends ClientUtil {
     );
   }
 
+  userHasExperiment(
+    user: Snowflake,
+    id: number,
+    bucket: number | number[]
+  ): boolean {
+    // if (this.client.config.dev) return true;
+    const experiment = this.client.experiments.get(id);
+    if (!experiment || experiment.kind != "user") return false;
+    if (!experiment.active) return true;
+    if (Array.isArray(bucket))
+      return bucket
+        .map((b) => this.userHasExperiment(user, id, b))
+        .some((hasexp) => !!hasexp);
+    if (bucket == 0)
+      return experiment.buckets
+        .slice(1)
+        .map((b) => this.userHasExperiment(user, id, b))
+        .every((hasexp) => hasexp == false);
+    if (!!experiment.data.find(([i, b]) => i == user && b == bucket))
+      // override
+      return true;
+    else if (!!experiment.data.find(([i, b]) => i == user && b != bucket))
+      // override for another bucket, stop here and ignore filters
+      return false;
+    const filters = experiment.filters.find(
+      (filter) => filter.bucket == bucket
+    );
+    if (!filters) return false;
+    if (
+      typeof filters.min_range == "number" &&
+      murmur3(`${experiment.id}:${user}`) % 1e4 < filters.min_range
+    )
+      return false;
+    if (
+      typeof filters.max_range == "number" &&
+      murmur3(`${experiment.id}:${user}`) % 1e4 >= filters.max_range
+    )
+      return false;
+    if (
+      typeof filters.min_id == "string" &&
+      BigInt(user) < BigInt(filters.min_id)
+    )
+      return false;
+    if (
+      typeof filters.max_id == "string" &&
+      BigInt(user) >= BigInt(filters.max_id)
+    )
+      return false;
+    return true;
+  }
+
   isBlacklisted(
     user: FireMember | FireUser | Snowflake,
     guild?: FireGuild,
@@ -476,6 +527,11 @@ export class Util extends ClientUtil {
 
     // guild blacklist
     if (guild?.settings.get<string[]>("utils.plonked", []).includes(user))
+      return true;
+
+    if (guild?.hasExperiment(436359108, 1)) return true;
+
+    if (guild?.ownerId && this.userHasExperiment(guild.ownerId, 1521321135, 1))
       return true;
 
     return false;

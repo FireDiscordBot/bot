@@ -163,8 +163,8 @@ export class FireMember extends GuildMember {
     return await this.client.util.unblacklist(this);
   }
 
-  hasExperiment(id: number, bucket: number | number[]) {
-    return this.user.hasExperiment(id, bucket);
+  hasExperiment(id: number, bucket: number | number[]): boolean {
+    return this.client.util.userHasExperiment(this.id, id, bucket);
   }
 
   giveExperiment(id: number, bucket: number) {
