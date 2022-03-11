@@ -36,6 +36,11 @@ export default class Select extends Listener {
   async exec(select: ComponentMessage) {
     if (select.type != "SELECT_MENU") return;
 
+    if (select.customId == "quote_copy") {
+      select.flags = 64;
+      return await select.error("QUOTE_COPIED_SELECT");
+    }
+
     let message = select.message as FireMessage;
 
     const guild = select.guild;

@@ -101,6 +101,10 @@ export default class Button extends Listener {
           components: [],
         })
         .catch(() => {});
+    else if (button.customId == "quote_copy") {
+      button.flags = 64;
+      return await button.error("QUOTE_COPIED_BUTTON");
+    }
 
     const message = button.message as FireMessage;
 

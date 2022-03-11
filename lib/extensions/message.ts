@@ -17,10 +17,13 @@ import {
   EmojiIdentifierResolvable,
   GuildChannel,
   Message,
+  MessageActionRow,
   MessageAttachment,
+  MessageButton,
   MessageEmbed,
   MessagePayload,
   MessageReaction,
+  MessageSelectMenu,
   NewsChannel,
   Permissions,
   ReplyMessageOptions,
@@ -439,6 +442,18 @@ export class FireMessage extends Message {
       ((await this.guild.members
         .fetch(this.author)
         .catch(() => null)) as FireMember);
+    const components = this.components;
+    if (components.length && this.author.id != this.client?.user?.id)
+      for (const component of components) {
+        if (component instanceof MessageActionRow)
+          component.components = component.components.map((c) => {
+            if (c instanceof MessageButton && c.style != "LINK")
+              c.setCustomId("quote_copy");
+            else if (c instanceof MessageSelectMenu)
+              c.setCustomId("quote_copy");
+            return c;
+          });
+      }
     return await hook
       .send({
         content: content.length ? content : null,
@@ -463,7 +478,7 @@ export class FireMessage extends Message {
         ),
         allowedMentions: this.client.options.allowedMentions,
         threadId: thread?.id,
-        components: this.components,
+        components,
       })
       .catch(async () => {
         // this will ensure deleted webhooks are deleted
