@@ -349,6 +349,8 @@ export default class User extends Command {
         );
 
       embed.addField(`» ${command.language.get("BOT")}`, appInfo.join("\n"));
+      if (components.every((row) => !row.components.length))
+        while (components.length) components.pop();
     }
     member?.presence?.clientStatus
       ? embed.setFooter(
