@@ -509,6 +509,10 @@ export default class MCLogs extends Module {
     }
 
     if (versions?.loader == Loaders.FABRIC) {
+      if (versions?.optifineVersion)
+        currentSolutions.add(
+          `- **Fabric 1.17/1.18 is not supported by OptiFine. It is recommended to use the (way better) alternatives from this list \n<https://lambdaurora.dev/optifine_alternatives>**`
+        );
       const loaderDataReq = await centra(
         `https://meta.fabricmc.net/v1/versions/loader/${versions.mcVersion}`
       )
