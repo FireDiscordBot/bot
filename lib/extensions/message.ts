@@ -471,7 +471,13 @@ export class FireMessage extends Message {
             allowUnknownGuild: true,
             cache: false,
           })
-          .then((c) => (c instanceof GuildChannel ? c.name : "Unknown"))
+          .then((c) =>
+            c instanceof GuildChannel
+              ? c.guildId == this.guildId
+                ? c.toString()
+                : `#${c.name}`
+              : "Unknown"
+          )
           .catch(() => "Unknown");
       content = this.guild.language.get("QUOTE_AUTOMOD_CONTENT", {
         rule,

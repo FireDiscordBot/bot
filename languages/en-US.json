@@ -858,7 +858,7 @@
   "QUOTE_COPIED_BUTTON": "This button was copied from the quoted message. To interact with it, you'll need to do so on the original!",
   "QUOTE_COPIED_SELECT": "This button was copied from the quoted message. To interact with it, you'll need to do so on the original!",
   "QUOTE_WEBHOOK_CREATE_REASON": "This webhook will be used for quoting messages in this channel",
-  "QUOTE_AUTOMOD_USERNAME": "AutoMod blocked a message from {{username}}",
+  "QUOTE_AUTOMOD_USERNAME": "AutoMod has blocked a message",
   "QUOTE_AUTOMOD_CONTENT": "Rule: {{rule}}\nChannel: {{channel}}",
   "QUOTE_EMBED_FROM": "Raw embed(s) from {{author}} in #{{channel}}",
   "QUOTE_EMBED_FOOTER_ALL": "Quoted by: {{user}} | #{{channel}} | {{guild}}",
