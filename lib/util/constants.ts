@@ -232,6 +232,7 @@ export const constants = {
     // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
     imageGen: "https://gen.inv.wtf/",
     supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh"],
+    automodAvatar: "https://static.inv.wtf/discord_automod.png",
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   audioExts: ["mp3", "wav", "flac", "alac", "m4a"],

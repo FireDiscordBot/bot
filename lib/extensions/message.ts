@@ -454,23 +454,68 @@ export class FireMessage extends Message {
             return c;
           });
       }
+    const isAutomod = this.type == "AUTO_MODERATION_ACTION";
+    const automodEmbeds = [];
+    if (isAutomod) {
+      const automodEmbed = this.embeds?.[0];
+      const rule =
+        automodEmbed?.fields?.find((f) => f.name == "rule_name")?.value ??
+        "Unknown";
+      const channelId = automodEmbed?.fields?.find(
+        (f) => f.name == "channel_id"
+      )?.value;
+      let channel: string = "Unknown";
+      if (channelId)
+        channel = await this.client.channels
+          .fetch(channelId, {
+            allowUnknownGuild: true,
+            cache: false,
+          })
+          .then((c) => (c instanceof GuildChannel ? c.name : "Unknown"))
+          .catch(() => "Unknown");
+      content = this.guild.language.get("QUOTE_AUTOMOD_CONTENT", {
+        rule,
+        channel,
+      });
+      const embed = new MessageEmbed()
+        .setAuthor({
+          name: this.author.toString(),
+          iconURL: (member ?? this.author).displayAvatarURL({
+            size: 2048,
+            format: "png",
+          }),
+        })
+        .setTimestamp(this.createdTimestamp);
+      if (automodEmbed.description)
+        embed.setDescription(automodEmbed.description);
+      automodEmbeds.push(embed);
+    }
+    const username =
+      member && member.nickname
+        ? `${member.nickname} (${this.author
+            .toString()
+            .replace(/#0000/gim, "")})`
+        : this.author.toString().replace(/#0000/gim, "");
     return await hook
       .send({
         content: content.length ? content : null,
-        username:
-          member && member.nickname
-            ? `${member.nickname} (${this.author
-                .toString()
-                .replace(/#0000/gim, "")})`
-            : this.author.toString().replace(/#0000/gim, ""),
-        avatarURL: (member ?? this.author).displayAvatarURL({
-          size: 2048,
-          format: "png",
-        }),
-        embeds: this.embeds.filter(
-          (embed) =>
-            !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
-        ),
+        username: isAutomod
+          ? this.guild.language.get("QUOTE_AUTOMOD_USERNAME", {
+              username,
+            })
+          : username,
+        avatarURL: isAutomod
+          ? constants.url.automodAvatar
+          : (member ?? this.author).displayAvatarURL({
+              size: 2048,
+              format: "png",
+            }),
+        embeds: isAutomod
+          ? automodEmbeds
+          : this.embeds.filter(
+              (embed) =>
+                !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
+            ),
         files: attachments.map((data) =>
           new MessageAttachment(data.attachment, data.name).setDescription(
             data.description
