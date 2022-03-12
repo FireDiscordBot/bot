@@ -8,6 +8,7 @@ import { Channel, Video } from "@fire/lib/interfaces/youtube";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { InviteGuildWithCounts } from "@fire/src/commands/Utilities/server";
 import * as centra from "centra";
 import { ClientUtil } from "discord-akairo";
 import {
@@ -697,7 +698,7 @@ export class Util extends ClientUtil {
 
   async getFriendlyGuildExperiments(
     id: Snowflake,
-    guild?: FireGuild | GuildPreview | OAuth2Guild
+    guild?: FireGuild | GuildPreview | OAuth2Guild | InviteGuildWithCounts
   ) {
     const knownExperiments: { [hash: number]: DiscordExperiment } = {};
     for (const experiment of this.client.manager.state.discordExperiments)

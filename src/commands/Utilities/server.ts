@@ -7,9 +7,25 @@ import { constants, zws } from "@fire/lib/util/constants";
 import { snowflakeConverter } from "@fire/lib/util/converters";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import * as centra from "centra";
-import { DMChannel, Formatters, GuildPreview, MessageEmbed } from "discord.js";
+import {
+  DMChannel,
+  Formatters,
+  GuildPreview,
+  Invite,
+  InviteGuild,
+  MessageEmbed,
+} from "discord.js";
 
 type ShardInfo = { shardId: number; clusterId: number };
+
+export type InviteGuildWithCounts = InviteGuild & {
+  memberCount: number;
+  approximatePresenceCount: number;
+};
+
+export type InviteWithGuildCounts = Invite & {
+  guild: FireGuild | InviteGuildWithCounts;
+};
 
 const {
   emojis: { badges, channels },
@@ -37,7 +53,10 @@ export default class GuildCommand extends Command {
     });
   }
 
-  getBadges(guild: FireGuild | GuildPreview, author?: FireMember | FireUser) {
+  getBadges(
+    guild: FireGuild | GuildPreview | InviteGuildWithCounts,
+    author?: FireMember | FireUser
+  ) {
     const emojis: string[] = [];
 
     if (guild.id == "564052798044504084") emojis.push(badges.FIRE_ADMIN);
@@ -53,7 +72,7 @@ export default class GuildCommand extends Command {
 
   async getInfo(
     command: ApplicationCommandMessage,
-    guild: FireGuild | GuildPreview
+    guild: FireGuild | GuildPreview | InviteGuildWithCounts
   ) {
     if (guild instanceof FireGuild) await guild.fetch(); // gets approximatePresenceCount
 
@@ -79,7 +98,8 @@ export default class GuildCommand extends Command {
           ),
         }
       ),
-      `**${command.language.get("MEMBERS")}:** ${(guild instanceof FireGuild
+      `**${command.language.get("MEMBERS")}:** ${(guild instanceof FireGuild ||
+      guild instanceof InviteGuild
         ? guild.memberCount
         : guild.approximateMemberCount
       ).toLocaleString(command.language.id)}`,
@@ -155,10 +175,10 @@ export default class GuildCommand extends Command {
 
   getSecurity(
     command: ApplicationCommandMessage,
-    guild: FireGuild | GuildPreview
+    guild: FireGuild | GuildPreview | InviteGuildWithCounts
   ) {
     const info: string[] = [];
-    if (!(guild instanceof FireGuild)) return info;
+    if (guild instanceof GuildPreview) return info;
 
     const VERIFICATION_LEVEL_EMOJI = {
       VERY_HIGH: constants.emojis.statuspage.operational,
@@ -175,63 +195,114 @@ export default class GuildCommand extends Command {
       )}`
     );
 
-    switch (guild.explicitContentFilter) {
-      case "ALL_MEMBERS":
+    if (guild instanceof FireGuild) {
+      switch (guild.explicitContentFilter) {
+        case "ALL_MEMBERS":
+          info.push(
+            `${constants.emojis.statuspage.operational} ${command.language.get(
+              "GUILD_FILTER_ALL"
+            )}`
+          );
+          break;
+        case "MEMBERS_WITHOUT_ROLES":
+          info.push(
+            `${
+              constants.emojis.statuspage.partial_outage
+            } ${command.language.get("GUILD_FILTER_NO_ROLE")}`
+          );
+          break;
+        case "DISABLED":
+          info.push(
+            `${constants.emojis.statuspage.major_outage} ${command.language.get(
+              "GUILD_FILTER_NONE"
+            )}`
+          );
+          break;
+      }
+
+      if (guild.defaultMessageNotifications == "ONLY_MENTIONS")
         info.push(
           `${constants.emojis.statuspage.operational} ${command.language.get(
-            "GUILD_FILTER_ALL"
+            "GUILD_NOTIFS_MENTIONS"
           )}`
         );
-        break;
-      case "MEMBERS_WITHOUT_ROLES":
+      else
         info.push(
           `${constants.emojis.statuspage.partial_outage} ${command.language.get(
-            "GUILD_FILTER_NO_ROLE"
+            "GUILD_NOTIFS_ALL"
           )}`
         );
-        break;
-      case "DISABLED":
+
+      if (guild.mfaLevel)
+        info.push(
+          `${constants.emojis.statuspage.operational} ${command.language.get(
+            "GUILD_MFA_ENABLED"
+          )}`
+        );
+      else
         info.push(
           `${constants.emojis.statuspage.major_outage} ${command.language.get(
-            "GUILD_FILTER_NONE"
+            "GUILD_MFA_NONE"
           )}`
         );
-        break;
     }
 
-    if (guild.defaultMessageNotifications == "ONLY_MENTIONS")
+    return info;
+  }
+
+  getInviteInfo(command: ApplicationCommandMessage, invite: Invite) {
+    const info = [];
+    if (!invite) return info;
+    info.push(
+      `**${command.language.get("CHANNEL")}:** #${invite.channel?.name}`
+    );
+    if (invite.inviter)
       info.push(
-        `${constants.emojis.statuspage.operational} ${command.language.get(
-          "GUILD_NOTIFS_MENTIONS"
+        `**${command.language.get("INVITER")}:** ${invite.inviter.toString()}`
+      );
+    if (invite.expiresAt)
+      info.push(
+        `**${command.language.get("EXPIRES")}:** ${Formatters.time(
+          invite.expiresAt,
+          "R"
         )}`
+      );
+    if (invite.uses)
+      info.push(
+        `**${command.language.get("USES")}:** ${invite.uses.toLocaleString(
+          command.language.id
+        )}`
+      );
+    if (invite.maxUses)
+      info.push(
+        `**${command.language.get(
+          "MAX_USES"
+        )}:** ${invite.maxUses.toLocaleString(command.language.id)}`
+      );
+    if (invite.temporary)
+      info.push(
+        `**${command.language.get(
+          "TEMPORARY_MEMBERSHIP"
+        )}:** ${command.language.get("YES")}`
       );
     else
       info.push(
-        `${constants.emojis.statuspage.partial_outage} ${command.language.get(
-          "GUILD_NOTIFS_ALL"
-        )}`
+        `**${command.language.get(
+          "TEMPORARY_MEMBERSHIP"
+        )}:** ${command.language.get("NO")}`
       );
-
-    if (guild.mfaLevel)
-      info.push(
-        `${constants.emojis.statuspage.operational} ${command.language.get(
-          "GUILD_MFA_ENABLED"
-        )}`
-      );
-    else
-      info.push(
-        `${constants.emojis.statuspage.major_outage} ${command.language.get(
-          "GUILD_MFA_NONE"
-        )}`
-      );
-
     return info;
   }
 
   async run(
     command: ApplicationCommandMessage,
-    args: { guild?: GuildPreview | FireGuild }
+    args: { guild?: GuildPreview | FireGuild | InviteGuildWithCounts }
   ) {
+    let invite: InviteWithGuildCounts;
+    if (args.guild instanceof Invite) {
+      invite = args.guild as unknown as InviteWithGuildCounts;
+      args.guild = invite.guild as FireGuild | InviteGuildWithCounts;
+    }
     if (command.channel instanceof DMChannel && !args.guild)
       return await command.error("COMMAND_GUILD_ONLY", {
         invite: this.client.config.inviteLink,
@@ -241,6 +312,7 @@ export default class GuildCommand extends Command {
 
     const badges = this.getBadges(guild, command.author);
     const info = await this.getInfo(command, guild);
+    const inviteInfo = await this.getInviteInfo(command, invite);
     const security = this.getSecurity(command, guild);
 
     const features: string[] = guild.features.map((feature) =>
@@ -276,6 +348,11 @@ export default class GuildCommand extends Command {
       .setTimestamp();
     if (info.length)
       embed.addField(command.language.get("GUILD_ABOUT"), info.join("\n"));
+    if (inviteInfo.length)
+      embed.addField(
+        command.language.get("GUILD_INVITE"),
+        inviteInfo.join("\n")
+      );
     if (security.length)
       embed.addField(
         command.language.get("GUILD_SECURITY"),
