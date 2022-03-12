@@ -48,9 +48,13 @@ export default class InteractionListener extends Listener {
     if (interaction.isCommand()) {
       point.fields.command = interaction.commandName;
       point.fields.args = JSON.stringify(interaction.options.data);
-    } else if (interaction.isMessageComponent()) {
+    } else if (
+      interaction.isMessageComponent() ||
+      interaction.isModalSubmit()
+    ) {
       point.fields.custom_id = interaction.customId;
-      point.fields.component_type = interaction.componentType;
+      if (interaction.isMessageComponent())
+        point.fields.component_type = interaction.componentType;
     } else if (interaction.isContextMenu()) {
       point.tags.type = "CONTEXT_COMMAND";
       point.fields.command = interaction.commandName;
