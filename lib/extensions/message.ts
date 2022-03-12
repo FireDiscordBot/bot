@@ -473,7 +473,10 @@ export class FireMessage extends Message {
           })
           .then((c) =>
             c instanceof GuildChannel
-              ? c.guildId == this.guildId
+              ? c.guildId ==
+                (destination instanceof Channel
+                  ? destination.guildId
+                  : destination.guild_id)
                 ? c.toString()
                 : `#${c.name}`
               : "Unknown"
