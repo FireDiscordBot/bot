@@ -17,6 +17,12 @@ import Filters from "./filters";
 
 const { mcLogFilters } = constants;
 
+const Sk1erLLCandEssentialIDs = [
+  "411619823445999637",
+  "755794954743185438",
+  "864592657572560958",
+];
+
 const allowedURLs = [
   "minecraftservices.com",
   "microsoftonline.com",
@@ -460,6 +466,13 @@ export default class MCLogs extends Module {
         ]);
       return `Feather "Client" is not supported. Any issues that occur while using it must be reported to Feather's support team.`;
     }
+
+    if (
+      log.toLowerCase().includes("net.kdt.pojavlaunch") &&
+      user instanceof FireMember &&
+      Sk1erLLCandEssentialIDs.includes(user.guild?.id)
+    )
+      return `PojavLauncher is not supported, any issues encountered while running on unsupported platforms will be disregarded.`;
 
     if (
       this.solutions.cheats.some((cheat) =>
