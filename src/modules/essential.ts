@@ -1,16 +1,22 @@
-import {
-  MessageActionRow,
-  CategoryChannel,
-  MessageButton,
-  Snowflake,
-  Channel,
-} from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import { Module } from "@fire/lib/util/module";
+import {
+  CategoryChannel,
+  Channel,
+  MessageActionRow,
+  MessageButton,
+  MessageComponentInteraction,
+  Modal,
+  ModalActionRowComponent,
+  Snowflake,
+  TextInputComponent,
+} from "discord.js";
+import { TextInputStyles } from "discord.js/typings/enums";
 
 const supportCrashMessage = `Alright, you'll need to provide a log for us to diagnose the cause of the crash. You will be given instructions when the ticket is opened.
 These instructions may not work if you're using a third-party launcher, you may need to consult a guide for that specific launcher.
@@ -69,7 +75,8 @@ const supportOtherMessage = `No worries! We can't list every possible issue.
 Make sure you have all the details about the issue ready to provide to the support team.
 While we're usually quick to respond, issues outside of the ones listed may take a bit more time to get an answer...
 
-When you're ready, hit the green button below to continue or the red one to cancel.`;
+If you wish to continue and open a ticket, click the green button below and you will be asked to give a short description of the issue.
+You can also click the red button to cancel.`;
 
 const openButton = () =>
   new MessageButton()
@@ -127,15 +134,43 @@ export default class Essential extends Module {
   async handleTicket(trigger: ComponentMessage, type: string) {
     const member = trigger.member
       ? trigger.member
-      : ((await this.publicGuild.members.fetch(trigger.author)) as FireMember);
+      : ((await trigger.guild?.members.fetch(trigger.author)) as FireMember);
     if (!member) return "no member"; // how
     if (!type) return "no type";
     if (type == "general") {
+      const modalPromise = this.waitForModal(trigger);
+      await (trigger.interaction as MessageComponentInteraction).showModal(
+        new Modal()
+          .setTitle("Essential Tickets")
+          .setCustomId(`essential_confirm_${trigger.author.id}`)
+          .addComponents(
+            new MessageActionRow<ModalActionRowComponent>().addComponents(
+              new TextInputComponent()
+                .setCustomId("reason")
+                .setRequired(true)
+                .setLabel("Description")
+                .setPlaceholder(
+                  "Enter a short description of the issue(s) you're facing"
+                )
+                .setStyle(TextInputStyles.SHORT)
+                .setMaxLength(150)
+            )
+          )
+      );
+
+      const modal = await modalPromise;
+      await modal.channel.ack();
+      modal.flags = 64;
+
+      const reason = modal.interaction.fields.getTextInputValue("reason");
+      if (!reason?.length)
+        return await modal.error("COMMAND_ERROR_GENERIC", { id: "new" });
+
       const category = this.categories[trigger.guildId];
       if (!category) return "no category";
       return await trigger.guild.createTicket(
         member,
-        "General Support",
+        reason,
         trigger.realChannel as FireTextChannel,
         category
       );
@@ -223,6 +258,15 @@ These instructions are designed for the official launcher so if you're using a t
         category
       );
     }
+  }
+
+  private waitForModal(button: ComponentMessage): Promise<ModalMessage> {
+    return new Promise((resolve) => {
+      this.client.modalHandlersOnce.set(
+        `essential_confirm_${button.author.id}`,
+        resolve
+      );
+    });
   }
 
   async supportHandleCrash(button: ComponentMessage) {
@@ -326,7 +370,7 @@ These instructions are designed for the official launcher so if you're using a t
 
   async supportHandleOther(button: ComponentMessage) {
     const actions = [
-      openButton().setCustomId("essential_confirm_general"),
+      openButton().setCustomId("!essential_confirm_general"),
       cancelButton,
     ];
     return await button.edit({

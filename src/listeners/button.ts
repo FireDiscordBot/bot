@@ -737,7 +737,7 @@ export default class Button extends Listener {
             },
           });
         return await button.error("BUTTON_SUPPORT_FAIL", {
-          reason: ticket.toString(),
+          reason: ticket ? ticket.toString() : "unknown",
         });
       } else
         await button
