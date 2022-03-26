@@ -57,7 +57,7 @@ export default class RemindersDelete extends Command {
         name:
           reminderText.length < 95 - timeString.length
             ? `${reminder.get("reminder")} - ${timeString}`
-            : `${reminderText.substr(
+            : `${reminderText.slice(
                 0,
                 95 - timeString.length
               )}... - ${timeString}`,
