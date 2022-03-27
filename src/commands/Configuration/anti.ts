@@ -5,7 +5,7 @@ import { Language } from "@fire/lib/util/language";
 import { MessageActionRow, MessageButton, Permissions } from "discord.js";
 
 export default class Anti extends Command {
-  valid = ["everyone", "zws", "spoiler", "selfbot"];
+  valid = ["everyone", "zws", "spoiler"];
   constructor() {
     super("anti", {
       description: (language: Language) =>
@@ -53,14 +53,6 @@ export default class Anti extends Command {
           .setLabel(context.language.get("ANTI_SPOILER"))
           .setStyle(
             context.guild.settings.get<boolean>("mod.antispoilers", false)
-              ? "SUCCESS"
-              : "DANGER"
-          ),
-        new MessageButton()
-          .setCustomId("!anti:selfbot")
-          .setLabel(context.language.get("ANTI_SELFBOT"))
-          .setStyle(
-            context.guild.settings.get<boolean>("mod.antiselfbot", false)
               ? "SUCCESS"
               : "DANGER"
           )

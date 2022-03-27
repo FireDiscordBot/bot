@@ -912,17 +912,6 @@ export class FireMessage extends Message {
       return await this.delete().catch(() => {});
     }
     regexes.spoilerAbuse.lastIndex = 0;
-
-    if (
-      this.guild.settings.get<boolean>("mod.antiselfbot", false) &&
-      this.embeds.length &&
-      this.embeds.filter(
-        (embed) =>
-          embed.type == "rich" &&
-          (!embed.url || !this.content?.includes(embed.url))
-      ).length
-    )
-      return await this.delete().catch(() => {});
   }
 
   async runPhishFilters() {

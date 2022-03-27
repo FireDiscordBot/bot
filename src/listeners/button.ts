@@ -350,17 +350,6 @@ export default class Button extends Listener {
             ? await button.success("ANTI_SPOILER_DISABLED")
             : await button.success("ANTI_SPOILER_ENABLED");
         }
-        case "selfbot": {
-          const current = button.guild.settings.get<boolean>(
-            "mod.antiselfbot",
-            false
-          );
-          button.guild.settings.set<boolean>("mod.antiselfbot", !current);
-          await update();
-          return current
-            ? await button.success("ANTI_SELFBOT_DISABLED")
-            : await button.success("ANTI_SELFBOT_ENABLED");
-        }
         default: {
           return await button.error("ANTI_UNKNOWN", {
             valid: anti.valid.join(", "),
