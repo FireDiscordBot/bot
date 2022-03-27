@@ -158,10 +158,10 @@ export class GuildTagManager {
   private async getUses(name: string) {
     name = name.toLowerCase();
     const fetchedTag = await this.client.db
-      .query("SELECT uses FROM tags WHERE gid=$1 AND name=$2", [
-        this.guild.id,
-        name,
-      ])
+      .query(
+        "SELECT uses FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)",
+        [this.guild.id, name]
+      )
       .first()
       .catch(() => {});
     if (!fetchedTag) return null;
@@ -436,10 +436,9 @@ export class GuildTagManager {
   async useTag(tag: string) {
     tag = tag.toLowerCase();
     let uses = await this.getUses(tag);
-    ++uses;
     await this.client.db.query(
-      "UPDATE tags SET uses=$1 WHERE gid=$2 AND name=$2;",
-      [uses, this.guild.id, tag]
+      "UPDATE tags SET uses=$1 WHERE gid=$2 AND name=$3 OR gid=$2 AND $3=ANY(aliases);",
+      [++uses, this.guild.id, tag]
     );
   }
 
