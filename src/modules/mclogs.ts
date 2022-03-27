@@ -306,11 +306,16 @@ export default class MCLogs extends Module {
       let solutionsHaste: Haste, recommendationsHaste: Haste;
       if (solutions.size)
         solutionsHaste = await this.client.util
-          .haste(JSON.stringify(solutions), true, "json", true)
+          .haste(JSON.stringify([...solutions.values()]), true, "json", true)
           .catch(() => undefined);
       if (recommendations.size)
         recommendationsHaste = await this.client.util
-          .haste(JSON.stringify(recommendations), true, "json", true)
+          .haste(
+            JSON.stringify([...recommendations.values()]),
+            true,
+            "json",
+            true
+          )
           .catch(() => undefined);
       if (solutionsHaste || recommendationsHaste) {
         const point: IPoint = {
