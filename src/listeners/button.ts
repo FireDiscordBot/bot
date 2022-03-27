@@ -424,10 +424,12 @@ export default class Button extends Listener {
       }
       const tag = await button.guild.tags.getTag(name, false);
       if (!tag) return;
-      else
+      else {
+        await button.guild.tags.useTag(tag.name);
         return await button.channel
           .send({ content: tag.content }, 64)
           .catch(() => {});
+      }
     }
 
     if (button.customId.startsWith("tag_delete:") && button.guild) {
