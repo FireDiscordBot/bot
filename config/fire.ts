@@ -30,8 +30,6 @@ export const fire = {
   inviteLink: process.env.INVITE_SUFFIX
     ? `https://inv.wtf/${process.env.INVITE_SUFFIX}`
     : "https://inv.wtf/bot",
-  rawInvite: (client: Fire) =>
-    `https://discord.com/oauth2/authorize?client_id=${client.user.id}&permissions=125563170039&scope=bot%20applications.commands`,
   commandsInvite: (client: Fire, guildId: string) =>
     `https://discord.com/oauth2/authorize?client_id=${client.user.id}&scope=applications.commands&guild_id=${guildId}&disable_guild_select=true`,
   // extras used in the user command to set specific colors for Fire bots & other cool bots
