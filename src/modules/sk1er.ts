@@ -1,23 +1,14 @@
-import {
-  CategoryChannel,
-  MessageReaction,
-  Snowflake,
-  Role,
-  Collection,
-} from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
+import { CategoryChannel, MessageReaction, Role, Snowflake } from "discord.js";
 
 export default class Sk1er extends Module {
   descriptionUpdate: NodeJS.Timeout;
-  supportguildId: Snowflake;
-  supportGuild: FireGuild;
   nitroId: Snowflake;
   guildId: Snowflake;
   guild: FireGuild;
@@ -26,7 +17,6 @@ export default class Sk1er extends Module {
   constructor() {
     super("sk1er");
     this.guildId = "411619823445999637";
-    this.supportguildId = "755794954743185438";
     this.nitroId = "585534346551754755";
     this.descriptionUpdate = setInterval(
       async () => await this.descriptionUpdater(),
@@ -42,10 +32,7 @@ export default class Sk1er extends Module {
 
   async ready() {
     this.guild = this.client.guilds.cache.get(this.guildId) as FireGuild;
-    this.supportGuild = this.client.guilds.cache.get(
-      this.supportguildId
-    ) as FireGuild;
-    if ([!this.guild, !this.supportGuild].every((value) => value == true)) {
+    if (!this.guild) {
       this.remove();
       return;
     }
@@ -90,7 +77,7 @@ export default class Sk1er extends Module {
     const member =
       trigger instanceof ComponentMessage && trigger.member
         ? trigger.member
-        : ((await this.supportGuild.members.fetch(user)) as FireMember);
+        : ((await this.guild.members.fetch(user)) as FireMember);
     if (!member) return "no member"; // how
     let emoji: string;
     if (trigger instanceof MessageReaction) {
@@ -123,11 +110,11 @@ export default class Sk1er extends Module {
     }
     if (!emoji) return "no emoji";
     if (emoji == "🖥️") {
-      const category = this.supportGuild.channels.cache.get(
-        "755795962462732288"
+      const category = this.guild.channels.cache.get(
+        "958837673651478529"
       ) as CategoryChannel;
       if (!category) return "no category";
-      return await this.supportGuild.createTicket(
+      return await this.guild.createTicket(
         member,
         "General Support",
         null,
@@ -135,11 +122,11 @@ export default class Sk1er extends Module {
       );
     }
     if (emoji == "💸") {
-      const category = this.supportGuild.channels.cache.get(
-        "755796036198596688"
+      const category = this.guild.channels.cache.get(
+        "958827935253545020"
       ) as CategoryChannel;
       if (!category) return "no category";
-      return await this.supportGuild.createTicket(
+      return await this.guild.createTicket(
         member,
         "Purchase Support",
         null,
@@ -147,11 +134,11 @@ export default class Sk1er extends Module {
       );
     }
     if (emoji == "🐛") {
-      const category = this.supportGuild.channels.cache.get(
-        "755795994855211018"
+      const category = this.guild.channels.cache.get(
+        "958837723534336000"
       ) as CategoryChannel;
       if (!category) return "no category";
-      return await this.supportGuild.createTicket(
+      return await this.guild.createTicket(
         member,
         "Bug Report",
         null,

@@ -17,11 +17,7 @@ import Filters from "./filters";
 
 const { mcLogFilters } = constants;
 
-const Sk1erLLCandEssentialIDs = [
-  "411619823445999637",
-  "755794954743185438",
-  "864592657572560958",
-];
+const Sk1erAndEssentialIDs = ["411619823445999637", "864592657572560958"];
 
 const allowedURLs = [
   "minecraftservices.com",
@@ -475,7 +471,7 @@ export default class MCLogs extends Module {
     if (
       log.toLowerCase().includes("net.kdt.pojavlaunch") &&
       user instanceof FireMember &&
-      Sk1erLLCandEssentialIDs.includes(user.guild?.id)
+      Sk1erAndEssentialIDs.includes(user.guild?.id)
     )
       return `PojavLauncher is not supported, any issues encountered while running on unsupported platforms will be disregarded.`;
 
