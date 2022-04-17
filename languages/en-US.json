@@ -758,7 +758,6 @@
   "MULTIIMGEMBED_ARGUMENTS_IMAGEEIGHT_DESCRIPTION": "The eighth image to use in the embed (second embed)",
   "MULTIIMGEMBED_ARGUMENTS_COLOR_DESCRIPTION": "The color to use for the embed(s)",
   "MULTIIMGEMBED_WEBHOOK_FAILED": "I was unable to find or create a suitable webhook for sending your images",
-  "MULTIIMGEMBED_MESSAGE_CONTENT": "Mutli-image embed sent by {{user}}",
   "MULTIIMGEMBED_SENT_SUCCESSFULLY": "Successfully sent multi-image embed!",
   "MULTIIMGEMBED_SEND_ERROR": "I encountered an error while trying to send your multi-image embed...",
   "ADMINONLY_COMMAND_DESCRIPTION": "Set channels to restrict commands for admins",
