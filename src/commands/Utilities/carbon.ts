@@ -219,7 +219,8 @@ export default class Carbon extends Command {
       );
     } else {
       await modal.edit(modal.language.get("CARBON_IMAGE_UPLOADING"));
-      modal.flags = 0;
+      if (!modal.author.settings.get<boolean>("utils.incognito", false))
+        modal.flags = 0;
       const attach = new MessageAttachment(image.body, "code.png");
       return await modal.channel.send({ files: [attach] });
     }

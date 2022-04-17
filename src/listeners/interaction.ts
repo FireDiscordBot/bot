@@ -11,7 +11,6 @@ import { Listener } from "@fire/lib/util/listener";
 import {
   ApplicationCommandOptionChoice,
   AutocompleteInteraction,
-  CacheType,
   ContextMenuInteraction,
   Interaction,
   MessageComponentInteraction,

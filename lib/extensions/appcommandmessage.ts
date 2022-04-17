@@ -112,13 +112,13 @@ export class ApplicationCommandMessage {
         this.slashCommand.options.resolved
       );
     }
+    this._flags = 0;
     this.guild = this.client.guilds.cache.get(
       this.slashCommand.guildId
     ) as FireGuild;
     this.command =
       this.client.getCommand(this.slashCommand.commandName) ||
       this.client.getContextCommand(this.slashCommand.commandName);
-    this._flags = 0;
     if (!this.command && this.guild && !this.guild?.tags) {
       // this might take a couple seconds so we will ack now
       this.channel = new FakeChannel(
@@ -129,7 +129,8 @@ export class ApplicationCommandMessage {
         this.realChannel
       );
       this.channel.ack(
-        this.guild.settings.get<boolean>("tags.ephemeral", true)
+        this.guild.settings.get<boolean>("tags.ephemeral", true) ||
+          this.author.settings.get<boolean>("utils.incognito", false)
       );
       this.guild.tags = new GuildTagManager(this.client, this.guild);
       await this.guild.tags.init();
@@ -675,6 +676,8 @@ export class FakeChannel extends BaseFakeChannel {
     )
       return;
     if (this.message.sent) return;
+    if (this.message.author.settings.get<boolean>("utils.incognito", false))
+      ephemeral = true;
     await this.message.slashCommand
       .deferReply({
         ephemeral: ephemeral || !!((this.flags & 64) == 64),
@@ -712,12 +715,10 @@ export class FakeChannel extends BaseFakeChannel {
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
 
-    // embeds in ephemeral wen eta
-    if (
-      (files?.length || this.real instanceof DMChannel) &&
-      (data.flags & 64) == 64
-    )
+    if (this.real instanceof DMChannel && (data.flags & 64) == 64)
       data.flags -= 64;
+    else if (this.message.author.settings.get("utils.incognito", false))
+      data.flags = 64;
 
     if (!this.message.sent)
       await this.client.req

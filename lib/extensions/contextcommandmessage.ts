@@ -460,11 +460,14 @@ export class FakeChannel extends BaseFakeChannel {
       : false;
   }
 
-  // Defer interaction unless ephemeral
+  // Defer interaction unless ephemeral (excl. incognito)
   async ack(ephemeral = false) {
     if (ephemeral || (this.flags & 64) != 0) return;
     await this.message.contextCommand
-      .deferReply({ ephemeral: !!((this.flags & 64) == 64), fetchReply: true })
+      .deferReply({
+        ephemeral: this.message.author.settings.get("utils.incognito", false),
+        fetchReply: true,
+      })
       .then((real) => {
         this.message.sent = "ack";
         if (real) this.message.sourceMessage = real as FireMessage; // literally (real)
@@ -497,12 +500,10 @@ export class FakeChannel extends BaseFakeChannel {
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
 
-    // embeds in ephemeral wen eta
-    if (
-      (files?.length || this.real instanceof DMChannel) &&
-      (data.flags & 64) == 64
-    )
+    if (this.real instanceof DMChannel && (data.flags & 64) == 64)
       data.flags -= 64;
+    else if (this.message.author.settings.get("utils.incognito", false))
+      data.flags = 64;
 
     if (!this.message.sent)
       await this.client.req
