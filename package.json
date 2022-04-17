@@ -45,7 +45,7 @@
     "humanize-duration": "^3.27.1",
     "i18next": "^21.6.11",
     "module-alias": "^2.2.2",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "murmurhash-js": "^1.0.0",
     "nanoid": "^3.3.1",
     "node-color-log": "^7.0.0",
