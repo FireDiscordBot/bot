@@ -40,6 +40,7 @@ export default class MultiImageEmbed extends Command {
       description: (language: Language) =>
         language.get("MULTIIMGEMBED_COMMAND_DESCRIPTION"),
       clientPermissions: [Permissions.FLAGS.MANAGE_WEBHOOKS],
+      userPermissions: [Permissions.FLAGS.ATTACH_FILES],
       args: [
         {
           id: "image-one",
