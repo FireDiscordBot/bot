@@ -116,6 +116,11 @@ export class ApplicationCommandMessage {
     this.guild = this.client.guilds.cache.get(
       this.slashCommand.guildId
     ) as FireGuild;
+    // @mason pls just always include user ty
+    const user = this.slashCommand.user ?? this.slashCommand.member?.user;
+    this.author =
+      (this.client.users.cache.get(user.id) as FireUser) ||
+      new FireUser(this.client, user as RawUserData);
     this.command =
       this.client.getCommand(this.slashCommand.commandName) ||
       this.client.getContextCommand(this.slashCommand.commandName);
@@ -156,11 +161,6 @@ export class ApplicationCommandMessage {
     // @ts-ignore
     this.mentions = new MessageMentions(this, [], [], false);
     this.attachments = new Collection();
-    // @mason pls just always include user ty
-    const user = this.slashCommand.user ?? this.slashCommand.member?.user;
-    this.author =
-      (this.client.users.cache.get(user.id) as FireUser) ||
-      new FireUser(this.client, user as RawUserData);
     if (this.guild) {
       this.member =
         (this.guild.members.cache.get(this.author.id) as FireMember) ||
