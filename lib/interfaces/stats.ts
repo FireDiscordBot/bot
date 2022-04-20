@@ -47,7 +47,6 @@ export interface DiscoverableGuild {
   iconProxy?: string;
   splash: string;
   splashProxy?: string;
-  vanity: string;
   members: number;
   badge: BadgeType;
   featured: boolean;

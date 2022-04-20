@@ -754,7 +754,6 @@ export class FireGuild extends Guild {
         id: this.id,
         icon: "https://cdn.discordapp.com/emojis/293495010719170560.png?v=1",
         splash,
-        vanity: `https://discover.inv.wtf/${this.id}`,
         members: 0,
         badge: this.guildBadge,
         featured: false,
@@ -783,7 +782,6 @@ export class FireGuild extends Guild {
       id: this.id,
       icon,
       splash,
-      vanity: `https://discover.inv.wtf/${this.id}`,
       members: this.memberCount,
       badge: this.guildBadge,
       featured: this.settings.get<boolean>(
