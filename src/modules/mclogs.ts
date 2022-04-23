@@ -532,9 +532,12 @@ export default class MCLogs extends Module {
       )
         .header("User-Agent", this.client.manager.ua)
         .send();
-      const loaderData: FabricLoaderVersion[] = await loaderDataReq
+      const loaderData = await loaderDataReq
         .json()
-        .catch(() => []);
+        .then((data: FabricLoaderVersion[]) =>
+          data.filter((v) => v.loader.stable)
+        )
+        .catch(() => [] as FabricLoaderVersion[]);
       if (
         loaderData.length &&
         loaderData[0].loader.version != versions.loaderVersion
