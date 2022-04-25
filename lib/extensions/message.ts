@@ -317,6 +317,7 @@ export class FireMessage extends Message {
       this.attachments.filter((attachment) => attachment.size > 5242880).size ==
         0;
     const useWebhooks =
+      (destination.guild as FireGuild).hasExperiment(3959319643, 1) &&
       (!!webhook ||
         ((destination.guild as FireGuild).settings.get<boolean>(
           "utils.quotehooks",
