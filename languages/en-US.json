@@ -548,6 +548,7 @@
   "GUILD_ROLES": "» Roles",
   "GUILD_EXPERIMENTS": "» Experiments",
   "HELP_COMMAND_DESCRIPTION": "Lists all of Fire's commands and provides information about them",
+  "HELP_COMMAND_ARGUMENT_DESCRIPTION": "A command you'd like more information about",
   "HELP_NO_COMMAND": "You must provide a valid command for info or no command for a full list",
   "HELP_SELECT_CATEGORY": "Select a category to view commands",
   "HELP_CATEGORY_INVALID": "You seem lost as that is not a valid category. Run the command again to get the latest category list",

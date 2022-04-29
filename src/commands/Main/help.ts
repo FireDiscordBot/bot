@@ -34,6 +34,8 @@ export default class Help extends Command {
           id: "command",
           type: "command",
           autocomplete: true,
+          description: (language: Language) =>
+            language.get("HELP_COMMAND_ARGUMENT_DESCRIPTION"),
           default: undefined,
           required: false,
         },
