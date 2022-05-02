@@ -35,7 +35,7 @@ function randomSubreddit(): string {
 }
 
 export function checkURL(url: string): boolean {
-  return url.match(/\.(jpeg|jpg|gif|png)$/) != null;
+  return /\.(jpeg|jpg|gif|png)$/.test(url)
 }
 
 export async function buildPost(url: string): Promise<RedditPost | undefined> {
