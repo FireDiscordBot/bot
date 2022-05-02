@@ -9,37 +9,39 @@ import { RedditPost } from "../interfaces/reddit";
  * @param subreddit Optional The subreddit string, defaults to a random english meme subreddit.
  * @returns {RedditPost}
  */
- export async function getRandomPost(subreddit?: string): Promise<RedditPost | undefined> {
-	const url = `https://www.reddit.com/r/${subreddit ? subreddit : randomSubreddit()}/hot/.json?count=100`
+export async function getRandomPost(
+  subreddit?: string
+): Promise<RedditPost | undefined> {
+  const url = `https://www.reddit.com/r/${
+    subreddit ? subreddit : randomSubreddit()
+  }/hot/.json?count=100`;
 
-	return await buildPost(url)
+  return await buildPost(url);
 }
-
 
 /* Utils */
 
 // more languages coming soontm
 const randomSubreddits = {
-  en: ['memes', 'dankmemes', 'meirl'],
-}
+  en: ["memes", "dankmemes", "meirl"],
+};
 
 /**
  * Gets a random subreddit from the list of available meme subreddits.
  * @returns {string} The random subreddit string.
  */
 function randomSubreddit(): string {
-	return randomSubreddits.en[randomInt(randomSubreddits.en.length)]
+  return randomSubreddits.en[randomInt(randomSubreddits.en.length)];
 }
 
-
 export function checkURL(url: string): boolean {
-  return url.match(/\.(jpeg|jpg|gif|png)$/) != null
+  return url.match(/\.(jpeg|jpg|gif|png)$/) != null;
 }
 
 export async function buildPost(url: string): Promise<RedditPost | undefined> {
-	try {
-		const response = await (
-      await centra(url, 'GET')
+  try {
+    const response = await (
+      await centra(url, "GET")
         .header("User-Agent", this.client.manager.ua)
         .send()
     ).json();
@@ -53,16 +55,16 @@ export async function buildPost(url: string): Promise<RedditPost | undefined> {
     while (!validPost) {
       post = children[randomInt(children.length)].data;
       if (trys >= 50) {
-        throw new Error(`Coulsd not find an image post from ${url}`);
+        console.error(`Could not find an image post from ${url}`);
+        throw new Error(`Could not find an image post from ${url}`);
       }
       trys++;
       validPost = checkURL(post.url);
     }
 
-    const builtPost: RedditPost = new RedditPost(post);
-
-    return builtPost;
-  }  catch (err) {
-    throw new Error(`Could not find a post from ${url}`);
+    return new RedditPost(post);
+  } catch (err) {
+    console.error(`Could not find a post from ${url}`, err);
+    throw new Error(`Could not find a post from ${url}: ${err}`);
   }
 }

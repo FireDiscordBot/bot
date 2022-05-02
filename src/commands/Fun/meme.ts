@@ -47,14 +47,13 @@ export default class Meme extends Command {
     } catch (e) {
       return await command.error("MEME_NOT_FOUND");
     }
-    if (!meme || meme === null) return await command.error("MEME_NOT_FOUND");
     if (meme.nsfw && !command.channel.nsfw)
       return await command.error("MEME_NSFW_FORBIDDEN");
     const language = command.language;
     const embed = new MessageEmbed()
       .setTitle(language.get("MEME_EMBED_TITLE"))
       .setColor(command.member?.displayColor ?? "#FFFFFF")
-      .setURL(`https://reddit.com/r/${meme.subreddit}/comments/${meme.id}`)
+      .setURL(meme.url)
       .setTimestamp()
       .setAuthor({
         name: language.get("MEME_EMBED_AUTHOR", {
@@ -82,10 +81,9 @@ export default class Meme extends Command {
           language.id
         )}`
       );
-    if (meme.image)
-      embed.setImage(meme.image);
+    if (meme.image) embed.setImage(meme.image);
     else
-      embed.addField(language.get("ATTACHMENT"), `[Click Here](https://reddit.com/r/${meme.subreddit}/comments/${meme.id})`);
+      embed.addField(language.get("ATTACHMENT"), `[Click Here](${meme.url})`);
     return await command.channel.send({ embeds: [embed] });
   }
 }
