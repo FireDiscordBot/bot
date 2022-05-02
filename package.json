@@ -30,6 +30,7 @@
   "dependencies": {
     "@aero/ksoft": "^3.1.8",
     "@aero/sanitizer": "^1.2.0",
+    "@aethernet/reddit": "^1.0.0",
     "@sapphire/async-queue": "^1.2.0",
     "@sentry/node": "^6.17.9",
     "@skyra/timestamp": "^1.0.0",

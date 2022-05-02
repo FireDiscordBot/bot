@@ -1,11 +1,8 @@
-import { RedditImage } from "@aero/ksoft";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
-import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { MessageEmbed } from "discord.js";
-
-const { imageExts } = constants;
+import { RedditPost, getRandomPost } from "@aethernet/reddit";
 
 export default class Meme extends Command {
   constructor() {
@@ -41,29 +38,19 @@ export default class Meme extends Command {
       span: "hour" | "day" | "week" | "month" | "year" | "all";
     }
   ) {
-    if (!this.client.ksoft) return await command.error("ERROR_NO_KSOFT");
-    let meme: RedditImage;
+    let meme: RedditPost;
     try {
       if (args.subreddit)
-        meme = await this.client.ksoft.images.reddit(
-          args.subreddit.replace("r/", ""),
-          {
-            removeNSFW: !command.channel.nsfw,
-            span: args.span,
-          }
-        );
-      else meme = await this.client.ksoft.images.meme();
+        meme = await getRandomPost(args.subreddit.replace("r/", ""));
+      else meme = await getRandomPost();
     } catch (e) {
       return await command.error("MEME_NOT_FOUND");
     }
-    if (!meme.url || !meme.post) return await command.error("MEME_NOT_FOUND");
-    if (meme.tag.nsfw && !command.channel.nsfw)
-      return await command.error("MEME_NSFW_FORBIDDEN");
     const language = command.language;
     const embed = new MessageEmbed()
       .setTitle(language.get("MEME_EMBED_TITLE"))
       .setColor(command.member?.displayColor ?? "#FFFFFF")
-      .setURL(meme.post.link)
+      .setURL(`https://reddit.com/r/${meme.subreddit}/comments/${meme.id}`)
       .setTimestamp()
       .setAuthor({
         name: language.get("MEME_EMBED_AUTHOR", {
@@ -79,23 +66,23 @@ export default class Meme extends Command {
         language.get("POWERED_BY_KSOFT"),
         "https://cdn.ksoft.si/images/Logo1024.png"
       )
-      .addField(language.get("TITLE"), meme.post.title)
+      .addField(language.get("TITLE"), meme.title)
       .addField(
         language.get("MEME_SUBREDDIT"),
-        `[${meme.post.subreddit}](https://reddit.com/${meme.post.subreddit})`
+        `[${meme.subreddit}](https://reddit.com/r/${meme.subreddit})`
       )
       .addField(
         command.language.get("STATS"),
-        `<:upvote:646857470345478184> ${meme.post.upvotes.toLocaleString(
+        `<:upvote:646857470345478184> ${meme.ups.toLocaleString(
           language.id
-        )} | <:downvote:646857487353380867> ${meme.post.downvotes.toLocaleString(
+        )} | <:downvote:646857487353380867> ${meme.downs.toLocaleString(
           language.id
         )}`
       );
-    if (meme.url && imageExts.filter((ext) => meme.url.endsWith(ext)).length)
-      embed.setImage(meme.url);
+    if (meme.image)
+      embed.setImage(meme.image);
     else
-      embed.addField(language.get("ATTACHMENT"), `[Click Here](${meme.url})`);
+      embed.addField(language.get("ATTACHMENT"), `[Click Here](https://reddit.com/r/${meme.subreddit}/comments/${meme.id})`);
     return await command.channel.send({ embeds: [embed] });
   }
 }
