@@ -20,9 +20,11 @@ export async function getRandomPost(
 }
 
 export async function getRandomPostLanguage(
-  lang: 'en' | 'es' | 'de' | 'fr' | 'it' | 'ru' | 'tr' | 'br' | 'it'
-): Promise <RedditPost | undefined> {
-  const url = `https://www.reddit.com/r/${randomSubreddit(lang)}/hot/.json?count=100`;
+  lang: "en" | "es" | "de" | "fr" | "it" | "ru" | "tr" | "br" | "it"
+): Promise<RedditPost | undefined> {
+  const url = `https://www.reddit.com/r/${randomSubreddit(
+    lang
+  )}/hot/.json?count=100`;
 
   return await buildPost(url);
 }
