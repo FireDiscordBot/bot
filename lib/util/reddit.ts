@@ -19,23 +19,60 @@ export async function getRandomPost(
   return await buildPost(url);
 }
 
+export async function getRandomPostLanguage(
+  lang: 'en' | 'es' | 'de' | 'fr' | 'it' | 'ru' | 'tr' | 'br' | 'it'
+): Promise <RedditPost | undefined> {
+  const url = `https://www.reddit.com/r/${randomSubreddit(lang)}/hot/.json?count=100`;
+
+  return await buildPost(url);
+}
+
 /* Utils */
 
 // more languages coming soontm
 const randomSubreddits = {
+  br: ["MemesBrasil", "eu_nvr", "DiretoDoZapZap"],
+  de: ["GermanMemes"],
   en: ["memes", "dankmemes", "meirl"],
+  es: ["memesesp", "memesenespanol", "spanishmeme"],
+  fr: ["FrenchMemes"],
+  in: ["IndianDankMemes", "IndianMeyMeys", "desimemes"],
+  it: ["italianmemes"],
+  ru: ["CommunismMemes", "YouSeeComrade"],
+  tr: ["burdurland", "TurkeyJerky", "TurkishMemeCommunity"],
 };
 
 /**
  * Gets a random subreddit from the list of available meme subreddits.
  * @returns {string} The random subreddit string.
  */
-function randomSubreddit(): string {
-  return randomSubreddits.en[randomInt(randomSubreddits.en.length)];
+function randomSubreddit(lang?: string | string[]): string {
+  if (!lang) return randomSubreddits.en[randomInt(randomSubreddits.en.length)];
+
+  switch (lang.toString().toLowerCase()) {
+    case "br":
+      return randomSubreddits.br[randomInt(randomSubreddits.br.length)];
+    case "de":
+      return randomSubreddits.de[randomInt(randomSubreddits.de.length)];
+    case "es":
+      return randomSubreddits.es[randomInt(randomSubreddits.es.length)];
+    case "fr":
+      return randomSubreddits.fr[randomInt(randomSubreddits.fr.length)];
+    case "in":
+      return randomSubreddits.fr[randomInt(randomSubreddits.in.length)];
+    case "it":
+      return randomSubreddits.it[randomInt(randomSubreddits.it.length)];
+    case "ru":
+      return randomSubreddits.ru[randomInt(randomSubreddits.ru.length)];
+    case "tr":
+      return randomSubreddits.ru[randomInt(randomSubreddits.tr.length)];
+    default:
+      return randomSubreddits.en[randomInt(randomSubreddits.en.length)];
+  }
 }
 
 export function checkURL(url: string): boolean {
-  return /\.(jpeg|jpg|gif|png)$/.test(url)
+  return /\.(jpeg|jpg|gif|png)$/.test(url);
 }
 
 export async function buildPost(url: string): Promise<RedditPost | undefined> {
