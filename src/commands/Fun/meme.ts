@@ -2,7 +2,8 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { MessageEmbed } from "discord.js";
-import { RedditPost, getRandomPost } from "@aethernet/reddit";
+import { RedditPost } from "@fire/lib/interfaces/reddit";
+import { getRandomPost } from "@fire/lib/util/reddit";
 
 export default class Meme extends Command {
   constructor() {
@@ -46,6 +47,9 @@ export default class Meme extends Command {
     } catch (e) {
       return await command.error("MEME_NOT_FOUND");
     }
+    if (!meme || meme === null) return await command.error("MEME_NOT_FOUND");
+    if (meme.nsfw && !command.channel.nsfw)
+      return await command.error("MEME_NSFW_FORBIDDEN");
     const language = command.language;
     const embed = new MessageEmbed()
       .setTitle(language.get("MEME_EMBED_TITLE"))
@@ -63,8 +67,7 @@ export default class Meme extends Command {
         }),
       })
       .setFooter(
-        language.get("POWERED_BY_KSOFT"),
-        "https://cdn.ksoft.si/images/Logo1024.png"
+        "Made with ❤️ by open source contributors. Powered by Reddit API."
       )
       .addField(language.get("TITLE"), meme.title)
       .addField(
