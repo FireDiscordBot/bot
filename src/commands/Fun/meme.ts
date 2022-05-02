@@ -3,7 +3,7 @@ import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { MessageEmbed } from "discord.js";
 import { RedditPost } from "@fire/lib/interfaces/reddit";
-import { getRandomPost } from "@fire/lib/util/reddit";
+import { getRandomPost, getRandomPostLanguage } from "@fire/lib/util/reddit";
 
 export default class Meme extends Command {
   constructor() {
@@ -19,12 +19,10 @@ export default class Meme extends Command {
           required: false,
         },
         {
-          id: "span",
-          type: ["hour", "day", "week", "month", "year", "all"],
-          slashCommandType: "span",
-          flag: "--span",
-          match: "option",
-          default: "month",
+          id: "language",
+          type: "string",
+          default: "en",
+          required: false,
         },
       ],
       enableSlashCommand: true,
@@ -36,14 +34,18 @@ export default class Meme extends Command {
     command: ApplicationCommandMessage,
     args: {
       subreddit?: string;
-      span: "hour" | "day" | "week" | "month" | "year" | "all";
+      language?: "en" | "es" | "de" | "fr" | "it" | "ru" | "tr" | "br" | "it";
     }
   ) {
     let meme: RedditPost;
     try {
-      if (args.subreddit)
-        meme = await getRandomPost(args.subreddit.replace("r/", ""));
-      else meme = await getRandomPost();
+      if (args.language) {
+        meme = await getRandomPostLanguage(args.language);
+      } else if (args.subreddit) {
+        meme = await getRandomPost(args.subreddit);
+      } else {
+        meme = await getRandomPost();
+      }
     } catch (e) {
       return await command.error("MEME_NOT_FOUND");
     }
