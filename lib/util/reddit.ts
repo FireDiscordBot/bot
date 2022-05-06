@@ -49,28 +49,9 @@ const randomSubreddits = {
  * @returns {string} The random subreddit string.
  */
 function randomSubreddit(lang?: string | string[]): string {
-  if (!lang) return randomSubreddits.en[randomInt(randomSubreddits.en.length)];
-
-  switch (lang.toString().toLowerCase()) {
-    case "br":
-      return randomSubreddits.br[randomInt(randomSubreddits.br.length)];
-    case "de":
-      return randomSubreddits.de[randomInt(randomSubreddits.de.length)];
-    case "es":
-      return randomSubreddits.es[randomInt(randomSubreddits.es.length)];
-    case "fr":
-      return randomSubreddits.fr[randomInt(randomSubreddits.fr.length)];
-    case "in":
-      return randomSubreddits.fr[randomInt(randomSubreddits.in.length)];
-    case "it":
-      return randomSubreddits.it[randomInt(randomSubreddits.it.length)];
-    case "ru":
-      return randomSubreddits.ru[randomInt(randomSubreddits.ru.length)];
-    case "tr":
-      return randomSubreddits.ru[randomInt(randomSubreddits.tr.length)];
-    default:
-      return randomSubreddits.en[randomInt(randomSubreddits.en.length)];
-  }
+  lang &&= lang.toString().toLowerCase();
+  if (!randomSubreddits.hasOwnProperty(lang)) lang = "en";
+  return randomSubreddits[lang][randomInt(randomSubreddits[lang].length)];
 }
 
 export function checkURL(url: string): boolean {
