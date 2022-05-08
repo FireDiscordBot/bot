@@ -10,7 +10,6 @@ export class Websocket extends Client {
   clientSideClose: boolean;
   heartbeatInterval: number;
   keepAlive: NodeJS.Timeout;
-  waitingForPong: boolean;
   subscribed: string[];
   manager: Manager;
   seq: number;
@@ -30,7 +29,6 @@ export class Websocket extends Client {
       { headers }
     );
     this.handlers = new Collection();
-    this.waitingForPong = false;
     this.manager = manager;
     this.subscribed = [];
     this.seq = 0;
@@ -82,6 +80,10 @@ export class Websocket extends Client {
     this.manager.client?.console?.log(
       `[Aether] Starting heartbeat with interval ${this.heartbeatInterval}ms`
     );
+    if (this.keepAlive) {
+      clearTimeout(this.keepAlive);
+      delete this.keepAlive;
+    }
     this.keepAlive = setTimeout(() => {
       this.close(4004, "Did not receive heartbeat ack");
     }, this.heartbeatInterval + 10000);
