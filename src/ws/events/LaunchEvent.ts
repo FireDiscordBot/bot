@@ -1,4 +1,3 @@
-import { Collection } from "@discordjs/collection";
 import { ManagerState } from "@fire/lib/interfaces/aether";
 import { Manager } from "@fire/lib/Manager";
 import { Event } from "@fire/lib/ws/event/Event";
