@@ -1039,6 +1039,7 @@ The lack of this is a sign that this message may have been sent automatically by
               : undefined
           )
           .then((result) => {
+            this.delete().catch(() => {});
             if (
               result instanceof FireMessage &&
               result.guild?.me
