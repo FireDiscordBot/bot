@@ -17,6 +17,7 @@ export default class RestartEvent extends Event {
   async run(data: {
     state: ManagerState;
     shardCount: number;
+    interval: number;
     shards: number[];
     session: string;
     id: number;
@@ -45,6 +46,8 @@ export default class RestartEvent extends Event {
       );
     this.manager.session = data.session;
     this.manager.state = data.state;
+    this.manager.ws.heartbeatInterval = data.interval;
+    this.manager.ws.startHeartbeat();
     this.manager.client.manager.ws?.send(
       MessageUtil.encode(
         new Message(EventType.READY_CLIENT, {
