@@ -39,13 +39,9 @@ export default class Meme extends Command {
   ) {
     let meme: RedditPost;
     try {
-      if (args.language) {
-        meme = await getRandomPostLanguage(args.language);
-      } else if (args.subreddit) {
-        meme = await getRandomPost(args.subreddit);
-      } else {
-        meme = await getRandomPost();
-      }
+      if (args.language) meme =
+        await getRandomPostLanguage(args.language);
+      else meme = await getRandomPost(args.subreddit);
     } catch (e) {
       return await command.error("MEME_NOT_FOUND");
     }
