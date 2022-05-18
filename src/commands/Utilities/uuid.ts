@@ -40,9 +40,8 @@ export default class MinecraftUUID extends Command {
     if (!args.ign) return await command.error("MINECRAFT_UUID_INVALID_IGN");
     const ign: string = args.ign.match[0];
     const dashed = Boolean(args.dashed);
-    let uuid = await this.client.util.nameToUUID(ign);
+    let uuid = await this.client.util.nameToUUID(ign, dashed).catch(() => null);
     if (!uuid) return await command.error("MINECRAFT_UUID_FETCH_FAIL");
-    if (dashed) uuid = this.client.util.addDashesToUUID(uuid);
     return await command.send("MINECRAFT_UUID", { ign, uuid });
   }
 }

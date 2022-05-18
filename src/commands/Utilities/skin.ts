@@ -30,7 +30,7 @@ export default class Skin extends Command {
   ) {
     if (!args.ign) return await command.error("MINECRAFT_SKIN_INVALID_IGN");
     const ign: string = args.ign.match[0];
-    let uuid = await this.client.util.nameToUUID(ign);
+    let uuid = await this.client.util.nameToUUID(ign).catch(() => null);
     if (!uuid) return await command.error("MINECRAFT_UUID_FETCH_FAIL");
     const embed = new MessageEmbed()
       .setColor(command.member?.displayColor ?? "#FFFFFF")

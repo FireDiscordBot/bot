@@ -208,7 +208,10 @@ export class Util extends ClientUtil {
       const profile: MojangProfile = await profileReq.json();
       this.uuidCache.set(player, profile.id);
       return dashed ? this.addDashesToUUID(profile.id) : profile.id;
-    } else return null;
+    } else
+      throw new Error(
+        `${profileReq.statusCode} ${profileReq.coreRes.statusMessage}`
+      );
   }
 
   addDashesToUUID = (uuid: string) =>

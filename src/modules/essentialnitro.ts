@@ -131,7 +131,7 @@ export default class EssentialNitro extends Module {
 
   async giveNitroCosmetic(user: FireMember | FireUser, ign: string) {
     if (!this.auth) return false;
-    const uuid = await this.client.util.nameToUUID(ign, true);
+    const uuid = await this.client.util.nameToUUID(ign, true).catch(() => null);
     if (!uuid) return false;
 
     this.client.console.info(
@@ -165,7 +165,7 @@ export default class EssentialNitro extends Module {
 
   async removeNitroCosmetic(user: FireMember | FireUser, uuid?: string) {
     if (!this.auth) return false;
-    uuid ??= (await this.getUUID(user));
+    uuid ??= await this.getUUID(user);
     if (!uuid) return false;
 
     this.client.console.warn(

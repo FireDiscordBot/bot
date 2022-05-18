@@ -10,6 +10,7 @@ import { Sk1erMods } from "@fire/lib/interfaces/sk1ermod";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
+import { Response } from "centra";
 import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import { Readable } from "stream";
 import { getCodeblockMatch } from "../arguments/codeblock";
@@ -984,8 +985,10 @@ export default class MCLogs extends Module {
       this.regexes.devEnvUser.lastIndex = 0;
       if (user?.length && !isDevEnv) {
         try {
-          const uuid = await this.client.util.nameToUUID(user[1]);
-          if (!uuid) {
+          const uuid = await this.client.util
+            .nameToUUID(user[1])
+            .catch((e: Error) => e);
+          if (uuid instanceof Error) {
             // user has not opted out of data collection for analytics
             if (!message.hasExperiment(2219986954, 1))
               this.client.influx([
@@ -1007,6 +1010,7 @@ export default class MCLogs extends Module {
                     ign: user[1],
                     haste: haste.url,
                     raw: haste.raw,
+                    status: uuid.message,
                   },
                 },
               ]);
