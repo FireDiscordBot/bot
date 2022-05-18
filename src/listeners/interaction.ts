@@ -28,7 +28,46 @@ export default class InteractionListener extends Listener {
   }
 
   async exec(interaction: Interaction) {
-    if (this.blacklistCheck(interaction)) return;
+    if (this.blacklistCheck(interaction)) {
+      const useCommandName =
+        interaction.isCommand() ||
+        interaction.isMessageContextMenu() ||
+        interaction.isUserContextMenu() ||
+        interaction.isAutocomplete();
+      const useCustomId =
+        interaction.isMessageComponent() || interaction.isModalSubmit();
+      this.client.influx([
+        {
+          measurement: "commands",
+          tags: {
+            type: "blocked",
+            command: useCommandName
+              ? interaction.commandName
+              : useCustomId
+              ? interaction.customId
+              : "unknown",
+            cluster: this.client.manager.id.toString(),
+            shard: interaction.guild?.shardId.toString() ?? "0",
+            user_id: interaction.user.id, // easier to query tag
+          },
+          fields: {
+            type: "blocked",
+            command: useCommandName
+              ? interaction.commandName
+              : useCustomId
+              ? interaction.customId
+              : "unknown",
+            guild: interaction.guild
+              ? `${interaction.guild.name} (${interaction.guildId})`
+              : "N/A",
+            user: `${interaction.user} (${interaction.user.id})`,
+            message_id: interaction.id,
+            reason: "blacklist",
+          },
+        },
+      ]);
+      return;
+    }
     const point: IPoint = {
       measurement: "interaction",
       tags: {
