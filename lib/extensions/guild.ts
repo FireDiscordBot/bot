@@ -1437,7 +1437,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
                 .setURL(`https://discord.com/channels/${this.id}/${channel.id}`)
             ),
           ],
-        });
+        }).catch(() => {});
       return channel;
     }
   }
