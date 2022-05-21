@@ -74,7 +74,13 @@ export default class ModlogsView extends Command {
       .catch(() => {});
     if (!logs || !logs.rows.length)
       return await command.error("MODLOGS_NONE_FOUND");
-    const paginator = new WrappedPaginator("", "", 800);
+    const reasonIndex = logs.names.indexOf("reason");
+    const longestReason = logs.rows.reduce((a, b) => {
+      const l = (b[reasonIndex] as string).length;
+      return a > l ? a : l;
+    }, 0);
+    const paginator = new WrappedPaginator("", "", 800 + longestReason);
+    // 800 + longest reason length should hopefully make it high enough for adding each case
     for await (const action of logs) {
       let typeInfo: string = "";
       if (!args.type)
