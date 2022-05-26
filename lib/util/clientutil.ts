@@ -787,14 +787,21 @@ export class Util extends ClientUtil {
           const guildRange = ranges
             ? murmur3(`${experiment.id}:${id}`) % 1e4
             : null;
+          const description = experiment.description?.[bucket]
+            ? titleCase(experiment.description[bucket])
+            : titleCase(
+                experiment.description.find((d) =>
+                  bucket == 0
+                    ? d.toLowerCase().includes("control")
+                    : d.toLowerCase().startsWith(`treatment ${bucket}`)
+                )
+              );
           friendlyExperiments.push(
             ranges && !(ranges.s == 0 && ranges.e == 1e4)
-              ? `${titleCase(experiment.title)} | ${titleCase(
-                  experiment.description[bucket]
-                )} | ${guildRange} / ${ranges.s} - ${ranges.e}`
-              : `${titleCase(experiment.title)} | ${titleCase(
-                  experiment.description[bucket]
-                )}`
+              ? `${titleCase(
+                  experiment.title
+                )} | ${description} | ${guildRange} / ${ranges.s} - ${ranges.e}`
+              : `${titleCase(experiment.title)} | ${description}`
           );
         }
       }
