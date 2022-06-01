@@ -56,7 +56,7 @@ export default class Message extends Listener {
       event: "messageCreate",
     });
     this.tokenRegex =
-      /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27}/gm;
+      /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27,38}/gm;
     this.recentTokens = [];
   }
 
