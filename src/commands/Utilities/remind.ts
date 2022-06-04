@@ -46,6 +46,7 @@ export default class Remind extends Command {
         },
       ],
       enableSlashCommand: true,
+      restrictTo: "all",
       ephemeral: true,
     });
   }

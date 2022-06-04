@@ -29,6 +29,7 @@ export default class RemindersDelete extends Command {
         },
       ],
       parent: "reminders",
+      restrictTo: "all",
       ephemeral: true,
       slashOnly: true,
     });

@@ -48,6 +48,7 @@ export default class Color extends Command {
         },
       ],
       enableSlashCommand: true,
+      restrictTo: "all",
       slashOnly: true,
     });
   }

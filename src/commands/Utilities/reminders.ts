@@ -8,6 +8,7 @@ export default class Reminders extends Command {
         language.get("REMINDERS_COMMAND_DESCRIPTION"),
       args: [],
       enableSlashCommand: true,
+      restrictTo: "all",
       slashOnly: true,
       group: true,
     });
