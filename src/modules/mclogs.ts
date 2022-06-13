@@ -205,6 +205,8 @@ export default class MCLogs extends Module {
     };
     this.logText = [
       "net.minecraft.launchwrapper.Launch",
+      "net.fabricmc.loader.impl.launch.knot.KnotClient",
+      "Launched instance in online mode",
       "# A fatal error has been detected by the Java Runtime Environment:",
       "---- Minecraft Crash Report ----",
       "A detailed walkthrough of the error",
