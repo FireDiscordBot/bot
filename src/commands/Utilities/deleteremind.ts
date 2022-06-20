@@ -45,28 +45,35 @@ export default class RemindersDelete extends Command {
     );
     if (!remindersResult.rows.length) return [];
     const reminders: ApplicationCommandOptionChoice[] = [];
+    let timestamps = [];
     for await (const reminder of remindersResult) {
       const date = reminder.get("forwhen") as Date;
       const timeString = interaction.language.get("FROM_NOW", {
         time: humanize(
           +new Date() - +date,
-          interaction.language.id.split("-")[0]
+          interaction.language.id.split("-")[0],
+          2
         ),
       });
       let reminderText = reminder.get("reminder") as string;
       if (reminderText.length + timeString.length > 94)
         reminderText =
           reminderText.substring(0, 94 - timeString.length) + "...";
+      const ts = +date;
+      timestamps.push(ts);
       reminders.push({
         name: `${reminderText} - ${timeString}`,
-        value: (+date).toString(),
+        value: ts.toString(),
       });
     }
-    return reminders.filter((reminder) =>
-      reminder.name
-        .toLowerCase()
-        .includes(focused.value?.toString().toLowerCase())
-    );
+    timestamps = timestamps.sort().map((ts) => ts.toString());
+    return reminders
+      .sort((a, b) => timestamps.indexOf(a.value) - timestamps.indexOf(b.value))
+      .filter((reminder) =>
+        reminder.name
+          .toLowerCase()
+          .includes(focused.value?.toString().toLowerCase())
+      );
   }
 
   async run(command: ApplicationCommandMessage, args: { reminder?: string }) {

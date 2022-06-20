@@ -443,9 +443,9 @@ export const titleCase = (
 
 export const zws = "\u200b";
 
-export const humanize = (ms: number, language: string) =>
+export const humanize = (ms: number, language: string, largest: number = 3) =>
   humanizeDuration(ms, {
-    largest: 3,
+    largest,
     delimiter: ", ",
     language: language,
     fallbacks: ["en"],
