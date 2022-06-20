@@ -30,6 +30,8 @@ export default class InviteInfo extends Command {
   async run(command: ApplicationCommandMessage, args: { invite: Invite }) {
     if (!this.command)
       this.command = this.client.getCommand("guild") as GuildCommand;
+    if (!args.invite.guild)
+      return await command.error("INVITEINFO_SERVERS_ONLY");
     // @ts-ignore
     args.invite.guild.memberCount = args.invite.memberCount;
     // @ts-ignore

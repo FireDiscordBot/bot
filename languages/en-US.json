@@ -621,6 +621,7 @@
   "INVITE_COMMAND_CONTENT": "Click the button below to invite me!",
   "INVITEINFO_COMMAND_DESCRIPTION": "View information about a server from an invite",
   "INVITEINFO_ARGUMENT_INVITE_DESCRIPTION": "The invite code or discord.gg link to view",
+  "INVITEINFO_SERVERS_ONLY": "Only server invites are supported at this time",
   "LANGUAGE_COMMAND_DESCRIPTION": "Set the language Fire uses. You can add/improve languages on the GitHub repo, https://inv.wtf/github",
   "LANGUAGE_COMMAND_CURRENT": "The current language is {{language}}. You can set the language to any of the following...\n{{languages}}\n\nNote: Some languages may be unfinished so sometimes you'll see some English if the string hasn't been translated",
   "LANGUAGE_COMMAND_HELLO_USER": "Hello! You have successfully set Fire's language to English (US) :D",
