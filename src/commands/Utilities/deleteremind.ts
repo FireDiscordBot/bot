@@ -58,7 +58,7 @@ export default class RemindersDelete extends Command {
         reminderText =
           reminderText.substring(0, 94 - timeString.length) + "...";
       reminders.push({
-        name: `${reminder.get("reminder")} - ${timeString}`,
+        name: `${reminderText} - ${timeString}`,
         value: (+date).toString(),
       });
     }
