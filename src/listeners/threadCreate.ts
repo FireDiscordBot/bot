@@ -16,6 +16,8 @@ export default class ThreadCreate extends Listener {
     const guild = channel.guild as FireGuild,
       language = guild.language;
 
+    if (!channel.parent) return; // something probably broke, details in FIRE-7BX
+
     // TODO: slowmode inheritance toggle
 
     if (guild.settings.has("log.action")) {
@@ -47,46 +49,6 @@ export default class ThreadCreate extends Listener {
             channel.parent.messages.cache.get(channel.id).url
           })`
         );
-      // if (muteFail)
-      //   embed.addField(
-      //     language.get("WARNING"),
-      //     language.get("CHANNELCREATELOG_MUTE_PERMS_FAIL")
-      //   );
-      // if (channel.permissionOverwrites.size > 1) {
-      //   const canView = channel.permissionOverwrites
-      //     .filter((overwrite) =>
-      //       overwrite.allow.has(Permissions.FLAGS.VIEW_CHANNEL)
-      //     )
-      //     .map((overwrite) => overwrite.id);
-      //   const roles = [
-      //     ...canView
-      //       .map((id) => guild.roles.cache.get(id))
-      //       .filter((role) => !!role),
-      //     ...guild.roles.cache
-      //       .filter(
-      //         (role) =>
-      //           role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
-      //           !canView.find((id) => id == role.id)
-      //       )
-      //       .values(),
-      //   ];
-      //   const memberIds = canView.filter(
-      //     (id) => !roles.find((role) => role.id == id)
-      //   );
-      //   // owner can always see
-      //   memberIds.push(guild.ownerId);
-      //   const members: string[] = memberIds.length
-      //     ? await guild.members
-      //         .fetch({ user: memberIds })
-      //         .then((found) => found.map((member) => member.toString()))
-      //         .catch(() => [])
-      //     : [];
-      //   const viewers = [...roles.map((role) => role.toString()), ...members];
-      //   embed.addField(language.get("VIEWABLE_BY"), `${viewers.join(" - ")}`);
-      // }
-
-      // unsure on whether or not I'll make thread events separate
-      // for now they will follow their channel_ counterparts
       await guild
         .actionLog(embed, ActionLogTypes.CHANNEL_CREATE)
         .catch(() => {});
