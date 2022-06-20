@@ -53,15 +53,12 @@ export default class RemindersDelete extends Command {
           interaction.language.id.split("-")[0]
         ),
       });
-      const reminderText = reminder.get("reminder") as string;
+      let reminderText = reminder.get("reminder") as string;
+      if (reminderText.length + timeString.length > 94)
+        reminderText =
+          reminderText.substring(0, 94 - timeString.length) + "...";
       reminders.push({
-        name:
-          reminderText.length < 95 - timeString.length
-            ? `${reminder.get("reminder")} - ${timeString}`
-            : `${reminderText.slice(
-                0,
-                95 - timeString.length
-              )}... - ${timeString}`,
+        name: `${reminder.get("reminder")} - ${timeString}`,
         value: (+date).toString(),
       });
     }
