@@ -67,7 +67,7 @@ export default class Pride extends Command {
         : args.user instanceof FireUser
         ? args.user
         : message.author;
-    const overlay = !args.overlay;
+    const overlay = args.overlay;
     const prideReq = await centra(
       `https://api.ravy.lgbt/${overlay ? "overlay" : "circle"}`
     )
