@@ -194,6 +194,15 @@ export default class InteractionListener extends Listener {
       return;
     const focused = interaction.options.data.find((option) => option.focused);
     if (!focused) return await interaction.respond([]);
+    if (message.command.channel == "guild" && !message.guild)
+      return await interaction.respond([
+        {
+          name: message.language.get("COMMAND_GUILD_ONLY", {
+            invite: this.client.config.inviteLink.slice(8),
+          }),
+          value: "COMMAND_GUILD_ONLY",
+        },
+      ]);
     let autocomplete = await message.command.autocomplete(message, focused);
     // @ts-ignore no idea why this is complaining but whatever
     if (autocomplete.every((option) => typeof option === "string"))
