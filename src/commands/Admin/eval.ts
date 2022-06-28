@@ -149,7 +149,8 @@ export default class Eval extends Command {
       );
     }
     if ((success && result == null) || result == "undefined")
-      return message instanceof ApplicationCommandMessage
+      return message instanceof ApplicationCommandMessage &&
+        !(type == "ApplicationCommandMessage" && result == null)
         ? await message.success("SLASH_COMMAND_HANDLE_SUCCESS")
         : undefined;
     const input = codeBlock(args.code.language || "ts", args.code.content);
@@ -256,7 +257,9 @@ export default class Eval extends Command {
         return { success: false, type, result: result };
       }
     } else if (
-      (result instanceof FireMessage && result.id > message.id) ||
+      ((result instanceof FireMessage ||
+        result instanceof ApplicationCommandMessage) &&
+        result.id > message.id) ||
       (typeof result?.trim == "function" && result?.trim() == "")
     )
       return { success: true, type, result: null };
