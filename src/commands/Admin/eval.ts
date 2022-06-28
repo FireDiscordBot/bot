@@ -1,16 +1,17 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Command } from "@fire/lib/util/command";
+import { constants, zws } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
 import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
-import { MessageAttachment, MessageEmbed, Permissions } from "discord.js";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { zws, constants } from "@fire/lib/util/constants";
-import { Codeblock } from "@fire/src/arguments/codeblock";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { Codeblock } from "@fire/src/arguments/codeblock";
+import { MessageEmbed } from "discord.js";
 import { inspect } from "util";
 
 const { emojis } = constants;
@@ -147,7 +148,10 @@ export default class Eval extends Command {
         )
       );
     }
-    if ((success && result == null) || result == "undefined") return;
+    if ((success && result == null) || result == "undefined")
+      return message instanceof ApplicationCommandMessage
+        ? await message.success("SLASH_COMMAND_HANDLE_SUCCESS")
+        : undefined;
     const input = codeBlock(args.code.language || "ts", args.code.content);
     const embed = new MessageEmbed()
       .setTitle(
