@@ -257,9 +257,9 @@ export default class Eval extends Command {
         return { success: false, type, result: result };
       }
     } else if (
-      ((result instanceof FireMessage ||
-        result instanceof ApplicationCommandMessage) &&
-        result.id > message.id) ||
+      (result instanceof FireMessage && result.id > message.id) ||
+      (result instanceof ApplicationCommandMessage &&
+        result.sent == "message") ||
       (typeof result?.trim == "function" && result?.trim() == "")
     )
       return { success: true, type, result: null };
