@@ -150,7 +150,7 @@ export default class Eval extends Command {
     }
     if ((success && result == null) || result == "undefined")
       return message instanceof ApplicationCommandMessage &&
-        !(type == "ApplicationCommandMessage" && result == null)
+        message.sent != "message"
         ? await message.success("SLASH_COMMAND_HANDLE_SUCCESS")
         : undefined;
     const input = codeBlock(args.code.language || "ts", args.code.content);
