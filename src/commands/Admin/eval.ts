@@ -53,18 +53,15 @@ export default class Eval extends Command {
     super("eval", {
       description: (language: Language) =>
         language.get("EVAL_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.ADD_REACTIONS,
-        Permissions.FLAGS.EMBED_LINKS,
-      ],
       ownerOnly: true,
       args: [
         {
           id: "code",
           type: "codeblock",
           match: "rest",
-          required: true,
+          // optional since normal users will get hit with eval deez nuts regardless, much easier to not require content if nothing is done with it
+          // might make it open a modal in the future if invoked via slash command
+          required: false,
           default: null,
         },
         {
@@ -76,6 +73,7 @@ export default class Eval extends Command {
         {
           id: "depth",
           match: "option",
+          type: "number",
           flag: "--depth",
           default: 0,
         },
@@ -88,6 +86,7 @@ export default class Eval extends Command {
       ],
       aliases: ["ev"],
       restrictTo: "all",
+      enableSlashCommand: true,
     });
     this.response = { id: null, message: null };
   }
@@ -109,6 +108,7 @@ export default class Eval extends Command {
     message: FireMessage,
     args: { code: Codeblock; async?: string; depth: number; broadcast?: string }
   ) {
+    if (message.author.id != process.env.OWNER) return;
     if (!args.code?.content) return await message.error("EVAL_NO_CONTENT");
     if (args.broadcast) {
       return this.client.manager.ws.send(
@@ -121,9 +121,10 @@ export default class Eval extends Command {
       );
     }
     const { success, result, type } = await this.eval(message, args);
-    success
-      ? await message.react(emojis.success)?.catch(() => {})
-      : await message.react(emojis.error)?.catch(() => {});
+    if (message instanceof FireMessage)
+      success
+        ? await message.react(emojis.success)?.catch(() => {})
+        : await message.react(emojis.error)?.catch(() => {});
     if (this.client.manager.ws) {
       let input: string, output: string;
       try {

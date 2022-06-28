@@ -1,13 +1,14 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Command } from "@fire/lib/util/command";
+import { constants } from "@fire/lib/util/constants";
+import { Listener } from "@fire/lib/util/listener";
 import {
   MessageActionRow,
   MessageButton,
   Permissions,
   ThreadChannel,
 } from "discord.js";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { constants } from "@fire/lib/util/constants";
-import { Listener } from "@fire/lib/util/listener";
-import { Command } from "@fire/lib/util/command";
 
 export default class CommandBlocked extends Listener {
   constructor() {
@@ -31,7 +32,9 @@ export default class CommandBlocked extends Listener {
         fields: {
           type: "blocked",
           command: command.id,
-          guild: message.guild ? `${message.guild.name} (${message.guildId})` : "N/A",
+          guild: message.guild
+            ? `${message.guild.name} (${message.guildId})`
+            : "N/A",
           user: `${message.author} (${message.author.id})`,
           message_id: message.id,
           reason,
@@ -133,9 +136,14 @@ export default class CommandBlocked extends Listener {
             ],
           });
       }
-    } else if (reason == "owner")
+    } else if (reason == "owner") {
+      if (command.id == "eval") {
+        // @ts-ignore
+        if (message instanceof ApplicationCommandMessage) message.flags = 64;
+        return await message.channel.send("https://eval-deez-nuts.xyz/");
+      }
       return await message.error("COMMAND_OWNER_ONLY");
-    else if (reason == "superuser")
+    } else if (reason == "superuser")
       return await message.error("COMMAND_SUPERUSER_ONLY");
     else if (reason == "moderator")
       return await message.error("COMMAND_MODERATOR_ONLY");
