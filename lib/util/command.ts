@@ -360,7 +360,7 @@ export class Command extends AkairoCommand {
   getSubcommand() {
     if (!this.parent) return;
     let data = {
-      name: this.id.split("-").slice(1).join("-"),
+      name: this.id.split(`${this.parent}-`).slice(1).join("-"),
       description:
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
@@ -377,7 +377,7 @@ export class Command extends AkairoCommand {
   getSubcommandGroup() {
     if (!this.parent || !this.group) return;
     let data = {
-      name: this.id.replace(`${this.parent}-`, ""),
+      name: this.id.split(`${this.parent}-`).slice(1).join("-"),
       description:
         typeof this.description == "function"
           ? this.description(this.client.getLanguage("en-US"))
