@@ -3,7 +3,14 @@ import { UserSettings } from "@fire/lib/util/settings";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { MessageEmbed, Structures, User, UserMention, Util } from "discord.js";
+import {
+  DMChannel,
+  MessageEmbed,
+  Structures,
+  User,
+  UserMention,
+  Util,
+} from "discord.js";
 import { RawUserData } from "discord.js/typings/rawDataTypes";
 import { murmur3 } from "murmurhash-js";
 import { GuildTextChannel, ModLogTypes } from "../util/constants";
@@ -42,6 +49,15 @@ export class FireUser extends User {
 
   toMention() {
     return super.toString();
+  }
+
+  async createDM() {
+    if (this.bot)
+      return new DMChannel(this.client, {
+        id: "991835355533811793",
+        type: 1,
+      });
+    else return super.createDM();
   }
 
   async blacklist(reason: string) {
