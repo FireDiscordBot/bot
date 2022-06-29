@@ -1418,26 +1418,30 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         })
       );
       if (creator)
-        await creator.send({
-          content: creator.language.get(
-            author.isModerator()
-              ? "TICKET_THREAD_CLOSED_MODERATOR"
-              : "TICKET_THREAD_CLOSED",
-            {
-              guild: this.name,
-              reason,
-            }
-          ),
-          components: [
-            new MessageActionRow().addComponents(
-              new MessageButton()
-                .setStyle("LINK")
-                .setLabel(creator.language.get("TICKET_VIEW_THREAD"))
-                // why doesn't ThreadChannel have a url property????
-                .setURL(`https://discord.com/channels/${this.id}/${channel.id}`)
+        await creator
+          .send({
+            content: creator.language.get(
+              author.isModerator()
+                ? "TICKET_THREAD_CLOSED_MODERATOR"
+                : "TICKET_THREAD_CLOSED",
+              {
+                guild: this.name,
+                reason,
+              }
             ),
-          ],
-        }).catch(() => {});
+            components: [
+              new MessageActionRow().addComponents(
+                new MessageButton()
+                  .setStyle("LINK")
+                  .setLabel(creator.language.get("TICKET_VIEW_THREAD"))
+                  // why doesn't ThreadChannel have a url property????
+                  .setURL(
+                    `https://discord.com/channels/${this.id}/${channel.id}`
+                  )
+              ),
+            ],
+          })
+          .catch(() => {});
       return channel;
     }
   }
@@ -1483,6 +1487,11 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     type: ModLogTypes,
     reason: string
   ) {
+    if (
+      (user instanceof FireUser && user.bot) ||
+      (user instanceof FireMember && user.user.bot)
+    )
+      return false;
     const typeString = ModLogTypesEnumToString[type];
     const date = new Date().toLocaleString(this.language.id);
     const caseID = nanoid();
