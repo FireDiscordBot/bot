@@ -63,9 +63,6 @@ export default class Meme extends Command {
           dynamic: true,
         }),
       })
-      .setFooter(
-        "Made with ❤️ by open source contributors. Powered by Reddit API."
-      )
       .addField(language.get("TITLE"), meme.title)
       .addField(
         language.get("MEME_SUBREDDIT"),
