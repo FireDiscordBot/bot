@@ -231,7 +231,7 @@ export const constants = {
     support: "https://inv.wtf/fire",
     // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
     imageGen: "https://gen.inv.wtf/",
-    supportedHaste: ["hastebin.com", "hasteb.in", "hst.sh"],
+    supportedHaste: ["hastebin.com (incl. Toptal link)", "hasteb.in", "hst.sh"],
     automodAvatar: "https://static.inv.wtf/discord_automod.png",
   },
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
@@ -313,7 +313,7 @@ export const constants = {
       seconds: / (?<seconds>\d+)(?: ?s(?:ec)?(?:onds?)?)/im,
     },
     haste:
-      /(?<uploader>toptal\.com\/developers\/hastebin|hastebin\.com|hasteb\.in|hst\.sh|h\.inv\.wtf)\/(?<key>\w{1,20})/gim,
+      /(?<uploader>(?:www\.)?toptal\.com\/developers\/hastebin|hastebin\.com|hasteb\.in|hst\.sh|h\.inv\.wtf)\/(?<key>\w{1,20})/gim,
   },
   escapedShruggie: "¯\\_(ツ)_/¯",
   blockedGifts: [
