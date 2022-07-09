@@ -1,4 +1,5 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ActionLogTypes } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Formatters, MessageEmbed, ThreadChannel } from "discord.js";
@@ -18,7 +19,19 @@ export default class ThreadCreate extends Listener {
 
     if (!channel.parent) return; // something probably broke, details in FIRE-7BX
 
-    // TODO: slowmode inheritance toggle
+    const parent = channel.parent;
+
+    if (
+      parent.type == "GUILD_TEXT" &&
+      guild.settings.get("slowmode.sync", false) &&
+      (parent as FireTextChannel).rateLimitPerUser > 0
+    )
+      await channel
+        .setRateLimitPerUser(
+          parent.rateLimitPerUser,
+          language.get("SLOWMODE_SYNC_REASON")
+        )
+        .catch(() => {});
 
     if (guild.settings.has("log.action")) {
       const owner = await guild.members.fetch(channel.ownerId).catch(() => {});
@@ -35,18 +48,18 @@ export default class ThreadCreate extends Listener {
           iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
         })
         .addField(language.get("NAME"), channel.name)
-        .addField(language.get("CHANNEL"), channel.parent.toString())
+        .addField(language.get("CHANNEL"), parent.toString())
         .addField(language.get("ARCHIVE"), Formatters.time(autoArchiveAt, "R"))
         .addField(
           language.get("CREATED_BY"),
           owner ? `${owner} (${owner.id})` : channel.ownerId
         )
         .setFooter(channel.id);
-      if (channel.parent.messages.cache.has(channel.id))
+      if (parent.messages.cache.has(channel.id))
         embed.addField(
           language.get("THREAD_MESSAGE"),
           `[${language.get("CLICK_TO_VIEW")}](${
-            channel.parent.messages.cache.get(channel.id).url
+            parent.messages.cache.get(channel.id).url
           })`
         );
       await guild
