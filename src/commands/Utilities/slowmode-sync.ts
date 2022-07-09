@@ -1,12 +1,15 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
+import { Permissions } from "discord.js";
 
 export default class SlowmodeSync extends Command {
   constructor() {
     super("slowmode-sync", {
       description: (language: Language) =>
         language.get("SLOWMODE_SYNC_COMMAND_DESCRIPTION"),
+      userPermissions: [Permissions.FLAGS.MANAGE_CHANNELS],
+      clientPermissions: [Permissions.FLAGS.MANAGE_CHANNELS],
       enableSlashCommand: true,
       restrictTo: "guild",
       slashOnly: true,
