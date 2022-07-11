@@ -1143,31 +1143,31 @@ The lack of this is a sign that this message may have been sent automatically by
       lowerContent.includes("who is")
     )
       return await triggerFilter("Fake gift link");
-    else if (
-      lowerContent.includes("test") &&
-      lowerContent.includes("game") &&
-      !lowerContent.includes("http") &&
-      lowerContent.includes("password")
-    )
-      return await triggerFilter("Try my game scam");
-    else if (
-      lowerContent.includes("bro") &&
-      lowerContent.includes("game") &&
-      lowerContent.includes("test")
-    )
-      return await triggerFilter("Try my game scam");
-    else if (
-      lowerContent.includes("game") &&
-      lowerContent.includes("test") &&
-      lowerContent.includes(".rar")
-    )
-      return await triggerFilter("Try my game scam");
-    else if (
-      lowerContent.includes("game") &&
-      lowerContent.includes("test") &&
-      lowerContent.includes(".exe")
-    )
-      return await triggerFilter("Try my game scam");
+    // else if (
+    //   lowerContent.includes("test") &&
+    //   lowerContent.includes("game") &&
+    //   !lowerContent.includes("http") &&
+    //   lowerContent.includes("password")
+    // )
+    //   return await triggerFilter("Try my game scam");
+    // else if (
+    //   lowerContent.includes("bro") &&
+    //   lowerContent.includes("game") &&
+    //   lowerContent.includes("test")
+    // )
+    //   return await triggerFilter("Try my game scam");
+    // else if (
+    //   lowerContent.includes("game") &&
+    //   lowerContent.includes("test") &&
+    //   lowerContent.includes(".rar")
+    // )
+    //   return await triggerFilter("Try my game scam");
+    // else if (
+    //   lowerContent.includes("game") &&
+    //   lowerContent.includes("test") &&
+    //   lowerContent.includes(".exe")
+    // )
+    //   return await triggerFilter("Try my game scam");
     // always keep this last
     else if (lowerContent.includes("http") && !this.nonce)
       return await triggerWarning();
