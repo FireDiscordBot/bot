@@ -1,9 +1,9 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageEmbed, Permissions, Role } from "discord.js";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { ModLogTypes } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { MessageEmbed, Permissions, Role } from "discord.js";
 
 export default class RolePersist extends Command {
   constructor() {
@@ -16,6 +16,8 @@ export default class RolePersist extends Command {
           id: "user",
           type: "member",
           required: true,
+          description: (language: Language) =>
+            language.get("ROLEPERSIST_ARGUMENT_USER_DESCRIPTION"),
           default: undefined,
         },
         {
@@ -23,22 +25,23 @@ export default class RolePersist extends Command {
           type: "role",
           match: "rest",
           required: true,
+          description: (language: Language) =>
+            language.get("ROLEPERSIST_ARGUMENT_ROLE_DESCRIPTION"),
           default: undefined,
         },
       ],
-      aliases: ["rolepersists", "persistroles", "persistrole"],
       enableSlashCommand: true,
       restrictTo: "guild",
+      slashOnly: true,
+      ephemeral: true,
       premium: true,
     });
   }
 
-  async exec(message: FireMessage, args: { user: FireMember; role: Role }) {
-    if (typeof args.user == "undefined")
-      return await message.error("ROLEPERSIST_ARG_USER");
-    else if (typeof args.role == "undefined")
-      return await message.error("ROLEPERSIST_ARG_ROLE");
-    else if (!args.user || !args.role) return;
+  async run(
+    message: ApplicationCommandMessage,
+    args: { user: FireMember; role: Role }
+  ) {
     if (
       args.role &&
       (args.role.managed ||
