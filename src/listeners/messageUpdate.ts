@@ -36,7 +36,7 @@ export default class MessageUpdate extends Listener {
       messageListener.tokenRegex.test(toSearch) &&
       process.env.GITHUB_TOKENS_TOKEN
     )
-      await messageListener.tokenGist(after, toSearch);
+      await messageListener.tokenReset(after, toSearch);
 
     if (!guild) return;
 

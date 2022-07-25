@@ -60,7 +60,7 @@ export default class Message extends Listener {
     this.recentTokens = [];
   }
 
-  async tokenGist(message: FireMessage, foundIn: string) {
+  async tokenReset(message: FireMessage, foundIn: string) {
     let tokens: string[] = [];
     let exec: RegExpExecArray;
     while ((exec = this.tokenRegex.exec(foundIn))) {
@@ -85,47 +85,66 @@ export default class Message extends Listener {
     tokens = tokens.filter((token) => !!token); // remove empty items
     if (!tokens.length) return;
     this.recentTokens.push(...tokens);
-    let files: { [key: string]: { content: string } } = {};
-    for (const token of tokens)
-      files[`token_leak_${+new Date()}`] = {
-        // the account the gists get uploaded to is hidden from the public
-        // so the content doesn't matter, it just needs the token ;)
-        content: `some fuckin loser leaked their token LUL anyways here it is ${token}`,
-      };
-    const body = {
-      description: `Tokens found in ${message.guild} sent by ${message.author}`,
-      public: true, // not really since account hidden but sure
-      files,
-    };
-    try {
-      const gist = await (
-        await centra("https://api.github.com/gists", "POST")
-          .header("User-Agent", this.client.manager.ua)
-          .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
-          .body(body, "json")
-          .send()
-      ).json();
+    const file = `token_leak_${+new Date()}.txt`;
+    let sha: string;
+    const createFileReq = await centra(
+      `https://api.github.com/repos/FireTokenScan/token-reset/contents/${file}`,
+      "PUT"
+    )
+      .header("User-Agent", this.client.manager.ua)
+      .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
+      .body(
+        {
+          message: `Token${tokens.length > 1 ? "s" : ""} found in ${
+            message.guild
+          }, sent by ${message.author}`,
+          content: Buffer.from(
+            JSON.stringify(message.toJSON(), null, 2) + `\n\n${tokens}`
+          ).toString("base64"),
+        },
+        "json"
+      )
+      .send();
+    if (createFileReq.statusCode == 201) {
       this.client.console.warn(
-        `[Listener] Created gist with ${tokens.length} tokens for user${
+        `[Listener] Uploaded file with ${tokens.length} tokens for user${
           tokens.length > 1 ? "s" : ""
         } ${tokens
           .map((token) =>
             Buffer.from(token.split(".")[0], "base64").toString("ascii")
           )
-          .join(", ")} found in ${message.guild.name} sent by ${
-          message.author
-        }. Waiting 10 seconds to delete gist...`
+          .join(", ")}, found in message from ${message.author} in guild ${
+          message.guild.name
+        } as ${file}`
       );
-      await this.client.util.sleep(10000);
-      await centra(`https://api.github.com/gists/${gist.id}`, "DELETE")
-        .header("User-Agent", this.client.manager.ua)
-        .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
-        .send();
-    } catch (e) {
+      const body = await createFileReq.json();
+      sha = body.content.sha;
+    } else {
       this.client.console.error(
-        `[Listener] Failed to create/delete tokens gist\n${e.stack}`
+        `[Listener] Failed to upload file with ${
+          tokens.length
+        } tokens for user${tokens.length > 1 ? "s" : ""} ${tokens
+          .map((token) =>
+            Buffer.from(token.split(".")[0], "base64").toString("ascii")
+          )
+          .join(", ")}, found in message from ${message.author} in guild ${
+          message.guild.name
+        }`
       );
     }
+    await this.client.util.sleep(10000);
+    const req = await centra(
+      `https://api.github.com/repos/FireTokenScan/token-reset/contents/${file}`,
+      "DELETE"
+    )
+      .header("User-Agent", this.client.manager.ua)
+      .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
+      .body({ message: `Delete ${file}`, sha }, "json")
+      .send();
+    if (req.statusCode != 200)
+      this.client.console.error(
+        `[Listener] Failed to delete token file ${file}`
+      );
   }
 
   async exec(message: FireMessage) {
@@ -170,7 +189,7 @@ export default class Message extends Listener {
     ).replace(tokenExtras, "");
     if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN) {
       this.tokenRegex.lastIndex = 0;
-      await this.tokenGist(message, toSearch);
+      await this.tokenReset(message, toSearch);
     }
 
     if (message.channel?.id == "388850472632451073" && message.embeds.length) {
