@@ -4,7 +4,13 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { parseTime } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { Permissions } from "discord.js";
+import { ApplicationCommandOptionChoice, Permissions } from "discord.js";
+
+const prefilledBanReasons = [
+  "BAN_AUTOCOMPLETE_REASON_SUSSY",
+  "BAN_AUTOCOMPLETE_REASON_HACKED",
+  "BAN_AUTOCOMPLETE_REASON_RULES",
+];
 
 export default class Ban extends Command {
   constructor() {
@@ -27,6 +33,7 @@ export default class Ban extends Command {
           description: (language: Language) =>
             language.get("BAN_ARGUMENT_REASON_DESCRIPTION"),
           required: false,
+          autocomplete: true,
           default: null,
           match: "rest",
         },
@@ -57,6 +64,30 @@ export default class Ban extends Command {
       slashOnly: true,
       ephemeral: true,
     });
+  }
+
+  async autocomplete(
+    interaction: ApplicationCommandMessage
+  ): Promise<ApplicationCommandOptionChoice[]> {
+    const { author } = interaction;
+    return [
+      {
+        name: author.language.get("BAN_AUTOCOMPLETE_REASON_SUSSY"),
+        value: "BAN_AUTOCOMPLETE_REASON_SUSSY",
+      },
+      {
+        name: author.language.get("BAN_AUTOCOMPLETE_REASON_HACKED"),
+        value: "BAN_AUTOCOMPLETE_REASON_HACKED",
+      },
+      {
+        name: author.language.get("BAN_AUTOCOMPLETE_REASON_RULES"),
+        value: "BAN_AUTOCOMPLETE_REASON_RULES",
+      },
+      {
+        name: author.language.get("BAN_AUTOCOMPLETE_REASON_OTHER"),
+        value: "BAN_AUTOCOMPLETE_REASON_OTHER",
+      },
+    ];
   }
 
   async run(
@@ -92,6 +123,10 @@ export default class Ban extends Command {
     const now = new Date();
     let date: number;
     if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
+    if (prefilledBanReasons.includes(args.reason))
+      args.reason = command.guild.language.get(args.reason as LanguageKeys);
+    else if (args.reason == "BAN_AUTOCOMPLETE_REASON_OTHER")
+      args.reason = undefined;
     const beaned =
       args.user instanceof FireMember
         ? await args.user.bean(
