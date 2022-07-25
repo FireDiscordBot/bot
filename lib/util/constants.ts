@@ -237,6 +237,7 @@ export const constants = {
   imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
   audioExts: ["mp3", "wav", "flac", "alac", "m4a"],
   videoExts: ["mp4", "mkv", "mov"],
+  prodBotId: "444871677176709141",
   regexes: {
     maskedLink: /\[(?<name>.+)\]\((?<link><?https?:\/\/.+>?)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,

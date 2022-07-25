@@ -9,9 +9,9 @@ import Filters from "@fire/src/modules/filters";
 import MCLogs from "@fire/src/modules/mclogs";
 import * as centra from "centra";
 import { APIMessage } from "discord-api-types";
-import { Snowflake } from "discord.js";
+import { Permissions, Snowflake, TextChannel } from "discord.js";
 
-const { regexes } = constants;
+const { regexes, prodBotId } = constants;
 const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
 const snowflakeRegex = /\d{15,21}/gim;
 
@@ -61,6 +61,22 @@ export default class Message extends Listener {
   }
 
   async tokenReset(message: FireMessage, foundIn: string) {
+    if (message.guild && process.env.NODE_ENV != "production") {
+      // check for prod bot
+      const member = await message.guild.members
+        .fetch(prodBotId)
+        .catch(() => {});
+      if (
+        member &&
+        member
+          .permissionsIn(message.channel as TextChannel)
+          .has([
+            Permissions.FLAGS.VIEW_CHANNEL,
+            Permissions.FLAGS.READ_MESSAGE_HISTORY,
+          ])
+      )
+        return;
+    }
     let tokens: string[] = [];
     let exec: RegExpExecArray;
     while ((exec = this.tokenRegex.exec(foundIn))) {
