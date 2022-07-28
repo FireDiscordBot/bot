@@ -21,6 +21,6 @@ export default class FakeLatestLogTag extends Command {
   async run(command: ApplicationCommandMessage) {
     const essentialModule = this.client.getModule("essential") as Essential;
     if (!essentialModule) return await command.error("COMMAND_ERROR_GENERIC");
-    await essentialModule.sendInitialLogDropdown(command.realChannel);
+    await essentialModule.sendInitialLogDropdown(command.realChannel, command);
   }
 }

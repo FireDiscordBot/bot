@@ -1,3 +1,4 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -315,14 +316,17 @@ These instructions are designed for the official launcher so if you're using a t
     });
   }
 
-  async sendInitialLogDropdown(ticket: Channel) {
+  async sendInitialLogDropdown(
+    ticket: Channel,
+    slashCommand?: ApplicationCommandMessage
+  ) {
     if (!ticket.isThread() && !ticket.isText()) return;
     if (!this.client.dropdownHandlers.has("essential_ticket_log_os"))
       this.client.dropdownHandlers.set(
         "essential_ticket_log_os",
         this.handleInitialLogDropdown.bind(this)
       );
-    await ticket.send({
+    await (slashCommand.channel.send ?? ticket.send)({
       content:
         "For us to look into the issue(s) you are having, we'll need your game's log. Please select your Operating System from the dropdown below.",
       components: [new MessageActionRow().addComponents(initialLogDropdown)],
