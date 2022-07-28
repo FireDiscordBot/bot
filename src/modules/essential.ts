@@ -326,7 +326,7 @@ These instructions are designed for the official launcher so if you're using a t
         "essential_ticket_log_os",
         this.handleInitialLogDropdown.bind(this)
       );
-    await (slashCommand.channel.send ?? ticket.send)({
+    await (slashCommand.channel.send.bind(slashCommand) ?? ticket.send)({
       content:
         "For us to look into the issue(s) you are having, we'll need your game's log. Please select your Operating System from the dropdown below.",
       components: [new MessageActionRow().addComponents(initialLogDropdown)],
