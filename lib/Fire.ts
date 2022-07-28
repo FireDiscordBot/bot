@@ -88,8 +88,9 @@ const i18n = i18next as unknown as typeof i18next.default;
 
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 type ModalHandler = (modal: ModalMessage) => Promise<any> | any;
+type DropdownHandler = (dropdown: ComponentMessage) => Promise<any> | any;
 type NonceHandler = (data: unknown) => Promise<any> | any;
-type SelectHandler = (data: unknown) => void;
+type SelectCommandHandler = (data: unknown) => void;
 
 // Rewrite completed - 15:10 17/1/2021 :)
 export class Fire extends AkairoClient {
@@ -124,11 +125,15 @@ export class Fire extends AkairoClient {
   modalHandlers: Collection<string, ModalHandler>;
   modalHandlersOnce: Collection<string, ModalHandler>;
 
+  // Dropdowns
+  dropdownHandlers: Collection<string, DropdownHandler>;
+  dropdownHandlersOnce: Collection<string, DropdownHandler>;
+
   // Gateway Events
   nonceHandlers: Collection<string, NonceHandler>;
 
   // /select Handlers
-  selectHandlers: Collection<string, SelectHandler>;
+  selectHandlers: Collection<string, SelectCommandHandler>;
 
   // Private Utilities
   private readyWait: Promise<Fire>;
@@ -411,6 +416,8 @@ export class Fire extends AkairoClient {
     this.selectHandlers = new Collection();
     this.modalHandlers = new Collection();
     this.modalHandlersOnce = new Collection();
+    this.dropdownHandlers = new Collection();
+    this.dropdownHandlersOnce = new Collection();
   }
 
   get req() {

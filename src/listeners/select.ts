@@ -45,6 +45,19 @@ export default class Select extends Listener {
 
     const guild = select.guild;
 
+    // Run handlers
+    try {
+      if (this.client.dropdownHandlers.has(select.customId))
+        this.client.dropdownHandlers.get(select.customId)(select);
+    } catch {}
+    try {
+      if (this.client.dropdownHandlersOnce.has(select.customId)) {
+        const handler = this.client.dropdownHandlersOnce.get(select.customId);
+        this.client.dropdownHandlersOnce.delete(select.customId);
+        handler(select);
+      }
+    } catch {}
+
     if (
       guild &&
       select.customId == `rank:${guild?.id}` &&
