@@ -909,7 +909,7 @@
   "RANKS_SELECT_LEAVE_SINGLE": "You successfully left the **{{role}}** rank.",
   "RANKS_SELECT_LEAVE_MULTI": "You successfully left the {{roles}} ranks.",
   "RANKS_SELECT_JOIN_LEAVE_SINGLE": "You successfully joined the **{{join}}** rank and left the **{{leave}}** rank.",
-  "RANKS_SELECT_JOIN_SINGLE_LEAVE_MULTI": "You successfully joined the **{{join}** rank and left the {{left}} ranks.",
+  "RANKS_SELECT_JOIN_SINGLE_LEAVE_MULTI": "You successfully joined the **{{join}}** rank and left the {{left}} ranks.",
   "RANKS_SELECT_JOIN_LEAVE_MULTI": "You successfully joined the {{joined}} ranks and left the {{left}} ranks.",
   "RANKS_INVALID_ROLE": "That isn't a valid rank. Use the command without arguments to see a list of valid ranks",
   "RANKS_INVALID_ROLE_DEL": "That isn't a valid rank. Use the rank command to see a list of valid ranks",
