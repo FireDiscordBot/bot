@@ -4,7 +4,11 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { parseTime } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { ApplicationCommandOptionChoice, Permissions } from "discord.js";
+import {
+  ApplicationCommandOptionChoice,
+  CommandInteractionOption,
+  Permissions,
+} from "discord.js";
 
 const prefilledBanReasons = [
   "BAN_AUTOCOMPLETE_REASON_SUSSY",
@@ -67,9 +71,11 @@ export default class Ban extends Command {
   }
 
   async autocomplete(
-    interaction: ApplicationCommandMessage
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption
   ): Promise<ApplicationCommandOptionChoice[]> {
     const { author } = interaction;
+    const value = focused.value;
     return [
       {
         name: author.language.get("BAN_AUTOCOMPLETE_REASON_SUSSY"),
@@ -84,8 +90,10 @@ export default class Ban extends Command {
         value: "BAN_AUTOCOMPLETE_REASON_RULES",
       },
       {
-        name: author.language.get("BAN_AUTOCOMPLETE_REASON_OTHER"),
-        value: "BAN_AUTOCOMPLETE_REASON_OTHER",
+        name: value
+          ? value.toString()
+          : author.language.get("BAN_AUTOCOMPLETE_REASON_OTHER"),
+        value: value ? value.toString() : "BAN_AUTOCOMPLETE_REASON_OTHER",
       },
     ];
   }
