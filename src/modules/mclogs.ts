@@ -555,28 +555,38 @@ export default class MCLogs extends Module {
             "**"
         );
     } else if (versions?.loader == Loaders.FORGE) {
-      const dataReq = await centra(
-        "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"
-      )
-        .header("User-Agent", this.client.manager.ua)
-        .send();
-      const data: ForgePromotions = await dataReq.json().catch(() => ({
-        homepage: "",
-        promos: {},
-      }));
-      if (`${versions.mcVersion}-latest` in data.promos) {
-        const latestForge = data.promos[`${versions.mcVersion}-latest`];
-        if (latestForge != versions.loaderVersion)
-          currentSolutions.add(
-            "- **" +
-              language.get("MC_LOG_UPDATE", {
-                item: Loaders.FORGE,
-                current: versions.loaderVersion,
-                latest: latestForge,
-              }) +
-              "**"
-          );
-      }
+      let validVersion = false;
+      // forge decided to be dumb and change the file name format for some 1.8.9 versions so we don't bother with checking if on 1.8.9
+      if (versions.mcVersion != "1.8.9") {
+        const isValidVersionReq = await centra(
+          `https://maven.minecraftforge.net/net/minecraftforge/forge/${versions.mcVersion}-${versions.loaderVersion}/forge-${versions.mcVersion}-${versions.loaderVersion}-changelog.txt`
+        ).send();
+        validVersion = isValidVersionReq.statusCode == 200;
+      } else validVersion = true;
+      if (validVersion) {
+        const dataReq = await centra(
+          "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"
+        )
+          .header("User-Agent", this.client.manager.ua)
+          .send();
+        const data: ForgePromotions = await dataReq.json().catch(() => ({
+          homepage: "",
+          promos: {},
+        }));
+        if (`${versions.mcVersion}-latest` in data.promos) {
+          const latestForge = data.promos[`${versions.mcVersion}-latest`];
+          if (latestForge != versions.loaderVersion)
+            currentSolutions.add(
+              "- **" +
+                language.get("MC_LOG_UPDATE", {
+                  item: Loaders.FORGE,
+                  current: versions.loaderVersion,
+                  latest: latestForge,
+                }) +
+                "**"
+            );
+        }
+      } else versions.loaderVersion = "Unknown";
 
       if (
         versions.optifineVersion &&
