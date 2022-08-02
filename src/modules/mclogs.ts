@@ -995,7 +995,7 @@ export default class MCLogs extends Module {
       const isDevEnv =
         this.regexes.devEnvUser.test(user?.[1]) && text.includes("GradleStart");
       this.regexes.devEnvUser.lastIndex = 0;
-      if (user?.length && !isDevEnv) {
+      if (user?.[1] && !isDevEnv) {
         try {
           const uuid = await this.client.util
             .nameToUUID(user[1])
