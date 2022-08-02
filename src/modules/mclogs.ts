@@ -222,7 +222,7 @@ export default class MCLogs extends Module {
       "net.fabricmc.loader.launch",
       "net.fabricmc.loader.game",
       "net.minecraftforge",
-      "gg.essential",
+      // "gg.essential",
       "club.sk1er",
       "fabric-api",
       "Environment: authHost='https://authserver.mojang.com'",
