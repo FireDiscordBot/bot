@@ -27,7 +27,7 @@ Hit the green button below to continue or the red one to cancel.`;
 
 const supportBugMessage = `Bugs can be nasty and require a good amount of information to squash. Below is a list of everything you should have ready to provide but don't worry if you can't get them all...
 
-- Versions (Minecraft version, Operating System version and if you can find it, Essential version)
+- Versions (Minecraft version, Operating System version)
 - Steps to Reproduce (What do you need to do for the bug to happen?)
 - Latest Log
 
@@ -259,12 +259,11 @@ export default class Essential extends Module {
           .send(
             `Here's a reminder of the information you'll need to send
 
-- Versions (Minecraft version, Operating System version and if you can find it, Essential version)
+- Versions (Minecraft version, Operating System version)
 - Steps to Reproduce (What do you need to do for the bug to happen?)
 - Latest Log
 
-You can run \`/latestlog\` for instructions on how to find your log.
-These instructions are designed for the official launcher so if you're using a third-party launcher, you may need to consult a guide for that specific launcher.`
+You can run \`/latestlog\` for instructions on how to find your log.`
           )
           .catch(() => {});
       return ticket;
