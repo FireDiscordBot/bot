@@ -351,7 +351,7 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
       await manager.useTag(cachedTag.name);
       return await dropdown
-        .edit({ content: cachedTag.content })
+        .edit({ content: cachedTag.content, components: [] })
         .catch(() => {});
     } else {
       if (
@@ -394,7 +394,7 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
       await manager.useTag(cachedTag.name);
       return await dropdown
-        .edit({ content: cachedTag.content })
+        .edit({ content: cachedTag.content, components: [] })
         .catch(() => {});
     } else if (launcher == "curseforge") {
       const manager = this.publicGuild.tags;
@@ -402,7 +402,7 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
       await manager.useTag(cachedTag.name);
       return await dropdown
-        .edit({ content: cachedTag.content })
+        .edit({ content: cachedTag.content, components: [] })
         .catch(() => {});
     } else if (launcher == "multimc") {
       const manager = this.publicGuild.tags;
@@ -410,7 +410,7 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
       await manager.useTag(cachedTag.name);
       return await dropdown
-        .edit({ content: cachedTag.content })
+        .edit({ content: cachedTag.content, components: [] })
         .catch(() => {});
     } else if (launcher == "other") {
       // const manager = this.publicGuild.tags;
@@ -420,9 +420,11 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       // return await dropdown.realChannel
       //   .send({ content: cachedTag.content })
       //   .catch(() => {});
-      return await dropdown.edit(
-        "We don't have proper generic instructions yet, but you can find the `logs` folder in the same place as the `mods` folder. Send the file called `latest` from within the `logs` folder"
-      );
+      return await dropdown.edit({
+        content:
+          "We don't have proper generic instructions yet, but you can find the `logs` folder in the same place as the `mods` folder. Send the file called `latest` from within the `logs` folder",
+        components: [],
+      });
     }
   }
 
