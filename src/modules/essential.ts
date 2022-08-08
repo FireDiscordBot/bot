@@ -20,8 +20,11 @@ import {
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
 
-const supportCrashMessage = `Alright, you'll need to provide a log for us to diagnose the cause of the crash. You will be given instructions when the ticket is opened.
-These instructions may not work if you're using a third-party launcher, you may need to consult a guide for that specific launcher.
+const supportCrashMessage = `This option is only for if the game actually crashes!
+If it freezes/stops responding, that is not considered a crash and would be more suited to the "I found a bug" or "My issue is not listed" options.
+
+When the ticket is opened, I'll ask you some questions and then provide instructions on how to find your log.
+You'll need to send this log for us to look into the issue!
 
 Hit the green button below to continue or the red one to cancel.`;
 

@@ -205,7 +205,7 @@ export default class Button extends Listener {
                 new MessageActionRow<ModalActionRowComponent>().addComponents(
                   new TextInputComponent()
                     .setCustomId("close_reason")
-                    .setRequired(true)
+                    .setRequired(!button.member.isModerator())
                     .setLabel(button.language.get("TICKET_CLOSE_REASON"))
                     .setStyle(TextInputStyles.SHORT)
                     .setMaxLength(60)
