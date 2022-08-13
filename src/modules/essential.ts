@@ -55,9 +55,9 @@ When you're ready, hit the green button below to continue or the red one to canc
 
 const supportJavaMessage = `Essential's installer requires Java to be installed
 
-If the installer is saying it could not find a valid Java installation, this can usually be fixed by following [this guide](https://essential.gg/support/troubleshooting/install-java) and restarting your PC.
+Follow [this guide](https://essential.gg/support/troubleshooting/install-java) and restart your PC.
 
-If the guide helped, you can click the red button below to cancel opening a ticket. Otherwise, click the green one to speak to our support team.`;
+This will resolve the issue in 99% of cases. If you still have issues _**after**_ following the guide, click the \`Open a ticket\` button and select \`My issue is not listed\``;
 
 const supportNetworkMessage = `Connection to Essential's network is required for most features to function!
 
@@ -476,13 +476,8 @@ You can run \`/latestlog\` for instructions on how to find your log.`
   }
 
   async supportHandleJava(button: ComponentMessage) {
-    const actions = [
-      openButton().setCustomId("essential_confirm_java"),
-      cancelButton,
-    ];
     return await button.edit({
       content: supportJavaMessage,
-      components: [new MessageActionRow().setComponents(actions)],
     });
   }
 
