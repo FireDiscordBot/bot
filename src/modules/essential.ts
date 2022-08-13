@@ -55,7 +55,7 @@ When you're ready, hit the green button below to continue or the red one to canc
 
 const supportJavaMessage = `Essential's installer requires Java to be installed
 
-Follow [this guide](https://essential.gg/support/troubleshooting/install-java) and restart your PC.
+Follow [this guide](<https://essential.gg/support/troubleshooting/install-java>) and restart your PC.
 
 This will resolve the issue in 99% of cases. If you still have issues _**after**_ following the guide, click the \`Open a ticket\` button and select \`My issue is not listed\``;
 
