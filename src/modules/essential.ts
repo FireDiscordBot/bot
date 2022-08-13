@@ -478,6 +478,7 @@ You can run \`/latestlog\` for instructions on how to find your log.`
   async supportHandleJava(button: ComponentMessage) {
     return await button.edit({
       content: supportJavaMessage,
+      components: [],
     });
   }
 
