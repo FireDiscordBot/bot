@@ -35,7 +35,7 @@ export default class Deepfry extends Command {
         dynamic: false,
       });
     else image = args.image.url;
-    if (!image) return await message.error("MEME_NO_VALID_IMAGE");
+    if (!image) return await message.error("DEEPFRY_NO_IMAGE");
     try {
       const url = new URL(image);
       if (

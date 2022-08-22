@@ -131,7 +131,7 @@ export default class Help extends Command {
           links:
             "[Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/)",
         }) +
-          "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n[@aero/ksoft](https://www.npmjs.com/package/@aero/ksoft)\n[Aether](https://ravy.dev/aero/aether)\n"
+          "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n[Aether](https://ravy.dev/aero/aether)\n"
       )
       .addField(
         message.language.get("HELP_EMOJI_CREDITS_NAME"),

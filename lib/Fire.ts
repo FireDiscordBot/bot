@@ -1,4 +1,3 @@
-import { KSoftClient } from "@aero/ksoft";
 import { config } from "@fire/config/index";
 import { attachmentTypeCaster } from "@fire/src/arguments/attachment";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
@@ -149,7 +148,6 @@ export class Fire extends AkairoClient {
   aliases: Collection<string, string[]>;
   declare user: FireUser & ClientUser;
   config: typeof config.fire;
-  ksoft?: KSoftClient;
   useCanary: boolean;
   declare util: Util;
   db: PGClient;
@@ -406,10 +404,6 @@ export class Fire extends AkairoClient {
       await module?.unload();
     });
     this.modules.loadAll();
-
-    // this.ksoft = process.env.KSOFT_TOKEN
-    //   ? new KSoftClient(process.env.KSOFT_TOKEN)
-    //   : undefined;
 
     this.buttonHandlers = new Collection();
     this.buttonHandlersOnce = new Collection();

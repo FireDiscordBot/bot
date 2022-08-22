@@ -1,4 +1,3 @@
-import { Ban } from "@aero/ksoft";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -239,16 +238,6 @@ export default class User extends Command {
           false
         );
     }
-    if (!user.bot) {
-      const ksoftBan = await this.getKsoftBan(command, user);
-      const notes = [ksoftBan].filter((note) => !!note);
-      if (notes.length)
-        embed.addField(
-          `» ${command.language.get("NOTES")}`,
-          notes.join("\n"),
-          false
-        );
-    }
     if (application) {
       components.push(new MessageActionRow());
       const appInfo: string[] = [];
@@ -453,18 +442,6 @@ export default class User extends Command {
     return await this.client.req
       .applications(id)
       .rpc.get<Exclude<APIApplication, "rpc_origins" | "owner" | "team">>();
-  }
-
-  async getKsoftBan(command: ApplicationCommandMessage, user: FireUser) {
-    if (!this.client.ksoft) return "";
-    const banned = await this.client.ksoft.bans.info(user.id);
-    if (banned instanceof Ban && banned.active)
-      return `${emojis.error} ${command.language.get("USER_KSOFT_BANNED", {
-        user: banned.user.id,
-        reason: banned.reason,
-        proof: banned.proof,
-      })}`;
-    return "";
   }
 
   async snowflakeInfo(
