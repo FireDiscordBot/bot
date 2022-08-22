@@ -42,9 +42,11 @@ export default class InteractionListener extends Listener {
           tags: {
             type: "blocked",
             command: useCommandName
-              ? interaction.commandName
+              ? // tsc yells without changing to an impl of Interaction for some reason
+                // even though if useCommandName is true, interaction has a commandName property
+                (interaction as CommandInteraction).commandName
               : useCustomId
-              ? interaction.customId
+              ? (interaction as MessageComponentInteraction).customId
               : "unknown",
             cluster: this.client.manager.id.toString(),
             shard: interaction.guild?.shardId.toString() ?? "0",
@@ -53,9 +55,9 @@ export default class InteractionListener extends Listener {
           fields: {
             type: "blocked",
             command: useCommandName
-              ? interaction.commandName
+              ? (interaction as CommandInteraction).commandName
               : useCustomId
-              ? interaction.customId
+              ? (interaction as MessageComponentInteraction).customId
               : "unknown",
             guild: interaction.guild
               ? `${interaction.guild.name} (${interaction.guildId})`
