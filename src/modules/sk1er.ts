@@ -8,7 +8,6 @@ import * as centra from "centra";
 import { CategoryChannel, MessageReaction, Role, Snowflake } from "discord.js";
 
 export default class Sk1er extends Module {
-  descriptionUpdate: NodeJS.Timeout;
   nitroId: Snowflake;
   guildId: Snowflake;
   guild: FireGuild;
@@ -18,10 +17,6 @@ export default class Sk1er extends Module {
     super("sk1er");
     this.guildId = "411619823445999637";
     this.nitroId = "585534346551754755";
-    this.descriptionUpdate = setInterval(
-      async () => await this.descriptionUpdater(),
-      300000
-    );
   }
 
   async init() {
@@ -37,37 +32,6 @@ export default class Sk1er extends Module {
       return;
     }
     this.nitro = this.guild?.roles.cache.get(this.nitroId);
-    if (this.guild) await this.descriptionUpdater();
-  }
-
-  async unload() {
-    clearInterval(this.descriptionUpdate);
-  }
-
-  async descriptionUpdater() {
-    try {
-      const responses = await Promise.all([
-        centra("https://api.sk1er.club/mods_analytics")
-          .header("User-Agent", this.client.manager.ua)
-          .send(),
-        centra("https://api.autotip.pro/counts")
-          .header("User-Agent", this.client.manager.ua)
-          .send(),
-      ]);
-      const jsons = (await Promise.all(
-        responses.map((response) => response.json())
-      )) as [{ combined_total: number }, { total: number }];
-      const count = jsons[0].combined_total + jsons[1].total;
-
-      await this.guild.edit(
-        {
-          description: `The Official Discord for Sk1er & Sk1er Mods (${count.toLocaleString(
-            this.guild.language.id
-          )} total players)`,
-        },
-        "Description Updater Task (Now with less hacky code!)"
-      );
-    } catch {}
   }
 
   async handleSupport(
