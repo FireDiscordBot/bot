@@ -56,7 +56,7 @@ export const discord: ClientOptions = {
     },
     VoiceStateManager: {
       sweepFilter: () => {
-        return (state) => state.channelId != null;
+        return (state) => state.channelId == null;
       },
       sweepInterval: 60,
     },
