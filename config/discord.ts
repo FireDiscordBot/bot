@@ -54,6 +54,12 @@ export const discord: ClientOptions = {
       },
       sweepInterval: 60,
     },
+    VoiceStateManager: {
+      sweepFilter: () => {
+        return (state) => state.channelId != null;
+      },
+      sweepInterval: 60,
+    },
     // @ts-ignore
     GuildApplicationCommandManager: 0,
     ApplicationCommandManager: 0,
