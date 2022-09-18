@@ -1,3 +1,5 @@
+import { Caches } from "./aether";
+
 export interface ClusterStats {
   id: number;
   name: string;
@@ -17,6 +19,7 @@ export interface ClusterStats {
   guilds: number;
   unavailableGuilds: number;
   users: number;
+  caches: Caches;
   commands: number;
   restPing: number;
   shards: Shard[];

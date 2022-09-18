@@ -39,6 +39,18 @@ export interface DiscordExperiment {
   buckets: number[];
 }
 
+export interface Caches {
+  members: number;
+  channels: number;
+  threads: number;
+  threadMembers: number;
+  roles: number;
+  permissionOverwrites: number;
+  messages: number;
+  voiceStates: number;
+  userConfigs: number;
+}
+
 export interface ManagerState {
   loadedGuildExperiments: GuildExperimentConfig[];
   loadedUserExperiments: UserExperimentConfig[];

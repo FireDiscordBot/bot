@@ -17,6 +17,7 @@ import {
   GuildChannel,
   GuildFeatures,
   GuildPreview,
+  GuildTextBasedChannel,
   LimitedCollection,
   MessageEmbed,
   OAuth2Guild,
@@ -286,6 +287,9 @@ export class Util extends ClientUtil {
     const processStats = await pidusage(process.pid);
     processStats.memory = process.memoryUsage().heapUsed;
     const env = (process.env.NODE_ENV || "DEVELOPMENT").toLowerCase();
+    const cachedThreads = this.client.channels.cache.filter((c) =>
+      c.isThread()
+    );
     return {
       id: this.client.manager.id,
       name: this.client.user
@@ -316,6 +320,40 @@ export class Util extends ClientUtil {
               .map((guild) => guild.memberCount || 0)
               .reduce((a, b) => a + b)
           : 0,
+      caches: {
+        members: this.client.guilds.cache.reduce(
+          (a, b) => a + b.members.cache.size,
+          0
+        ),
+        channels: this.client.channels.cache.size,
+        threads: cachedThreads.size,
+        threadMembers: cachedThreads.reduce(
+          (a, b) => a + (b as ThreadChannel).members.cache.size,
+          0
+        ),
+        roles: this.client.guilds.cache.reduce(
+          (a, b) => a + b.roles.cache.size,
+          0
+        ),
+        permissionOverwrites: this.client.channels.cache
+          .filter((c) => c instanceof GuildChannel)
+          .reduce(
+            (a, b: GuildChannel) => a + b.permissionOverwrites.cache.size,
+            0
+          ),
+        messages: this.client.channels.cache
+          .filter((c) => c.hasOwnProperty("messages"))
+          .reduce(
+            // this type cast isn't necessarily correct since it can be a vc too (text in voice moment) but it's the best existing type
+            (a, b) => a + (b as GuildTextBasedChannel).messages.cache.size,
+            0
+          ),
+        voiceStates: this.client.guilds.cache.reduce(
+          (a, b) => a + b.voiceStates.cache.size,
+          0
+        ),
+        userConfigs: this.client.userSettings.items.size,
+      },
       commands: this.client.commandHandler.modules.size,
       restPing: this.client.restPing,
       shards: [...this.client.ws.shards.values()].map((shard) => {
