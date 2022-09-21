@@ -192,6 +192,13 @@ export default class MCLogs extends Module {
           ],
         },
         {
+          loader: Loaders.FORGE,
+          regexes: [
+            /--fml\.forgeVersion, (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--fml\.mcVersion, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+          ],
+        },
+        {
           loader: Loaders.OPTIFINE,
           regexes: [
             /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-OptiFine_HD_U_(?<loaderver>[A-Z]\d)/gim,
