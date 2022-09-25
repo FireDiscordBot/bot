@@ -1157,7 +1157,7 @@ export default class MCLogs extends Module {
       // this.client.console.debug(
       //   `[MCLogs] Does ${text} include ${logText}? ${text.includes(logText)}`
       // );
-      text.includes(logText);
+      return text.includes(logText);
     });
   }
 }
