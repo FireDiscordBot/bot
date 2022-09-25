@@ -213,6 +213,7 @@ export default class MCLogs extends Module {
     this.logText = [
       "net.minecraft.launchwrapper.Launch",
       "net.fabricmc.loader.impl.launch.knot.KnotClient",
+      "net.minecraftforge.fml.common.launcher.FMLTweaker",
       "Launched instance in online mode",
       "# A fatal error has been detected by the Java Runtime Environment:",
       "---- Minecraft Crash Report ----",
@@ -234,6 +235,7 @@ export default class MCLogs extends Module {
       "fabric-api",
       "Environment: authHost='https://authserver.mojang.com'",
       " with Fabric Loader ",
+      "net/digitalingot/feather-server-api-proto",
     ];
   }
 
@@ -1151,6 +1153,11 @@ export default class MCLogs extends Module {
   }
 
   hasLogText(text: string) {
-    return this.logText.some((logText) => text.includes(logText));
+    return this.logText.some((logText) => {
+      // this.client.console.debug(
+      //   `[MCLogs] Does ${text} include ${logText}? ${text.includes(logText)}`
+      // );
+      text.includes(logText);
+    });
   }
 }
