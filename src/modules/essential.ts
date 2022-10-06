@@ -53,7 +53,7 @@ If you're trying to play with a big modpack, it's important to note that some mo
 
 When you're ready, hit the green button below to continue or the red one to cancel.`;
 
-const supportCapeMessage = `If you haven't already, make sure you've claimed the cape in <#>!
+const supportCapeMessage = `If you haven't already, make sure you've claimed the cape in <#1025539912600141824>!
 
 Equipping the cape can be done from the \`Cape\` category in the wardrobe. It may take a little bit for the cape to appear after claiming during times of high demand so be patient if it doesn't appear instantly
 
