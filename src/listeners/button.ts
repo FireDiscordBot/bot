@@ -64,7 +64,7 @@ const validEssentialTypes = [
   "ice",
   "general",
   "testers",
-  "java",
+  "cape",
   "network",
 ];
 
@@ -654,8 +654,8 @@ export default class Button extends Listener {
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ICE"))
           .setStyle("PRIMARY"),
         new MessageButton()
-          .setCustomId("essentialsupport:java")
-          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_JAVA"))
+          .setCustomId("essentialsupport:cape")
+          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_CAPE"))
           .setStyle("PRIMARY"),
       ];
       const choicesRowTwo = [

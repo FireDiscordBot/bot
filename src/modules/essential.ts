@@ -53,11 +53,12 @@ If you're trying to play with a big modpack, it's important to note that some mo
 
 When you're ready, hit the green button below to continue or the red one to cancel.`;
 
-const supportJavaMessage = `Essential's installer requires Java to be installed
+const supportCapeMessage = `If you haven't already, make sure you've claimed the cape in <#>!
 
-Follow [this guide](<https://essential.gg/support/troubleshooting/install-java>) and restart your PC.
+Equipping the cape can be done from the \`Cape\` category in the wardrobe. It may take a little bit for the cape to appear after claiming during times of high demand so be patient if it doesn't appear instantly
 
-This will resolve the issue in 99% of cases. If you still have issues _**after**_ following the guide, click the \`Open a ticket\` button and select \`My issue is not listed\``;
+If you can see the cape in the wardrobe but not while playing the game, you likely toggled cosmetic visibility.
+This can be done with the \`Hide my cosmetics\` button on the main/pause menu or with the keybind (default is \`O\`)`;
 
 const supportNetworkMessage = `Connection to Essential's network is required for most features to function!
 
@@ -288,15 +289,6 @@ You can run \`/latestlog\` for instructions on how to find your log.`
         trigger.realChannel as FireTextChannel,
         category
       );
-    } else if (type == "java") {
-      const category = this.categories[trigger.guildId];
-      if (!category) return "no category";
-      return await trigger.guild.createTicket(
-        member,
-        "The Essential installer cannot find a valid Java installation ☕",
-        trigger.realChannel as FireTextChannel,
-        category
-      );
     } else if (type == "network") {
       const category = this.categories[trigger.guildId];
       if (!category) return "no category";
@@ -475,9 +467,9 @@ You can run \`/latestlog\` for instructions on how to find your log.`
     });
   }
 
-  async supportHandleJava(button: ComponentMessage) {
+  async supportHandleCape(button: ComponentMessage) {
     return await button.edit({
-      content: supportJavaMessage,
+      content: supportCapeMessage,
       components: [],
     });
   }
