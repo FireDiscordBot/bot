@@ -653,10 +653,6 @@ export default class Button extends Listener {
           .setCustomId("essentialsupport:ice")
           .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_ICE"))
           .setStyle("PRIMARY"),
-        new MessageButton()
-          .setCustomId("essentialsupport:cape")
-          .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_CAPE"))
-          .setStyle("PRIMARY"),
       ];
       const choicesRowTwo = [
         new MessageButton()
@@ -672,6 +668,14 @@ export default class Button extends Listener {
       return await button.edit({
         content: button.language.get("ESSENTIAL_SUPPORT_CHOOSE_ISSUE"),
         components: [
+          // make the cape button super fucking obvious
+          new MessageActionRow().addComponents([
+            new MessageButton()
+              .setCustomId("essentialsupport:cape")
+              .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_CAPE"))
+              .setStyle("PRIMARY"),
+          ]),
+          new MessageActionRow(),
           new MessageActionRow().addComponents(choicesRowOne),
           new MessageActionRow().addComponents(choicesRowTwo),
         ],
