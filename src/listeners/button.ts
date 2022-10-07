@@ -675,7 +675,6 @@ export default class Button extends Listener {
               .setLabel(button.language.get("ESSENTIAL_SUPPORT_BUTTON_CAPE"))
               .setStyle("PRIMARY"),
           ]),
-          new MessageActionRow(),
           new MessageActionRow().addComponents(choicesRowOne),
           new MessageActionRow().addComponents(choicesRowTwo),
         ],
