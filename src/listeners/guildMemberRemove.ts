@@ -1,3 +1,12 @@
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
+import { constants, MemberLogTypes } from "@fire/lib/util/constants";
+import { LanguageKeys } from "@fire/lib/util/language";
+import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import {
   Formatters,
   MessageEmbed,
@@ -5,16 +14,6 @@ import {
   Snowflake,
   ThreadChannel,
 } from "discord.js";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { LanguageKeys } from "@fire/lib/util/language";
-import EssentialNitro from "../modules/essentialnitro";
-import { constants, MemberLogTypes } from "@fire/lib/util/constants";
-import { Listener } from "@fire/lib/util/listener";
-import { Message } from "@fire/lib/ws/Message";
 
 const {
   regexes: { joinleavemsgs },
@@ -44,28 +43,6 @@ export default class GuildMemberRemove extends Listener {
       member.settings.has("premium.coupon")
     )
       this.client.util.deleteSpecialCoupon(member);
-
-    const essentialModule = this.client.getModule(
-      "essentialnitro"
-    ) as EssentialNitro;
-    if (
-      essentialModule &&
-      (member.guild.hasExperiment(223827992, 1) ||
-        member.guild.hasExperiment(223827992, 2))
-    ) {
-      const exists = await essentialModule.getUUID(member);
-      if (exists) {
-        const removed = await essentialModule
-          .removeNitroCosmetic(member)
-          .catch(() => false);
-        if (removed != true)
-          this.client.console.error(
-            `[Essential] Failed to remove nitro perks from ${member}${
-              typeof removed == "number" ? ` with status code ${removed}` : ""
-            }`
-          );
-      }
-    }
 
     const tickets = member.guild.tickets;
     for (const channel of tickets) {

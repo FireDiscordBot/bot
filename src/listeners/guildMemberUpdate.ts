@@ -15,7 +15,6 @@ import {
   Permissions,
   Snowflake,
 } from "discord.js";
-import EssentialNitro from "../modules/essentialnitro";
 
 export default class GuildMemberUpdate extends Listener {
   constructor() {
@@ -154,36 +153,6 @@ export default class GuildMemberUpdate extends Listener {
           await newMember.roles
             .add(role, newMember.guild.language.get("AUTOROLE_REASON"))
             .catch(() => {});
-      }
-    }
-
-    const essentialModule = this.client.getModule(
-      "essentialnitro"
-    ) as EssentialNitro;
-    if (
-      essentialModule &&
-      (newMember.guild.hasExperiment(223827992, 1) ||
-        newMember.guild.hasExperiment(223827992, 2))
-    ) {
-      const boosterId = newMember.guild.roles.cache.find(
-        (r) => r.tags?.premiumSubscriberRole
-      )?.id;
-      const exists = await essentialModule.getUUID(newMember);
-      if (
-        exists &&
-        boosterId &&
-        !newMember.roles.cache.has(boosterId) &&
-        !newMember.isSuperuser()
-      ) {
-        const removed = await essentialModule
-          .removeNitroCosmetic(newMember)
-          .catch(() => false);
-        if (removed != true)
-          this.client.console.error(
-            `[Essential] Failed to remove nitro perks from ${newMember}${
-              typeof removed == "number" ? ` with status code ${removed}` : ""
-            }`
-          );
       }
     }
 

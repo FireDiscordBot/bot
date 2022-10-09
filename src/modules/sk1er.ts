@@ -4,19 +4,15 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Module } from "@fire/lib/util/module";
-import * as centra from "centra";
-import { CategoryChannel, MessageReaction, Role, Snowflake } from "discord.js";
+import { CategoryChannel, MessageReaction, Snowflake } from "discord.js";
 
 export default class Sk1er extends Module {
-  nitroId: Snowflake;
   guildId: Snowflake;
   guild: FireGuild;
-  nitro: Role;
 
   constructor() {
     super("sk1er");
     this.guildId = "411619823445999637";
-    this.nitroId = "585534346551754755";
   }
 
   async init() {
@@ -31,7 +27,6 @@ export default class Sk1er extends Module {
       this.remove();
       return;
     }
-    this.nitro = this.guild?.roles.cache.get(this.nitroId);
   }
 
   async handleSupport(
