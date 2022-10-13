@@ -447,8 +447,11 @@ export default class MCLogs extends Module {
         : this.client.getLanguage("en-US");
 
     if (
-      versions.loader == Loaders.FEATHER ||
-      versions.mods.find((m) => m.modId == "feather")
+      (versions.loader == Loaders.FEATHER ||
+        versions.mods.find((m) => m.modId == "feather")) &&
+      (user instanceof FireMember
+        ? !Sk1erAndEssentialIDs.includes(user.guild?.id)
+        : true)
     ) {
       // user has not opted out of data collection for analytics
       if (!user.hasExperiment(2219986954, 1))
