@@ -1477,6 +1477,11 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       text += `\n${this.language.get("TICKET_CLOSE_TRANSCRIPT_STICKER", {
         name: message.stickers.map((sticker) => sticker.name)[0],
       })}`;
+    for (const row of message.components) {
+      const links = row.components.filter((c): c is MessageButton => c.type == "BUTTON" && c.style == "LINK")
+      if (links.length)
+        text += `\n${links.map((button) => `${button.label}: ${button.url}`).join(" | ")}`
+    }
 
     return text.trim() || constants.escapedShruggie;
   }
