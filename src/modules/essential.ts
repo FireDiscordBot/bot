@@ -140,10 +140,16 @@ const windowsLaunchersDropdown = new MessageSelectMenu()
       emoji: "1002100323562819594",
     },
     {
-      label: "MultiMC/PolyMC",
+      label: "MultiMC",
       value: "multimc",
       default: false,
       emoji: "1002101259161051146",
+    },
+    {
+      label: "PolyMC",
+      value: "polymc",
+      default: false,
+      emoji: "1031654061117808670",
     },
     {
       label: "Other",
@@ -340,7 +346,7 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       await this.publicGuild.tags.init();
     }
     if (selectedOS == "macos" || selectedOS == "linux") {
-      // TODO: add instructions for multimc/polymc in the future, just vanilla is fine for now
+      // TODO: add instructions for multimc in the future, just vanilla is fine for now
       const manager = this.publicGuild.tags;
       const cachedTag = await manager.getTag(`latestlog${selectedOS}`);
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
@@ -382,6 +388,7 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       | "official"
       | "curseforge"
       | "multimc"
+      | "polymc"
       | "other";
     if (launcher == "official") {
       const manager = this.publicGuild.tags;
@@ -407,6 +414,12 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       return await dropdown
         .edit({ content: cachedTag.content, components: [] })
         .catch(() => {});
+    } else if (launcher == "polymc") {
+      return await dropdown.edit({
+        content:
+          "We advise against using PolyMC due to a recent incident! See https://canary.discord.com/channels/864592657572560958/880139889818099722/1031651874102849627",
+        components: [],
+      });
     } else if (launcher == "other") {
       // const manager = this.publicGuild.tags;
       // const cachedTag = await manager.getTag("otherlauncherlog");
