@@ -31,6 +31,6 @@ export default class SelectText extends Command {
     const handler = this.client.selectHandlers.get(`${message.author.id}:text`);
     this.client.selectHandlers.delete(`${message.author.id}:text`);
     handler(args.text);
-    return await message.send("SELECT_PROMPT_FINISHED");
+    return await message.delete();
   }
 }

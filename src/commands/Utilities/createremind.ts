@@ -126,12 +126,7 @@ export default class RemindersCreate extends Command {
         .setCustomId(`!${cancelSnowflake}`);
       this.client.buttonHandlersOnce.set(cancelSnowflake, (b) => {
         event.sent = event.sent.filter((r) => r.timestamp != now);
-        b.channel
-          .update({
-            content: b.language.get("INTERACTION_CANCELLED"),
-            components: [],
-          })
-          .catch(() => {});
+        b.delete();
       });
       return await command.channel.send({
         content: command.author.language.get("REMINDER_CONTEXT_CONTENT", {

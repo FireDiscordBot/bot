@@ -94,13 +94,7 @@ export default class Button extends Listener {
     // check for deletion button
     if (button.customId == "delete_me")
       return await button.delete(button.interaction.message.id).catch(() => {});
-    else if (button.customId == "cancel_me")
-      return await button
-        .edit({
-          content: button.language.get("INTERACTION_CANCELLED"),
-          components: [],
-        })
-        .catch(() => {});
+    else if (button.customId == "cancel_me") return await button.delete();
     else if (button.customId == "quote_copy") {
       button.flags = 64;
       return await button.error("QUOTE_COPIED_BUTTON");
@@ -526,12 +520,7 @@ export default class Button extends Listener {
         .setStyle("DANGER")
         .setCustomId(deleteSnowflake);
       this.client.buttonHandlersOnce.set(deleteSnowflake, () => {
-        button
-          .edit({
-            content: button.language.get("INTERACTION_CANCELLED"),
-            components: [],
-          })
-          .catch(() => {});
+        button.delete();
       });
       await button.edit({
         content: button.language.get("SK1ER_SUPPORT_CONFIRM"),

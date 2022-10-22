@@ -32,6 +32,6 @@ export default class SelectRole extends Command {
     const handler = this.client.selectHandlers.get(`${message.author.id}:role`);
     this.client.selectHandlers.delete(`${message.author.id}:role`);
     handler(args.role);
-    return await message.send("SELECT_PROMPT_FINISHED");
+    return await message.delete();
   }
 }
