@@ -41,8 +41,7 @@ import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 import { FireVoiceChannel } from "./voicechannel";
 
-const { emojis, reactions, regexes, imageExts, audioExts, videoExts } =
-  constants;
+const { reactions, regexes, imageExts, audioExts, videoExts } = constants;
 
 export class FireMessage extends Message {
   declare channel: DMChannel | FireTextChannel | NewsChannel | ThreadChannel;
@@ -51,6 +50,7 @@ export class FireMessage extends Message {
   declare guild: FireGuild;
   declare author: FireUser;
   declare client: Fire;
+  deleteReason: string;
   starLock: Semaphore;
   selfDelete: boolean;
   util?: CommandUtil;
@@ -246,7 +246,7 @@ export class FireMessage extends Message {
     else return this.author.hasExperiment(id, bucket);
   }
 
-  async delete(options?: { timeout: number }) {
+  async delete(options?: { timeout: number; reason?: string }) {
     if (options?.timeout) await this.client.util.sleep(options.timeout);
     // e.g. if deleted before timeout finishes
     // (which is the reason why timeout was removed)
@@ -254,6 +254,7 @@ export class FireMessage extends Message {
     if (this.deleted) return this;
     return (await super.delete().then((m: FireMessage) => {
       m.selfDelete = true;
+      if (options.reason) m.deleteReason = options.reason;
       return m;
     })) as FireMessage;
   }
@@ -920,6 +921,7 @@ export class FireMessage extends Message {
       !this.guild ||
       this.author?.bot ||
       this.webhookId ||
+      this.system ||
       !this.guild?.hasExperiment(936071411, [1, 2])
     )
       return;
