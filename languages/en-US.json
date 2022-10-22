@@ -51,6 +51,7 @@
   "SLASH_COMMAND_HANDLE_SUCCESS": "Command ran successfully!",
   "SLASH_COMMAND_BOT_REQUIRED": "This command requires you to be in a server & have the bot present. You can invite it @ <{{invite}}>",
   "USER_USED_SLASH_COMMAND": "{{user}} used /{{cmd}}",
+  "USER_USED_CONTEXT_COMMAND": "{{user}} used {{cmd}}",
   "INTERACTION_CANCELLED": "Alright, you can go ahead and click \"Dismiss Message\"",
   "USER_SNOWFLAKE_ARGUMENT_DESCRIPTION": "A mention, username, user ID or any valid snowflake",
   "HELLO_PREFIX": "Hey! My prefix here is `{{prefix}}` or you can mention me :)",

@@ -22,6 +22,7 @@ import {
   Collection,
   DMChannel,
   Snowflake,
+  ReactionManager,
 } from "discord.js";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
@@ -30,7 +31,7 @@ import { RawUserData } from "discord.js/typings/rawDataTypes";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { FireTextChannel } from "./textchannel";
-import { APIMessage } from "discord-api-types";
+import { APIMessage, PermissionFlagsBits } from "discord-api-types";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { Fire } from "@fire/lib/Fire";
@@ -52,13 +53,14 @@ export class ContextCommandMessage {
   private _flags: number;
   content: string = "";
   channel: FakeChannel;
+  deleteReason: string;
   member?: FireMember;
   language: Language;
   guild?: FireGuild;
   util: CommandUtil;
   command: Command;
   author: FireUser;
-  webhookId = null;
+  deleted = false;
   id: Snowflake;
   client: Fire;
 
@@ -171,12 +173,123 @@ export class ContextCommandMessage {
     return this.contextCommand.channelId;
   }
 
+  get applicationId() {
+    return this.contextCommand.applicationId;
+  }
+
+  get webhookId() {
+    return null;
+  }
+
   getMessage(required = false) {
     return this.contextCommand.options.getMessage("message", required);
   }
 
   getUser(required = false) {
     return this.contextCommand.options.getUser("user", required);
+  }
+
+  get cleanContent() {
+    return this.language.get("USER_USED_CONTEXT_COMMAND", {
+      user: this.author.toString(),
+      cmd: this.contextCommand.commandName,
+    });
+  }
+
+  get crosspostable() {
+    return false;
+  }
+
+  get deletable() {
+    if (!this.guild) {
+      return this.author.id === this.client.user.id;
+    }
+
+    const permissions = this.channel?.permissionsFor(this.client.user);
+    if (!permissions) return false;
+    // This flag allows deleting even if timed out
+    if (permissions.has(PermissionFlagsBits.Administrator, false)) return true;
+
+    return Boolean(
+      this.author.id === this.client.user.id ||
+        (permissions.has(PermissionFlagsBits.ManageMessages, false) &&
+          this.guild.me.communicationDisabledTimestamp < Date.now())
+    );
+  }
+
+  get selfDelete() {
+    return this.deleted;
+  }
+
+  get editable() {
+    return true;
+  }
+
+  get hasThread() {
+    return this.sourceMessage?.hasThread ?? false;
+  }
+
+  get thread() {
+    return this.realChannel instanceof NewsChannel ||
+      this.realChannel instanceof FireTextChannel
+      ? this.realChannel.threads.cache.get(this.sourceMessage.id)
+      : null;
+  }
+
+  get interaction() {
+    return {
+      id: this.id,
+      type: "APPLICATION_COMMAND",
+      commandName: this.command.id,
+      user: this.author,
+    };
+  }
+
+  get partial() {
+    return this.sourceMessage?.partial ?? true;
+  }
+
+  get pinnable() {
+    return true;
+  }
+
+  get pinned() {
+    return this.sourceMessage?.pinned ?? false;
+  }
+
+  get system() {
+    return false;
+  }
+
+  get reactions() {
+    return (
+      this.sourceMessage?.reactions ??
+      new ReactionManager(this as unknown as FireMessage)
+    );
+  }
+
+  get stickers() {
+    return this.sourceMessage?.stickers ?? new Collection();
+  }
+
+  get tts() {
+    return false;
+  }
+
+  get reference() {
+    return null;
+  }
+
+  get invWtfResolved() {
+    return new Collection();
+  }
+
+  get embeds() {
+    return this.sourceMessage?.embeds ?? [];
+  }
+
+  get nonce() {
+    return "deez nuts";
   }
 
   // this is horribly hacky just like slash commands but will eventually be replaced
@@ -351,11 +464,21 @@ export class ContextCommandMessage {
     return this;
   }
 
-  async delete() {
-    await this.client.req
+  async delete(options?: { timeout: number; reason?: string }) {
+    if (!this.deletable) return this;
+    if (options?.timeout) await this.client.util.sleep(options.timeout);
+    // e.g. if deleted before timeout finishes
+    // (which is the reason why timeout was removed)
+    // https://github.com/discordjs/discord.js/pull/4999
+    if (this.deleted) return this;
+    return await this.client.req
       .webhooks(this.client.user.id, this.contextCommand.token)
       .messages(this.latestResponse)
       .delete()
+      .then((m: ContextCommandMessage) => {
+        if (options.reason) m.deleteReason = options.reason;
+        return m;
+      })
       .catch(() => {});
   }
 

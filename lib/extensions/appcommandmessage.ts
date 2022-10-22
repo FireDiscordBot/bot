@@ -3,7 +3,7 @@ import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants, i18nOptions } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { APIMessage } from "discord-api-types";
+import { APIMessage, PermissionFlagsBits } from "discord-api-types";
 import {
   AutocompleteInteraction,
   AwaitMessagesOptions,
@@ -58,6 +58,7 @@ export class ApplicationCommandMessage {
   private _flags: number;
   channel: FakeChannel;
   content: string = "";
+  deleteReason: string;
   member?: FireMember;
   language: Language;
   guild?: FireGuild;
@@ -264,7 +265,7 @@ export class ApplicationCommandMessage {
   get cleanContent() {
     return this.language.get("USER_USED_SLASH_COMMAND", {
       user: this.author.toString(),
-      cmd: this.command.id,
+      cmd: this.slashCommand.commandName,
     });
   }
 
@@ -273,7 +274,20 @@ export class ApplicationCommandMessage {
   }
 
   get deletable() {
-    return (this.flags & 64) != 64;
+    if (!this.guild) {
+      return this.author.id === this.client.user.id;
+    }
+
+    const permissions = this.channel?.permissionsFor(this.client.user);
+    if (!permissions) return false;
+    // This flag allows deleting even if timed out
+    if (permissions.has(PermissionFlagsBits.Administrator, false)) return true;
+
+    return Boolean(
+      this.author.id === this.client.user.id ||
+        (permissions.has(PermissionFlagsBits.ManageMessages, false) &&
+          this.guild.me.communicationDisabledTimestamp < Date.now())
+    );
   }
 
   get selfDelete() {
@@ -538,13 +552,21 @@ export class ApplicationCommandMessage {
     return this;
   }
 
-  async delete() {
-    if (!this.deletable) return;
-    await this.client.req
+  async delete(options?: { timeout: number; reason?: string }) {
+    if (!this.deletable) return this;
+    if (options?.timeout) await this.client.util.sleep(options.timeout);
+    // e.g. if deleted before timeout finishes
+    // (which is the reason why timeout was removed)
+    // https://github.com/discordjs/discord.js/pull/4999
+    if (this.deleted) return this;
+    return await this.client.req
       .webhooks(this.client.user.id, this.slashCommand.token)
       .messages(this.latestResponse)
       .delete()
-      .then(() => (this.deleted = true))
+      .then((m: ApplicationCommandMessage) => {
+        if (options.reason) m.deleteReason = options.reason;
+        return m;
+      })
       .catch(() => {});
   }
 
