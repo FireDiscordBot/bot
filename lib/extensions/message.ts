@@ -254,7 +254,7 @@ export class FireMessage extends Message {
     if (this.deleted) return this;
     return (await super.delete().then((m: FireMessage) => {
       m.selfDelete = true;
-      if (options.reason) m.deleteReason = options.reason;
+      if (options?.reason) m.deleteReason = options.reason;
       return m;
     })) as FireMessage;
   }

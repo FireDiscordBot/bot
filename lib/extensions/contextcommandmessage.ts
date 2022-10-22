@@ -475,7 +475,7 @@ export class ContextCommandMessage {
       .messages(this.latestResponse)
       .delete()
       .then((m: ContextCommandMessage) => {
-        if (options.reason) m.deleteReason = options.reason;
+        if (options?.reason) m.deleteReason = options.reason;
         return m;
       })
       .catch(() => {});

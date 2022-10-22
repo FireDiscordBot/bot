@@ -564,7 +564,7 @@ export class ApplicationCommandMessage {
       .messages(this.latestResponse)
       .delete()
       .then((m: ApplicationCommandMessage) => {
-        if (options.reason) m.deleteReason = options.reason;
+        if (options?.reason) m.deleteReason = options.reason;
         return m;
       })
       .catch(() => {});
