@@ -55,7 +55,9 @@ export default class Quote extends Command {
     }
   ) {
     if (!args?.quote) return;
-    args.debug = args.debug || message.util.parsed.content.includes("debug.d");
+    if (message)
+      args.debug =
+        args.debug || message.util.parsed.content.includes("debug.d");
     let debugMessages: string[];
     if (args.debug) debugMessages = [];
     if (args.quote == "cross_cluster") {
