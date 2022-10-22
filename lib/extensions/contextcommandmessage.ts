@@ -1,41 +1,40 @@
+import { Fire } from "@fire/lib/Fire";
+import { ArgumentOptions, Command } from "@fire/lib/util/command";
+import { CommandUtil } from "@fire/lib/util/commandutil";
+import { constants, i18nOptions } from "@fire/lib/util/constants";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { APIMessage, PermissionFlagsBits } from "discord-api-types/v9";
 import {
-  CommandInteractionOptionResolver,
-  EmojiIdentifierResolvable,
-  ContextMenuInteraction,
-  DeconstructedSnowflake,
-  GuildMemberResolvable,
-  WebhookMessageOptions,
   AwaitMessagesOptions,
+  Collection,
+  ContextMenuInteraction,
   CreateInviteOptions,
-  MessageResolvable,
+  DeconstructedSnowflake,
+  DMChannel,
+  EmojiIdentifierResolvable,
+  GuildChannel,
+  GuildMemberResolvable,
   MessageAttachment,
   MessageMentions,
-  MessageReaction,
   MessagePayload,
-  RoleResolvable,
-  ThreadChannel,
-  SnowflakeUtil,
-  GuildChannel,
-  Permissions,
-  NewsChannel,
+  MessageReaction,
+  MessageResolvable,
   MessageType,
-  Collection,
-  DMChannel,
-  Snowflake,
+  NewsChannel,
+  Permissions,
   ReactionManager,
+  RoleResolvable,
+  Snowflake,
+  SnowflakeUtil,
+  ThreadChannel,
+  WebhookMessageOptions,
 } from "discord.js";
-import { ArgumentOptions, Command } from "@fire/lib/util/command";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { constants, i18nOptions } from "@fire/lib/util/constants";
 import { RawUserData } from "discord.js/typings/rawDataTypes";
-import { CommandUtil } from "@fire/lib/util/commandutil";
 import { BaseFakeChannel } from "../interfaces/misc";
-import { FireTextChannel } from "./textchannel";
-import { APIMessage, PermissionFlagsBits } from "discord-api-types";
+import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
-import { Fire } from "@fire/lib/Fire";
-import { FireGuild } from "./guild";
+import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
 const { emojis, reactions } = constants;

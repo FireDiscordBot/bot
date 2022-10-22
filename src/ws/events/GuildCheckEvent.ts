@@ -1,10 +1,10 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { APIGuildMember } from "discord-api-types";
+import { Manager } from "@fire/lib/Manager";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Message } from "@fire/lib/ws/Message";
-import { Manager } from "@fire/lib/Manager";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { APIGuildMember } from "discord-api-types/v9";
 import { Snowflake } from "discord.js";
 
 export default class GuildCheckEvent extends Event {

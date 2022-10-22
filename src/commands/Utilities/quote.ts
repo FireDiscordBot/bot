@@ -1,19 +1,19 @@
-import {
-  PartialQuoteDestination,
-  MessageLinkMatch,
-} from "@fire/lib/interfaces/messages";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { constants, GuildTextChannel } from "@fire/lib/util/constants";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { Permissions, Snowflake } from "discord.js";
-import { Language } from "@fire/lib/util/language";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import {
+  MessageLinkMatch,
+  PartialQuoteDestination,
+} from "@fire/lib/interfaces/messages";
 import { Command } from "@fire/lib/util/command";
+import { constants, GuildTextChannel } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
 import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { MessageEmbed, Permissions, Snowflake } from "discord.js";
 
 const { regexes } = constants;
 
@@ -55,7 +55,9 @@ export default class Quote extends Command {
     }
   ) {
     if (!args?.quote) return;
-    args.debug = args.debug && message.author?.isSuperuser();
+    args.debug = args.debug || message.util.parsed.content.includes("debug.d");
+    let debugMessages: string[];
+    if (args.debug) debugMessages = [];
     if (args.quote == "cross_cluster") {
       let matches: MessageLinkMatch[] = [];
       let messageLink: RegExpExecArray;
@@ -130,7 +132,7 @@ export default class Quote extends Command {
         { threadId: match.groups.threadId as Snowflake }
       );
       return await args.quote
-        .quote(args.destination, args.quoter, webhook)
+        .quote(args.destination, args.quoter, webhook, debugMessages)
         .catch(() => {});
     } else if (!message) return;
     const quoted = await args.quote
@@ -139,15 +141,22 @@ export default class Quote extends Command {
           ? (message.realChannel as GuildTextChannel)
           : (message.channel as GuildTextChannel),
         message.member,
-        webhook
+        webhook,
+        debugMessages
       )
       .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
     if (quoted == "QUOTE_PREMIUM_INCREASED_LENGTH")
       return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
     else if (quoted == "nsfw") return await message.error("QUOTE_NSFW_TO_SFW");
-    else if (args.debug && typeof quoted == "string")
-      return !message
-        ? await webhook.send({ content: quoted })
-        : await message.channel.send({ content: quoted });
+    else if (args.debug) {
+      if (!debugMessages.length) return;
+      const content = debugMessages.join("\n");
+      if (content.length > 2000 && content.length < 4096)
+        return await message.channel.send({
+          embeds: [new MessageEmbed().setDescription(content)],
+        });
+      else if (content.length <= 2000)
+        return await message.channel.send(content);
+    }
   }
 }

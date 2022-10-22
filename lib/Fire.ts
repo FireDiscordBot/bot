@@ -44,7 +44,7 @@ import {
   ListenerHandler,
   version as akairover,
 } from "discord-akairo";
-import { APIGuildMember } from "discord-api-types";
+import { APIGuildMember } from "discord-api-types/v9";
 import {
   ClientUser,
   Collection,

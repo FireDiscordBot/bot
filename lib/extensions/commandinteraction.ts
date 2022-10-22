@@ -1,4 +1,4 @@
-import { APIAttachment } from "discord-api-types";
+import { APIAttachment } from "discord-api-types/v9";
 import {
   ApplicationCommandOptionType,
   CacheType,

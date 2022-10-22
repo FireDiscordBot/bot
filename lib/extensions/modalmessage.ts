@@ -1,4 +1,4 @@
-import { APIMessage } from "discord-api-types";
+import { APIMessage } from "discord-api-types/v9";
 import {
   AwaitMessagesOptions,
   Collection,

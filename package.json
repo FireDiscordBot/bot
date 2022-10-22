@@ -36,7 +36,7 @@
     "centra": "^2.5.0",
     "chrono-node": "^2.3.7",
     "discord-akairo": "discord-akairo/discord-akairo",
-    "discord-api-types": "^0.24.0",
+    "discord-api-types": "^0.37.14",
     "discord.js": "FireDiscordBot/discord.js",
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^10.1.0",

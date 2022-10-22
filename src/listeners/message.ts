@@ -8,7 +8,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import Filters from "@fire/src/modules/filters";
 import MCLogs from "@fire/src/modules/mclogs";
 import * as centra from "centra";
-import { APIMessage } from "discord-api-types";
+import { APIMessage } from "discord-api-types/v9";
 import { Permissions, Snowflake, TextChannel } from "discord.js";
 
 const { regexes, prodBotId } = constants;

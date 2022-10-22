@@ -1,8 +1,9 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { FireMessage } from "@fire/lib/extensions/message";
 import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import {
   constants,
   GuildTextChannel,
@@ -10,13 +11,12 @@ import {
   pluckTime,
 } from "@fire/lib/util/constants";
 import { messageConverter } from "@fire/lib/util/converters";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { FireMessage } from "@fire/lib/extensions/message";
-import RemindersCreate from "@fire/src/commands/Utilities/createremind";
-import { EventType } from "@fire/lib/ws/util/constants";
-import Quote from "@fire/src/commands/Utilities/quote";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import RemindersCreate from "@fire/src/commands/Utilities/createremind";
+import Quote from "@fire/src/commands/Utilities/quote";
 
 const { regexes } = constants;
 let mentionRegex: RegExp;
@@ -191,7 +191,10 @@ export default class MessageInvalid extends Listener {
         ).catch(() => {});
         if (convertedMessage) {
           await quoteCommand
-            .exec(message, { quote: convertedMessage as FireMessage })
+            .exec(message, {
+              quote: convertedMessage as FireMessage,
+              debug: quote.channel == "debug.",
+            })
             .catch(() => {});
           await this.client.util.sleep(500);
         }

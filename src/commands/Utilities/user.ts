@@ -12,7 +12,7 @@ import {
   APIApplication,
   APIChannel,
   ApplicationFlags,
-} from "discord-api-types";
+} from "discord-api-types/v9";
 import {
   ClientUser,
   DeconstructedSnowflake,

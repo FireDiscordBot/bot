@@ -5,6 +5,7 @@ export interface MessageLinkMatch {
   message_id: Snowflake;
   channel_id: Snowflake;
   guild_id: Snowflake;
+  channel?: string;
 }
 
 export interface PartialQuoteDestination {

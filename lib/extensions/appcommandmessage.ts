@@ -3,7 +3,7 @@ import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants, i18nOptions } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { APIMessage, PermissionFlagsBits } from "discord-api-types";
+import { APIMessage, PermissionFlagsBits } from "discord-api-types/v9";
 import {
   AutocompleteInteraction,
   AwaitMessagesOptions,

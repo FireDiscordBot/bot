@@ -15,7 +15,7 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { GuildSettings } from "@fire/lib/util/settings";
 import TicketName from "@fire/src/commands/Tickets/name";
-import { APIGuild } from "discord-api-types";
+import { APIGuild } from "discord-api-types/v9";
 import {
   BaseFetchOptions,
   CategoryChannel,
@@ -168,7 +168,7 @@ export class FireGuild extends Guild {
     );
   }
 
-  _patch(data: APIGuild) {
+  _patch(data) {
     if (data.members)
       data.members = data.members.filter(
         (m) => m.user?.id == this.client.user?.id
@@ -1478,9 +1478,13 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         name: message.stickers.map((sticker) => sticker.name)[0],
       })}`;
     for (const row of message.components) {
-      const links = row.components.filter((c): c is MessageButton => c.type == "BUTTON" && c.style == "LINK")
+      const links = row.components.filter(
+        (c): c is MessageButton => c.type == "BUTTON" && c.style == "LINK"
+      );
       if (links.length)
-        text += `\n${links.map((button) => `${button.label}: ${button.url}`).join(" | ")}`
+        text += `\n${links
+          .map((button) => `${button.label}: ${button.url}`)
+          .join(" | ")}`;
     }
 
     return text.trim() || constants.escapedShruggie;

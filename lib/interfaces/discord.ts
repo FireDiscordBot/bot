@@ -1,4 +1,4 @@
-import { APIUser, GuildFeature } from "discord-api-types";
+import { APIUser, GuildFeature } from "discord-api-types/v9";
 import { Snowflake } from "discord.js";
 
 export interface Experiments {

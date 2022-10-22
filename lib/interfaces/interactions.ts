@@ -1,12 +1,13 @@
 import {
+  APIActionRowComponent,
+  APIActionRowComponentTypes,
+  APIGuildMember,
   APIInteractionDataResolvedChannel,
   APIInteractionGuildMember,
-  APIGuildMember,
   APIMessage,
-  APIUser,
   APIRole,
-  APIActionRowComponent,
-} from "discord-api-types";
+  APIUser,
+} from "discord-api-types/v9";
 import { Snowflake } from "discord.js";
 
 export type Interaction =
@@ -130,7 +131,7 @@ export interface ComponentData {
 
 export interface ModalData {
   custom_id: string;
-  components: APIActionRowComponent[];
+  components: APIActionRowComponent<APIActionRowComponentTypes>[];
 }
 
 export enum ButtonStyle {
