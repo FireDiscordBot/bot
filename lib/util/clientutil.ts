@@ -414,15 +414,19 @@ export class Util extends ClientUtil {
   shorten(items: any[], max = 1000, sep = ", ") {
     let text = "";
 
-    while (text.length < max && items.length > 0) {
-      text += `${items.shift()}${sep}`;
+    while (items.length > 0) {
+      const item = items.shift();
+      const addition = `${item}${sep}`;
+      if (text.length + addition.length > max) {
+        items.unshift(item); // return the item to the array
+        break;
+      }
+      text += addition;
     }
 
     if (text.endsWith(sep)) text = text.slice(0, text.length - sep.length);
 
-    return items.length > 0 && text.length < 11 + items.toString().length
-      ? `${text} and ${items.length} more...`
-      : text;
+    return items.length > 0 ? `${text} and ${items.length} more...` : text;
   }
 
   numberWithSuffix(num: number, toLocale: boolean = true) {
