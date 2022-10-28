@@ -140,7 +140,7 @@ const windowsLaunchersDropdown = new MessageSelectMenu()
       emoji: "1002100323562819594",
     },
     {
-      label: "MultiMC",
+      label: "MultiMC/Prism",
       value: "multimc",
       default: false,
       emoji: "1002101259161051146",
@@ -149,7 +149,7 @@ const windowsLaunchersDropdown = new MessageSelectMenu()
       label: "PolyMC",
       value: "polymc",
       default: false,
-      emoji: "1031654061117808670",
+      emoji: "1035582585063088198",
     },
     {
       label: "Other",
