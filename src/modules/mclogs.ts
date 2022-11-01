@@ -236,6 +236,7 @@ export default class MCLogs extends Module {
       "Environment: authHost='https://authserver.mojang.com'",
       " with Fabric Loader ",
       "net/digitalingot/feather-server-api-proto",
+      'Essential branch set to "stable" via default.',
     ];
   }
 
