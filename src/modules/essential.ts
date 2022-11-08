@@ -151,12 +151,12 @@ const windowsLaunchersDropdown = new MessageSelectMenu()
       default: false,
       emoji: "1035582585063088198",
     },
-    {
-      label: "Other",
-      value: "other",
-      default: false,
-      emoji: "❓",
-    },
+    // {
+    //   label: "Other",
+    //   value: "other",
+    //   default: false,
+    //   emoji: "❓",
+    // },
   ]);
 
 export default class Essential extends Module {
