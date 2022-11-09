@@ -178,9 +178,20 @@ export default class User extends Command {
                 ? `\n${emojis.official} Official`
                 : ""
             }\n\n${application.description}`
-          : badges.join("  ")
+          : `${badges.join("  ")}${
+              user.settings.get("affiliates_highlighted_label.official", false)
+                ? `\n${emojis.official} Official`
+                : ""
+            }`
       );
-    else if (application) embed.setDescription(application.description);
+    else if (application)
+      embed.setDescription(
+        `${
+          user.settings.get("affiliates_highlighted_label.official", false)
+            ? `\n${emojis.official} Official`
+            : ""
+        }\n\n${application.description}`
+      );
     if (member) {
       if (member?.avatar && member?.avatar != user.avatar)
         embed.setThumbnail(
