@@ -48,12 +48,6 @@ const isValidURL = (url: string) => {
   }
 };
 
-// todo: remove this when discord-api-types is updated
-enum NewApplicationFlags {
-  GatewayMessageContent = 262144,
-  GatewayMessageContentLimited = 524288,
-}
-
 type InstallParams = {
   install_params?: {
     scopes: string[];
@@ -179,7 +173,11 @@ export default class User extends Command {
     if (badges.length)
       embed.setDescription(
         application
-          ? `${badges.join("  ")}\n\n${application.description}`
+          ? `${badges.join("  ")}${
+              user.settings.get("affiliates_highlighted_label.official", false)
+                ? `\n${emojis.official} Official`
+                : ""
+            }\n\n${application.description}`
           : badges.join("  ")
       );
     else if (application) embed.setDescription(application.description);
@@ -273,15 +271,14 @@ export default class User extends Command {
         );
       else appInfo.push(command.language.getError("USER_BOT_PRESENCE_INTENT"));
       if (
-        (application.flags & NewApplicationFlags.GatewayMessageContent) ==
-          NewApplicationFlags.GatewayMessageContent ||
-        (application.flags &
-          NewApplicationFlags.GatewayMessageContentLimited) ==
-          NewApplicationFlags.GatewayMessageContentLimited
+        (application.flags & ApplicationFlags.GatewayMessageContent) ==
+          ApplicationFlags.GatewayMessageContent ||
+        (application.flags & ApplicationFlags.GatewayMessageContentLimited) ==
+          ApplicationFlags.GatewayMessageContentLimited
       )
         appInfo.push(
           `${
-            application.flags & NewApplicationFlags.GatewayMessageContent
+            application.flags & ApplicationFlags.GatewayMessageContent
               ? emojis.success
               : emojis.warning
           } ${command.language.get("USER_BOT_MESSAGE_CONTENT_INTENT")}`

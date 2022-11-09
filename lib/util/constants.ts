@@ -147,6 +147,7 @@ let emojis = {
     FIRE_PREMIUM: "<:FirePremium:680519037704208466>",
     FUCK_MEE6: "<:fuckmee6allmyhomieshatemee6:909928935310118992>",
   },
+  official: "<:official:1039934429273014303>",
   channels: {
     text: "<:channeltext:794243232648921109>",
     voice: "<:channelvoice:794243248444407838>",
