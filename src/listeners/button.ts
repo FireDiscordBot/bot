@@ -13,6 +13,7 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
 import {
+  GuildChannel,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
@@ -609,6 +610,15 @@ export default class Button extends Listener {
 
     // below is a ton of duplicated code since it needs to be kept separate to allow for easy changes
     if (button.customId.startsWith("essential_support_")) {
+      // stop if channel is named "legacy-support"
+      if (
+        button.realChannel instanceof GuildChannel &&
+        button.realChannel.name == "🎫｜legacy-support"
+      )
+        return await button.channel.send(
+          "This channel is no longer in use. Please use <#1024755087760957541> instead."
+        );
+
       // handle limit first so we can give a better msg and give it right away
       if (
         button.guild?.getTickets(button.author.id).length >=
