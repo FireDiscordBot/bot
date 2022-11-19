@@ -5,7 +5,7 @@ import { Command } from "@fire/lib/util/command";
 import { parseTime } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import {
-  ApplicationCommandOptionChoice,
+  ApplicationCommandOptionChoiceData,
   CommandInteractionOption,
   Permissions,
 } from "discord.js";
@@ -73,7 +73,7 @@ export default class Ban extends Command {
   async autocomplete(
     interaction: ApplicationCommandMessage,
     focused: CommandInteractionOption
-  ): Promise<ApplicationCommandOptionChoice[]> {
+  ): Promise<ApplicationCommandOptionChoiceData[]> {
     const { author } = interaction;
     const value = focused.value;
     return [

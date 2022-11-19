@@ -1,16 +1,16 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
 import { ActionLogTypes, constants, titleCase } from "@fire/lib/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import {
   DMChannel,
+  GuildBasedChannel,
   GuildChannel,
   MessageEmbed,
   PermissionResolvable,
   Permissions,
   StageChannel,
-  ThreadChannel,
+  VoiceChannel,
 } from "discord.js";
 
 export default class ChannelUpdate extends Listener {
@@ -22,13 +22,13 @@ export default class ChannelUpdate extends Listener {
   }
 
   async exec(
-    before: GuildChannel | ThreadChannel | DMChannel,
-    after: GuildChannel | ThreadChannel | DMChannel
+    before: GuildBasedChannel | DMChannel,
+    after: GuildBasedChannel | DMChannel
   ) {
     if (after instanceof DMChannel) return;
 
-    before = before as GuildChannel | ThreadChannel;
-    after = after as GuildChannel | ThreadChannel;
+    before = before as GuildBasedChannel;
+    after = after as GuildBasedChannel;
 
     const guild = after.guild as FireGuild;
     const muteRole = guild.muteRole;
@@ -142,9 +142,8 @@ export default class ChannelUpdate extends Listener {
           }`
         );
       if (
-        (before instanceof FireVoiceChannel ||
-          before instanceof StageChannel) &&
-        (after instanceof FireVoiceChannel || after instanceof StageChannel)
+        (before instanceof VoiceChannel || before instanceof StageChannel) &&
+        (after instanceof VoiceChannel || after instanceof StageChannel)
       )
         if (before.rtcRegion != after.rtcRegion) {
           embed.addField(

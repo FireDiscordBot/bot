@@ -29,6 +29,7 @@
   "license": "AGPL-3.0-only",
   "dependencies": {
     "@aero/sanitizer": "^1.2.0",
+    "@discordjs/form-data": "^3.0.1",
     "@sapphire/async-queue": "^1.5.0",
     "@sentry/node": "^6.19.7",
     "@skyra/timestamp": "^1.0.0",

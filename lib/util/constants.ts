@@ -5,11 +5,11 @@ import {
   MessageMentionOptions,
   NewsChannel,
   ReplyOptions,
+  VoiceChannel,
 } from "discord.js";
 import { StringMap, TOptions } from "i18next";
 import { FireGuild } from "../extensions/guild";
 import { FireTextChannel } from "../extensions/textchannel";
-import { FireVoiceChannel } from "../extensions/voicechannel";
 import { Language } from "./language";
 import humanizeDuration = require("humanize-duration");
 
@@ -98,7 +98,7 @@ export type LinkfilterExcludedItem =
   | `channel:${string}`
   | `user:${string}`;
 
-export type GuildTextChannel = FireTextChannel | FireVoiceChannel | NewsChannel;
+export type GuildTextChannel = FireTextChannel | VoiceChannel | NewsChannel;
 
 export type i18nOptions = TOptions<StringMap> & {
   components?: (

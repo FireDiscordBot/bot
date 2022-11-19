@@ -13,6 +13,7 @@ import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 import {
   CategoryChannel,
+  GuildBasedChannel,
   GuildChannel,
   Invite,
   MessageEmbed,

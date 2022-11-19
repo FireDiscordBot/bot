@@ -4,6 +4,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 
 // TODO: make this more slash command friendly
 
@@ -98,6 +99,8 @@ export default class Purge extends Command {
       ],
       enableSlashCommand: true,
       moderatorOnly: true,
+      deferAnyways: true,
+      ephemeral: true,
     });
   }
 
@@ -120,7 +123,6 @@ export default class Purge extends Command {
     if (args.amount > 100 || args.amount <= 1)
       return await message.error("PURGE_AMOUNT_INVALID");
     if (message.content.includes("--user") && args.user == null) return;
-    message.delete().catch(() => {});
     if (
       args.user ||
       args.match ||

@@ -11,10 +11,10 @@ import {
   Snowflake,
   Emoji,
   Role,
+  VoiceChannel,
 } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireVoiceChannel } from "../extensions/voicechannel";
 import { FireTextChannel } from "../extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
@@ -396,7 +396,7 @@ export const messageConverter = async (
     channelId = message.channelId;
   }
   const channel = (message.client.channels.cache.get(channelId) ||
-    message.channel) as FireTextChannel | FireVoiceChannel;
+    message.channel) as FireTextChannel | VoiceChannel;
 
   try {
     return (await channel.messages.fetch(messageId)) as FireMessage;
@@ -480,7 +480,7 @@ export const voiceChannelConverter = async (
   message: FireMessage,
   argument: string,
   silent = false
-): Promise<FireVoiceChannel | StageChannel | null> => {
+): Promise<VoiceChannel | StageChannel | null> => {
   if (!argument) return;
 
   const match = getIDMatch(argument) || getChannelMentionMatch(argument);
@@ -500,7 +500,7 @@ export const voiceChannelConverter = async (
       )
       .first();
     if (channel && channel.type == "GUILD_VOICE")
-      return channel as FireVoiceChannel;
+      return channel as VoiceChannel;
     else if (channel && channel.type == "GUILD_STAGE_VOICE")
       return channel as StageChannel;
 
@@ -509,7 +509,7 @@ export const voiceChannelConverter = async (
   } else {
     const channel = guild.channels.cache.get(match);
     if (channel && channel.type == "GUILD_VOICE")
-      return channel as FireVoiceChannel;
+      return channel as VoiceChannel;
     else if (channel && channel.type == "GUILD_STAGE_VOICE")
       return channel as StageChannel;
 

@@ -40,20 +40,20 @@ export class CommandInteractionOptionResolver<
   Cached extends CacheType = CacheType
 > extends CommandInteractionOptionResolverBase {
   public declare readonly resolved: Readonly<ResolvedData>;
-  public getAttachment(
-    name: string,
-    required?: boolean
-  ): MessageAttachment | null {
-    // @ts-ignore
-    const option = this._getTypedOption(
-      name,
-      // @ts-ignore
-      "ATTACHMENT",
-      ["attachment"],
-      required
-    ) as TransformedOptionResult;
-    return option?.attachment ?? null;
-  }
+  // public getAttachment(
+  //   name: string,
+  //   required?: boolean
+  // ): MessageAttachment | null {
+  //   // @ts-ignore
+  //   const option = this._getTypedOption(
+  //     name,
+  //     // @ts-ignore
+  //     "ATTACHMENT",
+  //     ["attachment"],
+  //     required
+  //   ) as TransformedOptionResult;
+  //   return option?.attachment ?? null;
+  // }
 }
 
 export class CommandInteraction extends CommandInteractionBase {
@@ -65,15 +65,15 @@ export class CommandInteraction extends CommandInteractionBase {
   constructor(client: Fire, data: any) {
     super(client, data);
 
-    if (data.data.options?.find((opt) => opt.type == 11))
-      // likely changed above, retransform options
-      this.options = new CommandInteractionOptionResolver(
-        this.client,
-        data.data.options?.map((option) =>
-          this.transformOptionAgain(option, data.data.resolved)
-        ) ?? [],
-        this.transformResolvedAgain(data.data.resolved ?? {})
-      );
+    // if (data.data.options?.find((opt) => opt.type == 11))
+    //   // likely changed above, retransform options
+    //   this.options = new CommandInteractionOptionResolver(
+    //     this.client,
+    //     data.data.options?.map((option) =>
+    //       this.transformOptionAgain(option, data.data.resolved)
+    //     ) ?? [],
+    //     this.transformResolvedAgain(data.data.resolved ?? {})
+    //   );
   }
 
   private transformResolvedAgain({

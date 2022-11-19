@@ -4,6 +4,7 @@ import {
   Constants,
   Intents,
   Options,
+  Sweepers,
 } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -27,36 +28,15 @@ export const discord: ClientOptions = {
     roles: [],
   },
   makeCache: Options.cacheWithLimits({
-    MessageManager: {
+    ThreadManager: {
       sweepFilter: () => {
-        return (message: FireMessage) =>
-          +new Date() - (message.editedTimestamp ?? message.createdTimestamp) >
-          150000;
-      },
-      keepOverLimit: (message: FireMessage) =>
-        !message.author?.bot || !!message.paginator,
-      sweepInterval: 60,
-      maxSize: 100,
-    },
-    GuildMemberManager: {
-      sweepFilter: () => {
-        return (member: FireMember) =>
-          member.id != member.client.user?.id &&
-          !member.client.isRunningCommand(member);
+        return (thread) => thread.archived;
       },
       sweepInterval: 60,
     },
-    UserManager: {
+    GuildForumThreadManager: {
       sweepFilter: () => {
-        return (user: FireUser) =>
-          user.id != user.client.user?.id &&
-          !user.client.isRunningCommand(user);
-      },
-      sweepInterval: 60,
-    },
-    VoiceStateManager: {
-      sweepFilter: () => {
-        return (state) => state.channelId == null;
+        return (thread) => thread.archived;
       },
       sweepInterval: 60,
     },
@@ -66,11 +46,42 @@ export const discord: ClientOptions = {
     BaseGuildEmojiManager: 0,
     StageInstanceManager: 0,
     GuildStickerManager: 0,
+    ThreadMemberManager: 0,
     GuildInviteManager: 0,
     GuildEmojiManager: 0,
     GuildBanManager: 0,
     PresenceManager: 0,
   }),
+  sweepers: {
+    messages: {
+      interval: 60,
+      filter: Sweepers.filterByLifetime({
+        lifetime: 150,
+        getComparisonTimestamp: (message: FireMessage) =>
+          message.editedTimestamp ?? message.createdTimestamp,
+        excludeFromSweep: (message: FireMessage) => !!message.paginator,
+      }),
+    },
+    users: {
+      interval: 60,
+      filter: () => (user: FireUser) =>
+        user.id != user.client.user?.id && !user.client.isRunningCommand(user),
+    },
+    guildMembers: {
+      interval: 60,
+      filter: () => (member: FireMember) =>
+        member.id != member.client.user?.id &&
+        !member.client.isRunningCommand(member),
+    },
+    threads: {
+      interval: 60,
+      filter: () => (thread) => thread.archived,
+    },
+    voiceStates: {
+      interval: 60,
+      filter: () => (state) => state.channelId == null,
+    },
+  },
   restRequestTimeout: 15000,
   restSweepInterval: 60,
   partials: [

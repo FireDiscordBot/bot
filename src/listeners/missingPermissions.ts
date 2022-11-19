@@ -1,6 +1,6 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
+import { Listener } from "@fire/lib/util/listener";
 import { PermissionString } from "discord.js";
 
 export default class MissingPermissions extends Listener {
@@ -31,7 +31,9 @@ export default class MissingPermissions extends Listener {
           type: "permissions",
           command: command.id,
           missing_type: type,
-          guild: message.guild ? `${message.guild.name} (${message.guildId})` : "N/A",
+          guild: message.guild
+            ? `${message.guild.name} (${message.guildId})`
+            : "N/A",
           user: `${message.author} (${message.author.id})`,
           message_id: message.id,
           missing: missing.join(", "),

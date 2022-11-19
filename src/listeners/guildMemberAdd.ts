@@ -98,7 +98,7 @@ export default class GuildMemberAdd extends Listener {
 
     if (
       member.guild.mutes.has(member.id) &&
-      !member.communicationDisabledTimestamp
+      !member.communicationDisabledUntilTimestamp
     )
       await member.roles.add(member.guild.muteRole).catch(() => {});
 

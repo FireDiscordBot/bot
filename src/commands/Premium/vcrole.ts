@@ -1,8 +1,7 @@
-import { StageChannel, Permissions, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { FireVoiceChannel } from "@fire/lib/extensions/voicechannel";
+import { Language } from "@fire/lib/util/language";
+import { Permissions, Role, StageChannel, VoiceChannel } from "discord.js";
 
 export default class VCRole extends Command {
   constructor() {
@@ -38,7 +37,7 @@ export default class VCRole extends Command {
 
   async exec(
     message: FireMessage,
-    args: { channel?: FireVoiceChannel | StageChannel; role?: Role }
+    args: { channel?: VoiceChannel | StageChannel; role?: Role }
   ) {
     if (!args.channel) return await message.error("VCROLE_CHANNEL_REQUIRED");
     if (!message.guild.vcRoles) await message.guild.loadVcRoles();

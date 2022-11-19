@@ -187,7 +187,7 @@ export class FireUser extends User {
     const banned = await guild.members
       .ban(this, {
         reason: `${moderator} | ${reason}`,
-        days,
+        deleteMessageSeconds: 86400 * days,
       })
       .catch(() => {});
     if (!banned) {

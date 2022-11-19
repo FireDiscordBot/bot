@@ -122,7 +122,7 @@ export class Util extends ClientUtil {
   }
 
   sleep(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms)) as Promise<void>;
   }
 
   isPromise(value: any) {
@@ -325,6 +325,7 @@ export class Util extends ClientUtil {
           (a, b) => a + b.members.cache.size,
           0
         ),
+        users: this.client.users.cache.size,
         channels: this.client.channels.cache.size,
         threads: cachedThreads.size,
         threadMembers: cachedThreads.reduce(
@@ -338,14 +339,13 @@ export class Util extends ClientUtil {
         permissionOverwrites: this.client.channels.cache
           .filter((c) => c instanceof GuildChannel)
           .reduce(
-            (a, b: GuildChannel) => a + b.permissionOverwrites.cache.size,
+            (a, b: GuildTextChannel) => a + b.permissionOverwrites.cache.size,
             0
           ),
         messages: this.client.channels.cache
           .filter((c) => c.hasOwnProperty("messages"))
           .reduce(
-            // this type cast isn't necessarily correct since it can be a vc too (text in voice moment) but it's the best existing type
-            (a, b) => a + (b as GuildTextBasedChannel).messages.cache.size,
+            (a, b: GuildTextBasedChannel) => a + b.messages.cache.size,
             0
           ),
         voiceStates: this.client.guilds.cache.reduce(
@@ -562,7 +562,7 @@ export class Util extends ClientUtil {
 
     // Unsure whether or not users being able to interact with bots is intentional
     // but it is apparently going to be changed so this may be a temporary thing
-    if (user instanceof FireMember && user.communicationDisabledTimestamp)
+    if (user instanceof FireMember && user.communicationDisabledUntilTimestamp)
       return true;
 
     // convert user/member to id

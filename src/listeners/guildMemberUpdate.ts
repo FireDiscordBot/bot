@@ -55,7 +55,7 @@ export default class GuildMemberUpdate extends Listener {
     if (
       newMember.guild.mutes.has(newMember.id) &&
       !newMember.roles.cache.has(newMember.guild.muteRole?.id) &&
-      !newMember.communicationDisabledTimestamp
+      !newMember.communicationDisabledUntilTimestamp
     ) {
       await this.client.util.sleep(5000); // wait a bit to ensure it isn't from being unmuted
       const until = newMember.guild.mutes.get(newMember.id);
@@ -66,7 +66,7 @@ export default class GuildMemberUpdate extends Listener {
       if (until == 0 || +new Date() < until)
         canTimeOut
           ? await newMember
-              .disableCommunication({ until: new Date(until) })
+              .disableCommunicationUntil(new Date(until))
               .catch(() => {})
           : await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
     }
@@ -167,8 +167,8 @@ export default class GuildMemberUpdate extends Listener {
       oldMember?.roles?.cache.size != newMember.roles.cache.size;
     const hasMemberUpdate =
       oldMember?.nickname != newMember.nickname ||
-      oldMember?.communicationDisabledTimestamp !=
-        newMember.communicationDisabledTimestamp;
+      oldMember?.communicationDisabledUntilTimestamp !=
+        newMember.communicationDisabledUntilTimestamp;
 
     if (
       !newMember.guild.fetchingRoleUpdates &&

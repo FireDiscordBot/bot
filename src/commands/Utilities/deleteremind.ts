@@ -4,7 +4,7 @@ import { Command } from "@fire/lib/util/command";
 import { humanize } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import {
-  ApplicationCommandOptionChoice,
+  ApplicationCommandOptionChoiceData,
   CommandInteractionOption,
   MessageActionRow,
   MessageButton,
@@ -44,7 +44,7 @@ export default class RemindersDelete extends Command {
       [interaction.author.id]
     );
     if (!remindersResult.rows.length) return [];
-    const reminders: ApplicationCommandOptionChoice[] = [];
+    const reminders: ApplicationCommandOptionChoiceData[] = [];
     let timestamps = [];
     for await (const reminder of remindersResult) {
       const date = reminder.get("forwhen") as Date;

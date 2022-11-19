@@ -19,7 +19,7 @@ import {
   DiscordAPIError,
   DMChannel,
   Formatters,
-  GuildChannel,
+  GuildBasedChannel,
   GuildPreview,
   MessageActionRow,
   MessageButton,
@@ -575,12 +575,12 @@ export default class User extends Command {
         );
         members && members.sweep(() => true);
       } else {
-        const member = (channel as GuildChannel).guild.members.cache.get(
+        const member = (channel as GuildBasedChannel).guild.members.cache.get(
           command.author.id
         );
         info.push(
           member
-            ?.permissionsIn(channel as GuildChannel)
+            ?.permissionsIn(channel as GuildBasedChannel)
             .has(Permissions.FLAGS.VIEW_CHANNEL)
             ? command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
                 type: command.language.get("CHANNEL"),
@@ -612,12 +612,12 @@ export default class User extends Command {
       )
         viewable = true;
       else {
-        const member = (channel as GuildChannel).guild.members.cache.get(
+        const member = (channel as GuildBasedChannel).guild.members.cache.get(
           command.author.id
         );
         if (
           member
-            ?.permissionsIn(channel as GuildChannel)
+            ?.permissionsIn(channel as GuildBasedChannel)
             .has(Permissions.FLAGS.VIEW_CHANNEL)
         )
           viewable = true;
@@ -655,12 +655,12 @@ export default class User extends Command {
       )
         viewable = true;
       else {
-        const member = (channel as GuildChannel).guild.members.cache.get(
+        const member = (channel as GuildBasedChannel).guild.members.cache.get(
           command.author.id
         );
         if (
           member
-            ?.permissionsIn(channel as GuildChannel)
+            ?.permissionsIn(channel as GuildBasedChannel)
             .has(Permissions.FLAGS.VIEW_CHANNEL)
         )
           viewable = true;

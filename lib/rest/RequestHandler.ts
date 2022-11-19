@@ -161,7 +161,7 @@ export class RequestHandler {
         }
         delayPromise = this.manager.globalDelay;
       } else {
-        delayPromise = Util.delayFor(timeout);
+        delayPromise = this.manager.client.util.sleep(timeout);
       }
 
       // Determine whether a RateLimitError should be thrown
@@ -319,7 +319,7 @@ export class RequestHandler {
 
         // If caused by a sublimit, wait it out here so other requests on the route can be handled
         if (sublimitTimeout) {
-          await Util.delayFor(sublimitTimeout);
+          await this.manager.client.util.sleep(sublimitTimeout);
         }
         return this.execute(request);
       }

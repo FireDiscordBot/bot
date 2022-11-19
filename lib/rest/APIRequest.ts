@@ -89,7 +89,7 @@ export class APIRequest {
       body instanceof FormData ? "buffer" : "json"
     );
     for (const [name, value] of Object.entries(headers))
-      request.header(name, value);
+      if (value) request.header(name, value);
     if (this.options.debug)
       this.client.console.warn(
         `[Rest] Sending request to ${this.method.toUpperCase()} ${this.path}`

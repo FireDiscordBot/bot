@@ -55,7 +55,7 @@ export default class ThreadCreate extends Listener {
           owner ? `${owner} (${owner.id})` : channel.ownerId
         )
         .setFooter(channel.id);
-      if (parent.messages.cache.has(channel.id))
+      if (parent.isText() && parent.messages.cache.has(channel.id))
         embed.addField(
           language.get("THREAD_MESSAGE"),
           `[${language.get("CLICK_TO_VIEW")}](${

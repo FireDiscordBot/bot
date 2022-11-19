@@ -1,14 +1,15 @@
-import {
-  PermissionResolvable,
-  GuildChannel,
-  MessageEmbed,
-  Permissions,
-  DMChannel,
-} from "discord.js";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ActionLogTypes, humanize, titleCase } from "@fire/lib/util/constants";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
+import {
+  DMChannel,
+  GuildBasedChannel,
+  GuildChannel,
+  MessageEmbed,
+  PermissionResolvable,
+  Permissions,
+} from "discord.js";
 
 export default class ChannelCreate extends Listener {
   constructor() {
@@ -18,7 +19,7 @@ export default class ChannelCreate extends Listener {
     });
   }
 
-  async exec(channel: GuildChannel | DMChannel) {
+  async exec(channel: GuildBasedChannel | DMChannel) {
     if (channel instanceof DMChannel) return;
     const guild = channel.guild as FireGuild,
       language = guild.language;
@@ -26,6 +27,7 @@ export default class ChannelCreate extends Listener {
     let muteFail = false;
     const muteCommand = this.client.getCommand("mute");
     if (
+      channel instanceof GuildChannel &&
       muteRole &&
       !guild.me
         .permissionsIn(channel)
@@ -54,7 +56,10 @@ export default class ChannelCreate extends Listener {
     if (guild.permRoles.size) {
       for (const [role, perms] of guild.permRoles) {
         if (
-          !channel.permissionsFor(guild.me).has(Permissions.FLAGS.MANAGE_ROLES)
+          !channel
+            .permissionsFor(guild.me)
+            .has(Permissions.FLAGS.MANAGE_ROLES) ||
+          !(channel instanceof GuildChannel)
         )
           continue;
         await channel.permissionOverwrites
@@ -103,7 +108,7 @@ export default class ChannelCreate extends Listener {
           language.get("WARNING"),
           language.get("CHANNELCREATELOG_MUTE_PERMS_FAIL")
         );
-      if (channel.permissionOverwrites.cache.size > 1) {
+      if (!channel.isThread() && channel.permissionOverwrites.cache.size > 1) {
         const canView = channel.permissionOverwrites.cache
           .filter((overwrite) =>
             overwrite.allow.has(Permissions.FLAGS.VIEW_CHANNEL)

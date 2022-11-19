@@ -15,7 +15,9 @@ import {
   DiscordAPIError,
   DMChannel,
   EmojiIdentifierResolvable,
+  ForumChannel,
   GuildChannel,
+  GuildTextBasedChannel,
   Message,
   MessageActionRow,
   MessageAttachment,
@@ -29,6 +31,7 @@ import {
   ReplyMessageOptions,
   Structures,
   ThreadChannel,
+  VoiceChannel,
   Webhook,
   WebhookClient,
 } from "discord.js";
@@ -39,7 +42,6 @@ import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
-import { FireVoiceChannel } from "./voicechannel";
 
 const { reactions, regexes, imageExts, audioExts, videoExts } = constants;
 
@@ -260,7 +262,7 @@ export class FireMessage extends Message {
   }
 
   async quote(
-    destination: GuildTextChannel | ThreadChannel | PartialQuoteDestination,
+    destination: GuildTextBasedChannel | PartialQuoteDestination,
     quoter: FireMember,
     webhook?: WebhookClient,
     debug?: string[]
@@ -278,8 +280,9 @@ export class FireMessage extends Message {
 
     const channel =
       this.channel instanceof ThreadChannel
-        ? (this.channel.parent as FireTextChannel)
+        ? this.channel.parent
         : (this.channel as FireTextChannel);
+    this.client.console.debug(channel.type);
     if (this.author.system && !quoter.isSuperuser()) {
       if (debug) debug.push("Cannot quote a system message");
       return "system";
@@ -352,7 +355,9 @@ export class FireMessage extends Message {
   }
 
   private async webhookQuote(
-    destination: GuildTextChannel | PartialQuoteDestination,
+    destination:
+      | Exclude<GuildTextBasedChannel, ThreadChannel>
+      | PartialQuoteDestination,
     quoter: FireMember,
     webhook?: WebhookClient,
     thread?: ThreadChannel,
@@ -434,16 +439,12 @@ export class FireMessage extends Message {
     }[] = [];
     if (
       ((destination instanceof FireTextChannel ||
-        destination instanceof FireVoiceChannel ||
+        destination instanceof VoiceChannel ||
         destination instanceof NewsChannel) &&
         quoter
           .permissionsIn(destination)
           .has(Permissions.FLAGS.ATTACH_FILES)) ||
-      (!(
-        destination instanceof FireTextChannel ||
-        destination instanceof FireVoiceChannel ||
-        destination instanceof NewsChannel
-      ) &&
+      (!(destination instanceof GuildChannel) &&
         (BigInt(destination.permissions) & 32768n) == 32768n)
     ) {
       const info = this.attachments.map((attach) => ({
@@ -596,7 +597,7 @@ export class FireMessage extends Message {
   }
 
   private async embedQuote(
-    destination: GuildTextChannel | ThreadChannel | PartialQuoteDestination,
+    destination: GuildTextBasedChannel | PartialQuoteDestination,
     quoter: FireMember,
     debug?: string[]
   ) {

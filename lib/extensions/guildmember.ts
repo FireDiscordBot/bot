@@ -2,7 +2,9 @@ import * as sanitizer from "@aero/sanitizer";
 import { Fire } from "@fire/lib/Fire";
 import {
   Channel,
+  DMChannel,
   Formatters,
+  GuildBasedChannel,
   GuildChannel,
   GuildMember,
   ImageURLOptions,
@@ -20,7 +22,6 @@ import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 
 export class FireMember extends GuildMember {
-  communicationDisabledTimestamp: number;
   declare guild: FireGuild;
   changingNick?: boolean;
   declare user: FireUser;
@@ -29,12 +30,6 @@ export class FireMember extends GuildMember {
   constructor(client: Fire, data: any, guild: FireGuild) {
     super(client, data, guild);
     this.changingNick = false;
-    this.communicationDisabledTimestamp = null;
-
-    if ("communication_disabled_until" in data)
-      this.communicationDisabledTimestamp = new Date(
-        data.communication_disabled_until
-      ).getTime();
   }
 
   get language() {
@@ -60,45 +55,11 @@ export class FireMember extends GuildMember {
   _patch(data: any) {
     // @ts-ignore
     super._patch(data);
-
-    if ("communication_disabled_until" in data)
-      this.communicationDisabledTimestamp = new Date(
-        data.communication_disabled_until
-      ).getTime();
   }
 
   _clone(): FireMember {
     // @ts-ignore
     return super._clone();
-  }
-
-  equals(member: FireMember) {
-    return (
-      // @ts-ignore
-      super.equals(member) &&
-      this.communicationDisabledTimestamp ===
-        member.communicationDisabledTimestamp
-    );
-  }
-
-  get communicationDisabledUntil() {
-    return this.communicationDisabledTimestamp
-      ? new Date(this.communicationDisabledTimestamp)
-      : null;
-  }
-
-  async disableCommunication(options: { until: Date | null; reason?: string }) {
-    const { until, reason } = options;
-    const patched = await this.client.req
-      .guilds(this.guild.id)
-      .members(this.id)
-      .patch({
-        data: { communication_disabled_until: until?.toISOString() ?? null },
-        reason,
-      });
-    const clone = this._clone();
-    clone?._patch(patched);
-    return clone;
   }
 
   avatarURL({
@@ -125,11 +86,12 @@ export class FireMember extends GuildMember {
     );
   }
 
-  isModerator(channel?: Channel | BaseFakeChannel) {
+  isModerator(channel?: DMChannel | GuildBasedChannel | BaseFakeChannel) {
     if (this.id == this.client.user?.id) return true;
     if (this.id == this.guild.ownerId) return true;
     if (channel instanceof BaseFakeChannel) channel = channel.real;
     else if (channel instanceof ThreadChannel) channel = channel.parent;
+    if (channel instanceof DMChannel) return false;
     if (this.isAdmin(channel)) return true;
     const moderators = this.guild.settings.get<string[]>(
       "utils.moderators",
@@ -143,15 +105,15 @@ export class FireMember extends GuildMember {
     } else return null;
   }
 
-  isAdmin(channel?: Channel | BaseFakeChannel) {
+  isAdmin(channel?: DMChannel | GuildBasedChannel | BaseFakeChannel) {
     if (this.id == this.client.user?.id) return true;
     if (this.id == this.guild.ownerId) return true;
-    if (channel instanceof BaseFakeChannel) channel = channel.real;
+    if (channel instanceof BaseFakeChannel)
+      channel = channel.real as GuildBasedChannel;
     else if (channel instanceof ThreadChannel) channel = channel.parent;
+    if (channel instanceof DMChannel) return false;
     return channel
-      ? this.permissionsIn(channel as GuildChannel).has(
-          Permissions.FLAGS.MANAGE_GUILD
-        )
+      ? this.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_GUILD)
       : this.permissions.has(Permissions.FLAGS.MANAGE_GUILD);
   }
 
@@ -454,7 +416,7 @@ export class FireMember extends GuildMember {
       ).catch(() => {});
     const banned = await this.ban({
       reason: `${moderator} | ${reason}`,
-      days,
+      deleteMessageSeconds: 86400 * days,
     }).catch(() => {});
     if (!banned) {
       const deleted = await this.guild
@@ -697,10 +659,10 @@ export class FireMember extends GuildMember {
       .catch(() => {});
     if (!logEntry) return "entry";
     const muted = canTimeOut
-      ? await this.disableCommunication({
-          until: new Date(until),
-          reason: `${moderator} | ${reason}`,
-        }).catch(() => {})
+      ? await this.disableCommunicationUntil(
+          new Date(until),
+          `${moderator} | ${reason}`
+        ).catch(() => {})
       : await this.roles
           .add(this.guild.muteRole, `${moderator} | ${reason}`)
           .catch(() => {});
@@ -796,10 +758,10 @@ export class FireMember extends GuildMember {
     if (!moderator.isModerator(channel)) return "forbidden";
     if (!this.guild.mutes.has(this.id)) {
       if (this.communicationDisabledUntil) {
-        const unmuted = await this.disableCommunication({
-          until: null,
-          reason: `${moderator} | ${reason}`,
-        }).catch(() => {});
+        const unmuted = await this.disableCommunicationUntil(
+          null,
+          `${moderator} | ${reason}`
+        ).catch(() => {});
         if (channel && unmuted && !this.communicationDisabledUntil)
           return await channel.send(
             this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
@@ -840,10 +802,10 @@ export class FireMember extends GuildMember {
     const until = this.guild.mutes.get(this.id);
     this.guild.mutes.delete(this.id);
     const unmuted = this.communicationDisabledUntil
-      ? await this.disableCommunication({
-          until: null,
-          reason: `${moderator} | ${reason}`,
-        }).catch(() => {})
+      ? await this.disableCommunicationUntil(
+          null,
+          `${moderator} | ${reason}`
+        ).catch(() => {})
       : await this.roles
           .remove(this.guild.muteRole, `${moderator} | ${reason}`)
           .catch(() => {});

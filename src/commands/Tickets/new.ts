@@ -1,10 +1,10 @@
-import { ThreadChannel, Permissions, GuildChannel } from "discord.js";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
-import { FireMessage } from "@fire/lib/extensions/message";
+import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
+import { GuildBasedChannel, Permissions, ThreadChannel } from "discord.js";
 
 const { emojis } = constants;
 
@@ -45,7 +45,7 @@ export default class NewTicket extends Command {
     if (
       message.guild.hasExperiment(1651882237, 1) &&
       !message.guild.me
-        ?.permissionsIn(message.channel as GuildChannel)
+        ?.permissionsIn(message.channel as GuildBasedChannel)
         .has(
           Permissions.FLAGS.VIEW_CHANNEL |
             Permissions.FLAGS.SEND_MESSAGES |
@@ -58,7 +58,7 @@ export default class NewTicket extends Command {
         message.util?.parsed?.command,
         "client",
         message.guild.me
-          ?.permissionsIn(message.channel as GuildChannel)
+          ?.permissionsIn(message.channel as GuildBasedChannel)
           .missing(
             Permissions.FLAGS.VIEW_CHANNEL |
               Permissions.FLAGS.SEND_MESSAGES |

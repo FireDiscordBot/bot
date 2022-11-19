@@ -9,7 +9,7 @@ import { IPoint } from "@fire/lib/interfaces/aether";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import {
-  ApplicationCommandOptionChoice,
+  ApplicationCommandOptionChoiceData,
   AutocompleteInteraction,
   ContextMenuInteraction,
   Interaction,
@@ -215,7 +215,7 @@ export default class InteractionListener extends Listener {
       }));
     if (autocomplete.length > 25) autocomplete = autocomplete.slice(0, 25);
     return await interaction.respond(
-      autocomplete as ApplicationCommandOptionChoice[]
+      autocomplete as ApplicationCommandOptionChoiceData[]
     );
   }
 

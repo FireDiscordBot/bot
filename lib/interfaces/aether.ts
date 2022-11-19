@@ -41,6 +41,7 @@ export interface DiscordExperiment {
 
 export interface Caches {
   members: number;
+  users: number;
   channels: number;
   threads: number;
   threadMembers: number;

@@ -15,7 +15,6 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { GuildSettings } from "@fire/lib/util/settings";
 import TicketName from "@fire/src/commands/Tickets/name";
-import { APIGuild } from "discord-api-types/v9";
 import {
   BaseFetchOptions,
   CategoryChannel,
@@ -24,7 +23,8 @@ import {
   Guild,
   GuildAuditLogs,
   GuildAuditLogsFetchOptions,
-  GuildChannel,
+  GuildAuditLogsResolvable,
+  GuildBasedChannel,
   GuildFeatures,
   MessageActionRow,
   MessageAttachment,
@@ -40,6 +40,7 @@ import {
   Structures,
   ThreadChannel,
   Util,
+  VoiceChannel,
   Webhook,
   WebhookClient,
 } from "discord.js";
@@ -59,7 +60,6 @@ import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
-import { FireVoiceChannel } from "./voicechannel";
 
 const BOOST_TIERS = {
   NONE: 0,
@@ -133,7 +133,7 @@ export class FireGuild extends Guild {
         (channel) =>
           channel.type == "GUILD_VOICE" || channel.type == "GUILD_STAGE_VOICE"
       )
-      .map((channel: FireVoiceChannel | StageChannel) => channel.rtcRegion);
+      .map((channel: VoiceChannel | StageChannel) => channel.rtcRegion);
     regions = regions.filter(
       // remove duplicates
       (region, index) => regions.indexOf(region) === index
@@ -148,7 +148,7 @@ export class FireGuild extends Guild {
       cache: this.channels.cache.filter(
         (channel) =>
           !(channel instanceof ThreadChannel) && !!channel.permissionOverwrites
-      ) as Collection<Snowflake, GuildChannel>,
+      ) as Collection<Snowflake, Exclude<GuildBasedChannel, ThreadChannel>>,
     };
   }
 
@@ -183,18 +183,21 @@ export class FireGuild extends Guild {
     return super.fetchOwner(options) as Promise<FireMember>;
   }
 
-  async fetchAuditLogs(options?: GuildAuditLogsFetchOptions) {
+  async fetchAuditLogs<T extends GuildAuditLogsResolvable = "ALL">(
+    options?: GuildAuditLogsFetchOptions<T>
+  ) {
     // litecord doesn't have audit logs so we don't even bother with the request
     if (process.env.USE_LITECORD == "true")
-      return new GuildAuditLogs(this, {
+      return new GuildAuditLogs<"ALL">(this, {
         guild_scheduled_events: [],
+        application_commands: [],
         audit_log_entries: [],
         integrations: [],
         webhooks: [],
         threads: [],
         users: [],
       });
-    else return super.fetchAuditLogs(options);
+    else return super.fetchAuditLogs<T>(options);
   }
 
   async initMuteRole() {
@@ -609,7 +612,7 @@ export class FireGuild extends Guild {
       await this.client.waitUntilReady(); // this will resolve when ready or if already ready
       const channel = this.channels.cache.get(
         vcrole.get("cid") as Snowflake
-      ) as FireVoiceChannel | StageChannel;
+      ) as VoiceChannel | StageChannel;
       if (!channel) continue;
       const role = this.roles.cache.get(vcrole.get("rid") as Snowflake);
       if (!role) continue;

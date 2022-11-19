@@ -100,7 +100,7 @@ export default class Slowmode extends Command {
   async globalSlowmode(message: FireMessage, delay: number) {
     let failed: string[] = [];
     const channels = message.guild.channels.cache
-      .filter((channel: GuildChannel) => channel.type == "GUILD_TEXT")
+      .filter((channel) => channel.type == "GUILD_TEXT")
       .toJSON() as FireTextChannel[];
     let warning: FireMessage;
     if (channels.length > 50)

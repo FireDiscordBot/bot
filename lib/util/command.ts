@@ -9,7 +9,7 @@ import {
 import {
   ApplicationCommand,
   ApplicationCommandData,
-  ApplicationCommandOptionChoice,
+  ApplicationCommandOptionChoiceData,
   ApplicationCommandOptionData,
   CommandInteractionOption,
   CommandOptionDataTypeResolvable,
@@ -204,7 +204,7 @@ export class Command extends AkairoCommand {
   async autocomplete(
     interaction: ApplicationCommandMessage,
     focused: CommandInteractionOption
-  ): Promise<ApplicationCommandOptionChoice[] | string[]> {
+  ): Promise<ApplicationCommandOptionChoiceData[] | string[]> {
     return [];
   }
 

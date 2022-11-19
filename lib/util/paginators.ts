@@ -14,7 +14,7 @@ import {
   MessageButton,
   MessageEmbed,
   NewsChannel,
-  TextBasedChannels,
+  TextBasedChannel,
   ThreadChannel,
 } from "discord.js";
 import Semaphore from "semaphore-async-await";
@@ -163,7 +163,7 @@ export class PaginatorInterface {
   deleteMessage: boolean;
 
   slashMessage?: ApplicationCommandMessage;
-  #channel: TextBasedChannels;
+  #channel: TextBasedChannel;
   #messageId: string;
   _displayPage: number;
   maxPageSize: number;
