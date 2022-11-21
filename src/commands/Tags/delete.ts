@@ -62,7 +62,7 @@ export default class TagDelete extends Command {
       await message.guild.tags.init();
     }
     const manager = message.guild.tags;
-    const cachedTag = await manager.getTag(tag, false);
+    const cachedTag = await manager.getTag(tag, false, true);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
     if (cachedTag.createdBy && typeof cachedTag.createdBy != "string")
       cachedTag.createdBy = cachedTag.createdBy.id;
