@@ -75,7 +75,9 @@ export class GuildSettings {
       this.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.DISCOVERY_UPDATE, {
-            op: !!value ? DiscoveryUpdateOp.ADD : DiscoveryUpdateOp.REMOVE,
+            op: this.guild.isPublic()
+              ? DiscoveryUpdateOp.ADD_OR_SYNC
+              : DiscoveryUpdateOp.REMOVE,
             guilds: [this.guild.getDiscoverableData()],
           })
         )
