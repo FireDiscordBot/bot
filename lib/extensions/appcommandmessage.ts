@@ -737,7 +737,7 @@ export class FakeChannel extends BaseFakeChannel {
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
 
-    if (data.embeds && !data.content) {
+    if (data.embeds.length && !data.content) {
       // hijacking this for advertising sales instead of being a dumbass and sending unsolicited DMs (*cough* mee6 *cough*)
       const shouldAdd =
         !this.message.author.premium &&
