@@ -466,6 +466,18 @@ export class FakeChannel extends BaseFakeChannel {
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
 
+    if (data.embeds.length && !data.content) {
+      // hijacking this for advertising sales instead of being a dumbass and sending unsolicited DMs (*cough* mee6 *cough*)
+      const shouldAdd =
+        !this.message.author.premium &&
+        !this.message.author.settings.get("promotion.blackfridaymsg", false) &&
+        +new Date() < 1669679999000;
+      if (shouldAdd) {
+        data.content = this.message.author.language.get("BLACK_FRIDAY_2022");
+        this.message.author.settings.set("promotion.blackfridaymsg", true);
+      }
+    }
+
     if (
       (files?.length || this.real instanceof DMChannel) &&
       (data.flags & 64) == 64
