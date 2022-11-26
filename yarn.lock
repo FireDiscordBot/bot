@@ -622,7 +622,7 @@ discord-api-types@^0.37.14:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.37.14.tgz#0fb10a5bb3ff9415afac12d7eaecc68b430d372a"
   integrity sha512-byBH7SfDCMJwxdqeS8k5sihltH88/YPhuwx+vF2cftSxFLdxyHyU/ZxDL3bq+LB2c4ls/TymE76/ISlLfniUXg==
 
-discord.js@FireDiscordBot/discord.js#test-v13-update:
+discord.js@FireDiscordBot/discord.js:
   version "13.12.0"
   resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/39a0b0c2bae66822b7a62ec9c16914d411eed0de"
   dependencies:
