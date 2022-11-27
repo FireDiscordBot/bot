@@ -149,10 +149,13 @@ let emojis = {
   },
   official: "<:official:1039934429273014303>",
   channels: {
+    category: "<:channelcategory:1046397076176650292>",
     text: "<:channeltext:794243232648921109>",
     voice: "<:channelvoice:794243248444407838>",
     stage: "<:channelstage:831890012366307379>",
     news: "<:channelannouncements:794243262822350919>",
+    thread: "<:channelthread:1046398508070092833>",
+    forum: "<:channelforum:1046399668441059338>",
   },
 };
 
@@ -195,10 +198,13 @@ if (process.env.EMOJI_SET == "1") {
       FUCK_MEE6: "<:fuckmee6allmyhomieshatemee6:823121735774765060>",
     },
     channels: {
+      category: "",
       text: "<:channeltext:823154571105927169>",
       voice: "<:channelvoice:823154571105927168>",
       stage: "",
       news: "<:channelannouncements:823154571105927170>",
+      thread: "",
+      forum: "",
     },
   };
 

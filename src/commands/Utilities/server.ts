@@ -117,29 +117,6 @@ export default class GuildCommand extends Command {
         : null,
       guild instanceof FireGuild
         ? `**${command.language.get(
-            "CHANNELS"
-          )}:** ${guild.channels.cache.size.toLocaleString(
-            command.language.id
-          )} (${channels.text} ${
-            guild.channels.cache.filter(
-              (channel) => channel.type == "GUILD_TEXT"
-            ).size
-          }, ${channels.voice} ${
-            guild.channels.cache.filter(
-              (channel) => channel.type == "GUILD_VOICE"
-            ).size
-          }, ${channels.stage} ${
-            guild.channels.cache.filter(
-              (channel) => channel.type == "GUILD_STAGE_VOICE"
-            ).size
-          }, ${channels.news} ${
-            guild.channels.cache.filter(
-              (channel) => channel.type == "GUILD_NEWS"
-            ).size
-          })`
-        : null,
-      guild instanceof FireGuild
-        ? `**${command.language.get(
             guild.regions.length > 1 ? "REGION_PLURAL" : "REGION"
           )}:** ${
             guild.regions.length > 1
@@ -294,6 +271,37 @@ export default class GuildCommand extends Command {
     return info;
   }
 
+  getChannels(
+    command: ApplicationCommandMessage,
+    guild: FireGuild | GuildPreview | InviteGuildWithCounts
+  ) {
+    if (!(guild instanceof FireGuild)) return null;
+    return {
+      [command.language.get("TOTAL") + ":"]: guild.channels.cache.size,
+      [channels.category]: guild.channels.cache.filter(
+        (channel) => channel.type == "GUILD_CATEGORY"
+      ).size,
+      [channels.text]: guild.channels.cache.filter(
+        (channel) => channel.type == "GUILD_TEXT"
+      ).size,
+      [channels.voice]: guild.channels.cache.filter(
+        (channel) => channel.type == "GUILD_VOICE"
+      ).size,
+      [channels.news]: guild.channels.cache.filter(
+        (channel) => channel.type == "GUILD_NEWS"
+      ).size,
+      [channels.stage]: guild.channels.cache.filter(
+        (channel) => channel.type == "GUILD_STAGE_VOICE"
+      ).size,
+      [channels.forum]: guild.channels.cache.filter(
+        (channel) => channel.type == "GUILD_FORUM"
+      ).size,
+      [channels.thread]: guild.channels.cache.filter((channel) =>
+        channel.isThread()
+      ).size,
+    };
+  }
+
   async run(
     command: ApplicationCommandMessage,
     args: { guild?: GuildPreview | FireGuild | InviteGuildWithCounts }
@@ -314,6 +322,7 @@ export default class GuildCommand extends Command {
     const info = await this.getInfo(command, guild);
     const inviteInfo = await this.getInviteInfo(command, invite);
     const security = this.getSecurity(command, guild);
+    const channels = this.getChannels(command, guild);
 
     const features: string[] = guild.features.map((feature) =>
       this.client.util.cleanFeatureName(feature, command.language)
@@ -357,6 +366,14 @@ export default class GuildCommand extends Command {
       embed.addField(
         command.language.get("GUILD_SECURITY"),
         security.join("\n")
+      );
+    if (channels)
+      embed.addField(
+        command.language.get("GUILD_CHANNELS"),
+        Object.entries(channels)
+          .filter(([, value]) => value > 0)
+          .map(([k, v]) => `${k} ${v}`)
+          .join(" | ")
       );
 
     if (features.length > 0) {
