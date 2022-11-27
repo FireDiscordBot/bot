@@ -70,34 +70,6 @@ export default class Ban extends Command {
     });
   }
 
-  async autocomplete(
-    interaction: ApplicationCommandMessage,
-    focused: CommandInteractionOption
-  ): Promise<ApplicationCommandOptionChoiceData[]> {
-    const { author } = interaction;
-    const value = focused.value;
-    return [
-      {
-        name: author.language.get("BAN_AUTOCOMPLETE_REASON_SUSSY"),
-        value: "BAN_AUTOCOMPLETE_REASON_SUSSY",
-      },
-      {
-        name: author.language.get("BAN_AUTOCOMPLETE_REASON_HACKED"),
-        value: "BAN_AUTOCOMPLETE_REASON_HACKED",
-      },
-      {
-        name: author.language.get("BAN_AUTOCOMPLETE_REASON_RULES"),
-        value: "BAN_AUTOCOMPLETE_REASON_RULES",
-      },
-      {
-        name: value
-          ? value.toString()
-          : author.language.get("BAN_AUTOCOMPLETE_REASON_OTHER"),
-        value: value ? value.toString() : "BAN_AUTOCOMPLETE_REASON_OTHER",
-      },
-    ];
-  }
-
   async run(
     command: ApplicationCommandMessage,
     args: {
