@@ -64,9 +64,16 @@ export class BaseFakeChannel {
     return this.real?.partial ?? false;
   }
   get rateLimitPerUser() {
-    return this.real instanceof FireTextChannel
+    return this.real instanceof FireTextChannel ||
+      this.real instanceof NewsChannel
       ? this.real?.rateLimitPerUser
       : 0;
+  }
+  setRateLimitPerUser(rateLimitPerUser: number, reason?: string) {
+    return this.real instanceof FireTextChannel ||
+      this.real instanceof NewsChannel
+      ? this.real.setRateLimitPerUser(rateLimitPerUser, reason)
+      : undefined;
   }
   get threads() {
     return this.real instanceof FireTextChannel ||
