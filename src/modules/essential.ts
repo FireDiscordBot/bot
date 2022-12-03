@@ -357,8 +357,8 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       const cachedTag = await manager.getTag("featherlog");
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
       await manager.useTag(cachedTag.name);
-      return await dropdown.realChannel
-        .send({ content: cachedTag.content })
+      return await dropdown
+        .edit({ content: cachedTag.content, components: [] })
         .catch(() => {});
     }
   }
