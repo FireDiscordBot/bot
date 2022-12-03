@@ -95,34 +95,8 @@ const cancelButton = new MessageButton()
   .setStyle("DANGER")
   .setCustomId("cancel_me");
 
-const initialLogDropdown = new MessageSelectMenu()
-  .setCustomId("essential_ticket_log_os")
-  .setPlaceholder("Select your Operating System")
-  .setMinValues(1)
-  .setMaxValues(1)
-  .addOptions([
-    {
-      label: "Windows",
-      value: "windows",
-      default: false,
-      emoji: "994349310705668166",
-    },
-    {
-      label: "macOS",
-      value: "macos",
-      default: false,
-      emoji: "628987335366672394",
-    },
-    {
-      label: "Linux",
-      value: "linux",
-      default: false,
-      emoji: "871680969466339338",
-    },
-  ]);
-
-const windowsLaunchersDropdown = new MessageSelectMenu()
-  .setCustomId("essential_ticket_log_launcher_windows")
+const launchersDropdown = new MessageSelectMenu()
+  .setCustomId("essential_ticket_log_launcher")
   .setPlaceholder("Select your launcher (what you use to launch the game)")
   .setMinValues(1)
   .setMaxValues(1)
@@ -146,17 +120,17 @@ const windowsLaunchersDropdown = new MessageSelectMenu()
       emoji: "1002101259161051146",
     },
     {
+      label: "Feather",
+      value: "feather",
+      default: false,
+      emoji: "1048569592240410724",
+    },
+    {
       label: "PolyMC",
       value: "polymc",
       default: false,
       emoji: "1035582585063088198",
     },
-    // {
-    //   label: "Other",
-    //   value: "other",
-    //   default: false,
-    //   emoji: "❓",
-    // },
   ]);
 
 export default class Essential extends Module {
@@ -165,7 +139,7 @@ export default class Essential extends Module {
   otherGuilds: FireGuild[] = [];
   publicGuild: FireGuild;
 
-  categoryIds: Snowflake[] = ["880170184931934328", "930070260269318174"];
+  categoryIds: Snowflake[] = ["930070260269318174"];
   categories: Record<Snowflake, CategoryChannel> = {};
 
   constructor() {
@@ -190,14 +164,12 @@ export default class Essential extends Module {
       return;
     }
     for (const id of this.categoryIds) {
-      const channel = this.client.channels.cache
-        .filter((c) => c.type == "GUILD_CATEGORY")
-        .get(id) as CategoryChannel;
+      const channel = this.client.channels.cache.get(id);
       if (!channel) {
         this.categoryIds = this.categoryIds.filter((c) => c != id);
         continue;
-      }
-      this.categories[channel.guildId] = channel;
+      } else if (channel.type == "GUILD_CATEGORY")
+        this.categories[channel.guildId] = channel;
     }
   }
 
@@ -321,62 +293,22 @@ You can run \`/latestlog\` for instructions on how to find your log.`
     slashCommand?: ApplicationCommandMessage
   ) {
     if (!ticket.isThread() && !ticket.isText()) return;
-    if (!this.client.dropdownHandlers.has("essential_ticket_log_os"))
+    if (!this.client.dropdownHandlers.has("essential_ticket_log_launcher"))
       this.client.dropdownHandlers.set(
-        "essential_ticket_log_os",
-        this.handleInitialLogDropdown.bind(this)
+        "essential_ticket_log_launcher",
+        this.handleLauncherDropdown.bind(this)
       );
     await (
       slashCommand?.channel.send.bind(slashCommand.channel) ??
       ticket.send.bind(ticket)
     )({
       content:
-        "For us to look into the issue(s) you are having, we'll need your game's log. Please select your Operating System from the dropdown below.",
-      components: [new MessageActionRow().addComponents(initialLogDropdown)],
+        "Please select what launcher you use from the dropdown below to get instructions on how to find the log",
+      components: [new MessageActionRow().addComponents(launchersDropdown)],
     });
   }
 
-  private async handleInitialLogDropdown(dropdown: ComponentMessage) {
-    const selectedOS = dropdown.values[0] as "windows" | "macos" | "linux";
-    if (!this.publicGuild.tags) {
-      this.publicGuild.tags = new GuildTagManager(
-        this.client,
-        this.publicGuild
-      );
-      await this.publicGuild.tags.init();
-    }
-    if (selectedOS == "macos" || selectedOS == "linux") {
-      // TODO: add instructions for multimc in the future, just vanilla is fine for now
-      const manager = this.publicGuild.tags;
-      const cachedTag = await manager.getTag(`latestlog${selectedOS}`);
-      if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
-      await manager.useTag(cachedTag.name);
-      return await dropdown
-        .edit({ content: cachedTag.content, components: [] })
-        .catch(() => {});
-    } else {
-      if (
-        !this.client.dropdownHandlers.has(
-          "essential_ticket_log_launcher_windows"
-        )
-      )
-        this.client.dropdownHandlers.set(
-          "essential_ticket_log_launcher_windows",
-          this.handleWindowsLauncherDropdown.bind(this)
-        );
-      return await dropdown
-        .edit({
-          content:
-            "Please select what launcher you use from the dropdown below to get instructions on how to find the log",
-          components: [
-            new MessageActionRow().addComponents(windowsLaunchersDropdown),
-          ],
-        })
-        .catch(() => {});
-    }
-  }
-
-  private async handleWindowsLauncherDropdown(dropdown: ComponentMessage) {
+  private async handleLauncherDropdown(dropdown: ComponentMessage) {
     if (!this.publicGuild.tags) {
       this.publicGuild.tags = new GuildTagManager(
         this.client,
@@ -388,11 +320,11 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       | "official"
       | "curseforge"
       | "multimc"
-      | "polymc"
-      | "other";
+      | "feather"
+      | "polymc";
     if (launcher == "official") {
       const manager = this.publicGuild.tags;
-      const cachedTag = await manager.getTag("vanillalogwin");
+      const cachedTag = await manager.getTag("vanillalog");
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
       await manager.useTag(cachedTag.name);
       return await dropdown
@@ -417,22 +349,17 @@ You can run \`/latestlog\` for instructions on how to find your log.`
     } else if (launcher == "polymc") {
       return await dropdown.edit({
         content:
-          "We advise against using PolyMC due to a recent incident! See https://canary.discord.com/channels/864592657572560958/880139889818099722/1031651874102849627",
+          "We advise against using PolyMC due to a recent incident! See https://discord.com/channels/864592657572560958/880139889818099722/1031651874102849627",
         components: [],
       });
-    } else if (launcher == "other") {
-      // const manager = this.publicGuild.tags;
-      // const cachedTag = await manager.getTag("otherlauncherlog");
-      // if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
-      // await manager.useTag(cachedTag.name);
-      // return await dropdown.realChannel
-      //   .send({ content: cachedTag.content })
-      //   .catch(() => {});
-      return await dropdown.edit({
-        content:
-          "We don't have proper generic instructions yet, but you can find the `logs` folder in the same place as the `mods` folder. Send the file called `latest` from within the `logs` folder",
-        components: [],
-      });
+    } else if (launcher == "feather") {
+      const manager = this.publicGuild.tags;
+      const cachedTag = await manager.getTag("featherlog");
+      if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
+      await manager.useTag(cachedTag.name);
+      return await dropdown.realChannel
+        .send({ content: cachedTag.content })
+        .catch(() => {});
     }
   }
 
