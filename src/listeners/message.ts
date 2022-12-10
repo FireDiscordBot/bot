@@ -274,8 +274,8 @@ export default class Message extends Listener {
       message.guildId == this.client.config.fireguildId &&
       message.channelId == "1051050542572511274"
     )
-      if (!message.member.roles.cache.has("1051050542572511274"))
-        await message.member.roles.add("1051050542572511274").catch(() => {});
+      if (!message.member.roles.cache.has("1051050567159525407"))
+        await message.member.roles.add("1051050567159525407").catch(() => {});
 
     const autoroleId = message.guild.settings.get<Snowflake>(
       "mod.autorole",
