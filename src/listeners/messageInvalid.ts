@@ -17,8 +17,10 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import RemindersCreate from "@fire/src/commands/Utilities/createremind";
 import Quote from "@fire/src/commands/Utilities/quote";
+import { Constants } from "discord-akairo";
 
 const { regexes } = constants;
+const { CommandHandlerEvents } = Constants;
 let mentionRegex: RegExp;
 
 export default class MessageInvalid extends Listener {
@@ -190,12 +192,36 @@ export default class MessageInvalid extends Listener {
           quote
         ).catch(() => {});
         if (convertedMessage) {
+          const args = {
+            quote: convertedMessage as FireMessage,
+            debug: quote.channel == "debug.",
+          };
+          this.client.commandHandler.emit(
+            CommandHandlerEvents.COMMAND_STARTED,
+            message,
+            quoteCommand,
+            args
+          );
           await quoteCommand
-            .exec(message, {
-              quote: convertedMessage as FireMessage,
-              debug: quote.channel == "debug.",
+            .exec(message, args)
+            .then((ret) => {
+              this.client.commandHandler.emit(
+                CommandHandlerEvents.COMMAND_FINISHED,
+                message,
+                quoteCommand,
+                args,
+                ret
+              );
             })
-            .catch(() => {});
+            .catch((err) => {
+              this.client.commandHandler.emit(
+                "commandError",
+                message,
+                quoteCommand,
+                args,
+                err
+              );
+            });
           await this.client.util.sleep(500);
         }
       }
