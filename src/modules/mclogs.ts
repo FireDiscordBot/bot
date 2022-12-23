@@ -269,7 +269,7 @@ export default class MCLogs extends Module {
       const solutions = await solutionsReq.json().catch(() => {});
       if (solutions?.content)
         this.solutions = JSON.parse(
-          Buffer.from(solutions.content, "base64").toString("ascii")
+          Buffer.from(solutions.content, "base64").toString("utf8")
         );
     }
     await this.refreshModVersions();
