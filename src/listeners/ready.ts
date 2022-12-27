@@ -161,10 +161,15 @@ export default class Ready extends Listener {
               );
               return new Collection<Snowflake, ApplicationCommand>();
             });
-          if (updated && updated.size)
+          if (updated && updated.size) {
             this.client.console.info(
               `[Commands] Successfully bulk updated ${updated.size} slash commands in ${guild.name} (${guild.id})`
             );
+            for (const applicationCommand of updated.values()) {
+              const command = this.client.getCommand(applicationCommand.name);
+              if (command) command.slashIds[guild.id] = applicationCommand.id;
+            }
+          }
         }
       } else {
         const updated = await this.client.application.commands
@@ -175,10 +180,15 @@ export default class Ready extends Listener {
             );
             return new Collection<Snowflake, ApplicationCommand>();
           });
-        if (updated && updated.size)
+        if (updated && updated.size) {
           this.client.console.info(
             `[Commands] Successfully bulk updated ${updated.size} slash commands`
           );
+          for (const applicationCommand of updated.values()) {
+            const command = this.client.getCommand(applicationCommand.name);
+            if (command) command.slashId = applicationCommand.id;
+          }
+        }
       }
     }
   }

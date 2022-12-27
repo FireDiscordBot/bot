@@ -1,23 +1,19 @@
-import {
-  MessageEmbedOptions,
-  BitFieldResolvable,
-  MessageSelectMenu,
-  MessageActionRow,
-  PermissionString,
-  MessageButton,
-  GuildChannel,
-  MessageEmbed,
-  Permissions,
-  CommandInteractionOption,
-} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
-import VanityURLs from "@fire/src/modules/vanityurls";
+import { Command } from "@fire/lib/util/command";
 import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
-
-const userMentionRegex = /<@!?(\d{15,21})>$/im;
+import VanityURLs from "@fire/src/modules/vanityurls";
+import {
+  CommandInteractionOption,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  MessageEmbedOptions,
+  MessageSelectMenu,
+  Permissions,
+  PermissionString,
+} from "discord.js";
 
 export default class Help extends Command {
   constructor() {

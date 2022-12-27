@@ -117,6 +117,7 @@ const channelTypeMapping: Record<
 export class Command extends AkairoCommand {
   requiresExperiment?: { id: number; bucket: number };
   declare description: (language: Language) => string;
+  slashIds: Record<Snowflake, Snowflake>; // map of guild id to snowflake if guild specific
   declare channel?: "guild" | "dm";
   enableSlashCommand: boolean;
   args?: ArgumentOptions[];
@@ -127,6 +128,7 @@ export class Command extends AkairoCommand {
   guilds: Snowflake[];
   slashOnly: boolean;
   ephemeral: boolean;
+  slashId: Snowflake;
   context: string[];
   premium: boolean;
   parent?: string;
@@ -195,6 +197,8 @@ export class Command extends AkairoCommand {
     this.group = options.group || false;
     this.guilds = options.guilds || [];
     this.args = options.args;
+    this.slashId = null;
+    this.slashIds = {};
   }
 
   async init(): Promise<any> {}
@@ -283,6 +287,16 @@ export class Command extends AkairoCommand {
       ];
     }
     return data;
+  }
+
+  getSlashCommandMention(guild?: FireGuild, subcommand?: Command) {
+    if (this.parentCommand)
+      return this.parentCommand.getSlashCommandMention(guild, this);
+    if (this.guilds.length && !guild) return null;
+    else if (this.guilds.length && !this.guilds.includes(guild.id)) return null;
+    return `</${subcommand ? subcommand.id.replace("-", " ") : this.id}:${
+      guild ? this.slashIds[guild.id] ?? this.slashId : this.slashId
+    }>`;
   }
 
   private getSlashCommandArgName(argument: ArgumentOptions) {
@@ -587,7 +601,10 @@ export class Command extends AkairoCommand {
           `[Commands] Failed to register slash command for ${this.id}`,
           command.stack
         );
-      else if (command.id) commands.push(command);
+      else if (command.id) {
+        this.slashId = command.id;
+        commands.push(command);
+      }
     } else {
       for (const guildId of this.guilds) {
         const guild = this.client.guilds.cache.get(guildId);
@@ -607,7 +624,10 @@ export class Command extends AkairoCommand {
             `[Commands] Failed to register slash command for ${this.id} in guild ${guild}`,
             command.stack
           );
-        else if (command.id) commands.push(command);
+        else if (command.id) {
+          this.slashIds[guildId] = command.id;
+          commands.push(command);
+        }
       }
     }
     return commands;

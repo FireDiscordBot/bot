@@ -622,32 +622,6 @@ export class Fire extends AkairoClient {
     });
   }
 
-  requestSlashCommands(
-    guild: FireGuild
-  ): Promise<GuildApplicationCommandsUpdate> {
-    return new Promise((resolve, reject) => {
-      let hasResolved = false;
-      setTimeout(() => {
-        if (!hasResolved) reject("timeout");
-      }, 10000);
-      const nonce = SnowflakeUtil.generate();
-      this.nonceHandlers.set(nonce, (data) => {
-        hasResolved = true;
-        resolve(data as GuildApplicationCommandsUpdate);
-      });
-      guild.shard.send({
-        op: 24,
-        d: {
-          applications: true,
-          guild_id: guild.id,
-          offset: 0,
-          type: 1,
-          nonce,
-        },
-      });
-    });
-  }
-
   getFuzzyCommands(command: string, limit = 20, forceRatio?: number) {
     let ratio = forceRatio ?? 90;
     let fuzzy: Command[] = [];

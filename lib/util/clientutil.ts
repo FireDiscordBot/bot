@@ -19,6 +19,8 @@ import {
   GuildPreview,
   GuildTextBasedChannel,
   LimitedCollection,
+  MessageActionRow,
+  MessageButton,
   MessageEmbed,
   OAuth2Guild,
   Permissions,
@@ -953,85 +955,54 @@ export class Util extends ClientUtil {
       return false;
     else if (!(message instanceof FireMessage)) return false;
     else if (message.sentUpsell) return false; // we don't want to send two of them for the same message
-    const slashCommands = await message.client
-      .requestSlashCommands(message.guild)
-      .catch(() => {});
-    if (typeof slashCommands == "undefined") return false;
-    let upsellType: "switch" | "invite" | "noslash";
-    const hasSlash =
-      slashCommands &&
-      !!slashCommands.applications.find(
-        (app) => app.id == message.client.user.id
-      );
-    if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
-      if (hasSlash) upsellType = "switch";
-      else upsellType = "invite";
-    else if (hasSlash) upsellType = "switch";
-    else upsellType = "noslash";
 
-    let upsellEmbed: MessageEmbed;
-    if (upsellType == "invite")
-      upsellEmbed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
-        .setAuthor({
-          name: message.language.get("NOTICE_TITLE"),
-          iconURL: this.client.user.displayAvatarURL({
-            size: 2048,
-            format: "png",
-          }),
-        })
-        .setDescription(
-          message.language.get("COMMAND_NOTICE_SLASH_UPSELL", {
-            invite: this.client.config.commandsInvite(
-              this.client,
-              message.guild.id
-            ),
-          })
-        );
-    else if (upsellType == "noslash")
-      upsellEmbed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
-        .setAuthor({
-          name: message.language.get("NOTICE_TITLE"),
-          iconURL: this.client.user.displayAvatarURL({
-            size: 2048,
-            format: "png",
-          }),
-        })
-        .setDescription(
-          message.language.get("COMMAND_NOTICE_SLASH_POKE", {
-            invite: this.client.config.commandsInvite(
-              this.client,
-              message.guild.id
-            ),
-          })
-        );
-    else if (upsellType == "switch") {
-      const cmdName = message.util?.parsed?.command?.id?.replace("-", " ");
-      upsellEmbed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
-        .setAuthor({
-          name: message.language.get("NOTICE_TITLE"),
-          iconURL: this.client.user.displayAvatarURL({
-            size: 2048,
-            format: "png",
-          }),
-        })
-        .setDescription(
-          message.language.get(
-            cmdName
-              ? "COMMAND_NOTICE_SLASH_SWITCH_WITH_NAME"
-              : "COMMAND_NOTICE_SLASH_SWITCH",
-            {
-              invite: this.client.config.commandsInvite(
-                this.client,
-                message.guild.id
-              ),
-              cmd: cmdName,
-            }
-          )
-        );
-    }
+    const parsedCommand = message.util?.parsed?.command;
+    const canInvite = message.member?.permissions.has(
+      Permissions.FLAGS.MANAGE_GUILD
+    );
+    const mention = parsedCommand?.getSlashCommandMention(message.guild);
+    if (mention == null) return false;
+    else if (mention.includes("null")) return false;
+    const upsellEmbed = new MessageEmbed()
+      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setAuthor({
+        name: message.language.get("NOTICE_TITLE"),
+        iconURL: this.client.user.displayAvatarURL({
+          size: 2048,
+          format: "png",
+        }),
+      })
+      .setDescription(
+        message.language.get(
+          !!parsedCommand
+            ? "COMMAND_NOTICE_SLASH_SWITCH_WITH_NAME"
+            : "COMMAND_NOTICE_SLASH_SWITCH",
+          {
+            cmd: mention,
+            components: message.guild
+              ? [
+                  new MessageActionRow().addComponents(
+                    new MessageButton()
+                      .setStyle("LINK")
+                      .setLabel(
+                        message.language.get(
+                          canInvite
+                            ? "SLASH_COMMAND_INVITE_BUTTON"
+                            : "SLASH_COMMAND_INVITE_BUTTON_NO_PERMISSIONS"
+                        )
+                      )
+                      .setURL(
+                        this.client.config.commandsInvite(
+                          this.client,
+                          message.guild?.id ?? ""
+                        )
+                      )
+                  ),
+                ]
+              : [],
+          }
+        )
+      );
     message.sentUpsell = true;
     return upsellEmbed;
   }

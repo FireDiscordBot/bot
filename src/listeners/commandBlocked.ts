@@ -54,78 +54,28 @@ export default class CommandBlocked extends Listener {
         status: constants.url.fireStatus,
       });
     else if (reason == "slashonly") {
-      if (!message.guildId)
-        return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL", {
-          command: command.parent
-            ? `/${command.parent} ${command.id.replace(
-                command.parent + "-",
-                ""
-              )}`
-            : `/${command.id}`,
-        });
-      const slashCommands = await this.client
-        .requestSlashCommands(message.guild)
-        .catch(() => {});
-      const hasSlash =
-        slashCommands &&
-        !!slashCommands.applications.find(
-          (app) => app.id == this.client.user.id
-        );
-      if (message.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
-        if (hasSlash)
-          return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL", {
-            command: command.parent
-              ? `/${command.parent} ${command.id.replace(
-                  command.parent + "-",
-                  ""
-                )}`
-              : `/${command.id}`,
-          });
-        else
-          return await message.error("COMMAND_ERROR_SLASH_ONLY_NOSLASH", {
-            command: command.parent
-              ? `/${command.parent} ${command.id.replace(
-                  command.parent + "-",
-                  ""
-                )}`
-              : `/${command.id}`,
-            components: [
+      const canInvite = message.member?.permissions.has(
+        Permissions.FLAGS.MANAGE_GUILD
+      );
+      const mention = command.getSlashCommandMention(message.guild);
+      if (mention == null)
+        return await message.error("COMMAND_ERROR_SLASH_UNAVAILABLE_HERE");
+      else if (mention.includes("null"))
+        return await message.error("COMMAND_NOTICE_SLASH_NO_MENTION");
+      return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL", {
+        command: command.getSlashCommandMention(message.guild),
+        components: message.guild
+          ? [
               new MessageActionRow().addComponents(
                 new MessageButton()
                   .setStyle("LINK")
-                  .setLabel(message.language.get("INVITE"))
-                  .setURL(
-                    this.client.config.commandsInvite(
-                      this.client,
-                      message.guild.id
+                  .setLabel(
+                    message.language.get(
+                      canInvite
+                        ? "SLASH_COMMAND_INVITE_BUTTON"
+                        : "SLASH_COMMAND_INVITE_BUTTON_NO_PERMISSIONS"
                     )
                   )
-              ),
-            ],
-          });
-      else {
-        if (hasSlash)
-          return await message.error("COMMAND_ERROR_SLASH_ONLY_UPSELL", {
-            command: command.parent
-              ? `/${command.parent} ${command.id.replace(
-                  command.parent + "-",
-                  ""
-                )}`
-              : `/${command.id}`,
-          });
-        else
-          return await message.error("COMMAND_ERROR_SLASH_ONLY_USER_NOSLASH", {
-            command: command.parent
-              ? `/${command.parent} ${command.id.replace(
-                  command.parent + "-",
-                  ""
-                )}`
-              : `/${command.id}`,
-            components: [
-              new MessageActionRow().addComponents(
-                new MessageButton()
-                  .setStyle("LINK")
-                  .setLabel(message.language.get("INVITE"))
                   .setURL(
                     this.client.config.commandsInvite(
                       this.client,
@@ -133,9 +83,9 @@ export default class CommandBlocked extends Listener {
                     )
                   )
               ),
-            ],
-          });
-      }
+            ]
+          : [],
+      });
     } else if (reason == "owner") {
       if (command.id == "eval") {
         // @ts-ignore
