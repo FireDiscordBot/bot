@@ -37,7 +37,6 @@ export default class Ban extends Command {
           description: (language: Language) =>
             language.get("BAN_ARGUMENT_REASON_DESCRIPTION"),
           required: false,
-          autocomplete: true,
           default: null,
           match: "rest",
         },
