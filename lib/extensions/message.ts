@@ -295,6 +295,7 @@ export class FireMessage extends Message {
       this.guild.roles.everyone
         .permissionsIn(channel)
         .has(Permissions.FLAGS.READ_MESSAGE_HISTORY);
+    if (debug) debug.push(`Is lurkable: ${isLurkable}`);
     let member: FireMember;
     if (this.guild.id == destination?.guild?.id) member = quoter;
     if (
@@ -304,17 +305,25 @@ export class FireMessage extends Message {
       if (this.guild.id != destination?.guild.id) {
         member = (await this.guild.members
           .fetch({ user: quoter, cache: false })
-          .catch(() => {})) as FireMember;
+          .catch(() => undefined)) as FireMember;
       } else member = quoter;
     }
 
+    if (debug)
+      debug.push(
+        `Member is of type ${member?.constructor.name ?? typeof member}`
+      );
+
     // check thread members if private thread
     if (this.channel.type == "GUILD_PRIVATE_THREAD") {
-      const member = await (this.channel as ThreadChannel).members.fetch(
+      const threadMember = await (this.channel as ThreadChannel).members.fetch(
         quoter,
         { cache: false }
       );
-      if (!member || (member instanceof Collection && !member.has(quoter.id))) {
+      if (
+        !threadMember ||
+        (threadMember instanceof Collection && !threadMember.has(quoter.id))
+      ) {
         if (debug)
           debug.push(
             "Cannot quote a message from a thread you are not a member of"
