@@ -148,7 +148,15 @@ export default class MessageInvalid extends Listener {
       if (inhibited) continue;
       let exec = inhibitor.exec(message, quoteCommand);
       if (this.client.util.isPromise(exec)) exec = await exec;
-      if (exec) inhibited = true;
+      if (exec) {
+        this.client.commandHandler.emit(
+          "commandBlocked",
+          message,
+          quoteCommand,
+          inhibitor.reason
+        );
+        inhibited = true;
+      }
     }
 
     if (inhibited) {
