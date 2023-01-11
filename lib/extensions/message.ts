@@ -2,11 +2,7 @@ import * as sanitizer from "@aero/sanitizer";
 import { Fire } from "@fire/lib/Fire";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { CommandUtil } from "@fire/lib/util/commandutil";
-import {
-  constants,
-  GuildTextChannel,
-  i18nOptions,
-} from "@fire/lib/util/constants";
+import { constants, i18nOptions } from "@fire/lib/util/constants";
 import Filters from "@fire/src/modules/filters";
 import * as centra from "centra";
 import {
@@ -15,7 +11,6 @@ import {
   DiscordAPIError,
   DMChannel,
   EmojiIdentifierResolvable,
-  ForumChannel,
   GuildChannel,
   GuildTextBasedChannel,
   Message,
@@ -330,7 +325,10 @@ export class FireMessage extends Message {
           );
         return "permissions";
       }
-    } else if (!isLurkable)
+    } else if (
+      !this.guild.features?.includes("DISCOVERABLE") ||
+      (this.guild.features?.includes("DISCOVERABLE") && !isLurkable)
+    )
       if (
         !member ||
         !member.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL)
