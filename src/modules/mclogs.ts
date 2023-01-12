@@ -116,7 +116,7 @@ export default class MCLogs extends Module {
       ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
       email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
       url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
-      home: /(\/Users\/[\w\s]+|\/home\/\w+|C:\\Users\\[\w\s]+)/gim,
+      home: /(\/Users\/[A-Za-zÀ-ÖØ-öø-ÿ\s]+|\/home\/\w+|C:\\Users\\[A-Za-zÀ-ÖØ-öø-ÿ\s]+)/gim,
       settingUser:
         /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
       devEnvUser: /Player\d{3}/gim,
