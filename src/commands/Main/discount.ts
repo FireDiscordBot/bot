@@ -1,6 +1,6 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
-import { CouponType } from "@fire/lib/util/constants";
+import { constants, CouponType } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 
 export default class Discount extends Command {
@@ -30,7 +30,9 @@ export default class Discount extends Command {
     if (
       message.author.settings.get<CouponType>("premium.coupon", null) != coupon
     )
-      return await message.error("COMMAND_ERROR_500");
+      return await message.error("COMMAND_ERROR_500", {
+        status: constants.url.fireStatus,
+      });
 
     const created = await this.client.util
       .createSpecialCoupon(message.member, coupon)
@@ -40,7 +42,10 @@ export default class Discount extends Command {
       return await message.error(
         created && created.success == false
           ? created.reason
-          : "COMMAND_ERROR_500"
+          : "COMMAND_ERROR_500",
+        {
+          status: constants.url.fireStatus,
+        }
       );
     } else return await message.success("DISCOUNT_CREATED", created);
   }

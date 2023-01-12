@@ -698,7 +698,9 @@ export default class Button extends Listener {
           (ticket == "author" || ticket.startsWith("no "))
         )
           return await button.edit(
-            button.language.getSlashError("COMMAND_ERROR_500")
+            button.language.getSlashError("COMMAND_ERROR_500", {
+              status: constants.url.fireStatus,
+            })
           );
         else if (ticket == "disabled")
           return await button.edit(
@@ -849,7 +851,9 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           (ticket == "author" || ticket.startsWith("no "))
         )
           return await button.edit(
-            button.language.getSlashError("COMMAND_ERROR_500")
+            button.language.getSlashError("COMMAND_ERROR_500", {
+              status: constants.url.fireStatus,
+            })
           );
         else if (ticket == "disabled")
           return await button.edit(

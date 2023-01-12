@@ -139,7 +139,7 @@ export default class Essential extends Module {
   otherGuilds: FireGuild[] = [];
   publicGuild: FireGuild;
 
-  categoryIds: Snowflake[] = ["930070260269318174"];
+  categoryIds: Snowflake[] = ["930070260269318174", "907255343808139265"];
   categories: Record<Snowflake, CategoryChannel> = {};
 
   constructor() {
