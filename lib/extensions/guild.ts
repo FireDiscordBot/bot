@@ -1077,7 +1077,7 @@ export class FireGuild extends Guild {
       (this.channels.cache
         .filter((chan) => chan.type == "GUILD_CATEGORY")
         .get(
-          this.settings.get<Snowflake>("ticFix kets.parent")
+          this.settings.get<Snowflake>("tickets.parent")
         ) as CategoryChannel);
     if (!category) return "disabled";
     const limit = this.settings.get<number>("tickets.limit", 1);
