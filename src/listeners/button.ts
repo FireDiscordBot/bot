@@ -1,4 +1,5 @@
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
@@ -13,6 +14,7 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
 import {
+  CategoryChannel,
   GuildChannel,
   MessageActionRow,
   MessageButton,
@@ -81,6 +83,17 @@ const validSparkTypes = [
   "java_feedback",
   "java_general",
 ];
+
+const validGFuelTypes = {
+  support: "1063167726497038357",
+  hi_feedback: "1063203686328840383",
+};
+
+const GFuelSubjects = {
+  // goes against naming conventions but branding:tm:
+  support: "🖥️ Support",
+  hi_feedback: "😃 Say Hi / Feedback",
+};
 
 export default class Button extends Listener {
   constructor() {
@@ -911,6 +924,67 @@ Please choose accurately as it will allow us to help you as quick as possible! �
       if (!handler || typeof handler != "function")
         return await button.error("BUTTON_SUPPORT_CHOICE_INVALID");
       else return await handler.bind(sparkModule)(button);
+    }
+
+    if (button.customId.startsWith("gfuelambassador_")) {
+      const type = button.customId.slice(16);
+      if (!type || !validGFuelTypes[type]) return;
+      const categoryId = validGFuelTypes[type];
+      if (!categoryId) return;
+
+      const gfuelGuild = this.client.guilds.cache.get(
+        "1063167289475747860"
+      ) as FireGuild;
+      const category = gfuelGuild.channels.cache.get(
+        categoryId
+      ) as CategoryChannel;
+      const ticket = await gfuelGuild.createTicket(
+        button.member,
+        GFuelSubjects[type] ?? "Unknown",
+        undefined,
+        category
+      );
+      if (!(ticket instanceof FireTextChannel)) {
+        // how?
+        if (ticket == "blacklisted") return;
+        else if (typeof ticket == "string" && ticket == "author")
+          return await button.edit(
+            button.language.getSlashError("COMMAND_ERROR_500", {
+              status: constants.url.fireStatus,
+            })
+          );
+        else if (ticket == "disabled")
+          return await button.edit(
+            button.language.getSlashError("NEW_TICKET_DISABLED")
+          );
+        else if (ticket == "limit")
+          return await button.edit(
+            button.language.getSlashError("NEW_TICKET_LIMIT")
+          );
+        else if (ticket == "lock")
+          return await button.edit(
+            button.language.getSlashError("NEW_TICKET_LOCK", {
+              limit: button.guild.settings.get<number>("tickets.limit", 1),
+            })
+          );
+        else
+          return await button.edit(
+            button.language.getSlashError("COMMAND_ERROR_500", {
+              status: constants.url.fireStatus,
+            })
+          );
+      } else
+        await button
+          .edit({
+            content: `${emojis.success} ${button.language.get(
+              "NEW_TICKET_CREATED",
+              {
+                channel: ticket.toString(),
+              }
+            )}`,
+            components: [],
+          })
+          .catch(() => {});
     }
 
     if (button.customId.startsWith("snooze:")) {
