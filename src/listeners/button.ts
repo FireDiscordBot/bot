@@ -948,41 +948,25 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         // how?
         if (ticket == "blacklisted") return;
         else if (typeof ticket == "string" && ticket == "author")
-          return await button.edit(
-            button.language.getSlashError("COMMAND_ERROR_500", {
-              status: constants.url.fireStatus,
-            })
-          );
+          return await button.error("COMMAND_ERROR_500", {
+            status: constants.url.fireStatus,
+          });
         else if (ticket == "disabled")
-          return await button.edit(
-            button.language.getSlashError("NEW_TICKET_DISABLED")
-          );
+          return await button.error("NEW_TICKET_DISABLED");
         else if (ticket == "limit")
-          return await button.edit(
-            button.language.getSlashError("NEW_TICKET_LIMIT")
-          );
+          return await button.error("NEW_TICKET_LIMIT");
         else if (ticket == "lock")
-          return await button.edit(
-            button.language.getSlashError("NEW_TICKET_LOCK", {
-              limit: button.guild.settings.get<number>("tickets.limit", 1),
-            })
-          );
+          return await button.error("NEW_TICKET_LOCK", {
+            limit: button.guild.settings.get<number>("tickets.limit", 1),
+          });
         else
-          return await button.edit(
-            button.language.getSlashError("COMMAND_ERROR_500", {
-              status: constants.url.fireStatus,
-            })
-          );
+          return await button.error("COMMAND_ERROR_500", {
+            status: constants.url.fireStatus,
+          });
       } else
         await button
-          .edit({
-            content: `${emojis.success} ${button.language.get(
-              "NEW_TICKET_CREATED",
-              {
-                channel: ticket.toString(),
-              }
-            )}`,
-            components: [],
+          .success("NEW_TICKET_CREATED", {
+            channel: ticket.toString(),
           })
           .catch(() => {});
     }
