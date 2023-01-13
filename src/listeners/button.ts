@@ -948,8 +948,9 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         // how?
         if (ticket == "blacklisted") return;
         else if (typeof ticket == "string" && ticket == "author")
-          return await button.error("COMMAND_ERROR_500", {
+          return await button.error("COMMAND_ERROR_500_CTX", {
             status: constants.url.fireStatus,
+            ctx: "GUILD_ID_MISMATCH",
           });
         else if (ticket == "disabled")
           return await button.error("NEW_TICKET_DISABLED");
@@ -960,8 +961,9 @@ Please choose accurately as it will allow us to help you as quick as possible! â
             limit: button.guild.settings.get<number>("tickets.limit", 1),
           });
         else
-          return await button.error("COMMAND_ERROR_500", {
+          return await button.error("COMMAND_ERROR_500_CTX", {
             status: constants.url.fireStatus,
+            ctx: `UNEXPECTED_RETURN_VALUE: ${ticket}`,
           });
       } else
         await button

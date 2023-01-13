@@ -42,6 +42,7 @@
   "COMMAND_NOTICE_SLASH_SWITCH_WITH_NAME": "Fire is in the process of switching to slash commands as the only way to run commands but you seem to be using message commands still...\n\nGo ahead and hit `/` to discover slash commands & use {{cmd}} in future for this command!",
   "COMMAND_NOTICE_SLASH_NO_MENTION": "This command can only be used via the slash command!",
   "COMMAND_ERROR_500": "An internal error occured and command execution was halted. This may be the result of an outage so keep an eye on Fire's status page (<{{status}}>) for details",
+  "COMMAND_ERROR_500_CTX": "An internal error occured and command execution was halted. This may be the result of an outage so keep an eye on Fire's status page (<{{status}}>) for details or quote the error below in support\n\n{{ctx}}",
   "COMMAND_ERROR_GENERIC": "Something went wrong while running {{id}}",
   "SLASH_COMMAND_HANDLE_FAIL": "I failed to handle that slash command",
   "SLASH_COMMAND_HANDLE_SUCCESS": "Command ran successfully!",
