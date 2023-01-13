@@ -946,28 +946,32 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           .setTitle("G Fuel Ambassador Tickets")
           .setCustomId(`gfuel_confirm_${button.author.id}`)
           .addComponents(
-            new MessageActionRow<ModalActionRowComponent>().addComponents([
+            new MessageActionRow<ModalActionRowComponent>().addComponents(
               new TextInputComponent()
                 .setCustomId("email")
                 .setRequired(false)
                 .setLabel("Email")
                 .setPlaceholder("Enter your email here (optional)")
                 .setStyle(TextInputStyles.SHORT)
-                .setMaxLength(125),
+                .setMaxLength(125)
+            ),
+            new MessageActionRow<ModalActionRowComponent>().addComponents(
               new TextInputComponent()
                 .setCustomId("code")
                 .setRequired(false)
                 .setLabel("Ambassador Code")
                 .setPlaceholder("Enter your ambassador code (optional)")
-                .setStyle(TextInputStyles.SHORT),
+                .setStyle(TextInputStyles.SHORT)
+            ),
+            new MessageActionRow<ModalActionRowComponent>().addComponents(
               new TextInputComponent()
                 .setCustomId("subject")
                 .setRequired(true)
                 .setLabel("Ticket Subject")
                 .setPlaceholder("Enter a subject for your ticket here.")
                 .setStyle(TextInputStyles.PARAGRAPH)
-                .setMaxLength(500),
-            ])
+                .setMaxLength(500)
+            )
           )
       );
 
