@@ -19,6 +19,7 @@ import {
   BaseFetchOptions,
   CategoryChannel,
   Collection,
+  EmbedFieldData,
   Formatters,
   Guild,
   GuildAuditLogs,
@@ -1063,7 +1064,8 @@ export class FireGuild extends Guild {
     subject: string,
     channel?: FireTextChannel,
     category?: CategoryChannel,
-    descriptionOverride?: string
+    descriptionOverride?: string,
+    additionalFields?: EmbedFieldData[]
   ) {
     if (channel instanceof BaseFakeChannel)
       channel = channel.real as FireTextChannel;
@@ -1250,6 +1252,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .setColor(author.displayColor ?? "#FFFFFF")
       .addField(this.language.get("SUBJECT"), subject)
       .addField(this.language.get("USER"), authorInfo);
+    embed.addFields(additionalFields);
     const description =
       descriptionOverride ?? this.settings.get<string>("tickets.description");
     if (description) embed.setDescription(description);

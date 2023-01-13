@@ -946,15 +946,28 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           .setTitle("G Fuel Ambassador Tickets")
           .setCustomId(`gfuel_confirm_${button.author.id}`)
           .addComponents(
-            new MessageActionRow<ModalActionRowComponent>().addComponents(
+            new MessageActionRow<ModalActionRowComponent>().addComponents([
+              new TextInputComponent()
+                .setCustomId("email")
+                .setRequired(false)
+                .setLabel("Email")
+                .setPlaceholder("Enter your email here (optional)")
+                .setStyle(TextInputStyles.SHORT)
+                .setMaxLength(125),
+              new TextInputComponent()
+                .setCustomId("code")
+                .setRequired(false)
+                .setLabel("Ambassador Code")
+                .setPlaceholder("Enter your ambassador code (optional)")
+                .setStyle(TextInputStyles.SHORT),
               new TextInputComponent()
                 .setCustomId("subject")
                 .setRequired(true)
                 .setLabel("Ticket Subject")
-                .setPlaceholder("Enter a short subject for your ticket here.")
-                .setStyle(TextInputStyles.SHORT)
-                .setMaxLength(200)
-            )
+                .setPlaceholder("Enter a subject for your ticket here.")
+                .setStyle(TextInputStyles.PARAGRAPH)
+                .setMaxLength(500),
+            ])
           )
       );
 
@@ -962,7 +975,9 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       await modal.channel.ack();
       modal.flags = 64;
 
-      const subject = modal.interaction.fields.getTextInputValue("subject");
+      const email = modal.interaction.fields.getTextInputValue("email"),
+        code = modal.interaction.fields.getTextInputValue("code"),
+        subject = modal.interaction.fields.getTextInputValue("subject");
       if (!subject?.length)
         return await modal.error("COMMAND_ERROR_GENERIC", { id: "new" });
 
@@ -970,7 +985,18 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         button.member,
         subject,
         undefined,
-        category
+        category,
+        undefined,
+        [
+          {
+            name: "Email",
+            value: email || "None",
+          },
+          {
+            name: "Ambassador Code",
+            value: code || "None",
+          },
+        ]
       );
       if (!(ticket instanceof FireTextChannel)) {
         // how?
