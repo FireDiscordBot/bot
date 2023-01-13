@@ -2,6 +2,7 @@ import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import { constants, titleCase } from "@fire/lib/util/constants";
@@ -18,6 +19,7 @@ import {
   GuildChannel,
   MessageActionRow,
   MessageButton,
+  MessageComponentInteraction,
   MessageEmbed,
   MessageSelectMenu,
   Modal,
@@ -87,12 +89,6 @@ const validSparkTypes = [
 const validGFuelTypes = {
   support: "1063167726497038357",
   hi_feedback: "1063203686328840383",
-};
-
-const GFuelSubjects = {
-  // goes against naming conventions but branding:tm:
-  support: "ðŸ–¥ï¸ Support",
-  hi_feedback: "ðŸ˜ƒ Say Hi / Feedback",
 };
 
 export default class Button extends Listener {
@@ -938,9 +934,41 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       const category = gfuelGuild.channels.cache.get(
         categoryId
       ) as CategoryChannel;
+
+      const modalPromise = new Promise((resolve) => {
+        this.client.modalHandlersOnce.set(
+          `gfuel_confirm_${button.author.id}`,
+          resolve
+        );
+      }) as Promise<ModalMessage>;
+      await (button.interaction as MessageComponentInteraction).showModal(
+        new Modal()
+          .setTitle("G Fuel Ambassador Tickets")
+          .setCustomId(`gfuel_confirm_${button.author.id}`)
+          .addComponents(
+            new MessageActionRow<ModalActionRowComponent>().addComponents(
+              new TextInputComponent()
+                .setCustomId("subject")
+                .setRequired(true)
+                .setLabel("Ticket Subject")
+                .setPlaceholder("Enter a short subject for your ticket here.")
+                .setStyle(TextInputStyles.SHORT)
+                .setMaxLength(200)
+            )
+          )
+      );
+
+      const modal = await modalPromise;
+      await modal.channel.ack();
+      modal.flags = 64;
+
+      const subject = modal.interaction.fields.getTextInputValue("subject");
+      if (!subject?.length)
+        return await modal.error("COMMAND_ERROR_GENERIC", { id: "new" });
+
       const ticket = await gfuelGuild.createTicket(
         button.member,
-        GFuelSubjects[type] ?? "Unknown",
+        subject,
         undefined,
         category
       );
@@ -948,25 +976,25 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         // how?
         if (ticket == "blacklisted") return;
         else if (typeof ticket == "string" && ticket == "author")
-          return await button.error("COMMAND_ERROR_500_CTX", {
+          return await modal.error("COMMAND_ERROR_500_CTX", {
             status: constants.url.fireStatus,
             ctx: "GUILD_ID_MISMATCH",
           });
         else if (ticket == "disabled")
-          return await button.error("NEW_TICKET_DISABLED");
+          return await modal.error("NEW_TICKET_DISABLED");
         else if (ticket == "limit")
-          return await button.error("NEW_TICKET_LIMIT");
+          return await modal.error("NEW_TICKET_LIMIT");
         else if (ticket == "lock")
-          return await button.error("NEW_TICKET_LOCK", {
+          return await modal.error("NEW_TICKET_LOCK", {
             limit: button.guild.settings.get<number>("tickets.limit", 1),
           });
         else
-          return await button.error("COMMAND_ERROR_500_CTX", {
+          return await modal.error("COMMAND_ERROR_500_CTX", {
             status: constants.url.fireStatus,
             ctx: `UNEXPECTED_RETURN_VALUE: ${ticket}`,
           });
       } else
-        await button
+        await modal
           .success("NEW_TICKET_CREATED", {
             channel: ticket.toString(),
           })
