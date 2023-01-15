@@ -1065,7 +1065,7 @@ export class FireGuild extends Guild {
     channel?: FireTextChannel,
     category?: CategoryChannel,
     descriptionOverride?: string,
-    additionalFields?: EmbedFieldData[]
+    additionalFields: EmbedFieldData[] = []
   ) {
     if (channel instanceof BaseFakeChannel)
       channel = channel.real as FireTextChannel;
