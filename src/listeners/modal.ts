@@ -30,6 +30,7 @@ export default class Modal extends Listener {
     } catch {}
 
     if (modal.customId.startsWith("ticket_close")) {
+      modal.channel.ack();
       const channelId = modal.customId.slice(13) as Snowflake;
       const channel = this.client.channels.cache.get(channelId) as
         | FireTextChannel
@@ -48,10 +49,13 @@ export default class Modal extends Listener {
       const reason = modal.interaction.fields.getTextInputValue("close_reason");
       if (!reason)
         return await modal.error("COMMAND_ERROR_GENERIC", { id: "close" });
-      const closure = await guild
+      const closed = await guild
         .closeTicket(channel, modal.member, reason)
-        .catch(() => {});
-      if (closure instanceof Channel) return await modal.channel.ack();
+        .catch((e: Error) => e);
+      if (!(closed instanceof Channel))
+        return await modal.error("COMMAND_ERROR_500_CTX", {
+          ctx: typeof closed == "string" ? closed : "close",
+        });
     }
 
     if (modal.customId.startsWith("tag_edit:") && modal.guild) {
