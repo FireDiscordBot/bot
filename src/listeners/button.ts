@@ -949,18 +949,18 @@ Please choose accurately as it will allow us to help you as quick as possible! â
             new MessageActionRow<ModalActionRowComponent>().addComponents(
               new TextInputComponent()
                 .setCustomId("email")
-                .setRequired(false)
+                .setRequired(true)
                 .setLabel("Email")
-                .setPlaceholder("Enter your email here (optional)")
+                .setPlaceholder("Enter your email here")
                 .setStyle(TextInputStyles.SHORT)
                 .setMaxLength(125)
             ),
             new MessageActionRow<ModalActionRowComponent>().addComponents(
               new TextInputComponent()
                 .setCustomId("code")
-                .setRequired(false)
+                .setRequired(true)
                 .setLabel("Ambassador Code")
-                .setPlaceholder("Enter your ambassador code (optional)")
+                .setPlaceholder("Enter your ambassador code")
                 .setStyle(TextInputStyles.SHORT)
             ),
             new MessageActionRow<ModalActionRowComponent>().addComponents(
