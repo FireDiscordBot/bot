@@ -134,7 +134,7 @@ const twitchGFuelModalComponents = [
     new TextInputComponent()
       .setCustomId("username")
       .setRequired(true)
-      .setLabel("Username")
+      .setLabel("Twitch username")
       .setPlaceholder("Enter your Twitch username here")
       .setStyle(TextInputStyles.SHORT)
       .setMinLength(3)
