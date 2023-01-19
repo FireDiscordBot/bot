@@ -88,8 +88,68 @@ const validSparkTypes = [
 
 const validGFuelTypes = {
   support: "1063167726497038357",
-  hi_feedback: "1063203686328840383",
+  feedback: "1063203686328840383",
+  twitch: "1065365444971741294",
 };
+
+const defaultGFuelModalComponents = [
+  new MessageActionRow<ModalActionRowComponent>().addComponents(
+    new TextInputComponent()
+      .setCustomId("email")
+      .setRequired(true)
+      .setLabel("Email")
+      .setPlaceholder("Enter your email here")
+      .setStyle(TextInputStyles.SHORT)
+      .setMaxLength(125)
+  ),
+  new MessageActionRow<ModalActionRowComponent>().addComponents(
+    new TextInputComponent()
+      .setCustomId("code")
+      .setRequired(true)
+      .setLabel("Ambassador Code")
+      .setPlaceholder("Enter your ambassador code")
+      .setStyle(TextInputStyles.SHORT)
+  ),
+  new MessageActionRow<ModalActionRowComponent>().addComponents(
+    new TextInputComponent()
+      .setCustomId("subject")
+      .setRequired(true)
+      .setLabel("Ticket Subject")
+      .setPlaceholder("Enter a subject for your ticket here.")
+      .setStyle(TextInputStyles.PARAGRAPH)
+      .setMaxLength(500)
+  ),
+];
+
+const twitchGFuelModalComponents = [
+  new MessageActionRow<ModalActionRowComponent>().addComponents(
+    new TextInputComponent()
+      .setCustomId("code")
+      .setRequired(true)
+      .setLabel("Ambassador Code")
+      .setPlaceholder("Enter your ambassador code")
+      .setStyle(TextInputStyles.SHORT)
+  ),
+  new MessageActionRow<ModalActionRowComponent>().addComponents(
+    new TextInputComponent()
+      .setCustomId("username")
+      .setRequired(true)
+      .setLabel("Username")
+      .setPlaceholder("Enter your Twitch username here")
+      .setStyle(TextInputStyles.SHORT)
+      .setMinLength(3)
+      .setMaxLength(50)
+  ),
+  new MessageActionRow<ModalActionRowComponent>().addComponents(
+    new TextInputComponent()
+      .setCustomId("subject")
+      .setRequired(true)
+      .setLabel("Ticket Subject")
+      .setPlaceholder("Enter a subject for your ticket here.")
+      .setStyle(TextInputStyles.PARAGRAPH)
+      .setMaxLength(500)
+  ),
+];
 
 export default class Button extends Listener {
   constructor() {
@@ -941,47 +1001,26 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           resolve
         );
       }) as Promise<ModalMessage>;
+      const modalObj = new Modal()
+        .setTitle("G Fuel Ambassador Tickets")
+        .setCustomId(`gfuel_confirm_${button.author.id}`);
+      if (type == "twitch")
+        modalObj.addComponents(...twitchGFuelModalComponents);
+      else modalObj.addComponents(...defaultGFuelModalComponents);
       await (button.interaction as MessageComponentInteraction).showModal(
-        new Modal()
-          .setTitle("G Fuel Ambassador Tickets")
-          .setCustomId(`gfuel_confirm_${button.author.id}`)
-          .addComponents(
-            new MessageActionRow<ModalActionRowComponent>().addComponents(
-              new TextInputComponent()
-                .setCustomId("email")
-                .setRequired(true)
-                .setLabel("Email")
-                .setPlaceholder("Enter your email here")
-                .setStyle(TextInputStyles.SHORT)
-                .setMaxLength(125)
-            ),
-            new MessageActionRow<ModalActionRowComponent>().addComponents(
-              new TextInputComponent()
-                .setCustomId("code")
-                .setRequired(true)
-                .setLabel("Ambassador Code")
-                .setPlaceholder("Enter your ambassador code")
-                .setStyle(TextInputStyles.SHORT)
-            ),
-            new MessageActionRow<ModalActionRowComponent>().addComponents(
-              new TextInputComponent()
-                .setCustomId("subject")
-                .setRequired(true)
-                .setLabel("Ticket Subject")
-                .setPlaceholder("Enter a subject for your ticket here.")
-                .setStyle(TextInputStyles.PARAGRAPH)
-                .setMaxLength(500)
-            )
-          )
+        modalObj
       );
 
       const modal = await modalPromise;
       await modal.channel.ack();
       modal.flags = 64;
 
-      const email = modal.interaction.fields.getTextInputValue("email"),
-        code = modal.interaction.fields.getTextInputValue("code"),
+      let username: string, email: string;
+      const code = modal.interaction.fields.getTextInputValue("code"),
         subject = modal.interaction.fields.getTextInputValue("subject");
+      if (type == "twitch")
+        username = modal.interaction.fields.getTextInputValue("username");
+      else email = modal.interaction.fields.getTextInputValue("email");
       if (!subject?.length)
         return await modal.error("COMMAND_ERROR_GENERIC", { id: "new" });
 
@@ -991,16 +1030,28 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         undefined,
         category,
         undefined,
-        [
-          {
-            name: "Email",
-            value: email || "None",
-          },
-          {
-            name: "Ambassador Code",
-            value: code || "None",
-          },
-        ]
+
+        type == "twitch"
+          ? [
+              {
+                name: "Twitch Username",
+                value: username,
+              },
+              {
+                name: "Ambassador Code",
+                value: code,
+              },
+            ]
+          : [
+              {
+                name: "Email",
+                value: email,
+              },
+              {
+                name: "Ambassador Code",
+                value: code,
+              },
+            ]
       );
       if (!(ticket instanceof FireTextChannel)) {
         // how?
