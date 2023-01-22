@@ -292,9 +292,10 @@ export const constants = {
     ],
     paypal: /(?:paypal\.me|paypal\.com\/paypalme)\/(?<name>[\w-]+)/im,
     youtube: {
-      channel: /youtube\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/im,
+      channel:
+        /(?:you\s?tube|u\s?tube)\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/im,
       video:
-        /(youtu\.be\/|invidio\.us\/|youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/clip\/)(?<video>[\w-]+)/im,
+        /(youtu\.be\/|invidio\.us\/|(?:you\s?tube|u\s?tube)\.com\/watch\?v=|(?:you\s?tube|u\s?tube)\.com\/embed\/|(?:you\s?tube|u\s?tube)\.com\/shorts\/|(?:you\s?tube|u\s?tube)\.com\/clip\/)(?<video>[\w-]+)/im,
     },
     twitch: {
       clip: /clips\.twitch\.tv\/(?<clip>\w+)/im,
