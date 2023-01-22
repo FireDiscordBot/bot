@@ -10,7 +10,6 @@ import { Sk1erMods } from "@fire/lib/interfaces/sk1ermod";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
-import { Response } from "centra";
 import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import { Readable } from "stream";
 import { getCodeblockMatch } from "../arguments/codeblock";
