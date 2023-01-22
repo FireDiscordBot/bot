@@ -1,8 +1,8 @@
-import { GuildChannel, MessageEmbed, Permissions, DMChannel } from "discord.js";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { ActionLogTypes, humanize, titleCase } from "@fire/lib/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { ActionLogTypes, titleCase } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { DMChannel, GuildChannel, MessageEmbed, Permissions } from "discord.js";
 
 export default class ChannelDelete extends Listener {
   constructor() {
@@ -52,11 +52,12 @@ export default class ChannelDelete extends Listener {
         .setFooter(channel.id);
       if (channel instanceof FireTextChannel && channel.topic)
         embed.addField(language.get("TOPIC"), channel.topic);
-      if (channel instanceof FireTextChannel && channel.rateLimitPerUser)
-        embed.addField(
-          language.get("SLOWMODE"),
-          humanize(channel.rateLimitPerUser, language.id.split("-")[0])
-        );
+      // TODO: re-add without humanize
+      // if (channel instanceof FireTextChannel && channel.rateLimitPerUser)
+      //   embed.addField(
+      //     language.get("SLOWMODE"),
+      //     humanize(channel.rateLimitPerUser, language.id.split("-")[0])
+      //   );
       if (channel.permissionOverwrites.cache.size > 1) {
         const canView = channel.permissionOverwrites.cache
           .filter((overwrite) =>

@@ -680,7 +680,7 @@
   "LOCKDOWN_EXCLUDE_SUCCESS": "Successfully excluded channel",
   "LOCKDOWN_REASON": "Server lockdown started by {{user}} with reason \"{{reason}}\".",
   "LOCKDOWN_FINISH_FAILED": "I failed to lock {{failcount}} channels, {{failed}}",
-  "LOCKDOWN_FINISH": "Successfully locked {{lockcount}} channels in {{time}}",
+  "LOCKDOWN_FINISH": "Successfully locked {{lockcount}} channels",
   "LOCKDOWN_END_NONE_LOCKED": "It seems there's no locked channels so you can't end lockdown as it was never started",
   "LOCKDOWN_END_REASON": "Server lockdown ended by {{user}} with reason \"{{reason}}\".",
   "LOCKDOWN_END_FAIL": "I failed to unlock {{failcount} channels, {{failed}}",

@@ -879,11 +879,6 @@ https-proxy-agent@^5.0.0:
     agent-base "6"
     debug "4"
 
-humanize-duration@^3.27.2:
-  version "3.27.2"
-  resolved "https://registry.yarnpkg.com/humanize-duration/-/humanize-duration-3.27.2.tgz#4b4e565bec098d22c9a54344e16156d1c649f160"
-  integrity sha512-A15OmA3FLFRnehvF4ZMocsxTZYvHq4ze7L+AgR1DeHw0xC9vMd4euInY83uqGU9/XXKNnVIEeKc1R8G8nKqtzg==
-
 i18next@^21.9.1:
   version "21.9.1"
   resolved "https://registry.yarnpkg.com/i18next/-/i18next-21.9.1.tgz#9e3428990f5b2cc9ac1b98dd025f3e411c368249"

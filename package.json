@@ -42,7 +42,6 @@
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^10.1.0",
     "fuzzball": "^2.1.2",
-    "humanize-duration": "^3.27.2",
     "i18next": "^21.9.1",
     "module-alias": "^2.2.2",
     "murmurhash-js": "^1.0.0",

@@ -1,7 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { Command } from "@fire/lib/util/command";
-import { humanize } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import {
   ApplicationCommandOptionChoiceData,
@@ -47,22 +46,13 @@ export default class RemindersDelete extends Command {
     const reminders: ApplicationCommandOptionChoiceData[] = [];
     let timestamps = [];
     for await (const reminder of remindersResult) {
-      const date = reminder.get("forwhen") as Date;
-      const timeString = interaction.language.get("FROM_NOW", {
-        time: humanize(
-          +new Date() - +date,
-          interaction.language.id.split("-")[0],
-          2
-        ),
-      });
+      const ts = +(reminder.get("forwhen") as Date);
       let reminderText = reminder.get("reminder") as string;
-      if (reminderText.length + timeString.length > 94)
-        reminderText =
-          reminderText.substring(0, 94 - timeString.length) + "...";
-      const ts = +date;
+      if (reminderText.length > 97)
+        reminderText = reminderText.substring(0, 97) + "...";
       timestamps.push(ts);
       reminders.push({
-        name: `${reminderText} - ${timeString}`,
+        name: `${reminderText}`,
         value: ts.toString(),
       });
     }

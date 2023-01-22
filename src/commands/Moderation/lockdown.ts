@@ -1,16 +1,15 @@
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Command } from "@fire/lib/util/command";
+import { categoryChannelConverter } from "@fire/lib/util/converters";
+import { Language } from "@fire/lib/util/language";
 import {
+  Collection,
+  MessageEmbed,
   PermissionOverwriteOptions,
   PermissionOverwrites,
-  MessageEmbed,
   Permissions,
-  Collection,
 } from "discord.js";
-import { categoryChannelConverter } from "@fire/lib/util/converters";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { humanize } from "@fire/lib/util/constants";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
 
 const update = (
   overwrite: PermissionOverwrites,
@@ -164,7 +163,6 @@ export default class Lockdown extends Command {
       if (!failed.length)
         await message
           .success("LOCKDOWN_FINISH", {
-            time: humanize(end - start, message.language.id.split("-")[0]),
             lockcount: locked.length,
           })
           .then((m) => {

@@ -47,7 +47,7 @@ import {
 } from "../interfaces/discord";
 import { ClusterStats } from "../interfaces/stats";
 import { Command } from "./command";
-import { CouponType, GuildTextChannel, humanize, titleCase } from "./constants";
+import { CouponType, GuildTextChannel, titleCase } from "./constants";
 import { getCommitHash } from "./gitUtils";
 import { Language, LanguageKeys } from "./language";
 import { PaginatorInterface } from "./paginators";
@@ -303,7 +303,7 @@ export class Util extends ClientUtil {
       user: this.client.user ? this.client.user.toString() : "Unknown#0000",
       userId: this.client.user ? this.client.user.id : "",
       started: new Date(this.client.launchTime).toISOString(),
-      uptime: humanize(+new Date() - this.client.launchTime, "en"),
+      uptime: `Since ${new Date(this.client.launchTime).toLocaleString()}`,
       cpu: parseFloat((processStats.cpu / cpus().length).toFixed(2)),
       ram: humanFileSize(processStats.memory),
       ramBytes: processStats.memory,

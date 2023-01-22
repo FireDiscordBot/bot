@@ -1,6 +1,5 @@
-import { humanize } from "@fire/lib/util/constants";
-import { Snowflake } from "discord.js";
 import { Fire } from "@fire/lib/Fire";
+import { Snowflake } from "discord.js";
 
 export const fire = {
   dev:
@@ -20,7 +19,7 @@ export const fire = {
     );
     if (!client.started)
       client.console.log(
-        `Started in ${humanize(+new Date() - client.launchTime, "en")}`
+        `Started in ${(+new Date() - client.launchTime) / 1000} seconds`
       );
     client.console.log("-------------------------");
   },

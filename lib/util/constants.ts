@@ -11,7 +11,6 @@ import { StringMap, TOptions } from "i18next";
 import { FireGuild } from "../extensions/guild";
 import { FireTextChannel } from "../extensions/textchannel";
 import { Language } from "./language";
-import humanizeDuration = require("humanize-duration");
 
 const emojiRegex = require("emoji-regex")() as RegExp;
 const emojiRegexStr = emojiRegex.toString();
@@ -451,14 +450,6 @@ export const titleCase = (
     .join(joinWithSpace ? " " : "");
 
 export const zws = "\u200b";
-
-export const humanize = (ms: number, language: string, largest: number = 3) =>
-  humanizeDuration(ms, {
-    largest,
-    delimiter: ", ",
-    language: language,
-    fallbacks: ["en"],
-  });
 
 export const parseTime = (content: string, replace: boolean = false) => {
   if (!content && !replace) return 0;
