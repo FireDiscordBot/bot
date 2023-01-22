@@ -129,8 +129,12 @@ export default class Eval extends Command {
     if (this.client.manager.ws) {
       let input: string, output: string;
       try {
-        input = await this.client.util.haste(args.code.content);
-        output = await this.client.util.haste(result);
+        input = await this.client.util.haste(
+          args.code.content,
+          true,
+          args.code?.language
+        );
+        output = await this.client.util.haste(result, true, "js");
       } catch {
         input = "Unknown";
         output = "Unknown";
