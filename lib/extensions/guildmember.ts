@@ -1,11 +1,9 @@
 import * as sanitizer from "@aero/sanitizer";
 import { Fire } from "@fire/lib/Fire";
 import {
-  Channel,
   DMChannel,
   Formatters,
   GuildBasedChannel,
-  GuildChannel,
   GuildMember,
   ImageURLOptions,
   MessageEmbed,
