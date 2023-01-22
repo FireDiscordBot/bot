@@ -13,7 +13,6 @@ import {
   MessageSelectMenu,
   SnowflakeUtil,
 } from "discord.js";
-import * as moment from "moment";
 
 const reminderContextTimes = {
   REMINDER_SNOOZE_FIVEMIN: "300000",
@@ -194,10 +193,8 @@ export default class RemindersCreate extends Command {
       largestTime.getMinutes() +
         (stepMinutes ? stepMinutes * repeat : parsedMinutes)
     );
-    if (
-      moment(largestTime).diff(moment(), "months") >= 7 &&
-      !command.author.isSuperuser()
-    )
+    const timeDiff = (+largestTime - +new Date()) / (1000 * 3600 * 24);
+    if (timeDiff >= 186 && !command.author.isSuperuser())
       return await command.error("REMINDER_TIME_LIMIT", {
         includeSlashUpsell: true,
       });

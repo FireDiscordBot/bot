@@ -31,7 +31,6 @@ import {
   ThreadChannel,
   UserFlagsString,
 } from "discord.js";
-import * as moment from "moment";
 
 const {
   emojis,
@@ -390,16 +389,17 @@ export default class User extends Command {
 
   getInfo(command: ApplicationCommandMessage, member: FireMember | FireUser) {
     let user = member instanceof FireMember ? member.user : member;
-    const now = moment();
-    const cakeDay =
-      now.dayOfYear() == moment(user.createdAt).dayOfYear() &&
-      now.year() != moment(user.createdAt).year();
+    const now = new Date();
+    const isCakeDay =
+      now.getDate() == user.createdAt.getDate() &&
+      now.getMonth() == user.createdAt.getMonth() &&
+      now.getFullYear() != user.createdAt.getFullYear();
     let info = [
       `**${command.language.get("MENTION")}:** ${user.toMention()}`,
       `**${command.language.get("CREATED")}** ${Formatters.time(
         user.createdAt,
         "R"
-      )}${cakeDay ? " 🎂" : ""}`,
+      )}${isCakeDay ? " 🎂" : ""}`,
     ];
     if (member instanceof FireMember) {
       if (
