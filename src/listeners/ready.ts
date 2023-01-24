@@ -188,6 +188,17 @@ export default class Ready extends Listener {
             const command = this.client.getCommand(applicationCommand.name);
             if (command) command.slashId = applicationCommand.id;
           }
+          this.client.manager.ws?.send(
+            MessageUtil.encode(
+              new Message(EventType.REFRESH_SLASH_COMMAND_IDS, {
+                commands: this.client.commandHandler.modules.map((command) => ({
+                  id: command.id,
+                  slashId: command.slashId,
+                  slashIds: command.slashIds,
+                })),
+              })
+            )
+          );
         }
       }
     }

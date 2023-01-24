@@ -43,6 +43,7 @@ export enum EventType {
   ALIAS_SYNC,
   WRITE_INFLUX_POINTS,
   SPECIAL_COUPON,
+  REFRESH_SLASH_COMMAND_IDS,
 }
 
 export enum WebsocketStates {
