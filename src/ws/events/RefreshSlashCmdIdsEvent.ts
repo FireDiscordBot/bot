@@ -22,5 +22,8 @@ export default class RefreshSlashCmdIdsEvent extends Event {
         command.slashIds = cmd.slashIds;
       }
     }
+    this.manager.client.console.log(
+      `[Aether] Refreshed slash command IDs for ${data.commands.length} commands`
+    );
   }
 }
