@@ -71,7 +71,6 @@ export default class Alias extends Command {
     this.client.manager.ws?.send(
       MessageUtil.encode(
         new Message(EventType.ALIAS_SYNC, {
-          id: this.client.manager.id,
           user: user.id,
           aliases: current,
         })

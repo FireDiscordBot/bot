@@ -8,7 +8,7 @@ export default class AliasSyncEvent extends Event {
     super(manager, EventType.ALIAS_SYNC);
   }
 
- async run(data: { user: Snowflake; aliases: string[] }) {
+  async run(data: { user: Snowflake; aliases: string[] }) {
     this.manager.client.aliases.set(data.user, data.aliases);
   }
 }
