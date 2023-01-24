@@ -163,18 +163,27 @@ export default class Help extends Command {
       description: command.description(message.language),
       fields: [
         {
-          name: "» Usage",
+          name: message.language.get("HELP_USAGE"),
           value: `${message.util.parsed.prefix || "$"}${command.id} ${
             args?.join(" ").replace(/\] \[/gim, " ") || ""
           }`,
           inline: false,
         },
-      ],
+        message instanceof FireMessage
+          ? {
+              name: message.language.get("HELP_SLASH_COMMAND"),
+              value: command.getSlashCommandMention(message.guild),
+            }
+          : null,
+      ].filter((f) => !!f),
       timestamp: new Date(),
     } as MessageEmbedOptions;
     if (permissions.length)
       embed.fields.push({
-        name: "» Permission" + (permissions.length > 1 ? "s" : ""),
+        name:
+          permissions.length > 1
+            ? message.language.get("HELP_PERMISSIONS")
+            : message.language.get("HELP_PERMISSION"),
         value: permissions.join(", "),
         inline: false,
       });
