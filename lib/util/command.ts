@@ -30,6 +30,9 @@ import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
 import { ApplicationCommandOptionType } from "../interfaces/interactions";
+import { Message } from "../ws/Message";
+import { EventType } from "../ws/util/constants";
+import { MessageUtil } from "../ws/util/MessageUtil";
 import { SlashArgumentTypeCaster } from "./commandhandler";
 import { UseExec, UseRun } from "./constants";
 import { Language } from "./language";
@@ -630,6 +633,17 @@ export class Command extends AkairoCommand {
         }
       }
     }
+    this.client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(EventType.REFRESH_SLASH_COMMAND_IDS, {
+          commands: this.client.commandHandler.modules.map((command) => ({
+            id: command.id,
+            slashId: command.slashId,
+            slashIds: command.slashIds,
+          })),
+        })
+      )
+    );
     return commands;
   }
 }
