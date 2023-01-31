@@ -16,6 +16,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
 import {
   CategoryChannel,
+  EmbedFieldData,
   GuildChannel,
   MessageActionRow,
   MessageButton,
@@ -90,6 +91,7 @@ const validGFuelTypes = {
   support: "1063167726497038357",
   feedback: "1063203686328840383",
   twitch: "1065365444971741294",
+  verification: "1070028032397561986",
 };
 
 const defaultGFuelModalComponents = [
@@ -98,7 +100,6 @@ const defaultGFuelModalComponents = [
       .setCustomId("email")
       .setRequired(true)
       .setLabel("Email")
-      .setPlaceholder("Enter your email here")
       .setStyle(TextInputStyles.SHORT)
       .setMaxLength(125)
   ),
@@ -107,7 +108,6 @@ const defaultGFuelModalComponents = [
       .setCustomId("code")
       .setRequired(true)
       .setLabel("Ambassador Code")
-      .setPlaceholder("Enter your ambassador code")
       .setStyle(TextInputStyles.SHORT)
   ),
   new MessageActionRow<ModalActionRowComponent>().addComponents(
@@ -127,7 +127,6 @@ const twitchGFuelModalComponents = [
       .setCustomId("code")
       .setRequired(true)
       .setLabel("Ambassador Code")
-      .setPlaceholder("Enter your ambassador code")
       .setStyle(TextInputStyles.SHORT)
   ),
   new MessageActionRow<ModalActionRowComponent>().addComponents(
@@ -135,7 +134,6 @@ const twitchGFuelModalComponents = [
       .setCustomId("username")
       .setRequired(true)
       .setLabel("Twitch username")
-      .setPlaceholder("Enter your Twitch username here")
       .setStyle(TextInputStyles.SHORT)
       .setMinLength(3)
       .setMaxLength(50)
@@ -148,6 +146,38 @@ const twitchGFuelModalComponents = [
       .setPlaceholder("Enter a subject for your ticket here.")
       .setStyle(TextInputStyles.PARAGRAPH)
       .setMaxLength(500)
+  ),
+];
+
+const verifGFuelModalComponents = [
+  new MessageActionRow<ModalActionRowComponent>().addComponents(
+    new TextInputComponent()
+      .setCustomId("email")
+      .setRequired(true)
+      .setLabel("Email")
+      .setStyle(TextInputStyles.SHORT)
+      .setMaxLength(125)
+  ),
+  new MessageActionRow<ModalActionRowComponent>().addComponents(
+    new TextInputComponent()
+      .setCustomId("code")
+      .setRequired(true)
+      .setLabel("Ambassador Code")
+      .setStyle(TextInputStyles.SHORT)
+  ),
+  new MessageActionRow<ModalActionRowComponent>().addComponents(
+    new TextInputComponent()
+      .setCustomId("fullname")
+      .setRequired(true)
+      .setLabel("Full Name")
+      .setStyle(TextInputStyles.SHORT)
+  ),
+  new MessageActionRow<ModalActionRowComponent>().addComponents(
+    new TextInputComponent()
+      .setCustomId("alias")
+      .setRequired(true)
+      .setLabel("Alias")
+      .setStyle(TextInputStyles.SHORT)
   ),
 ];
 
@@ -1006,6 +1036,8 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         .setCustomId(`gfuel_confirm_${button.author.id}`);
       if (type == "twitch")
         modalObj.addComponents(...twitchGFuelModalComponents);
+      else if (type == "verification")
+        modalObj.addComponents(...verifGFuelModalComponents);
       else modalObj.addComponents(...defaultGFuelModalComponents);
       await (button.interaction as MessageComponentInteraction).showModal(
         modalObj
@@ -1015,14 +1047,60 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       await modal.channel.ack();
       modal.flags = 64;
 
-      let username: string, email: string;
-      const code = modal.interaction.fields.getTextInputValue("code"),
+      let additionalFields: EmbedFieldData[], subject: string;
+      if (type == "verification") {
+        subject = "Verification";
+        const email = modal.interaction.fields.getTextInputValue("email"),
+          code = modal.interaction.fields.getTextInputValue("code"),
+          fullName = modal.interaction.fields.getTextInputValue("fullname"),
+          alias = modal.interaction.fields.getTextInputValue("alias");
+        additionalFields = [
+          {
+            name: "Email",
+            value: email,
+          },
+          {
+            name: "Ambassador Code",
+            value: code,
+          },
+          {
+            name: "Full Name",
+            value: fullName,
+          },
+          {
+            name: "Alias",
+            value: alias,
+          },
+        ];
+      } else if (type == "twitch") {
         subject = modal.interaction.fields.getTextInputValue("subject");
-      if (type == "twitch")
-        username = modal.interaction.fields.getTextInputValue("username");
-      else email = modal.interaction.fields.getTextInputValue("email");
-      if (!subject?.length)
-        return await modal.error("COMMAND_ERROR_GENERIC", { id: "new" });
+        const username = modal.interaction.fields.getTextInputValue("username"),
+          code = modal.interaction.fields.getTextInputValue("code");
+        additionalFields = [
+          {
+            name: "Twitch Username",
+            value: username,
+          },
+          {
+            name: "Ambassador Code",
+            value: code,
+          },
+        ];
+      } else {
+        subject = modal.interaction.fields.getTextInputValue("subject");
+        const email = modal.interaction.fields.getTextInputValue("email"),
+          code = modal.interaction.fields.getTextInputValue("code");
+        additionalFields = [
+          {
+            name: "Email",
+            value: email,
+          },
+          {
+            name: "Ambassador Code",
+            value: code,
+          },
+        ];
+      }
 
       const ticket = await gfuelGuild.createTicket(
         button.member,
@@ -1030,28 +1108,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         undefined,
         category,
         undefined,
-
-        type == "twitch"
-          ? [
-              {
-                name: "Twitch Username",
-                value: username,
-              },
-              {
-                name: "Ambassador Code",
-                value: code,
-              },
-            ]
-          : [
-              {
-                name: "Email",
-                value: email,
-              },
-              {
-                name: "Ambassador Code",
-                value: code,
-              },
-            ]
+        additionalFields
       );
       if (!(ticket instanceof FireTextChannel)) {
         // how?
