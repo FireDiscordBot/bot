@@ -94,6 +94,8 @@ const validGFuelTypes = {
   verification: "1070028032397561986",
 };
 
+type GFuelType = keyof typeof validGFuelTypes;
+
 const defaultGFuelModalComponents = [
   new MessageActionRow<ModalActionRowComponent>().addComponents(
     new TextInputComponent()
@@ -1013,7 +1015,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
     }
 
     if (button.customId.startsWith("gfuelambassador_")) {
-      const type = button.customId.slice(16);
+      const type = button.customId.slice(16) as GFuelType;
       if (!type || !validGFuelTypes[type]) return;
       const categoryId = validGFuelTypes[type];
       if (!categoryId) return;
