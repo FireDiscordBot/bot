@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
-import { MessageFlags } from "discord.js";
 
 export default class ModOnlyInhibitor extends Inhibitor {
   constructor() {
@@ -21,12 +21,17 @@ export default class ModOnlyInhibitor extends Inhibitor {
     ) {
       if (message.member.isSuperuser()) return false;
       if (
-        message instanceof ApplicationCommandMessage &&
+        (message instanceof ApplicationCommandMessage ||
+          message instanceof ContextCommandMessage) &&
         message.command.ephemeral
       )
         return false;
       const cantRun = !message.member.isModerator(message.channel);
-      if (cantRun && message instanceof ApplicationCommandMessage) {
+      if (
+        cantRun &&
+        (message instanceof ApplicationCommandMessage ||
+          message instanceof ContextCommandMessage)
+      ) {
         if ((message.flags & 64) != 64)
           (message as ApplicationCommandMessage).flags = 64;
         return false;
