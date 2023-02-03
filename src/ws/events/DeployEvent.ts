@@ -32,9 +32,8 @@ export default class DeployEvent extends Event {
       else return;
     }
     try {
-      await this.execPromise(`git checkout ${data.commit}`);
       await this.execPromise(`git pull`);
-      await this.execPromise(`git checkout ${data.branch}`);
+      await this.execPromise(`git checkout ${data.commit}`);
       if (data.requireInstall) {
         await this.execPromise(`rm -rf node_modules`);
         await this.execPromise(`yarn install`);
@@ -44,6 +43,7 @@ export default class DeployEvent extends Event {
         );
       }
       await this.execPromise(`yarn compile`);
+      await this.execPromise(`git checkout ${data.branch}`);
       return this.manager.kill("deploy");
     } catch (e) {
       this.manager.client.console.error(
