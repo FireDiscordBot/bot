@@ -1187,7 +1187,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           null,
           (button.message as FireMessage).embeds[0].fields[0].value
         )?.content.trim() ?? "Commit Message Unknown";
-      const branch = getBranch();
+      const branch = await getBranch();
       const githubChannel = this.client.channels.cache.get(
         this.client.config.githubChannelId
       ) as NewsChannel;

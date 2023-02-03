@@ -3,6 +3,7 @@ import { version as djsver } from "discord.js";
 import { Fire } from "./Fire";
 import { ManagerState } from "./interfaces/aether";
 import { Command } from "./util/command";
+import { getCommitHash } from "./util/gitUtils";
 import { EventHandler } from "./ws/event/EventHandler";
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
@@ -16,6 +17,7 @@ export class Manager {
   sentry: typeof Sentry;
   session?: string;
   version: string;
+  commit: string;
   ws?: Websocket;
   client: Fire;
   seq?: number;
@@ -24,6 +26,7 @@ export class Manager {
   constructor(version: string, sentry?: typeof Sentry) {
     this.version = version;
     this.sentry = sentry;
+    this.commit = getCommitHash();
 
     this.client = new Fire(this, sentry);
 
