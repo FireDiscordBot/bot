@@ -322,7 +322,7 @@ export default class InteractionListener extends Listener {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(context.channelId).catch(() => {});
       const message = new ContextCommandMessage(this.client, context);
-      await message.channel.ack((message.flags & 64) != 0);
+      // await message.channel.ack((message.flags & 64) != 0);
       if (!message.command) {
         this.client.console.warn(
           `[Commands] Got application command request for unknown context menu, ${context.commandName}`
