@@ -25,7 +25,7 @@ export default class DeployEvent extends Event {
     this.manager.client.console.warn(
       `[Aether] Received request to deploy commit ${data.commit} on branch ${
         data.branch
-      }${data.requireInstall ? " (requires install)" : ""}}`
+      }${data.requireInstall ? " (requires install)" : ""}`
     );
     // check what commit we're currently on first
     const currentCommit = getCommitHash();
