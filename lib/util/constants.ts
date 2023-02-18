@@ -240,7 +240,7 @@ export const constants = {
     supportedHaste: ["hastebin.com (incl. Toptal link)", "hasteb.in", "hst.sh"],
     automodAvatar: "https://static.inv.wtf/discord_automod.png",
   },
-  imageExts: [".png", ".jpg", ".jpeg", ".gif", ".gifv"],
+  imageExts: [".png", ".webp", ".jpg", ".jpeg", ".gif", ".gifv"],
   audioExts: ["mp3", "wav", "flac", "alac", "m4a"],
   videoExts: ["mp4", "mkv", "mov"],
   prodBotId: "444871677176709141",
