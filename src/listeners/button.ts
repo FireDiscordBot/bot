@@ -197,7 +197,7 @@ export default class Button extends Listener {
     if (button.customId == "delete_me")
       return await button.delete(button.interaction.message.id).catch(() => {});
     else if (button.customId == "cancel_me") return await button.delete();
-    else if (button.customId == "quote_copy") {
+    else if (button.customId.startsWith("quote_copy")) {
       button.flags = 64;
       return await button.error("QUOTE_COPIED_BUTTON");
     }
