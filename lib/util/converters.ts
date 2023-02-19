@@ -218,13 +218,12 @@ export const memberConverter = async (
     else argument = authoredMessage.author.id; // continue on with author id
   }
 
-  const alias = message.client.aliases.findKey((aliases) =>
-    aliases.includes(argument.toLowerCase())
-  );
-  if (alias) argument = alias;
-
   const userID = getIDMatch(argument) || getUserMentionMatch(argument);
   if (!userID) {
+    const alias = message.client.aliases.findKey((aliases) =>
+      aliases.includes(argument.toLowerCase())
+    );
+    if (alias) argument = alias;
     let options: FetchMembersOptions = {
       query: argument,
       limit: 1,
