@@ -272,6 +272,7 @@ export const constants = {
     },
     invwtf: /inv\.wtf\/(?<code>[\w-]{2,25})/gim,
     discord: {
+      snowflake: /\d{15,21}/g,
       invite:
         /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/gim,
       cdnEmoji:
@@ -284,6 +285,7 @@ export const constants = {
         /<?(?<channel>debug\.|ptb\.|canary\.|staging\.|lc\.|dscrd\.)?(?:discord(?:app)?|inv)\.(?:com?|wtf)?\/channels\/(?<guild_id>\d{15,21})\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})>?/gim,
       webhook:
         /discord(?:app)?\.com\/api\/(?:v\d{1,2}\/)?webhooks\/(?<id>\d{15,21})\/(?<token>[\w-]{50,80})(?<thread>\?thread_id=(?<threadId>\d{15,21}))?/im,
+      webhookPartial: /(webhooks|interactions)\/:id\/(?<token>[\w-]{0,250})/im,
     },
     invites: [
       /(?<domain>(?:dsc|dis|discord|invite)\.(?:gd|gg|io|me))\/(?<code>[\w-]+)/gim,

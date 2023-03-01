@@ -1,16 +1,16 @@
-import { DiscordAPIError, Constants, HTTPError, Util } from "discord.js";
 import { AsyncQueue } from "@sapphire/async-queue";
+import * as centra from "centra";
+import { Constants, DiscordAPIError, HTTPError } from "discord.js";
+import { constants } from "../util/constants";
+import { APIRequest } from "./APIRequest";
 import { RateLimitError } from "./RateLimitError";
 import { RESTManager } from "./RESTManager";
-import { APIRequest } from "./APIRequest";
-import * as centra from "centra";
-import { MessageUtil } from "../ws/util/MessageUtil";
-import { Message } from "../ws/Message";
-import { EventType } from "../ws/util/constants";
 
 const {
   Events: { DEBUG, RATE_LIMIT, INVALID_REQUEST_WARNING },
 } = Constants;
+
+const { discord } = constants.regexes;
 
 const parseResponse = async (res: centra.Response) => {
   if (res.headers["content-type"]?.includes("application/json")) {
@@ -415,7 +415,9 @@ export class RequestHandler {
         measurement: "restLatency",
         tags: {
           cluster: request.client.manager.id.toString(),
-          route: request.options.route,
+          route: request.options.route
+            .replace(discord.snowflake, ":id")
+            .replace(discord.webhookPartial, "$1/:id/:token"),
         },
         fields: {
           latency,
