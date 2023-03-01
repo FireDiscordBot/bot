@@ -277,7 +277,6 @@ export class FireMessage extends Message {
       this.channel instanceof ThreadChannel
         ? this.channel.parent
         : (this.channel as FireTextChannel);
-    this.client.console.debug(channel.type);
     if (this.author.system && !quoter.isSuperuser()) {
       if (debug) debug.push("Cannot quote a system message");
       return "system";
@@ -368,7 +367,8 @@ export class FireMessage extends Message {
     quoter: FireMember,
     webhook?: WebhookClient,
     thread?: ThreadChannel,
-    debug?: string[]
+    debug?: string[],
+    usernameOverride?: string
   ) {
     let hook: Webhook | WebhookClient = webhook;
     if (!this.guild?.quoteHooks) this.guild.quoteHooks = new Collection();
@@ -538,11 +538,12 @@ export class FireMessage extends Message {
       automodEmbeds.push(embed);
     }
     const username =
-      member && member.nickname
+      usernameOverride ||
+      (member && member.nickname
         ? `${member.nickname} (${this.author
             .toString()
             .replace(/#0000/gim, "")})`
-        : this.author.toString().replace(/#0000/gim, "");
+        : this.author.toString().replace(/#0000/gim, ""));
     return await hook
       .send({
         content: content.length ? content : null,
@@ -573,6 +574,28 @@ export class FireMessage extends Message {
         components,
       })
       .catch(async (e: Error) => {
+        if (
+          e instanceof DiscordAPIError &&
+          e.code == 50035 &&
+          e.message.includes("Username cannot contain")
+        ) {
+          const blockedUsername = regexes.blockedUsername.exec(e.message)[1];
+          const usernameIndex = username
+            .toLowerCase()
+            .indexOf(blockedUsername.toLowerCase());
+          const matchedUsername = username.slice(
+            usernameIndex,
+            blockedUsername.length
+          );
+          return await this.webhookQuote(
+            destination,
+            quoter,
+            webhook,
+            thread,
+            debug,
+            username.replace(matchedUsername, "[blocked]")
+          );
+        }
         // this will ensure deleted webhooks are deleted
         // but also allow webhooks to be refreshed
         // even if the cached one still exists
