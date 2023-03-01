@@ -182,6 +182,7 @@ export class RequestHandler {
     let res: centra.Response;
     try {
       res = await request.make();
+      this.checkLatency(request, res);
     } catch (error) {
       // Retry the specified number of times for request abortions
       if (request.retries === this.manager.client.options.retryLimit) {
@@ -196,8 +197,6 @@ export class RequestHandler {
       request.retries++;
       return this.execute(request);
     }
-
-    this.checkLatency(request, res);
 
     let sublimitTimeout: number;
     if (res && res.headers) {
@@ -359,78 +358,22 @@ export class RequestHandler {
       if (
         request.client.useCanary &&
         (res.statusCode == 502 || res.statusCode == 503)
-      ) {
+      )
         request.client.useCanary = false;
-        request.client.sentry.captureEvent({
-          message: `Cluster ${request.client.manager.id} switched to stable API due to ${res.statusCode}`,
-          request: {
-            url:
-              (request.options.versioned === false
-                ? request.client.options.http.api
-                : `${request.client.options.http.api}/v${request.client.options.http.version}`) +
-              request.path,
-            method: request.method,
-            data: request.options?.data ?? res.body.toString(),
-            headers: request.options?.headers,
-          },
-          tags: {
-            reason: request.options?.reason,
-            status: res?.statusCode,
-          },
-          extra: res?.headers,
-        });
-      } else if (
+      else if (
         !request.client.useCanary &&
         (res.statusCode == 502 || res.statusCode == 503)
-      ) {
+      )
         request.client.useCanary = true;
-        request.client.sentry.captureEvent({
-          message: `Cluster ${request.client.manager.id} switched to canary API due to ${res.statusCode}`,
-          request: {
-            url:
-              (request.options.versioned === false
-                ? request.client.options.http.api
-                : `${request.client.options.http.api}/v${request.client.options.http.version}`) +
-              request.path,
-            method: request.method,
-            data: request.options?.data ?? res.body.toString(),
-            headers: request.options?.headers,
-          },
-          tags: {
-            reason: request.options?.reason,
-            status: res?.statusCode,
-          },
-          extra: res?.headers,
-        });
-      }
 
       // Retry the specified number of times for possible serverside issues
-      if (request.retries === this.manager.client.options.retryLimit) {
-        request.client.sentry.captureEvent({
-          message: `Encountered ${res.statusCode} on ${request.path} and all retries failed`,
-          request: {
-            url:
-              (request.options.versioned === false
-                ? request.client.options.http.api
-                : `${request.client.options.http.api}/v${request.client.options.http.version}`) +
-              request.path,
-            method: request.method,
-            data: request.options?.data ?? res.body.toString(),
-            headers: request.options?.headers,
-          },
-          tags: {
-            reason: request.options?.reason,
-            status: res?.statusCode,
-          },
-          extra: res?.headers,
-        });
+      if (request.retries === this.manager.client.options.retryLimit)
         throw new HTTPError(
           res.coreRes.statusMessage,
           res.constructor.name,
           res.statusCode,
           request
         );
-      }
 
       request.retries++;
       return this.execute(request);
@@ -467,39 +410,31 @@ export class RequestHandler {
 
   checkLatency(request: APIRequest, response?: centra.Response) {
     const latency = request.client.restPing;
+    this.manager.client.influx([
+      {
+        measurement: "restLatency",
+        tags: {
+          cluster: request.client.manager.id.toString(),
+          route: request.options.route,
+        },
+        fields: {
+          latency,
+        },
+      },
+    ]);
     const useHigher = !!(request.options.files && request.options.files.length);
     let type: "high" | "extreme";
     if (useHigher ? latency > 15000 : latency > 10000) type = "high";
     if (useHigher ? latency > 25000 : latency > 15000) type = "extreme";
-    if (!type) return;
-    if (response.statusCode.toString().startsWith("2") && latency < 25000)
+    if (
+      !type ||
+      (response.statusCode.toString().startsWith("2") && latency < 25000)
+    )
       return;
-    const API =
-      request.options.versioned === false
-        ? request.client.options.http.api
-        : `${request.client.options.http.api}/v${request.client.options.http.version}`;
-    const url = API + request.path;
     request.client.console[type == "high" ? "warn" : "error"](
       `[Rest] Encountered ${type} latency of ${latency}ms on ${request.method.toUpperCase()} ${
         request.path
       }`
     );
-    if (!this.manager.client.config.dev && latency > 10000)
-      request.client.sentry.captureEvent({
-        message: `Encountered ${type} latency of ${latency}ms on ${request.method.toUpperCase()} ${
-          request.path
-        }`,
-        request: {
-          url,
-          method: request.method,
-          data: request.options?.data ?? response.body.toString(),
-          headers: request.options?.headers,
-        },
-        tags: {
-          reason: request.options?.reason,
-          status: response?.statusCode,
-        },
-        extra: response?.headers,
-      });
   }
 }
