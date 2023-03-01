@@ -140,7 +140,7 @@ export class FireMessage extends Message {
   }
 
   async send(key: LanguageKeys, args?: i18nOptions) {
-    if (!this.channel || this.channel.deleted) return;
+    if (!this.channel) return;
     let upsell: MessageEmbed | false;
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
@@ -156,7 +156,6 @@ export class FireMessage extends Message {
   async reply(options: string | MessagePayload | ReplyMessageOptions) {
     if (
       !this.channel ||
-      this.channel.deleted ||
       (this.guild && !this.guild.me?.permissions.has("READ_MESSAGE_HISTORY"))
     )
       return this; // we need to return a message to prevent issues so just return this
@@ -167,7 +166,7 @@ export class FireMessage extends Message {
     key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
-    if (!this.channel || this.channel.deleted) return;
+    if (!this.channel) return;
     let upsell: MessageEmbed | false;
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
@@ -186,7 +185,7 @@ export class FireMessage extends Message {
     key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
-    if (!this.channel || this.channel.deleted) return;
+    if (!this.channel) return;
     let upsell: MessageEmbed | false;
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
@@ -205,7 +204,7 @@ export class FireMessage extends Message {
     key: LanguageKeys,
     args?: i18nOptions
   ): Promise<MessageReaction | Message | void> {
-    if (!this.channel || this.channel.deleted) return;
+    if (!this.channel) return;
     let upsell: MessageEmbed | false;
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
@@ -223,8 +222,7 @@ export class FireMessage extends Message {
   async react(emoji: EmojiIdentifierResolvable) {
     if (
       (this.channel instanceof ThreadChannel && this.channel.archived) ||
-      !this.channel ||
-      this.channel.deleted
+      !this.channel
     )
       return;
     if (process.env.USE_LITECORD == "true")

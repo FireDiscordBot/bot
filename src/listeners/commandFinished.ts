@@ -30,7 +30,9 @@ export default class CommandFinished extends Listener {
       fields: {
         type: "finish",
         command: command.id,
-        guild: message.guild ? `${message.guild.name} (${message.guildId})` : "N/A",
+        guild: message.guild
+          ? `${message.guild.name} (${message.guildId})`
+          : "N/A",
         user: `${message.author} (${message.author.id})`,
         message_id: message.id,
         return: "",
@@ -41,12 +43,7 @@ export default class CommandFinished extends Listener {
     } catch {}
     this.client.influx([point]);
 
-    if (
-      message instanceof ApplicationCommandMessage ||
-      message.deleted ||
-      !message.channel ||
-      message.channel?.deleted
-    )
+    if (message instanceof ApplicationCommandMessage || !message.channel)
       return;
 
     const chance = this.client.util.randInt(0, 100);
