@@ -206,14 +206,14 @@ export class FireGuild extends Guild {
     if (this.muteRole) return this.muteRole;
     const muteCommand = this.client.getCommand("mute");
     if (
-      this.me.permissions.missing(
+      this.members.me.permissions.missing(
         muteCommand.clientPermissions as PermissionResolvable[]
       ).length
     )
       return;
     const role = await this.roles
       .create({
-        position: this.me.roles.highest.rawPosition - 2, // -1 seems to fail a lot more than -2 so just do -2 to be safe
+        position: this.members.me.roles.highest.rawPosition - 2, // -1 seems to fail a lot more than -2 so just do -2 to be safe
         mentionable: false,
         color: "#24242c",
         permissions: [],
@@ -279,18 +279,18 @@ export class FireGuild extends Guild {
     let changed: Role | void = role;
     const muteCommand = this.client.getCommand("mute");
     if (
-      this.me.permissions.missing(
+      this.members.me.permissions.missing(
         muteCommand.clientPermissions as PermissionResolvable[]
       ).length
     )
       return;
     if (
-      role.rawPosition != this.me.roles.highest.rawPosition - 2 ||
+      role.rawPosition != this.members.me.roles.highest.rawPosition - 2 ||
       role.permissions.bitfield != 0n
     ) {
       changed = await role
         .edit({
-          position: this.me.roles.highest.rawPosition - 2,
+          position: this.members.me.roles.highest.rawPosition - 2,
           permissions: [],
         })
         .catch(() => {});
@@ -347,7 +347,7 @@ export class FireGuild extends Guild {
     if (!this.muteRole) return;
     const muteCommand = this.client.getCommand("mute");
     if (
-      this.me.permissions.missing(
+      this.members.me.permissions.missing(
         muteCommand.clientPermissions as PermissionResolvable[]
       ).length
     )
@@ -439,8 +439,8 @@ export class FireGuild extends Guild {
   private async checkMutes() {
     if (!this.client.user || !this.available) return; // likely not ready yet or guild is unavailable
     const me =
-      this.me instanceof FireMember
-        ? this.me
+      this.members.me instanceof FireMember
+        ? this.members.me
         : ((await this.members
             .fetch({ user: this.client.user.id, cache: true })
             .catch(() => {})) as FireMember);
@@ -500,7 +500,7 @@ export class FireGuild extends Guild {
   private async checkBans() {
     if (!this.client.user || !this.available) return; // likely not ready yet or guild is unavailable
     const me =
-      this.me instanceof FireMember
+      this.members.me instanceof FireMember
         ? this.me
         : ((await this.members
             .fetch({ user: this.client.user.id, cache: true })
@@ -708,7 +708,7 @@ export class FireGuild extends Guild {
     if (
       !this.premium ||
       !this.available ||
-      !this.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+      !this.members.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
     )
       return;
     this.inviteUses = new Collection();
@@ -837,7 +837,11 @@ export class FireGuild extends Guild {
     );
     if (type != ActionLogTypes.SYSTEM && (flags & type) != type) return;
 
-    if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
+    if (
+      !this.members.me
+        .permissionsIn(channel)
+        .has(Permissions.FLAGS.MANAGE_WEBHOOKS)
+    )
       return await (channel as FireTextChannel)
         .send({
           content: typeof log == "string" ? log : null,
@@ -865,7 +869,11 @@ export class FireGuild extends Guild {
     );
     if (type != ModLogTypes.SYSTEM && (flags & type) != type) return;
 
-    if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
+    if (
+      !this.members.me
+        .permissionsIn(channel)
+        .has(Permissions.FLAGS.MANAGE_WEBHOOKS)
+    )
       return await (channel as FireTextChannel)
         .send({
           content: typeof log == "string" ? log : null,
@@ -893,7 +901,11 @@ export class FireGuild extends Guild {
     );
     if (type != MemberLogTypes.SYSTEM && (flags & type) != type) return;
 
-    if (!this.me.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_WEBHOOKS))
+    if (
+      !this.members.me
+        .permissionsIn(channel)
+        .has(Permissions.FLAGS.MANAGE_WEBHOOKS)
+    )
       return await (channel as FireTextChannel)
         .send({
           content: typeof log == "string" ? log : null,
@@ -1115,7 +1127,7 @@ export class FireGuild extends Guild {
     this.settings.set<number>("tickets.increment", ++increment);
     const overwriteTheOverwrites = [
       author.id,
-      this.me.id,
+      this.members.me.id,
       this.roles.everyone.id,
     ];
 
@@ -1202,7 +1214,7 @@ export class FireGuild extends Guild {
                 Permissions.FLAGS.MANAGE_CHANNELS,
               ],
               type: "member",
-              id: this.me.id,
+              id: this.members.me.id,
             },
             {
               id: this.roles.everyone.id,
