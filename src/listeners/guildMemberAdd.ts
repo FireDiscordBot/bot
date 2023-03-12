@@ -56,7 +56,7 @@ export default class GuildMemberAdd extends Listener {
     if (
       member.guild.premium &&
       !member.user.bot &&
-      member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD) &&
+      member.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD) &&
       member.guild.inviteUses
     ) {
       const before = member.guild.inviteUses.clone();
@@ -91,7 +91,7 @@ export default class GuildMemberAdd extends Listener {
       }
     } else if (
       member.guild.premium &&
-      member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD) &&
+      member.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD) &&
       !member.guild.inviteUses
     )
       await member.guild.loadInvites();
@@ -124,7 +124,7 @@ export default class GuildMemberAdd extends Listener {
       );
       if (
         role &&
-        member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
+        member.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
       )
         await member.roles
           .add(role, member.guild.language.get("AUTOROLE_REASON"))
@@ -148,7 +148,9 @@ export default class GuildMemberAdd extends Listener {
         const role = member.guild.roles.cache.get(autoroleId);
         if (
           role &&
-          member.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
+          member.guild.members.me.permissions.has(
+            Permissions.FLAGS.MANAGE_ROLES
+          )
         )
           await member.roles
             .add(role, member.guild.language.get("AUTOROLE_REASON"))
@@ -246,7 +248,9 @@ export default class GuildMemberAdd extends Listener {
         );
       if (
         member.user.bot &&
-        member.guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)
+        member.guild.members.me.permissions.has(
+          Permissions.FLAGS.VIEW_AUDIT_LOG
+        )
       ) {
         const auditLogActions = await member.guild
           .fetchAuditLogs({ limit: 2, type: "BOT_ADD" })

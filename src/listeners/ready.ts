@@ -38,7 +38,7 @@ export default class Ready extends Listener {
     }
 
     for (const [, guild] of this.client.guilds.cache) {
-      const member = guild?.me as FireMember;
+      const member = guild?.members.me as FireMember;
       this.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.GUILD_CREATE, {

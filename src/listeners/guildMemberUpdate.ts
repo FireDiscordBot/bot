@@ -62,7 +62,7 @@ export default class GuildMemberUpdate extends Listener {
       const canTimeOut =
         until &&
         until < +new Date() + 2419199999 &&
-        newMember.guild.me?.permissions?.has("MODERATE_MEMBERS");
+        newMember.guild.members.me?.permissions?.has("MODERATE_MEMBERS");
       if (until == 0 || +new Date() < until)
         canTimeOut
           ? await newMember
@@ -112,7 +112,7 @@ export default class GuildMemberUpdate extends Listener {
         await command.sendLog(
           newMember,
           roles,
-          newMember.guild.me as FireMember
+          newMember.guild.members.me as FireMember
         );
       }
     }
@@ -123,7 +123,9 @@ export default class GuildMemberUpdate extends Listener {
       );
       if (
         role &&
-        newMember.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
+        newMember.guild.members.me.permissions.has(
+          Permissions.FLAGS.MANAGE_ROLES
+        )
       )
         await newMember.roles
           .add(role, newMember.guild.language.get("AUTOROLE_REASON"))
@@ -148,7 +150,9 @@ export default class GuildMemberUpdate extends Listener {
         const role = newMember.guild.roles.cache.get(autoroleId);
         if (
           role &&
-          newMember.guild.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
+          newMember.guild.members.me.permissions.has(
+            Permissions.FLAGS.MANAGE_ROLES
+          )
         )
           await newMember.roles
             .add(role, newMember.guild.language.get("AUTOROLE_REASON"))
@@ -158,7 +162,9 @@ export default class GuildMemberUpdate extends Listener {
 
     if (
       !newMember.guild.settings.has("log.members") ||
-      !newMember.guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)
+      !newMember.guild.members.me.permissions.has(
+        Permissions.FLAGS.VIEW_AUDIT_LOG
+      )
     )
       return;
 

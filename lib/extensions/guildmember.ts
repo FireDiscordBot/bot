@@ -166,9 +166,9 @@ export class FireMember extends GuildMember {
       this.isModerator() ||
       this.changingNick ||
       this.roles.highest.rawPosition >=
-        this.guild.me.roles.highest.rawPosition ||
+        this.guild.members.me.roles.highest.rawPosition ||
       !this.guild.settings.get<boolean>("mod.autodehoist") ||
-      !this.guild.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
+      !this.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
     )
       return;
     this.changingNick = true;
@@ -218,9 +218,9 @@ export class FireMember extends GuildMember {
       this.isModerator() ||
       this.changingNick ||
       this.roles.highest.rawPosition >=
-        this.guild.me.roles.highest.rawPosition ||
+        this.guild.members.me.roles.highest.rawPosition ||
       !this.guild.settings.get<boolean>("mod.autodecancer") ||
-      !this.guild.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
+      !this.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
     )
       return;
     this.changingNick = true;
@@ -410,7 +410,7 @@ export class FireMember extends GuildMember {
     if (this.guild.mutes.has(this.id))
       await this.unmute(
         this.guild.language.get("BAN_MUTED_REASON"),
-        this.guild.me as FireMember
+        this.guild.members.me as FireMember
       ).catch(() => {});
     const banned = await this.ban({
       reason: `${moderator} | ${reason}`,
@@ -640,7 +640,7 @@ export class FireMember extends GuildMember {
     const canTimeOut =
       until &&
       until < +new Date() + 2419199999 &&
-      this.guild.me?.permissions?.has("MODERATE_MEMBERS");
+      this.guild.members.me?.permissions?.has("MODERATE_MEMBERS");
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     let useEdit = false;

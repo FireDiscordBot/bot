@@ -201,7 +201,7 @@ export class Fire extends AkairoClient {
         !!this.readyAt
       ) {
         const member =
-          (this.guilds.cache.get(r.d.id)?.me as FireMember) ??
+          (this.guilds.cache.get(r.d.id)?.members.me as FireMember) ??
           (r.d.members.find(
             (member: APIGuildMember) => member.user.id == this.user.id
           ) as APIGuildMember);

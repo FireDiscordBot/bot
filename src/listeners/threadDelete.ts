@@ -91,7 +91,7 @@ export default class ThreadDelete extends Listener {
       // }
 
       // there doesn't seem to be an audit log event for deleting threads
-      // if (guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
+      // if (guild.members.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
       //   const auditLogActions = await guild
       //     .fetchAuditLogs({ limit: 2, type: "CHANNEL_DELETE" })
       //     .catch(() => {});

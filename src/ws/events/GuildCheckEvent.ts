@@ -66,7 +66,8 @@ export default class GuildCheckEvent extends Event {
             id: data.id,
             has: this.manager.client?.guilds.cache.has(data.id),
             member: GuildCheckEvent.getMemberJSON(
-              this.manager.client?.guilds.cache.get(data.id)?.me as FireMember
+              this.manager.client?.guilds.cache.get(data.id)?.members
+                .me as FireMember
             ),
           },
           nonce

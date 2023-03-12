@@ -16,7 +16,7 @@ export default class GuildBanRemove extends Listener {
     if (
       !guild ||
       typeof guild.fetchAuditLogs != "function" ||
-      !guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)
+      !guild.members.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)
     )
       return;
     let action: GuildAuditLogsEntry;

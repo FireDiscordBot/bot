@@ -86,7 +86,7 @@ export default class VanityURL extends Command {
     if (!invite) {
       if (
         command.guild.features.includes("VANITY_URL") &&
-        command.guild.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+        command.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
       ) {
         const vanity = await command.guild.fetchVanityData().catch(() => {});
         if (vanity) invite = await this.client.fetchInvite(vanity.code).catch();

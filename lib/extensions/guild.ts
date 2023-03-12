@@ -456,7 +456,7 @@ export class FireGuild extends Guild {
       if (member) {
         const unmuted = await member.unmute(
           this.language.get("UNMUTE_AUTOMATIC"),
-          this.me as FireMember
+          this.members.me as FireMember
         );
         this.mutes.delete(id); // ensures id is removed from cache even if above fails to do so
         if (typeof unmuted == "string") {
@@ -518,7 +518,7 @@ export class FireGuild extends Guild {
       await this.unban(
         user,
         this.language.get("UNBAN_AUTOMATIC"),
-        this.me as FireMember
+        this.members.me as FireMember
       );
     }
   }

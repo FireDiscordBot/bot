@@ -174,7 +174,7 @@ export default class Message extends Listener {
         this.cleanContent(message, false)
       );
       youForgotTheHyphen.lastIndex = 0;
-      if (theyForgot && message.guild?.me?.permissions.has(67584n))
+      if (theyForgot && message.guild?.members.me?.permissions.has(67584n))
         await message
           .reply({
             content: "You forgot the hyphen! It's Spider-Man*",

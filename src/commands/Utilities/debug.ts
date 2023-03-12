@@ -225,7 +225,9 @@ export default class Debug extends Command {
     if (
       !command.guild ||
       (command.guild &&
-        command.guild.me?.permissions.has(Permissions.FLAGS.EMBED_LINKS))
+        command.guild.members.me?.permissions.has(
+          Permissions.FLAGS.EMBED_LINKS
+        ))
     )
       return await command.channel.send({
         embeds: [this.createEmbed(command, details)],

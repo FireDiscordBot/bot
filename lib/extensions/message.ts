@@ -156,7 +156,8 @@ export class FireMessage extends Message {
   async reply(options: string | MessagePayload | ReplyMessageOptions) {
     if (
       !this.channel ||
-      (this.guild && !this.guild.me?.permissions.has("READ_MESSAGE_HISTORY"))
+      (this.guild &&
+        !this.guild.members.me?.permissions.has("READ_MESSAGE_HISTORY"))
     )
       return this; // we need to return a message to prevent issues so just return this
     return (await super.reply(options)) as FireMessage;
@@ -1086,7 +1087,7 @@ The lack of this is a sign that this message may have been sent automatically by
           .then((result) => {
             if (
               result instanceof FireMessage &&
-              result.guild?.me
+              result.guild?.members.me
                 ?.permissionsIn(this.channel as FireTextChannel)
                 ?.has("ADD_REACTIONS")
             )
@@ -1105,7 +1106,7 @@ The lack of this is a sign that this message may have been sent automatically by
             this.delete().catch(() => {});
             if (
               result instanceof FireMessage &&
-              result.guild?.me
+              result.guild?.members.me
                 ?.permissionsIn(this.channel as FireTextChannel)
                 ?.has("ADD_REACTIONS")
             )

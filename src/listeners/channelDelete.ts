@@ -90,7 +90,7 @@ export default class ChannelDelete extends Listener {
         const viewers = [...roles.map((role) => role.toString()), ...members];
         embed.addField(language.get("VIEWABLE_BY"), `${viewers.join(" - ")}`);
       }
-      if (guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
+      if (guild.members.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
         const auditLogActions = await guild
           .fetchAuditLogs({ limit: 2, type: "CHANNEL_DELETE" })
           .catch(() => {});

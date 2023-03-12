@@ -39,7 +39,8 @@ export default class MuteRole extends Command {
     if (
       args.role &&
       (args.role.managed ||
-        args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
+        args.role.rawPosition >=
+          message.guild.members.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
         (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
           message.guild.ownerId != message.author.id))

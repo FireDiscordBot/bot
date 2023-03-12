@@ -63,7 +63,7 @@ export default class GuildMemberRemove extends Listener {
         )
           await member.guild.closeTicket(
             channel,
-            member.guild.me as FireMember,
+            member.guild.members.me as FireMember,
             member.guild.language.get("TICKET_AUTHOR_LEFT", {
               author: member.toString(),
             }) as string
@@ -111,7 +111,11 @@ export default class GuildMemberRemove extends Listener {
 
     if (member.guild.settings.has("log.members")) {
       let moderator: FireMember, action: string, reason: string;
-      if (member.guild.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
+      if (
+        member.guild.members.me.permissions.has(
+          Permissions.FLAGS.VIEW_AUDIT_LOG
+        )
+      ) {
         const auditLogActions = await member.guild
           .fetchAuditLogs({ limit: 5 })
           .catch(() => {});

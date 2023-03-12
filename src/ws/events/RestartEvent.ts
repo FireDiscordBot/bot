@@ -40,7 +40,9 @@ export default class RestartEvent extends Event {
         MessageUtil.encode(
           new Message(EventType.GUILD_CREATE, {
             id,
-            member: GuildCheckEvent.getMemberJSON(guild.me as FireMember),
+            member: GuildCheckEvent.getMemberJSON(
+              guild.members.me as FireMember
+            ),
           })
         )
       );

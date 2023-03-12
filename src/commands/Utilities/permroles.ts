@@ -101,7 +101,8 @@ export default class PermRoles extends Command {
 
     if (
       args.role &&
-      (args.role.rawPosition >= message.guild.me.roles.highest.rawPosition ||
+      (args.role.rawPosition >=
+        message.guild.members.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
         (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
           message.guild.ownerId != message.author.id))
@@ -122,10 +123,14 @@ export default class PermRoles extends Command {
     if (
       channelPerms.allow
         .toArray()
-        .some((permission) => !message.guild.me.permissions.has(permission)) ||
+        .some(
+          (permission) => !message.guild.members.me.permissions.has(permission)
+        ) ||
       channelPerms.deny
         .toArray()
-        .some((permission) => !message.guild.me.permissions.has(permission))
+        .some(
+          (permission) => !message.guild.members.me.permissions.has(permission)
+        )
     )
       return await message.error("PERMROLES_MISSING_PERMISSIONS");
 

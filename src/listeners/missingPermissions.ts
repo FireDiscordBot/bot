@@ -39,7 +39,7 @@ export default class MissingPermissions extends Listener {
           missing: missing.join(", "),
           has:
             type == "client"
-              ? message.guild?.me.permissions.toArray().join(", ") ?? ""
+              ? message.guild?.members.me.permissions.toArray().join(", ") ?? ""
               : message.member?.permissions.toArray().join(", ") ?? "",
         },
       },
