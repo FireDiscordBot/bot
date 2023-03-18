@@ -10,14 +10,11 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { MessageEmbed } from "discord.js";
 
 export default class GuildUpdate extends Listener {
-  theFunny: boolean;
-
   constructor() {
     super("guildUpdate", {
       emitter: "client",
       event: "guildUpdate",
     });
-    this.theFunny = false;
   }
 
   async exec(before: FireGuild, after: FireGuild) {
