@@ -724,7 +724,10 @@ export class FireGuild extends Guild {
   }
 
   isPublic() {
-    if (!this.available) return false;
+    // TODO: fix types for below
+    // @ts-ignore discord.js types don't have INVITES_DISABLED and rn I'm too lazy to add it to my fork
+    if (!this.available || this.features.includes("INVITES_DISABLED"))
+      return false;
     // node_env is only "development" for local testing, it's "staging" for fire beta
     if (process.env.NODE_ENV == "development") return true;
     return (

@@ -25,7 +25,8 @@ export default class GuildUpdate extends Listener {
       before.name != after.name ||
       before.icon != after.icon ||
       before.splash != after.splash ||
-      before.discoverySplash != after.discoverySplash;
+      before.discoverySplash != after.discoverySplash ||
+      before.features.length != after.features.length;
 
     if (discoveryChanges && after.isPublic() && this.client.manager.ws?.open)
       // send discovery update
@@ -34,6 +35,17 @@ export default class GuildUpdate extends Listener {
           new Message(EventType.DISCOVERY_UPDATE, {
             op: DiscoveryUpdateOp.SYNC,
             guilds: [after.getDiscoverableData()],
+          })
+        )
+      );
+    // below can check for changes like disabling invites (which adds the INVITES_DISABLED feature)
+    else if (discoveryChanges && before.isPublic() && !after.isPublic())
+      // send discovery delete
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.DISCOVERY_UPDATE, {
+            op: DiscoveryUpdateOp.REMOVE,
+            guilds: [{ id: after.id }],
           })
         )
       );

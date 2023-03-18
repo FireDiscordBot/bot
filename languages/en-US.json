@@ -809,6 +809,7 @@
   "PUBLIC_MEMBER_COUNT_TOO_SMALL": "This server does not have enough members to be set as public!",
   "PUBLIC_GUILD_TOO_YOUNG": "This server is not old enough to be set as public!",
   "PUBLIC_DISCOVERABLE_DISABLED": "Discord has disabled discovery for this server therefore it cannot be set as public!",
+  "PUBLIC_INVITES_DISABLED": "This server has disabled invites therefore it cannot be set as public!",
   "PUBLIC_VANITY_BLACKLIST": "This server has been blacklisted from vanity features and therefore cannot be public!",
   "PUBLIC_VANITY_REQUIRED": "You must set a vanity url with `{{prefix}}vanityurl` before your server can be public",
   "PUBLIC_ENABLED": "Your server is now public & visible on <https://inv.wtf/discover>.\nPeople will be able to use your server's vanity url (<https://inv.wtf/{{vanity}}>) to join",

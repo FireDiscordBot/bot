@@ -30,6 +30,9 @@ export default class Public extends Command {
       command.guild.features.includes("DISCOVERABLE_DISABLED" as GuildFeatures)
     )
       return await command.error("PUBLIC_DISCOVERABLE_DISABLED");
+    // @ts-ignore discord.js types don't have INVITES_DISABLED and rn I'm too lazy to add it to my fork
+    else if (command.guild.features.includes("INVITES_DISABLED"))
+      return await command.error("PUBLIC_INVITES_DISABLED");
 
     const current = command.guild.settings.get<boolean>("utils.public", false);
     const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
