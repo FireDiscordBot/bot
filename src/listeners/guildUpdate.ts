@@ -30,13 +30,17 @@ export default class GuildUpdate extends Listener {
       this.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.DISCOVERY_UPDATE, {
-            op: DiscoveryUpdateOp.SYNC,
+            op: DiscoveryUpdateOp.ADD_OR_SYNC,
             guilds: [after.getDiscoverableData()],
           })
         )
       );
     // below can check for changes like disabling invites (which adds the INVITES_DISABLED feature)
-    else if (discoveryChanges && before.isPublic() && !after.isPublic())
+    else if (
+      discoveryChanges &&
+      !after.isPublic() &&
+      this.client.manager.ws?.open
+    )
       // send discovery delete
       this.client.manager.ws?.send(
         MessageUtil.encode(
