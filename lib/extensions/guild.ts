@@ -84,7 +84,6 @@ export class FireGuild extends Guild {
   mutes: Collection<Snowflake, number>;
   fetchingMemberUpdates: boolean;
   muteCheckTask: NodeJS.Timeout;
-  declare me: FireMember | null;
   banCheckTask: NodeJS.Timeout;
   fetchingRoleUpdates: boolean;
   settings: GuildSettings;
@@ -501,7 +500,7 @@ export class FireGuild extends Guild {
     if (!this.client.user || !this.available) return; // likely not ready yet or guild is unavailable
     const me =
       this.members.me instanceof FireMember
-        ? this.me
+        ? this.members.me
         : ((await this.members
             .fetch({ user: this.client.user.id, cache: true })
             .catch(() => {})) as FireMember);

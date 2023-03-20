@@ -275,16 +275,6 @@ export default class Filters extends Module {
         !constants.allowedInvites.includes(inv.guild.id)
       )
         await message.delete().catch(() => {});
-
-      if (
-        inv.guild.id == "753315331564371999" &&
-        message.guild.id == "411619823445999637"
-      ) {
-        const member = (await message.guild.members.fetch(
-          message.author.id
-        )) as FireMember;
-        await member.mute("No.", message.guild.me).catch(() => {});
-      }
     };
     const deleteFail = async (e: Error) =>
       await message.delete().catch(() => {});

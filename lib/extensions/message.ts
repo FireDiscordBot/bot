@@ -1077,7 +1077,7 @@ The lack of this is a sign that this message may have been sent automatically by
         return await this.member
           ?.bean(
             match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
-            this.guild.me,
+            this.guild.members.me as FireMember,
             null,
             7,
             this.guild?.hasExperiment(936071411, 1)
@@ -1097,7 +1097,7 @@ The lack of this is a sign that this message may have been sent automatically by
         return await this.member
           ?.yeet(
             match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
-            this.guild.me,
+            this.guild.members.me as FireMember,
             this.guild?.hasExperiment(936071411, 1)
               ? (this.channel as FireTextChannel)
               : undefined
