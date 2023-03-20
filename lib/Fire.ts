@@ -190,6 +190,10 @@ export class Fire extends AkairoClient {
     this.on("ready", () => config.fire.readyMessage(this));
     this.nonceHandlers = new Collection();
     this.on("raw", (r: any, shard: number) => {
+      // TODO: remove when discord fixes clyde bypassing thread limit
+      if (r.t == Constants.WSEvents.GUILD_CREATE) {
+        r.d.threads = r.d.threads.slice(0, 1000);
+      }
       if (r.d?.nonce && this.nonceHandlers.has(r.d.nonce)) {
         this.nonceHandlers.get(r.d.nonce)(r.d);
         this.nonceHandlers.delete(r.d.nonce);
