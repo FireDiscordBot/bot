@@ -28,7 +28,6 @@ export const discord: ClientOptions = {
     roles: [],
   },
   makeCache: Options.cacheWithLimits({
-    // TODO: remove ChannelManager once discord fixes clyde bypassing thread limit
     ThreadManager: {
       sweepFilter: () => {
         return (thread) => thread.archived;
@@ -51,22 +50,22 @@ export const discord: ClientOptions = {
       sweepInterval: 60,
       maxSize: 1000,
     },
-    GuildChannelManager: {
-      sweepFilter: () => {
-        return (channel) => channel.isThread() && channel.archived;
-      },
-      sweepInterval: 60,
-      maxSize: 1500, // 500 channels + 1000 active threads
-      keepOverLimit: (channel) => !channel.isThread(), // keep normal channels over limit
-    },
-    ChannelManager: {
-      sweepFilter: () => {
-        return (channel) => channel.isThread() && channel.archived;
-      },
-      sweepInterval: 60,
-      maxSize: 1, // needs to be any number > 0 for keepOverLimit to work
-      keepOverLimit: (channel) => !channel.isThread(), // only keep non-threads in global channel cache
-    },
+    // GuildChannelManager: {
+    //   sweepFilter: () => {
+    //     return (channel) => channel.isThread() && channel.archived;
+    //   },
+    //   sweepInterval: 60,
+    //   maxSize: 1500, // 500 channels + 1000 active threads
+    //   keepOverLimit: (channel) => !channel.isThread(), // keep normal channels over limit
+    // },
+    // ChannelManager: {
+    //   sweepFilter: () => {
+    //     return (channel) => channel.isThread() && channel.archived;
+    //   },
+    //   sweepInterval: 60,
+    //   maxSize: 1, // needs to be any number > 0 for keepOverLimit to work
+    //   keepOverLimit: (channel) => !channel.isThread(), // only keep non-threads in global channel cache
+    // },
     // @ts-ignore
     GuildApplicationCommandManager: 0,
     ApplicationCommandManager: 0,
