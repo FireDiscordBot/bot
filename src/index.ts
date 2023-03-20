@@ -40,6 +40,7 @@ if (loadSentry) {
 }
 
 const manager = new Manager(version, loadSentry ? sentry : undefined);
+global.manager = manager;
 manager.init();
 
 process.on("exit", () => {
