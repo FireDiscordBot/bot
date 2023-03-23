@@ -259,7 +259,7 @@ export default class MCLogs extends Module {
       return this.remove();
     this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
     const solutionsReq = await centra(
-      `https://api.github.com/repos/EssentialGG/BlockGameSolutions/contents/mc_solutions.json`
+      `https://api.github.com/repos/GamingGeek/BlockGameSolutions/contents/mc_solutions.json`
     )
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", `token ${process.env.GITHUB_SOLUTIONS_TOKEN}`)
