@@ -276,8 +276,8 @@ export class FireMember extends GuildMember {
     // This will be used when dehoisting/decancering and
     // not awaiting (as the result isn't really needed)
     // preventing them from delaying other functions
-    await this.dehoist();
     await this.decancer();
+    await this.dehoist();
   }
 
   async warn(
