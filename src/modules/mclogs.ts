@@ -65,6 +65,9 @@ type ModInfo = {
   source: ModSource;
 };
 
+const classicForgeModsHeader =
+  "States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored";
+
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
   regexes: {
@@ -122,9 +125,9 @@ export default class MCLogs extends Module {
       modsTableHeader:
         /\|\sState\s*\|\sID\s*\|\sVersion\s*\|\sSource\s*\|(?:\sSignature\s*\|)?/gim,
       modsTableEntry:
-        /^\s*\|\s*(?<state>[ULCHIJADE]*)\s*\|\s*(?<modid>[a-z][a-z0-9_\.'|\-]{1,63})\s*\|\s*(?<version>[\w.-]*)\s*\|\s*(?<source>.*\.jar)\s*\|/gim,
+        /\s*(?<state>[ULCHIJADE]+)\s*\|\s*(?<modid>[a-z][a-z0-9_.-]{1,63})\s*\|\s*(?<version>[\w\-\+\.]+)\s*\|\s*(?<source>[\w\s\-\.()\[\]]+\.jar)\s*\|/gim,
       classicForgeModsEntry:
-        /^\s*(?<state>[ULCHIJADE]*)\s*(?<modid>[a-z][a-z0-9_.-]{1,63}){(?<version>[\w.-]*)}\s*\[(?<display>[\w\s]*)\]\s*\((?<source>.*\.jar)\)/gim,
+        /(?<state>[ULCHIJADE]+)\s+(?<modid>[a-z][a-z0-9_.-]{1,63})\{(?<version>[\w\-\+\.]+)\}\s+\[(?<name>[^\]]+)\]\s+\((?<source>[\w\s\-\.()\[\]]+\.jar)\)\s*$/gim,
       fullLogJavaVersion:
         /Java is (?<name>.* VM), version (?<version>\d*\.\d*\.\d*_\d{1,3}). running on (?<os>(?<osname>[\w\s]*):(?<osarch>\w*):(?<osversion>.*)), installed at (?<path>.*)$/gim,
       crashReportJavaVersion:
@@ -218,6 +221,7 @@ export default class MCLogs extends Module {
       "---- Minecraft Crash Report ----",
       "A detailed walkthrough of the error",
       "launchermeta.mojang.com",
+      "Running launcher bootstrap",
       "Running launcher core",
       "Native Launcher Version:",
       "[Client thread/INFO]: Setting user:",
@@ -359,7 +363,7 @@ export default class MCLogs extends Module {
     }
   }
 
-  private getMCInfo(log: string): VersionInfo {
+  private getMCInfo(log: string, splitLog: string[]): VersionInfo {
     let loader: Loaders,
       mcVersion: MinecraftVersion,
       loaderVersion: string,
@@ -391,9 +395,18 @@ export default class MCLogs extends Module {
     if (optifineMatch && optifineMatch?.groups?.mcver == mcVersion)
       optifineVersion = optifineMatch.groups.ofver;
 
-    if (this.regexes.modsTableHeader.test(log)) {
+    if (loader == Loaders.FORGE && this.regexes.modsTableHeader.test(log)) {
+      const modsTableIndex = splitLog.findIndex(
+        (v) =>
+          v.includes("State") &&
+          v.includes("ID") &&
+          v.includes("Version") &&
+          v.includes("Source")
+      );
+      splitLog = splitLog.slice(modsTableIndex + 2); // start at mods table, while loop should stop at end
       let modMatch: RegExpExecArray;
-      while ((modMatch = this.regexes.modsTableEntry.exec(log)))
+      while ((modMatch = this.regexes.modsTableEntry.exec(splitLog.shift()))) {
+        this.regexes.modsTableEntry.lastIndex = 0;
         if (!mods.find((i) => i.modId == modMatch.groups.modid))
           mods.push({
             state: modMatch.groups.state,
@@ -401,11 +414,21 @@ export default class MCLogs extends Module {
             version: modMatch.groups.version,
             source: modMatch.groups.source as ModSource,
           });
+      }
       this.regexes.modsTableHeader.lastIndex = 0;
-      this.regexes.modsTableEntry.lastIndex = 0;
-    } else if (loader == Loaders.FORGE) {
+    } else if (
+      loader == Loaders.FORGE &&
+      log.includes(classicForgeModsHeader)
+    ) {
+      const modsTableIndex = splitLog.findIndex((v) =>
+        v.includes(classicForgeModsHeader)
+      );
+      splitLog = splitLog.slice(modsTableIndex + 1); // start at mods list, while loop should stop at end
       let modMatch: RegExpExecArray;
-      while ((modMatch = this.regexes.classicForgeModsEntry.exec(log)))
+      while (
+        (modMatch = this.regexes.classicForgeModsEntry.exec(splitLog.shift()))
+      ) {
+        this.regexes.classicForgeModsEntry.lastIndex = 0;
         if (!mods.find((i) => i.modId == modMatch.groups.modid))
           mods.push({
             state: modMatch.groups.state,
@@ -413,7 +436,7 @@ export default class MCLogs extends Module {
             version: modMatch.groups.version,
             source: modMatch.groups.source as ModSource,
           });
-      this.regexes.classicForgeModsEntry.lastIndex = 0;
+      }
     }
 
     if (this.regexes.fullLogJavaVersion.test(log)) {
@@ -955,7 +978,7 @@ export default class MCLogs extends Module {
 
     text = text.replace(this.regexes.secrets, "[secrets removed]");
 
-    const mcInfo = this.getMCInfo(text);
+    const mcInfo = this.getMCInfo(text, lines);
     let modsHaste: string;
     if (mcInfo.mods.length) {
       const haste = await this.client.util
