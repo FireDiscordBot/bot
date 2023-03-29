@@ -2,7 +2,6 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { ManagerState } from "@fire/lib/interfaces/aether";
 import { Manager } from "@fire/lib/Manager";
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
-import { getCommitHash } from "@fire/lib/util/gitUtils";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -61,7 +60,7 @@ export default class RestartEvent extends Event {
           name: this.manager.client.user.username,
           id: this.manager.client.manager.id,
           env: process.env.NODE_ENV,
-          commit: getCommitHash(),
+          commit: this.manager.commit,
           uuid: process.env.pm_id,
         })
       )

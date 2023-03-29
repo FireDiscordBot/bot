@@ -2,7 +2,6 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
-import { getCommitHash } from "@fire/lib/util/gitUtils";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -62,7 +61,7 @@ export default class Ready extends Listener {
             name: this.client.user.username,
             id: this.client.manager.id,
             env: process.env.NODE_ENV,
-            commit: getCommitHash(),
+            commit: this.client.manager.commit,
             uuid: process.env.pm_id ?? "0",
           })
         )
