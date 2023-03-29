@@ -11,9 +11,9 @@ export class Inhibitor extends AkairoInhibitor {
     super(id, options);
   }
 
-  async init() {}
+  async init(): Promise<any> {}
 
-  async unload() {}
+  async unload(): Promise<any> {}
 
   // @ts-ignore
   async exec(

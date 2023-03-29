@@ -4,6 +4,7 @@ import { Fire } from "./Fire";
 import { ManagerState } from "./interfaces/aether";
 import { Command } from "./util/command";
 import { getCommitHash } from "./util/gitUtils";
+import { Module } from "./util/module";
 import { EventHandler } from "./ws/event/EventHandler";
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
@@ -125,17 +126,18 @@ export class Manager {
     if (this.killing) return;
     this.killing = true;
     this.client?.console.warn(`[Manager] Destroying client (${event})`);
-    await this.client?.user?.setStatus(
+    if (this.ws?.open) this.ws.close(1001, event);
+    this.client?.user?.setStatus(
       "invisible",
       this.client.options.shards as number[]
     );
-    await Promise.all(
-      this.client.commandHandler.modules.map((command: Command) =>
+    await Promise.all([
+      ...this.client.commandHandler.modules.map((command: Command) =>
         command.unload()
-      )
-    );
+      ),
+      ...this.client.modules.modules.map((module: Module) => module.unload()),
+    ]);
     this.client?.destroy();
-    if (this.ws?.open) this.ws.close(1001, event);
     process.exit();
   }
 }
