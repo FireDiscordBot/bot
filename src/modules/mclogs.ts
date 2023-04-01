@@ -4,9 +4,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { IPoint } from "@fire/lib/interfaces/aether";
 import { FabricLoaderVersion } from "@fire/lib/interfaces/fabricmc";
-import { Release } from "@fire/lib/interfaces/github";
 import { ForgePromotions } from "@fire/lib/interfaces/minecraftforge";
-import { Sk1erMods } from "@fire/lib/interfaces/sk1ermod";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
@@ -38,12 +36,15 @@ const allowedURLs = [
 enum Loaders {
   FORGE = "Forge",
   FABRIC = "Fabric",
+  QUILT = "Quilt",
   OPTIFINE = "Vanilla w/OptiFine HD U", // will be shown as "Vanilla w/OptiFine HD U H4"
   FEATHER = "Feather",
 }
 
 type ModSource = `${string}.jar`;
-type MinecraftVersion = `${number}.${number}.${number}` | `${number}.${number}`;
+export type MinecraftVersion =
+  | `${number}.${number}.${number}`
+  | `${number}.${number}`;
 type Haste = { url: string; raw: string };
 type LoaderRegexConfig = {
   loader: Loaders;
@@ -58,15 +59,23 @@ type VersionInfo = {
   jvmType: string;
   mods: ModInfo[];
 };
-type ModInfo = {
-  state: string;
-  modId: string;
-  version: string;
-  source: ModSource;
-};
+type ModInfo =
+  | {
+      state: string;
+      modId: string;
+      version: string;
+      source: ModSource;
+    }
+  | {
+      modId: string;
+      version: string;
+      subMods: ModInfo[];
+    };
 
 const classicForgeModsHeader =
   "States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored";
+
+const modIdClean = /_|\-/g;
 
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
@@ -84,9 +93,13 @@ export default class MCLogs extends Module {
     settingUser: RegExp;
     devEnvUser: RegExp;
     loaderVersions: LoaderRegexConfig[];
-    modsTableHeader: RegExp;
-    modsTableEntry: RegExp;
+    forgeModsTableHeader: RegExp;
+    forgeModsTableEntry: RegExp;
     classicForgeModsEntry: RegExp;
+    fabricModsHeader: RegExp;
+    classicFabricModsEntry: RegExp;
+    fabricModsEntry: RegExp;
+    fabricSubModEntry: RegExp;
     fullLogJavaVersion: RegExp;
     crashReportJavaVersion: RegExp;
     date: RegExp;
@@ -99,11 +112,9 @@ export default class MCLogs extends Module {
     recommendations: { [key: string]: string };
     cheats: string[];
   };
-  modVersions: Record<string, Record<MinecraftVersion, string>>; // map of modid to map of mc version to latest mod version
 
   constructor() {
     super("mclogs");
-    this.modVersions = {};
     this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
     this.regexes = {
       reupload:
@@ -122,12 +133,19 @@ export default class MCLogs extends Module {
       settingUser:
         /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
       devEnvUser: /Player\d{3}/gim,
-      modsTableHeader:
+      forgeModsTableHeader:
         /\|\sState\s*\|\sID\s*\|\sVersion\s*\|\sSource\s*\|(?:\sSignature\s*\|)?/gim,
-      modsTableEntry:
+      forgeModsTableEntry:
         /\s*(?<state>[ULCHIJADE]+)\s*\|\s*(?<modid>[a-z][a-z0-9_.-]{1,63})\s*\|\s*(?<version>[\w\-\+\.]+)\s*\|\s*(?<source>[\w\s\-\.()\[\]]+\.jar)\s*\|/gim,
       classicForgeModsEntry:
         /(?<state>[ULCHIJADE]+)\s+(?<modid>[a-z][a-z0-9_.-]{1,63})\{(?<version>[\w\-\+\.]+)\}\s+\[(?<name>[^\]]+)\]\s+\((?<source>[\w\s\-\.()\[\]]+\.jar)\)\s*$/gim,
+      fabricModsHeader: /\[main\/INFO]: Loading \d{1,4} mods:/gim,
+      classicFabricModsEntry:
+        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)(?: via (?<via>[a-z0-9_\-]{2,}))?$/gim,
+      fabricModsEntry:
+        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)$/gim,
+      fabricSubModEntry:
+        /^\s+(?<subtype>\\--|\|--) (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)$/gim,
       fullLogJavaVersion:
         /Java is (?<name>.* VM), version (?<version>\d*\.\d*\.\d*_\d{1,3}). running on (?<os>(?<osname>[\w\s]*):(?<osarch>\w*):(?<osversion>.*)), installed at (?<path>.*)$/gim,
       crashReportJavaVersion:
@@ -164,6 +182,12 @@ export default class MCLogs extends Module {
           ],
         },
         {
+          loader: Loaders.QUILT,
+          regexes: [
+            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Quilt Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+          ],
+        },
+        {
           loader: Loaders.FORGE,
           regexes: [
             /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) loading/gim,
@@ -179,12 +203,6 @@ export default class MCLogs extends Module {
           loader: Loaders.FORGE,
           regexes: [
             /--version, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-          ],
-        },
-        {
-          loader: Loaders.FORGE,
-          regexes: [
-            /forge-(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
@@ -243,6 +261,10 @@ export default class MCLogs extends Module {
     ];
   }
 
+  get modVersions() {
+    return this.client.manager.state.modVersions;
+  }
+
   private canUse(guild?: FireGuild, user?: FireUser) {
     if (guild)
       return (
@@ -254,13 +276,6 @@ export default class MCLogs extends Module {
 
   async init() {
     await this.client.waitUntilReady();
-    if (
-      !this.client.guilds.cache.some((guild: FireGuild) =>
-        this.canUse(guild)
-      ) &&
-      this.client.manager.id != 0 // cluster 0 will always have shard 0 which is what we want (to allow superusers to DM logs)
-    )
-      return this.remove();
     this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
     const solutionsReq = await centra(
       `https://api.github.com/repos/GamingGeek/BlockGameSolutions/contents/mc_solutions.json`
@@ -275,40 +290,6 @@ export default class MCLogs extends Module {
           Buffer.from(solutions.content, "base64").toString("utf8")
         );
     }
-    await this.refreshModVersions();
-  }
-
-  async refreshModVersions() {
-    await this.fetchSk1erModVersions().catch(() => {});
-    await this.fetchLatestSkytilsVersion().catch(() => {});
-  }
-
-  async fetchSk1erModVersions() {
-    const modsReq = await centra("https://api.sk1er.club/mods")
-      .header("User-Agent", this.client.manager.ua)
-      .send();
-    if (modsReq.statusCode != 200) return;
-    const mods = (await modsReq.json().catch(() => {})) as Sk1erMods;
-    if (!mods) return;
-    for (const [modid, data] of Object.entries(mods)) {
-      this.modVersions[modid.toLowerCase()] = data.latest;
-    }
-  }
-
-  async fetchLatestSkytilsVersion() {
-    const releasesReq = await centra(
-      "https://api.github.com/repos/Skytils/SkytilsMod/releases"
-    )
-      .header("User-Agent", this.client.manager.ua)
-      .send();
-    if (releasesReq.statusCode != 200) return;
-    let releases = (await releasesReq.json().catch(() => {})) as Release[];
-    if (!releases) return;
-    releases = releases.sort(
-      (a, b) => +new Date(b.published_at) - +new Date(a.published_at)
-    );
-    const latest = releases[0];
-    this.modVersions["skytils"] = { "1.8.9": latest.tag_name.slice(1) };
   }
 
   private async getSolutionsAnalytics(
@@ -395,7 +376,10 @@ export default class MCLogs extends Module {
     if (optifineMatch && optifineMatch?.groups?.mcver == mcVersion)
       optifineVersion = optifineMatch.groups.ofver;
 
-    if (loader == Loaders.FORGE && this.regexes.modsTableHeader.test(log)) {
+    if (
+      loader == Loaders.FORGE &&
+      this.regexes.forgeModsTableHeader.test(log)
+    ) {
       const modsTableIndex = splitLog.findIndex(
         (v) =>
           v.includes("State") &&
@@ -405,8 +389,10 @@ export default class MCLogs extends Module {
       );
       splitLog = splitLog.slice(modsTableIndex + 2); // start at mods table, while loop should stop at end
       let modMatch: RegExpExecArray;
-      while ((modMatch = this.regexes.modsTableEntry.exec(splitLog.shift()))) {
-        this.regexes.modsTableEntry.lastIndex = 0;
+      while (
+        (modMatch = this.regexes.forgeModsTableEntry.exec(splitLog.shift()))
+      ) {
+        this.regexes.forgeModsTableEntry.lastIndex = 0;
         if (!mods.find((i) => i.modId == modMatch.groups.modid))
           mods.push({
             state: modMatch.groups.state,
@@ -415,7 +401,7 @@ export default class MCLogs extends Module {
             source: modMatch.groups.source as ModSource,
           });
       }
-      this.regexes.modsTableHeader.lastIndex = 0;
+      this.regexes.forgeModsTableHeader.lastIndex = 0;
     } else if (
       loader == Loaders.FORGE &&
       log.includes(classicForgeModsHeader)
@@ -437,6 +423,82 @@ export default class MCLogs extends Module {
             source: modMatch.groups.source as ModSource,
           });
       }
+    } else if (loader == Loaders.FABRIC) {
+      const useClassic = loaderVersion <= "0.14.14"; // 0.14.15 introduced a newer format
+      const modsTableIndex = splitLog.findIndex((v) =>
+        this.regexes.fabricModsHeader.test(v)
+      );
+      splitLog = splitLog.slice(modsTableIndex + 1); // start at mods list, while loop should stop at end
+      let modMatch: RegExpExecArray;
+      if (useClassic) {
+        const tempSubMods: Record<string, ModInfo[]> = {};
+        while (
+          (modMatch = this.regexes.classicFabricModsEntry.exec(
+            splitLog.shift()
+          ))
+        ) {
+          this.regexes.classicFabricModsEntry.lastIndex = 0;
+          if (!mods.find((i) => i.modId == modMatch.groups.modid)) {
+            if (modMatch.groups.via) {
+              const parentMod = mods.find(
+                (i) => i.modId == modMatch.groups.via
+              );
+              if (parentMod && "subMods" in parentMod)
+                parentMod.subMods.push({
+                  modId: modMatch.groups.modid,
+                  version: modMatch.groups.version,
+                  subMods: [], // don't think it can have any but this is just to make TS happy
+                });
+              else {
+                const via = modMatch.groups.via;
+                if (!tempSubMods[via]) tempSubMods[via] = [];
+                tempSubMods[via].push({
+                  modId: modMatch.groups.modid,
+                  version: modMatch.groups.version,
+                  subMods: [],
+                });
+              }
+            } else {
+              mods.push({
+                modId: modMatch.groups.modid,
+                version: modMatch.groups.version,
+                subMods: tempSubMods[modMatch.groups.modid] || [],
+              });
+              delete tempSubMods[modMatch.groups.modid];
+            }
+          }
+        }
+      } else {
+        let nextMod = splitLog.shift();
+        while (
+          (modMatch =
+            this.regexes.fabricModsEntry.exec(nextMod) ||
+            this.regexes.fabricSubModEntry.exec(nextMod))
+        ) {
+          this.regexes.fabricModsEntry.lastIndex = 0;
+          this.regexes.fabricSubModEntry.lastIndex = 0;
+          if (modMatch.groups.subtype) {
+            const parentMod = mods[mods.length - 1];
+            if (parentMod && "subMods" in parentMod)
+              parentMod.subMods.push({
+                modId: modMatch.groups.modid,
+                version: modMatch.groups.version,
+                subMods: [],
+              });
+          } else if (!mods.find((i) => i.modId == modMatch.groups.modid))
+            mods.push({
+              modId: modMatch.groups.modid,
+              version: modMatch.groups.version,
+              subMods: [],
+            });
+          nextMod = splitLog.shift();
+        }
+      }
+    }
+
+    if (mods.find((m) => m.modId == "fabric")) {
+      const index = mods.findIndex((m) => m.modId == "fabric");
+      mods[index].modId = "fabric-api";
     }
 
     if (this.regexes.fullLogJavaVersion.test(log)) {
@@ -751,7 +813,10 @@ export default class MCLogs extends Module {
             currentRecommendations.add(
               "- " +
                 language.get("MC_LOG_UPDATE", {
-                  item: titleCase(mod.modId.replace(/_/g, " ")),
+                  item: titleCase(mod.modId.replace(modIdClean, " ")).replace(
+                    "Api", // makes fabric api look nicer
+                    "API"
+                  ),
                   current: mod.version,
                   latest,
                 })

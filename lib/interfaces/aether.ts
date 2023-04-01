@@ -1,3 +1,5 @@
+import { MinecraftVersion } from "@fire/src/modules/mclogs";
+
 export type Payload = {
   op: number; // opcode
   d?: unknown; // data
@@ -56,6 +58,7 @@ export interface ManagerState {
   loadedGuildExperiments: GuildExperimentConfig[];
   loadedUserExperiments: UserExperimentConfig[];
   discordExperiments: DiscordExperiment[];
+  modVersions: Record<string, Record<MinecraftVersion, string>>;
 }
 
 export interface IPoint {
