@@ -1185,9 +1185,9 @@ export default class MCLogs extends Module {
       if (mcInfo.loader)
         details.push(
           (message.guild ?? message).language.get("MC_LOG_LOADER_INFO", {
-            version: mcInfo.loaderVersion.trim(),
-            minecraft: mcInfo.mcVersion.trim(),
-            loader: mcInfo.loader.trim(),
+            version: mcInfo.loaderVersion?.trim(),
+            minecraft: mcInfo.mcVersion?.trim(),
+            loader: mcInfo.loader?.trim(),
           })
         );
       if (mcInfo.optifineVersion && mcInfo.loader != Loaders.OPTIFINE)
