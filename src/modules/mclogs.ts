@@ -362,10 +362,20 @@ export default class MCLogs extends Module {
           mcVersion = matchedMcVer = match.groups.mcver as MinecraftVersion;
         if (match?.groups?.loaderver)
           loaderVersion = matchedLoaderVer = match.groups.loaderver;
-        if (matchedMcVer || matchedLoaderVer) loader = config.loader;
+        if (
+          config.loader == Loaders.FEATHER
+            ? matchedMcVer && matchedLoaderVer
+            : matchedMcVer || matchedLoaderVer
+        )
+          loader = config.loader;
       }
       if (loader && mcVersion && loaderVersion) break;
     }
+
+    if (!loader && !mcVersion && !loaderVersion)
+      (loader = undefined),
+        (mcVersion = undefined),
+        (loaderVersion = undefined);
 
     let optifineMatch: RegExpExecArray;
     while ((optifineMatch = this.regexes.optifine.exec(log))) {
