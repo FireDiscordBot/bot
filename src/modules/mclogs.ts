@@ -102,6 +102,7 @@ export default class MCLogs extends Module {
     fabricSubModEntry: RegExp;
     fullLogJavaVersion: RegExp;
     crashReportJavaVersion: RegExp;
+    jvmCrashJavaVersion: RegExp;
     date: RegExp;
     semver: RegExp;
     majorMinorOnly: RegExp;
@@ -150,6 +151,8 @@ export default class MCLogs extends Module {
         /Java is (?<name>.* VM), version (?<version>\d*\.\d*\.\d*_\d{1,3}). running on (?<os>(?<osname>[\w\s]*):(?<osarch>\w*):(?<osversion>.*)), installed at (?<path>.*)$/gim,
       crashReportJavaVersion:
         /Java Version: (?<version>\d*\.\d*\.\d*_\d{1,3}).*\n\s*Java VM Version: (?<name>.* VM)/gim,
+      jvmCrashJavaVersion:
+        /^vm_info: (?<name>.* VM) \(.*\) for (?<os>(?<osname>[\w\s]*)-(?<osarch>\w*)) JRE \((?<version>\d*\.\d*\.\d*_\d{1,3}(?:-b\d{1,3})?)\)/gim,
       loaderVersions: [
         // this needs to be at the top as otherwise it'd trip another regex first
         // since feather is just a mod, not a loader
@@ -163,9 +166,17 @@ export default class MCLogs extends Module {
             /Forge mod loading, version (?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}, for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
             /--version, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge-(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}/gim,
             /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?)-(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}/gim,
-            /forge-(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}/gim,
+            /--fml\.mcVersion, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
             /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Fabric Loader \d\.\d{1,3}\.\d{1,3}/gim,
             /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER,
+          regexes: [
+            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-feather/gim,
+            /FeatherOpt \(FeatherOpt-(?<loaderver>(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))/gim,
           ],
         },
         {
@@ -203,6 +214,9 @@ export default class MCLogs extends Module {
           loader: Loaders.FORGE,
           regexes: [
             /--version, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+
+            // below is a variation of the above regex, but for some reason it has the minecraft version THREE TIMES and idk why. it seems to only show in JVM crashes (hs_err_pid.log files)
+            /--version (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
           ],
         },
         {
@@ -369,12 +383,7 @@ export default class MCLogs extends Module {
           mcVersion = matchedMcVer = match.groups.mcver as MinecraftVersion;
         if (match?.groups?.loaderver)
           loaderVersion = matchedLoaderVer = match.groups.loaderver;
-        if (
-          config.loader == Loaders.FEATHER
-            ? matchedMcVer && matchedLoaderVer
-            : matchedMcVer || matchedLoaderVer
-        )
-          loader = config.loader;
+        if (matchedMcVer && matchedLoaderVer) loader = config.loader;
       }
       if (loader && mcVersion && loaderVersion) break;
     }
@@ -519,16 +528,24 @@ export default class MCLogs extends Module {
     }
 
     if (this.regexes.fullLogJavaVersion.test(log)) {
+      this.regexes.fullLogJavaVersion.lastIndex = 0;
       const javaMatch = this.regexes.fullLogJavaVersion.exec(log);
       javaVersion = javaMatch?.groups?.version;
       javaVendor = javaMatch?.groups?.name;
-    } else {
+    } else if (this.regexes.crashReportJavaVersion.test(log)) {
+      this.regexes.crashReportJavaVersion.lastIndex = 0;
       const javaMatch = this.regexes.crashReportJavaVersion.exec(log);
+      javaVersion = javaMatch?.groups?.version;
+      javaVendor = javaMatch?.groups?.name;
+    } else if (this.regexes.jvmCrashJavaVersion.test(log)) {
+      this.regexes.jvmCrashJavaVersion.lastIndex = 0;
+      const javaMatch = this.regexes.jvmCrashJavaVersion.exec(log);
       javaVersion = javaMatch?.groups?.version;
       javaVendor = javaMatch?.groups?.name;
     }
     this.regexes.fullLogJavaVersion.lastIndex = 0;
     this.regexes.crashReportJavaVersion.lastIndex = 0;
+    this.regexes.jvmCrashJavaVersion.lastIndex = 0;
 
     return {
       loader,
@@ -586,7 +603,7 @@ export default class MCLogs extends Module {
             },
           },
         ]);
-      return `Feather "Client" is not supported. Any issues that occur while using it must be reported to Feather's support team.`;
+      return `Feather Client is not supported. Any issues that occur while using it must be reported to Feather's support team.`;
     }
 
     if (
