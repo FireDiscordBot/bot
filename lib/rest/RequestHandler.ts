@@ -417,7 +417,8 @@ export class RequestHandler {
           cluster: request.client.manager.id.toString(),
           route: request.options.route
             .replace(discord.snowflake, ":id")
-            .replace(discord.webhookPartial, "$1/:id/:token"),
+            .replace(discord.webhookPartial, "$1/:id/:token")
+            .replace(discord.invitePartial, "/invites/:code"),
         },
         fields: {
           latency,

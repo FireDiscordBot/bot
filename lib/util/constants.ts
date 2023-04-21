@@ -275,6 +275,7 @@ export const constants = {
       snowflake: /\d{15,21}/g,
       invite:
         /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/gim,
+      invitePartial: /invites?\/(?:[\w-]{1,25})/gim,
       cdnEmoji:
         /^https?:\/\/cdn\.discordapp\.com\/emojis\/(\d{15,21})\.\w{3,4}(?:\?v=\d|\?size=\d{1,4})?/gim,
       cdnAttachment:
