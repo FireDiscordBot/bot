@@ -623,8 +623,8 @@ discord-api-types@^0.37.14:
   integrity sha512-byBH7SfDCMJwxdqeS8k5sihltH88/YPhuwx+vF2cftSxFLdxyHyU/ZxDL3bq+LB2c4ls/TymE76/ISlLfniUXg==
 
 discord.js@FireDiscordBot/discord.js:
-  version "13.14.0"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/89617167846606c37ac04c60ae8083f787bbc432"
+  version "13.15.1"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/a20dc66221c6a70de5c2eeb40e878bb0e9d70b72"
   dependencies:
     "@discordjs/builders" "^0.16.0"
     "@discordjs/collection" "^0.7.0"
