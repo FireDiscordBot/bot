@@ -17,8 +17,8 @@ export default class Purge extends Command {
       description: (language: Language) =>
         language.get("PURGE_COMMAND_DESCRIPTION"),
       clientPermissions: [
+        Permissions.FLAGS.VIEW_CHANNEL,
         Permissions.FLAGS.MANAGE_MESSAGES,
-        Permissions.FLAGS.SEND_MESSAGES,
       ],
       userPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
       args: [
