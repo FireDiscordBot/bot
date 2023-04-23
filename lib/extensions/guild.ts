@@ -186,28 +186,18 @@ export class FireGuild extends Guild {
   async fetchAuditLogs<T extends GuildAuditLogsResolvable = "ALL">(
     options?: GuildAuditLogsFetchOptions<T>
   ) {
-    // TEMPORARILY DISABLING AUDIT LOG FETCHING TO CHECK SMTH
-    return new GuildAuditLogs<"ALL">(this, {
-      guild_scheduled_events: [],
-      application_commands: [],
-      audit_log_entries: [],
-      integrations: [],
-      webhooks: [],
-      threads: [],
-      users: [],
-    });
     // // litecord doesn't have audit logs so we don't even bother with the request
-    // if (process.env.USE_LITECORD == "true")
-    //   return new GuildAuditLogs<"ALL">(this, {
-    //     guild_scheduled_events: [],
-    //     application_commands: [],
-    //     audit_log_entries: [],
-    //     integrations: [],
-    //     webhooks: [],
-    //     threads: [],
-    //     users: [],
-    //   });
-    // else return super.fetchAuditLogs<T>(options);
+    if (process.env.USE_LITECORD == "true")
+      return new GuildAuditLogs<"ALL">(this, {
+        guild_scheduled_events: [],
+        application_commands: [],
+        audit_log_entries: [],
+        integrations: [],
+        webhooks: [],
+        threads: [],
+        users: [],
+      });
+    else return super.fetchAuditLogs<T>(options);
   }
 
   async initMuteRole() {
