@@ -587,6 +587,7 @@ export class Fire extends AkairoClient {
   }
 
   influx(points: IPoint[], options?: IWriteOptions) {
+    if (!this.manager.ws?.open) return;
     this.manager.ws?.send(
       MessageUtil.encode(
         new Message(
