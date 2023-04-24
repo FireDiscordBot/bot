@@ -392,7 +392,8 @@ export class RequestHandler {
       limit: 0,
       remaining: 0,
     };
-    if (typeof this.limit == "number" && this.limit) fields.limit = this.limit;
+    if (typeof this.limit == "number" && this.limit != null)
+      fields.limit = this.limit;
     if (typeof this.remaining == "number" && this.remaining)
       fields.remaining = this.remaining;
     this.manager.client.influx([
