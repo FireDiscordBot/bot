@@ -12,13 +12,10 @@ import {
   Util,
 } from "discord.js";
 import { RawUserData } from "discord.js/typings/rawDataTypes";
-import { murmur3 } from "murmurhash-js";
 import { GuildTextChannel, ModLogTypes } from "../util/constants";
 import { FakeChannel } from "./appcommandmessage";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
-
-type Primitive = string | boolean | number | null;
 
 export class FireUser extends User {
   settings: UserSettings;
@@ -44,11 +41,22 @@ export class FireUser extends User {
   }
 
   toString() {
-    return `${this.username}#${this.discriminator}` as unknown as UserMention;
+    return (this.discriminator == "0"
+      ? this.username
+      : `${this.username}#${this.discriminator}`) as unknown as UserMention;
   }
 
   toMention() {
     return super.toString();
+  }
+
+  // @ts-ignore
+  get defaultAvatarURL(): string {
+    return this.client.restManager.cdn.DefaultAvatar(
+      this.discriminator == "0"
+        ? Number((BigInt(this.id) >> 22n) % 5n)
+        : Number(this.discriminator) % 5
+    );
   }
 
   async createDM() {
