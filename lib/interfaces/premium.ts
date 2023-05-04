@@ -10,6 +10,6 @@ export type SubscriptionStatus =
 export interface PremiumData {
   user: string;
   status: SubscriptionStatus;
-  limit: 1 | 3 | 5;
+  limit: number;
   periodEnd: number;
 }
