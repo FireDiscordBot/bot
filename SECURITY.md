@@ -2,7 +2,7 @@
 
 ## Reporting a Vulnerability
 
-To report a vulnerability, please contact `security@gaminggeek.dev` with details explaining the issue.
+To report a vulnerability, please contact `security@getfire.bot` with details explaining the issue.
 
 You should get a response in less than 24 hours and a fix should be pushed in less than 48 hours.
 

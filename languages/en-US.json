@@ -720,7 +720,7 @@
   "MAKEAMEME_UPLOAD_FAIL": "Failed to upload spicy meme :(",
   "MEMBERJOIN_LOG_AUTHOR": "Member Join | {{member}}",
   "MEMBERJOIN_LOG_PREMIUM_UPSELL_TITLE": "Want to see what invite they used?",
-  "MEMBERJOIN_LOG_PREMIUM_UPSELL_VALUE": "Fire Premium allows you to do that and more.\n[Learn More](https://gaminggeek.dev/premium)",
+  "MEMBERJOIN_LOG_PREMIUM_UPSELL_VALUE": "Fire Premium allows you to do that and more.\n[Learn More](https://inv.wtf/premium)",
   "MEMBERLEAVE_LOG_AUTHOR": "Member Leave | {{member}}",
   "MINECRAFT_COMMAND_DESCRIPTION": "A group of Minecraft related utilities",
   "MINECRAFT_SKIN_COMMAND_DESCRIPTION": "See a player's Minecraft skin",
