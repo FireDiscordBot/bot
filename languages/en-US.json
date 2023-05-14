@@ -855,6 +855,7 @@
   "PURGE_COMMAND_DESCRIPTION": "Bulk delete messages with optional flags to selectively delete messages based on certain factors",
   "PURGE_AMOUNT_INVALID": "Invalid amount. Minimum is 2, Maximum is 100",
   "PURGE_HISTORY_FAIL": "Failed to fetch messages",
+  "PURGE_NO_MATCHES": "No messages matched your flags",
   "PURGE_SUCCESS": "Successfully deleted **{{amount}}** messages!",
   "PURGE_FAIL": "Failed to purge messages...",
   "PURGE_LOG_DESCRIPTION": "**{{amount}} messages were purged in {{channel}}**",

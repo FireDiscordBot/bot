@@ -268,7 +268,8 @@ export default class Purge extends Command {
     } catch {
       recentPurge.push({ error: message.language.get("PURGE_HISTORY_FAIL") });
     }
-    if (!recentPurge.length || !messages.length) return;
+    if (!recentPurge.length || !messages.length)
+      return await message.error("PURGE_NO_MATCHES");
     try {
       (message.channel as FireTextChannel)
         .bulkDelete(messages, true)
