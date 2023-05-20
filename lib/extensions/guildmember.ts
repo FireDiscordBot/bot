@@ -43,7 +43,7 @@ export class FireMember extends GuildMember {
   }
 
   toString() {
-    return `${this.user.username}#${this.user.discriminator}` as unknown as UserMention;
+    return this.user.toString();
   }
 
   toMention() {
