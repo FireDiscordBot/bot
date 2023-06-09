@@ -17,7 +17,7 @@ const snowflakeRegex = /\d{15,21}/gim;
 
 const cleanMap = {
   ":": [/\\:/gim],
-  ".": [/\\\./gim, /\(\.\)/gim, /dot/gim, /\/\./gim],
+  ".": [/\\\./gim, /\(\.\)/gim, /dot/gim, /\/\./gim, /\[\.\]/gim],
   "/": [/\.\//gim, /\\\/\//gim, /\\\//gim, /slash/gim],
   "": [regexes.zws, regexes.protocol, regexes.symbol, /\s/gim, /(\*|_|\|)/gim],
   com: [/c.m/gim],
