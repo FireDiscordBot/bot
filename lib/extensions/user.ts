@@ -54,7 +54,7 @@ export class FireUser extends User {
   get defaultAvatarURL(): string {
     return this.client.restManager.cdn.DefaultAvatar(
       this.discriminator == "0"
-        ? Number((BigInt(this.id) >> 22n) % 5n)
+        ? Number((BigInt(this.id) >> 22n) % 6n)
         : Number(this.discriminator) % 5
     );
   }
