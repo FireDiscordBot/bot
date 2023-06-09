@@ -74,8 +74,9 @@ export default class PermRoles extends Command {
       }
       if (!paginator.pages.length)
         return await message.error("PERMROLES_NONE_FOUND");
-      // color was chosen by me spamming space on coolors.co (https://coolors.co/0f5257-0b3142-9c92a3-c6b9cd-d6d3f0)
-      const embed = new MessageEmbed().setColor("#0F5257").setTimestamp();
+      const embed = new MessageEmbed()
+        .setColor(message.member.displayColor || "#FFFFFF")
+        .setTimestamp();
       const paginatorInterface = new PaginatorEmbedInterface(
         this.client,
         paginator,

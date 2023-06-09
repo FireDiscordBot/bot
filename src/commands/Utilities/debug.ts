@@ -247,7 +247,7 @@ export default class Debug extends Command {
           { issues: issues.length }
         )
       )
-      .setColor(command.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(details.join("\n"));
   }

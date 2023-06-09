@@ -65,7 +65,11 @@ export default class Warnings extends Command {
     }
     const embed = new MessageEmbed()
       .setFooter(args.user.id)
-      .setColor("#E67E22")
+      .setColor(
+        args.user instanceof FireMember
+          ? args.user.displayColor || "#FFFFFF"
+          : command.member?.displayColor || "#FFFFFF"
+      )
       .setTimestamp();
     const footer = {
       text: command.language.get("WARNINGS_VIEW_FOOTER", {

@@ -46,7 +46,7 @@ export default class Moderators extends Command {
         filteredModerators
       );
     const embed = new MessageEmbed()
-      .setColor(command.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor || "#FFFFFF")
       .addField(
         command.language.get("MODERATORS_ROLES"),
         mentions.roles.join("\n") || command.language.get("NO_MODERATOR_ROLES")

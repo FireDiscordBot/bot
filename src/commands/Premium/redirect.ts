@@ -50,7 +50,7 @@ export default class Redirect extends Command {
       const current = await this.module.list(command.author);
       if (!current.length) return await command.error("REDIRECT_ARGS_REQUIRED");
       const embed = new MessageEmbed()
-        .setColor(command.member?.displayColor ?? "#FFFFFF")
+        .setColor(command.member?.displayColor || "#FFFFFF")
         .setTimestamp()
         .setAuthor({
           name: command.language.get("REDIRECT_LIST_AUTHOR"),

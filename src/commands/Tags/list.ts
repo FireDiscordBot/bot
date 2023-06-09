@@ -32,7 +32,7 @@ export default class TagList extends Command {
           dynamic: true,
         }),
       })
-      .setColor(command.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor || "#FFFFFF")
       .setDescription(names.join(", "));
     return await command.channel.send({ embeds: [embed] });
   }

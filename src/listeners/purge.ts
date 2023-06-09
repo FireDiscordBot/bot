@@ -14,7 +14,7 @@ export default class Purge extends Listener {
   async exec(message: FireMessage, reason?: string, purged = []) {
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get("PURGE_LOG_DESCRIPTION", {

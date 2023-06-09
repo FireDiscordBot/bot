@@ -93,7 +93,7 @@ export default class MessageUpdate extends Listener {
       !guild.logIgnored.includes(after.channel.id)
     ) {
       const embed = new MessageEmbed()
-        .setColor(after.member.displayColor ?? "#FFFFFF")
+        .setColor(after.member.displayColor || "#FFFFFF")
         .setTimestamp(after.editedAt)
         .setAuthor({
           name: after.author.toString(),

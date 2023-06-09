@@ -87,7 +87,7 @@ export default class MessageDelete extends Listener {
           : "\n" + message.content.slice(0, 4040)
         : "";
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setColor(message.member?.displayColor || "#FFFFFF")
         .setTimestamp(message.createdAt)
         .setAuthor({
           name: message.author.toString(),

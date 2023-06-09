@@ -106,7 +106,7 @@ export default class Lockdown extends Command {
       reason,
     }) as string;
     const embed = new MessageEmbed()
-      .setColor("#ef5350")
+      .setColor("#EF5350")
       .setDescription(startReason);
     let failed: string[] = [],
       lockdownMessages = message.guild.settings.get<string[]>(

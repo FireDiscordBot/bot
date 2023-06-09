@@ -478,7 +478,7 @@ export class FireGuild extends Guild {
           .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [this.id, id])
           .catch(() => {});
         const embed = new MessageEmbed()
-          .setColor("#2ECC71")
+          .setColor(me.displayColor || "#FFFFFF")
           .setTimestamp(now)
           .setAuthor({
             name: this.language.get("UNMUTE_LOG_AUTHOR", { user: id }),
@@ -1263,7 +1263,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         })
       )
       .setTimestamp()
-      .setColor(author.displayColor ?? "#FFFFFF")
+      .setColor(author.displayColor || "#FFFFFF")
       .addField(this.language.get("SUBJECT"), subject)
       .addField(this.language.get("USER"), authorInfo);
     embed.addFields(additionalFields);
@@ -1386,7 +1386,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
           this.language.get("TICKET_CLOSER_TITLE", { channel: channel.name })
         )
         .setTimestamp()
-        .setColor(author.displayColor ?? "#FFFFFF")
+        .setColor(author.displayColor || "#FFFFFF")
         .addField(
           this.language.get("TICKET_CLOSER_CLOSED_BY"),
           `${author} (${author.id})`
@@ -1579,7 +1579,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       this.tempBans.delete(user.id);
     }
     const embed = new MessageEmbed()
-      .setColor("#E74C3C")
+      .setColor(moderator.displayColor || "#FFFFFF")
       .setTimestamp()
       .setAuthor({
         name: this.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),

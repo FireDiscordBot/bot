@@ -42,7 +42,7 @@ export default class Tickets extends Command {
 
   async sendDefaultMessage(message: FireMessage) {
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(message.language.get("TICKET_MAIN_DESCRIPTION"))
       .setAuthor({

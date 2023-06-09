@@ -298,7 +298,9 @@ export default class LinkfilterExclude extends Command {
       "linkfilter.exclude",
       current
     );
-    const embed = new MessageEmbed().setColor("#2ECC71");
+    const embed = new MessageEmbed().setColor(
+      command.member?.displayColor || "#FFFFFF"
+    );
     const excludedString = excluded.map((e) => e.toString()).join(", ");
     const unexcludedString = unexcluded.map((e) => e.toString()).join(", ");
     if (excluded.length && unexcluded.length)

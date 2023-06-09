@@ -80,7 +80,7 @@ export default class LeaveMSG extends Command {
     if (!args.channel) {
       if (!msg) {
         const embed = new MessageEmbed()
-          .setColor("#E74C3C")
+          .setColor(message.member.displayColor || "#FFFFFF")
           .setTimestamp()
           .setDescription(message.language.getError("LEAVEMSG_SETUP_REQUIRED"))
           .addField(
@@ -95,7 +95,7 @@ export default class LeaveMSG extends Command {
         message.guild.settings.get<Snowflake>("greet.leavechannel")
       );
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setColor(message.member?.displayColor || "#FFFFFF")
         .setTimestamp()
         .setDescription(
           message.language.get("LEAVEMSG_CURRENT_SETTINGS", {

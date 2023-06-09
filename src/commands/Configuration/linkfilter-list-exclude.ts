@@ -19,8 +19,10 @@ export default class LinkfilterListExclude extends Command {
   }
 
   async run(command: ApplicationCommandMessage) {
-    const current =
-      command.guild.settings.get<LinkfilterExcluded>("linkfilter.exclude", []);
+    const current = command.guild.settings.get<LinkfilterExcluded>(
+      "linkfilter.exclude",
+      []
+    );
     if (!current.length)
       return await command.error("LINKFILTER_LIST_EXCLUDE_NOTHING");
     const embed = new MessageEmbed()
@@ -32,7 +34,7 @@ export default class LinkfilterListExclude extends Command {
           dynamic: true,
         }),
       })
-      .setColor(command.member?.displayHexColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor || "#FFFFFF")
       .setFooter(command.guildId);
     const roles = current
       .filter((i) => i.startsWith("role:"))

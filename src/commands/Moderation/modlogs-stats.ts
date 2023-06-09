@@ -51,7 +51,11 @@ export default class ModlogsStats extends Command {
       types[type]++;
     }
     const countsEmbed = new MessageEmbed()
-      .setColor("#E67E22")
+      .setColor(
+        args.user instanceof FireMember
+          ? args.user.displayColor || "#FFFFFF"
+          : command.member?.displayColor || "#FFFFFF"
+      )
       .setTimestamp()
       .setFooter(args.user.id);
     for (const [type, count] of Object.entries(types)) {

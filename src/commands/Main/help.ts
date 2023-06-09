@@ -120,7 +120,7 @@ export default class Help extends Command {
       ]),
     ];
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .addField(
         message.language.get("HELP_SOFTWARE_CREDITS_NAME"),
         message.language.get("HELP_SOFTWARE_CREDITS_VALUE", {

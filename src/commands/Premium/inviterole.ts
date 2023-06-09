@@ -60,7 +60,7 @@ export default class InviteRole extends Command {
       if (deleted) {
         const embed = new MessageEmbed()
           .setTimestamp()
-          .setColor("#E74C3C")
+          .setColor(message.member.displayColor || "#FFFFFF")
           .setAuthor({
             name: message.guild.language.get("INVITEROLE_LOG_AUTHOR"),
             iconURL: message.guild.iconURL({
@@ -100,7 +100,7 @@ export default class InviteRole extends Command {
       message.guild.inviteRoles.set(invite, role.id);
       const embed = new MessageEmbed()
         .setTimestamp()
-        .setColor("#2ECC71")
+        .setColor(message.member.displayColor || "#FFFFFF")
         .setAuthor({
           name: message.guild.language.get("INVITEROLE_LOG_AUTHOR"),
           iconURL: message.guild.iconURL({

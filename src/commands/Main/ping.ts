@@ -22,7 +22,7 @@ export default class Ping extends Command {
             .ping
         }ms.`
       )
-      .setColor(command.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor || "#FFFFFF")
       .setFooter(
         command.language.get("PING_FOOTER", {
           shard: command.guild ? command.guild.shardId : 0,

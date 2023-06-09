@@ -51,7 +51,7 @@ export default class Reason extends Command {
     if (!result) return await command.error("REASON_UNKNOWN_CASE");
     if (!args.reason) {
       const embed = new MessageEmbed().setColor(
-        command.member?.displayHexColor ?? "#FFFFFF"
+        command.member?.displayColor || "#FFFFFF"
       ).setDescription(`**${command.language.get(
         "MODLOGS_CASE_ID"
       )}**: ${result.get("caseid")}

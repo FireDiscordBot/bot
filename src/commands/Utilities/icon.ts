@@ -16,7 +16,7 @@ export default class Icon extends Command {
 
   async run(command: ApplicationCommandMessage) {
     const embed = new MessageEmbed()
-      .setColor(command.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setTitle(
         command.language.get("ICON_TITLE", { guild: command.guild.name })

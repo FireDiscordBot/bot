@@ -965,7 +965,7 @@ export class Util extends ClientUtil {
     if (mention == null) return false;
     else if (mention.includes("null")) return false;
     const upsellEmbed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setAuthor({
         name: message.language.get("NOTICE_TITLE"),
         iconURL: this.client.user.displayAvatarURL({

@@ -185,7 +185,7 @@ export default class ReactionRole extends Command {
     reaction: MessageReaction
   ) {
     const embed = new MessageEmbed()
-      .setColor("#E74C3C")
+      .setColor(message.member.displayColor || "#FFFFFF")
       .setTimestamp()
       .setAuthor({
         name: message.guild.language.get("REACTIONROLE_LOG_AUTHOR", {

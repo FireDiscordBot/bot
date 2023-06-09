@@ -861,7 +861,7 @@ export class FireMessage extends Message {
           dynamic: true,
         }),
       })
-      .setColor(this.member?.displayColor ?? "#FFFFFF")
+      .setColor(this.member?.displayColor || "#FFFFFF")
       .setFooter(this.id);
     if (this.content) embed.setDescription(this.content);
     if (this.embeds.length) {
@@ -1049,7 +1049,7 @@ export class FireMessage extends Message {
       const updatesChannel = this.guild.publicUpdatesChannel;
       if (!updatesChannel) return; // no updates channel, no warning
       const embed = new MessageEmbed()
-        .setColor("#E74C3C")
+        .setColor(this.member.displayColor || "#FFFFFF")
         .setAuthor({
           name: this.author.toString(),
           iconURL: (this.member ?? this.author).displayAvatarURL({

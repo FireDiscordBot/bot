@@ -100,7 +100,13 @@ export default class ModlogsView extends Command {
 **-----------------**`)
       );
     }
-    const embed = new MessageEmbed().setColor("#E67E22").setTimestamp();
+    const embed = new MessageEmbed()
+      .setColor(
+        args.user instanceof FireMember
+          ? args.user.displayColor || "#FFFFFF"
+          : command.member?.displayColor || "#FFFFFF"
+      )
+      .setTimestamp();
     const paginatorInterface = new PaginatorEmbedInterface(
       this.client,
       paginator,

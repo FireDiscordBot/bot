@@ -71,7 +71,7 @@ export default class TagInfo extends Command {
           dynamic: true,
         }),
       })
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setDescription(
         cachedTag.content.length < 250
           ? cachedTag.content

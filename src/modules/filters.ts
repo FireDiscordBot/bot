@@ -323,7 +323,7 @@ export default class Filters extends Module {
       }
       if (message.guild.logIgnored.includes(message.channelId)) continue;
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setColor(message.member?.displayColor || "#FFFFFF")
         .setTimestamp()
         .setDescription(
           message.guild.language.get("FILTER_INVITE_LOG_DESCRIPTION", {
@@ -501,7 +501,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get("FILTER_PAYPAL_LOG_DESCRIPTION", {
@@ -541,7 +541,7 @@ export default class Filters extends Module {
       .getYouTubeVideo(match.groups.video)
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get("FILTER_YOUTUBE_LOG_DESCRIPTION", {
@@ -629,7 +629,7 @@ export default class Filters extends Module {
       .getYouTubeChannel(match.groups.channel)
       .catch(() => {});
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get("FILTER_YOUTUBE_LOG_DESCRIPTION", {
@@ -705,7 +705,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get(
@@ -745,7 +745,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get("FILTER_TWITTER_LOG_DESCRIPTION", {
@@ -782,7 +782,7 @@ export default class Filters extends Module {
     await message.delete().catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get("FILTER_SHORT_LOG_DESCRIPTION", {

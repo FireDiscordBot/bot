@@ -33,7 +33,7 @@ export default class Skin extends Command {
     let uuid = await this.client.util.nameToUUID(ign).catch(() => null);
     if (!uuid) return await command.error("MINECRAFT_UUID_FETCH_FAIL");
     const embed = new MessageEmbed()
-      .setColor(command.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor || "#FFFFFF")
       .setImage(
         `https://visage.surgeplay.com/full/512/${uuid}?ts=${+new Date()}`
       )

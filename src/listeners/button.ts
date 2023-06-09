@@ -343,7 +343,7 @@ export default class Button extends Listener {
 
       const components = Rank.getRankButtons(button.guild, button.member);
       const embed = new MessageEmbed()
-        .setColor(button.member?.displayColor ?? "#FFFFFF")
+        .setColor(button.member?.displayColor || "#FFFFFF")
         .setTimestamp()
         .setAuthor({
           name: button.language.get("RANKS_AUTHOR", {
@@ -563,7 +563,7 @@ export default class Button extends Listener {
               dynamic: true,
             }),
           })
-          .setColor(button.member?.displayColor ?? "#FFFFFF")
+          .setColor(button.member?.displayColor || "#FFFFFF")
           .setDescription(
             button.language.get("TAG_DELETE_SUCCESS", { haste: data })
           )
@@ -1256,7 +1256,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       if (user instanceof FireMember && !user.avatar)
         return await button.error("AVATAR_NO_GUILD_AVATAR");
       const embed = new MessageEmbed()
-        .setColor(button.member?.displayHexColor ?? "#FFFFFF")
+        .setColor(button.member?.displayColor || "#FFFFFF")
         .setTimestamp()
         .setTitle(
           button.language.get("AVATAR_TITLE", { user: user.toString() })

@@ -205,7 +205,7 @@ export class FireUser extends User {
       return deleted ? "ban" : "ban_and_entry";
     }
     const embed = new MessageEmbed()
-      .setColor("#E74C3C")
+      .setColor(moderator.displayColor || "#FFFFFF")
       .setTimestamp()
       .setAuthor({
         name: guild.language.get("BAN_LOG_AUTHOR", { user: this.toString() }),

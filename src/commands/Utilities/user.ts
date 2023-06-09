@@ -696,7 +696,7 @@ export default class User extends Command {
     }
 
     const embed = new MessageEmbed()
-      .setColor(command.member?.displayColor ?? "#FFFFFF")
+      .setColor(command.member?.displayColor || "#FFFFFF")
       .setTimestamp(snowflake.date)
       .setAuthor({
         name: command.author.toString(),

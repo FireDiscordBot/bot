@@ -82,7 +82,7 @@ export default class Tag extends Command {
           dynamic: true,
         }),
       })
-      .setColor(message.member?.displayColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setDescription(names.join(", "));
     return await message.channel.send({ embeds: [embed] });
   }

@@ -60,7 +60,7 @@ export default class TicketList extends Command {
       );
     }
     const embed = new MessageEmbed()
-      .setColor(message.member?.displayHexColor ?? "#FFFFFF")
+      .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp();
     const paginatorInterface = new PaginatorEmbedInterface(
       this.client,

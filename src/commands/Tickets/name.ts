@@ -48,7 +48,7 @@ export default class TicketName extends Command {
         .map((key) => `${key[0]}: ${key[1]}`)
         .join("\n");
       const embed = new MessageEmbed()
-        .setColor(message.member?.displayColor ?? "#FFFFFF")
+        .setColor(message.member?.displayColor || "#FFFFFF")
         .setTimestamp()
         .addField(message.language.get("VARIABLES"), variableString);
       return await message.channel.send({ embeds: [embed] });

@@ -288,7 +288,7 @@ export class FireMember extends GuildMember {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     const embed = new MessageEmbed()
-      .setColor("#E67E22")
+      .setColor(this.displayColor || moderator.displayColor || "#FFFFFF")
       .setTimestamp()
       .setAuthor({
         name: this.guild.language.get("WARN_LOG_AUTHOR", {
@@ -359,7 +359,7 @@ export class FireMember extends GuildMember {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     const embed = new MessageEmbed()
-      .setColor("#E67E22")
+      .setColor(this.displayColor || moderator.displayColor || "#FFFFFF")
       .setTimestamp()
       .setAuthor(
         this.guild.language.get("NOTE_LOG_AUTHOR", { user: this.toString() }),
