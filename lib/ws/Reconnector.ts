@@ -51,6 +51,15 @@ export class Reconnector {
         process.env.NODE_ENV == "development" ? 15000 : 2500
       ); // takes longer to reboot in dev
     }
+    if (code == 4000) {
+      // Unknown error, we should wait some time before connecting
+      // again to avoid spam in Aether's logs
+
+      // This time is currently set as the CLUSTER_INTERVAL in Aether
+      // so waiting for this time should ensure any stale clusters that
+      // may be preventing a connection are killed
+      return this.activate(30000);
+    }
     if (code == 4007)
       // Cluster has attempted to connect multiple times
       // so kill the process and let pm2 restart it
