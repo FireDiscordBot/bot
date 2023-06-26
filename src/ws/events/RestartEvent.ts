@@ -61,7 +61,7 @@ export default class RestartEvent extends Event {
           id: this.manager.client.manager.id,
           env: process.env.NODE_ENV,
           commit: this.manager.commit,
-          uuid: process.env.pm_id,
+          uuid: process.env.pm_id ?? "0",
         })
       )
     );
