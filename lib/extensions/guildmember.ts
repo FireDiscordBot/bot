@@ -719,10 +719,9 @@ export class FireMember extends GuildMember {
           guild: Util.escapeMarkdown(this.guild.name),
           reason,
         }) +
-          this.id ==
-          "249287049482338305"
-          ? "\nhttps://static.inv.wtf/muted.mp4"
-          : ""
+          (this.id == "249287049482338305"
+            ? "\nhttps://static.inv.wtf/muted.mp4"
+            : "")
       ).catch(() => {
         noDM = true;
       });
