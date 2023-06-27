@@ -1185,7 +1185,7 @@ The lack of this is a sign that this message may have been sent automatically by
     else if (
       lowerContent.includes("gift") &&
       lowerContent.includes("http") &&
-      lowerContent.includes("bro")
+      (lowerContent.includes("bro ") || lowerContent.includes(" bro"))
     )
       // copilot generated this and I can't stop laughing at it
       return await triggerFilter("Bro Mention w/Gift Link");
