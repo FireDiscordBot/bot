@@ -38,7 +38,7 @@ export default class Tag extends Command {
       return await this.client.commandHandler.handle(message);
     }
     if (["dtag", "dtags"].includes(message.util?.parsed?.alias.toLowerCase()))
-      message.delete();
+      message.delete({ reason: message.guild.language.get("TAG_DTAG_REASON") });
     if (!message.guild.tags) {
       message.guild.tags = new GuildTagManager(this.client, message.guild);
       await message.guild.tags.init();

@@ -126,6 +126,11 @@ export default class MessageDelete extends Listener {
           message.guild.language.get("DELETED_BY"),
           message.guild.members.me?.toString() ?? this.client.user?.toString()
         );
+      if (message.deleteReason)
+        embed.addField(
+          message.guild.language.get("REASON"),
+          message.deleteReason
+        );
       if (embed.description != description || embed.fields.length)
         await message.guild.actionLog(embed, ActionLogTypes.MESSAGE_DELETE);
     }

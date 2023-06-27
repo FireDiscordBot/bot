@@ -13,7 +13,11 @@ export default class SilentInhibitor extends Inhibitor {
 
   async exec(message: FireMessage, command?: Command) {
     if (command?.id != "quote" && message.silent && message.guild)
-      await message.delete().catch(() => {});
+      await message
+        .delete({
+          reason: message.guild.language.get("COMMAND_SILENT_DELETE_REASON"),
+        })
+        .catch(() => {});
     return false;
   }
 }

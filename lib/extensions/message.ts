@@ -242,7 +242,7 @@ export class FireMessage extends Message {
     else return this.author.hasExperiment(id, bucket);
   }
 
-  async delete(options?: { timeout: number; reason?: string }) {
+  async delete(options?: { timeout?: number; reason?: string }) {
     if (options?.timeout) await this.client.util.sleep(options.timeout);
     // e.g. if deleted before timeout finishes
     // (which is the reason why timeout was removed)
@@ -954,7 +954,9 @@ export class FireMessage extends Message {
         this.content?.includes("@here")) &&
       !this.member.permissions.has(Permissions.FLAGS.MENTION_EVERYONE)
     )
-      return await this.delete().catch(() => {});
+      return await this.delete({
+        reason: this.guild.language.get("ANTI_DELETE_REASON_EVERYONE"),
+      }).catch(() => {});
 
     if (
       this.guild.settings.get<boolean>("mod.antizws", false) &&
@@ -963,7 +965,9 @@ export class FireMessage extends Message {
       !this.member.isModerator()
     ) {
       regexes.zws.lastIndex = 0;
-      return await this.delete().catch(() => {});
+      return await this.delete({
+        reason: this.guild.language.get("ANTI_DELETE_REASON_ZWS"),
+      }).catch(() => {});
     }
     regexes.zws.lastIndex = 0;
 
@@ -973,7 +977,9 @@ export class FireMessage extends Message {
       !this.member.isModerator()
     ) {
       regexes.spoilerAbuse.lastIndex = 0;
-      return await this.delete().catch(() => {});
+      return await this.delete({
+        reason: this.guild.language.get("ANTI_DELETE_REASON_SPOILER"),
+      }).catch(() => {});
     }
     regexes.spoilerAbuse.lastIndex = 0;
   }
@@ -1103,7 +1109,11 @@ The lack of this is a sign that this message may have been sent automatically by
               : undefined
           )
           .then((result) => {
-            this.delete().catch(() => {});
+            this.delete({
+              reason: match
+                ? `Phishing Links (Triggered by ${match})`
+                : "Phishing links",
+            }).catch(() => {});
             if (
               result instanceof FireMessage &&
               result.guild?.members.me

@@ -896,7 +896,11 @@ export default class MCLogs extends Module {
     if (this.regexes.noRaw.test(message.content)) {
       this.regexes.noRaw.lastIndex = 0;
       try {
-        await message.delete();
+        await message.delete({
+          reason: message.guild.language.get(
+            "MC_LOG_NO_REUPLOAD_DELETE_REASON"
+          ),
+        });
       } catch {}
       return await message.channel.send({
         content: message.language.get("MC_LOG_NO_REUPLOAD", {

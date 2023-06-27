@@ -274,10 +274,18 @@ export default class Filters extends Module {
         inv.guild.id != message.guild.id &&
         !constants.allowedInvites.includes(inv.guild.id)
       )
-        await message.delete().catch(() => {});
+        await message
+          .delete({
+            reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+          })
+          .catch(() => {});
     };
     const deleteFail = async (e: Error) =>
-      await message.delete().catch(() => {});
+      await message
+        .delete({
+          reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+        })
+        .catch(() => {});
     const searchString =
       message.content +
       " " +
@@ -498,7 +506,11 @@ export default class Filters extends Module {
       extra;
     const match = regexes.paypal.exec(sanitizer(searchString));
     if (!match) return;
-    await message.delete().catch(() => {});
+    await message
+      .delete({
+        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+      })
+      .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#FFFFFF")
@@ -535,7 +547,11 @@ export default class Filters extends Module {
       extra;
     const match = regexes.youtube.video.exec(sanitizer(searchString));
     if (!match) return;
-    await message.delete().catch(() => {});
+    await message
+      .delete({
+        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+      })
+      .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const video = await this.client.util
       .getYouTubeVideo(match.groups.video)
@@ -623,7 +639,11 @@ export default class Filters extends Module {
     ).replace(regexes.youtube.video, "[ youtube video ]"); // prevents videos being matched
     const match = regexes.youtube.channel.exec(sanitizer(searchString));
     if (!match) return;
-    await message.delete().catch(() => {});
+    await message
+      .delete({
+        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+      })
+      .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const channel = await this.client.util
       .getYouTubeChannel(match.groups.channel)
@@ -702,7 +722,11 @@ export default class Filters extends Module {
     const clipMatch = regexes.twitch.clip.exec(sanitizer(searchString));
     const channelMatch = regexes.twitch.channel.exec(sanitizer(searchString));
     if (!clipMatch && !channelMatch) return;
-    await message.delete().catch(() => {});
+    await message
+      .delete({
+        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+      })
+      .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#FFFFFF")
@@ -742,7 +766,11 @@ export default class Filters extends Module {
       extra;
     const match = regexes.twitter.exec(sanitizer(searchString));
     if (!match) return;
-    await message.delete().catch(() => {});
+    await message
+      .delete({
+        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+      })
+      .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#FFFFFF")
@@ -779,7 +807,11 @@ export default class Filters extends Module {
       extra;
     const match = this.shortURLRegex.exec(sanitizer(searchString));
     if (!match) return;
-    await message.delete().catch(() => {});
+    await message
+      .delete({
+        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+      })
+      .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#FFFFFF")
