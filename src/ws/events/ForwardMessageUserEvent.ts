@@ -1,10 +1,14 @@
-import { EventType } from "@fire/lib/ws/util/constants";
-import { LanguageKeys } from "@fire/lib/util/language";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Event } from "@fire/lib/ws/event/Event";
-import { StringMap, TOptions } from "i18next";
 import { Manager } from "@fire/lib/Manager";
-import { Snowflake } from "discord.js";
+import { LanguageKeys } from "@fire/lib/util/language";
+import { Event } from "@fire/lib/ws/event/Event";
+import { EventType } from "@fire/lib/ws/util/constants";
+import {
+  BaseMessageComponentOptions,
+  MessageActionRowOptions,
+  Snowflake,
+} from "discord.js";
+import { StringMap, TOptions } from "i18next";
 
 export default class ForwardMessageUserEvent extends Event {
   constructor(manager: Manager) {
@@ -15,6 +19,8 @@ export default class ForwardMessageUserEvent extends Event {
     user: Snowflake;
     message: LanguageKeys | string;
     args: TOptions<StringMap>;
+    buttons?: (Required<BaseMessageComponentOptions> &
+      MessageActionRowOptions)[];
   }) {
     const user = (await this.manager.client.users
       .fetch(data.user)
@@ -26,7 +32,12 @@ export default class ForwardMessageUserEvent extends Event {
     if (language.has(data.message) || defaultLang.has(data.message)) {
       const message = language.get(data.message as LanguageKeys, data.args);
       if (typeof message == "string")
-        return await user.send({ content: message }).catch(() => {});
-    } else return await user.send({ content: data.message }).catch(() => {});
+        return await user
+          .send({ content: message, components: data.buttons })
+          .catch(() => {});
+    } else
+      return await user
+        .send({ content: data.message, components: data.buttons })
+        .catch(() => {});
   }
 }

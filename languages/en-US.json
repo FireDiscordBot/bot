@@ -57,7 +57,7 @@
   "ERROR_ROLE_UNUSABLE": "This role cannot be used as it is either managed by an integration, higher than my top role or the default role.",
   "ERROR_CONTACT_SUPPORT": "Something went wrong, please contact support! <https://inv.wtf/fire>",
   "NO_MODERATORS_SET": "There are no moderators set in this server.",
-  "PREMIUM_INVOICE_PAYMENT_FAILED": "Your payment for an invoice for {{amount}} failed. Another attempt (#{{attempts}}) will be made <t:{{nextAttempt}}:R> or you can use the link below to pay now.\nIf all attempts fail, you will lose access to `{{item}}`\n\n{{invoiceURL}}",
+  "PREMIUM_INVOICE_PAYMENT_FAILED": "Your payment for an invoice for {{amount}} failed. Another attempt (#{{attempts}}) will be made <t:{{nextAttempt}}:R> or you can use the link below to pay now.\nIf all attempts fail, you will lose access to `{{item}}`",
   "PREMIUM_INVOICE_PAYMENT_FAILED_FINAL": "Your payment for an invoice for {{amount}} failed and you have exhausted all retries. You will soon lose access to `{{item}}`",
   "NO": "No",
   "YES": "Yes",
