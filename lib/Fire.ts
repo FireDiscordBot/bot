@@ -190,21 +190,19 @@ export class Fire extends AkairoClient {
     this.on("ready", () => config.fire.readyMessage(this));
     this.nonceHandlers = new Collection();
     this.on("raw", (r: any, shard: number) => {
-      if (this.manager.id == 0)
+      if (r.t == Constants.WSEvents.INTERACTION_CREATE)
         this.influx([
           {
             measurement: "instability-debugging",
             tags: {
               type: "CLIENT_RAW",
+              cluster: this.manager.id.toString(),
             },
             fields: {
-              op: r.op,
-              event: r.t ?? "N/A",
-              guild: r.d?.guild_id
-                ? `${this.guilds.cache.get(r.d.guild_id)?.name} (${
-                    r.d.guild_id
-                  })`
-                : "N/A",
+              cluster: this.manager.id,
+              // we likely don't have time before the cluster dies (+ non async context) for uploading to hastebin
+              // so we'll just stringify the data and dump it directly in influx
+              data: JSON.stringify(r),
             },
           },
         ]);
