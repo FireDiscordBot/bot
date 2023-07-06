@@ -190,7 +190,10 @@ export class Fire extends AkairoClient {
     this.on("ready", () => config.fire.readyMessage(this));
     this.nonceHandlers = new Collection();
     this.on("raw", (r: any, shard: number) => {
-      if (r.t == Constants.WSEvents.INTERACTION_CREATE)
+      if (
+        process.env.NODE_ENV == "production" &&
+        r.t == Constants.WSEvents.INTERACTION_CREATE
+      )
         this.influx([
           {
             measurement: "instability-debugging",
