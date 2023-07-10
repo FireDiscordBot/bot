@@ -77,6 +77,17 @@ const classicForgeModsHeader =
 
 const modIdClean = /_|\-/g;
 
+const patcherAMDIssue = {
+  hasPatcherAndAMD: `If you have started crashing recently when joining a server, you'll need to disable Patcher's entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
+This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead`,
+  hasPatcherGPUUnknown: `If you have started crashing recently when joining a server & have an AMD GPU, you'll need to disable Patcher's entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
+This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead`,
+  noPatcherAndAMD: `If you're using Patcher & have started crashing recently when joining a server, you'll need to disable entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
+  This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead`,
+  noPatcherGPUUnknown: `If you have started crashing recently when joining a server, are using Patcher & have an AMD GPU, you'll need to disable entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
+  This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead`,
+};
+
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
   regexes: {
@@ -654,6 +665,29 @@ export default class MCLogs extends Module {
 
     let currentSolutions = new Set<string>();
     let currentRecommendations = new Set<string>();
+
+    if (
+      (versions.mcVersion == "1.8.9" || versions.mcVersion == "1.12.2") &&
+      versions.mods.find((m) => m.modId == "patcher") &&
+      log.includes("AMD Radeon")
+    )
+      currentSolutions.add(patcherAMDIssue.hasPatcherAndAMD);
+    else if (
+      (versions.mcVersion == "1.8.9" || versions.mcVersion == "1.12.2") &&
+      versions.mods.find((m) => m.modId == "patcher") &&
+      log.includes("exit code -805306369")
+    )
+      currentSolutions.add(patcherAMDIssue.hasPatcherGPUUnknown);
+    else if (
+      (versions.mcVersion == "1.8.9" || versions.mcVersion == "1.12.2") &&
+      log.includes("AMD Radeon")
+    )
+      currentSolutions.add(patcherAMDIssue.noPatcherAndAMD);
+    else if (
+      (versions.mcVersion == "1.8.9" || versions.mcVersion == "1.12.2") &&
+      log.includes("exit code -805306369")
+    )
+      currentSolutions.add(patcherAMDIssue.noPatcherGPUUnknown);
 
     for (const [err, sol] of Object.entries(this.solutions.solutions)) {
       if (log.toLowerCase().includes(err.toLowerCase()))
