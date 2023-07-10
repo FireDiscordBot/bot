@@ -78,14 +78,14 @@ const classicForgeModsHeader =
 const modIdClean = /_|\-/g;
 
 const patcherAMDIssue = {
-  hasPatcherAndAMD: `If you have started crashing recently when joining a server, you'll need to disable Patcher's entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
-This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead`,
-  hasPatcherGPUUnknown: `If you have started crashing recently when joining a server & have an AMD GPU, you'll need to disable Patcher's entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
-This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead`,
-  noPatcherAndAMD: `If you're using Patcher & have started crashing recently when joining a server, you'll need to disable entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
-  This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead`,
-  noPatcherGPUUnknown: `If you have started crashing recently when joining a server, are using Patcher & have an AMD GPU, you'll need to disable entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
-  This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead`,
+  hasPatcherAndAMD: `- **If you have started crashing recently when joining a server, you'll need to disable Patcher's entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
+This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead**`,
+  hasPatcherGPUUnknown: `- **If you have started crashing recently when joining a server & have an AMD GPU, you'll need to disable Patcher's entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
+This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead**`,
+  noPatcherAndAMD: `- **If you're using Patcher & have started crashing recently when joining a server, you'll need to disable entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
+  This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead**`,
+  noPatcherGPUUnknown: `- **If you have started crashing recently when joining a server, are using Patcher & have an AMD GPU, you'll need to disable entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
+  This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead**`,
 };
 
 export default class MCLogs extends Module {
