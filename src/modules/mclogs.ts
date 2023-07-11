@@ -900,7 +900,9 @@ export default class MCLogs extends Module {
     );
 
     const solutions = currentSolutions.size
-      ? `Possible Solutions:\n${[...currentSolutions].join("\n")}`
+      ? `Possible Solutions:\n${[...currentSolutions]
+          .map((s) => s.replace("\n", "**\n**"))
+          .join("\n")}`
       : "";
     const recommendations = currentRecommendations.size
       ? `${currentSolutions.size ? "\n\n" : ""}Recommendations:\n${[
