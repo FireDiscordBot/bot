@@ -325,17 +325,6 @@ export const userConverter = async (
   } else {
     if (argument.charAt(0) == "@") argument = argument.slice(1);
 
-    if (argument.length > 5 && argument.slice(-5).startsWith("#")) {
-      const discrim = argument.slice(-4);
-      const name = argument.slice(0, -5);
-      const match = message.client.users.cache.filter(
-        (user) => user.username == name && user.discriminator == discrim
-      );
-      if (match.size) {
-        return match.first() as FireUser;
-      }
-    }
-
     const match = message.client.users.cache.filter(
       (user) => user.username?.toLowerCase() == argument?.toLowerCase()
     );

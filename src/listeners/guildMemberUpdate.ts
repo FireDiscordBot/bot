@@ -271,11 +271,16 @@ export default class GuildMemberUpdate extends Listener {
       `John Doe ${newMember.user.discriminator}`
     );
     const ignoredReasons = [
-      newMember.guild.language.get("AUTODECANCER_REASON"),
-      newMember.guild.language.get("AUTODEHOIST_REASON"),
-      newMember.guild.language.get("AUTODECANCER_RESET_REASON"),
-      newMember.guild.language.get("AUTODEHOIST_RESET_REASON"),
+      newMember.guild.language.get("AUTODECANCER_NICKNAME_REASON"),
+      newMember.guild.language.get("AUTODECANCER_DISPLAYNAME_REASON"),
       newMember.guild.language.get("AUTODECANCER_USERNAME_REASON"),
+      newMember.guild.language.get("AUTODECANCER_NICKTODISPLAY_REASON"),
+      newMember.guild.language.get("AUTODECANCER_NICKTOUSER_REASON"),
+      newMember.guild.language.get("AUTODECANCER_BADNAME_REASON"),
+      newMember.guild.language.get("AUTODEHOIST_NICKTODISPLAY_REASON"),
+      newMember.guild.language.get("AUTODEHOIST_USERNAMEFALLBACK_REASON"),
+      newMember.guild.language.get("AUTODEHOIST_BADNAME_REASON"),
+      newMember.guild.language.get("AUTODEHOISTANDDECANCER_RESET_REASON"),
     ];
 
     let filteredActions = auditLogActions.entries.filter(
@@ -332,7 +337,7 @@ export default class GuildMemberUpdate extends Listener {
     const target =
       action.target instanceof FireMember
         ? action.target
-        : await guild.members.fetch(targetId).catch(() => {});
+        : ((await guild.members.fetch(targetId).catch(() => {})) as FireMember);
     const executor = await guild.members
       .fetch(action.executor.id)
       .catch(() => {});
@@ -377,7 +382,7 @@ export default class GuildMemberUpdate extends Listener {
     const target =
       action.target instanceof FireMember
         ? action.target
-        : await guild.members.fetch(targetId).catch(() => {});
+        : ((await guild.members.fetch(targetId).catch(() => {})) as FireMember);
     const executor = await guild.members
       .fetch(action.executor.id)
       .catch(() => {});
@@ -422,7 +427,7 @@ export default class GuildMemberUpdate extends Listener {
     const target =
       action.target instanceof FireMember
         ? action.target
-        : await guild.members.fetch(targetId).catch(() => {});
+        : ((await guild.members.fetch(targetId).catch(() => {})) as FireMember);
     const executor = await guild.members
       .fetch(action.executor.id)
       .catch(() => {});
@@ -474,7 +479,7 @@ export default class GuildMemberUpdate extends Listener {
     const target =
       action.target instanceof FireMember
         ? action.target
-        : await guild.members.fetch(targetId).catch(() => {});
+        : ((await guild.members.fetch(targetId).catch(() => {})) as FireMember);
     const executor = await guild.members
       .fetch(action.executor.id)
       .catch(() => {});

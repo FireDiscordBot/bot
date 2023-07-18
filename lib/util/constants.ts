@@ -267,6 +267,7 @@ export const constants = {
       user: /{user}/gim,
       mention: /{user\.mention}/gim,
       name: /{user\.(?:user)?name}/gim,
+      displayName: /{user\.displayname}/gim,
       discrim: /{user\.discrim(?:inator)?}/gim,
       guild: /{(?:guild|server)}/gim,
       count: /{count}/gim,

@@ -67,6 +67,7 @@ export default class JoinMSG extends Command {
       "{user}": message.author.toString(),
       "{user.mention}": message.author.toMention(),
       "{user.name}": message.author.username,
+      "{user.displayname}": message.author.displayName,
       "{user.discrim}": message.author.discriminator,
       "{guild}": message.guild.name,
       "{server}": message.guild.name,

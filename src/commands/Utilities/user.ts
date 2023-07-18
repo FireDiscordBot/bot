@@ -396,6 +396,7 @@ export default class User extends Command {
       now.getFullYear() != user.createdAt.getFullYear();
     let info = [
       `**${command.language.get("MENTION")}:** ${user.toMention()}`,
+      `**${command.language.get("DISPLAY_NAME")}:**: ${user.displayName}`,
       `**${command.language.get("CREATED")}** ${Formatters.time(
         user.createdAt,
         "R"

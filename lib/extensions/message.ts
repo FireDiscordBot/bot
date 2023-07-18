@@ -538,11 +538,9 @@ export class FireMessage extends Message {
     }
     const username =
       usernameOverride ||
-      (member && member.nickname
-        ? `${member.nickname} (${this.author
-            .toString()
-            .replace(/#0000/gim, "")})`
-        : this.author.toString().replace(/#0000/gim, ""));
+      (member
+        ? member.display.replace(/#0000/gim, "")
+        : this.author.display.replace(/#0000/gim, ""));
     return await hook
       .send({
         content: content.length ? content : null,
@@ -661,12 +659,9 @@ export class FireMessage extends Message {
       .setColor(member?.displayColor || quoter.displayColor)
       .setTimestamp(this.createdAt)
       .setAuthor({
-        name:
-          member && member.nickname
-            ? `${member.nickname} (${this.author
-                .toString()
-                .replace(/#0000/gim, "")})`
-            : this.author.toString().replace(/#0000/gim, ""),
+        name: member
+          ? member.display.replace(/#0000/gim, "")
+          : this.author.display.replace(/#0000/gim, ""),
         iconURL: (member ?? this.author).displayAvatarURL({
           size: 2048,
           format: "png",
@@ -854,7 +849,7 @@ export class FireMessage extends Message {
     const embed = new MessageEmbed()
       .setTimestamp(this.createdTimestamp)
       .setAuthor({
-        name: this.author.toString(),
+        name: this.author.display,
         iconURL: (this.member ?? this.author).displayAvatarURL({
           size: 2048,
           format: "png",

@@ -161,10 +161,10 @@ export default class Blacklist extends Command {
       .setAuthor({
         name: isPlonked
           ? command.guild.language.get("UNBLACKLIST_LOG_AUTHOR", {
-              user: args.user.toString(),
+              user: args.user.display,
             })
           : command.guild.language.get("BLACKLIST_LOG_AUTHOR", {
-              user: args.user.toString(),
+              user: args.user.display,
             }),
         iconURL: args.user.displayAvatarURL({
           size: 2048,

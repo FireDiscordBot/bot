@@ -799,31 +799,6 @@ export class FireGuild extends Guild {
     };
   }
 
-  getMember(name: string): FireMember | null {
-    const username = name.split("#")[0];
-    const member = this.members.cache.find(
-      (member) =>
-        member.toString().toLowerCase() == name.toLowerCase() ||
-        member.displayName?.toLowerCase() == username.toLowerCase() ||
-        member.user.username?.toLowerCase() == username.toLowerCase()
-    );
-
-    return member ? (member as FireMember) : null;
-  }
-
-  async fetchMember(name: string): Promise<FireMember | null> {
-    const member = this.getMember(name);
-
-    if (member) return member;
-    const fetchedMembers = await this.members.fetch({
-      user: this.members.cache.size ? [...this.members.cache.values()] : [],
-      query: name,
-      limit: 1,
-    });
-
-    return fetchedMembers.first() as FireMember | null;
-  }
-
   async actionLog(
     log: string | MessageEmbed | MessageEmbedOptions,
     type: ActionLogTypes
@@ -1582,7 +1557,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .setColor(moderator.displayColor || "#FFFFFF")
       .setTimestamp()
       .setAuthor({
-        name: this.language.get("UNBAN_LOG_AUTHOR", { user: user.toString() }),
+        name: this.language.get("UNBAN_LOG_AUTHOR", { user: user.display }),
         iconURL: user.displayAvatarURL({
           size: 2048,
           format: "png",
@@ -1647,7 +1622,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .setAuthor({
         name: this.language.get("BLOCK_LOG_AUTHOR", {
           blockee:
-            blockee instanceof FireMember ? blockee.toString() : blockee.name,
+            blockee instanceof FireMember ? blockee.display : blockee.name,
         }),
         iconURL:
           blockee instanceof FireMember
@@ -1730,7 +1705,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         name: this.language.get("UNBLOCK_LOG_AUTHOR", {
           unblockee:
             unblockee instanceof FireMember
-              ? unblockee.toString()
+              ? unblockee.display
               : unblockee.name,
         }),
         iconURL:

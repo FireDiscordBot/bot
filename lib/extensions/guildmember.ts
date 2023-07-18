@@ -10,23 +10,31 @@ import {
   Permissions,
   Structures,
   ThreadChannel,
-  Util
+  Util,
 } from "discord.js";
+import Semaphore from "semaphore-async-await";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { GuildTextChannel, ModLogTypes } from "../util/constants";
 import { FakeChannel } from "./appcommandmessage";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 
+const sanitizerInvalid = "gibberish";
+
 export class FireMember extends GuildMember {
+  dehoistAndDecancerLock: Semaphore;
   declare guild: FireGuild;
-  changingNick?: boolean;
   declare user: FireUser;
   declare client: Fire;
 
   constructor(client: Fire, data: any, guild: FireGuild) {
     super(client, data, guild);
-    this.changingNick = false;
+    this.dehoistAndDecancerLock = new Semaphore(1);
+  }
+
+  // @ts-ignore
+  get displayName() {
+    return this.nickname ?? this.user.displayName;
   }
 
   get language() {
@@ -39,6 +47,12 @@ export class FireMember extends GuildMember {
 
   get premium() {
     return this.user.premium;
+  }
+
+  get display() {
+    return this.nickname && this.nickname != this.user.toString()
+      ? `${this.nickname} (${this.user})`
+      : this.user.display;
   }
 
   toString() {
@@ -134,149 +148,229 @@ export class FireMember extends GuildMember {
     return this.user.removeExperiment(id, bucket);
   }
 
-  get hoisted() {
+  private isHoisted() {
     const badName = this.guild.settings.get<string>(
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );
-    if (this.nickname && this.nickname == badName)
-      return this.user.username[0] < "0";
-    return this.permissions.has(Permissions.FLAGS.CHANGE_NICKNAME)
-      ? this.displayName[0] < "0"
-      : this.user.username[0] < "0";
+    const member = this,
+      user = this.user;
+    return {
+      get nickname() {
+        if (
+          !member.nickname ||
+          member.nickname == badName ||
+          member.nickname == user.displayName ||
+          member.nickname == user.username
+        )
+          return false;
+        if (member.nickname[0] < "0") return true;
+      },
+      displayName: user.displayName && user.displayName[0] < "0",
+
+      // pomelo'd usernames can technically be hoisted but only with a period/underscore
+      // so we'll just consider them not hoisted to make things easier.
+      username: user.discriminator == "0" ? false : user.username[0] < "0",
+    };
   }
 
-  get cancerous() {
+  private isNonASCII() {
     const badName = this.guild.settings.get<string>(
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );
-    if (this.nickname && this.nickname == badName)
-      return !this.client.util.isASCII(this.user.username);
-    return !this.client.util.isASCII(
-      this.permissions.has(Permissions.FLAGS.CHANGE_NICKNAME)
-        ? this.displayName
-        : this.user.username
-    );
+    const member = this,
+      user = this.user;
+    return {
+      get nickname() {
+        if (
+          !member.nickname ||
+          member.nickname == badName ||
+          member.nickname == user.displayName ||
+          member.nickname == user.username
+        )
+          return false;
+        return !member.client.util.isASCII(member.nickname);
+      },
+      displayName:
+        user.displayName && !member.client.util.isASCII(user.displayName),
+      username: !member.client.util.isASCII(user.username),
+    };
   }
 
-  async dehoist() {
+  private async dehoist() {
+    const hoisted = this.isHoisted();
     if (
-      this.isModerator() ||
-      this.changingNick ||
-      this.roles.highest.rawPosition >=
-        this.guild.members.me.roles.highest.rawPosition ||
+      (!hoisted.nickname && !hoisted.displayName && !hoisted.username) ||
       !this.guild.settings.get<boolean>("mod.autodehoist") ||
+      this.isModerator() ||
+      this.roles.highest.rawPosition >=
+        this.guild.members.me.roles.highest.rawPosition ||
       !this.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
     )
       return;
-    this.changingNick = true;
+    // we'll try to fallback on other names (display name & username) if it is a hoisted nickname
+    // first up, let's try the display name which we can fallback to by just removing the nickname
+    if (hoisted.nickname && !hoisted.displayName)
+      return this.edit(
+        { nick: null },
+        this.guild.language.get("AUTODEHOIST_NICKTODISPLAY_REASON")
+      );
+    // next up is the username, which we'll only use for pomelo'd users as they're guaranteed to be non-hoisted
+    // or at least not as badly hoisted, since they can use periods & underscores
+    // we also check the nickname to ensure we're not unnecessarily editing it
+    if (hoisted.displayName && !hoisted.username && !this.nickname)
+      return this.edit(
+        { nick: this.user.username },
+        this.guild.language.get("AUTODEHOIST_USERNAMEFALLBACK_REASON")
+      );
+    // if they have a nickname/display name and we're here with a hoisted username,
+    // we can ignore it as the nickname/display name is not hoisted so it's fine
+    if (this.displayName && hoisted.username) return;
+    // If we got past all that, we'll need to use the server's "bad name" setting
+    // as we have nothing else to fallback on.
     const badName = this.guild.settings.get<string>(
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );
-    if (!this.hoisted && !this.cancerous && this.nickname == badName)
-      return this.edit(
-        { nick: null },
-        this.guild.language.get("AUTODEHOIST_RESET_REASON")
-      )
-        .catch(() => false)
-        .finally(() => {
-          this.changingNick = false;
-        });
-    else if (!this.hoisted) {
-      this.changingNick = false;
-      return;
-    }
-    if (this.hoisted && !this.user.hoisted && !this.cancerous) {
-      return this.edit(
-        { nick: null },
-        this.guild.language.get("AUTODEHOIST_USERNAME_REASON")
-      )
-        .catch(() => false)
-        .finally(() => {
-          this.changingNick = false;
-        });
-    }
-    if (this.displayName == badName) {
-      this.changingNick = false;
-      return;
-    }
-    return await this.edit(
+    return this.edit(
       { nick: badName },
-      this.guild.language.get("AUTODEHOIST_REASON")
-    )
-      .catch(() => false)
-      .finally(() => {
-        this.changingNick = false;
-      });
+      this.guild.language.get("AUTODEHOIST_BADNAME_REASON")
+    );
   }
 
-  async decancer() {
+  private async decancer() {
+    const nonASCII = this.isNonASCII();
     if (
+      (!nonASCII.nickname && !nonASCII.displayName && !nonASCII.username) ||
+      !this.guild.settings.get<boolean>("mod.autodecancer") ||
       this.isModerator() ||
-      this.changingNick ||
       this.roles.highest.rawPosition >=
         this.guild.members.me.roles.highest.rawPosition ||
-      !this.guild.settings.get<boolean>("mod.autodecancer") ||
       !this.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
     )
       return;
-    this.changingNick = true;
-    let badName = this.guild.settings.get<string>(
+    const badName = this.guild.settings.get<string>(
       "utils.badname",
       `John Doe ${this.user.discriminator}`
     );
-    if (!this.cancerous && !this.hoisted && this.nickname == badName)
-      return this.edit(
-        { nick: null },
-        this.guild.language.get("AUTODECANCER_RESET_REASON")
+    if (nonASCII.nickname) {
+      let sanitized: string = sanitizer(this.nickname);
+      if (this.guild.settings.get<boolean>("mod.autodehoist"))
+        // we need to make sure our sanitized nickname isn't hoisted
+        // and since we're sanitizing, we won't care about removing characters from the start
+        while (sanitized[0] < "0") sanitized = sanitized.slice(1);
+      if (
+        sanitized.length <= 32 &&
+        sanitized.length >= 2 &&
+        sanitized != sanitizerInvalid
       )
-        .catch(() => false)
-        .finally(() => {
-          this.changingNick = false;
-        });
-    else if (!this.cancerous) {
-      this.changingNick = false;
-      return;
-    }
-    if (this.cancerous && !this.user.cancerous && !this.hoisted) {
-      return this.edit(
-        { nick: null },
-        this.guild.language.get("AUTODECANCER_USERNAME_REASON")
+        return this.edit(
+          { nick: sanitized },
+          this.guild.language.get("AUTODECANCER_NICKNAME_REASON")
+        );
+      else if (!nonASCII.displayName)
+        return this.edit(
+          { nick: null }, // display name shows when there's no nickname
+          this.guild.language.get("AUTODECANCER_NICKTODISPLAY_REASON")
+        );
+      else if (!nonASCII.username)
+        return this.edit(
+          { nick: this.user.username },
+          this.guild.language.get("AUTODECANCER_NICKTOUSER_REASON")
+        );
+      else
+        return this.edit(
+          { nick: badName },
+          this.guild.language.get("AUTODECANCER_BADNAME_REASON")
+        );
+    } else if (nonASCII.displayName && !this.nickname) {
+      let sanitized: string = sanitizer(this.user.displayName);
+      if (this.guild.settings.get<boolean>("mod.autodehoist"))
+        // we need to make sure our sanitized nickname isn't hoisted
+        // and since we're sanitizing, we won't care about removing characters from the start
+        while (sanitized[0] < "0") sanitized = sanitized.slice(1);
+      if (
+        sanitized.length <= 32 &&
+        sanitized.length >= 2 &&
+        sanitized != sanitizerInvalid
       )
-        .catch(() => false)
-        .finally(() => {
-          this.changingNick = false;
-        });
+        return this.edit(
+          { nick: sanitized },
+          this.guild.language.get("AUTODECANCER_DISPLAYNAME_REASON")
+        );
+      else if (!nonASCII.username)
+        return this.edit(
+          { nick: this.user.username },
+          this.guild.language.get("AUTODECANCER_DISPLAYTOUSER_REASON")
+        );
+      else
+        return this.edit(
+          { nick: badName },
+          this.guild.language.get("AUTODECANCER_BADNAME_REASON")
+        );
+    } else if (nonASCII.username && !this.displayName) {
+      let sanitized: string = sanitizer(this.user.username);
+      if (this.guild.settings.get<boolean>("mod.autodehoist"))
+        // we need to make sure our sanitized nickname isn't hoisted
+        // and since we're sanitizing, we won't care about removing characters from the start
+        while (sanitized[0] < "0") sanitized = sanitized.slice(1);
+      if (
+        sanitized.length <= 32 &&
+        sanitized.length >= 2 &&
+        sanitized != sanitizerInvalid
+      )
+        return this.edit(
+          { nick: sanitized },
+          this.guild.language.get("AUTODECANCER_USERNAME_REASON")
+        );
+      else
+        return this.edit(
+          { nick: badName },
+          this.guild.language.get("AUTODECANCER_BADNAME_REASON")
+        );
     }
-    if (this.displayName == badName) {
-      this.changingNick = false;
-      return;
-    }
-    const sanitized: string = sanitizer(this.displayName);
-    if (
-      sanitized.length > 2 &&
-      sanitized.length < 32 &&
-      sanitized != "gibberish"
-    )
-      badName = sanitized;
-    return await this.edit(
-      { nick: badName },
-      this.guild.language.get("AUTODECANCER_REASON")
-    )
-      .catch(() => false)
-      .finally(() => {
-        this.changingNick = false;
-      });
   }
 
   async dehoistAndDecancer() {
-    // This will be used when dehoisting/decancering and
-    // not awaiting (as the result isn't really needed)
-    // preventing them from delaying other functions
-    await this.decancer();
-    await this.dehoist();
+    if (this.user.bot) return;
+    // Runs both dehoist and decancer with a lock
+    // to ensure it can't be run twice at the same time.
+    const couldAcquire = this.dehoistAndDecancerLock.tryAcquire();
+    if (!couldAcquire) return; // already running
+    const badName = this.guild.settings.get<string>(
+      "utils.badname",
+      `John Doe ${this.user.discriminator}`
+    );
+    const hoisted = this.isHoisted(),
+      nonASCII = this.isNonASCII();
+    // first we'll check if any names need to be changed and if not,
+    // check if the user has the server's bad name as their nickname
+    if (
+      !hoisted.nickname &&
+      !hoisted.displayName &&
+      !hoisted.username &&
+      !nonASCII.nickname &&
+      !nonASCII.displayName &&
+      !nonASCII.username
+    ) {
+      // specifically check for "John Doe 0" because it used that before redoing this for pomelo
+      if (
+        this.nickname == badName ||
+        this.nickname == "John Doe 0" ||
+        this.nickname == this.displayName
+      )
+        await this.edit(
+          { nick: null },
+          this.guild.language.get("AUTODEHOISTANDDECANCER_RESET_REASON")
+        ).catch(() => {});
+      return this.dehoistAndDecancerLock.release();
+    }
+
+    // each of these will check if it's necessary so we don't need to check hoisted/nonASCII again
+    await this.decancer().catch(() => {});
+    await this.dehoist().catch(() => {});
+    this.dehoistAndDecancerLock.release();
   }
 
   async warn(
@@ -291,7 +385,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor({
         name: this.guild.language.get("WARN_LOG_AUTHOR", {
-          user: this.toString(),
+          user: this.display,
         }),
         iconURL: this.displayAvatarURL({
           size: 2048,
@@ -361,7 +455,7 @@ export class FireMember extends GuildMember {
       .setColor(this.displayColor || moderator.displayColor || "#FFFFFF")
       .setTimestamp()
       .setAuthor(
-        this.guild.language.get("NOTE_LOG_AUTHOR", { user: this.toString() }),
+        this.guild.language.get("NOTE_LOG_AUTHOR", { user: this.display }),
         this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
@@ -437,7 +531,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor({
         name: this.guild.language.get("BAN_LOG_AUTHOR", {
-          user: this.toString(),
+          user: this.display,
         }),
         iconURL: this.displayAvatarURL({
           size: 2048,
@@ -515,7 +609,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor({
         name: this.guild.language.get("KICK_LOG_AUTHOR", {
-          user: this.toString(),
+          user: this.display,
         }),
         iconURL: this.displayAvatarURL({
           size: 2048,
@@ -591,7 +685,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor({
         name: this.guild.language.get("DERANK_LOG_AUTHOR", {
-          user: this.toString(),
+          user: this.display,
         }),
         iconURL: this.displayAvatarURL({
           size: 2048,
@@ -694,7 +788,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor({
         name: this.guild.language.get("MUTE_LOG_AUTHOR", {
-          user: this.toString(),
+          user: this.display,
         }),
         iconURL: this.displayAvatarURL({
           size: 2048,
@@ -825,7 +919,7 @@ export class FireMember extends GuildMember {
       .setTimestamp()
       .setAuthor({
         name: this.guild.language.get("UNMUTE_LOG_AUTHOR", {
-          user: this.toString(),
+          user: this.display,
         }),
         iconURL: this.displayAvatarURL({
           size: 2048,

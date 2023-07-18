@@ -20,9 +20,11 @@ import { FireMember } from "./guildmember";
 export class FireUser extends User {
   settings: UserSettings;
   declare client: Fire;
+  displayName: string;
 
-  constructor(client: Fire, data: RawUserData) {
+  constructor(client: Fire, data: RawUserData & { global_name?: string }) {
     super(client, data);
+    this.displayName = data.global_name;
     this.settings = new UserSettings(this.client, this);
   }
 
@@ -38,6 +40,12 @@ export class FireUser extends User {
     return [...this.client.util.premium.values()].filter(
       (data) => data.user == this.id
     ).length;
+  }
+
+  get display() {
+    return this.displayName && this.displayName != this.toString()
+      ? `${this.displayName} (${this})`
+      : this.toString();
   }
 
   toString() {
@@ -208,7 +216,7 @@ export class FireUser extends User {
       .setColor(moderator.displayColor || "#FFFFFF")
       .setTimestamp()
       .setAuthor({
-        name: guild.language.get("BAN_LOG_AUTHOR", { user: this.toString() }),
+        name: guild.language.get("BAN_LOG_AUTHOR", { user: this.display }),
         iconURL: this.avatarURL({ size: 2048, format: "png", dynamic: true }),
       })
       .addField(guild.language.get("MODERATOR"), moderator.toString())
