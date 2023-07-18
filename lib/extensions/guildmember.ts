@@ -10,8 +10,7 @@ import {
   Permissions,
   Structures,
   ThreadChannel,
-  UserMention,
-  Util,
+  Util
 } from "discord.js";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { GuildTextChannel, ModLogTypes } from "../util/constants";
