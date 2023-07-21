@@ -19,6 +19,7 @@ import {
   BaseFetchOptions,
   CategoryChannel,
   Collection,
+  DiscordAPIError,
   EmbedFieldData,
   Formatters,
   Guild,
@@ -1061,30 +1062,57 @@ export class FireGuild extends Guild {
 
     if (author?.guild?.id != this.id) return "author";
     if (this.client.util.isBlacklisted(author.id, this)) return "blacklisted";
-    category =
-      category ||
-      (this.channels.cache
-        .filter((chan) => chan.type == "GUILD_CATEGORY")
-        .get(
-          this.settings.get<Snowflake>("tickets.parent")
-        ) as CategoryChannel);
-    if (!category) return "disabled";
     const limit = this.settings.get<number>("tickets.limit", 1);
     if (!this.ticketLock?.lock || this.ticketLock?.limit != limit)
       this.ticketLock = { lock: new Semaphore(limit), limit };
     const permits = this.ticketLock.lock.getPermits();
     if (!permits) return "lock";
+
+    const parents = this.settings.get<Snowflake[]>("tickets.parent", []);
+    if (!parents.length || !this.channels.cache.has(parents[0]))
+      return "disabled";
+    category =
+      category ||
+      (this.channels.cache.find(
+        (chan) =>
+          chan.type == "GUILD_CATEGORY" &&
+          parents.includes(chan.id) &&
+          chan.children.size < 50
+      ) as CategoryChannel);
+    if (!category) {
+      const originalParent = this.channels.cache.get(
+        parents[0]
+      ) as CategoryChannel;
+      const overflowCategory = await originalParent
+        .clone({
+          name: `${originalParent.name} ${parents.length + 1}`,
+          position: originalParent.position + 1,
+          reason: this.language.get("TICKET_OVERFLOW_CREATE_REASON"),
+        })
+        .catch((e) => {
+          // prevent capturing permission errors
+          if (!(e instanceof DiscordAPIError && e.httpStatus == 403))
+            this.client.sentry.captureException(e);
+        });
+      if (!overflowCategory) return "overflow";
+      else {
+        parents.push(overflowCategory.id);
+        this.settings.set<Snowflake[]>("tickets.parent", parents);
+        category = overflowCategory;
+      }
+    }
+
     let locked = false;
     setTimeout(() => {
       if (locked) this.ticketLock.lock.release();
     }, 15000);
-    await this.ticketLock.lock.acquire();
-    locked = true;
+    await this.ticketLock.lock.acquire().then(() => (locked = true));
     if (this.getTickets(author.id).length >= limit) {
       locked = false;
       this.ticketLock.lock.release();
       return "limit";
     }
+
     let channels = this.tickets;
     const words = (this.client.getCommand("ticket-name") as TicketName).words;
     let increment = this.settings.get<number>("tickets.increment", 0);

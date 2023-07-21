@@ -1,5 +1,5 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { CategoryChannel, Permissions } from "discord.js";
+import { CategoryChannel, Permissions, Snowflake } from "discord.js";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 
@@ -34,7 +34,13 @@ export default class TicketCategory extends Command {
       message.guild.settings.delete("tickets.parent");
       return await message.success("TICKETS_DISABLED");
     } else {
-      message.guild.settings.set<string>("tickets.parent", args.category.id);
+      if (
+        message.guild.settings.get<Snowflake[]>("tickets.parent", []).length > 1
+      )
+        return await message.error("TICKET_CATEGORY_OVERFLOW_EXISTS");
+      message.guild.settings.set<Snowflake[]>("tickets.parent", [
+        args.category.id,
+      ]);
       return await message.success("TICKETS_ENABLED", {
         category: args.category.name,
       });
