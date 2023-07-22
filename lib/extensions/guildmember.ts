@@ -358,7 +358,7 @@ export class FireMember extends GuildMember {
       if (
         this.nickname == badName ||
         this.nickname == "John Doe 0" ||
-        this.nickname == this.displayName
+        this.nickname == this.user.displayName
       )
         await this.edit(
           { nick: null },
