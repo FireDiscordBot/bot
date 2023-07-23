@@ -32,11 +32,15 @@ export class GuildSettings {
 
   // will check if migration is needed for the current migration script
   get shouldMigrate() {
-    return false;
+    return (
+      this.has("tickets.parent") && !Array.isArray(this.get("tickets.parent"))
+    );
   }
 
   // will be empty unless there's a migration to run
-  async runMigration() {}
+  async runMigration() {
+    this.set("tickets.parent", [this.get("tickets.parent")]);
+  }
 
   has(option: string) {
     const guild = this.guild instanceof FireGuild ? this.guild.id : this.guild;
