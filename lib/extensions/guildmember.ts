@@ -362,7 +362,16 @@ export class FireMember extends GuildMember {
       )
         await this.edit(
           { nick: null },
-          this.guild.language.get("AUTODEHOISTANDDECANCER_RESET_REASON")
+          this.guild.language.get("AUTODEHOISTANDDECANCER_RESET_REASON", {
+            debug:
+              this.nickname == badName
+                ? `Nickname is equal to server bad name, ${badName}`
+                : this.nickname == "John Doe 0"
+                ? "Nickname is equal to default bad name with 0 discriminator (pomelo'd)"
+                : this.nickname == this.user.displayName
+                ? `Nickname is equal to display name, ${this.user.displayName}`
+                : "idk why this happened, it probably shouldn't have, please report this as an issue in discord.gg/firebot",
+          })
         ).catch(() => {});
       return this.dehoistAndDecancerLock.release();
     }

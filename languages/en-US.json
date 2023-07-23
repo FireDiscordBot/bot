@@ -311,7 +311,7 @@
   "AUTODEHOIST_NICKTODISPLAY_REASON": "Nickname started with hoisted character, removing nickname",
   "AUTODEHOIST_USERNAMEFALLBACK_REASON": "Display name started with hoisted character, falling back to the user's current username",
   "AUTODEHOIST_BADNAME_REASON": "Name is hoisted, renaming user to the server's \"bad name\" setting (which you can change using /badname)",
-  "AUTODEHOISTANDDECANCER_RESET_REASON": "Name was previously hoisted or non-ASCII but is not anymore, resetting nickname",
+  "AUTODEHOISTANDDECANCER_RESET_REASON": "Name was previously hoisted or non-ASCII but is not anymore, resetting nickname (debug: {{debug}})",
   "AVATAR_COMMAND_DESCRIPTION": "Get a user's avatar",
   "AVATAR_TITLE": "{{user}}'s avatar",
   "AVATAR_SWITCH_TO_GLOBAL": "Show Global Avatar",
