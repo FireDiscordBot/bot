@@ -216,6 +216,7 @@ export class FireMember extends GuildMember {
         { nick: null },
         this.guild.language.get("AUTODEHOIST_NICKTODISPLAY_REASON")
       );
+    if (this.nickname && !hoisted.nickname) return;
     // next up is the username, which we'll only use for pomelo'd users as they're guaranteed to be non-hoisted
     // or at least not as badly hoisted, since they can use periods & underscores
     // we also check the nickname to ensure we're not unnecessarily editing it
