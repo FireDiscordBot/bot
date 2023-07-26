@@ -938,7 +938,8 @@ export class FireMessage extends Message {
   }
 
   async runAntiFilters() {
-    if (!this.guild || this.author.bot) return;
+    if (!this.guild || this.author.bot || this.type == "AUTO_MODERATION_ACTION")
+      return;
     if (!this.member || this.member.partial)
       await this.guild.members.fetch(this.author.id).catch(() => {});
     if (!this.member) return; // if we still don't have access to member, just ignore
@@ -984,6 +985,7 @@ export class FireMessage extends Message {
       !this.guild ||
       this.author?.bot ||
       this.webhookId ||
+      this.type == "AUTO_MODERATION_ACTION" ||
       this.system ||
       !this.guild?.hasExperiment(936071411, [1, 2])
     )
