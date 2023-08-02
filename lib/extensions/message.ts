@@ -139,6 +139,118 @@ export class FireMessage extends Message {
           });
   }
 
+  async getSystemContent() {
+    const lang = this.guild.language ?? this.language;
+    const user =
+      this.member?.nickname ??
+      this.author?.displayName ??
+      this.author?.username;
+    if (this.type == "GUILD_MEMBER_JOIN")
+      return lang.get(
+        `QUOTE_SYSTSEM_MESSAGE_JOIN.JOIN_MESSAGE_${
+          this.createdTimestamp % 13
+        }` as LanguageKeys,
+        { member: user }
+      );
+    else if (this.type == "CHANNEL_FOLLOW_ADD")
+      return lang.get("QUOTE_SYSTEM_MESSAGE_FOLLOW_ADD", {
+        user,
+        channel: this.content,
+      });
+    else if (this.type == "CHANNEL_NAME_CHANGE")
+      return lang.get("QUOTE_SYSTEM_MESSAGE_CHANNEL_RENAME", {
+        user,
+        name: this.content,
+      });
+    else if (this.type == "CHANNEL_PINNED_MESSAGE" && this.reference?.messageId)
+      return lang.get("QUOTE_SYSTEM_MESSAGE_PINNED", {
+        user,
+        link: `https://discord.com/channels/${this.guildId}/${this.channelId}/${this.reference?.messageId}`,
+      });
+    else if (this.type == "CHANNEL_PINNED_MESSAGE")
+      return lang.get("QUOTE_SYSTEM_MESSAGE_PINNED_NO_LINK", {
+        user,
+      });
+    else if (this.type == "GUILD_DISCOVERY_DISQUALIFIED")
+      return lang.get("QUOTE_SYSTEM_MESSAGE_DISCOVERY_DISQUALIFIED");
+    else if (this.type == "GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING")
+      return lang.get("QUOTE_SYSTEM_MESSAGE_DISCOVERY_FINAL_WARN");
+    else if (this.type == "GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING")
+      return lang.get("QUOTE_SYSTEM_MESSAGE_DISCOVERY_INITIAL_WARN");
+    else if (this.type == "GUILD_DISCOVERY_REQUALIFIED")
+      return lang.get("QUOTE_SYSTEM_MESSAGE_DISCOVERY_REQUALIFIED");
+    else if (this.type == "RECIPIENT_ADD") {
+      let member: FireMember;
+      const mentioned = this.mentions.users.first() as FireUser;
+      if (mentioned) {
+        member = (await this.guild.members
+          .fetch(mentioned)
+          .catch(() => {})) as FireMember;
+        return lang.get("QUOTE_SYSTEM_MESSAGE_RECIPIENT_ADD", {
+          author: user,
+          user: member?.display ?? mentioned?.display,
+        });
+      } else {
+        return lang.get("QUOTE_SYSTEM_MESSAGE_RECIPIENT_ADD_NO_USER", {
+          author: user,
+        });
+      }
+    } else if (this.type == "RECIPIENT_REMOVE") {
+      let member: FireMember;
+      const mentioned = this.mentions.users.first() as FireUser;
+      if (mentioned) {
+        member = (await this.guild.members
+          .fetch(mentioned)
+          .catch(() => {})) as FireMember;
+        return lang.get("QUOTE_SYSTEM_MESSAGE_RECIPIENT_REMOVE", {
+          author: user,
+          user: member?.display ?? mentioned?.display,
+        });
+      } else {
+        return lang.get("QUOTE_SYSTEM_MESSAGE_RECIPIENT_REMOVE_NO_USER", {
+          author: user,
+        });
+      }
+    } else if (this.type == "THREAD_CREATED" && this.thread)
+      return lang.get("QUOTE_SYSTEM_MESSAGE_THREAD_CREATED", {
+        user,
+        name: this.thread.name,
+        link: `https://discord.com/channels/${this.guildId}/${this.thread.id}`,
+      });
+    else if (this.type == "THREAD_CREATED")
+      return lang.get("QUOTE_SYSTEM_MESSAGE_THREAD_CREATED_NO_LINK", {
+        user,
+        name: this.content,
+      });
+    else if (this.type == "USER_PREMIUM_GUILD_SUBSCRIPTION")
+      return lang.get(
+        this.content
+          ? "QUOTE_SYSTEM_MESSAGE_BOOST_MULTIPLE"
+          : "QUOTE_SYSTEM_MESSAGE_BOOST_ONCE",
+        {
+          user,
+          amount: this.content,
+        }
+      );
+    else if (this.type.startsWith("USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_")) {
+      const tier = this.type.split("_").pop();
+      return lang.get(
+        this.content
+          ? "QUOTE_SYSTEM_MESSAGE_BOOST_TIER_MULTIPLE"
+          : "QUOTE_SYSTEM_MESSAGE_BOOST_TIER_ONCE",
+        {
+          user,
+          tier,
+          amount: this.content,
+          guild: this.guild.name,
+        }
+      );
+    }
+
+    // if we get down here, just return the regular content because it's probably an unknown type
+    return this.content;
+  }
+
   async send(key: LanguageKeys, args?: i18nOptions) {
     if (!this.channel) return;
     let upsell: MessageEmbed | false;
@@ -417,9 +529,9 @@ export class FireMessage extends Message {
       return await this.webhookQuote(destination, quoter, null, thread, debug);
     }
     this.guild?.quoteHooks.set(destination.id, hook);
-    let content = this.content;
+    let content = this.system ? await this.getSystemContent() : this.content;
     if (content) {
-      if (!quoter?.isSuperuser()) {
+      if (!quoter?.isSuperuser() && !this.system) {
         content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
         const filters = this.client.getModule("filters") as Filters;
         content = await filters
@@ -485,7 +597,7 @@ export class FireMessage extends Message {
         if (component instanceof MessageActionRow)
           component.components = component.components.map((c) => {
             if (c instanceof MessageButton && c.style != "LINK")
-              c.setCustomId(`quote_copy${index}}`);
+              c.setCustomId(`quote_copy${index}`);
             else if (c instanceof MessageSelectMenu)
               c.setCustomId(`quote_copy${index}`);
             return c;
@@ -537,10 +649,11 @@ export class FireMessage extends Message {
       automodEmbeds.push(embed);
     }
     const username =
-      usernameOverride ||
-      (member
+      usernameOverride || (this.system && this.guild)
+        ? this.guild.name
+        : member
         ? member.display.replace(/#0000/gim, "")
-        : this.author.display.replace(/#0000/gim, ""));
+        : this.author.display.replace(/#0000/gim, "");
     return await hook
       .send({
         content: content.length ? content : null,
@@ -551,6 +664,11 @@ export class FireMessage extends Message {
           : username,
         avatarURL: isAutomod
           ? constants.url.automodAvatar
+          : this.system && this.guild
+          ? this.guild.iconURL({
+              size: 2048,
+              format: "png",
+            })
           : (member ?? this.author).displayAvatarURL({
               size: 2048,
               format: "png",
@@ -669,7 +787,7 @@ export class FireMessage extends Message {
         }),
       });
     if (this.content) {
-      let content = this.content;
+      let content = this.system ? await this.getSystemContent() : this.content;
       const imageMatches = regexes.imageURL.exec(content);
       if (imageMatches) {
         embed.setImage(imageMatches[0]);
