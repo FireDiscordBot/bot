@@ -210,7 +210,7 @@ export default class GuildCommand extends Command {
           )}`
         );
 
-      if (guild.mfaLevel)
+      if (guild.mfaLevel == "ELEVATED")
         info.push(
           `${constants.emojis.statuspage.operational} ${command.language.get(
             "GUILD_MFA_ENABLED"
