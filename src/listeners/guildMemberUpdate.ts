@@ -130,7 +130,7 @@ export default class GuildMemberUpdate extends Listener {
         await newMember.roles
           .add(role, newMember.guild.language.get("AUTOROLE_REASON"))
           .catch(() => {});
-    } else if (!newMember.pending) {
+    } else {
       const autoroleId = newMember.guild.settings.get<Snowflake>(
         "mod.autorole",
         null
@@ -144,7 +144,6 @@ export default class GuildMemberUpdate extends Listener {
         autoroleId &&
         !delay &&
         !newMember.roles.cache.has(autoroleId) &&
-        !newMember.pending &&
         !newMember.user.bot
       ) {
         const role = newMember.guild.roles.cache.get(autoroleId);

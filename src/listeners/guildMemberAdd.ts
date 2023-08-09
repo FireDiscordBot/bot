@@ -106,10 +106,6 @@ export default class GuildMemberAdd extends Listener {
           .catch(() => {});
     }
 
-    const hasScreening =
-      member.guild.features.includes("PREVIEW_ENABLED") &&
-      member.guild.features.includes("MEMBER_VERIFICATION_GATE_ENABLED");
-
     if (member.user.bot) {
       const role = member.guild.roles.cache.get(
         member.guild.settings.get<Snowflake>("mod.autobotrole", null)
@@ -121,7 +117,7 @@ export default class GuildMemberAdd extends Listener {
         await member.roles
           .add(role, member.guild.language.get("AUTOROLE_REASON"))
           .catch(() => {});
-    } else if (!hasScreening) {
+    } else {
       const autoroleId = member.guild.settings.get<Snowflake>(
         "mod.autorole",
         null
@@ -131,12 +127,7 @@ export default class GuildMemberAdd extends Listener {
         false
       );
 
-      if (
-        autoroleId &&
-        !delay &&
-        !member.roles.cache.has(autoroleId) &&
-        !member.pending
-      ) {
+      if (autoroleId && !delay && !member.roles.cache.has(autoroleId)) {
         const role = member.guild.roles.cache.get(autoroleId);
         if (
           role &&
