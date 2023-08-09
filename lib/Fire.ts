@@ -1,4 +1,5 @@
 import { config } from "@fire/config/index";
+import { constants } from "@fire/lib/util/constants";
 import { attachmentTypeCaster } from "@fire/src/arguments/attachment";
 import { booleanTypeCaster } from "@fire/src/arguments/boolean";
 import {
@@ -44,30 +45,32 @@ import {
   ListenerHandler,
   version as akairover,
 } from "discord-akairo";
-import { APIGuildMember } from "discord-api-types/v9";
+import {
+  APIGuildMember,
+  ActivityType,
+  GatewayOpcodes,
+} from "discord-api-types/v9";
 import {
   ClientUser,
   Collection,
   Constants,
   GuildFeatures,
-  SnowflakeUtil,
+  PresenceStatusData,
   version as djsver,
 } from "discord.js";
 import * as fuzz from "fuzzball";
 import * as i18next from "i18next";
 import { Client as PGClient, SSLMode } from "ts-postgres";
+import { Manager } from "./Manager";
 import { ApplicationCommandMessage } from "./extensions/appcommandmessage";
 import { ComponentMessage } from "./extensions/componentmessage";
 import { ContextCommandMessage } from "./extensions/contextcommandmessage";
-import { FireGuild } from "./extensions/guild";
 import { FireMember } from "./extensions/guildmember";
 import { FireMessage } from "./extensions/message";
 import { ModalMessage } from "./extensions/modalmessage";
 import { FireUser } from "./extensions/user";
 import { IPoint, IWriteOptions } from "./interfaces/aether";
-import { GuildApplicationCommandsUpdate } from "./interfaces/discord";
 import { Experiment } from "./interfaces/experiments";
-import { Manager } from "./Manager";
 import { PostgresProvider } from "./providers/postgres";
 import { RESTManager } from "./rest/RESTManager";
 import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
@@ -80,8 +83,8 @@ import { Language, LanguageHandler } from "./util/language";
 import { Listener } from "./util/listener";
 import { Module, ModuleHandler } from "./util/module";
 import { Message } from "./ws/Message";
-import { EventType } from "./ws/util/constants";
 import { MessageUtil } from "./ws/util/MessageUtil";
+import { EventType } from "./ws/util/constants";
 // this shit has some weird import fuckery, this is the only way I can use it
 const i18n = i18next as unknown as typeof i18next.default;
 
@@ -602,45 +605,81 @@ export class Fire extends AkairoClient {
   }
 
   setReadyPresence() {
-    // if disconnected, it should fallback to this
-    this.options.presence = {
-      activities: [
-        {
-          name: "with fire",
-          type: "PLAYING",
-        },
-      ],
-      status: "dnd",
-    };
+    const now = +new Date();
+    delete this.options.presence;
     this.ws.shards.forEach((shard) =>
-      // @ts-ignore
-      this.presence.set({
-        activities: [
-          {
-            name:
-              this.manager.ws && this.options.shardCount != 1
-                ? `with fire | ${shard.id + 1}/${this.options.shardCount}`
-                : "with fire",
-            type: "PLAYING",
-          },
-        ],
-        status: "dnd",
-        shardId: shard.id,
+      shard.send({
+        op: GatewayOpcodes.PresenceUpdate,
+        d: {
+          since: now,
+          activities: [
+            {
+              name: "Custom Status",
+              state:
+                this.manager.ws && this.options.shardCount != 1
+                  ? `${constants.url.websiteDomain} | ${shard.id + 1}/${
+                      this.options.shardCount
+                    }`
+                  : constants.url.websiteDomain,
+              type: ActivityType.Custom,
+              created_at: now,
+            },
+          ],
+          status: "online",
+          afk: false,
+        },
       })
     );
   }
 
   setPartialOutageStatus() {
-    // @ts-ignore
-    this.presence.set({
-      activities: [
-        {
-          name: "a potential outage",
-          type: "WATCHING",
+    const now = +new Date();
+    this.ws.shards.forEach((shard) =>
+      shard.send({
+        op: GatewayOpcodes.PresenceUpdate,
+        d: {
+          since: now,
+          activities: [
+            {
+              name: "Custom Status",
+              state: "Some features unavailable...",
+              type: ActivityType.Custom,
+              created_at: now,
+            },
+          ],
+          status: "idle",
+          afk: false,
         },
-      ],
-      status: "idle",
-    });
+      })
+    );
+  }
+
+  setCustomStatus(
+    since: Date | number,
+    state: string,
+    status: PresenceStatusData,
+    shardIds: number[]
+  ) {
+    this.ws.shards
+      .filter((shard) => (shardIds.length ? shardIds.includes(shard.id) : true))
+      .forEach((shard) =>
+        shard.send({
+          op: GatewayOpcodes.PresenceUpdate,
+          d: {
+            since: since instanceof Date ? +since : since,
+            activities: [
+              {
+                name: "Custom Status",
+                state,
+                type: ActivityType.Custom,
+                created_at: +new Date(),
+              },
+            ],
+            status,
+            afk: false,
+          },
+        })
+      );
   }
 
   getFuzzyCommands(command: string, limit = 20, forceRatio?: number) {

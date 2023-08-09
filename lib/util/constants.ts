@@ -115,6 +115,10 @@ export type CommonContext = { guild?: FireGuild; language: Language };
 export class UseExec extends Error {}
 export class UseRun extends Error {}
 
+const websiteDomain = `${
+  process.env.NODE_ENV == "development" ? "local." : ""
+}getfire.bot`;
+
 let emojis = {
   // shoutout to blobhub for the ebic emotes, https://inv.wtf/blobhub
   success: "<:yes:534174796888408074>",
@@ -232,7 +236,8 @@ export const constants = {
     discovery: "https://getfire.bot/discover",
     discordStatus: "https://discordstatus.com",
     fireStatus: "https://firestatus.link",
-    website: "https://getfire.bot/",
+    website: `https://${websiteDomain}`,
+    websiteDomain,
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",
     premium: "https://inv.wtf/premium",

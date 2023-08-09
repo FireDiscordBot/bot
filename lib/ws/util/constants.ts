@@ -44,6 +44,7 @@ export enum EventType {
   WRITE_INFLUX_POINTS,
   SPECIAL_COUPON,
   REFRESH_SLASH_COMMAND_IDS,
+  SET_CUSTOM_STATUS,
 }
 
 export enum WebsocketStates {
