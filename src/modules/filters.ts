@@ -582,9 +582,6 @@ export default class Filters extends Module {
         likes: parseInt(details.statistics?.likeCount || "0").toLocaleString(
           message.guild.language.id
         ),
-        dislikes: parseInt(
-          details.statistics?.dislikeCount || "0"
-        ).toLocaleString(message.guild.language.id),
         comments: parseInt(
           details.statistics?.commentCount || "0"
         ).toLocaleString(message.guild.language.id),

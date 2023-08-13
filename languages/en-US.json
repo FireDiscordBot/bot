@@ -517,7 +517,7 @@
   "FILTER_INVITE_LOG_LINK": "Invite Link",
   "FILTER_PAYPAL_LOG_DESCRIPTION": "**PayPal link sent in** {{channel}}",
   "FILTER_YOUTUBE_LOG_DESCRIPTION": "**YouTube link sent in** {{channel}}",
-  "FILTER_YOUTUBE_VIDEO_LOG_STATS": "{{views}} views, {{likes}} likes, {{dislikes}} dislikes, {{comments}} comments",
+  "FILTER_YOUTUBE_VIDEO_LOG_STATS": "{{views}} views, {{likes}} likes, {{comments}} comments",
   "FILTER_YOUTUBE_CHANNEL_LOG_STATS": "{{subs}} subscribers, {{views}} total views, {{videos}} videos",
   "FILTER_TWITCH_CLIP_LOG_DESCRIPTION": "**Twitch clip sent in** {{channel}}",
   "FILTER_TWITCH_CHANNEL_LOG_DESCRIPTION": "**Twitch channel sent in** {{channel}}",
