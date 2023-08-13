@@ -1,4 +1,4 @@
-import { MinecraftVersion } from "@fire/src/modules/mclogs";
+import { MinecraftVersion, OptifineVersion } from "@fire/src/modules/mclogs";
 
 export type Payload = {
   op: number; // opcode
@@ -59,6 +59,7 @@ export interface ManagerState {
   loadedUserExperiments: UserExperimentConfig[];
   discordExperiments: DiscordExperiment[];
   modVersions: Record<string, Record<MinecraftVersion, string>>;
+  optifineVersions: Record<MinecraftVersion, OptifineVersion[]>;
 }
 
 export interface IPoint {

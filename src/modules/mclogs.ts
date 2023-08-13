@@ -45,6 +45,13 @@ type ModSource = `${string}.jar`;
 export type MinecraftVersion =
   | `${number}.${number}.${number}`
   | `${number}.${number}`;
+export interface OptifineVersion {
+  name: string;
+  shortName: string;
+  forgeVersion: string;
+  releaseDate: Date;
+  fileName: string;
+}
 type Haste = { url: string; raw: string };
 type LoaderRegexConfig = {
   loader: Loaders;
@@ -253,7 +260,7 @@ export default class MCLogs extends Module {
         {
           loader: Loaders.OPTIFINE,
           regexes: [
-            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-OptiFine_HD_U_(?<loaderver>[A-Z]\d)/gim,
+            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-OptiFine_HD_U_(?<loaderver>[A-Z]\d(?:_pre\d{1,2})?)/gim,
           ],
         },
       ],
@@ -404,14 +411,19 @@ export default class MCLogs extends Module {
         (mcVersion = undefined),
         (loaderVersion = undefined);
 
-    let optifineMatch: RegExpExecArray;
-    while ((optifineMatch = this.regexes.optifine.exec(log))) {
-      if (optifineMatch?.groups?.ofver && optifineMatch?.groups?.mcver) break;
-      else optifineMatch = null;
+    if (loader == Loaders.OPTIFINE)
+      (optifineVersion = loaderVersion),
+        (loaderVersion = loaderVersion.replace("_", " ").trim());
+    else {
+      let optifineMatch: RegExpExecArray;
+      while ((optifineMatch = this.regexes.optifine.exec(log))) {
+        if (optifineMatch?.groups?.ofver && optifineMatch?.groups?.mcver) break;
+        else optifineMatch = null;
+      }
+      this.regexes.optifine.lastIndex = 0;
+      if (optifineMatch && optifineMatch?.groups?.mcver == mcVersion)
+        optifineVersion = optifineMatch.groups.ofver.replace("_", " ").trim();
     }
-    this.regexes.optifine.lastIndex = 0;
-    if (optifineMatch && optifineMatch?.groups?.mcver == mcVersion)
-      optifineVersion = optifineMatch.groups.ofver;
 
     if (
       loader == Loaders.FORGE &&
@@ -757,49 +769,78 @@ export default class MCLogs extends Module {
         }
       } else versions.loaderVersion = "Unknown";
 
-      if (
-        versions.optifineVersion &&
-        !versions.optifineVersion.includes("_pre")
-      ) {
-        const dataReq = await centra(
-          `https://optifine.net/version/${versions.mcVersion}/HD_U.txt`
-        )
-          .header("User-Agent", this.client.manager.ua)
-          .send();
-        const latestOptifine = dataReq.body.toString().trim();
-        if (
-          dataReq.statusCode == 200 &&
-          latestOptifine.length == 2 &&
-          latestOptifine != versions.optifineVersion.trim() &&
-          latestOptifine[0] > versions.optifineVersion[0]
-        )
+      if (versions.optifineVersion && versions.loader == Loaders.FORGE) {
+        let optifineVersions =
+          this.client.manager.state.optifineVersions?.[versions.mcVersion];
+        const current = optifineVersions.find(
+          (v) => v.shortName == versions.optifineVersion
+        );
+        if (optifineVersions?.length) {
+          optifineVersions = optifineVersions.filter((v) => {
+            const [loaderMajor, loaderMinor] = versions.loaderVersion
+              .split(".")
+              .slice(-2)
+              .map(Number);
+            const [currentMajor, currentMinor] = current.forgeVersion
+              .split(".")
+              .slice(-2)
+              .map(Number);
+
+            const isPreRelease = v.shortName.includes("pre");
+            const majorDiff = loaderMajor - currentMajor;
+            const minorDiff = loaderMinor - currentMinor;
+
+            if (isPreRelease) {
+              if (versions.optifineVersion.includes("pre")) {
+                return v.forgeVersion <= versions.loaderVersion;
+              } else {
+                return (
+                  (majorDiff >= 1 || minorDiff >= 10) &&
+                  v.forgeVersion !== current.forgeVersion
+                );
+              }
+            } else {
+              return v.forgeVersion <= versions.loaderVersion;
+            }
+          });
+
+          if (
+            optifineVersions.length &&
+            optifineVersions[0].shortName != versions.optifineVersion
+          )
+            currentSolutions.add(
+              "- **" +
+                language.get("MC_LOG_UPDATE", {
+                  item: "OptiFine",
+                  current: versions.optifineVersion,
+                  latest: optifineVersions[0].shortName,
+                }) +
+                "**"
+            );
+        }
+      }
+    } else if (versions?.loader == Loaders.OPTIFINE) {
+      let optifineVersions =
+        this.client.manager.state.optifineVersions?.[versions.mcVersion];
+      if (optifineVersions.length) {
+        optifineVersions = optifineVersions.filter((v) => {
+          if (
+            v.shortName.includes("pre") &&
+            !versions.optifineVersion.includes("pre")
+          )
+            return false;
+        });
+        if (optifineVersions[0].shortName != versions.optifineVersion)
           currentSolutions.add(
             "- **" +
               language.get("MC_LOG_UPDATE", {
                 item: "OptiFine",
-                current: versions.optifineVersion,
-                latest: latestOptifine,
+                current: versions.loaderVersion,
+                latest: optifineVersions[0].shortName,
               }) +
               "**"
           );
       }
-    } else if (versions?.loader == Loaders.OPTIFINE) {
-      const dataReq = await centra(
-        `https://optifine.net/version/${versions.mcVersion}/HD_U.txt`
-      )
-        .header("User-Agent", this.client.manager.ua)
-        .send();
-      const latestOptifine = dataReq.body.toString();
-      if (dataReq.statusCode == 200 && latestOptifine != versions.loaderVersion)
-        currentSolutions.add(
-          "- **" +
-            language.get("MC_LOG_UPDATE", {
-              item: "OptiFine",
-              current: versions.optifineVersion,
-              latest: latestOptifine,
-            }) +
-            "**"
-        );
     }
 
     const isDefault = this.regexes.jvm.test(log);
@@ -1267,7 +1308,7 @@ export default class MCLogs extends Module {
       if (mcInfo.optifineVersion && mcInfo.loader != Loaders.OPTIFINE)
         details.push(
           (message.guild ?? message).language.get("MC_LOG_OPTIFINE_INFO", {
-            version: mcInfo.optifineVersion.trim(),
+            version: mcInfo.optifineVersion,
           })
         );
 
