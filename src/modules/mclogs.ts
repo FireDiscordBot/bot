@@ -796,7 +796,7 @@ export default class MCLogs extends Module {
               } else {
                 return (
                   (majorDiff >= 1 || minorDiff >= 10) &&
-                  v.forgeVersion !== current.forgeVersion
+                  v.forgeVersion > current.forgeVersion
                 );
               }
             } else {
