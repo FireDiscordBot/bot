@@ -777,6 +777,7 @@ export default class MCLogs extends Module {
         );
         if (optifineVersions?.length) {
           optifineVersions = optifineVersions.filter((v) => {
+            if (!v.forgeVersion) return false;
             const [loaderMajor, loaderMinor] = versions.loaderVersion
               .split(".")
               .slice(-2)
