@@ -12,6 +12,7 @@ import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import { Readable } from "stream";
 import { getCodeblockMatch } from "../arguments/codeblock";
 import Filters from "./filters";
+import { lt as semverLessThan } from "semver";
 
 const { mcLogFilters } = constants;
 
@@ -41,6 +42,8 @@ enum Loaders {
   FEATHER = "Feather",
 }
 
+type ModLoaders = "Forge" | "Fabric" | "Quilt";
+
 type ModSource = `${string}.jar`;
 export type MinecraftVersion =
   | `${number}.${number}.${number}`
@@ -52,6 +55,9 @@ export interface OptifineVersion {
   releaseDate: Date;
   fileName: string;
 }
+export type ModVersions = {
+  [loader in ModLoaders]: string;
+};
 type Haste = { url: string; raw: string };
 type LoaderRegexConfig = {
   loader: Loaders;
@@ -110,6 +116,7 @@ export default class MCLogs extends Module {
     home: RegExp;
     settingUser: RegExp;
     devEnvUser: RegExp;
+    multiMcDisabled: RegExp;
     loaderVersions: LoaderRegexConfig[];
     forgeModsTableHeader: RegExp;
     forgeModsTableEntry: RegExp;
@@ -126,7 +133,17 @@ export default class MCLogs extends Module {
     majorMinorOnly: RegExp;
   };
   logText: string[];
-  solutions: {
+  bgs: {
+    versions: {
+      [version: MinecraftVersion]: {
+        solutions: {
+          [key: string]: string;
+        };
+        recommendations: {
+          [key: string]: string;
+        };
+      };
+    };
     solutions: { [key: string]: string };
     recommendations: { [key: string]: string };
     cheats: string[];
@@ -134,7 +151,12 @@ export default class MCLogs extends Module {
 
   constructor() {
     super("mclogs");
-    this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
+    this.bgs = {
+      versions: {},
+      solutions: {},
+      recommendations: {},
+      cheats: [],
+    };
     this.regexes = {
       reupload:
         /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|(?:www\.)?toptal\.com\/developers\/hastebin|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
@@ -152,6 +174,7 @@ export default class MCLogs extends Module {
       settingUser:
         /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
       devEnvUser: /Player\d{3}/gim,
+      multiMcDisabled: /^\s*\[❌] .* \(disabled\)$/gim,
       forgeModsTableHeader:
         /\|\sState\s*\|\sID\s*\|\sVersion\s*\|\sSource\s*\|(?:\sSignature\s*\|)?/gim,
       forgeModsTableEntry:
@@ -310,22 +333,29 @@ export default class MCLogs extends Module {
         guild.hasExperiment(77266757, [1, 2]) ||
         (guild.premium && guild.settings.get("minecraft.logscan", false))
       );
-    else if (user) return user.isSuperuser();
+    else if (user) return user.isSuperuser() || user.premium;
   }
 
   async init() {
     await this.client.waitUntilReady();
-    this.solutions = { solutions: {}, recommendations: {}, cheats: [] };
+    this.bgs = {
+      versions: {},
+      solutions: {},
+      recommendations: {},
+      cheats: [],
+    };
     const solutionsReq = await centra(
       `https://api.github.com/repos/GamingGeek/BlockGameSolutions/contents/mc_solutions.json`
     )
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", `token ${process.env.GITHUB_SOLUTIONS_TOKEN}`)
+      .header("X-GitHub-Api-Version", "2022-11-28")
+      .query("ref", "multi-version")
       .send();
     if (solutionsReq.statusCode == 200) {
       const solutions = await solutionsReq.json().catch(() => {});
       if (solutions?.content)
-        this.solutions = JSON.parse(
+        this.bgs = JSON.parse(
           Buffer.from(solutions.content, "base64").toString("utf8")
         );
     }
@@ -545,11 +575,6 @@ export default class MCLogs extends Module {
       }
     }
 
-    if (mods.find((m) => m.modId == "fabric")) {
-      const index = mods.findIndex((m) => m.modId == "fabric");
-      mods[index].modId = "fabric-api";
-    }
-
     if (this.regexes.fullLogJavaVersion.test(log)) {
       this.regexes.fullLogJavaVersion.lastIndex = 0;
       const javaMatch = this.regexes.fullLogJavaVersion.exec(log);
@@ -592,88 +617,90 @@ export default class MCLogs extends Module {
         ? user.guild.language
         : this.client.getLanguage("en-US");
 
-    if (
-      (versions.loader == Loaders.FEATHER ||
-        versions.mods.find((m) => m.modId == "feather")) &&
-      (user instanceof FireMember
-        ? !Sk1erAndEssentialIDs.includes(user.guild?.id)
-        : true)
-    ) {
-      // user has not opted out of data collection for analytics
-      if (!user.hasExperiment(2219986954, 1))
-        // i need better ways of detecting feather
-        // so I need more log samples
-        this.client.influx([
-          {
-            measurement: "mclogs",
-            tags: {
-              type: "feather",
-              user_id: user.id,
-              cluster: this.client.manager.id.toString(),
-              shard:
-                user instanceof FireMember
-                  ? user.guild?.shardId.toString() ?? "0"
-                  : "Unknown",
-            },
-            fields: {
-              guild:
-                user instanceof FireMember
-                  ? `${user.guild?.name} (${user.guild?.id})`
-                  : "Unknown",
-              user: `${user} (${user.id})`,
-              haste: haste.url,
-              raw: haste.raw,
-            },
-          },
-        ]);
-      return `Feather Client is not supported. Any issues that occur while using it must be reported to Feather's support team.`;
-    }
+    const logLower = log.toLowerCase();
+
+    // TEMP DISABLED
+    // if (
+    //   (versions.loader == Loaders.FEATHER ||
+    //     versions.mods.find((m) => m.modId == "feather")) &&
+    //   (user instanceof FireMember
+    //     ? !Sk1erAndEssentialIDs.includes(user.guild?.id)
+    //     : true)
+    // ) {
+    //   // user has not opted out of data collection for analytics
+    //   if (!user.hasExperiment(2219986954, 1))
+    //     // i need better ways of detecting feather
+    //     // so I need more log samples
+    //     this.client.influx([
+    //       {
+    //         measurement: "mclogs",
+    //         tags: {
+    //           type: "feather",
+    //           user_id: user.id,
+    //           cluster: this.client.manager.id.toString(),
+    //           shard:
+    //             user instanceof FireMember
+    //               ? user.guild?.shardId.toString() ?? "0"
+    //               : "Unknown",
+    //         },
+    //         fields: {
+    //           guild:
+    //             user instanceof FireMember
+    //               ? `${user.guild?.name} (${user.guild?.id})`
+    //               : "Unknown",
+    //           user: `${user} (${user.id})`,
+    //           haste: haste.url,
+    //           raw: haste.raw,
+    //         },
+    //       },
+    //     ]);
+    //   return `Feather Client is not supported. Any issues that occur while using it must be reported to Feather's support team.`;
+    // }
 
     if (
-      log.toLowerCase().includes("net.kdt.pojavlaunch") &&
+      logLower.includes("net.kdt.pojavlaunch") &&
       user instanceof FireMember &&
       Sk1erAndEssentialIDs.includes(user.guild?.id)
     )
       return `PojavLauncher is not supported, any issues encountered while running on unsupported platforms will be disregarded.`;
 
-    if (
-      this.solutions.cheats.some((cheat) =>
-        log.toLowerCase().includes(cheat.toLowerCase())
-      )
-    ) {
-      const found = this.solutions.cheats.filter((cheat) =>
-        log.toLowerCase().includes(cheat.toLowerCase())
-      );
-      // user has not opted out of data collection for analytics
-      if (!user.hasExperiment(2219986954, 1))
-        this.client.influx([
-          {
-            measurement: "mclogs",
-            tags: {
-              type: "cheats",
-              user_id: user.id,
-              cluster: this.client.manager.id.toString(),
-              shard:
-                user instanceof FireMember
-                  ? user.guild?.shardId.toString() ?? "0"
-                  : "Unknown",
-            },
-            fields: {
-              guild:
-                user instanceof FireMember
-                  ? `${user.guild?.name} (${user.guild?.id})`
-                  : "Unknown",
-              user: `${user} (${user.id})`,
-              found: found.join(", "),
-              haste: haste.url,
-              raw: haste.raw,
-            },
-          },
-        ]);
-      return `Cheat${found.length > 1 ? "s" : ""} found (${found.join(
-        ", "
-      )}). Bailing out, you are on your own now. Good luck.`;
-    }
+    // TEMP DISABLED
+    // if (
+    //   this.bgs.cheats.some((cheat) => logLower.includes(cheat.toLowerCase()))
+    // ) {
+    //   const found = this.bgs.cheats.filter((cheat) =>
+    //     logLower.includes(cheat.toLowerCase())
+    //   );
+    //   // user has not opted out of data collection for analytics
+    //   if (!user.hasExperiment(2219986954, 1))
+    //     this.client.influx([
+    //       {
+    //         measurement: "mclogs",
+    //         tags: {
+    //           type: "cheats",
+    //           user_id: user.id,
+    //           cluster: this.client.manager.id.toString(),
+    //           shard:
+    //             user instanceof FireMember
+    //               ? user.guild?.shardId.toString() ?? "0"
+    //               : "Unknown",
+    //         },
+    //         fields: {
+    //           guild:
+    //             user instanceof FireMember
+    //               ? `${user.guild?.name} (${user.guild?.id})`
+    //               : "Unknown",
+    //           user: `${user} (${user.id})`,
+    //           found: found.join(", "),
+    //           haste: haste.url,
+    //           raw: haste.raw,
+    //         },
+    //       },
+    //     ]);
+    //   return `Cheat${found.length > 1 ? "s" : ""} found (${found.join(
+    //     ", "
+    //   )}). Bailing out, you are on your own now. Good luck.`;
+    // }
 
     let currentSolutions = new Set<string>();
     let currentRecommendations = new Set<string>();
@@ -701,8 +728,16 @@ export default class MCLogs extends Module {
     )
       currentSolutions.add(patcherAMDIssue.noPatcherGPUUnknown);
 
-    for (const [err, sol] of Object.entries(this.solutions.solutions)) {
-      if (log.toLowerCase().includes(err.toLowerCase()))
+    if (versions.mcVersion in this.bgs.versions)
+      for (const [err, sol] of Object.entries(
+        this.bgs.versions[versions.mcVersion].solutions ?? {}
+      )) {
+        if (logLower.includes(err.toLowerCase()))
+          currentSolutions.add(`- **${sol}**`);
+      }
+
+    for (const [err, sol] of Object.entries(this.bgs.solutions)) {
+      if (logLower.includes(err.toLowerCase()))
         currentSolutions.add(`- **${sol}**`);
     }
 
@@ -864,9 +899,17 @@ export default class MCLogs extends Module {
         );
     }
 
-    for (const [rec, sol] of Object.entries(this.solutions.recommendations)) {
+    if (versions.mcVersion in this.bgs.versions)
+      for (const [err, sol] of Object.entries(
+        this.bgs.versions[versions.mcVersion].recommendations ?? {}
+      )) {
+        if (logLower.includes(err.toLowerCase()))
+          currentRecommendations.add(`- ${sol}`);
+      }
+
+    for (const [rec, sol] of Object.entries(this.bgs.recommendations)) {
       if (
-        log.toLowerCase().includes(rec.toLowerCase()) &&
+        logLower.includes(rec.toLowerCase()) &&
         !currentSolutions.has(`- **${sol}**`)
       )
         currentRecommendations.add(`- ${sol}`);
@@ -876,49 +919,19 @@ export default class MCLogs extends Module {
       for (const mod of versions.mods) {
         if (mod.modId.toLowerCase() in this.modVersions) {
           let latest =
-            this.modVersions[mod.modId.toLowerCase()]?.[versions.mcVersion];
+            this.modVersions[mod.modId.toLowerCase()]?.[versions.mcVersion]?.[
+              versions.loader as ModLoaders
+            ];
           if (mod.version == latest || !latest) continue;
           if (this.regexes.majorMinorOnly.test(latest)) latest = `${latest}.0`;
           const isSemVer = this.regexes.semver.test(latest);
           this.regexes.majorMinorOnly.lastIndex = 0;
           this.regexes.semver.lastIndex = 0;
-          let isOutdated = false;
-          if (isSemVer) {
-            const latestMatch = this.regexes.semver.exec(latest);
-            this.regexes.semver.lastIndex = 0;
-            if (!latestMatch) {
-              this.client.console.warn(
-                `[MCLogs] Failed to match semver from latest version "${latest}"`
-              );
-              continue;
-            }
-            const {
-              major: latestMajor,
-              minor: latestMinor,
-              patch: latestPatch,
-              prerelease: latestPrerelease,
-            } = latestMatch.groups;
-            if (this.regexes.majorMinorOnly.test(mod.version))
-              mod.version = `${mod.version}.0`;
-            const currentMatch = this.regexes.semver.exec(mod.version);
-            this.regexes.semver.lastIndex = 0;
-            if (!currentMatch) {
-              this.client.console.warn(
-                `[MCLogs] Failed to match semver from current version`,
-                mod
-              );
-              continue;
-            }
-            const { major, minor, patch, prerelease } = currentMatch.groups;
-            const latestSemVer = `${latestMajor}.${latestMinor}.${latestPatch}`;
-            const currentSemVer = `${major}.${minor}.${patch}`;
-            if (prerelease)
-              isOutdated =
-                (currentSemVer < latestSemVer && !latestPrerelease) ||
-                (currentSemVer == latestSemVer &&
-                  prerelease != latestPrerelease);
-            else isOutdated = currentSemVer < latestSemVer;
-          } else isOutdated = mod.version != latest;
+          // the version in this.modVersions should (in theory) always be the latest
+          let isOutdated = mod.version != latest;
+          // but we'll check semver just in case it's a version that's not yet released
+          // or we haven't fetched since the latest update
+          if (isSemVer) isOutdated = semverLessThan(mod.version, latest);
           if (isOutdated)
             currentRecommendations.add(
               "- " +
@@ -1154,6 +1167,14 @@ export default class MCLogs extends Module {
         this.regexes.secrets.lastIndex = 0;
         text = text.replace(line, "[line removed to protect sensitive info]");
       }
+      if (this.regexes.multiMcDisabled.test(line)) {
+        this.regexes.multiMcDisabled.lastIndex = 0;
+        text = text.replace(
+          line,
+          "[disabled mod removed to prevent non-applicable solutions]"
+        );
+      }
+      this.regexes.multiMcDisabled.lastIndex = 0;
       this.regexes.secrets.lastIndex = 0;
     }
 

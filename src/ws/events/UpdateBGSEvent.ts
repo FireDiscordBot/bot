@@ -1,14 +1,20 @@
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
-import MCLogs from "@fire/src/modules/mclogs";
+import MCLogs, { MinecraftVersion } from "@fire/src/modules/mclogs";
 
-export default class UpdateSolutionsEvent extends Event {
+export default class UpdateBGSEvent extends Event {
   constructor(manager: Manager) {
-    super(manager, EventType.UPDATE_SOLUTIONS);
+    super(manager, EventType.UPDATE_BLOCKGAMESOLUTIONS);
   }
 
   async run(data: {
+    versions: {
+      [version: MinecraftVersion]: {
+        solutions: { [key: string]: string };
+        recommendations: { [key: string]: string };
+      };
+    };
     solutions: { [key: string]: string };
     recommendations: { [key: string]: string };
     cheats: string[];
@@ -18,12 +24,12 @@ export default class UpdateSolutionsEvent extends Event {
     );
     const mcLogs = this.manager.client.getModule("mclogs") as MCLogs;
     if (!mcLogs) return;
-    if (Object.keys(data.solutions).length < 5) {
+    if (!("solutions" in data) || Object.keys(data.solutions)?.length < 5) {
       this.manager.client.console.error(
-        `[Aether] Solutions keys were less than 5, something likely went wrong`
+        `[Aether] Solutions were missing or less than 5, something likely went wrong so they were not updated.`
       );
       return;
     }
-    mcLogs.solutions = data;
+    mcLogs.bgs = data;
   }
 }
