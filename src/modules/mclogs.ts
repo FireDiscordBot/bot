@@ -350,7 +350,6 @@ export default class MCLogs extends Module {
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", `token ${process.env.GITHUB_SOLUTIONS_TOKEN}`)
       .header("X-GitHub-Api-Version", "2022-11-28")
-      .query("ref", "multi-version")
       .send();
     if (solutionsReq.statusCode == 200) {
       const solutions = await solutionsReq.json().catch(() => {});
