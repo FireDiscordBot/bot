@@ -109,6 +109,7 @@ export default class Message extends Listener {
     )
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
+      .header("X-GitHub-Api-Version", "2022-11-28")
       .body(
         {
           message: `Token${tokens.length > 1 ? "s" : ""} found in ${
@@ -155,6 +156,7 @@ export default class Message extends Listener {
     )
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
+      .header("X-GitHub-Api-Version", "2022-11-28")
       .body({ message: `Delete ${file}`, sha }, "json")
       .send();
     if (req.statusCode != 200)
