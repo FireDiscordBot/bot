@@ -809,35 +809,36 @@ export default class MCLogs extends Module {
         const current = optifineVersions.find(
           (v) => v.shortName == versions.optifineVersion
         );
-        if (optifineVersions?.length && current) {
-          optifineVersions = optifineVersions.filter((v) => {
-            if (!v.forgeVersion) return false;
-            const [loaderMajor, loaderMinor] = versions.loaderVersion
-              .split(".")
-              .slice(-2)
-              .map(Number);
-            const [currentMajor, currentMinor] = current.forgeVersion
-              .split(".")
-              .slice(-2)
-              .map(Number);
+        if (optifineVersions?.length) {
+          if (current)
+            optifineVersions = optifineVersions.filter((v) => {
+              if (!v.forgeVersion) return false;
+              const [loaderMajor, loaderMinor] = versions.loaderVersion
+                .split(".")
+                .slice(-2)
+                .map(Number);
+              const [currentMajor, currentMinor] = current.forgeVersion
+                .split(".")
+                .slice(-2)
+                .map(Number);
 
-            const isPreRelease = v.shortName.includes("pre");
-            const majorDiff = loaderMajor - currentMajor;
-            const minorDiff = loaderMinor - currentMinor;
+              const isPreRelease = v.shortName.includes("pre");
+              const majorDiff = loaderMajor - currentMajor;
+              const minorDiff = loaderMinor - currentMinor;
 
-            if (isPreRelease) {
-              if (versions.optifineVersion.includes("pre")) {
-                return v.forgeVersion <= versions.loaderVersion;
+              if (isPreRelease) {
+                if (versions.optifineVersion.includes("pre")) {
+                  return v.forgeVersion <= versions.loaderVersion;
+                } else {
+                  return (
+                    (majorDiff >= 1 || minorDiff >= 10) &&
+                    v.forgeVersion > current.forgeVersion
+                  );
+                }
               } else {
-                return (
-                  (majorDiff >= 1 || minorDiff >= 10) &&
-                  v.forgeVersion > current.forgeVersion
-                );
+                return v.forgeVersion <= versions.loaderVersion;
               }
-            } else {
-              return v.forgeVersion <= versions.loaderVersion;
-            }
-          });
+            });
 
           if (
             optifineVersions.length &&
