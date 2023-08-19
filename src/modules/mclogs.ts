@@ -809,7 +809,7 @@ export default class MCLogs extends Module {
         const current = optifineVersions.find(
           (v) => v.shortName == versions.optifineVersion
         );
-        if (optifineVersions?.length) {
+        if (optifineVersions?.length && current) {
           optifineVersions = optifineVersions.filter((v) => {
             if (!v.forgeVersion) return false;
             const [loaderMajor, loaderMinor] = versions.loaderVersion
@@ -1126,6 +1126,7 @@ export default class MCLogs extends Module {
           await this.handleLogText(message, processed.join(""), "uploaded");
       } catch (e) {
         this.client.console.debug(`[MCLogs] Failed to process log,`, e.stack);
+        this.client.sentry.captureException(e);
         await message.send("MC_LOG_READ_FAIL");
       }
     }
@@ -1380,6 +1381,7 @@ export default class MCLogs extends Module {
       this.client.console.error(
         `[MCLogs] Failed to create log haste\n${e.stack}`
       );
+      this.client.sentry.captureException(e);
     }
   }
 
