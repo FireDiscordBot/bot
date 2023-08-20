@@ -924,7 +924,7 @@ export default class MCLogs extends Module {
             ];
           if (mod.version == latest || !latest) continue;
           if (this.regexes.majorMinorOnly.test(latest)) latest = `${latest}.0`;
-          const isSemVer = this.regexes.semver.test(latest);
+          const isSemVer = this.regexes.semver.test(mod.version);
           this.regexes.majorMinorOnly.lastIndex = 0;
           this.regexes.semver.lastIndex = 0;
           // the version in this.modVersions should (in theory) always be the latest
