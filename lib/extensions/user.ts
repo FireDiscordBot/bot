@@ -43,9 +43,9 @@ export class FireUser extends User {
   }
 
   get display() {
-    return this.displayName && this.displayName != this.toString()
+    return this.displayName && this.displayName.toLowerCase() != this.toString()
       ? `${this.displayName} (${this})`
-      : this.toString();
+      : this.displayName ?? this.toString();
   }
 
   toString() {
