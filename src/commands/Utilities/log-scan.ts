@@ -105,7 +105,7 @@ export default class LogScan extends Command {
           .setPlaceholder(context.language.get("MINECRAFT_LOGSCAN_PLACEHOLDER"))
           .setCustomId("!mclogscan:configure")
           .addOptions(this.valid.options(context))
-          .setMinValues(1)
+          .setMinValues(0)
           .setMaxValues(this.valid.names.length),
       ]),
     ];
