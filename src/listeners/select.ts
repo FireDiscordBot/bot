@@ -18,6 +18,8 @@ import {
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 import LoggingConfig from "../commands/Configuration/logging-configure";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
+import LogScan from "../commands/Utilities/log-scan";
+import { LanguageKeys } from "@fire/lib/util/language";
 
 const reminderSnoozeTimes = [
   300000, 1800000, 3600000, 21600000, 43200000, 86400000, 259200000, 604800000,
@@ -275,6 +277,35 @@ export default class Select extends Listener {
         return await select.error("COMMAND_ERROR_GENERIC", {
           id: "linkfilter",
         });
+    }
+
+    if (select.customId == "mclogscan:configure" && select.guild) {
+      select.flags = 64;
+      if (!select.member?.isAdmin(select.channel))
+        return await select
+          .error("MINECRAFT_LOGSCAN_MANAGE_ADMIN_ONLY")
+          .catch(() => {});
+
+      const logScan = this.client.getCommand("minecraft-log-scan") as LogScan;
+      const options = logScan.valid.names;
+      for (const option of options) {
+        if (select.values.includes(option))
+          await select.guild.settings.set(`minecraft.logscan.${option}`, true);
+        else
+          await select.guild.settings.set(`minecraft.logscan.${option}`, false);
+      }
+      await select.channel.update({
+        components: logScan.getMenuComponents(select),
+      });
+      return await select.success("MINECRAFT_LOGSCAN_CONFIGURED", {
+        options: select.values
+          .map((v) =>
+            select.language.get(
+              `MINECRAFT_LOGSCAN_OPTION_${v.toUpperCase()}` as LanguageKeys
+            )
+          )
+          .join(", "),
+      });
     }
 
     if (select.customId.startsWith("logging-configure:") && select.guild) {

@@ -16,8 +16,6 @@ import { lt as semverLessThan } from "semver";
 
 const { mcLogFilters } = constants;
 
-const Sk1erAndEssentialIDs = ["411619823445999637", "864592657572560958"];
-
 const allowedURLs = [
   "minecraftservices.com",
   "microsoftonline.com",
@@ -33,6 +31,19 @@ const allowedURLs = [
   "127.0.0.1",
   "live.com",
 ];
+
+const clientDetection = {
+  lunar: [
+    "com.moonsworth.lunar",
+    "[lc] starting lunar client...",
+    "client brand changed to 'lunarclient",
+  ],
+  badlion: [
+    "net.badlion.client.",
+    "badlion client loading start",
+    "Loading BLC START...",
+  ],
+};
 
 enum Loaders {
   FORGE = "Forge",
@@ -72,7 +83,7 @@ type VersionInfo = {
   jvmType: string;
   mods: ModInfo[];
 };
-type ModInfo =
+export type ModInfo =
   | {
       state: string;
       modId: string;
@@ -116,15 +127,20 @@ export default class MCLogs extends Module {
     home: RegExp;
     settingUser: RegExp;
     devEnvUser: RegExp;
+    uuidArg: RegExp;
     multiMcDisabled: RegExp;
     loaderVersions: LoaderRegexConfig[];
     forgeModsTableHeader: RegExp;
     forgeModsTableEntry: RegExp;
     classicForgeModsEntry: RegExp;
+    forgeValidModFile: RegExp;
     fabricModsHeader: RegExp;
     classicFabricModsEntry: RegExp;
     fabricModsEntry: RegExp;
     fabricSubModEntry: RegExp;
+    fabricCrashModsHeader: RegExp;
+    fabricCrashModEntry: RegExp;
+    fabricCrashSubModEntry: RegExp;
     fullLogJavaVersion: RegExp;
     crashReportJavaVersion: RegExp;
     jvmCrashJavaVersion: RegExp;
@@ -168,19 +184,23 @@ export default class MCLogs extends Module {
         /OptiFine_(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
       exOptifine: /HD_U_\w\d_MOD/gm,
       ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
-      email: /[a-zA-Z0-9_.+-]{1,50}@[a-zA-Z0-9-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
-      url: /(?:https:\/\/|http:\/\/)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gim,
-      home: /(\/Users\/[A-Za-zÀ-ÖØ-öø-ÿ\s]+|\/home\/\w+|C:\\Users\\[A-Za-zÀ-ÖØ-öø-ÿ\s]+)/gim,
+      email: /[\w.+-]{1,50}@[\w-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
+      url: /(?:https:\/\/|http:\/\/)[-\w@:%.\+~#=]{1,256}\.[\w()]{1,6}\b(?:[-\w()@:%\+.~#?&\/\/=]*)/gim,
+      home: /(\/Users\/[\w\sÀ-ÖØ-öø-ÿ]+|\/home\/\w+|C:\\Users\\[\w\sÀ-ÖØ-öø-ÿ]+)/gim,
       settingUser:
         /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
       devEnvUser: /Player\d{3}/gim,
+      uuidArg:
+        /--uuid,? (?<uuid>[0-9A-F]{8}-?[0-9A-F]{4}-?(?<ver>[0-9A-F])[0-9A-F]{3}-?[89AB][0-9A-F]{3}-?[0-9A-F]{12})/gim,
       multiMcDisabled: /^\s*\[❌] .* \(disabled\)$/gim,
       forgeModsTableHeader:
         /\|\sState\s*\|\sID\s*\|\sVersion\s*\|\sSource\s*\|(?:\sSignature\s*\|)?/gim,
       forgeModsTableEntry:
-        /\s*(?<state>[ULCHIJADE]+)\s*\|\s*(?<modid>[a-z][a-z0-9_.-]{1,63})\s*\|\s*(?<version>[\w\-\+\.]+)\s*\|\s*(?<source>[\w\s\-\.()\[\]]+\.jar)\s*\|/gim,
+        /\s*(?<state>[ULCHIJADE]+)\s*\|\s*(?<modid>[a-z][a-z0-9_.-]{1,63})\s*\|\s*(?<version>[\w\s\-\+\.!\[\]]+)\s*\|\s*(?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\s*\|/gim,
       classicForgeModsEntry:
-        /(?<state>[ULCHIJADE]+)\s+(?<modid>[a-z][a-z0-9_.-]{1,63})\{(?<version>[\w\-\+\.]+)\}\s+\[(?<name>[^\]]+)\]\s+\((?<source>[\w\s\-\.()\[\]]+\.jar)\)\s*$/gim,
+        /(?<state>[ULCHIJADE]+)\s+(?<modid>[a-z][a-z0-9_.-]{1,63})\{(?<version>[\w\s\-\+\.!\[\]]+)\}\s+\[(?<name>[^\]]+)\]\s+\((?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\)\s*$/gim,
+      forgeValidModFile:
+        /Found valid mod file (?<source>[\w\s\-\+\.'`!()\[\]]+\.jar) with {(?<modid>[a-z][a-z0-9_.-]{1,63}(?:,[a-z][a-z0-9_.-]{1,63})*)} mods - versions {(?<version>[\w\s\-\+\.!\[\]]+(?:,[\w\s\-\+\.!\[\]]+)*)}/gim,
       fabricModsHeader: /\[main\/INFO]: Loading \d{1,4} mods:/gim,
       classicFabricModsEntry:
         /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)(?: via (?<via>[a-z0-9_\-]{2,}))?$/gim,
@@ -188,12 +208,17 @@ export default class MCLogs extends Module {
         /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)$/gim,
       fabricSubModEntry:
         /^\s+(?<subtype>\\--|\|--) (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)$/gim,
+      fabricCrashModsHeader: /^\tFabric Mods: $/gim,
+      fabricCrashModEntry:
+        /^\t{2}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+]+)$/gim,
+      fabricCrashSubModEntry:
+        /^\t{3}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+]+)$/gim,
       fullLogJavaVersion:
-        /Java is (?<name>.* VM), version (?<version>\d*\.\d*\.\d*_\d{1,3}). running on (?<os>(?<osname>[\w\s]*):(?<osarch>\w*):(?<osversion>.*)), installed at (?<path>.*)$/gim,
+        /Java is (?<name>.* VM), version (?<version>\d*\.\d*\.\d*(?:_\d{1,3})?(?:-b\d{1,3})?). running on (?<os>(?<osname>[\w\s]*):(?<osarch>\w*):(?<osversion>.*)), installed at (?<path>.*)$/gim,
       crashReportJavaVersion:
-        /Java Version: (?<version>\d*\.\d*\.\d*_\d{1,3}).*\n\s*Java VM Version: (?<name>.* VM)/gim,
+        /Java Version: (?<version>\d*\.\d*\.\d*(?:_\d{1,3})?(?:-b\d{1,3})?).*\n\s*Java VM Version: (?<name>.* VM)/gim,
       jvmCrashJavaVersion:
-        /^vm_info: (?<name>.* VM) \(.*\) for (?<os>(?<osname>[\w\s]*)-(?<osarch>\w*)) JRE \((?<version>\d*\.\d*\.\d*_\d{1,3}(?:-b\d{1,3})?)\)/gim,
+        /^vm_info: (?<name>.* VM) \(.*\) for (?<os>(?<osname>[\w\s]*)-(?<osarch>\w*)) JRE \((?<version>\d*\.\d*\.\d*(?:_\d{1,3})?(?:-b\d{1,3})?)\)/gim,
       loaderVersions: [
         // this needs to be at the top as otherwise it'd trip another regex first
         // since feather is just a mod, not a loader
@@ -231,6 +256,13 @@ export default class MCLogs extends Module {
           regexes: [
             /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
             /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+          ],
+        },
+        {
+          loader: Loaders.FABRIC,
+          regexes: [
+            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
@@ -501,7 +533,46 @@ export default class MCLogs extends Module {
             source: modMatch.groups.source as ModSource,
           });
       }
-    } else if (loader == Loaders.FABRIC) {
+    } else if (
+      loader == Loaders.FORGE &&
+      this.regexes.forgeValidModFile.test(log)
+    ) {
+      this.regexes.forgeValidModFile.lastIndex = 0;
+      for (const line of splitLog) {
+        const modMatch = this.regexes.forgeValidModFile.exec(line);
+        this.regexes.forgeValidModFile.lastIndex = 0;
+        if (modMatch.groups.modid.includes(",")) {
+          const modIds = modMatch.groups.modid.split(","),
+            versions = modMatch.groups.version.split(",");
+          if (modIds.length == versions.length)
+            for (const [index, modId] of modIds.entries())
+              mods.push({
+                state: "Unknown",
+                modId,
+                version: versions[index],
+                source: modMatch.groups.source as ModSource,
+              });
+          // we don't have all pairs so let's just use the first
+          else
+            mods.push({
+              state: "Unknown",
+              modId: modIds[0],
+              version: versions[0],
+              source: modMatch.groups.source as ModSource,
+            });
+        } else if (!mods.find((i) => i.modId == modMatch.groups.modid))
+          mods.push({
+            state: "Unknown",
+            modId: modMatch.groups.modid,
+            version: modMatch.groups.version,
+            source: modMatch.groups.source as ModSource,
+          });
+      }
+    } else if (
+      loader == Loaders.FABRIC &&
+      this.regexes.fabricModsHeader.test(log)
+    ) {
+      this.regexes.fabricModsHeader.lastIndex = 0;
       const useClassic = loaderVersion <= "0.14.14"; // 0.14.15 introduced a newer format
       const modsTableIndex = splitLog.findIndex((v) =>
         this.regexes.fabricModsHeader.test(v)
@@ -572,6 +643,41 @@ export default class MCLogs extends Module {
           nextMod = splitLog.shift();
         }
       }
+    } else if (
+      loader == Loaders.FABRIC &&
+      this.regexes.fabricCrashModsHeader.test(log)
+    ) {
+      this.regexes.fabricCrashModsHeader.lastIndex = 0;
+      const fabricModsIndex = splitLog.findIndex((v) =>
+        this.regexes.fabricCrashModsHeader.test(v)
+      );
+      splitLog = splitLog.slice(fabricModsIndex + 1); // start at mods list, while loop should stop at end
+      let modMatch: RegExpExecArray;
+      while (
+        (modMatch = this.regexes.fabricCrashModEntry.exec(splitLog.shift()))
+      ) {
+        this.regexes.fabricCrashModEntry.lastIndex = 0;
+        if (!mods.find((i) => i.modId == modMatch.groups.modid))
+          mods.push({
+            modId: modMatch.groups.modid,
+            version: modMatch.groups.version,
+            subMods: [],
+          });
+        let subModMatch: RegExpExecArray;
+        while (
+          (subModMatch = this.regexes.fabricCrashSubModEntry.exec(splitLog[0]))
+        ) {
+          splitLog.shift(); // only shift in here to ensure we don't remove non-sub mods
+          this.regexes.fabricCrashSubModEntry.lastIndex = 0;
+          const parentMod = mods[mods.length - 1];
+          if (parentMod && "subMods" in parentMod)
+            parentMod.subMods.push({
+              modId: subModMatch.groups.modid,
+              version: subModMatch.groups.version,
+              subMods: [],
+            });
+        }
+      }
     }
 
     if (this.regexes.fullLogJavaVersion.test(log)) {
@@ -618,88 +724,149 @@ export default class MCLogs extends Module {
 
     const logLower = log.toLowerCase();
 
-    // TEMP DISABLED
-    // if (
-    //   (versions.loader == Loaders.FEATHER ||
-    //     versions.mods.find((m) => m.modId == "feather")) &&
-    //   (user instanceof FireMember
-    //     ? !Sk1erAndEssentialIDs.includes(user.guild?.id)
-    //     : true)
-    // ) {
-    //   // user has not opted out of data collection for analytics
-    //   if (!user.hasExperiment(2219986954, 1))
-    //     // i need better ways of detecting feather
-    //     // so I need more log samples
-    //     this.client.influx([
-    //       {
-    //         measurement: "mclogs",
-    //         tags: {
-    //           type: "feather",
-    //           user_id: user.id,
-    //           cluster: this.client.manager.id.toString(),
-    //           shard:
-    //             user instanceof FireMember
-    //               ? user.guild?.shardId.toString() ?? "0"
-    //               : "Unknown",
-    //         },
-    //         fields: {
-    //           guild:
-    //             user instanceof FireMember
-    //               ? `${user.guild?.name} (${user.guild?.id})`
-    //               : "Unknown",
-    //           user: `${user} (${user.id})`,
-    //           haste: haste.url,
-    //           raw: haste.raw,
-    //         },
-    //       },
-    //     ]);
-    //   return `Feather Client is not supported. Any issues that occur while using it must be reported to Feather's support team.`;
-    // }
+    if (
+      (versions.loader == Loaders.FEATHER ||
+        versions.mods.find((m) => m.modId == "feather")) &&
+      user instanceof FireMember &&
+      user.guild.settings.get<boolean>("minecraft.logscan.clients", false)
+    ) {
+      if (!user.hasExperiment(2219986954, 1))
+        // i need better ways of detecting feather
+        // so I need more log samples
+        this.client.influx([
+          {
+            measurement: "mclogs",
+            tags: {
+              type: "feather",
+              user_id: user.id,
+              cluster: this.client.manager.id.toString(),
+              shard:
+                user instanceof FireMember
+                  ? user.guild?.shardId.toString() ?? "0"
+                  : "Unknown",
+            },
+            fields: {
+              guild:
+                user instanceof FireMember
+                  ? `${user.guild?.name} (${user.guild?.id})`
+                  : "Unknown",
+              user: `${user} (${user.id})`,
+              haste: haste.url,
+              raw: haste.raw,
+            },
+          },
+        ]);
+      return language.get("MC_LOG_FEATHER_CLIENT");
+    }
+
+    if (
+      clientDetection.lunar.some((l) => logLower.includes(l)) &&
+      user instanceof FireMember &&
+      user.guild.settings.get<boolean>("minecraft.logscan.clients", false)
+    ) {
+      if (!user.hasExperiment(2219986954, 1))
+        // same reason as feather
+        this.client.influx([
+          {
+            measurement: "mclogs",
+            tags: {
+              type: "lunar",
+              user_id: user.id,
+              cluster: this.client.manager.id.toString(),
+              shard:
+                user instanceof FireMember
+                  ? user.guild?.shardId.toString() ?? "0"
+                  : "Unknown",
+            },
+            fields: {
+              guild:
+                user instanceof FireMember
+                  ? `${user.guild?.name} (${user.guild?.id})`
+                  : "Unknown",
+              user: `${user} (${user.id})`,
+              haste: haste.url,
+              raw: haste.raw,
+            },
+          },
+        ]);
+      return language.get("MC_LOG_LUNAR_CLIENT");
+    }
+
+    if (
+      clientDetection.badlion.some((l) => logLower.includes(l)) &&
+      user instanceof FireMember &&
+      user.guild.settings.get<boolean>("minecraft.logscan.clients", false)
+    ) {
+      // same again
+      this.client.influx([
+        {
+          measurement: "mclogs",
+          tags: {
+            type: "badlion",
+            user_id: user.id,
+            cluster: this.client.manager.id.toString(),
+            shard:
+              user instanceof FireMember
+                ? user.guild?.shardId.toString() ?? "0"
+                : "Unknown",
+          },
+          fields: {
+            guild:
+              user instanceof FireMember
+                ? `${user.guild?.name} (${user.guild?.id})`
+                : "Unknown",
+            user: `${user} (${user.id})`,
+            haste: haste.url,
+            raw: haste.raw,
+          },
+        },
+      ]);
+      return language.get("MC_LOG_BADLION_CLIENT");
+    }
 
     if (
       logLower.includes("net.kdt.pojavlaunch") &&
       user instanceof FireMember &&
-      Sk1erAndEssentialIDs.includes(user.guild?.id)
+      user.guild.settings.get("minecraft.logscan.mobile", false)
     )
-      return `PojavLauncher is not supported, any issues encountered while running on unsupported platforms will be disregarded.`;
+      return language.get("MC_LOG_MOBILE_UNSUPPORTED");
 
-    // TEMP DISABLED
-    // if (
-    //   this.bgs.cheats.some((cheat) => logLower.includes(cheat.toLowerCase()))
-    // ) {
-    //   const found = this.bgs.cheats.filter((cheat) =>
-    //     logLower.includes(cheat.toLowerCase())
-    //   );
-    //   // user has not opted out of data collection for analytics
-    //   if (!user.hasExperiment(2219986954, 1))
-    //     this.client.influx([
-    //       {
-    //         measurement: "mclogs",
-    //         tags: {
-    //           type: "cheats",
-    //           user_id: user.id,
-    //           cluster: this.client.manager.id.toString(),
-    //           shard:
-    //             user instanceof FireMember
-    //               ? user.guild?.shardId.toString() ?? "0"
-    //               : "Unknown",
-    //         },
-    //         fields: {
-    //           guild:
-    //             user instanceof FireMember
-    //               ? `${user.guild?.name} (${user.guild?.id})`
-    //               : "Unknown",
-    //           user: `${user} (${user.id})`,
-    //           found: found.join(", "),
-    //           haste: haste.url,
-    //           raw: haste.raw,
-    //         },
-    //       },
-    //     ]);
-    //   return `Cheat${found.length > 1 ? "s" : ""} found (${found.join(
-    //     ", "
-    //   )}). Bailing out, you are on your own now. Good luck.`;
-    // }
+    if (
+      this.bgs.cheats.some((cheat) => logLower.includes(cheat.toLowerCase())) &&
+      user instanceof FireMember &&
+      user.guild.settings.get("minecraft.logscan.cheats", false)
+    ) {
+      const found = this.bgs.cheats.filter((cheat) =>
+        logLower.includes(cheat.toLowerCase())
+      );
+      // user has not opted out of data collection for analytics
+      if (!user.hasExperiment(2219986954, 1))
+        this.client.influx([
+          {
+            measurement: "mclogs",
+            tags: {
+              type: "cheats",
+              user_id: user.id,
+              cluster: this.client.manager.id.toString(),
+              shard:
+                user instanceof FireMember
+                  ? user.guild?.shardId.toString() ?? "0"
+                  : "Unknown",
+            },
+            fields: {
+              guild:
+                user instanceof FireMember
+                  ? `${user.guild?.name} (${user.guild?.id})`
+                  : "Unknown",
+              user: `${user} (${user.id})`,
+              found: found.join(", "),
+              haste: haste.url,
+              raw: haste.raw,
+            },
+          },
+        ]);
+      return language.get("MC_LOG_CHEATS_FOUND");
+    }
 
     let currentSolutions = new Set<string>();
     let currentRecommendations = new Set<string>();
@@ -955,14 +1122,14 @@ export default class MCLogs extends Module {
     );
 
     const solutions = currentSolutions.size
-      ? `Possible Solutions:\n${[...currentSolutions]
+      ? `${language.get("MC_LOG_POSSIBLE_SOLUTIONS")}:\n${[...currentSolutions]
           .map((s) => s.replace("\n", "**\n**"))
           .join("\n")}`
       : "";
     const recommendations = currentRecommendations.size
-      ? `${currentSolutions.size ? "\n\n" : ""}Recommendations:\n${[
-          ...currentRecommendations,
-        ].join("\n")}`
+      ? `${currentSolutions.size ? "\n\n" : ""}${language.get(
+          "MC_LOG_RECOMMENDATIONS"
+        )}:\n${[...currentRecommendations].join("\n")}`
       : "";
 
     return solutions + recommendations;
@@ -1226,23 +1393,31 @@ export default class MCLogs extends Module {
         ]);
       message.delete().catch(() => {});
 
-      let possibleSolutions = await this.getSolutions(
-        message.member ?? message.author,
-        mcInfo,
-        haste,
-        text
-      );
-      const user = this.regexes.settingUser.exec(text);
+      let possibleSolutions: string;
+      const settingUser = this.regexes.settingUser.exec(text);
       this.regexes.settingUser.lastIndex = 0;
+      const ign = settingUser?.[1] ?? settingUser?.[2];
       const isDevEnv =
-        this.regexes.devEnvUser.test(user?.[1]) && text.includes("GradleStart");
+        this.regexes.devEnvUser.test(ign) && text.includes("GradleStart");
       this.regexes.devEnvUser.lastIndex = 0;
-      if (user?.[1] && !isDevEnv) {
+      const uuidArg = this.regexes.uuidArg.exec(text);
+      this.regexes.uuidArg.lastIndex = 0;
+      const loggedUUID = uuidArg?.groups?.uuid,
+        loggedUUIDVersion = uuidArg?.groups?.ver;
+      if (ign && !isDevEnv) {
         try {
           const uuid = await this.client.util
-            .nameToUUID(user[1])
+            .nameToUUID(ign, loggedUUID && loggedUUID.includes("-"))
             .catch((e: Error) => e);
-          if (uuid instanceof Error) {
+          if (
+            message.guild.settings.get<boolean>(
+              "minecraft.logscan.cracked",
+              false
+            ) &&
+            (uuid instanceof Error ||
+              (loggedUUIDVersion && loggedUUIDVersion != "4") ||
+              (loggedUUID && uuid != loggedUUID))
+          ) {
             // user has not opted out of data collection for analytics
             if (!message.hasExperiment(2219986954, 1))
               this.client.influx([
@@ -1261,42 +1436,57 @@ export default class MCLogs extends Module {
                       ? `${message.guild?.name} (${message.guildId})`
                       : "Unknown",
                     user: `${message.author} (${message.author.id})`,
-                    ign: user[1],
+                    ign,
+                    loggedUUID: loggedUUID || "Unknown",
                     haste: haste.url,
                     raw: haste.raw,
-                    status: uuid.message,
+                    status:
+                      uuid instanceof Error ? uuid.message : "Mismatched UUID",
                   },
                 },
               ]);
-            possibleSolutions =
-              "It seems you may be using a cracked version of Minecraft. If you are, please know that we do not support piracy. Buy the game or don't play the game";
-          } else if (!message.hasExperiment(2219986954, 1))
-            // user has not opted out of data collection for analytics
-            this.client.influx([
-              {
-                measurement: "mclogs",
-                tags: {
-                  type: "user",
-                  user_id: message.author.id,
-                  cluster: this.client.manager.id.toString(),
-                  shard: message.guild
-                    ? message.guild?.shardId.toString() ?? "0"
-                    : "Unknown",
+            possibleSolutions = message.guild.language.get("MC_LOG_CRACKED");
+          } else {
+            possibleSolutions = await this.getSolutions(
+              message.member ?? message.author,
+              mcInfo,
+              haste,
+              text
+            );
+            if (!message.hasExperiment(2219986954, 1))
+              // user has not opted out of data collection for analytics
+              this.client.influx([
+                {
+                  measurement: "mclogs",
+                  tags: {
+                    type: "user",
+                    user_id: message.author.id,
+                    cluster: this.client.manager.id.toString(),
+                    shard: message.guild
+                      ? message.guild?.shardId.toString() ?? "0"
+                      : "Unknown",
+                  },
+                  fields: {
+                    guild: message.guild
+                      ? `${message.guild?.name} (${message.guildId})`
+                      : "Unknown",
+                    user: `${message.author} (${message.author.id})`,
+                    ign,
+                    uuid,
+                    haste: haste.url,
+                    raw: haste.raw,
+                  },
                 },
-                fields: {
-                  guild: message.guild
-                    ? `${message.guild?.name} (${message.guildId})`
-                    : "Unknown",
-                  user: `${message.author} (${message.author.id})`,
-                  ign: user[1],
-                  uuid,
-                  haste: haste.url,
-                  raw: haste.raw,
-                },
-              },
-            ]);
+              ]);
+          }
         } catch {}
-      }
+      } else
+        possibleSolutions = await this.getSolutions(
+          message.member ?? message.author,
+          mcInfo,
+          haste,
+          text
+        );
 
       const allowedMentions = { users: [message.author.id] };
       const components = [
@@ -1309,6 +1499,10 @@ export default class MCLogs extends Module {
             .setStyle("LINK")
             .setURL(haste.raw ?? "https://google.com/something_broke_lol")
             .setLabel(message.language.get("MC_LOG_VIEW_RAW")),
+          new MessageButton()
+            .setStyle("PRIMARY")
+            .setCustomId("!mclogscan:solution")
+            .setLabel(message.language.get("MC_LOG_REPORT_SOLUTION")),
         ]),
       ];
 

@@ -40,6 +40,7 @@ import Essential from "../modules/essential";
 import Sk1er from "../modules/sk1er";
 import SparkUniverse from "../modules/sparkuniverse";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
+import LogScan from "../commands/Utilities/log-scan";
 
 const { url, emojis } = constants;
 
@@ -711,15 +712,6 @@ export default class Button extends Listener {
 
     // below is a ton of duplicated code since it needs to be kept separate to allow for easy changes
     if (button.customId.startsWith("essential_support_")) {
-      // stop if channel is named "legacy-support"
-      if (
-        button.realChannel instanceof GuildChannel &&
-        button.realChannel.name == "🎫｜legacy-support"
-      )
-        return await button.channel.send(
-          "This channel is no longer in use. Please use <#1024755087760957541> instead."
-        );
-
       // handle limit first so we can give a better msg and give it right away
       if (
         button.guild?.getTickets(button.author.id).length >=
@@ -1139,6 +1131,102 @@ Please choose accurately as it will allow us to help you as quick as possible! �
             channel: ticket.toString(),
           })
           .catch(() => {});
+    }
+
+    if (button.customId.startsWith("mclogscan:")) {
+      const logScan = this.client.getCommand("minecraft-log-scan") as LogScan;
+      button.flags = 64;
+      if (!button.member?.isAdmin(button.channel))
+        return await button
+          .error("MINECRAFT_LOGSCAN_MANAGE_ADMIN_ONLY")
+          .catch(() => {});
+
+      const action = button.customId.slice(10);
+      if (action == "toggle") {
+        const current = button.guild.settings.get<boolean>(
+          "minecraft.logscan",
+          false
+        );
+        await button.guild.settings.set("minecraft.logscan", !current);
+        if (button.guild.settings.get("minecraft.logscan", current) == current)
+          return await button.success("MINECRAFT_LOGSCAN_TOGGLE_FAIL");
+        const components = logScan.getMenuComponents(button);
+        await button.channel.update({ components });
+        return await button.success(
+          !current ? "MINECRAFT_LOGSCAN_ENABLED" : "MINECRAFT_LOGSCAN_DISABLED"
+        );
+      } else if (action == "solution") {
+        const solutionsPrevented =
+          button.message.content.includes(
+            button.guild.language.get("MC_LOG_CRACKED")
+          ) ||
+          button.message.content.includes(
+            button.guild.language.get("MC_LOG_CHEATS_FOUND")
+          ) ||
+          button.message.content.includes(
+            button.guild.language.get("MC_LOG_MOBILE_UNSUPPORTED")
+          );
+        if (solutionsPrevented)
+          return await button.error("MINECRAFT_LOGSCAN_SOLUTION_UNSUPPORTED");
+        const logURL = (
+          button.message?.components[0]?.components[0] as MessageButton
+        )?.url;
+        if (!logURL)
+          return await button.error("MINECRAFT_LOGSCAN_SOLUTION_MISSING_LOG");
+        const mentions = button.message?.mentions.users;
+        if (!button.member?.isModerator() && (!mentions || !mentions.size))
+          return await button.error("MINECRAFT_LOGSCAN_SOLUTION_MISSING_USER");
+        else if (
+          !mentions.has(button.author.id) &&
+          !button.member?.isModerator()
+        )
+          return await button.error("MINECRAFT_LOGSCAN_SOLUTION_INVALID_USER");
+        return await button.interaction.showModal(
+          new Modal()
+            .setTitle(
+              button.language.get("MINECRAFT_LOGSCAN_SOLUTION_MODAL_TITLE")
+            )
+            .setCustomId(`mclogscan:solution:${logURL.split("://")[1]}`)
+            .addComponents(
+              new MessageActionRow<ModalActionRowComponent>().addComponents(
+                new TextInputComponent()
+                  .setCustomId("description")
+                  .setRequired(true)
+                  .setLabel(
+                    button.language.get(
+                      "MINECRAFT_LOGSCAN_SOLUTION_MODAL_DESC_LABEL"
+                    )
+                  )
+                  .setPlaceholder(
+                    button.language.get(
+                      "MINECRAFT_LOGSCAN_SOLUTION_MODAL_DESC_PLACEHOLDER"
+                    )
+                  )
+                  .setStyle(TextInputStyles.PARAGRAPH)
+                  .setMinLength(64)
+                  .setMaxLength(4000)
+              ),
+              new MessageActionRow<ModalActionRowComponent>().addComponents(
+                new TextInputComponent()
+                  .setCustomId("solution")
+                  .setRequired(true)
+                  .setLabel(
+                    button.language.get(
+                      "MINECRAFT_LOGSCAN_SOLUTION_MODAL_SOLUTION_LABEL"
+                    )
+                  )
+                  .setPlaceholder(
+                    button.language.get(
+                      "MINECRAFT_LOGSCAN_SOLUTION_MODAL_SOLUTION_PLACEHOLDER"
+                    )
+                  )
+                  .setStyle(TextInputStyles.PARAGRAPH)
+                  .setMinLength(30)
+                  .setMaxLength(2000)
+              )
+            )
+        );
+      }
     }
 
     if (button.customId.startsWith("snooze:")) {

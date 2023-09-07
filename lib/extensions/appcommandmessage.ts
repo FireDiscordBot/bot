@@ -767,8 +767,7 @@ export class FakeChannel extends BaseFakeChannel {
         })
         .then(() => {
           this.message.sent = "message";
-        })
-        .catch(() => {});
+        });
     else if (this.message.sent == "ack") {
       await this.client.req
         .webhooks(this.client.user.id)(this.token)
@@ -779,8 +778,7 @@ export class FakeChannel extends BaseFakeChannel {
         })
         .then(() => {
           this.message.sent = "message";
-        })
-        .catch(() => {});
+        });
     } else {
       const message = await this.client.req
         .webhooks(this.client.user.id)(this.token)
@@ -792,8 +790,7 @@ export class FakeChannel extends BaseFakeChannel {
         .then((message) => {
           this.message.sent = "message";
           return message;
-        })
-        .catch(() => {});
+        });
       if (message && message.id) this.message.latestResponse = message.id;
     }
     this.message.getRealMessage().catch(() => {});

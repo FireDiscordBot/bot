@@ -2,7 +2,15 @@ import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
-import { Channel, Permissions, Snowflake, ThreadChannel } from "discord.js";
+import {
+  Channel,
+  MessageEmbed,
+  Permissions,
+  Snowflake,
+  ThreadChannel,
+} from "discord.js";
+import * as centra from "centra";
+import { MinecraftLogInfo } from "@fire/lib/interfaces/mclogs";
 
 export default class Modal extends Listener {
   constructor() {
@@ -98,6 +106,109 @@ export default class Modal extends Listener {
       }
 
       return await modal.success("TAG_EDIT_SUCCESS");
+    }
+
+    if (modal.customId.startsWith("mclogscan:solution:")) {
+      await modal.channel.ack();
+      modal.flags = 64; // make messages ephemeral
+      const enUS = this.client.getLanguage("en-US");
+      const url = "https://" + modal.customId.slice(19);
+
+      const logInfoReq = await centra(
+        process.env.REST_HOST
+          ? `https://${process.env.REST_HOST}/v2/minecraft/logs`
+          : `http://127.0.0.1:${process.env.REST_PORT}/v2/minecraft/logs`,
+        "POST"
+      )
+        .header("User-Agent", this.client.manager.ua)
+        .header("Authorization", process.env.WS_AUTH)
+        .body({ url }, "json")
+        .send();
+      if (logInfoReq.statusCode != 200)
+        return await modal.error("MINECRAFT_LOGSCAN_SOLUTION_MODAL_NO_INFO");
+      const logInfo = (await logInfoReq.json()) as MinecraftLogInfo;
+
+      const infoEmbed = new MessageEmbed()
+        .setTitle(enUS.get("MINECRAFT_LOGSCAN_SOLUTION_EMBED_TITLE"))
+        .setAuthor({
+          name: `${modal.author.displayName} (${modal.author.id})`,
+          iconURL: modal.author.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          }),
+        })
+        .setURL(url)
+        .setDescription(
+          enUS.get(
+            logInfo.loader && logInfo.mcVersion
+              ? "MINECRAFT_LOGSCAN_SOLUTION_LOG_INFO_FULL"
+              : logInfo.mcVersion
+              ? "MINECRAFT_LOGSCAN_SOLUTION_LOG_INFO_NO_LOADER"
+              : "MINECRAFT_LOGSCAN_SOLUTION_LOG_INFO_BASIC",
+            {
+              user: logInfo.user,
+              loader: logInfo.loader,
+              version: logInfo.loaderVersion,
+              minecraft: logInfo.mcVersion,
+            }
+          )
+        )
+        .addFields(
+          [
+            logInfo.solutions.length
+              ? {
+                  name: enUS.get("MC_LOG_POSSIBLE_SOLUTIONS"),
+                  value: logInfo.solutions.join("\n"),
+                }
+              : undefined,
+            logInfo.recommendations.length
+              ? {
+                  name: enUS.get("MC_LOG_RECOMMENDATIONS"),
+                  value: logInfo.recommendations.join("\n"),
+                }
+              : undefined,
+            {
+              name: enUS.get("GUILD"),
+              value: logInfo.guild,
+            },
+            {
+              name: enUS.get("MODS"),
+              value: logInfo.mods.length.toLocaleString(enUS.id),
+            },
+            {
+              name: enUS.get("PROFILE"),
+              value: logInfo.profile.ign
+                ? `${logInfo.profile.ign} (${logInfo.profile.uuid})`
+                : "N/A",
+            },
+          ].filter((f) => !!f)
+        )
+        .setFooter({
+          text: enUS.get("MINECRAFT_LOGSCAN_SOLUTION_EMBED_FOOTER"),
+        })
+        .setTimestamp(new Date(logInfo.scannedAt));
+      const solutionEmbed = new MessageEmbed().addFields([
+        {
+          name: enUS.get("MINECRAFT_LOGSCAN_SOLUTION_MODAL_DESC_LABEL"),
+          value: modal.interaction.fields.getTextInputValue("description"),
+        },
+        {
+          name: enUS.get("MINECRAFT_LOGSCAN_SOLUTION_MODAL_SOLUTION_LABEL"),
+          value: modal.interaction.fields.getTextInputValue("solution"),
+        },
+      ]);
+
+      const messageReq = await this.client.req
+        .channels("1148234164315893792")
+        .messages.post({
+          data: {
+            embeds: [infoEmbed.toJSON(), solutionEmbed.toJSON()],
+          },
+        })
+        .catch(() => {});
+      if (!messageReq) return await modal.error("ERROR_CONTACT_SUPPORT");
+      else return await modal.success("MINECRAFT_LOGSCAN_SOLUTION_SUBMITTED");
     }
   }
 }
