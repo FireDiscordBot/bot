@@ -6,7 +6,8 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Fire } from "@fire/lib/Fire";
 import * as fuzz from "fuzzball";
 
-const slashCommandNameRegex = /^[\w-]{1,32}$/gim;
+const slashCommandNameRegex =
+  /^[-_\p{L}\p{N}\p{Script=Devanagari}\p{Script=Thai}]{1,32}$/gmu;
 
 export interface Tag {
   createdBy: Snowflake | FireUser | FireMember;

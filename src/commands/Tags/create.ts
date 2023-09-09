@@ -4,7 +4,8 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
 
-const nameRegex = /^[\w-]{1,32}$/gim;
+const nameRegex =
+  /^[-_\p{L}\p{N}\p{Script=Devanagari}\p{Script=Thai}]{1,32}$/gmu;
 
 export default class TagCreate extends Command {
   constructor() {
