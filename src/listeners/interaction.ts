@@ -176,8 +176,8 @@ export default class InteractionListener extends Listener {
             typeof value === "bigint" ? `${value}n` : value
           ),
           member: command.member
-            ? `${command.member.user.username}#${command.member.user.discriminator}`
-            : `${command.user.username}#${command.user.discriminator}`,
+            ? command.member.toString()
+            : command.user.toString(),
           channel_id: command.channelId,
           guild_id: command.guildId,
           env: process.env.NODE_ENV,
@@ -244,8 +244,8 @@ export default class InteractionListener extends Listener {
         sentry.setExtras({
           button: JSON.stringify(button),
           member: button.member
-            ? `${button.member.user.username}#${button.member.user.discriminator}`
-            : `${button.user.username}#${button.user.discriminator}`,
+            ? button.member.toString()
+            : button.user.toString(),
           channel_id: button.channelId,
           guild_id: button.guildId,
           env: process.env.NODE_ENV,
@@ -274,8 +274,8 @@ export default class InteractionListener extends Listener {
         sentry.setExtras({
           button: JSON.stringify(select),
           member: select.member
-            ? `${select.member.user.username}#${select.member.user.discriminator}`
-            : `${select.user.username}#${select.user.discriminator}`,
+            ? select.member.toString()
+            : select.user.toString(),
           channel_id: select.channelId,
           guild_id: select.guildId,
           env: process.env.NODE_ENV,
@@ -304,8 +304,8 @@ export default class InteractionListener extends Listener {
         sentry.setExtras({
           modal: JSON.stringify(modal),
           member: modal.member
-            ? `${modal.member.user.username}#${modal.member.user.discriminator}`
-            : `${modal.user.username}#${modal.user.discriminator}`,
+            ? modal.member.toString()
+            : modal.user.toString(),
           channel_id: modal.channelId,
           guild_id: modal.guildId,
           env: process.env.NODE_ENV,
@@ -344,8 +344,8 @@ export default class InteractionListener extends Listener {
         sentry.setExtras({
           contextCommand: JSON.stringify(context),
           member: context.member
-            ? `${context.member.user.username}#${context.member.user.discriminator}`
-            : `${context.user.username}#${context.user.discriminator}`,
+            ? context.member.toString()
+            : context.user.toString(),
           channel_id: context.channelId,
           guild_id: context.guildId,
           env: process.env.NODE_ENV,
