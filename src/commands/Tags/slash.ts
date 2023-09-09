@@ -4,6 +4,9 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Permissions } from "discord.js";
 
+const nameRegex =
+  /^[-_\p{L}\p{N}\p{Script=Devanagari}\p{Script=Thai}]{1,32}$/gmu;
+
 export default class TagSlash extends Command {
   constructor() {
     super("tag-slash", {
@@ -48,6 +51,8 @@ export default class TagSlash extends Command {
       message.guild.tags = new GuildTagManager(this.client, message.guild);
       await message.guild.tags.init();
     }
+    if (message.guild.tags.names.some((name) => !nameRegex.test(name)))
+      return await message.error("TAG_SLASH_NAME_INVALID");
     if (!current) {
       const prepared = await message.guild.tags?.prepareSlashCommands();
       if (prepared == null) {
