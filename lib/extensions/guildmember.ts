@@ -336,8 +336,8 @@ export class FireMember extends GuildMember {
   async dehoistAndDecancer() {
     if (
       this.user.bot ||
-      (!this.settings.get<boolean>("mod.autodecancer") &&
-        !this.settings.get<boolean>("mod.autodehoist"))
+      (!this.guild.settings.get<boolean>("mod.autodecancer") &&
+        !this.guild.settings.get<boolean>("mod.autodehoist"))
     )
       return;
     // Runs both dehoist and decancer with a lock
