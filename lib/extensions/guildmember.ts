@@ -362,9 +362,14 @@ export class FireMember extends GuildMember {
     ) {
       // specifically check for "John Doe 0" because it used that before redoing this for pomelo
       if (
-        this.nickname == badName ||
-        this.nickname == "John Doe 0" ||
-        this.nickname == this.user.displayName
+        (this.nickname == badName ||
+          this.nickname == "John Doe 0" ||
+          this.nickname == this.user.displayName) &&
+        this.roles.highest.rawPosition <
+          this.guild.members.me.roles.highest.rawPosition &&
+        this.guild.members.me.permissions.has(
+          Permissions.FLAGS.MANAGE_NICKNAMES
+        )
       )
         await this.edit(
           { nick: null },
