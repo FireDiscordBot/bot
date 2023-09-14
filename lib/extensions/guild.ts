@@ -730,6 +730,8 @@ export class FireGuild extends Guild {
       return false;
     // node_env is only "development" for local testing, it's "staging" for fire beta
     if (process.env.NODE_ENV == "development") return true;
+    // allow forcing public to false for guilds in discord's discovery
+    if (this.settings.get<boolean>("utils.public", null) == false) return false;
     return (
       !this.features.includes("DISCOVERABLE_DISABLED" as GuildFeatures) &&
       ((this.settings.get<boolean>("utils.public", false) &&
