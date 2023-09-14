@@ -45,6 +45,7 @@ export enum EventType {
   SPECIAL_COUPON,
   REFRESH_SLASH_COMMAND_IDS,
   SET_CUSTOM_STATUS,
+  UPDATE_SETTINGS,
 }
 
 export enum WebsocketStates {
