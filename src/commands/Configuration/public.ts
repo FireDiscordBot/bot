@@ -50,15 +50,6 @@ export default class Public extends Command {
       });
     await command.guild.settings.set<boolean>("utils.public", !current);
     if (!current) {
-      if (this.client.manager.ws?.open)
-        this.client.manager.ws?.send(
-          MessageUtil.encode(
-            new Message(EventType.DISCOVERY_UPDATE, {
-              op: DiscoveryUpdateOp.ADD,
-              guilds: [command.guild.getDiscoverableData()],
-            })
-          )
-        );
       await command.success("PUBLIC_ENABLED", { vanity: vanitys.get("code") });
       await command.guild.actionLog(
         `${constants.emojis.statuspage.operational} ${command.language.get(
@@ -70,15 +61,6 @@ export default class Public extends Command {
         ActionLogTypes.SYSTEM
       );
     } else {
-      if (this.client.manager.ws?.open)
-        this.client.manager.ws?.send(
-          MessageUtil.encode(
-            new Message(EventType.DISCOVERY_UPDATE, {
-              op: DiscoveryUpdateOp.REMOVE,
-              guilds: [{ id: command.guild.id }],
-            })
-          )
-        );
       await command.success("PUBLIC_DISABLED");
       await command.guild.actionLog(
         `${constants.emojis.statuspage.major_outage} ${command.language.get(
