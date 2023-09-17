@@ -56,6 +56,7 @@ type InstallParams = {
 };
 
 export default class User extends Command {
+  plsShutUp: number = 0;
   constructor() {
     super("user", {
       description: (language: Language) =>
@@ -397,7 +398,12 @@ export default class User extends Command {
     let info = [
       `**${command.language.get("MENTION")}:** ${user.toMention()}`,
       user.displayName
-        ? `**${command.language.get("DISPLAY_NAME")}:**: ${user.displayName}`
+        ? `**${command.language.get("DISPLAY_NAME")}:**${
+            member instanceof FireMember &&
+            member.guild?.id == "342506939340685312"
+              ? ":".repeat(++this.plsShutUp)
+              : ""
+          } ${user.displayName}`
         : undefined,
       `**${command.language.get("CREATED")}** ${Formatters.time(
         user.createdAt,
