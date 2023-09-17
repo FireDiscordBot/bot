@@ -113,7 +113,7 @@ export default class Message extends Listener {
       .body(
         {
           message: `Token${tokens.length > 1 ? "s" : ""} found in ${
-            message.guild
+            message.guild ?? "DMs"
           }, sent by ${message.author}`,
           content: Buffer.from(
             JSON.stringify(message.toJSON(), null, 2) + `\n\n${tokens}`
@@ -131,7 +131,7 @@ export default class Message extends Listener {
             Buffer.from(token.split(".")[0], "base64").toString("ascii")
           )
           .join(", ")}, found in message from ${message.author} in guild ${
-          message.guild.name
+          message.guild?.name ?? "DMs"
         } as ${file}`
       );
       const body = await createFileReq.json();
@@ -145,7 +145,7 @@ export default class Message extends Listener {
             Buffer.from(token.split(".")[0], "base64").toString("ascii")
           )
           .join(", ")}, found in message from ${message.author} in guild ${
-          message.guild.name
+          message.guild?.name ?? "DMs"
         }`
       );
     }
