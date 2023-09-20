@@ -541,6 +541,7 @@ export default class MCLogs extends Module {
       for (const line of splitLog) {
         const modMatch = this.regexes.forgeValidModFile.exec(line);
         this.regexes.forgeValidModFile.lastIndex = 0;
+        if (!modMatch) continue;
         if (modMatch.groups.modid.includes(",")) {
           const modIds = modMatch.groups.modid.split(","),
             versions = modMatch.groups.version.split(",");
