@@ -4,7 +4,7 @@ FROM node:14-alpine AS dependencies
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-RUN apk add --no-cache python make gcc g++ \
+RUN apk add --no-cache python3 make gcc g++ \
   && yarn install --frozen-lockfile --production
 
 ## Builder
