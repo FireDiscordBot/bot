@@ -193,26 +193,6 @@ export class Fire extends AkairoClient {
     this.on("ready", () => config.fire.readyMessage(this));
     this.nonceHandlers = new Collection();
     this.on("raw", (r: any, shard: number) => {
-      if (
-        process.env.NODE_ENV == "production" &&
-        r.t == Constants.WSEvents.INTERACTION_CREATE
-      )
-        this.influx([
-          {
-            measurement: "instability-debugging",
-            tags: {
-              type: "CLIENT_RAW",
-              cluster: this.manager.id.toString(),
-            },
-            fields: {
-              cluster: this.manager.id,
-              // we likely don't have time before the cluster dies (+ non async context) for uploading to hastebin
-              // so we'll just stringify the data and dump it directly in influx
-              data: JSON.stringify(r),
-            },
-          },
-        ]);
-
       if (r.d?.nonce && this.nonceHandlers.has(r.d.nonce)) {
         this.nonceHandlers.get(r.d.nonce)(r.d);
         this.nonceHandlers.delete(r.d.nonce);

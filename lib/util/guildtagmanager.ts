@@ -43,6 +43,7 @@ export class GuildTagManager {
   }
 
   getFuzzyMatches(tag: string, limit = 25, forceRatio?: number) {
+    if (!this.size) return [];
     let ratio = forceRatio ?? 90;
     let fuzzy: string[] = [];
     while (!fuzzy.length && ratio >= (forceRatio ?? 60)) {
@@ -68,7 +69,7 @@ export class GuildTagManager {
         this.aliases.push(alias.toLowerCase())
       );
     }
-    if (this.names.length && !this.preparedSlashCommands)
+    if (this.size && !this.preparedSlashCommands)
       await this.prepareSlashCommands();
     return this.size;
   }
@@ -80,7 +81,7 @@ export class GuildTagManager {
       this.aliases.includes(tag.toLowerCase())
     )
       return await this.fetchTag(tag, includeCreator);
-    if (!this.names.length) return null;
+    if (!this.size) return null;
     const fuzzy = this.names.sort(
       (a, b) =>
         fuzz.ratio(tag.trim().toLowerCase(), b.trim().toLowerCase()) -
