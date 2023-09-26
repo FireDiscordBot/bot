@@ -386,9 +386,7 @@ export const messageConverter = async (
   }
   // this should only actually make a request for closed threads
   const channel = (await message.client.channels
-    .fetch(channelId, {
-      cache: false,
-    })
+    .fetch(channelId)
     .catch(() => {})) as FireTextChannel | ThreadChannel | VoiceChannel;
   if (!channel) {
     if (!silent) await message.error("INVALID_CHANNEL_ID");

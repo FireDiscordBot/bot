@@ -55,9 +55,6 @@ export default class Quote extends Command {
     }
   ) {
     if (!args?.quote) return;
-    if (message)
-      args.debug =
-        args.debug || message.util.parsed.content?.includes("debug.d");
     let debugMessages: string[];
     if (args.debug) debugMessages = [];
     if (args.quote == "cross_cluster") {
@@ -136,7 +133,7 @@ export default class Quote extends Command {
       return await args.quote
         .quote(args.destination, args.quoter, webhook, debugMessages)
         .catch(() => {});
-    } else if (!message) return;
+    }
     const quoted = await args.quote
       .quote(
         message instanceof ApplicationCommandMessage
@@ -146,11 +143,14 @@ export default class Quote extends Command {
         webhook,
         debugMessages
       )
-      .catch((e) => (args.quoter?.isSuperuser() ? e.stack : e.message));
+      .catch((e: Error) =>
+        (args.quoter ?? message.author).isSuperuser() ? e.stack : e.message
+      );
     if (quoted == "QUOTE_PREMIUM_INCREASED_LENGTH")
       return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
     else if (quoted == "nsfw") return await message.error("QUOTE_NSFW_TO_SFW");
-    else if (args.debug) {
+    if (typeof quoted == "string") debugMessages.push(quoted);
+    if (args.debug) {
       if (!debugMessages.length) return;
       const content = debugMessages.join("\n");
       if (content.length > 2000 && content.length < 4096)
