@@ -12,6 +12,7 @@ import {
   Emoji,
   Role,
   VoiceChannel,
+  ThreadChannel,
 } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -383,8 +384,16 @@ export const messageConverter = async (
     messageId = idMatch[0] as Snowflake;
     channelId = message.channelId;
   }
-  const channel = (message.client.channels.cache.get(channelId) ||
-    message.channel) as FireTextChannel | VoiceChannel;
+  // this should only actually make a request for closed threads
+  const channel = (await message.client.channels
+    .fetch(channelId, {
+      cache: false,
+    })
+    .catch(() => {})) as FireTextChannel | ThreadChannel | VoiceChannel;
+  if (!channel) {
+    if (!silent) await message.error("INVALID_CHANNEL_ID");
+    return null;
+  }
 
   try {
     return (await channel.messages.fetch(messageId)) as FireMessage;
