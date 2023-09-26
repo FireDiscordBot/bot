@@ -149,7 +149,7 @@ export default class Quote extends Command {
     if (quoted == "QUOTE_PREMIUM_INCREASED_LENGTH")
       return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
     else if (quoted == "nsfw") return await message.error("QUOTE_NSFW_TO_SFW");
-    if (typeof quoted == "string") debugMessages.push(quoted);
+    if (typeof quoted == "string" && debugMessages) debugMessages.push(quoted);
     if (args.debug) {
       if (!debugMessages.length) return;
       const content = debugMessages.join("\n");
