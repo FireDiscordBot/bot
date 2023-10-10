@@ -287,7 +287,7 @@ export const constants = {
       cdnEmoji:
         /^https?:\/\/cdn\.discordapp\.com\/emojis\/(\d{15,21})\.\w{3,4}(?:\?v=\d|\?size=\d{1,4})?/gim,
       cdnAttachment:
-        /^https?:\/\/cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21}\/\w*\.\w{3,4}/im,
+        /^https?:\/\/cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21}\/\w*\.\w{3,4}\?ex=(?<ex>[0-9a-fA-F]{8,12})&is=(?<is>\d{8,12})&hm=(?<hm>[0-9a-f]{64})&?/im,
       message:
         /(?:debug\.|ptb\.|canary\.|staging\.|lc\.|dscrd\.)?(?:discord(?:app)?|inv)\.(?:com?|wtf)?\/channels\/(?<guild_id>\d{15,21}|@me)\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
       messageGlobal:
