@@ -980,7 +980,9 @@ export default class MCLogs extends Module {
         if (optifineVersions?.length) {
           if (current)
             optifineVersions = optifineVersions.filter((v) => {
-              if (!v.forgeVersion) return false;
+              // idek how current.forgeVersion can be false if versions.loader == Loaders.FORGE
+              // but FIRE-8PS exists so it's possible.... somehow
+              if (!v.forgeVersion || !current.forgeVersion) return false;
               const [loaderMajor, loaderMinor] = versions.loaderVersion
                 .split(".")
                 .slice(-2)
