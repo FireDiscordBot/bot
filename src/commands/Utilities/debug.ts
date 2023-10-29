@@ -160,7 +160,7 @@ export default class Debug extends Command {
       command.guild?.settings.get<string[]>("disabled.commands", []) ?? [];
 
     if (disabledCommands.includes(cmd.id)) {
-      if (command.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
+      if (command.member?.isModerator() || command.author.isSuperuser())
         details.push(
           `${success} ${command.language.get("DEBUG_COMMAND_DISABLE_BYPASS")}`
         );
