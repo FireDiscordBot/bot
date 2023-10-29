@@ -7,13 +7,12 @@ import {
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
 import { Manager } from "@fire/lib/Manager";
-import { LanguageKeys } from "@fire/lib/util/language";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import Quote from "@fire/src/commands/Utilities/quote";
 import { NewsChannel, Snowflake, ThreadChannel } from "discord.js";
 
-export default class CrossClusterQuote extends Event {
+export default class CrossClusterQuoteEvent extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.CROSS_CLUSTER_QUOTE);
   }
@@ -27,7 +26,7 @@ export default class CrossClusterQuote extends Event {
     }
   ) {
     if (!data.destination)
-      return this.manager.client.console.debug(
+      return this.manager.client.console[data.debug ? "warn" : "debug"](
         `[Aether] Attempted cross cluster quote with no destination`,
         JSON.stringify(data)
       );
@@ -62,18 +61,12 @@ export default class CrossClusterQuote extends Event {
       return this.manager.client.console.warn(
         `[Aether] Attempted cross cluster quote with unknown message`
       );
-    const quoted = await quoteCommand.exec(null, {
+    return await quoteCommand.exec(null, {
       quote: message as FireMessage,
       quoter: member as FireMember,
       webhook: data.webhook,
+      debug: data.debug,
       destination,
     });
-    if (typeof quoted == "string" && member.isSuperuser()) {
-      const language = this.manager.client.getLanguage("en-US");
-      return this.manager.client.console.warn(
-        `[Aether] Attempted cross cluster quote for ${member} but failed due to`,
-        language.has(quoted) ? language.get(quoted as LanguageKeys) : quoted
-      );
-    }
   }
 }
