@@ -867,7 +867,7 @@ export class FireMember extends GuildMember {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     if (!this.guild.mutes.has(this.id)) {
-      if (this.communicationDisabledUntil) {
+      if (+new Date() < +this.communicationDisabledUntil) {
         const unmuted = await this.disableCommunicationUntil(
           null,
           `${moderator} | ${reason}`
