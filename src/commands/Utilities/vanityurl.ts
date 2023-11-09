@@ -6,7 +6,7 @@ import VanityURLs from "@fire/src/modules/vanityurls";
 import { Invite, Permissions } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];
-const validityRegex = /[a-zA-Z0-9]{3,25}/gim;
+const validityRegex = /^[a-zA-Z0-9]{3,25}$/gim;
 
 export default class VanityURL extends Command {
   module: VanityURLs;
@@ -68,7 +68,10 @@ export default class VanityURL extends Command {
       return await command.success("VANITYURL_DELETED");
     }
 
-    if (!validityRegex.test(args.code) && !command.author.isSuperuser()) {
+    if (
+      !validityRegex.test(args.code.trim()) &&
+      !command.author.isSuperuser()
+    ) {
       validityRegex.lastIndex = 0;
       return await command.error("VANITYURL_REGEX_FAIL");
     }
