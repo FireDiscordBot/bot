@@ -73,11 +73,7 @@ export class GuildSettings {
         )
       );
 
-    if (
-      option == "utils.public" &&
-      this.guild instanceof FireGuild &&
-      this.guild.isPublic()
-    )
+    if (option == "utils.public" && this.guild instanceof FireGuild)
       this.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.DISCOVERY_UPDATE, {
