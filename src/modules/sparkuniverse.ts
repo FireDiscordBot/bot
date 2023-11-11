@@ -151,8 +151,8 @@ We will also require the product name and the device you use to play.`
       const ticket = await trigger.guild.createTicket(
         member,
         modpack
-          ? `${modpack} is crashing <:crashwoah:895747752443666442>`
-          : "My game is crashing <:crashwoah:895747752443666442>",
+          ? `${modpack} is crashing <:crashwoah:1172903267127283803>`
+          : "My game is crashing <:crashwoah:1172903267127283803>",
         trigger.realChannel as FireTextChannel,
         category
       );

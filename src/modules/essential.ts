@@ -221,7 +221,7 @@ export default class Essential extends Module {
       if (!category) return "no category";
       const ticket = await trigger.guild.createTicket(
         member,
-        "My game is crashing <:crashwoah:895747752443666442>",
+        "My game is crashing <:crashwoah:1172903267127283803>",
         trigger.realChannel as FireTextChannel,
         category
       );
