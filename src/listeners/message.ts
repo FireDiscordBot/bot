@@ -210,7 +210,11 @@ export default class Message extends Listener {
       await this.tokenReset(message, toSearch);
     }
 
-    if (message.channel?.id == "388850472632451073" && message.embeds.length) {
+    if (
+      message.channel?.id == "388850472632451073" &&
+      message.embeds.length &&
+      message.webhookId
+    ) {
       if (message.embeds[0].title?.includes("new commit"))
         this.client.manager.ws.send(
           MessageUtil.encode(
@@ -235,7 +239,7 @@ export default class Message extends Listener {
       if (
         dataminingMessage &&
         dataminingMessage.id &&
-        message.embeds[0].title.includes("comment")
+        message.embeds[0].title?.includes("comment")
       )
         await this.client.req
           .channels("731330454422290463")
