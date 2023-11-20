@@ -721,29 +721,6 @@ export default class User extends Command {
     if (user || command.util?.parsed?.command?.id == "snowflake")
       embed.description = embed.description.split("\n").slice(2).join("\n");
 
-    if (
-      (this.client.guilds.cache.has(snowflake.snowflake) || maybeGuild) &&
-      command.hasExperiment(4026299021, 1) &&
-      this.client.manager.state.discordExperiments?.length
-    ) {
-      let guild: FireGuild | GuildPreview = this.client.guilds.cache.get(
-        snowflake.snowflake
-      ) as FireGuild;
-      if (maybeGuild)
-        guild = await this.client
-          .fetchGuildPreview(snowflake.snowflake)
-          .catch(() => null);
-      const experiments = await this.client.util.getFriendlyGuildExperiments(
-        snowflake.snowflake,
-        guild
-      );
-      if (experiments.length)
-        embed.addField(
-          command.language.get("GUILD_EXPERIMENTS"),
-          experiments.join("\n")
-        );
-    }
-
     return await command.channel.send({ embeds: [embed] });
   }
 }

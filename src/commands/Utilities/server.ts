@@ -390,21 +390,6 @@ export default class GuildCommand extends Command {
         this.client.util.shorten(roles, 1000, " - ")
       );
 
-    if (
-      command.hasExperiment(4026299021, 1) &&
-      this.client.manager.state.discordExperiments?.length
-    ) {
-      const experiments = await this.client.util.getFriendlyGuildExperiments(
-        guild.id,
-        guild
-      );
-      if (experiments.length)
-        embed.addField(
-          command.language.get("GUILD_EXPERIMENTS"),
-          experiments.join("\n")
-        );
-    }
-
     if (command.author.isSuperuser() && this.client.manager.ws?.open) {
       // we make a request so we can get the cluster id too
       const shardReq: ShardInfo = await (

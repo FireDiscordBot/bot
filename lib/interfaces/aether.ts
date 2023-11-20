@@ -36,15 +36,6 @@ export interface UserExperimentConfig extends ExperimentConfig {
   kind: "user";
 }
 
-export interface DiscordExperiment {
-  id: string;
-  hash: number;
-  type: "user" | "guild";
-  title: string;
-  description: string[];
-  buckets: number[];
-}
-
 export interface Caches {
   members: number;
   users: number;
@@ -59,9 +50,8 @@ export interface Caches {
 }
 
 export interface ManagerState {
-  loadedGuildExperiments: GuildExperimentConfig[];
-  loadedUserExperiments: UserExperimentConfig[];
-  discordExperiments: DiscordExperiment[];
+  guildExperiments: GuildExperimentConfig[];
+  userExperiments: UserExperimentConfig[];
   modVersions: Record<string, Record<MinecraftVersion, ModVersions>>;
   optifineVersions: Record<MinecraftVersion, OptifineVersion[]>;
 }
