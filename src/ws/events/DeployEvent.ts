@@ -59,6 +59,7 @@ export default class DeployEvent extends Event {
         `Last command ran: "${this.lastCommand}"`,
         e
       );
+      await this.execPromise(`git checkout ${data.branch}`).catch(() => {}); // switch back if not already
       await this.sendFailure(e);
     }
     this.deployLog = {
