@@ -628,6 +628,8 @@
   "MC_LOG_LOADER_INFO": "{{loader}} {{version}} on {{minecraft}}",
   "MC_LOG_OPTIFINE_INFO": "OptiFine {{version}}",
   "MC_LOG_UPDATE": "Update {{item}} from {{current}} to {{latest}}",
+  "MC_LOG_MISSING_DEP": "Mod `{{mod}}` is missing a required mod! Add `{{name}}`, version {{requiredVersion}}",
+  "MC_LOG_MISMATCHED_DEP": "Mod `{{mod}}` requires version {{requiredVersion}} of `{{name}}` but you have {{actual}}",
   "MC_LOG_WTF": "There were too many solutions and/or recommendations for me to show them",
   "MODERATORS_COMMAND_DESCRIPTION": "Manage the server's moderators",
   "MODERATORS_ADD_COMMAND_DESCRIPTION": "Add a member/role as a moderator",

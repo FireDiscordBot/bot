@@ -89,15 +89,31 @@ export type ModInfo =
       modId: string;
       version: string;
       source: ModSource;
+      erroredDependencies: DependencyInfo[];
+      partial: false;
+    }
+  | {
+      modId: string;
+      erroredDependencies: DependencyInfo[];
+      partial: true;
     }
   | {
       modId: string;
       version: string;
       subMods: ModInfo[];
+      partial: false;
     };
+type DependencyInfo = {
+  name: string;
+  requiredVersion: string;
+  actual: string;
+};
 
 const classicForgeModsHeader =
   "States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored";
+const forgeDependenciesError =
+  "[main/ERROR]: Missing or unsupported mandatory dependencies:";
+const missingDep = "[MISSING]";
 
 const modIdClean = /_|\-/g;
 
@@ -134,6 +150,7 @@ export default class MCLogs extends Module {
     forgeModsTableEntry: RegExp;
     classicForgeModsEntry: RegExp;
     forgeValidModFile: RegExp;
+    forgeDependenciesError: RegExp;
     fabricModsHeader: RegExp;
     classicFabricModsEntry: RegExp;
     fabricModsEntry: RegExp;
@@ -201,6 +218,8 @@ export default class MCLogs extends Module {
         /(?<state>[ULCHIJADE]+)\s+(?<modid>[a-z][a-z0-9_.-]{1,63})\{(?<version>[\w\-\+\.!\[\]]+)\}\s+\[(?<name>[^\]]+)\]\s+\((?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\)\s*$/gim,
       forgeValidModFile:
         /Found valid mod file (?<source>[\w\s\-\+\.'`!()\[\]]+\.jar) with {(?<modid>[a-z][a-z0-9_.-]{1,63}(?:,[a-z][a-z0-9_.-]{1,63})*)} mods - versions {(?<version>[\w\-\+\.!\[\]]+(?:,[\w\s\-\+\.!\[\]]+)*)}/gim,
+      forgeDependenciesError:
+        /Mod ID: '(?<dep>[a-z][a-z0-9_.-]{1,63})', Requested by: '(?<requiredby>[a-z][a-z0-9_.-]{1,63})', Expected range: '\[(?<low>[\w\.\-+]+),(?<high>[\w\.\-+]+)?\)', Actual version: '(?<actual>[\w\.\-+]+|\[MISSING\])'/gim,
       fabricModsHeader: /\[main\/INFO]: Loading \d{1,4} mods:/gim,
       classicFabricModsEntry:
         /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)(?: via (?<via>[a-z0-9_\-]{2,}))?$/gim,
@@ -497,10 +516,10 @@ export default class MCLogs extends Module {
           v.includes("Version") &&
           v.includes("Source")
       );
-      splitLog = splitLog.slice(modsTableIndex + 2); // start at mods table, while loop should stop at end
+      const modsTable = splitLog.slice(modsTableIndex + 2); // start at mods table, while loop should stop at end
       let modMatch: RegExpExecArray;
       while (
-        (modMatch = this.regexes.forgeModsTableEntry.exec(splitLog.shift()))
+        (modMatch = this.regexes.forgeModsTableEntry.exec(modsTable.shift()))
       ) {
         this.regexes.forgeModsTableEntry.lastIndex = 0;
         if (!mods.find((i) => i.modId == modMatch.groups.modid))
@@ -509,6 +528,8 @@ export default class MCLogs extends Module {
             modId: modMatch.groups.modid,
             version: modMatch.groups.version,
             source: modMatch.groups.source as ModSource,
+            erroredDependencies: [],
+            partial: false,
           });
       }
       this.regexes.forgeModsTableHeader.lastIndex = 0;
@@ -519,10 +540,10 @@ export default class MCLogs extends Module {
       const modsTableIndex = splitLog.findIndex((v) =>
         v.includes(classicForgeModsHeader)
       );
-      splitLog = splitLog.slice(modsTableIndex + 1); // start at mods list, while loop should stop at end
+      const modsTable = splitLog.slice(modsTableIndex + 1); // start at mods list, while loop should stop at end
       let modMatch: RegExpExecArray;
       while (
-        (modMatch = this.regexes.classicForgeModsEntry.exec(splitLog.shift()))
+        (modMatch = this.regexes.classicForgeModsEntry.exec(modsTable.shift()))
       ) {
         this.regexes.classicForgeModsEntry.lastIndex = 0;
         if (!mods.find((i) => i.modId == modMatch.groups.modid))
@@ -531,6 +552,8 @@ export default class MCLogs extends Module {
             modId: modMatch.groups.modid,
             version: modMatch.groups.version,
             source: modMatch.groups.source as ModSource,
+            erroredDependencies: [],
+            partial: false,
           });
       }
     } else if (
@@ -552,6 +575,8 @@ export default class MCLogs extends Module {
                 modId,
                 version: versions[index],
                 source: modMatch.groups.source as ModSource,
+                erroredDependencies: [],
+                partial: false,
               });
           // we don't have all pairs so let's just use the first
           else
@@ -560,6 +585,8 @@ export default class MCLogs extends Module {
               modId: modIds[0],
               version: versions[0],
               source: modMatch.groups.source as ModSource,
+              erroredDependencies: [],
+              partial: false,
             });
         } else if (!mods.find((i) => i.modId == modMatch.groups.modid))
           mods.push({
@@ -567,6 +594,8 @@ export default class MCLogs extends Module {
             modId: modMatch.groups.modid,
             version: modMatch.groups.version,
             source: modMatch.groups.source as ModSource,
+            erroredDependencies: [],
+            partial: false,
           });
       }
     } else if (
@@ -575,16 +604,16 @@ export default class MCLogs extends Module {
     ) {
       this.regexes.fabricModsHeader.lastIndex = 0;
       const useClassic = loaderVersion <= "0.14.14"; // 0.14.15 introduced a newer format
-      const modsTableIndex = splitLog.findIndex((v) =>
+      const modsHeaderIndex = splitLog.findIndex((v) =>
         this.regexes.fabricModsHeader.test(v)
       );
-      splitLog = splitLog.slice(modsTableIndex + 1); // start at mods list, while loop should stop at end
+      const modsList = splitLog.slice(modsHeaderIndex + 1); // start at mods list, while loop should stop at end
       let modMatch: RegExpExecArray;
       if (useClassic) {
         const tempSubMods: Record<string, ModInfo[]> = {};
         while (
           (modMatch = this.regexes.classicFabricModsEntry.exec(
-            splitLog.shift()
+            modsList.shift()
           ))
         ) {
           this.regexes.classicFabricModsEntry.lastIndex = 0;
@@ -598,6 +627,7 @@ export default class MCLogs extends Module {
                   modId: modMatch.groups.modid,
                   version: modMatch.groups.version,
                   subMods: [], // don't think it can have any but this is just to make TS happy
+                  partial: false,
                 });
               else {
                 const via = modMatch.groups.via;
@@ -606,6 +636,7 @@ export default class MCLogs extends Module {
                   modId: modMatch.groups.modid,
                   version: modMatch.groups.version,
                   subMods: [],
+                  partial: false,
                 });
               }
             } else {
@@ -613,13 +644,14 @@ export default class MCLogs extends Module {
                 modId: modMatch.groups.modid,
                 version: modMatch.groups.version,
                 subMods: tempSubMods[modMatch.groups.modid] || [],
+                partial: false,
               });
               delete tempSubMods[modMatch.groups.modid];
             }
           }
         }
       } else {
-        let nextMod = splitLog.shift();
+        let nextMod = modsList.shift();
         while (
           (modMatch =
             this.regexes.fabricModsEntry.exec(nextMod) ||
@@ -634,14 +666,16 @@ export default class MCLogs extends Module {
                 modId: modMatch.groups.modid,
                 version: modMatch.groups.version,
                 subMods: [],
+                partial: false,
               });
           } else if (!mods.find((i) => i.modId == modMatch.groups.modid))
             mods.push({
               modId: modMatch.groups.modid,
               version: modMatch.groups.version,
               subMods: [],
+              partial: false,
             });
-          nextMod = splitLog.shift();
+          nextMod = modsList.shift();
         }
       }
     } else if (
@@ -652,10 +686,10 @@ export default class MCLogs extends Module {
       const fabricModsIndex = splitLog.findIndex((v) =>
         this.regexes.fabricCrashModsHeader.test(v)
       );
-      splitLog = splitLog.slice(fabricModsIndex + 1); // start at mods list, while loop should stop at end
+      const modsList = splitLog.slice(fabricModsIndex + 1); // start at mods list, while loop should stop at end
       let modMatch: RegExpExecArray;
       while (
-        (modMatch = this.regexes.fabricCrashModEntry.exec(splitLog.shift()))
+        (modMatch = this.regexes.fabricCrashModEntry.exec(modsList.shift()))
       ) {
         this.regexes.fabricCrashModEntry.lastIndex = 0;
         if (!mods.find((i) => i.modId == modMatch.groups.modid))
@@ -663,12 +697,13 @@ export default class MCLogs extends Module {
             modId: modMatch.groups.modid,
             version: modMatch.groups.version,
             subMods: [],
+            partial: false,
           });
         let subModMatch: RegExpExecArray;
         while (
-          (subModMatch = this.regexes.fabricCrashSubModEntry.exec(splitLog[0]))
+          (subModMatch = this.regexes.fabricCrashSubModEntry.exec(modsList[0]))
         ) {
-          splitLog.shift(); // only shift in here to ensure we don't remove non-sub mods
+          modsList.shift(); // only shift in here to ensure we don't remove non-sub mods
           this.regexes.fabricCrashSubModEntry.lastIndex = 0;
           const parentMod = mods[mods.length - 1];
           if (parentMod && "subMods" in parentMod)
@@ -676,8 +711,44 @@ export default class MCLogs extends Module {
               modId: subModMatch.groups.modid,
               version: subModMatch.groups.version,
               subMods: [],
+              partial: false,
             });
         }
+      }
+    }
+
+    if (loader == Loaders.FORGE && log.includes(forgeDependenciesError)) {
+      const dependenciesErrorIndex = splitLog.findIndex((v) =>
+        v.endsWith(forgeDependenciesError)
+      );
+      const dependencyErrors = splitLog.slice(dependenciesErrorIndex + 1); // start with first item
+      let depErrorMatch: RegExpExecArray;
+      while (
+        (depErrorMatch = this.regexes.forgeDependenciesError.exec(
+          dependencyErrors.shift()
+        ))
+      ) {
+        this.regexes.forgeDependenciesError.lastIndex = 0;
+        const { dep, low, high, requiredby, actual } = depErrorMatch.groups;
+        const mod = mods.find((i) => i.modId == requiredby);
+        if (mod && "erroredDependencies" in mod)
+          mod.erroredDependencies.push({
+            name: dep,
+            requiredVersion: high ? `${low}-${high}` : low,
+            actual,
+          });
+        else
+          mods.push({
+            modId: requiredby,
+            erroredDependencies: [
+              {
+                name: dep,
+                requiredVersion: high ? `${low}-${high}` : low,
+                actual,
+              },
+            ],
+            partial: true,
+          });
       }
     }
 
@@ -1087,7 +1158,10 @@ export default class MCLogs extends Module {
 
     if (versions.mods.length)
       for (const mod of versions.mods) {
-        if (mod.modId.toLowerCase() in this.modVersions) {
+        if (
+          mod.modId.toLowerCase() in this.modVersions &&
+          mod.partial == false
+        ) {
           let latest =
             this.modVersions[mod.modId.toLowerCase()]?.[versions.mcVersion]?.[
               versions.loader as ModLoaders
@@ -1114,6 +1188,22 @@ export default class MCLogs extends Module {
                   latest,
                 })
             );
+        }
+        if ("erroredDependencies" in mod && mod.erroredDependencies.length) {
+          for (const dep of mod.erroredDependencies) {
+            const isMissing = dep.actual == missingDep;
+            currentSolutions.add(
+              "- **" +
+                language.get(
+                  isMissing ? "MC_LOG_MISSING_DEP" : "MC_LOG_MISMATCHED_DEP",
+                  {
+                    mod: mod.modId,
+                    ...dep,
+                  }
+                ) +
+                "**"
+            );
+          }
         }
       }
 
