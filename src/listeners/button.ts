@@ -11,13 +11,12 @@ import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import * as centra from "centra";
 import {
   CategoryChannel,
   EmbedFieldData,
-  GuildChannel,
   MessageActionRow,
   MessageButton,
   MessageComponentInteraction,
@@ -36,25 +35,26 @@ import { TextInputStyles } from "discord.js/typings/enums";
 import { codeblockTypeCaster } from "../arguments/codeblock";
 import Anti from "../commands/Configuration/anti";
 import Rank from "../commands/Premium/rank";
+import LogScan from "../commands/Utilities/log-scan";
 import Essential from "../modules/essential";
 import Sk1er from "../modules/sk1er";
 import SparkUniverse from "../modules/sparkuniverse";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
-import LogScan from "../commands/Utilities/log-scan";
 
 const { url, emojis } = constants;
 
 const reminderSnoozeTimes = {
-  REMINDER_SNOOZE_FIVEMIN: "300000",
-  REMINDER_SNOOZE_HALFHOUR: "1800000",
-  REMINDER_SNOOZE_HOUR: "3600000",
-  REMINDER_SNOOZE_SIXHOURS: "21600000",
-  REMINDER_SNOOZE_HALFDAY: "43200000",
-  REMINDER_SNOOZE_DAY: "86400000",
-  REMINDER_SNOOZE_THREEDAYS: "259200000",
-  REMINDER_SNOOZE_WEEK: "604800000",
-  REMINDER_SNOOZE_FORTNIGHT: "1209600000",
-  REMINDER_SNOOZE_MONTH: "2628060000",
+  REMINDER_SNOOZE_FIVEMIN: 300000,
+  REMINDER_SNOOZE_HALFHOUR: 1800000,
+  REMINDER_SNOOZE_HOUR: 3600000,
+  REMINDER_SNOOZE_SIXHOURS: 21600000,
+  REMINDER_SNOOZE_HALFDAY: 43200000,
+  REMINDER_SNOOZE_DAY: 86400000,
+  REMINDER_SNOOZE_THREEDAYS: 259200000,
+  REMINDER_SNOOZE_WEEK: 604800000,
+  REMINDER_SNOOZE_FORTNIGHT: 1209600000,
+  REMINDER_SNOOZE_MONTH: 2628060000,
+  REMINDER_SNOOZE_OTHER: "other",
 };
 const validPaginatorIds = ["close", "start", "back", "forward", "end"];
 const validSk1erTypes = ["general", "purchase", "bug"];
@@ -1255,7 +1255,10 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           Object.entries(reminderSnoozeTimes).map(([key, time]) => {
             return {
               label: button.author.language.get(key as LanguageKeys),
-              value: time,
+              value:
+                typeof time == "number"
+                  ? (button.createdTimestamp + time).toString()
+                  : time,
             };
           })
         );

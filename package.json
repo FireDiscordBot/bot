@@ -36,6 +36,7 @@
     "archiver": "^5.3.1",
     "centra": "^2.5.0",
     "chrono-node": "^2.3.7",
+    "dayjs": "^1.11.10",
     "discord-akairo": "discord-akairo/discord-akairo",
     "discord-api-types": "^0.37.14",
     "discord.js": "FireDiscordBot/discord.js",

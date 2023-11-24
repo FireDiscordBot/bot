@@ -4,20 +4,16 @@ import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
-import {
-  constants,
-  GuildTextChannel,
-  parseTime,
-  pluckTime,
-} from "@fire/lib/util/constants";
+import { GuildTextChannel, constants } from "@fire/lib/util/constants";
 import { messageConverter } from "@fire/lib/util/converters";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import RemindersCreate from "@fire/src/commands/Utilities/createremind";
 import Quote from "@fire/src/commands/Utilities/quote";
 import { Constants } from "discord-akairo";
+import { parseTime } from "../arguments/time";
 
 const { regexes } = constants;
 const { CommandHandlerEvents } = Constants;
@@ -25,6 +21,7 @@ let mentionRegex: RegExp;
 
 export default class MessageInvalid extends Listener {
   botQuoteRegex: RegExp;
+  remindFlag: string;
 
   constructor() {
     super("messageInvalid", {
@@ -33,6 +30,12 @@ export default class MessageInvalid extends Listener {
     });
     this.botQuoteRegex =
       /.{1,25}\s?quote (?:https?:\/\/)?(?:(?:ptb|canary|development|staging)\.)?discord(?:app)?\.com?\/channels\/(?:\d{15,21}\/?){3}/gim;
+    this.remindFlag =
+      {
+        development: "--devremind",
+        staging: "--betaremind",
+        production: "--remind",
+      }[process.env.NODE_ENV] ?? "--remind";
   }
 
   async exec(message: FireMessage) {
@@ -54,10 +57,7 @@ export default class MessageInvalid extends Listener {
       (a, b) => b.priority - a.priority
     );
 
-    if (
-      message.content.includes("--remind") &&
-      process.env.NODE_ENV == "production"
-    ) {
+    if (message.content.includes(this.remindFlag)) {
       const remindCommand = this.client.getCommand(
         "reminders-create"
       ) as RemindersCreate;
@@ -68,35 +68,35 @@ export default class MessageInvalid extends Listener {
         if (exec) inhibited = true;
       }
       if (!inhibited) {
-        let content = message.content;
-        let reminder: string, repeat: number, step: string;
+        let content = message.content.replace(this.remindFlag, "");
+        let repeat: number, step: string;
+
+        // parse repeat flag
         const repeatExec = remindCommand.repeatRegex.exec(content);
         if (repeatExec?.length == 2) repeat = parseInt(repeatExec[1]);
         else repeat = 0;
         remindCommand.repeatRegex.lastIndex = 0;
         content = content.replace(remindCommand.repeatRegex, "");
+
+        // parse step flag
         const stepExec = remindCommand.stepRegex.exec(content);
         remindCommand.stepRegex.lastIndex = 0;
         step = stepExec?.[1] ?? "";
         content = content.replace(remindCommand.stepRegex, "").trimEnd();
+
+        // parse reminder text
+        const parsedTime = parseTime(content.trim(), message.createdAt);
+
+        // replace reminder text with reference content if applicable
         if (message.reference) {
           const ref = await message.fetchReference().catch(() => {});
-          if (!ref)
-            reminder = parseTime(
-              content.replace("--remind", " ").trim(),
-              true
-            ) as string;
-          else reminder = ref.content;
-        } else {
-          reminder = parseTime(
-            content.replace("--remind", " ").trim(),
-            true
-          ) as string;
+          if (ref) parsedTime.text = ref.content;
         }
+
+        // finally, we run the command as if it was invoked normally
         await remindCommand
           .run(message, {
-            reminder,
-            time: pluckTime(message.content),
+            reminder: parsedTime,
             repeat,
             step,
           })

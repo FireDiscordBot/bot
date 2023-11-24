@@ -85,6 +85,7 @@ import { Module, ModuleHandler } from "./util/module";
 import { Message } from "./ws/Message";
 import { MessageUtil } from "./ws/util/MessageUtil";
 import { EventType } from "./ws/util/constants";
+import { timeTypeCaster } from "@fire/src/arguments/time";
 // this shit has some weird import fuckery, this is the only way I can use it
 const i18n = i18next as unknown as typeof i18next.default;
 
@@ -352,6 +353,7 @@ export class Fire extends AkairoClient {
       emoji: emojiTypeCaster,
       role: roleTypeCaster,
       user: userTypeCaster,
+      time: timeTypeCaster,
     });
 
     this.commandHandler.loadAll();

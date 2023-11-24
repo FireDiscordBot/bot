@@ -2,10 +2,13 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
-import { parseTime } from "@fire/lib/util/constants";
+import { classicRemind } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { ParsedTime } from "@fire/src/arguments/time";
 import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
+import { ParsedResult, casual } from "chrono-node";
+import * as dayjs from "dayjs";
 import {
   Formatters,
   MessageActionRow,
@@ -15,16 +18,46 @@ import {
 } from "discord.js";
 
 const reminderContextTimes = {
-  REMINDER_SNOOZE_FIVEMIN: "300000",
-  REMINDER_SNOOZE_HALFHOUR: "1800000",
-  REMINDER_SNOOZE_HOUR: "3600000",
-  REMINDER_SNOOZE_SIXHOURS: "21600000",
-  REMINDER_SNOOZE_HALFDAY: "43200000",
-  REMINDER_SNOOZE_DAY: "86400000",
-  REMINDER_SNOOZE_THREEDAYS: "259200000",
-  REMINDER_SNOOZE_WEEK: "604800000",
-  REMINDER_SNOOZE_FORTNIGHT: "1209600000",
-  REMINDER_SNOOZE_MONTH: "2628060000",
+  REMINDER_SNOOZE_FIVEMIN: 300000,
+  REMINDER_SNOOZE_HALFHOUR: 1800000,
+  REMINDER_SNOOZE_HOUR: 3600000,
+  REMINDER_SNOOZE_SIXHOURS: 21600000,
+  REMINDER_SNOOZE_HALFDAY: 43200000,
+  REMINDER_SNOOZE_DAY: 86400000,
+  REMINDER_SNOOZE_THREEDAYS: 259200000,
+  REMINDER_SNOOZE_WEEK: 604800000,
+  REMINDER_SNOOZE_FORTNIGHT: 1209600000,
+  REMINDER_SNOOZE_MONTH: 2628060000,
+  REMINDER_SNOOZE_OTHER: "other",
+};
+const doubledUpWhitespace = /\s{2,}/g;
+
+const getContextOptions = (
+  parsed: ParsedResult[],
+  context: ContextCommandMessage
+) => {
+  if (parsed.length) {
+    const options: { label: string; value: string }[] = [];
+    for (const match of parsed)
+      options.push({
+        label: match.text,
+        value: (+match.start.date()).toString(),
+      });
+    options.push({
+      label: context.author.language.get("REMINDER_SNOOZE_OTHER"),
+      value: "other",
+    });
+    return options;
+  } else
+    return Object.entries(reminderContextTimes).map(([key, time]) => {
+      return {
+        label: context.author.language.get(key as LanguageKeys),
+        value:
+          typeof time == "number"
+            ? (context.createdTimestamp + time).toString()
+            : time,
+      };
+    });
 };
 
 export default class RemindersCreate extends Command {
@@ -37,17 +70,10 @@ export default class RemindersCreate extends Command {
       args: [
         {
           id: "reminder",
-          type: "string",
+          type: "time",
           description: (language: Language) =>
             language.get("REMINDERS_CREATE_MSG_ARG_DESCRIPTION"),
-          default: null,
-          required: true,
-        },
-        {
-          id: "time",
-          type: "string",
-          description: (language: Language) =>
-            language.get("REMINDERS_CREATE_TIME_ARG_DESCRIPTION"),
+          slashCommandType: "reminder",
           default: null,
           required: true,
         },
@@ -77,13 +103,10 @@ export default class RemindersCreate extends Command {
   }
 
   async run(
-    // Command#run will usually never have FireMessage, this is temporary to allow the remind command to work as a message command
-    // for familiarity and to prompt with an upsell
+    // FireMessage is here to allow for the --remind flag
     command: ApplicationCommandMessage | ContextCommandMessage | FireMessage,
-    args: { reminder: string; time: string; repeat: number; step: string }
+    args: { reminder: ParsedTime | null; repeat: number; step: string }
   ) {
-    let { reminder, repeat, step } = args;
-    repeat++;
     // handle context menu before actual command
     if (command instanceof ContextCommandMessage) {
       const clickedMessage = (
@@ -96,28 +119,41 @@ export default class RemindersCreate extends Command {
       ) as ReminderSendEvent;
       if (!event) return await command.error("ERROR_CONTACT_SUPPORT");
       const now = +new Date();
+
+      // Parse with chrono-node early so we can get the content without the time
+      const parsed = casual.parse(clickedMessage.content, command.createdAt, {
+        forwardDate: true,
+      });
+      let reminderText = clickedMessage.content;
+      for (const result of parsed)
+        reminderText = reminderText.replace(result.text, "");
+      reminderText = reminderText.replace(doubledUpWhitespace, " ").trim();
+
       // we push a dummy reminder that we use for "snoozing"
       event.sent.push({
         user: command.author.id,
-        text: clickedMessage.content,
+        text: reminderText,
         link: clickedMessage.url,
         timestamp: now,
       });
+
+      // we push a dummy reminder that we use for "snoozing"
+      event.sent.push({
+        user: command.author.id,
+        text: reminderText,
+        link: clickedMessage.url,
+        timestamp: now,
+      });
+
+      // Create the components
       const dropdown = new MessageSelectMenu()
         .setPlaceholder(
           command.author.language.get("REMINDER_CONTEXT_PLACEHOLDER")
         )
         .setCustomId(`!snooze:${command.author.id}:${now}`)
-        .setMaxValues(1)
         .setMinValues(1)
-        .addOptions(
-          Object.entries(reminderContextTimes).map(([key, time]) => {
-            return {
-              label: command.author.language.get(key as LanguageKeys),
-              value: time,
-            };
-          })
-        );
+        .addOptions(getContextOptions(parsed, command));
+      if (!parsed.length) dropdown.setMaxValues(1);
       const cancelSnowflake = SnowflakeUtil.generate();
       const cancelButton = new MessageButton()
         .setEmoji("534174796938870792")
@@ -127,12 +163,13 @@ export default class RemindersCreate extends Command {
         event.sent = event.sent.filter((r) => r.timestamp != now);
         b.delete();
       });
+
       return await command.channel.send({
         content: command.author.language.get("REMINDER_CONTEXT_CONTENT", {
           content:
-            clickedMessage.content.length >= 503
-              ? clickedMessage.content.slice(0, 500) + "..."
-              : clickedMessage.content,
+            reminderText.length >= 503
+              ? reminderText.slice(0, 500) + "..."
+              : reminderText,
         }),
         components: [
           new MessageActionRow().addComponents(dropdown),
@@ -141,6 +178,10 @@ export default class RemindersCreate extends Command {
       });
     }
 
+    // extract args
+    let { reminder, repeat, step } = args;
+    repeat++; // we need repeat to include the inital reminder
+    // quick checks
     if (!reminder)
       return await command.error("REMINDER_MISSING_ARG", {
         includeSlashUpsell: true,
@@ -153,61 +194,56 @@ export default class RemindersCreate extends Command {
       return await command.error("REMINDER_SEPARATE_FLAGS", {
         includeSlashUpsell: true,
       });
-    const stepMinutes = parseTime(step) as number;
+
+    // parse step argument
+    const parsedStep = classicRemind.parse(step, command.createdAt, {
+      forwardDate: true,
+    });
+    let parsedStepDiff;
+    if (parsedStep.length && parsedStep[0]?.start) {
+      parsedStepDiff = +parsedStep[0]?.start.date() - command.createdTimestamp;
+      if (
+        step &&
+        parsedStepDiff > 0 &&
+        parsedStepDiff < 120_000 &&
+        !command.author.isSuperuser()
+      )
+        return await command.error("REMINDER_STEP_TOO_SHORT", {
+          includeSlashUpsell: true,
+        });
+    }
+
+    // check time limits
+    const reminderDayjs = dayjs(reminder.date);
     if (
-      step &&
-      stepMinutes > 0 &&
-      stepMinutes < 2 &&
+      reminderDayjs.diff(command.createdAt, "minutes") < 2 &&
       !command.author.isSuperuser()
     )
-      return await command.error("REMINDER_STEP_TOO_SHORT", {
-        includeSlashUpsell: true,
-      });
-    const parsedMinutes = parseTime(args.time) as number;
-    if (!parsedMinutes)
-      return await command.error("REMINDER_MISSING_TIME", {
-        includeSlashUpsell: true,
-      });
-    else if (parsedMinutes < 2 && !command.author.isSuperuser())
       return await command.error("REMINDER_TOO_SHORT", {
         includeSlashUpsell: true,
       });
-    if (!reminder.replace(/\s/gim, "").length && !command.reference?.messageId)
-      return await command.error("REMINDER_MISSING_CONTENT", {
-        includeSlashUpsell: true,
-      });
-    else if (!reminder.replace(/\s/gim, "").length) {
-      const referenced = await command.channel.messages
-        .fetch(command.reference.messageId)
-        .catch(() => {});
-      if (!referenced || !referenced.content)
-        return await command.error("REMINDER_MISSING_CONTENT", {
-          includeSlashUpsell: true,
-        });
-      else reminder = referenced.content;
-    }
-    const time = new Date();
-    time.setMinutes(time.getMinutes() + parsedMinutes);
-    const largestTime = new Date();
-    largestTime.setMinutes(
-      largestTime.getMinutes() +
-        (stepMinutes ? stepMinutes * repeat : parsedMinutes)
-    );
-    const timeDiff = (+largestTime - +new Date()) / (1000 * 3600 * 24);
-    if (timeDiff >= 186 && !command.author.isSuperuser())
+    const largestTime =
+      +reminder.date + (parsedStepDiff ? parsedStepDiff * repeat : 0);
+    if (
+      dayjs(largestTime).diff(command.createdAt, "years") > 2 &&
+      !command.author.isSuperuser()
+    )
       return await command.error("REMINDER_TIME_LIMIT", {
         includeSlashUpsell: true,
       });
+
+    // actually start setting the reminder
     let created: { [duration: string]: boolean } = {};
+    let latestTime = +reminder.date;
     for (let i = 0; i < repeat; i++) {
-      const currentTime = new Date(time);
-      currentTime.setMinutes(time.getMinutes() + stepMinutes * i);
+      const current = new Date(latestTime);
       const remind = await command.author.createReminder(
-        currentTime,
-        reminder,
+        current,
+        reminder.text,
         command.url
       );
-      created[Formatters.time(currentTime, "R")] = remind;
+      created[Formatters.time(current, "R")] = remind;
+      latestTime += parsedStepDiff;
     }
     const success = Object.entries(created)
       .filter(([, success]) => success)

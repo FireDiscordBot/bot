@@ -210,6 +210,32 @@ export default class Message extends Listener {
       await this.tokenReset(message, toSearch);
     }
 
+    if (
+      (message.channelId == "888494860460515388" ||
+        message.channelId == "893611010227838976") &&
+      message.webhookId &&
+      message.embeds.length
+    ) {
+      const expMessage = await this.client.req
+        .channels("731330454422290463")
+        .messages.post<APIMessage>({
+          data: {
+            embed: message.embeds[0].toJSON(),
+          },
+        })
+        .catch((e: Error) => {
+          this.client.console.warn(
+            `[Listener] Failed to post experiment message\n${e.stack}`
+          );
+        });
+      if (expMessage && expMessage.id)
+        await this.client.req
+          .channels("731330454422290463")
+          .messages(expMessage.id)
+          .crosspost.post<void>()
+          .catch(() => {});
+    }
+
     if (!message.member || message.author.bot) return;
 
     if (

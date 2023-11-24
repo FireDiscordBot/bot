@@ -1,30 +1,31 @@
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import {
   ActionLogTypes,
   MemberLogTypes,
   ModLogTypes,
   titleCase,
 } from "@fire/lib/util/constants";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { casual } from "chrono-node";
 import {
   Formatters,
   MessageActionRow,
+  Modal,
+  ModalActionRowComponent,
   Permissions,
   Snowflake,
+  TextInputComponent,
 } from "discord.js";
+import { TextInputStyles } from "discord.js/typings/enums";
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 import LoggingConfig from "../commands/Configuration/logging-configure";
-import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 import LogScan from "../commands/Utilities/log-scan";
-import { LanguageKeys } from "@fire/lib/util/language";
-
-const reminderSnoozeTimes = [
-  300000, 1800000, 3600000, 21600000, 43200000, 86400000, 259200000, 604800000,
-  1209600000, 2628060000,
-];
+import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 
 export default class Select extends Listener {
   constructor() {
@@ -139,27 +140,92 @@ export default class Select extends Listener {
         EventType.REMINDER_SEND
       ) as ReminderSendEvent;
       if (!event) return await select.error("REMINDER_SNOOZE_ERROR");
-      const snoozeTime = parseInt(select.values[0]);
-      if (!reminderSnoozeTimes.includes(snoozeTime))
-        return await select.error("REMINDER_SNOOZE_TIME_INVALID");
       const currentRemind = event.sent.find((r) =>
         select.customId.endsWith(r.timestamp.toString())
       );
       if (!currentRemind || !currentRemind.link)
         return await select.error("REMINDER_SNOOZE_UNKNOWN");
-      const time = +new Date() + snoozeTime;
-      const remind = await select.author.createReminder(
-        new Date(time),
-        currentRemind.text,
-        currentRemind.link
-      );
-      if (!remind) return await select.error("REMINDER_SNOOZE_FAILED");
-      return await select.channel.update({
-        components: [],
-        content: select.author.language.getSuccess("REMINDER_CREATED_SINGLE", {
-          time: Formatters.time(new Date(time), "R"),
-        }),
-      });
+      const hasSelectedOther = select.values.find((v) => v == "other");
+      let specifyTimeModal: ModalMessage;
+      if (hasSelectedOther) {
+        const modalPromise = new Promise((resolve) =>
+          this.client.modalHandlersOnce.set(select.customId, resolve)
+        ) as Promise<ModalMessage>;
+        await select.interaction.showModal(
+          new Modal()
+            .setTitle(select.language.get("REMINDER_SNOOZE_OTHER_TITLE"))
+            .setCustomId(select.customId)
+            .addComponents(
+              new MessageActionRow<ModalActionRowComponent>().addComponents(
+                new TextInputComponent()
+                  .setCustomId("time")
+                  .setRequired(true)
+                  .setLabel(
+                    select.language.get("REMINDER_SNOOZE_OTHER_FIELD_NAME")
+                  )
+                  .setPlaceholder(
+                    select.language.get(
+                      "REMINDER_SNOOZE_OTHER_FIELD_PLACEHOLDER"
+                    )
+                  )
+                  .setStyle(TextInputStyles.SHORT)
+              )
+            )
+        );
+        specifyTimeModal = await modalPromise;
+        // await specifyTimeModal.channel.ack();
+
+        const input =
+          specifyTimeModal.interaction.fields.getTextInputValue("time");
+        if (!input)
+          return await specifyTimeModal.error("REMINDER_SNOOZE_TIME_INVALID");
+        const parsed = casual.parseDate(input, select.createdAt, {
+          forwardDate: true,
+        });
+        const timestamp = +parsed;
+        if (!parsed || isNaN(timestamp))
+          return await specifyTimeModal.error("REMINDER_SNOOZE_TIME_INVALID");
+        select.values = [timestamp.toString()];
+      }
+      let created: { [duration: string]: boolean } = {};
+      for (const value of select.values) {
+        const timestamp = +value;
+        if (isNaN(timestamp)) {
+          select.values = select.values.filter((v) => v != value);
+          continue;
+        }
+        const date = new Date(timestamp);
+        const remind = await select.author.createReminder(
+          date,
+          currentRemind.text,
+          currentRemind.link
+        );
+        created[Formatters.time(date, "R")] = remind;
+      }
+      specifyTimeModal.flags = select.flags = 64;
+      const success = Object.entries(created)
+        .filter(([, success]) => success)
+        .map(([duration]) => duration);
+      const failed = Object.entries(created)
+        .filter(([, success]) => !success)
+        .map(([duration]) => duration);
+      return failed.length != select.values.length
+        ? await (specifyTimeModal
+            ? specifyTimeModal.channel.update.bind(specifyTimeModal.channel)
+            : select.channel.update.bind(select.channel))({
+            components: [],
+            content: select.author.language.getSuccess(
+              success.length == 1
+                ? "REMINDER_CREATED_SINGLE"
+                : "REMINDER_CREATED_MULTI",
+              {
+                time: success[0],
+                times: success.map((s) => "- " + s).join("\n"),
+                includeSlashUpsell: true,
+              }
+            ),
+          })
+        : await (specifyTimeModal ?? select).error("ERROR_CONTACT_SUPPORT");
     }
 
     if (select.customId == "help_category") {

@@ -1,3 +1,5 @@
+import { Chrono, Component as DateComponent } from "chrono-node";
+import * as dayjs from "dayjs";
 import {
   BaseMessageComponentOptions,
   MessageActionRow,
@@ -325,12 +327,12 @@ export const constants = {
         /(?:me to (?<reminder>.+) in | ?me in | ?in )? (?:(?<minutes>\d+)(?: ?m(?:in)?(?:utes?)?))(?: ?about | ?that | ?to )?/im,
         /(?:me to (?<reminder>.+) in | ?me in | ?in )? (?:(?<seconds>\d+)(?: ?s(?:ec)?(?:onds?)?))(?: ?about | ?that | ?to )?/im,
       ],
-      month: / (?<months>\d+)(?: ?months?| ?mos?)/im,
-      week: / (?<weeks>\d+)(?: ?w(?:ee)?k?s?)/im,
-      day: / (?<days>\d+)(?: ?d(?:ay)?s?)/im,
-      hours: / (?<hours>\d+)(?: ?h(?:(?:ou)?rs?)?)/im,
-      minutes: / (?<minutes>\d+)(?: ?m(?:in)?(?:utes?)?)/im,
-      seconds: / (?<seconds>\d+)(?: ?s(?:ec)?(?:onds?)?)/im,
+      month: /(?<months>\d+)(?: ?months?| ?mos?)/im,
+      week: /(?<weeks>\d+)(?: ?w(?:ee)?k?s?)/im,
+      day: /(?<days>\d+)(?: ?d(?:ay)?s?)/im,
+      hours: /(?<hours>\d+)(?: ?h(?:(?:ou)?rs?)?)/im,
+      minutes: /(?<minutes>\d+)(?: ?m(?:ins?)?(?:utes?)?)/im,
+      seconds: /(?<seconds>\d+)(?: ?s(?:ec)?(?:onds?)?)/im,
     },
     haste:
       /(?<uploader>(?:www\.)?toptal\.com\/developers\/hastebin|hastebin\.com|hasteb\.in|hst\.sh|h\.inv\.wtf)\/(?<key>\w{1,20})/gim,
@@ -524,6 +526,137 @@ export const pluckTime = (content: string) => {
     .map(([match, unit]) => match + unit);
   return matches.join(" ");
 };
+
+const dayJSToDateComponents = (dayjs: dayjs.Dayjs) => ({
+  year: dayjs.year(),
+  month: dayjs.month() + 1,
+  day: dayjs.date(),
+  hour: dayjs.hour(),
+  minute: dayjs.minute(),
+  second: dayjs.second(),
+  millisecond: dayjs.millisecond(),
+});
+type KnownValues = {
+  [c in DateComponent]?: number;
+};
+const dateComponentToManipulateType: {
+  [c in DateComponent]?: dayjs.ManipulateType;
+} = {
+  year: "years",
+  month: "months",
+  weekday: "weeks",
+  day: "day",
+  hour: "hours",
+  minute: "minute",
+  second: "seconds",
+};
+// Chrono instance for classic remind style parsing
+export const classicRemind = new Chrono({
+  // Parsers should return just their parsed values rather than a date
+  // then the refiner will merge them all
+  parsers: [
+    {
+      pattern: () => constants.regexes.time.month,
+      extract: (_, match) => {
+        if (!match || !match[0]) return null;
+        const months = parseInt(match.groups?.months) || 0;
+        return {
+          month: months,
+        };
+      },
+    },
+    {
+      pattern: () => constants.regexes.time.week,
+      extract: (_, match) => {
+        if (!match || !match[0]) return null;
+        const weeks = parseInt(match.groups?.weeks) || 0;
+        return {
+          weekday: weeks,
+        };
+      },
+    },
+    {
+      pattern: () => constants.regexes.time.day,
+      extract: (_, match) => {
+        if (!match || !match[0]) return null;
+        const days = parseInt(match.groups?.days) || 0;
+        return {
+          day: days,
+        };
+      },
+    },
+    {
+      pattern: () => constants.regexes.time.hours,
+      extract: (_, match) => {
+        if (!match || !match[0]) return null;
+        const hours = parseInt(match.groups?.hours) || 0;
+        return {
+          hour: hours,
+        };
+      },
+    },
+    {
+      pattern: () => constants.regexes.time.minutes,
+      extract: (_, match) => {
+        if (!match || !match[0]) return null;
+        const minutes = parseInt(match.groups?.minutes) || 0;
+        return {
+          minute: minutes,
+        };
+      },
+    },
+    {
+      pattern: () => constants.regexes.time.seconds,
+      extract: (_, match) => {
+        if (!match || !match[0]) return null;
+        const seconds = parseInt(match.groups?.seconds) || 0;
+        return {
+          second: seconds,
+        };
+      },
+    },
+  ],
+  refiners: [
+    {
+      refine: (context, results) => {
+        const text = [];
+        let date = dayjs(context.refDate);
+        results = results.filter((result, index) => {
+          const matchingIndex = results.find(
+            (r, i) => r.index == result.index && i != index
+          );
+          if (!matchingIndex) return true;
+          // @ts-ignore
+          const matchingKnown = matchingIndex.start.knownValues as KnownValues;
+          // @ts-ignore
+          const currentKnown = result.start.knownValues as KnownValues;
+          if (matchingKnown.month == currentKnown.minute && !currentKnown.month)
+            return false; // likely a false match for the "m" in month
+          return true;
+        });
+        for (const result of results) {
+          // @ts-ignore
+          const known = result.start.knownValues as KnownValues;
+          for (const [type, value] of Object.entries(known)) {
+            // we should never get these, ignore if we do somehow
+            if (type == "meridiem" || type == "timezoneOffset") continue;
+            if (value) {
+              if (!text.includes(result.text)) text.push(result.text);
+              date = date.add(value, dateComponentToManipulateType[type]);
+            }
+          }
+        }
+        return [
+          context.createParsingResult(
+            0,
+            text.join(","),
+            context.createParsingComponents(dayJSToDateComponents(date))
+          ),
+        ];
+      },
+    },
+  ],
+});
 
 export const shortURLs = [
   "0rz.tw",
