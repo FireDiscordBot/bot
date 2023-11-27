@@ -180,6 +180,7 @@ export default class RemindersCreate extends Command {
             reminderText.length >= 503
               ? reminderText.slice(0, 500) + "..."
               : reminderText,
+          author: clickedMessage.author.toString(),
         }),
         components: [
           new MessageActionRow().addComponents(dropdown),
