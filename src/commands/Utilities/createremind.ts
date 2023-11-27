@@ -121,9 +121,19 @@ export default class RemindersCreate extends Command {
       const now = +new Date();
 
       // Parse with chrono-node early so we can get the content without the time
-      const parsed = casual.parse(clickedMessage.content, command.createdAt, {
-        forwardDate: true,
-      });
+      const parsed = casual.parse(
+        clickedMessage.content,
+        {
+          instant: command.createdAt,
+          timezone: clickedMessage.author.settings.get(
+            "reminders.timezone.offset",
+            0
+          ),
+        },
+        {
+          forwardDate: true,
+        }
+      );
       let reminderText = clickedMessage.content;
       for (const result of parsed)
         reminderText = reminderText.replace(result.text, "");

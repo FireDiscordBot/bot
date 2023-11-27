@@ -85,7 +85,11 @@ export default class MessageInvalid extends Listener {
         content = content.replace(remindCommand.stepRegex, "").trimEnd();
 
         // parse reminder text
-        const parsedTime = parseTime(content.trim(), message.createdAt);
+        const parsedTime = parseTime(
+          content.trim(),
+          message.createdAt,
+          message.author.settings.get("reminders.timezone.offset", 0)
+        );
 
         // replace reminder text with reference content if applicable
         if (message.reference) {
