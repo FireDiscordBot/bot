@@ -202,7 +202,6 @@ export default class Select extends Listener {
         );
         created[Formatters.time(date, "R")] = remind;
       }
-      specifyTimeModal.flags = select.flags = 64;
       const success = Object.entries(created)
         .filter(([, success]) => success)
         .map(([duration]) => duration);
