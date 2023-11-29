@@ -175,13 +175,18 @@ export default class RemindersCreate extends Command {
       });
 
       return await command.channel.send({
-        content: command.author.language.get("REMINDER_CONTEXT_CONTENT", {
-          content:
-            reminderText.length >= 503
-              ? reminderText.slice(0, 500) + "..."
-              : reminderText,
-          author: clickedMessage.author.toString(),
-        }),
+        content: command.author.language.get(
+          clickedMessage.author.settings.has("reminders.timezone.offset")
+            ? "REMINDER_CONTEXT_CONTENT_WITH_AUTHOR_TZ"
+            : "REMINDER_CONTEXT_CONTENT",
+          {
+            content:
+              reminderText.length >= 503
+                ? reminderText.slice(0, 500) + "..."
+                : reminderText,
+            author: clickedMessage.author.toString(),
+          }
+        ),
         components: [
           new MessageActionRow().addComponents(dropdown),
           new MessageActionRow().addComponents(cancelButton),
