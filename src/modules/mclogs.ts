@@ -83,26 +83,26 @@ type VersionInfo = {
   jvmType: string;
   mods: ModInfo[];
 };
-export type ModInfo =
-  | {
-      state: string;
-      modId: string;
-      version: string;
-      source: ModSource;
-      erroredDependencies: DependencyInfo[];
-      partial: false;
-    }
-  | {
-      modId: string;
-      erroredDependencies: DependencyInfo[];
-      partial: true;
-    }
-  | {
-      modId: string;
-      version: string;
-      subMods: ModInfo[];
-      partial: false;
-    };
+type ForgeModNonPartial = {
+  state: string;
+  modId: string;
+  version: string;
+  source: ModSource;
+  erroredDependencies: DependencyInfo[];
+  partial: false;
+};
+type FabricModNonPartial = {
+  modId: string;
+  version: string;
+  subMods: FabricModNonPartial[];
+  partial: false;
+};
+type PartialMod = {
+  modId: string;
+  erroredDependencies: DependencyInfo[];
+  partial: true;
+};
+export type ModInfo = ForgeModNonPartial | PartialMod | FabricModNonPartial;
 type DependencyInfo = {
   name: string;
   requiredVersion: string;
@@ -116,6 +116,7 @@ const forgeDependenciesError =
 const missingDep = "[MISSING]";
 
 const modIdClean = /_|\-/g;
+const subSubMod = "|    \\--";
 
 const patcherAMDIssue = {
   hasPatcherAndAMD: `- **If you have started crashing recently when joining a server, you'll need to disable Patcher's entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
@@ -226,7 +227,7 @@ export default class MCLogs extends Module {
       fabricModsEntry:
         /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)$/gim,
       fabricSubModEntry:
-        /^\s+(?<subtype>\\--|\|--) (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)$/gim,
+        /^\s+(?<subtype>\\--|\|--|\|\s+\\--) (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)$/gim,
       fabricCrashModsHeader: /^\tFabric Mods: $/gim,
       fabricCrashModEntry:
         /^\t{2}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+]+)$/gim,
@@ -610,7 +611,7 @@ export default class MCLogs extends Module {
       const modsList = splitLog.slice(modsHeaderIndex + 1); // start at mods list, while loop should stop at end
       let modMatch: RegExpExecArray;
       if (useClassic) {
-        const tempSubMods: Record<string, ModInfo[]> = {};
+        const tempSubMods: Record<string, FabricModNonPartial[]> = {};
         while (
           (modMatch = this.regexes.classicFabricModsEntry.exec(
             modsList.shift()
@@ -660,7 +661,14 @@ export default class MCLogs extends Module {
           this.regexes.fabricModsEntry.lastIndex = 0;
           this.regexes.fabricSubModEntry.lastIndex = 0;
           if (modMatch.groups.subtype) {
-            const parentMod = mods[mods.length - 1];
+            const isSubSub = modMatch.groups.subtype == subSubMod;
+            let parentMod: FabricModNonPartial;
+            if (isSubSub) {
+              const tempParentMod = mods[mods.length - 1];
+              if (tempParentMod && "subMods" in tempParentMod)
+                parentMod =
+                  tempParentMod.subMods[tempParentMod.subMods.length - 1];
+            } else parentMod = mods[mods.length - 1] as FabricModNonPartial;
             if (parentMod && "subMods" in parentMod)
               parentMod.subMods.push({
                 modId: modMatch.groups.modid,
@@ -1443,12 +1451,11 @@ export default class MCLogs extends Module {
 
     const mcInfo = this.getMCInfo(text, lines);
     let modsHaste: string;
-    if (mcInfo.mods.length) {
-      const haste = await this.client.util
+    if (mcInfo.mods.length)
+      await this.client.util
         .haste(JSON.stringify(mcInfo.mods, null, 2), true, "json", true)
-        .catch((e: Error) => e);
-      if (!(haste instanceof Error) && haste.raw) modsHaste = haste.raw;
-    }
+        .then((haste) => (modsHaste = haste.raw))
+        .catch(() => {});
 
     try {
       const haste = await this.client.util
