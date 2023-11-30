@@ -121,20 +121,45 @@ export default class RemindersCreate extends Command {
       const now = +new Date();
 
       // Parse with chrono-node early so we can get the content without the time
-      const parsed = casual.parse(
-        clickedMessage.content,
-        {
-          instant: command.createdAt,
-          timezone: clickedMessage.author.settings.get(
-            "reminders.timezone.offset",
-            0
-          ),
-        },
-        {
-          forwardDate: true,
-        }
-      );
-      let reminderText = clickedMessage.content;
+      let parsed = casual.parse(
+          clickedMessage.content,
+          {
+            instant: command.createdAt,
+            timezone: clickedMessage.author.settings.get(
+              "reminders.timezone.offset",
+              0
+            ),
+          },
+          {
+            forwardDate: true,
+          }
+        ),
+        useEmbedDescription = false;
+      if (
+        !parsed.length &&
+        clickedMessage.embeds.length &&
+        clickedMessage.content.includes(clickedMessage.embeds[0].url) &&
+        clickedMessage.embeds[0].description
+      )
+        // possibly a linked tweet or other social media post, use that instead
+        (parsed = casual.parse(
+          clickedMessage.embeds[0].description,
+          {
+            instant: command.createdAt,
+            timezone: clickedMessage.author.settings.get(
+              "reminders.timezone.offset",
+              0
+            ),
+          },
+          {
+            forwardDate: true,
+          }
+        )),
+          (useEmbedDescription = true);
+      parsed = parsed.filter((res) => res.start.date() > command.createdAt);
+      let reminderText = useEmbedDescription
+        ? clickedMessage.embeds[0].description
+        : clickedMessage.content;
       for (const result of parsed)
         reminderText = reminderText.replace(result.text, "");
       reminderText = reminderText.replace(doubledUpWhitespace, " ").trim();
@@ -171,7 +196,10 @@ export default class RemindersCreate extends Command {
         .setCustomId(`!${cancelSnowflake}`);
       this.client.buttonHandlersOnce.set(cancelSnowflake, (b) => {
         event.sent = event.sent.filter((r) => r.timestamp != now);
-        b.delete();
+        b.channel.update({
+          content: command.language.get("REMINDER_CONTEXT_CANCELLED"),
+          components: [],
+        });
       });
 
       return await command.channel.send({
@@ -200,6 +228,10 @@ export default class RemindersCreate extends Command {
     // quick checks
     if (!reminder)
       return await command.error("REMINDER_MISSING_ARG", {
+        includeSlashUpsell: true,
+      });
+    else if (reminder.date < command.createdAt)
+      return await command.error("REMINDER_PAST_TIME", {
         includeSlashUpsell: true,
       });
     if (!repeat || repeat > 6 || repeat < 1)
