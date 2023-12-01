@@ -205,7 +205,9 @@ export default class RemindersCreate extends Command {
       return await command.channel.send({
         content: command.author.language.get(
           clickedMessage.author.settings.has("reminders.timezone.offset")
-            ? "REMINDER_CONTEXT_CONTENT_WITH_AUTHOR_TZ"
+            ? clickedMessage.author.id == command.author.id
+              ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
+              : "REMINDER_CONTEXT_CONTENT_WITH_AUTHOR_TZ"
             : "REMINDER_CONTEXT_CONTENT",
           {
             content:
