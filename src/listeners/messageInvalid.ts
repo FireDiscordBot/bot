@@ -92,7 +92,7 @@ export default class MessageInvalid extends Listener {
         );
 
         // replace reminder text with reference content if applicable
-        if (message.reference) {
+        if (parsedTime && message.reference) {
           const ref = await message.fetchReference().catch(() => {});
           if (ref) parsedTime.text = ref.content;
         }
