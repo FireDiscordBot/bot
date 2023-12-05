@@ -1273,8 +1273,7 @@ The lack of this is a sign that this message may have been sent automatically by
     )
       return await triggerFilter("Discord/Steam Link");
     else if (
-      lowerContent.includes("cs") &&
-      lowerContent.includes("go") &&
+      (lowerContent.includes("csgo") || lowerContent.includes("cs:go")) &&
       lowerContent.includes("skin") &&
       lowerContent.includes("http")
     )
