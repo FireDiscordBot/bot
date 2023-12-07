@@ -751,7 +751,7 @@
   "MINECRAFT_LOGSCAN_OPTION_CLIENTS": "Block Client Logs",
   "MINECRAFT_LOGSCAN_OPTION_CLIENTS_DESC": "Directs users using clients to the client's support server",
   "MINECRAFT_LOGSCAN_OPTION_MOBILE": "Block Mobile Logs",
-  "MINECRAFT_LOGSCAN_OPTION_MOBILE_DESC": "Doesn't prfovide solutions for users on mobile devices",
+  "MINECRAFT_LOGSCAN_OPTION_MOBILE_DESC": "Doesn't provide solutions for users on mobile devices",
   "MINECRAFT_LOGSCAN_OPTION_CRACKED": "Block Pirated Players",
   "MINECRAFT_LOGSCAN_OPTION_CRACKED_DESC": "Doesn't provide solutions for pirated versions of Minecraft",
   "MINECRAFT_LOGSCAN_MANAGE_ADMIN_ONLY": "Only admins can manage log scanning",
