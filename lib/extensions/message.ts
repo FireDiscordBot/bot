@@ -450,11 +450,13 @@ export class FireMessage extends Message {
         return "permissions";
       }
 
-    const canUpload =
+    const canUseAttachmentsInWebhook =
       !this.attachments.size ||
-      // limit attachment size to 5mb to prevent issues
-      this.attachments.filter((attachment) => attachment.size > 5242880).size ==
-        0;
+      // limit attachment size to 25mb for premium, 10mb for regular
+      this.attachments.filter(
+        (attachment) => attachment.size > (quoter.premium ? 26214400 : 10485760)
+      ).size == 0 ||
+      !this.content;
     const useWebhooks =
       (destination.guild as FireGuild).hasExperiment(3959319643, 1) &&
       (!!webhook ||
@@ -464,7 +466,7 @@ export class FireMessage extends Message {
         ) &&
           typeof destination.fetchWebhooks == "function" &&
           typeof destination.createWebhook == "function")) &&
-      canUpload;
+      canUseAttachmentsInWebhook;
 
     return useWebhooks
       ? await this.webhookQuote(destination, quoter, webhook, thread, debug)
@@ -556,9 +558,21 @@ export class FireMessage extends Message {
       description?: string;
     }[] = [];
     if (
-      ((destination instanceof FireTextChannel ||
-        destination instanceof VoiceChannel ||
-        destination instanceof NewsChannel) &&
+      // we can just rely on Discord to embed images that are greater than the limit
+      this.attachments.some(
+        (a) => a.size >= (quoter.premium ? 26214400 : 10485760)
+      ) &&
+      this.attachments.every(
+        (a) =>
+          (constants.imageExts.some((ext) => a.name.endsWith(ext)) ||
+            constants.videoExts.some((ext) => a.name.endsWith(ext))) &&
+          a.size < 104857600
+      ) &&
+      !content
+    )
+      content = this.attachments.map((a) => a.url).join("\n");
+    else if (
+      (destination instanceof GuildChannel &&
         quoter
           .permissionsIn(destination)
           .has(Permissions.FLAGS.ATTACH_FILES)) ||
@@ -805,7 +819,7 @@ export class FireMessage extends Message {
     if (this.attachments?.size) {
       if (
         this.attachments.size == 1 &&
-        imageExts.filter((ext) => this.attachments.first().url.endsWith(ext))
+        imageExts.filter((ext) => this.attachments.first().name.endsWith(ext))
           .length &&
         !embed.image?.url
       )
@@ -993,7 +1007,10 @@ export class FireMessage extends Message {
       if (first.fields) embed.fields.push(...first.fields);
     } else if (this.attachments.size) {
       for (const [, attachment] of this.attachments) {
-        if (imageExts.some((ext) => attachment.name.endsWith(ext))) {
+        if (
+          imageExts.some((ext) => attachment.name.endsWith(ext)) &&
+          !embed.image // prevent setting if already set, should always use the first image attachment
+        ) {
           embed.setImage(attachment.proxyURL);
           break;
         }

@@ -250,8 +250,8 @@ export const constants = {
     automodAvatar: "https://static.inv.wtf/discord_automod.png",
   },
   imageExts: [".png", ".webp", ".jpg", ".jpeg", ".gif", ".gifv"],
-  audioExts: ["mp3", "wav", "flac", "alac", "m4a"],
-  videoExts: ["mp4", "mkv", "mov"],
+  audioExts: [".mp3", ".wav", ".flac", ".alac", ".m4a"],
+  videoExts: [".mp4", ".mkv", ".mov", ".webm"],
   prodBotId: "444871677176709141",
   regexes: {
     maskedLink: /\[(?<name>.+)\]\((?<link><?https?:\/\/.+>?)\)/gim,
