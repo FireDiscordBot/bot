@@ -557,19 +557,7 @@ export class FireMessage extends Message {
       name: string;
       description?: string;
     }[] = [];
-    if (
-      // we can just rely on Discord to embed images that are greater than the limit
-      this.attachments.some(
-        (a) => a.size >= (quoter.premium ? 26214400 : 10485760)
-      ) &&
-      this.attachments.every(
-        (a) =>
-          (constants.imageExts.some((ext) => a.name.endsWith(ext)) ||
-            constants.videoExts.some((ext) => a.name.endsWith(ext))) &&
-          a.size < 104857600
-      ) &&
-      !content
-    )
+    if (!content && this.attachments.size)
       content = this.attachments.map((a) => a.url).join("\n");
     else if (
       (destination instanceof GuildChannel &&
