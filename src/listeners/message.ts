@@ -179,7 +179,8 @@ export default class Message extends Listener {
       if (theyForgot && message.guild?.members.me?.permissions.has(67584n))
         await message
           .reply({
-            content: "You forgot the hyphen! It's Spider-Man*",
+            // random zws to stop helperboat responding, get fucked techno
+            content: "You forgo\u200bt the hyphen! It's Spider-Man*",
             allowedMentions: { users: [message.author.id] },
           })
           .catch(() => {});
