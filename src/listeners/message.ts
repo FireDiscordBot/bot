@@ -2,9 +2,6 @@ import * as sanitizer from "@aero/sanitizer";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import { Message as AetherMessage } from "@fire/lib/ws/Message";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import Filters from "@fire/src/modules/filters";
 import MCLogs from "@fire/src/modules/mclogs";
 import * as centra from "centra";
@@ -14,6 +11,9 @@ import { Permissions, Snowflake, TextChannel } from "discord.js";
 const { regexes, prodBotId } = constants;
 const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
 const snowflakeRegex = /\d{15,21}/gim;
+const tokenResetExcluded = [
+  "571661221854707713", // Assyst, spits out a fake token in eval which is separate to the bot
+];
 
 const cleanMap = {
   ":": [/\\:/gim],
@@ -201,14 +201,18 @@ export default class Message extends Listener {
     await message.runAntiFilters().catch(() => {});
     await message.runPhishFilters().catch(() => {});
 
-    let toSearch = (
-      message.content +
-      message.embeds.map((embed) => JSON.stringify(embed)).join(" ") +
-      message.attachments.map((attachment) => attachment.description).join(" ")
-    ).replace(tokenExtras, "");
-    if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN) {
-      this.tokenRegex.lastIndex = 0;
-      await this.tokenReset(message, toSearch);
+    if (!tokenResetExcluded.includes(message.author.id)) {
+      let toSearch = (
+        message.content +
+        message.embeds.map((embed) => JSON.stringify(embed)).join(" ") +
+        message.attachments
+          .map((attachment) => attachment.description)
+          .join(" ")
+      ).replace(tokenExtras, "");
+      if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN) {
+        this.tokenRegex.lastIndex = 0;
+        await this.tokenReset(message, toSearch);
+      }
     }
 
     if (
