@@ -118,7 +118,7 @@ export class Manager {
     this.client.options.presence.shardId = this.client.options.shards =
       data.shards;
     this.client.options.shardCount = data.shardCount;
-    this.client.sentry.setTag("cluster", this.id);
+    if (this.client.sentry) this.client.sentry.setTag("cluster", this.id);
     return this.client.login();
   }
 
