@@ -215,22 +215,26 @@ export class Fire extends AkairoClient {
         const unavailableListener = this.getListener(
           "guildUnavailable"
         ) as GuildUnavailable;
-        if (unavailableListener.unavailable.has(r.d.id))
-          unavailableListener.unavailable.delete(r.d.id);
+        let wasUnavailable = unavailableListener.unavailable.has(r.d.id);
+        if (wasUnavailable) unavailableListener.unavailable.delete(r.d.id);
         const member =
           (this.guilds.cache.get(r.d.id)?.members.me as FireMember) ??
           (r.d.members.find(
             (member: APIGuildMember) => member.user.id == this.user.id
           ) as APIGuildMember);
-        this.manager.ws?.send(
-          MessageUtil.encode(
-            new Message(EventType.GUILD_CREATE, {
-              id: r.d.id,
-              member: GuildCheckEvent.getMemberJSON(member),
-            })
-          )
-        );
-      } else if (r.t == Constants.WSEvents.GUILD_DELETE)
+        if (!wasUnavailable)
+          this.manager.ws?.send(
+            MessageUtil.encode(
+              new Message(EventType.GUILD_CREATE, {
+                id: r.d.id,
+                member: GuildCheckEvent.getMemberJSON(member),
+              })
+            )
+          );
+      } else if (
+        r.t == Constants.WSEvents.GUILD_DELETE &&
+        r.d.unavailable != false
+      )
         this.manager.ws?.send(
           MessageUtil.encode(
             new Message(EventType.GUILD_DELETE, { id: r.d.id })
