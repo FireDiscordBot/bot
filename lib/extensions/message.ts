@@ -1147,7 +1147,7 @@ export class FireMessage extends Message {
           "json",
           true
         );
-      this.client.influx([
+      this.client.writeToInflux([
         {
           measurement: "phishing",
           tags: {

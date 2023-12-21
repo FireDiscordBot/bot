@@ -75,7 +75,7 @@ export default class CommandError extends Listener {
       sentry.setExtras(null);
       sentry.setUser(null);
     }
-    this.client.influx([point]);
+    this.client.writeToInflux([point]);
 
     if (
       (message instanceof ApplicationCommandMessage ||

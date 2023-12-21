@@ -2,6 +2,8 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
 
 export default class GuildUnavailable extends Listener {
+  unavailable: Set<string> = new Set();
+
   constructor() {
     super("guildUnavailable", {
       emitter: "client",
@@ -11,6 +13,8 @@ export default class GuildUnavailable extends Listener {
 
   async exec(guild: FireGuild) {
     if (typeof guild.name == "undefined") return;
+    if (this.unavailable.has(guild.id)) return;
+    this.unavailable.add(guild.id);
     this.client.console.warn(
       `[Guilds] Guild ${guild.name} (${guild.id}) has gone unavailable`
     );

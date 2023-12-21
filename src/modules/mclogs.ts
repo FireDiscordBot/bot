@@ -459,7 +459,7 @@ export default class MCLogs extends Module {
         if (solutionsHaste) point.fields.solutions = solutionsHaste.url;
         if (recommendationsHaste)
           point.fields.recommendations = recommendationsHaste.url;
-        this.client.influx([point]);
+        this.client.writeToInflux([point]);
       }
     }
   }
@@ -813,7 +813,7 @@ export default class MCLogs extends Module {
       if (!user.hasExperiment(2219986954, 1))
         // i need better ways of detecting feather
         // so I need more log samples
-        this.client.influx([
+        this.client.writeToInflux([
           {
             measurement: "mclogs",
             tags: {
@@ -846,7 +846,7 @@ export default class MCLogs extends Module {
     ) {
       if (!user.hasExperiment(2219986954, 1))
         // same reason as feather
-        this.client.influx([
+        this.client.writeToInflux([
           {
             measurement: "mclogs",
             tags: {
@@ -878,7 +878,7 @@ export default class MCLogs extends Module {
       user.guild.settings.get<boolean>("minecraft.logscan.clients", false)
     ) {
       // same again
-      this.client.influx([
+      this.client.writeToInflux([
         {
           measurement: "mclogs",
           tags: {
@@ -921,7 +921,7 @@ export default class MCLogs extends Module {
       );
       // user has not opted out of data collection for analytics
       if (!user.hasExperiment(2219986954, 1))
-        this.client.influx([
+        this.client.writeToInflux([
           {
             measurement: "mclogs",
             tags: {
@@ -1465,7 +1465,7 @@ export default class MCLogs extends Module {
         return await message.error("MC_LOG_FAILED", { error: haste.message });
       // user has not opted out of data collection for analytics
       else if (!message.hasExperiment(2219986954, 1))
-        this.client.influx([
+        this.client.writeToInflux([
           {
             measurement: "mclogs",
             tags: {
@@ -1520,7 +1520,7 @@ export default class MCLogs extends Module {
           ) {
             // user has not opted out of data collection for analytics
             if (!message.hasExperiment(2219986954, 1))
-              this.client.influx([
+              this.client.writeToInflux([
                 {
                   measurement: "mclogs",
                   tags: {
@@ -1555,7 +1555,7 @@ export default class MCLogs extends Module {
             );
             if (!message.hasExperiment(2219986954, 1))
               // user has not opted out of data collection for analytics
-              this.client.influx([
+              this.client.writeToInflux([
                 {
                   measurement: "mclogs",
                   tags: {

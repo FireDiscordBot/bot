@@ -17,7 +17,7 @@ export default class MissingPermissions extends Listener {
     type: "client" | "user",
     missing: PermissionString[]
   ) {
-    this.client.influx([
+    this.client.writeToInflux([
       {
         measurement: "commands",
         tags: {

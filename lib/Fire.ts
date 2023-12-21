@@ -56,6 +56,7 @@ import {
   Constants,
   GuildFeatures,
   PresenceStatusData,
+  SnowflakeUtil,
   version as djsver,
 } from "discord.js";
 import * as fuzz from "fuzzball";
@@ -69,7 +70,7 @@ import { FireMember } from "./extensions/guildmember";
 import { FireMessage } from "./extensions/message";
 import { ModalMessage } from "./extensions/modalmessage";
 import { FireUser } from "./extensions/user";
-import { IPoint, IWriteOptions } from "./interfaces/aether";
+import { IPoint, IQueryOptions, IWriteOptions } from "./interfaces/aether";
 import { Experiment } from "./interfaces/experiments";
 import { PostgresProvider } from "./providers/postgres";
 import { RESTManager } from "./rest/RESTManager";
@@ -86,6 +87,8 @@ import { Message } from "./ws/Message";
 import { MessageUtil } from "./ws/util/MessageUtil";
 import { EventType } from "./ws/util/constants";
 import { timeTypeCaster } from "@fire/src/arguments/time";
+import AetherStats from "@fire/src/modules/aetherstats";
+import GuildUnavailable from "@fire/src/listeners/guildUnavailable";
 // this shit has some weird import fuckery, this is the only way I can use it
 const i18n = i18next as unknown as typeof i18next.default;
 
@@ -194,6 +197,11 @@ export class Fire extends AkairoClient {
     this.on("ready", () => config.fire.readyMessage(this));
     this.nonceHandlers = new Collection();
     this.on("raw", (r: any, shard: number) => {
+      const aetherstats = this.getModule("aetherstats") as AetherStats;
+      if (!(shard in aetherstats.events)) aetherstats.events[shard] = {};
+      if (r.t && !(r.t in aetherstats.events[shard]))
+        aetherstats.events[shard][r.t] = 1;
+      else if (r.t) aetherstats.events[shard][r.t]++;
       if (r.d?.nonce && this.nonceHandlers.has(r.d.nonce)) {
         this.nonceHandlers.get(r.d.nonce)(r.d);
         this.nonceHandlers.delete(r.d.nonce);
@@ -204,6 +212,11 @@ export class Fire extends AkairoClient {
         !r.d?.unavailable &&
         !!this.readyAt
       ) {
+        const unavailableListener = this.getListener(
+          "guildUnavailable"
+        ) as GuildUnavailable;
+        if (unavailableListener.unavailable.has(r.d.id))
+          unavailableListener.unavailable.delete(r.d.id);
         const member =
           (this.guilds.cache.get(r.d.id)?.members.me as FireMember) ??
           (r.d.members.find(
@@ -572,7 +585,7 @@ export class Fire extends AkairoClient {
     }
   }
 
-  influx(points: IPoint[], options?: IWriteOptions) {
+  writeToInflux(points: IPoint[], options?: IWriteOptions) {
     if (!this.manager.ws?.open) return;
     this.manager.ws?.send(
       MessageUtil.encode(
@@ -584,6 +597,34 @@ export class Fire extends AkairoClient {
         )
       )
     );
+  }
+
+  queryInflux(query: string, options?: IQueryOptions) {
+    return new Promise<any[]>((resolve, reject) => {
+      const nonce = SnowflakeUtil.generate();
+      const handle = (
+        data:
+          | { success: true; results: any[] }
+          | { success: false; error: string }
+      ) => {
+        if (data.success == false) return reject(data.error);
+        else resolve(data.results);
+      };
+      this.manager.ws.handlers.set(nonce, handle);
+      this.manager.ws.send(
+        MessageUtil.encode(
+          new Message(EventType.INFLUX_QUERY, { query, options }, nonce)
+        )
+      );
+
+      setTimeout(() => {
+        // if still there, a response has not been received
+        if (this.manager.ws.handlers.has(nonce)) {
+          this.manager.ws.handlers.delete(nonce);
+          reject();
+        }
+      }, 30000);
+    });
   }
 
   setReadyPresence() {

@@ -28,7 +28,9 @@ export default class CommandStarted extends Listener {
       fields: {
         type: "started",
         command: command.id,
-        guild: message.guild ? `${message.guild.name} (${message.guildId})` : "N/A",
+        guild: message.guild
+          ? `${message.guild.name} (${message.guildId})`
+          : "N/A",
         user: `${message.author} (${message.author.id})`,
         message_id: message.id,
         args: "",
@@ -37,6 +39,6 @@ export default class CommandStarted extends Listener {
     try {
       point.fields.args = inspect(args, false, 0);
     } catch {}
-    this.client.influx([point]);
+    this.client.writeToInflux([point]);
   }
 }

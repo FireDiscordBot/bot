@@ -41,7 +41,7 @@ export default class CommandFinished extends Listener {
     try {
       point.fields.return = inspect(ret, false, 0);
     } catch {}
-    this.client.influx([point]);
+    this.client.writeToInflux([point]);
 
     if (message instanceof ApplicationCommandMessage || !message.channel)
       return;

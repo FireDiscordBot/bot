@@ -89,8 +89,35 @@ export interface IWriteOptions {
    */
   precision?: InfluxPrecision;
   /**
+   * Retention policy to write the points under, defaults to the DEFAULT
+   * database policy.
+   */
+  retentionPolicy?: string;
+  /**
    * Database under which to write the points. This is required if a default
    * database is not provided in Influx.
    */
   database?: string;
+}
+export interface IQueryOptions {
+  /**
+   * Defines the precision at which to query points. When left blank, it will
+   * query in nanosecond precision.
+   */
+  precision?: InfluxPrecision;
+  /**
+   * Retention policy to query from, defaults to the DEFAULT
+   * database policy.
+   */
+  retentionPolicy?: string;
+  /**
+   * Database under which to query the points. This is required if a default
+   * database is not provided in Influx.
+   */
+  database?: string;
+  /**
+   * Any placeholders used by the query. Using these is strongly recommended
+   * to avoid injection attacks.
+   */
+  placeholders?: Record<string, string | number>;
 }

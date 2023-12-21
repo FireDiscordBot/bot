@@ -46,6 +46,7 @@ export enum EventType {
   REFRESH_SLASH_COMMAND_IDS,
   SET_CUSTOM_STATUS,
   UPDATE_SETTINGS,
+  INFLUX_QUERY,
 }
 
 export enum WebsocketStates {

@@ -396,7 +396,7 @@ export class RequestHandler {
       fields.limit ??= this.limit;
     if (typeof this.remaining == "number" && this.remaining)
       fields.remaining = this.remaining;
-    this.manager.client.influx([
+    this.manager.client.writeToInflux([
       {
         measurement: "requests",
         tags: {
@@ -411,7 +411,7 @@ export class RequestHandler {
 
   checkLatency(request: APIRequest, response?: centra.Response) {
     const latency = request.client.restPing;
-    this.manager.client.influx([
+    this.manager.client.writeToInflux([
       {
         measurement: "restLatency",
         tags: {
