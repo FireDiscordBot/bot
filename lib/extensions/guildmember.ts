@@ -4,6 +4,7 @@ import {
   DMChannel,
   Formatters,
   GuildBasedChannel,
+  GuildChannelResolvable,
   GuildMember,
   ImageURLOptions,
   MessageEmbed,
@@ -95,6 +96,14 @@ export class FireMember extends GuildMember {
       this.avatarURL({ ...options, display: true }) ||
       this.user.displayAvatarURL(options)
     );
+  }
+
+  permissionsIn(
+    channel: GuildChannelResolvable | BaseFakeChannel
+  ): Readonly<Permissions> {
+    if (channel instanceof BaseFakeChannel)
+      channel = channel.real as GuildChannelResolvable;
+    return super.permissionsIn(channel);
   }
 
   isModerator(channel?: DMChannel | GuildBasedChannel | BaseFakeChannel) {
