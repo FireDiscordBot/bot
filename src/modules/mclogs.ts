@@ -1115,7 +1115,7 @@ export default class MCLogs extends Module {
           )
             return false;
         });
-        if (optifineVersions[0].shortName != versions.optifineVersion)
+        if (optifineVersions[0]?.shortName != versions.optifineVersion)
           currentSolutions.add(
             "- **" +
               language.get("MC_LOG_UPDATE", {
