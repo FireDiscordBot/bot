@@ -88,6 +88,12 @@ export default class NewTicket extends Command {
           limit: message.guild.settings.get<number>("tickets.limit", 1),
         })}`
       );
+    else if (ticket == "toggled")
+      return await creating.edit(
+        `${emojis.error} ${message.language.get("NEW_TICKET_TOGGLED", {
+          message: message.guild.settings.get<string>("tickets.togglemsg"),
+        })}`
+      );
     else if (ticket instanceof Error)
       return this.client.commandHandler.emit(
         "commandError",

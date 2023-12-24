@@ -1073,6 +1073,9 @@ export class FireGuild extends Guild {
     const parents = this.settings.get<Snowflake[]>("tickets.parent", []);
     if (!parents.length || !this.channels.cache.has(parents[0]))
       return "disabled";
+    const toggled = this.settings.has("tickets.togglemsg");
+    if (toggled) return "toggled";
+
     category =
       category ||
       (this.channels.cache.find(

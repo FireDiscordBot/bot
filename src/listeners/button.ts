@@ -681,6 +681,12 @@ export default class Button extends Listener {
               limit: button.guild.settings.get<number>("tickets.limit", 1),
             })
           );
+        else if (ticket == "toggled")
+          return await button.edit(
+            button.language.getSlashError("NEW_TICKET_TOGGLED", {
+              message: button.guild.settings.get<string>("tickets.togglemsg"),
+            })
+          );
         else if (ticket instanceof Error)
           this.client.sentry.captureException(ticket, {
             user: {
@@ -807,6 +813,12 @@ export default class Button extends Listener {
           return await button.edit(
             button.language.getSlashError("NEW_TICKET_LOCK", {
               limit: button.guild.settings.get<number>("tickets.limit", 1),
+            })
+          );
+        else if (ticket == "toggled")
+          return await button.edit(
+            button.language.getSlashError("NEW_TICKET_TOGGLED", {
+              message: button.guild.settings.get<string>("tickets.togglemsg"),
             })
           );
         else if (ticket instanceof Error)
@@ -960,6 +972,12 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           return await button.edit(
             button.language.getSlashError("NEW_TICKET_LOCK", {
               limit: button.guild.settings.get<number>("tickets.limit", 1),
+            })
+          );
+        else if (ticket == "toggled")
+          return await button.edit(
+            button.language.getSlashError("NEW_TICKET_TOGGLED", {
+              message: button.guild.settings.get<string>("tickets.togglemsg"),
             })
           );
         else if (ticket instanceof Error)
@@ -1119,6 +1137,10 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         else if (ticket == "lock")
           return await modal.error("NEW_TICKET_LOCK", {
             limit: button.guild.settings.get<number>("tickets.limit", 1),
+          });
+        else if (ticket == "toggled")
+          return await modal.error("NEW_TICKET_TOGGLED", {
+            message: button.guild.settings.get<string>("tickets.togglemsg"),
           });
         else
           return await modal.error("COMMAND_ERROR_500_CTX", {
