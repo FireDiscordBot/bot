@@ -3,6 +3,7 @@ import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
 import User from "./user";
+import { snowflakeConverter } from "@fire/lib/util/converters";
 
 export default class Snowflake extends Command {
   userCommand: User;
@@ -30,17 +31,10 @@ export default class Snowflake extends Command {
 
   async run(command: ApplicationCommandMessage, args: { snowflake: string }) {
     if (!args.snowflake) return;
-    const snowflake = await userMemberSnowflakeTypeCaster(
-      command,
-      args.snowflake
-    );
+    const snowflake = await snowflakeConverter(command, args.snowflake);
     if (!this.userCommand)
       this.userCommand = this.client.getCommand("user") as User;
     if (!this.userCommand || !snowflake) return;
-    return await this.userCommand.snowflakeInfo(
-      command,
-      // @ts-ignore (i can't figure out why this complains)
-      snowflake
-    );
+    return await this.userCommand.snowflakeInfo(command, snowflake);
   }
 }
