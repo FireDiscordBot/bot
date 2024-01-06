@@ -172,14 +172,6 @@ export default class RemindersCreate extends Command {
         timestamp: now,
       });
 
-      // we push a dummy reminder that we use for "snoozing"
-      event.sent.push({
-        user: command.author.id,
-        text: reminderText,
-        link: clickedMessage.url,
-        timestamp: now,
-      });
-
       // Create the components
       const dropdown = new MessageSelectMenu()
         .setPlaceholder(
