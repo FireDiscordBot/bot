@@ -140,7 +140,7 @@ export class FireUser extends User {
     const timestamp = +when;
     if (
       isNaN(timestamp) ||
-      (timestamp < +new Date() + 60000 && !this.isSuperuser())
+      (timestamp < +new Date() + 120_000 && !this.isSuperuser())
     )
       return false;
     const reminder = await this.client.db
