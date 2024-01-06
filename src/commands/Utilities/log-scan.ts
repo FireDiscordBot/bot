@@ -11,7 +11,7 @@ import {
 
 export default class LogScan extends Command {
   valid = {
-    names: ["cheats", "clients", "mobile", "cracked"],
+    names: ["cheats", "clients", "allowfeather", "mobile", "cracked"],
     options: (command: CommonContext) => {
       if (!command.guild) return [];
       return [
@@ -34,6 +34,17 @@ export default class LogScan extends Command {
           ),
           default: command.guild.settings.get<boolean>(
             "minecraft.logscan.clients",
+            false
+          ),
+        },
+        {
+          label: command.language.get("MINECRAFT_LOGSCAN_OPTION_ALLOWFEATHER"),
+          value: "allowfeather",
+          description: command.language.get(
+            "MINECRAFT_LOGSCAN_OPTION_ALLOWFEATHER_DESC"
+          ),
+          default: command.guild.settings.get<boolean>(
+            "minecraft.logscan.allowfeather",
             false
           ),
         },

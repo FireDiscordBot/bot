@@ -750,6 +750,8 @@
   "MINECRAFT_LOGSCAN_OPTION_CHEATS_DESC": "Doesn't provide solutions when known cheats are found",
   "MINECRAFT_LOGSCAN_OPTION_CLIENTS": "Block Client Logs",
   "MINECRAFT_LOGSCAN_OPTION_CLIENTS_DESC": "Directs users using clients to the client's support server",
+  "MINECRAFT_LOGSCAN_OPTION_ALLOWFEATHER": "Feather as a mod",
+  "MINECRAFT_LOGSCAN_OPTION_ALLOWFEATHER_DESC": "Exclude Feather from client detection as it is a Forge/Fabric mod",
   "MINECRAFT_LOGSCAN_OPTION_MOBILE": "Block Mobile Logs",
   "MINECRAFT_LOGSCAN_OPTION_MOBILE_DESC": "Doesn't provide solutions for users on mobile devices",
   "MINECRAFT_LOGSCAN_OPTION_CRACKED": "Block Pirated Players",

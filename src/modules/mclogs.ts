@@ -5,32 +5,21 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { IPoint } from "@fire/lib/interfaces/aether";
 import { FabricLoaderVersion } from "@fire/lib/interfaces/fabricmc";
 import { ForgePromotions } from "@fire/lib/interfaces/minecraftforge";
+import { validPasteURLs } from "@fire/lib/util/clientutil";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
-import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
-import { Readable } from "stream";
+import {
+  MessageActionRow,
+  MessageAttachment,
+  MessageButton,
+  MessageEmbed,
+} from "discord.js";
+import { lt as semverLessThan } from "semver";
 import { getCodeblockMatch } from "../arguments/codeblock";
 import Filters from "./filters";
-import { lt as semverLessThan } from "semver";
 
 const { mcLogFilters } = constants;
-
-const allowedURLs = [
-  "minecraftservices.com",
-  "microsoftonline.com",
-  "minecraftforge.net",
-  "logging.apache.org",
-  "microsoft.com",
-  "xboxlive.com",
-  "fabricmc.net",
-  "essential.gg",
-  "mojang.com",
-  "sk1er.club",
-  "lwjgl.org",
-  "127.0.0.1",
-  "live.com",
-];
 
 const clientDetection = {
   lunar: [
@@ -50,7 +39,8 @@ enum Loaders {
   FABRIC = "Fabric",
   QUILT = "Quilt",
   OPTIFINE = "Vanilla w/OptiFine HD U", // will be shown as "Vanilla w/OptiFine HD U H4"
-  FEATHER = "Feather",
+  FEATHER_FORGE = "Feather on Forge", // Feather's version will be inserted before displaying
+  FEATHER_FABRIC = "Feather on Fabric", // same here
 }
 
 type ModLoaders = "Forge" | "Fabric" | "Quilt";
@@ -79,6 +69,7 @@ type VersionInfo = {
   mcVersion: MinecraftVersion;
   loaderVersion: string;
   optifineVersion: string;
+  featherVersion: string;
   javaVersion: string;
   jvmType: string;
   mods: ModInfo[];
@@ -132,7 +123,7 @@ This is caused by a new AMD driver update that appears to be a complete rewrite 
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
   regexes: {
-    reupload: RegExp;
+    basicUrl: RegExp;
     noRaw: RegExp;
     secrets: RegExp;
     jvm: RegExp;
@@ -140,7 +131,6 @@ export default class MCLogs extends Module {
     exOptifine: RegExp;
     ram: RegExp;
     email: RegExp;
-    url: RegExp;
     home: RegExp;
     settingUser: RegExp;
     devEnvUser: RegExp;
@@ -192,18 +182,16 @@ export default class MCLogs extends Module {
       cheats: [],
     };
     this.regexes = {
-      reupload:
-        /(?:https?:\/\/)?(paste\.ee|pastebin\.com|has?tebin\.com|(?:www\.)?toptal\.com\/developers\/hastebin|hasteb\.in|hst\.sh)\/(?:raw\/|p\/)?([\w-\.]+)/gim,
+      basicUrl: /(https?:\/\/[^\s]+)/gim,
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets:
-        /("access_key":".+"|api.sk1er.club\/auth|LoginPacket|SentryAPI.cpp|"authHash":|"hash":"|--accessToken \S+|\(Session ID is token:|Logging in with details: |Server-Hash: |Checking license key :|USERNAME=.*|https:\/\/api\.hypixel\.net\/.+(\?key=|&key=))|Authorization ?: ?(Bearer\n?\w*)/gim,
-      jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx\d{1,2}(?:G|M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
+        /--accessToken \S+|\(Session ID is token:|Authorization ?: ?(Bearer\n?\w*)/gim,
+      jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx(?:\d{1,2}G|\d{3,5}M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
       optifine:
         /OptiFine_(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
       exOptifine: /HD_U_\w\d_MOD/gm,
-      ram: /-Xmx(?<ram>\d{1,2})(?<type>G|M)/gim,
+      ram: /-Xmx(?<ram>\d{1,2}G|\d{3,4}M)/gim,
       email: /[\w.+-]{1,50}@[\w-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
-      url: /(?:https:\/\/|http:\/\/)[-\w@:%.\+~#=]{1,256}\.[\w()]{1,6}\b(?:[-\w()@:%\+.~#?&\/\/=]*)/gim,
       home: /(\/Users\/[\w\sÀ-ÖØ-öø-ÿ]+|\/home\/\w+|C:\\Users\\[\w\sÀ-ÖØ-öø-ÿ]+)/gim,
       settingUser:
         /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
@@ -240,29 +228,28 @@ export default class MCLogs extends Module {
       jvmCrashJavaVersion:
         /^vm_info: (?<name>.* VM) \(.*\) for (?<os>(?<osname>[\w\s]*)-(?<osarch>\w*)) JRE \((?<version>\d*\.\d*\.\d*(?:_\d{1,3})?(?:-b\d{1,3})?)\)/gim,
       loaderVersions: [
-        // this needs to be at the top as otherwise it'd trip another regex first
-        // since feather is just a mod, not a loader
+        // The Feather regexes need to be above the regular loader regexes since otherwise, they'd be matched by the regular ones
         {
-          loader: Loaders.FEATHER,
+          loader: Loaders.FEATHER_FABRIC,
           regexes: [
-            /Started Feather \((?<loaderver>\w*)\)/gim,
-
-            // Feather isn't nice and doesn't log the mc version so we need to try the Forge/Fabric regexes too
-            /Forge Mod Loader version (?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5} for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) loading/gim,
-            /Forge mod loading, version (?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}, for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
-            /--version, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge-(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}/gim,
-            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?)-(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}/gim,
-            /--fml\.mcVersion, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
-            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
-            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Fabric Loader \d\.\d{1,3}\.\d{1,3}/gim,
-            /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
-          loader: Loaders.FEATHER,
+          loader: Loaders.FEATHER_FABRIC,
           regexes: [
-            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-feather/gim,
-            /FeatherOpt \(FeatherOpt-(?<loaderver>(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*))/gim,
+            /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Started Feather \((?<featherver>\w*)\)/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER_FABRIC,
+          regexes: [
+            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
@@ -292,6 +279,63 @@ export default class MCLogs extends Module {
           ],
         },
         {
+          loader: Loaders.FEATHER_FORGE,
+          regexes: [
+            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) loading/gim,
+            /Started Feather \((?<featherver>\w*)\)/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER_FORGE,
+          regexes: [
+            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Started Feather \((?<featherver>\w*)\)/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER_FORGE,
+          regexes: [
+            /--version, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+
+            // below is a variation of the above regex, but for some reason it has the minecraft version THREE TIMES and idk why. it seems to only show in JVM crashes (hs_err_pid.log files)
+            /--version (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+
+            // and then we have this.
+            /Started Feather \((?<featherver>\w*)\)/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER_FORGE,
+          regexes: [
+            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /Started Feather \((?<featherver>\w*)\)/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER_FORGE,
+          regexes: [
+            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Launched Version: forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /Started Feather \((?<featherver>\w*)\)/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER_FORGE,
+          regexes: [
+            /--fml\.forgeVersion, (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--fml\.mcVersion, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Started Feather \((?<featherver>\w*)\)/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER_FORGE,
+          regexes: [
+            /FML: MCP (?:\d{1,5}\.\d{1,5}) Powered by Forge (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Started Feather \((?<featherver>\w*)\)/gim,
+          ],
+        },
+        {
           loader: Loaders.FORGE,
           regexes: [
             /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) loading/gim,
@@ -316,6 +360,13 @@ export default class MCLogs extends Module {
           loader: Loaders.FORGE,
           regexes: [
             /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+          ],
+        },
+        {
+          loader: Loaders.FORGE,
+          regexes: [
+            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Launched Version: forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
@@ -469,6 +520,7 @@ export default class MCLogs extends Module {
       mcVersion: MinecraftVersion,
       loaderVersion: string,
       optifineVersion: string,
+      featherVersion: string,
       mods: ModInfo[] = [],
       javaVersion: string,
       javaVendor: string;
@@ -482,12 +534,18 @@ export default class MCLogs extends Module {
           mcVersion = matchedMcVer = match.groups.mcver as MinecraftVersion;
         if (match?.groups?.loaderver)
           loaderVersion = matchedLoaderVer = match.groups.loaderver;
+        if (
+          (config.loader == Loaders.FEATHER_FORGE ||
+            config.loader == Loaders.FEATHER_FABRIC) &&
+          match?.groups?.featherver
+        )
+          featherVersion = match.groups.featherver;
         if (matchedMcVer && matchedLoaderVer) loader = config.loader;
       }
       if (loader && mcVersion && loaderVersion) break;
     }
 
-    if (!loader && !mcVersion && !loaderVersion)
+    if (!(loader && mcVersion && loaderVersion))
       (loader = undefined),
         (mcVersion = undefined),
         (loaderVersion = undefined);
@@ -785,6 +843,7 @@ export default class MCLogs extends Module {
       mcVersion,
       loaderVersion,
       optifineVersion,
+      featherVersion,
       javaVersion,
       jvmType: javaVendor,
       mods,
@@ -805,10 +864,12 @@ export default class MCLogs extends Module {
     const logLower = log.toLowerCase();
 
     if (
-      (versions.loader == Loaders.FEATHER ||
+      (versions.loader == Loaders.FEATHER_FORGE ||
+        versions.loader == Loaders.FEATHER_FABRIC ||
         versions.mods.find((m) => m.modId == "feather")) &&
       user instanceof FireMember &&
-      user.guild.settings.get<boolean>("minecraft.logscan.clients", false)
+      user.guild.settings.get<boolean>("minecraft.logscan.clients", false) &&
+      !user.guild.settings.get<boolean>("minecraft.logscan.allowfeather", false)
     ) {
       if (!user.hasExperiment(2219986954, 1))
         // i need better ways of detecting feather
@@ -1269,57 +1330,43 @@ export default class MCLogs extends Module {
       });
     } else this.regexes.noRaw.lastIndex = 0;
 
-    const reupload = this.regexes.reupload.exec(message.content);
-    this.regexes.reupload.lastIndex = 0;
-    if (reupload != null && reupload.length >= 3) {
-      const domain = reupload[1];
-      const key = reupload[2];
-      message.content = message.content
-        .replace(this.regexes.reupload, "")
-        .trim();
-      const url = `https://${domain}/${
-        domain.includes("paste.ee") ? "r/" : "raw/"
-      }${key}`;
-      message.attachments.set(message.id, {
-        setFile: function () {
-          return this;
-        },
-        setName: function () {
-          return this;
-        },
-        setDescription: function () {
-          return this;
-        },
-        toJSON: () => {
-          return {};
-        },
-        setSpoiler: function () {
-          return this;
-        },
-        contentType: "text/plain; charset=utf-8",
-        name: `${domain}/${key}.txt`,
-        ephemeral: true,
-        id: message.id,
-        description: "",
-        attachment: "",
-        spoiler: false,
-        proxyURL: url,
-        height: 0,
-        size: 0,
-        width: 0,
-        url,
-      });
+    const pasteURLs: URL[] = [];
+    if (validPasteURLs.some((u) => message.content.includes(u))) {
+      const matches = message.content.match(this.regexes.basicUrl);
+      for (const match of matches) {
+        const rawURL = this.client.util.getRawPasteURL(match);
+        if (rawURL) {
+          if (
+            rawURL.pathname.endsWith(".log") ||
+            rawURL.pathname.endsWith(".txt")
+          )
+            rawURL.pathname = rawURL.pathname.slice(0, -4);
+          pasteURLs.push(rawURL);
+          message.content = message.content.replace(match, "");
+        }
+      }
     }
 
-    // this should always be "sent" not "sent a paste containing"
+    for (const paste of pasteURLs)
+      message.attachments.set(
+        paste.pathname,
+        new MessageAttachment(
+          paste.toString(),
+          `${paste.hostname}${paste.pathname}.txt`,
+          {
+            id: paste.pathname,
+            filename: `${paste.hostname}${paste.pathname}.txt`,
+            size: 0,
+            proxy_url: paste.toString(),
+            url: paste.toString(),
+          }
+        )
+      );
+
     if (!message.attachments.size && message.content.length > 350) {
       const processed = await this.processLogStream(message, message.content);
       if (processed && this.hasLogText(processed))
-        return await this.handleLogText(
-          message,
-          processed,
-          reupload != null ? "sent a paste containing" : "sent"
-        );
+        return await this.handleLogText(message, "content", processed, "sent");
     }
 
     for (const [, attach] of message.attachments.filter(
@@ -1329,13 +1376,13 @@ export default class MCLogs extends Module {
         attachment.size <= 8000000
     )) {
       try {
-        // const text = await (await centra(attach.url).send()).text();
         let chunks: string[] = [];
-        const stream = await centra(attach.url)
-          .header("User-Agent", this.client.manager.ua)
-          .stream()
-          .send();
-        for await (const chunk of stream as unknown as Readable) {
+        const stream = await this.client.util.getPasteContent(
+          new URL(attach.url),
+          true
+        );
+        if (!stream) continue;
+        for await (const chunk of stream) {
           chunks.push(chunk.toString());
           if (chunks.length >= 5 && !this.hasLogText(chunks.join(""))) {
             chunks = [];
@@ -1392,7 +1439,12 @@ export default class MCLogs extends Module {
           processed.length &&
           processed.some((chunk) => this.hasLogText(chunk))
         )
-          await this.handleLogText(message, processed.join(""), "uploaded");
+          await this.handleLogText(
+            message,
+            attach.url,
+            processed.join(""),
+            "uploaded"
+          );
       } catch (e) {
         this.client.console.debug(`[MCLogs] Failed to process log,`, e.stack);
         this.client.sentry.captureException(e);
@@ -1404,12 +1456,7 @@ export default class MCLogs extends Module {
   private async processLogStream(message: FireMessage, data: string) {
     data = data
       .replace(this.regexes.email, "[removed email]")
-      .replace(this.regexes.home, "USER.HOME")
-      .replace(this.regexes.url, (match: string) => {
-        if (allowedURLs.some((allowed) => match.includes(allowed)))
-          return match;
-        else return "[removed url]";
-      });
+      .replace(this.regexes.home, "USER.HOME");
 
     const filters = this.client.getModule("filters") as Filters;
     data = await filters.runReplace(data, message);
@@ -1429,7 +1476,12 @@ export default class MCLogs extends Module {
     return data;
   }
 
-  async handleLogText(message: FireMessage, text: string, msgType: string) {
+  async handleLogText(
+    message: FireMessage,
+    source: string,
+    text: string,
+    msgType: string
+  ) {
     const lines = text.split("\n");
     for (const line of lines) {
       if (this.regexes.secrets.test(line)) {
@@ -1481,13 +1533,13 @@ export default class MCLogs extends Module {
                 ? `${message.guild?.name} (${message.guildId})`
                 : "Unknown",
               user: `${message.author} (${message.author.id})`,
-              msgType,
               haste: haste.url,
               loader: mcInfo?.loader,
               loader_version: mcInfo?.loaderVersion,
               mc_version: mcInfo?.mcVersion,
               raw: haste.raw,
               mods: modsHaste,
+              source,
             },
           },
         ]);
@@ -1619,7 +1671,14 @@ export default class MCLogs extends Module {
           (message.guild ?? message).language.get("MC_LOG_LOADER_INFO", {
             version: mcInfo.loaderVersion?.trim(),
             minecraft: mcInfo.mcVersion?.trim(),
-            loader: mcInfo.loader?.trim(),
+            loader:
+              (mcInfo.loader == Loaders.FEATHER_FORGE ||
+                mcInfo.loader == Loaders.FEATHER_FABRIC) &&
+              mcInfo.featherVersion
+                ? `${mcInfo.loader.slice(0, 7)} ${
+                    mcInfo.featherVersion
+                  } ${mcInfo.loader.slice(8)}`
+                : mcInfo.loader?.trim(),
           })
         );
       if (mcInfo.optifineVersion && mcInfo.loader != Loaders.OPTIFINE)

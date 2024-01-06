@@ -36,6 +36,7 @@ import { Command } from "./command";
 import { CouponType, GuildTextChannel, titleCase } from "./constants";
 import { Language, LanguageKeys } from "./language";
 import { PaginatorInterface } from "./paginators";
+import { Readable } from "stream";
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -48,6 +49,30 @@ export const humanFileSize = (size: number) => {
 
 const AllowedImageFormats = ["webp", "png", "jpg", "jpeg", "gif"];
 const AllowedImageSizes = Array.from({ length: 9 }, (e, i) => 2 ** (i + 4));
+
+type PasteURL =
+  | "h.inv.wtf"
+  | "hst.sh"
+  | "paste.ee"
+  | "api.paste.ee"
+  | "pastebin.com"
+  | "paste.essential.gg"
+  | "github.com"
+  | "raw.githubusercontent.com"
+  | "objects.githubusercontent.com"
+  | "cdn.discordapp.com";
+export const validPasteURLs: PasteURL[] = [
+  "h.inv.wtf",
+  "hst.sh",
+  "paste.ee",
+  "api.paste.ee",
+  "pastebin.com",
+  "paste.essential.gg",
+  "github.com",
+  "raw.githubusercontent.com",
+  "objects.githubusercontent.com",
+  "cdn.discordapp.com",
+];
 
 interface MojangProfile {
   name: string;
@@ -833,5 +858,68 @@ export class Util extends ClientUtil {
       )
     );
     user.settings.delete("premium.coupon");
+  }
+
+  isValidPasteURL(url: PasteURL) {
+    return validPasteURLs.includes(url);
+  }
+
+  getRawPasteURL(url: string | URL) {
+    try {
+      if (typeof url == "string") url = new URL(url);
+    } catch {
+      return null;
+    }
+    const hostname = url.hostname as PasteURL;
+    if (!this.isValidPasteURL(hostname)) return null;
+    switch (hostname) {
+      case "h.inv.wtf":
+      case "hst.sh":
+      case "paste.essential.gg":
+      case "pastebin.com": {
+        if (!url.pathname.includes("/raw/"))
+          url.pathname = `/raw${url.pathname}`;
+        break;
+      }
+      case "paste.ee":
+      case "api.paste.ee": {
+        if (url.pathname.startsWith("/p/"))
+          url.pathname = `/r/${url.pathname.slice(3)}`;
+        break;
+      }
+      case "github.com": {
+        const split = url.pathname.split("/");
+        if (url.pathname.includes("/blob/"))
+          (url.hostname = "raw.githubusercontent.com"),
+            (url.pathname = `/${split[1]}/${split[2]}/${split[4]}/${split[5]}`);
+        else if (!url.pathname.includes("/files/")) url = null;
+        break;
+      }
+    }
+    return url as URL;
+  }
+
+  async getPasteContent<S extends boolean = false>(
+    url: URL,
+    stream?: S
+  ): Promise<S extends true ? Readable : string> {
+    const rawURL = this.getRawPasteURL(url);
+    if (!rawURL) return null;
+    this.client.console.debug(`[Paste] Fetching ${rawURL}`);
+    const req = centra(rawURL).header("User-Agent", this.client.manager.ua);
+    if (stream) req.stream();
+    const res = await req.send();
+    if (
+      res.statusCode == 301 ||
+      res.statusCode == 302 ||
+      res.statusCode == 307 ||
+      res.statusCode == 308
+    )
+      return await this.getPasteContent(
+        new URL(res.headers["location"]),
+        stream
+      );
+    else if (res.statusCode != 200) return null;
+    return (stream ? (res as unknown as Readable) : await res.text()) as any;
   }
 }
