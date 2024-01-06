@@ -14,26 +14,51 @@ import { ActionLogTypes, MemberLogTypes, ModLogTypes } from "./constants";
 
 type logContent = string | MessageEmbed | MessageEmbedOptions;
 
+enum QueueReasons {
+  FORCED = "forced",
+  LOCKED = "locked",
+  RATELIMITED = "ratelimited",
+  NO_WEBHOOK = "no_webhook",
+  EXCEPTION_WHILE_SENDING = "exception_while_sending",
+}
+
+enum LoggerTypes {
+  ACTION = "action",
+  MEMBERS = "members",
+  MODERATION = "moderation",
+}
+
 export class GuildLogManager {
   guild: FireGuild;
   client: Fire;
   private _data: {
     moderation: {
-      queue: { content: logContent; type: ModLogTypes }[];
+      type: LoggerTypes.MODERATION;
+      queue: { content: logContent; type: ModLogTypes; reason: QueueReasons }[];
       forceFullQueue: boolean;
       webhook: Webhook;
       lock: Semaphore;
       locked: any;
     };
     members: {
-      queue: { content: logContent; type: MemberLogTypes }[];
+      type: LoggerTypes.MEMBERS;
+      queue: {
+        content: logContent;
+        type: MemberLogTypes;
+        reason: QueueReasons;
+      }[];
       forceFullQueue: boolean;
       webhook: Webhook;
       lock: Semaphore;
       locked: any;
     };
     action: {
-      queue: { content: logContent; type: ActionLogTypes }[];
+      type: LoggerTypes.ACTION;
+      queue: {
+        content: logContent;
+        type: ActionLogTypes;
+        reason: QueueReasons;
+      }[];
       forceFullQueue: boolean;
       webhook: Webhook;
       lock: Semaphore;
@@ -41,12 +66,14 @@ export class GuildLogManager {
     };
   };
   rateLimitListener: RateLimit;
+  checkQueue: NodeJS.Timer;
 
   constructor(client: Fire, guild: FireGuild) {
     this.client = client;
     this.guild = guild;
     this._data = {
       moderation: {
+        type: LoggerTypes.MODERATION,
         lock: new Semaphore(1),
         get locked() {
           return this.lock.getPermits() == 0;
@@ -56,6 +83,7 @@ export class GuildLogManager {
         queue: [],
       },
       members: {
+        type: LoggerTypes.MEMBERS,
         lock: new Semaphore(1),
         get locked() {
           return this.lock.getPermits() == 0;
@@ -65,6 +93,7 @@ export class GuildLogManager {
         queue: [],
       },
       action: {
+        type: LoggerTypes.ACTION,
         lock: new Semaphore(1),
         get locked() {
           return this.lock.getPermits() == 0;
@@ -75,6 +104,32 @@ export class GuildLogManager {
       },
     };
     this.rateLimitListener = this.client.getListener("rateLimit") as RateLimit;
+    this.checkQueue = setInterval(() => {
+      const loggers = [
+        this._data.action,
+        this._data.members,
+        this._data.moderation,
+      ];
+      for (const logger of loggers)
+        if (
+          logger.queue.length &&
+          (logger.forceFullQueue ? logger.queue.length >= 10 : true) &&
+          !logger.locked
+        ) {
+          const next = logger.queue.pop();
+          switch (logger.type) {
+            case LoggerTypes.ACTION:
+              this.handleAction(next.content, next.type as ActionLogTypes);
+              break;
+            case LoggerTypes.MEMBERS:
+              this.handleMembers(next.content, next.type as MemberLogTypes);
+              break;
+            case LoggerTypes.MODERATION:
+              this.handleModeration(next.content, next.type as ModLogTypes);
+              break;
+          }
+        }
+    }, 5000);
   }
 
   hasWebhooks(channelId: string) {
@@ -95,18 +150,19 @@ export class GuildLogManager {
 
     const data = this._data.moderation;
     if (data.forceFullQueue && data.queue.length < 10)
-      return data.queue.push({ content, type });
+      return data.queue.push({ content, type, reason: QueueReasons.FORCED });
 
     const acquired = data.lock.tryAcquire();
-    if (!acquired) return data.queue.push({ content, type });
+    if (!acquired)
+      return data.queue.push({ content, type, reason: QueueReasons.LOCKED });
 
     if (
       this.rateLimitListener?.limited.includes(
         `/webhooks/:id/${data.webhook?.token}`
       )
     ) {
-      data.lock.release();
-      return data.queue.push({ content, type });
+      data.queue.push({ content, type, reason: QueueReasons.RATELIMITED });
+      return data.lock.release();
     }
 
     if (!data.webhook) {
@@ -116,7 +172,12 @@ export class GuildLogManager {
       if (!channel) return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
-      if (!webhooks) return data.queue.push({ content, type });
+      if (!webhooks)
+        return data.queue.push({
+          content,
+          type,
+          reason: QueueReasons.NO_WEBHOOK,
+        });
       data.webhook = webhooks.filter((webhook) => !!webhook.token).first();
     }
     if (!data.webhook) {
@@ -134,7 +195,12 @@ export class GuildLogManager {
           }) as string,
         })
         .catch(() => null);
-      if (!data.webhook) return data.queue.push({ content, type });
+      if (!data.webhook)
+        return data.queue.push({
+          content,
+          type,
+          reason: QueueReasons.NO_WEBHOOK,
+        });
     }
 
     const sending: { content: logContent; type: ModLogTypes }[] = [
@@ -177,9 +243,18 @@ export class GuildLogManager {
           .map((log) => log.content) as (MessageEmbed | MessageEmbedOptions)[],
       })
       .catch((e) => {
-        if (e instanceof DiscordAPIError)
-          if (e.code == 10015) data.webhook = null;
-        data.queue.push(...sending.filter((log) => !data.queue.includes(log)));
+        if (e instanceof DiscordAPIError && e.code == 10015)
+          data.webhook = null;
+        else if (!(e instanceof DiscordAPIError))
+          this.client.sentry.captureException(e);
+        data.queue.push(
+          ...sending
+            .filter((log) => !data.queue.find((q) => q.content == log.content))
+            .map((log) => ({
+              ...log,
+              reason: QueueReasons.EXCEPTION_WHILE_SENDING,
+            }))
+        );
       });
     data.lock.release();
     clearTimeout(releaseEventually);
@@ -197,18 +272,19 @@ export class GuildLogManager {
 
     const data = this._data.members;
     if (data.forceFullQueue && data.queue.length < 10)
-      return data.queue.push({ content, type });
+      return data.queue.push({ content, type, reason: QueueReasons.FORCED });
 
     const acquired = data.lock.tryAcquire();
-    if (!acquired) return data.queue.push({ content, type });
+    if (!acquired)
+      return data.queue.push({ content, type, reason: QueueReasons.LOCKED });
 
     if (
       this.rateLimitListener?.limited.includes(
         `/webhooks/:id/${data.webhook?.token}`
       )
     ) {
-      data.lock.release();
-      return data.queue.push({ content, type });
+      data.queue.push({ content, type, reason: QueueReasons.RATELIMITED });
+      return data.lock.release();
     }
 
     if (!data.webhook) {
@@ -218,7 +294,12 @@ export class GuildLogManager {
       if (!channel) return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
-      if (!webhooks) return;
+      if (!webhooks)
+        return data.queue.push({
+          content,
+          type,
+          reason: QueueReasons.NO_WEBHOOK,
+        });
       data.webhook = webhooks.filter((webhook) => !!webhook.token).first();
     }
     if (!data.webhook) {
@@ -236,7 +317,12 @@ export class GuildLogManager {
           }) as string,
         })
         .catch(() => null);
-      if (!data.webhook) return;
+      if (!data.webhook)
+        return data.queue.push({
+          content,
+          type,
+          reason: QueueReasons.NO_WEBHOOK,
+        });
     }
 
     const sending: { content: logContent; type: MemberLogTypes }[] = [
@@ -279,9 +365,18 @@ export class GuildLogManager {
           .map((log) => log.content) as (MessageEmbed | MessageEmbedOptions)[],
       })
       .catch((e) => {
-        if (e instanceof DiscordAPIError)
-          if (e.code == 10015) data.webhook = null;
-        data.queue.push(...sending.filter((log) => !data.queue.includes(log)));
+        if (e instanceof DiscordAPIError && e.code == 10015)
+          data.webhook = null;
+        else if (!(e instanceof DiscordAPIError))
+          this.client.sentry.captureException(e);
+        data.queue.push(
+          ...sending
+            .filter((log) => !data.queue.find((q) => q.content == log.content))
+            .map((log) => ({
+              ...log,
+              reason: QueueReasons.EXCEPTION_WHILE_SENDING,
+            }))
+        );
       });
     data.lock.release();
     clearTimeout(releaseEventually);
@@ -299,18 +394,19 @@ export class GuildLogManager {
 
     const data = this._data.action;
     if (data.forceFullQueue && data.queue.length < 10)
-      return data.queue.push({ content, type });
+      return data.queue.push({ content, type, reason: QueueReasons.FORCED });
 
     const acquired = data.lock.tryAcquire();
-    if (!acquired) return data.queue.push({ content, type });
+    if (!acquired)
+      return data.queue.push({ content, type, reason: QueueReasons.LOCKED });
 
     if (
       this.rateLimitListener?.limited.includes(
         `/webhooks/:id/${data.webhook?.token}`
       )
     ) {
-      data.lock.release();
-      return data.queue.push({ content, type });
+      data.queue.push({ content, type, reason: QueueReasons.RATELIMITED });
+      return data.lock.release();
     }
 
     if (!data.webhook) {
@@ -320,7 +416,12 @@ export class GuildLogManager {
       if (!channel) return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
-      if (!webhooks) return;
+      if (!webhooks)
+        return data.queue.push({
+          content,
+          type,
+          reason: QueueReasons.NO_WEBHOOK,
+        });
       data.webhook = webhooks.filter((webhook) => !!webhook.token).first();
     }
     if (!data.webhook) {
@@ -338,7 +439,12 @@ export class GuildLogManager {
           }) as string,
         })
         .catch(() => null);
-      if (!data.webhook) return;
+      if (!data.webhook)
+        return data.queue.push({
+          content,
+          type,
+          reason: QueueReasons.NO_WEBHOOK,
+        });
     }
 
     const sending: { content: logContent; type: ActionLogTypes }[] = [
@@ -381,9 +487,18 @@ export class GuildLogManager {
           .map((log) => log.content) as (MessageEmbed | MessageEmbedOptions)[],
       })
       .catch((e) => {
-        if (e instanceof DiscordAPIError)
-          if (e.code == 10015) data.webhook = null;
-        data.queue.push(...sending.filter((log) => !data.queue.includes(log)));
+        if (e instanceof DiscordAPIError && e.code == 10015)
+          data.webhook = null;
+        else if (!(e instanceof DiscordAPIError))
+          this.client.sentry.captureException(e);
+        data.queue.push(
+          ...sending
+            .filter((log) => !data.queue.find((q) => q.content == log.content))
+            .map((log) => ({
+              ...log,
+              reason: QueueReasons.EXCEPTION_WHILE_SENDING,
+            }))
+        );
       });
     data.lock.release();
     clearTimeout(releaseEventually);
