@@ -27,7 +27,7 @@ export enum EventType {
   PREMIUM_SYNC,
   UPDATE_BLOCKGAMESOLUTIONS,
   PLAYWRIGHT_REQUEST,
-  UPDATE_FIRE_DESCRIPTION,
+  UNUSED1 = 28, // the = 28 isn't necessary, I just want it to stand out
   FORWARD_MESSAGE,
   FORWARD_MESSAGE_USER,
   SLASH_COMMAND,
@@ -37,7 +37,7 @@ export enum EventType {
   DISCORD_GUILD_MEMBER_ADD,
   DISCORD_GUILD_MEMBER_REMOVE,
   CREATE_INVITE_DISCOVERABLE,
-  UNUSED = 38, // the = 38 isn't necessary, I just want it to stand out
+  UNUSED2 = 38, // i guess the comment makes it stand out anyways though lol
   DISCOVERY_UPDATE,
   API_REQUEST,
   ALIAS_SYNC,
