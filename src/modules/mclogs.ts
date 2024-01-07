@@ -528,19 +528,31 @@ export default class MCLogs extends Module {
     for (const config of this.regexes.loaderVersions) {
       const matches = config.regexes.map((regex) => regex.exec(log));
       config.regexes.forEach((regex) => (regex.lastIndex = 0));
-      let matchedMcVer: MinecraftVersion, matchedLoaderVer: string;
       for (const match of matches) {
         if (match?.groups?.mcver)
-          mcVersion = matchedMcVer = match.groups.mcver as MinecraftVersion;
-        if (match?.groups?.loaderver)
-          loaderVersion = matchedLoaderVer = match.groups.loaderver;
+          mcVersion = match.groups.mcver as MinecraftVersion;
+        if (match?.groups?.loaderver) loaderVersion = match.groups.loaderver;
         if (
           (config.loader == Loaders.FEATHER_FORGE ||
             config.loader == Loaders.FEATHER_FABRIC) &&
           match?.groups?.featherver
         )
           featherVersion = match.groups.featherver;
-        if (matchedMcVer && matchedLoaderVer) loader = config.loader;
+        if (
+          mcVersion &&
+          loaderVersion &&
+          (config.loader == Loaders.FEATHER_FORGE ||
+          config.loader == Loaders.FEATHER_FABRIC
+            ? featherVersion
+            : true)
+        )
+          loader = config.loader;
+        else if (
+          // reset if we're on Feather without its version
+          config.loader == Loaders.FEATHER_FORGE ||
+          config.loader == Loaders.FEATHER_FABRIC
+        )
+          mcVersion = loaderVersion = undefined;
       }
       if (loader && mcVersion && loaderVersion) break;
     }
