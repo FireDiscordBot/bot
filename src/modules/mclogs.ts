@@ -18,6 +18,7 @@ import {
 import { lt as semverLessThan } from "semver";
 import { getCodeblockMatch } from "../arguments/codeblock";
 import Filters from "./filters";
+import { Language } from "@fire/lib/util/language";
 
 const { mcLogFilters } = constants;
 
@@ -102,8 +103,10 @@ type DependencyInfo = {
 
 const classicForgeModsHeader =
   "States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored";
-const forgeDependenciesError =
-  "[main/ERROR]: Missing or unsupported mandatory dependencies:";
+const forgeDependenciesErrors = [
+  "[main/ERROR]: Missing or unsupported mandatory dependencies:",
+  "[main/ERROR] [net.minecraftforge.fml.loading.ModSorter/LOADING]: Missing or unsupported mandatory dependencies:",
+];
 const missingDep = "[MISSING]";
 
 const modIdClean = /_|\-/g;
@@ -515,7 +518,11 @@ export default class MCLogs extends Module {
     }
   }
 
-  private getMCInfo(log: string, splitLog: string[]): VersionInfo {
+  private getMCInfo(
+    log: string,
+    splitLog: string[],
+    lang: Language
+  ): VersionInfo {
     let loader: Loaders,
       mcVersion: MinecraftVersion,
       loaderVersion: string,
@@ -795,9 +802,12 @@ export default class MCLogs extends Module {
       }
     }
 
-    if (loader == Loaders.FORGE && log.includes(forgeDependenciesError)) {
+    if (
+      loader == Loaders.FORGE &&
+      forgeDependenciesErrors.some((e) => log.includes(e))
+    ) {
       const dependenciesErrorIndex = splitLog.findIndex((v) =>
-        v.endsWith(forgeDependenciesError)
+        forgeDependenciesErrors.some((e) => v.endsWith(e))
       );
       const dependencyErrors = splitLog.slice(dependenciesErrorIndex + 1); // start with first item
       let depErrorMatch: RegExpExecArray;
@@ -812,7 +822,9 @@ export default class MCLogs extends Module {
         if (mod && "erroredDependencies" in mod)
           mod.erroredDependencies.push({
             name: dep,
-            requiredVersion: high ? `${low}-${high}` : low,
+            requiredVersion: high
+              ? `${low}-${high}`
+              : `${low} ${lang.get("MC_LOG_MISSING_DEP_OR_NEWER")}`,
             actual,
           });
         else
@@ -821,7 +833,9 @@ export default class MCLogs extends Module {
             erroredDependencies: [
               {
                 name: dep,
-                requiredVersion: high ? `${low}-${high}` : low,
+                requiredVersion: high
+                  ? `${low}-${high}`
+                  : `${low} ${lang.get("MC_LOG_MISSING_DEP_OR_NEWER")}`,
                 actual,
               },
             ],
@@ -1513,7 +1527,11 @@ export default class MCLogs extends Module {
 
     text = text.replace(this.regexes.secrets, "[secrets removed]");
 
-    const mcInfo = this.getMCInfo(text, lines);
+    const mcInfo = this.getMCInfo(
+      text,
+      lines,
+      message.guild ? message.guild.language : this.client.getLanguage("en-US")
+    );
     let modsHaste: string;
     if (mcInfo.mods.length)
       await this.client.util
