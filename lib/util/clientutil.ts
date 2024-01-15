@@ -55,6 +55,8 @@ type PasteURL =
   | "hst.sh"
   | "paste.ee"
   | "api.paste.ee"
+  | "mclo.gs"
+  | "api.mclo.gs"
   | "pastebin.com"
   | "paste.essential.gg"
   | "github.com"
@@ -66,6 +68,8 @@ export const validPasteURLs: PasteURL[] = [
   "hst.sh",
   "paste.ee",
   "api.paste.ee",
+  "mclo.gs",
+  "api.mclo.gs",
   "pastebin.com",
   "paste.essential.gg",
   "github.com",
@@ -887,6 +891,16 @@ export class Util extends ClientUtil {
           url.pathname = `/r/${url.pathname.slice(3)}`;
         break;
       }
+      case "mclo.gs":
+      case "api.mclo.gs": {
+        if (!url.hostname.includes("api")) url.hostname = `api.${url.hostname}`;
+        if (!url.pathname.startsWith("/1/raw/"))
+          url.pathname = `/1/raw${url.pathname}`;
+        break;
+      }
+      case "raw.githubusercontent.com":
+      case "objects.githubusercontent.com":
+      case "cdn.discordapp.com":
       case "github.com": {
         const split = url.pathname.split("/");
         if (url.pathname.includes("/blob/"))
