@@ -898,8 +898,6 @@ export class Util extends ClientUtil {
           url.pathname = `/1/raw${url.pathname}`;
         break;
       }
-      case "raw.githubusercontent.com":
-      case "objects.githubusercontent.com":
       case "github.com": {
         const split = url.pathname.split("/");
         if (url.pathname.includes("/blob/"))
