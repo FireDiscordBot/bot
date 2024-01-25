@@ -1228,7 +1228,7 @@ export default class MCLogs extends Module {
       if (parseInt(allocatedRam?.groups?.ram) > 4)
         currentRecommendations.add(
           `- Most of the time you don't need more than 2GB RAM allocated (maybe 3-4GB if you use skyblock mods). You may be able to reduce the amount of RAM allocated from ${
-            allocatedRam.groups.ram + allocatedRam.groups.type
+            allocatedRam.groups.ram
           } to ${allocatedRam[0].endsWith("G") ? "2G" : "2048M"} or ${
             allocatedRam[0].endsWith("G") ? "3G" : "3072M"
           }`
