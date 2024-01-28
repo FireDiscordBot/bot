@@ -1,4 +1,5 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ProfileNotFoundError } from "@fire/lib/util/clientutil";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { MessageEmbed } from "discord.js";
@@ -10,9 +11,11 @@ export default class Skin extends Command {
         language.get("MINECRAFT_SKIN_COMMAND_DESCRIPTION"),
       args: [
         {
-          id: "ign",
+          id: "username",
           type: /\w{1,16}/im,
-          readableType: "ign",
+          readableType: "username",
+          description: (language: Language) =>
+            language.get("MINECRAFT_SKIN_ARGUMENT_USERNAME_DESCRIPTION"),
           default: null,
           required: true,
         },
@@ -28,14 +31,15 @@ export default class Skin extends Command {
     command: ApplicationCommandMessage,
     args: { ign?: { match: RegExpMatchArray; matches: RegExpExecArray[] } }
   ) {
-    if (!args.ign) return await command.error("MINECRAFT_SKIN_INVALID_IGN");
+    if (!args.ign) return await command.error("MINECRAFT_INVALID_IGN");
     const ign: string = args.ign.match[0];
-    let uuid = await this.client.util.nameToUUID(ign).catch(() => null);
-    if (!uuid) return await command.error("MINECRAFT_UUID_FETCH_FAIL");
+    let profile = await this.client.util.mcProfile(ign).catch(() => null);
+    if (profile instanceof ProfileNotFoundError)
+      return await command.error("MINECRAFT_PROFILE_FETCH_UNKNOWN");
     const embed = new MessageEmbed()
       .setColor(command.member?.displayColor || "#FFFFFF")
       .setImage(
-        `https://visage.surgeplay.com/full/512/${uuid}?ts=${+new Date()}`
+        `https://visage.surgeplay.com/full/512/${profile}?ts=${+new Date()}`
       )
       .setFooter(
         `Requested by ${command.author}`,

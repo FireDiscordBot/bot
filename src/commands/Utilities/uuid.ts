@@ -1,6 +1,10 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import {
+  MojangAPIError,
+  ProfileNotFoundError,
+} from "@fire/lib/util/clientutil";
 
 export default class MinecraftUUID extends Command {
   constructor() {
@@ -9,17 +13,13 @@ export default class MinecraftUUID extends Command {
         language.get("MINECRAFT_UUID_COMMAND_DESCRIPTION"),
       args: [
         {
-          id: "ign",
+          id: "username",
           type: /\w{1,16}/im,
-          readableType: "ign",
+          readableType: "username",
+          description: (language: Language) =>
+            language.get("MINECRAFT_UUID_ARGUMENT_USERNAME_DESCRIPTION"),
           default: null,
           required: true,
-        },
-        {
-          id: "dashed",
-          flag: "--dashed",
-          match: "flag",
-          required: false,
         },
       ],
       enableSlashCommand: false,
@@ -33,15 +33,23 @@ export default class MinecraftUUID extends Command {
   async run(
     command: ApplicationCommandMessage,
     args: {
-      ign?: { match: RegExpMatchArray; matches: RegExpExecArray[] };
-      dashed?: string;
+      username?: { match: RegExpMatchArray; matches: RegExpExecArray[] };
     }
   ) {
-    if (!args.ign) return await command.error("MINECRAFT_UUID_INVALID_IGN");
-    const ign: string = args.ign.match[0];
-    const dashed = Boolean(args.dashed);
-    let uuid = await this.client.util.nameToUUID(ign, dashed).catch(() => null);
-    if (!uuid) return await command.error("MINECRAFT_UUID_FETCH_FAIL");
-    return await command.send("MINECRAFT_UUID", { ign, uuid });
+    if (!args.username) return await command.error("MINECRAFT_INVALID_IGN");
+    const ign: string = args.username.match[0];
+    let profile = await this.client.util
+      .mcProfile(ign)
+      .catch((e: MojangAPIError) => e);
+    if (profile instanceof ProfileNotFoundError)
+      return await command.error("MINECRAFT_PROFILE_FETCH_UNKNOWN");
+    else if (profile instanceof MojangAPIError)
+      return await command.error(
+        command.author.isSuperuser()
+          ? "MINECRAFT_PROFILE_FETCH_FAIL_FULL"
+          : "MINECRAFT_PROFILE_FETCH_FAIL_BASIC",
+        { ign, error: profile.message }
+      );
+    return await command.send("MINECRAFT_UUID", profile);
   }
 }

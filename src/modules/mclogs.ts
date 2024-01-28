@@ -5,7 +5,11 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { IPoint } from "@fire/lib/interfaces/aether";
 import { FabricLoaderVersion } from "@fire/lib/interfaces/fabricmc";
 import { ForgePromotions } from "@fire/lib/interfaces/minecraftforge";
-import { validPasteURLs } from "@fire/lib/util/clientutil";
+import {
+  MojangAPIError,
+  ProfileNotFoundError,
+  validPasteURLs,
+} from "@fire/lib/util/clientutil";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
@@ -1588,17 +1592,20 @@ export default class MCLogs extends Module {
         loggedUUIDVersion = uuidArg?.groups?.ver;
       if (ign && !isDevEnv) {
         try {
-          const uuid = await this.client.util
-            .nameToUUID(ign, loggedUUID && loggedUUID.includes("-"))
-            .catch((e: Error) => e);
+          const profile = await this.client.util
+            .mcProfile(ign)
+            .catch((e: MojangAPIError) => e);
           if (
             message.guild.settings.get<boolean>(
               "minecraft.logscan.cracked",
               false
             ) &&
-            (uuid instanceof Error ||
+            (profile instanceof ProfileNotFoundError ||
               (loggedUUIDVersion && loggedUUIDVersion != "4") ||
-              (loggedUUID && uuid != loggedUUID))
+              (!(profile instanceof Error) &&
+                loggedUUID &&
+                (loggedUUID.includes("-") ? profile.idDashed : profile.id) !=
+                  loggedUUID))
           ) {
             // user has not opted out of data collection for analytics
             if (!message.hasExperiment(2219986954, 1))
@@ -1623,12 +1630,14 @@ export default class MCLogs extends Module {
                     haste: haste.url,
                     raw: haste.raw,
                     status:
-                      uuid instanceof Error ? uuid.message : "Mismatched UUID",
+                      profile instanceof Error
+                        ? profile.message
+                        : "Mismatched UUID",
                   },
                 },
               ]);
             possibleSolutions = message.guild.language.get("MC_LOG_CRACKED");
-          } else {
+          } else if (!(profile instanceof MojangAPIError)) {
             possibleSolutions = await this.getSolutions(
               message.member ?? message.author,
               mcInfo,
@@ -1654,7 +1663,7 @@ export default class MCLogs extends Module {
                       : "Unknown",
                     user: `${message.author} (${message.author.id})`,
                     ign,
-                    uuid,
+                    uuid: profile,
                     haste: haste.url,
                     raw: haste.raw,
                   },

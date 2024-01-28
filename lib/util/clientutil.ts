@@ -50,6 +50,20 @@ export const humanFileSize = (size: number) => {
 const AllowedImageFormats = ["webp", "png", "jpg", "jpeg", "gif"];
 const AllowedImageSizes = Array.from({ length: 9 }, (e, i) => 2 ** (i + 4));
 
+export class MojangAPIError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+export class ProfileNotFoundError extends MojangAPIError {
+  constructor() {
+    super("Player not found", 404);
+  }
+}
+
 type PasteURL =
   | "h.inv.wtf"
   | "hst.sh"
@@ -81,6 +95,7 @@ export const validPasteURLs: PasteURL[] = [
 interface MojangProfile {
   name: string;
   id: string;
+  idDashed: string;
 }
 
 type SpecialCouponCreateResponse =
@@ -97,9 +112,9 @@ type SpecialCouponCreateResponse =
 export class Util extends ClientUtil {
   paginators: LimitedCollection<Snowflake, PaginatorInterface>;
   loadedData: { plonked: boolean; premium: boolean };
+  mcProfileCache: Collection<string, MojangProfile & { retrievedAt: Date }>;
   permissionFlags: [PermissionString, bigint][];
   premium: Collection<string, PremiumData>;
-  uuidCache: Collection<string, string>;
   hasRoleUpdates: string[];
   declare client: Fire;
   plonked: string[];
@@ -116,7 +131,7 @@ export class Util extends ClientUtil {
       },
       sweepInterval: 60,
     });
-    this.uuidCache = new Collection();
+    this.mcProfileCache = new Collection();
     this.premium = new Collection();
     this.hasRoleUpdates = [];
     this.plonked = [];
@@ -201,24 +216,22 @@ export class Util extends ClientUtil {
     }
   }
 
-  async nameToUUID(player: string, dashed: boolean = false) {
-    if (this.uuidCache.has(player))
-      return dashed
-        ? this.addDashesToUUID(this.uuidCache.get(player))
-        : this.uuidCache.get(player);
+  async mcProfile(player: string) {
     const profileReq = await centra(
-      `https://api.mojang.com/users/profiles/minecraft/${player}`
+      process.env.REST_HOST
+        ? `https://${process.env.REST_HOST}/v2/minecraft/uuid/${player}`
+        : `http://127.0.0.1:${process.env.REST_PORT}/v2/minecraft/uuid/${player}`
     )
       .header("User-Agent", this.client.manager.ua)
       .send();
-    if (profileReq.statusCode == 200) {
-      const profile: MojangProfile = await profileReq.json();
-      this.uuidCache.set(player, profile.id);
-      return dashed ? this.addDashesToUUID(profile.id) : profile.id;
-    } else
-      throw new Error(
-        `${profileReq.statusCode} ${profileReq.coreRes.statusMessage}`
+    const body = await profileReq.json();
+    if (profileReq.statusCode == 404) throw new ProfileNotFoundError();
+    else if (profileReq.statusCode != 200)
+      throw new MojangAPIError(
+        body.error ?? "Unknown error",
+        profileReq.statusCode
       );
+    else return body as MojangProfile;
   }
 
   addDashesToUUID = (uuid: string) =>
