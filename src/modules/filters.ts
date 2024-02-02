@@ -165,6 +165,36 @@ export default class Filters extends Module {
     return text;
   }
 
+  async isFiltered(
+    url: string,
+    context?: FireMessage | ApplicationCommandMessage | FireMember | FireUser
+  ) {
+    if (context) {
+      const check =
+        context instanceof FireMessage ||
+        context instanceof ApplicationCommandMessage
+          ? this.shouldRun(context)
+          : this.shouldRun(null, context);
+      if (!check) return false;
+    }
+    const [replaced] = await this.invWtfReplace(url).catch(() => [url]);
+    if (replaced && typeof replaced == "string") url = replaced;
+    const enabled: string[] =
+      !context || context instanceof FireUser
+        ? []
+        : context.guild?.settings.get<LinkFilters[]>("mod.linkfilter", []);
+    for (const [name, regexes] of Object.entries(this.regexes)) {
+      if (!enabled.includes(name)) continue;
+      for (const regex of regexes) {
+        if (regex.test(url)) {
+          regex.lastIndex = 0;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   async invWtfReplace(message: FireMessage | string, extra?: string) {
     let exec: RegExpExecArray;
     while (

@@ -484,6 +484,7 @@ export class FireMessage extends Message {
     usernameOverride?: string
   ) {
     let hook: Webhook | WebhookClient = webhook;
+    const filters = this.client.getModule("filters") as Filters;
     if (!this.guild?.quoteHooks) this.guild.quoteHooks = new Collection();
     if (!this.guild?.quoteHooks.has(destination.id)) {
       const hooks =
@@ -535,7 +536,6 @@ export class FireMessage extends Message {
     if (content) {
       if (!quoter?.isSuperuser() && !this.system) {
         content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
-        const filters = this.client.getModule("filters") as Filters;
         content = await filters
           .runReplace(content, quoter)
           .catch(() => content);
@@ -597,13 +597,19 @@ export class FireMessage extends Message {
     if (components.length && this.author.id != this.client?.user?.id)
       for (const component of components.values()) {
         if (component instanceof MessageActionRow)
-          component.components = component.components.map((c, index) => {
-            if (c instanceof MessageButton && c.style != "LINK")
-              c.setCustomId(`quote_copy${index}`);
-            else if (c instanceof MessageSelectMenu)
-              c.setCustomId(`quote_copy${index}`);
-            return c;
-          });
+          component.components = component.components
+            .map((c, index) => {
+              if (c instanceof MessageButton && c.style != "LINK")
+                c.setCustomId(`quote_copy${index}`);
+              else if (c instanceof MessageSelectMenu)
+                c.setCustomId(`quote_copy${index}`);
+              return c;
+            })
+            .filter((c) => {
+              if (c instanceof MessageButton && c.style == "LINK")
+                return !filters.isFiltered(c.url, quoter);
+              return true;
+            });
       }
     const isAutomod = this.type == "AUTO_MODERATION_ACTION";
     const automodEmbeds = [];
