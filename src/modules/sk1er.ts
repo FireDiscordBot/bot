@@ -11,6 +11,11 @@ const categories = {
   "🐛": "958837723534336000",
 };
 
+const subjects = {
+  "🖥️": "General Support",
+  "🐛": "Bug Report",
+};
+
 export default class Sk1er extends Module {
   guildId: Snowflake;
   guild: FireGuild;
@@ -68,7 +73,7 @@ export default class Sk1er extends Module {
     if (!category) return "no category";
     return await this.guild.createTicket(
       member,
-      component.label,
+      subjects[emoji],
       null,
       category
     );
