@@ -1288,6 +1288,21 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         content: "\u200b",
         components: [new MessageActionRow().addComponents(dropdown)],
       });
+    } else if (button.customId == "complete_reminder") {
+      let content = button.message.content.split("\n");
+      content = content.map((line, index) => {
+        if (index == content.length - 1) return line;
+        else if (line.length) return `~~${line}~~`;
+      });
+      return await button.channel.update({
+        content: content.join("\n"),
+        components: button.message.components.map((row) => {
+          row.components = row.components.map((component) =>
+            component.setDisabled(true)
+          );
+          return row;
+        }),
+      });
     }
 
     if (button.customId.startsWith("deploy:") && button.author.isSuperuser()) {

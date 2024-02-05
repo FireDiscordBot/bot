@@ -14,6 +14,7 @@ import { constants } from "@fire/lib/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
 import { Message } from "@fire/lib/ws/Message";
 import { Manager } from "@fire/lib/Manager";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 
 const { regexes } = constants;
 
@@ -55,18 +56,27 @@ export default class ReminderSendEvent extends Event {
     if (data.link?.includes("000000000000000000")) delete data.link;
 
     const components = [
-      new MessageActionRow().addComponents(
+      new MessageActionRow().addComponents([
+        new MessageButton()
+          .setCustomId("!complete_reminder")
+          .setStyle("SUCCESS")
+          .setLabel(user.language.get("REMINDER_COMPLETE_BUTTON")),
         new MessageButton()
           .setCustomId(`!snooze:${user.id}:${data.timestamp}`)
-          .setStyle("PRIMARY")
-          .setLabel(user.language.get("REMINDER_SNOOZE_BUTTON"))
-      ),
+          .setStyle("SECONDARY")
+          .setLabel(user.language.get("REMINDER_SNOOZE_BUTTON")),
+      ]),
     ];
+
+    const textLengthType =
+      data.text.includes("\n") || data.text.length >= 100 ? "_LONG" : "_SHORT";
 
     const message = await user
       .send({
         content: user.language.get(
-          data.link ? "REMINDER_MESSAGE_LINKED" : "REMINDER_MESSAGE_UNKNOWN",
+          data.link
+            ? (`REMINDER_MESSAGE_LINKED${textLengthType}` as LanguageKeys)
+            : (`REMINDER_MESSAGE_UNKNOWN${textLengthType}` as LanguageKeys),
           {
             time:
               deconstructed && deconstructed.timestamp != 0
