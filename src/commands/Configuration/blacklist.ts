@@ -87,6 +87,7 @@ export default class Blacklist extends Command {
           MessageUtil.encode(
             new Message(EventType.ADMIN_ACTION, {
               user: `${command.author} (${command.author.id})`,
+              user_id: command.author.id,
               guild: command.guild
                 ? `${command.guild} (${command.guild.id})`
                 : "N/A",
@@ -108,6 +109,7 @@ export default class Blacklist extends Command {
           MessageUtil.encode(
             new Message(EventType.ADMIN_ACTION, {
               user: `${command.author} (${command.author.id})`,
+              user_id: command.author.id,
               guild: command.guild
                 ? `${command.guild} (${command.guild.id})`
                 : "N/A",

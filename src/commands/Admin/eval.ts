@@ -143,6 +143,7 @@ export default class Eval extends Command {
         MessageUtil.encode(
           new Message(EventType.ADMIN_ACTION, {
             user: `${message.author} (${message.author.id})`,
+            user_id: message.author.id,
             guild: message.guild
               ? `${message.guild} (${message.guild.id})`
               : "N/A",
