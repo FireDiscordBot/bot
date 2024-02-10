@@ -24,7 +24,7 @@ import { getCodeblockMatch } from "../arguments/codeblock";
 import Filters from "./filters";
 import { Language } from "@fire/lib/util/language";
 
-const { mcLogFilters } = constants;
+const { mcLogFilters, regexes } = constants;
 
 const clientDetection = {
   lunar: [
@@ -130,7 +130,6 @@ This is caused by a new AMD driver update that appears to be a complete rewrite 
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
   regexes: {
-    basicUrl: RegExp;
     noRaw: RegExp;
     secrets: RegExp;
     jvm: RegExp;
@@ -189,7 +188,6 @@ export default class MCLogs extends Module {
       cheats: [],
     };
     this.regexes = {
-      basicUrl: /(https?:\/\/[^\s]+)/gim,
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets:
         /--accessToken \S+|\(Session ID is token:|Authorization ?: ?(Bearer\n?\w*)/gim,
@@ -1362,7 +1360,7 @@ export default class MCLogs extends Module {
 
     const pasteURLs: URL[] = [];
     if (validPasteURLs.some((u) => message.content.includes(u))) {
-      const matches = message.content.match(this.regexes.basicUrl);
+      const matches = message.content.match(regexes.basicURL);
       for (const match of matches) {
         const rawURL = this.client.util.getRawPasteURL(match);
         if (rawURL) {

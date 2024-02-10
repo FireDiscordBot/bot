@@ -8,8 +8,8 @@ import * as centra from "centra";
 import {
   Channel,
   Collection,
-  DiscordAPIError,
   DMChannel,
+  DiscordAPIError,
   EmojiIdentifierResolvable,
   GuildChannel,
   GuildTextBasedChannel,
@@ -26,12 +26,12 @@ import {
   ReplyMessageOptions,
   Structures,
   ThreadChannel,
-  VoiceChannel,
   Webhook,
   WebhookClient,
 } from "discord.js";
 import { RawMessageData } from "discord.js/typings/rawDataTypes";
 import Semaphore from "semaphore-async-await";
+import { BaseFakeChannel } from "../interfaces/misc";
 import { LanguageKeys } from "../util/language";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
@@ -557,16 +557,21 @@ export class FireMessage extends Message {
       name: string;
       description?: string;
     }[] = [];
-    if (!content && this.attachments.size)
+    const ATTACH_FILES = Permissions.FLAGS.ATTACH_FILES,
+      EMBED_LINKS = Permissions.FLAGS.EMBED_LINKS;
+    const canAttach =
+      destination instanceof GuildChannel
+        ? quoter.permissionsIn(destination).has(ATTACH_FILES)
+        : (BigInt(destination.permissions) & ATTACH_FILES) == ATTACH_FILES;
+    const canEmbed =
+      destination instanceof GuildChannel
+        ? quoter.permissionsIn(destination).has(EMBED_LINKS)
+        : (BigInt(destination.permissions) & EMBED_LINKS) == EMBED_LINKS;
+    if (!canEmbed && content)
+      content = content.replace(regexes.basicURL, (m) => `<${m}>`);
+    if (!content && this.attachments.size && canAttach)
       content = this.attachments.map((a) => a.url).join("\n");
-    else if (
-      (destination instanceof GuildChannel &&
-        quoter
-          .permissionsIn(destination)
-          .has(Permissions.FLAGS.ATTACH_FILES)) ||
-      (!(destination instanceof GuildChannel) &&
-        (BigInt(destination.permissions) & 32768n) == 32768n)
-    ) {
+    else if (canAttach && this.attachments.size) {
       const info = this.attachments.map((attach) => ({
         name: attach.name,
         description: attach.description,
@@ -810,7 +815,16 @@ export class FireMessage extends Message {
       language.get("JUMP_URL"),
       `[${language.get("CLICK_TO_VIEW")}](${this.url})`
     );
-    if (this.attachments?.size) {
+    if (
+      this.attachments?.size &&
+      quoter
+        .permissionsIn(
+          destination instanceof BaseFakeChannel
+            ? (destination.real as GuildTextBasedChannel)
+            : destination
+        )
+        .has(Permissions.FLAGS.ATTACH_FILES)
+    ) {
       if (
         this.attachments.size == 1 &&
         imageExts.filter((ext) => this.attachments.first().name.endsWith(ext))
