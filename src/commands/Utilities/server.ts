@@ -311,7 +311,7 @@ export default class GuildCommand extends Command {
       invite = args.guild as unknown as InviteWithGuildCounts;
       args.guild = invite.guild as FireGuild | InviteGuildWithCounts;
     }
-    if (command.channel instanceof DMChannel && !args.guild)
+    if (command.channel.real instanceof DMChannel && !args.guild)
       return await command.error("COMMAND_GUILD_ONLY", {
         invite: this.client.config.inviteLink,
       });
