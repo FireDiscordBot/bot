@@ -1362,6 +1362,9 @@ export default class MCLogs extends Module {
     if (validPasteURLs.some((u) => message.content.includes(u))) {
       const matches = message.content.match(regexes.basicURL);
       for (const match of matches) {
+        // should disregard suppressed links, ending > should be included in match
+        if (message.content.includes(`<${match}`)) continue;
+
         const rawURL = this.client.util.getRawPasteURL(match);
         if (rawURL) {
           if (
