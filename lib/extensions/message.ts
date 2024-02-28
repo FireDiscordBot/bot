@@ -598,24 +598,27 @@ export class FireMessage extends Message {
       ((await this.guild.members
         .fetch(this.author)
         .catch(() => null)) as FireMember);
-    const components = this.components;
+    let components = this.components;
     if (components.length && this.author.id != this.client?.user?.id)
       for (const component of components.values()) {
         if (component instanceof MessageActionRow)
-          component.components = component.components
-            .map((c, index) => {
-              if (c instanceof MessageButton && c.style != "LINK")
-                c.setCustomId(`quote_copy${index}`);
-              else if (c instanceof MessageSelectMenu)
-                c.setCustomId(`quote_copy${index}`);
-              return c;
-            })
-            .filter((c) => {
+          for (const [index, c] of component.components.entries()) {
+            if (c instanceof MessageButton && c.style != "LINK")
+              c.setCustomId(`quote_copy${index}`);
+            else if (c instanceof MessageSelectMenu)
+              c.setCustomId(`quote_copy${index}`);
+            if (c instanceof MessageButton && c.style == "LINK")
+              if (await filters.isFiltered(c.url, quoter)) c.setURL("");
+            component.components = component.components.filter((c) => {
               if (c instanceof MessageButton && c.style == "LINK")
-                return !filters.isFiltered(c.url, quoter);
-              return true;
+                return !!c.url;
+              else return true;
             });
+          }
       }
+    components = components.filter(
+      (c) => c instanceof MessageActionRow && c.components.length
+    );
     const isAutomod = this.type == "AUTO_MODERATION_ACTION";
     const automodEmbeds = [];
     if (isAutomod) {
