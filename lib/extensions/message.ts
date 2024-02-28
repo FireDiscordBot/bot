@@ -730,7 +730,7 @@ export class FireMessage extends Message {
         this.guild?.quoteHooks.delete(destination.id);
         if (debug) debug.push(`Encountered error while sending, ${e.message}`);
         if (debug && quoter.isSuperuser() && e instanceof DiscordAPIError)
-          debug.push(`\`\`\`${e.requestData}\`\`\``);
+          debug.push(`\`\`\`${JSON.stringify(e.requestData)}\`\`\``);
         return await this.embedQuote(thread ?? destination, quoter);
       });
   }
