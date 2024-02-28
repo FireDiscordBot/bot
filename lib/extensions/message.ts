@@ -729,6 +729,8 @@ export class FireMessage extends Message {
         // even if the cached one still exists
         this.guild?.quoteHooks.delete(destination.id);
         if (debug) debug.push(`Encountered error while sending, ${e.message}`);
+        if (debug && quoter.isSuperuser() && e instanceof DiscordAPIError)
+          debug.push(`\`\`\`${e.requestData}\`\`\``);
         return await this.embedQuote(thread ?? destination, quoter);
       });
   }
