@@ -1291,11 +1291,11 @@ Please choose accurately as it will allow us to help you as quick as possible! â
     } else if (button.customId == "complete_reminder") {
       let content = button.message.content.split("\n");
       content = content.map((line, index) => {
-        // suppress any embeds
-        line = line.replace(regexes.basicURL, (url) => `<${url}>`);
         // Don't strikethrough the last line (which is the link to where the reminder was set)
         if (index == content.length - 1) return line;
-        else if (line.length) return `~~${line}~~`;
+        // suppress any embeds
+        line = line.replace(regexes.basicURL, (url) => `<${url}>`);
+        if (line.length) return `~~${line}~~`;
       });
       return await button.channel.update({
         content: content.join("\n"),
