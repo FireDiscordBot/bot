@@ -192,13 +192,7 @@ export class FireMember extends GuildMember {
       user = this.user;
     return {
       get nickname() {
-        if (
-          !member.nickname ||
-          member.nickname == badName ||
-          member.nickname == user.displayName ||
-          member.nickname == user.username
-        )
-          return false;
+        if (!member.nickname || member.nickname == badName) return false;
         return !member.client.util.isASCII(member.nickname);
       },
       displayName:
