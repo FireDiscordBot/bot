@@ -17,14 +17,14 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -237,19 +237,6 @@ CREATE TABLE public.permroles (
 
 
 ALTER TABLE public.permroles OWNER TO postgres;
-
---
--- Name: premium; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.premium (
-    gid text,
-    uid text,
-    reason text
-);
-
-
-ALTER TABLE public.premium OWNER TO postgres;
 
 --
 -- Name: premium_stripe; Type: TABLE; Schema: public; Owner: postgres
@@ -535,13 +522,6 @@ GRANT SELECT ON TABLE public.modlogs TO grafana;
 --
 
 GRANT SELECT ON TABLE public.mutes TO grafana;
-
-
---
--- Name: TABLE premium; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.premium TO grafana;
 
 
 --

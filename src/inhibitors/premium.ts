@@ -25,15 +25,6 @@ export default class PremiumInhibitor extends Inhibitor {
   async init() {
     this.client.util.premium = new Collection();
     this.client.util.loadedData.premium = false;
-    const premium = await this.client.db.query("SELECT * FROM premium;");
-    for await (const row of premium) {
-      this.client.util.premium.set(row.get("gid") as string, {
-        user: row.get("uid") as string,
-        periodEnd: 3133641600, // nice
-        status: "active",
-        limit: 1, // could be more but likely not
-      });
-    }
     const premiumStripe = await this.client.db.query(
       "SELECT * FROM premium_stripe WHERE active=true;"
     );
