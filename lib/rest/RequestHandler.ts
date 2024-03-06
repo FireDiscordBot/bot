@@ -419,7 +419,7 @@ export class RequestHandler {
           route: request.options.route
             .replace(discord.snowflake, ":id")
             .replace(discord.webhookPartial, "$1/:id/:token")
-            .replace(discord.invitePartial, "/invites/:code"),
+            .replace(discord.invitePartial, "invites/:code"),
         },
         fields: {
           latency,
