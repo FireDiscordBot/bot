@@ -1,7 +1,11 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { Listener } from "@fire/lib/util/listener";
+import { DMChannel, GuildChannel, Invite, Role } from "discord.js";
 import { inspect } from "util";
 
 export default class CommandFinished extends Listener {
@@ -15,7 +19,7 @@ export default class CommandFinished extends Listener {
   async exec(
     message: FireMessage | ApplicationCommandMessage,
     command: Command,
-    args: Record<string, unknown>,
+    _: Record<string, unknown>,
     ret: unknown
   ) {
     const point = {
@@ -39,7 +43,32 @@ export default class CommandFinished extends Listener {
       },
     };
     try {
-      point.fields.return = inspect(ret, false, 0);
+      if (ret instanceof FireMessage)
+        point.fields.return = `FireMessage { guildId: '${ret.guildId}', channelId: '${ret.channelId}', id: '${ret.id}' }`;
+      else if (ret instanceof ApplicationCommandMessage)
+        point.fields.return = `ApplicationCommandMessage { guildId: '${
+          ret.guildId
+        }', channelId: '${ret.channelId}', id: '${
+          ret.sourceMessage?.id || ret.id
+        }' }`;
+      else if (ret instanceof FireMember || ret instanceof FireUser)
+        point.fields.return = `${ret.constructor.name} { id: '${ret.id}' }`;
+      else if (ret instanceof GuildChannel)
+        point.fields.return = `${ret.constructor.name} { guildId: '${ret.guildId}', id: '${ret.id}' }`;
+      else if (ret instanceof DMChannel)
+        point.fields.return = `DMChannel { recipientId: '${ret.recipient.id}', id: '${ret.id}' }`;
+      else if (ret instanceof FireGuild)
+        point.fields.return = `FireGuild { id: '${ret.id}' }`;
+      else if (ret instanceof Role)
+        point.fields.return = `Role { guildId: '${ret.guild.id}', id: '${ret.id}' }`;
+      else if (ret instanceof Invite)
+        point.fields.return = `Invite { guildId: '${ret.guild.id}', code: '${ret.code}' }`;
+      else
+        point.fields.return = inspect(ret, {
+          showHidden: false,
+          getters: true,
+          depth: 0,
+        });
     } catch {}
     this.client.writeToInflux([point]);
 

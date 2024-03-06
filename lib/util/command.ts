@@ -4,6 +4,7 @@ import {
   ArgumentOptions as AkairoArgumentOptions,
   Command as AkairoCommand,
   CommandOptions as AkairoCommandOptions,
+  AkairoModule,
   Flag,
 } from "discord-akairo";
 import {
@@ -13,7 +14,11 @@ import {
   ApplicationCommandOptionData,
   CommandInteractionOption,
   CommandOptionDataTypeResolvable,
+  DMChannel,
   DiscordAPIError,
+  GuildChannel,
+  Invite,
+  MessageAttachment,
   Permissions,
   Role,
   Snowflake,
@@ -31,8 +36,8 @@ import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
 import { ApplicationCommandOptionType } from "../interfaces/interactions";
 import { Message } from "../ws/Message";
-import { EventType } from "../ws/util/constants";
 import { MessageUtil } from "../ws/util/MessageUtil";
+import { EventType } from "../ws/util/constants";
 import { SlashArgumentTypeCaster } from "./commandhandler";
 import { UseExec, UseRun } from "./constants";
 import { Language } from "./language";
@@ -582,6 +587,56 @@ export class Command extends AkairoCommand {
           args[arg.id] = arg.default;
       }
     }
+    for (const arg of this.args) {
+      let values: any[];
+      if (Array.isArray(args[arg.id])) values = args[arg.id];
+      else values = [args[arg.id]];
+      for (const value of values) {
+        if (typeof value == "undefined" || value == null) continue;
+        if (
+          value == arg.default &&
+          !interaction.options.get(this.getSlashCommandArgName(arg), false)
+        )
+          continue;
+        if (typeof value != "object") {
+          message.util.parsed.content += ` ${arg.flag ?? ""}${
+            arg.match == "flag" ? "" : ` ${value}`
+          }`;
+          message.util.parsed.afterPrefix += ` ${arg.flag ?? ""}${
+            arg.match == "flag" ? "" : ` ${value}`
+          }`;
+        } else if (typeof value == "object") {
+          let stringified: string;
+          if (
+            value instanceof FireUser ||
+            value instanceof FireMember ||
+            value instanceof Role
+          )
+            stringified = `@${value} (${value.id})`;
+          else if (value instanceof GuildChannel)
+            stringified = `#${value.name} (${value.id})`;
+          else if (value instanceof DMChannel)
+            stringified = `#${value.recipient} (${value.recipient.id})`;
+          else if (value instanceof MessageAttachment) stringified = value.name;
+          else if (value instanceof Invite)
+            stringified = `discord.gg/${value.code}`;
+          else if (value instanceof AkairoModule) stringified = value.id;
+          else if (
+            interaction.options.get(this.getSlashCommandArgName(arg), false)
+              ?.type == "STRING"
+          )
+            stringified = interaction.options
+              .get(this.getSlashCommandArgName(arg), true)
+              .value.toString();
+          else stringified = "UNKNOWN_ARG_TYPE";
+          if (arg.flag) stringified = `${arg.flag} ${stringified}`;
+          message.util.parsed.content += ` ${stringified}`;
+          message.util.parsed.afterPrefix += ` ${stringified}`;
+        }
+      }
+    }
+    message.util.parsed.content = message.util.parsed.content.trim();
+    message.util.parsed.afterPrefix = message.util.parsed.afterPrefix.trim();
     return args;
   }
 

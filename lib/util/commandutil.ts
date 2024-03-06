@@ -1,7 +1,7 @@
 import { Fire } from "@fire/lib/Fire";
 import {
-  CommandUtil as AkairoUtil,
   ParsedComponentData as AkairoParsed,
+  CommandUtil as AkairoUtil,
 } from "discord-akairo";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ContextCommandMessage } from "../extensions/contextcommandmessage";

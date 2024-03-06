@@ -192,7 +192,7 @@ export class CommandHandler extends AkairoCommandHandler {
       const parsed = (message.util.parsed = {
         alias: message.command.id,
         command: message.command,
-        afterPrefix: "",
+        afterPrefix: message.command.id,
         content: "",
         prefix: "/",
       });

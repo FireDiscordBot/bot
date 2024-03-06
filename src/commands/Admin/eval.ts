@@ -276,8 +276,11 @@ export default class Eval extends Command {
       typeof result == "undefined"
     ) {
       result = inspect(result, {
+        maxStringLength: null,
+        maxArrayLength: null,
         depth: +args.depth,
         showHidden: false,
+        getters: true,
       });
     }
     result = result
