@@ -427,165 +427,157 @@ export class Command extends AkairoCommand {
       message instanceof ApplicationCommandMessage
         ? message.slashCommand
         : message.contextCommand;
+    if (!this.args?.length) return {};
     const args = {};
-    if (this.args?.length) {
-      for (const arg of this.args) {
-        let required = arg.required;
-        if (message instanceof ContextCommandMessage) required = false;
-        let name = this.getSlashCommandArgName(arg);
-        if (arg.flag && arg.readableType == "boolean")
-          name = arg.id.toLowerCase();
-        const [type] =
-          arg.flag && !arg.type
-            ? ["BOOLEAN"]
-            : Object.entries(slashCommandTypeMappings).find(([, types]) =>
-                types.includes(arg.type?.toString())
-              ) ?? ["STRING"];
-        switch (type) {
-          case "STRING": {
-            args[arg.id] =
-              (interaction as CommandInteraction).options.getString(
-                name,
-                required
-              ) ?? arg.default;
-            if (
-              this.client.commandHandler.resolver.types.has(
-                arg.type.toString()
-              ) &&
-              args[arg.id]
-            ) {
-              const resolver = this.client.commandHandler.resolver.types.get(
-                arg.type.toString()
-              ) as unknown as SlashArgumentTypeCaster;
-              args[arg.id] = await resolver(message, args[arg.id]);
-            } else if (typeof arg.type == "function" && args[arg.id]) {
-              args[arg.id] = await (
-                arg.type as unknown as SlashArgumentTypeCaster
-              ).bind(this)(
-                message,
-                interaction.options.get(name)?.value.toString()
-              );
-            } else if (arg.type instanceof RegExp) {
-              const match = (args[arg.id] as string).match(arg.type);
-              if (!match) args[arg.id] = null;
-
-              const matches: RegExpExecArray[] = [];
-
-              if (arg.type.global) {
-                let matched: RegExpExecArray;
-
-                while ((matched = arg.type.exec(args[arg.id])) != null) {
-                  matches.push(matched);
-                }
-              }
-
-              args[arg.id] = { match, matches };
-            }
-            break;
-          }
-          case "INTEGER": {
-            args[arg.id] =
-              (interaction as CommandInteraction).options.getInteger(
-                name,
-                required
-              ) ?? arg.default;
-            break;
-          }
-          case "BOOLEAN": {
-            args[arg.id] =
-              (interaction as CommandInteraction).options.getBoolean(
-                name,
-                required
-              ) ?? arg.default;
-            break;
-          }
-          case "USER": {
-            if (mustBeMember.includes(arg.type?.toString()))
-              args[arg.id] =
-                interaction.options.getMember(name, required) ?? arg.default;
-            else if (canAcceptMember.includes(arg.type?.toString()))
-              args[arg.id] =
-                interaction.options.getMember(name, false) ??
-                interaction.options.getUser(name, required) ??
-                arg.default;
-            else
-              args[arg.id] =
-                interaction.options.getUser(name, required) ?? arg.default;
-            break;
-          }
-          case "CHANNEL": {
-            const resolvedChannel = (
-              interaction as CommandInteraction
-            ).options.getChannel(name);
-            if (
-              resolvedChannel &&
-              this.client.channels.cache.has(resolvedChannel.id)
-            )
-              args[arg.id] = this.client.channels.cache.get(resolvedChannel.id);
-            else args[arg.id] = arg.default;
-            break;
-          }
-          case "ROLE": {
-            const role = (interaction as CommandInteraction).options.getRole(
-              name
-            );
-            if (role instanceof Role) args[arg.id] = role;
-            else args[arg.id] = arg.default;
-            break;
-          }
-          case "MENTIONABLE": {
-            const mentionable = (
-              interaction as CommandInteraction
-            ).options.getMentionable(name);
-            if (
-              mentionable instanceof Role ||
-              mentionable instanceof FireMember
-            )
-              args[arg.id] = mentionable;
-            else if (mentionable instanceof FireUser && message.guild) {
-              const member = await message.guild.members
-                .fetch(mentionable)
-                .catch(() => {});
-              if (member) args[arg.id] = member;
-            } else args[arg.id] = arg.default;
-            break;
-          }
-          case "ATTACHMENT": {
-            args[arg.id] =
-              (interaction as CommandInteraction).options?.getAttachment?.(
-                name,
-                required
-              ) ?? arg.default;
-            break;
-          }
-          default: {
+    for (const arg of this.args) {
+      let required = arg.required;
+      if (message instanceof ContextCommandMessage) required = false;
+      let name = this.getSlashCommandArgName(arg);
+      if (arg.flag && arg.readableType == "boolean")
+        name = arg.id.toLowerCase();
+      const [type] =
+        arg.flag && !arg.type
+          ? ["BOOLEAN"]
+          : Object.entries(slashCommandTypeMappings).find(([, types]) =>
+              types.includes(arg.type?.toString())
+            ) ?? ["STRING"];
+      switch (type) {
+        case "STRING": {
+          args[arg.id] =
+            (interaction as CommandInteraction).options.getString(
+              name,
+              required
+            ) ?? arg.default;
+          if (
+            this.client.commandHandler.resolver.types.has(
+              arg.type.toString()
+            ) &&
+            args[arg.id]
+          ) {
             const resolver = this.client.commandHandler.resolver.types.get(
               arg.type.toString()
             ) as unknown as SlashArgumentTypeCaster;
-            if (typeof resolver == "function")
-              args[arg.id] = await resolver(
-                message,
-                interaction.options.get(name, required)?.value.toString()
-              );
-          }
-        }
-        if (
-          typeof args[arg.id] == "undefined" &&
-          typeof arg.type == "function"
-        ) {
-          try {
+            args[arg.id] = await resolver(message, args[arg.id]);
+          } else if (typeof arg.type == "function" && args[arg.id]) {
             args[arg.id] = await (
               arg.type as unknown as SlashArgumentTypeCaster
             ).bind(this)(
               message,
-              interaction.options.get(name, true)?.value.toString()
+              interaction.options.get(name)?.value.toString()
             );
-          } catch {
-            args[arg.id] = arg.default;
+          } else if (arg.type instanceof RegExp) {
+            const match = (args[arg.id] as string).match(arg.type);
+            if (!match) args[arg.id] = null;
+
+            const matches: RegExpExecArray[] = [];
+
+            if (arg.type.global) {
+              let matched: RegExpExecArray;
+
+              while ((matched = arg.type.exec(args[arg.id])) != null) {
+                matches.push(matched);
+              }
+            }
+
+            args[arg.id] = { match, matches };
           }
-        } else if (typeof args[arg.id] == "undefined")
-          args[arg.id] = arg.default;
+          break;
+        }
+        case "INTEGER": {
+          args[arg.id] =
+            (interaction as CommandInteraction).options.getInteger(
+              name,
+              required
+            ) ?? arg.default;
+          break;
+        }
+        case "BOOLEAN": {
+          args[arg.id] =
+            (interaction as CommandInteraction).options.getBoolean(
+              name,
+              required
+            ) ?? arg.default;
+          break;
+        }
+        case "USER": {
+          if (mustBeMember.includes(arg.type?.toString()))
+            args[arg.id] =
+              interaction.options.getMember(name, required) ?? arg.default;
+          else if (canAcceptMember.includes(arg.type?.toString()))
+            args[arg.id] =
+              interaction.options.getMember(name, false) ??
+              interaction.options.getUser(name, required) ??
+              arg.default;
+          else
+            args[arg.id] =
+              interaction.options.getUser(name, required) ?? arg.default;
+          break;
+        }
+        case "CHANNEL": {
+          const resolvedChannel = (
+            interaction as CommandInteraction
+          ).options.getChannel(name);
+          if (
+            resolvedChannel &&
+            this.client.channels.cache.has(resolvedChannel.id)
+          )
+            args[arg.id] = this.client.channels.cache.get(resolvedChannel.id);
+          else args[arg.id] = arg.default;
+          break;
+        }
+        case "ROLE": {
+          const role = (interaction as CommandInteraction).options.getRole(
+            name
+          );
+          if (role instanceof Role) args[arg.id] = role;
+          else args[arg.id] = arg.default;
+          break;
+        }
+        case "MENTIONABLE": {
+          const mentionable = (
+            interaction as CommandInteraction
+          ).options.getMentionable(name);
+          if (mentionable instanceof Role || mentionable instanceof FireMember)
+            args[arg.id] = mentionable;
+          else if (mentionable instanceof FireUser && message.guild) {
+            const member = await message.guild.members
+              .fetch(mentionable)
+              .catch(() => {});
+            if (member) args[arg.id] = member;
+          } else args[arg.id] = arg.default;
+          break;
+        }
+        case "ATTACHMENT": {
+          args[arg.id] =
+            (interaction as CommandInteraction).options?.getAttachment?.(
+              name,
+              required
+            ) ?? arg.default;
+          break;
+        }
+        default: {
+          const resolver = this.client.commandHandler.resolver.types.get(
+            arg.type.toString()
+          ) as unknown as SlashArgumentTypeCaster;
+          if (typeof resolver == "function")
+            args[arg.id] = await resolver(
+              message,
+              interaction.options.get(name, required)?.value.toString()
+            );
+        }
       }
+      if (typeof args[arg.id] == "undefined" && typeof arg.type == "function") {
+        try {
+          args[arg.id] = await (
+            arg.type as unknown as SlashArgumentTypeCaster
+          ).bind(this)(
+            message,
+            interaction.options.get(name, true)?.value.toString()
+          );
+        } catch {
+          args[arg.id] = arg.default;
+        }
+      } else if (typeof args[arg.id] == "undefined") args[arg.id] = arg.default;
     }
     for (const arg of this.args) {
       let values: any[];
