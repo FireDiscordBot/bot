@@ -2,6 +2,13 @@ import * as dotEnvExtended from "dotenv-extended";
 import "source-map-support/register";
 import "module-alias/register";
 
+import * as dayjs from "dayjs";
+import * as utc from "dayjs/plugin/utc";
+import * as timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 import "@fire/lib/extensions";
 
 const env = {

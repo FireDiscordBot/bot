@@ -88,7 +88,10 @@ export default class MessageInvalid extends Listener {
         const parsedTime = parseTime(
           content.trim(),
           message.createdAt,
-          message.author.settings.get("reminders.timezone.offset", 0)
+          message.author.settings.get<string>(
+            "reminders.timezone.iana",
+            "Etc/UTC"
+          )
         );
 
         // replace reminder text with reference content if applicable
