@@ -38,10 +38,13 @@ const defaults: ApplicationCommandOptionChoiceData[] = [
 ];
 
 const extended: ApplicationCommandOptionChoiceData[] = [
-  { name: "UTC-12 - Baker Island Time (BIT)", value: "Pacific/Baker" },
   { name: "UTC-11 - Samoa Standard Time (SST)", value: "Pacific/Apia" },
   {
-    name: "UTC-10 - Hawaii-Aleutian Standard Time (HST)",
+    name: "UTC-10 - Hawaii-Aleutian Standard Time, with daylight savings (HST)",
+    value: "America/Adak",
+  },
+  {
+    name: "UTC-10 - Hawaii-Aleutian Standard Time, without daylight savings (HST)",
     value: "Pacific/Honolulu",
   },
   { name: "UTC-9 - Alaska Standard Time (AKST)", value: "America/Anchorage" },
@@ -69,9 +72,26 @@ const extended: ApplicationCommandOptionChoiceData[] = [
     name: "UTC+0 - British Isles / Western European Time (GMT/WET)",
     value: "Europe/Dublin", // ireland pogger
   },
-  { name: "UTC+1 - Central European Time (CET)", value: "Europe/Paris" },
+  {
+    name: "UTC+1 - Central European Time, with daylight savings (CET)",
+    value: "Europe/Paris",
+  },
+  {
+    name: "UTC+1 - Central European Time, without daylight savings (CET)",
+    value: "CET",
+  },
+  { name: "UTC+1 - West Africa Time (WAT)", value: "Africa/Lagos" },
   { name: "UTC+2 - Eastern European Time (EET)", value: "Europe/Bucharest" },
-  { name: "UTC+3 - Moscow Standard Time (MSK)", value: "Europe/Moscow" },
+  {
+    name: "UTC+2 - South African Standard Time (SAST)",
+    value: "Africa/Johannesburg",
+  },
+  {
+    name: "UTC+2 - Central Africa Time (CAT)",
+    value: "Africa/Maputo",
+  },
+  { name: "UTC+3 - East Africa Time (EAT)", value: "Africa/Nairobi" },
+  { name: "UTC+3 - Moscow Time (MSK)", value: "Europe/Moscow" },
   { name: "UTC+3:30 - Iran Standard Time (IRST)", value: "Asia/Tehran" },
   { name: "UTC+4 - Gulf Standard Time (GST)", value: "Asia/Dubai" },
   { name: "UTC+4:30 - Afghanistan Time (AFT)", value: "Asia/Kabul" },
