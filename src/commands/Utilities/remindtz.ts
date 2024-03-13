@@ -122,6 +122,8 @@ export default class RemindersTimezone extends Command {
         {
           id: "timezone",
           type: "string",
+          description: (language: Language) =>
+            language.get("REMINDERS_TIMEZONE_ARGUMENT_TIMEZONE_DESCRIPTION"),
           autocomplete: true,
           required: true,
           default: "Etc/UTC",

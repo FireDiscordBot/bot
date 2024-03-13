@@ -1069,6 +1069,7 @@
   "REMINDERS_DELETE_NO": "Ok, I won't delete it",
   "REMINDERS_DELETE_YES": "Alright, I've deleted that reminder!",
   "REMINDERS_TIMEZONE_COMMAND_DESCRIPTION": "Set the timezone used for your reminders",
+  "REMINDERS_TIMEZONE_ARGUMENT_TIMEZONE_DESCRIPTION": "The timezone to use; Select from one of the options shown or type to search the extended list",
   "REMINDERS_TIMEZONE_IANA_UNKNOWN": "I only have a small subset of timezones supported and the one you provided is unknown. If you are unable to find a supported timezone that covers yours, [contact support](<https://inv.wtf/fire>)",
   "REMINDERS_TIMEZONE_SET_IANA": "Successfully set your timezone to `{{timezone}}` with a current date & time of {{time}}. If that isn't correct, try another timezone or [contact support](<https://inv.wtf/fire>)",
   "ROLEADDLOG_FIELD_TITLE": "Added Roles",
