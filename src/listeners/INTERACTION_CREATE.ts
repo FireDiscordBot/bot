@@ -2,10 +2,10 @@
 // this is listening to an event directly from the gateway
 
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { Interaction } from "@fire/lib/interfaces/interactions";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Severity } from "@sentry/node";
+import { APIInteraction, InteractionType } from "discord-api-types/v9";
 
 const { emojis } = constants;
 
@@ -17,15 +17,15 @@ export default class InteractionCreate extends Listener {
     });
   }
 
-  async exec(interaction: Interaction) {
+  async exec(interaction: APIInteraction) {
     if (!interaction) return;
     if (this.blacklistCheck(interaction)) return;
     // slash command or message component, use client interaction event
     else if (
-      interaction.type == 2 ||
-      interaction.type == 3 ||
-      interaction.type == 4 ||
-      interaction.type == 5
+      interaction.type == InteractionType.ApplicationCommand ||
+      interaction.type == InteractionType.MessageComponent ||
+      interaction.type == InteractionType.ApplicationCommandAutocomplete ||
+      interaction.type == InteractionType.ModalSubmit
     )
       return;
     else {
@@ -45,7 +45,7 @@ export default class InteractionCreate extends Listener {
     }
   }
 
-  async callbackError(interaction: Interaction, error: Error) {
+  async callbackError(interaction: APIInteraction, error: Error) {
     return await this.client.req
       .interactions(interaction.id)(interaction.token)
       .callback.post({
@@ -63,7 +63,7 @@ Error Message: ${error.message}`,
       });
   }
 
-  async webhookError(interaction: Interaction, error: Error) {
+  async webhookError(interaction: APIInteraction, error: Error) {
     return await this.client.req
       .webhooks(this.client.user.id)(interaction.token)
       .post({
@@ -77,7 +77,7 @@ Error Message: ${error.message}`,
       });
   }
 
-  blacklistCheck(interaction: Interaction) {
+  blacklistCheck(interaction: APIInteraction) {
     const guild = interaction.guild_id;
     const user = interaction.user
       ? interaction.user.id

@@ -1,5 +1,6 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireAPIApplicationCommand } from "@fire/lib/interfaces/interactions";
 import { Command } from "@fire/lib/util/command";
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { Listener } from "@fire/lib/util/listener";
@@ -7,13 +8,10 @@ import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import {
-  ApplicationCommand,
-  ChatInputApplicationCommandData,
-  Collection,
-  MessageApplicationCommandData,
-  Snowflake,
-  UserApplicationCommandData,
-} from "discord.js";
+  ApplicationCommandType,
+  RESTPutAPIApplicationCommandsResult,
+} from "discord-api-types/v9";
+import { Collection } from "discord.js";
 import GuildCheckEvent from "../ws/events/GuildCheckEvent";
 
 export default class Ready extends Listener {
@@ -108,22 +106,21 @@ export default class Ready extends Listener {
 
     if (process.env.USE_LITECORD || this.client.manager.id != 0) return;
 
-    const appCommands = await this.client.application.commands.fetch();
+    const appCommandsDirect = await this.client.req
+      .applications(this.client.application.id)
+      .commands.get<FireAPIApplicationCommand[]>({
+        query: { with_localisations: true },
+      })
+      .catch(() => [] as FireAPIApplicationCommand[]);
 
-    if (appCommands?.size || process.env.NODE_ENV == "development") {
-      let commands: (
-        | UserApplicationCommandData
-        | MessageApplicationCommandData
-        | ChatInputApplicationCommandData
-      )[] = appCommands
-        .filter((cmd) => cmd.type != "CHAT_INPUT")
-        .map((context) => {
-          return {
-            id: context.id,
-            name: context.name,
-            type: context.type,
-          } as UserApplicationCommandData | MessageApplicationCommandData;
-        });
+    if (appCommandsDirect.length || process.env.NODE_ENV == "development") {
+      let commands: FireAPIApplicationCommand[] = appCommandsDirect
+        .filter((cmd) => cmd.type != ApplicationCommandType.ChatInput)
+        .map((cmd) => ({
+          id: cmd.id,
+          name: cmd.name,
+          type: cmd.type,
+        })) as FireAPIApplicationCommand[];
 
       for (const cmd of this.client.commandHandler.modules.values()) {
         if (
@@ -131,11 +128,11 @@ export default class Ready extends Listener {
           !cmd.guilds?.length &&
           !cmd.requiresExperiment &&
           !cmd.parent &&
-          appCommands.find((s) => s.name == cmd.id)
+          appCommandsDirect.find((s) => s.name == cmd.id)
         )
           commands.push(
             cmd.getSlashCommandJSON(
-              appCommands.findKey((s) => s.name == cmd.id)
+              appCommandsDirect.find((s) => s.name == cmd.id).id
             )
           );
         else if (
@@ -147,58 +144,36 @@ export default class Ready extends Listener {
           commands.push(cmd.getSlashCommandJSON());
       }
 
-      if (process.env.NODE_ENV == "development") {
-        this.client.console.log(
-          `[Commands] Setting commands in ${this.client.guilds.cache.size} guilds...`
+      const updated = await this.client.req
+        .applications(this.client.application.id)
+        .commands.put<RESTPutAPIApplicationCommandsResult>({
+          data: commands,
+        })
+        .catch((e: Error) => {
+          this.client.console.error(
+            `[Commands] Failed to update slash commands\n${e.stack}`
+          );
+          return [];
+        });
+      if (updated && updated.length) {
+        this.client.console.info(
+          `[Commands] Successfully bulk updated ${updated.length} slash commands`
         );
-        for (const [, guild] of this.client.guilds.cache) {
-          const updated = await guild.commands
-            .set(commands)
-            .catch((e: Error) => {
-              this.client.console.error(
-                `[Commands] Failed to update slash commands in ${guild.name} (${guild.id})\n${e.stack}`
-              );
-              return new Collection<Snowflake, ApplicationCommand>();
-            });
-          if (updated && updated.size) {
-            this.client.console.info(
-              `[Commands] Successfully bulk updated ${updated.size} slash commands in ${guild.name} (${guild.id})`
-            );
-            for (const applicationCommand of updated.values()) {
-              const command = this.client.getCommand(applicationCommand.name);
-              if (command) command.slashIds[guild.id] = applicationCommand.id;
-            }
-          }
+        for (const applicationCommand of updated.values()) {
+          const command = this.client.getCommand(applicationCommand.name);
+          if (command) command.slashId = applicationCommand.id;
         }
-      } else {
-        const updated = await this.client.application.commands
-          .set(commands)
-          .catch((e: Error) => {
-            this.client.console.error(
-              `[Commands] Failed to update slash commands\n${e.stack}`
-            );
-            return new Collection<Snowflake, ApplicationCommand>();
-          });
-        if (updated && updated.size) {
-          this.client.console.info(
-            `[Commands] Successfully bulk updated ${updated.size} slash commands`
-          );
-          for (const applicationCommand of updated.values()) {
-            const command = this.client.getCommand(applicationCommand.name);
-            if (command) command.slashId = applicationCommand.id;
-          }
-          this.client.manager.ws?.send(
-            MessageUtil.encode(
-              new Message(EventType.REFRESH_SLASH_COMMAND_IDS, {
-                commands: this.client.commandHandler.modules.map((command) => ({
-                  id: command.id,
-                  slashId: command.slashId,
-                  slashIds: command.slashIds,
-                })),
-              })
-            )
-          );
-        }
+        this.client.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.REFRESH_SLASH_COMMAND_IDS, {
+              commands: this.client.commandHandler.modules.map((command) => ({
+                id: command.id,
+                slashId: command.slashId,
+                slashIds: command.slashIds,
+              })),
+            })
+          )
+        );
       }
     }
   }

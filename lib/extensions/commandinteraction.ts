@@ -14,8 +14,7 @@ import {
 import { Fire } from "../Fire";
 import {
   APIApplicationCommandOptionResolved,
-  ApplicationCommandOptionType as ApplicationCommandOptionsEnum,
-  Option,
+  ApplicationCommandOptions,
 } from "../interfaces/interactions";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
@@ -150,14 +149,14 @@ export class CommandInteraction extends CommandInteractionBase {
   }
 
   private transformOptionAgain(
-    option: Option,
+    option: CommandInteractionOption,
     resolved: APIInteractionDataResolved
   ) {
     const result: TransformedOptionResult = {
       name: option.name,
-      type: ApplicationCommandOptionsEnum[
+      type: ApplicationCommandOptions[
         option.type
-      ] as ApplicationCommandOptionType,
+      ] as unknown as ApplicationCommandOptionType,
     };
 
     if ("value" in option) result.value = option.value;

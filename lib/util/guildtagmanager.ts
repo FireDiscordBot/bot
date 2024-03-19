@@ -1,10 +1,10 @@
 import { LimitedCollection, DiscordAPIError, Snowflake } from "discord.js";
-import { APIApplicationCommand } from "@fire/lib/interfaces/interactions";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Fire } from "@fire/lib/Fire";
 import * as fuzz from "fuzzball";
+import { APIApplicationCommand } from "discord-api-types/v9";
 
 const slashCommandNameRegex =
   /^[-_\p{L}\p{N}\p{Script=Devanagari}\p{Script=Thai}]{1,32}$/gmu;
@@ -392,7 +392,7 @@ export class GuildTagManager {
       .guilds(this.guild.id)
       .commands.post<APIApplicationCommand>({ data: command })
       .catch((e: DiscordAPIError) => e);
-    if (commandRaw instanceof Error) {
+    if (commandRaw instanceof DiscordAPIError) {
       if (commandRaw.httpStatus != 403 && commandRaw.code != 50001)
         this.client.console.warn(
           `[Commands] Failed to register slash command for tag "${name}" in guild ${this.guild.name}`,

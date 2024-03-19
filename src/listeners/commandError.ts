@@ -2,7 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
-import { Command } from "@fire/lib/util/command";
+import { Command, InvalidArgumentContextError } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { DMChannel, GuildChannel, ThreadChannel } from "discord.js";
@@ -23,6 +23,11 @@ export default class CommandError extends Listener {
     args: Record<string, unknown>,
     error: Error
   ) {
+    if (error instanceof InvalidArgumentContextError)
+      return await message.error("COMMAND_ERROR_INVALID_ARGUMENT", {
+        arg: error.argument,
+      });
+
     const point = {
       measurement: "commands",
       tags: {
@@ -76,15 +81,6 @@ export default class CommandError extends Listener {
       sentry.setUser(null);
     }
     this.client.writeToInflux([point]);
-
-    if (
-      (message instanceof ApplicationCommandMessage ||
-        message instanceof ContextCommandMessage) &&
-      !this.client.channels.cache.has(message.channelId)
-    )
-      return await message.channel.send(
-        `${emojis.error} I was unable to find the channel you are in. If it is a private thread, you'll need to mention me to add me to the thread or give me \`Manage Threads\` permission`
-      ); // could be a private thread fire can't access
 
     if (message.channel instanceof ThreadChannel) {
       const checks = await this.client.commandHandler

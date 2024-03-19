@@ -7,14 +7,29 @@ import {
   APIMessage,
   APIRole,
   APIUser,
+  ApplicationCommandOptionType,
+  RESTPostAPIChatInputApplicationCommandsJSONBody,
+  Snowflake,
 } from "discord-api-types/v9";
-import { Snowflake } from "discord.js";
+import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 
-export type Interaction =
-  | ApplicationCommandInteraction
-  | ButtonInteraction
-  | ApplicationCommandAutocompleteInteraction
-  | ModalInteraction;
+export type FireAPIApplicationCommand =
+  RESTPostAPIChatInputApplicationCommandsJSONBody & {
+    id?: Snowflake;
+    integration_types: IntegrationTypes[];
+    contexts: InteractionContexts[];
+  };
+
+export enum IntegrationTypes {
+  GUILD_INSTALL,
+  USER_INSTALL,
+}
+
+export enum InteractionContexts {
+  GUILD,
+  BOT_DM,
+  PRIVATE_CHANNEL,
+}
 
 interface BaseInteraction {
   application_id: Snowflake;
@@ -30,21 +45,10 @@ interface BaseInteraction {
   token: string;
 }
 
-export interface ApplicationCommandInteraction extends BaseInteraction {
-  data: CommandData;
-  type: 2;
-}
-
 export interface ButtonInteraction extends BaseInteraction {
   message: APIMessage;
   data: ComponentData;
   type: 3;
-}
-
-export interface ApplicationCommandAutocompleteInteraction
-  extends BaseInteraction {
-  data: CommandData;
-  type: 4;
 }
 
 export interface ModalInteraction extends BaseInteraction {
@@ -53,27 +57,12 @@ export interface ModalInteraction extends BaseInteraction {
   type: 5;
 }
 
-export interface CommandData {
-  options?: Option[];
-  name: string;
-  id: string;
-}
-
 export interface Option {
-  type?: ApplicationCommandOptionType;
+  type?: ApplicationCommandOptionTypes;
   value?: string | number | boolean;
   options?: Option[];
   focused?: boolean;
   name: string;
-}
-
-export interface ApplicationCommandOption {
-  type: ApplicationCommandOptionType;
-  name: string;
-  description: string;
-  required?: boolean;
-  choices?: ApplicationCommandOptionChoice[];
-  options?: ApplicationCommandOption[];
 }
 
 export interface ApplicationCommandOptionChoice {
@@ -81,36 +70,18 @@ export interface ApplicationCommandOptionChoice {
   value: string | number;
 }
 
-export enum ApplicationCommandOptionType {
-  SUB_COMMAND = 1,
-  SUB_COMMAND_GROUP,
-  STRING,
-  INTEGER,
-  BOOLEAN,
-  USER,
-  CHANNEL,
-  ROLE,
-  MENTIONABLE,
-  NUMBER,
-  ATTACHMENT,
-}
-
-export interface APIApplicationCommand {
-  id: string;
-  application_id: string;
-  name: string;
-  description: string;
-  version: string;
-  default_permission: boolean;
-  options?: ApplicationCommandOption[];
-}
-
-export interface ApplicationCommand {
-  name: string;
-  id?: string;
-  description: string;
-  default_permission: boolean;
-  options?: ApplicationCommandOption[];
+export enum ApplicationCommandOptions {
+  SUB_COMMAND = ApplicationCommandOptionType.Subcommand,
+  SUB_COMMAND_GROUP = ApplicationCommandOptionType.SubcommandGroup,
+  STRING = ApplicationCommandOptionType.String,
+  INTEGER = ApplicationCommandOptionType.Integer,
+  BOOLEAN = ApplicationCommandOptionType.Boolean,
+  USER = ApplicationCommandOptionType.User,
+  CHANNEL = ApplicationCommandOptionType.Channel,
+  ROLE = ApplicationCommandOptionType.Role,
+  MENTIONABLE = ApplicationCommandOptionType.Mentionable,
+  NUMBER = ApplicationCommandOptionType.Number,
+  ATTACHMENT = ApplicationCommandOptionType.Attachment,
 }
 
 export enum ApplicationCommandPermissionType {
@@ -214,12 +185,6 @@ export type APIComponent =
       type: ButtonType.ACTION_ROW;
       components: APIComponent[];
     };
-
-export enum ApplicationCommandType {
-  CHAT_INPUT = 1,
-  USER = 2,
-  MESSAGE = 3,
-}
 
 export interface APIApplicationCommandOptionResolved {
   users?: Record<Snowflake, APIUser>;
