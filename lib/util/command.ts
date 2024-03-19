@@ -655,14 +655,11 @@ export class Command extends AkairoCommand {
           }`;
         } else if (typeof value == "object") {
           let stringified: string;
-          if (
-            value instanceof FireUser ||
-            value instanceof FireMember ||
-            value instanceof Role
-          )
-            stringified = `@${value} (${value.id})`;
+          if (value instanceof FireUser || value instanceof FireMember)
+            stringified = `@${value}`;
+          else if (value instanceof Role) stringified = `@${value.name}`;
           else if (value instanceof GuildChannel)
-            stringified = `#${value.name} (${value.id})`;
+            stringified = `#${value.name}`;
           else if (value instanceof DMChannel)
             stringified = `#${value.recipient} (${value.recipient.id})`;
           else if (value instanceof MessageAttachment) stringified = value.name;
