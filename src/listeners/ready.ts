@@ -120,6 +120,11 @@ export default class Ready extends Listener {
           id: cmd.id,
           name: cmd.name,
           type: cmd.type,
+          default_permission: true,
+          default_member_permissions: null,
+          dm_permission: cmd.dm_permission,
+          integration_types: cmd.integration_types,
+          contexts: cmd.contexts,
         })) as FireAPIApplicationCommand[];
 
       for (const cmd of this.client.commandHandler.modules.values()) {
