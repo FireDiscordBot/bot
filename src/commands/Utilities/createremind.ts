@@ -120,15 +120,53 @@ export default class RemindersCreate extends Command {
       if (!event) return await command.error("ERROR_CONTACT_SUPPORT");
       const now = +new Date();
 
+      // Get the date first, doesn't need to be exact with timing since we only want it to get the offset
+      // This will probably break if you try to set a reminder around the switch to/from DST
+      // but if you're doing that, fuck you.
+      // timezones suck, daylight savings sucks more
+      const preliminaryParse = casual.parse(
+        clickedMessage.content,
+        { instant: clickedMessage.createdAt },
+        {
+          forwardDate: true,
+        }
+      );
+      let offset: number = 0;
+      const date = preliminaryParse[0]?.start.date();
+      if (date) {
+        if (preliminaryParse[0].start.get("timezoneOffset") == null) {
+          // Instead of the old offset we got from browsers, we'll use an IANA timezone name
+          // and that + the date from above allows us to get the correct offset for DST
+          date.setHours(23, 59, 59, 999); // should be past the dst switch in most timezones
+          offset = dayjs
+            .tz(
+              date,
+              clickedMessage.author.settings.get<string>(
+                "reminders.timezone.iana",
+                "Etc/UTC"
+              )
+            )
+            .utcOffset();
+        }
+        // This means a timezone was specified in the text so we'll use that
+        else offset = preliminaryParse[0].start.get("timezoneOffset");
+      } else
+        offset = dayjs
+          .tz(
+            now,
+            clickedMessage.author.settings.get<string>(
+              "reminders.timezone.iana",
+              "Etc/UTC"
+            )
+          )
+          .utcOffset();
+
       // Parse with chrono-node early so we can get the content without the time
       let parsed = casual.parse(
           clickedMessage.content,
           {
             instant: command.createdAt,
-            timezone: clickedMessage.author.settings.get(
-              "reminders.timezone.offset",
-              0
-            ),
+            timezone: offset,
           },
           {
             forwardDate: true,
@@ -146,10 +184,15 @@ export default class RemindersCreate extends Command {
           clickedMessage.embeds[0].description,
           {
             instant: command.createdAt,
-            timezone: clickedMessage.author.settings.get(
-              "reminders.timezone.offset",
-              0
-            ),
+            timezone: dayjs
+              .tz(
+                date,
+                clickedMessage.author.settings.get<string>(
+                  "reminders.timezone.iana",
+                  "Etc/UTC"
+                )
+              )
+              .utcOffset(),
           },
           {
             forwardDate: true,
@@ -196,11 +239,13 @@ export default class RemindersCreate extends Command {
 
       return await command.channel.send({
         content: command.author.language.get(
-          clickedMessage.author.settings.has("reminders.timezone.offset")
-            ? clickedMessage.author.id == command.author.id
-              ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
-              : "REMINDER_CONTEXT_CONTENT_WITH_AUTHOR_TZ"
-            : "REMINDER_CONTEXT_CONTENT",
+          parsed.length
+            ? clickedMessage.author.settings.has("reminders.timezone.iana")
+              ? clickedMessage.author.id == command.author.id
+                ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
+                : "REMINDER_CONTEXT_CONTENT_WITH_AUTHOR_TZ"
+              : "REMINDER_CONTEXT_CONTENT"
+            : "REMINDER_CONTEXT_CONTENT_NO_TZ",
           {
             content:
               reminderText.length >= 503

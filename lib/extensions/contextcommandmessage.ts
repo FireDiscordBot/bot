@@ -29,7 +29,7 @@ import {
   ThreadChannel,
   WebhookMessageOptions,
 } from "discord.js";
-import { RawUserData } from "discord.js/typings/rawDataTypes";
+import { RawMessageData, RawUserData } from "discord.js/typings/rawDataTypes";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
@@ -181,7 +181,10 @@ export class ContextCommandMessage {
   }
 
   getMessage(required = false) {
-    return this.contextCommand.options.getMessage("message", required);
+    const message = this.contextCommand.options.getMessage("message", required);
+    if (message instanceof FireMessage) return message;
+    else if (typeof message == "object" && message?.id)
+      return new FireMessage(this.client, message as RawMessageData);
   }
 
   getUser(required = false) {
