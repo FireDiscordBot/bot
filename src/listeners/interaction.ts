@@ -5,6 +5,7 @@ import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessag
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireUser } from "@fire/lib/extensions/user";
+import { Fire } from "@fire/lib/Fire";
 import { IPoint } from "@fire/lib/interfaces/aether";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -12,12 +13,30 @@ import {
   ApplicationCommandOptionChoiceData,
   AutocompleteInteraction,
   ContextMenuInteraction,
+  DMChannel,
   Interaction,
   MessageComponentInteraction,
   ModalSubmitInteraction,
 } from "discord.js";
 
 const { emojis } = constants;
+
+const getShard = (interaction: Interaction) => {
+  if (interaction.guild) return interaction.guild.shard;
+  else if (interaction.guildId) {
+    const shard = (interaction.client as Fire).util.getShard(
+      interaction.guildId
+    );
+    if (interaction.client.ws.shards.has(shard))
+      return interaction.client.ws.shards.get(shard);
+    else return interaction.client.ws.shards.first();
+  } else if (
+    interaction.channel instanceof DMChannel &&
+    interaction.client.ws.shards.has(0)
+  )
+    return interaction.client.ws.shards.get(0);
+  else return interaction.client.ws.shards.first();
+};
 
 export default class InteractionListener extends Listener {
   constructor() {
@@ -49,7 +68,7 @@ export default class InteractionListener extends Listener {
               ? (interaction as MessageComponentInteraction).customId
               : "unknown",
             cluster: this.client.manager.id.toString(),
-            shard: interaction.guild?.shardId.toString() ?? "0",
+            shard: getShard(interaction).id.toString(),
             user_id: interaction.user.id, // easier to query tag
           },
           fields: {
@@ -76,7 +95,7 @@ export default class InteractionListener extends Listener {
         type: interaction.type,
         user_id: interaction.user?.id,
         cluster: this.client.manager.id.toString(),
-        shard: interaction.guild?.shardId.toString() ?? "0",
+        shard: getShard(interaction).id.toString(),
       },
       fields: {
         guild: interaction.guild

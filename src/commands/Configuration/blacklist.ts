@@ -91,7 +91,7 @@ export default class Blacklist extends Command {
               guild: command.guild
                 ? `${command.guild} (${command.guild.id})`
                 : "N/A",
-              shard: command.guild ? command.guild.shardId : 0,
+              shard: command.shard.id,
               action: `${args.user} (${args.user.id}) was unblacklisted`,
             })
           )
@@ -113,7 +113,7 @@ export default class Blacklist extends Command {
               guild: command.guild
                 ? `${command.guild} (${command.guild.id})`
                 : "N/A",
-              shard: command.guild ? command.guild.shardId : 0,
+              shard: command.shard.id,
               action: `${args.user} (${args.user.id}) was blacklisted`,
             })
           )

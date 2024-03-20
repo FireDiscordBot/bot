@@ -498,9 +498,7 @@ export default class MCLogs extends Module {
             user_id: user.id,
             cluster: this.client.manager.id.toString(),
             shard:
-              user instanceof FireMember
-                ? user.guild?.shardId.toString() ?? "0"
-                : "Unknown",
+              user instanceof FireMember ? user.guild.shardId.toString() : "0",
           },
           fields: {
             guild:
@@ -911,8 +909,8 @@ export default class MCLogs extends Module {
               cluster: this.client.manager.id.toString(),
               shard:
                 user instanceof FireMember
-                  ? user.guild?.shardId.toString() ?? "0"
-                  : "Unknown",
+                  ? user.guild.shardId.toString()
+                  : "0",
             },
             fields: {
               guild:
@@ -944,8 +942,8 @@ export default class MCLogs extends Module {
               cluster: this.client.manager.id.toString(),
               shard:
                 user instanceof FireMember
-                  ? user.guild?.shardId.toString() ?? "0"
-                  : "Unknown",
+                  ? user.guild.shardId.toString()
+                  : "0",
             },
             fields: {
               guild:
@@ -975,9 +973,7 @@ export default class MCLogs extends Module {
             user_id: user.id,
             cluster: this.client.manager.id.toString(),
             shard:
-              user instanceof FireMember
-                ? user.guild?.shardId.toString() ?? "0"
-                : "Unknown",
+              user instanceof FireMember ? user.guild.shardId.toString() : "0",
           },
           fields: {
             guild:
@@ -1019,8 +1015,8 @@ export default class MCLogs extends Module {
               cluster: this.client.manager.id.toString(),
               shard:
                 user instanceof FireMember
-                  ? user.guild?.shardId.toString() ?? "0"
-                  : "Unknown",
+                  ? user.guild.shardId.toString()
+                  : "0",
             },
             fields: {
               guild:
@@ -1559,9 +1555,7 @@ export default class MCLogs extends Module {
               type: "upload",
               user_id: message.author.id,
               cluster: this.client.manager.id.toString(),
-              shard: message.guild
-                ? message.guild?.shardId.toString() ?? "0"
-                : "Unknown",
+              shard: message.shard.id.toString(),
             },
             fields: {
               guild: message.guild
@@ -1617,9 +1611,7 @@ export default class MCLogs extends Module {
                     type: "cracked",
                     user_id: message.author.id,
                     cluster: this.client.manager.id.toString(),
-                    shard: message.guild
-                      ? message.guild?.shardId.toString() ?? "0"
-                      : "Unknown",
+                    shard: message.shard.id.toString(),
                   },
                   fields: {
                     guild: message.guild
@@ -1654,9 +1646,7 @@ export default class MCLogs extends Module {
                     type: "user",
                     user_id: message.author.id,
                     cluster: this.client.manager.id.toString(),
-                    shard: message.guild
-                      ? message.guild?.shardId.toString() ?? "0"
-                      : "Unknown",
+                    shard: message.shard.id.toString(),
                   },
                   fields: {
                     guild: message.guild

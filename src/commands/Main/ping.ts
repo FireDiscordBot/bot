@@ -17,18 +17,15 @@ export default class Ping extends Command {
   async run(command: ApplicationCommandMessage) {
     const embed = new MessageEmbed()
       .setTitle(
-        `:ping_pong: ${this.client.restPing}ms.\n:heartpulse: ${
-          this.client.ws.shards.get(command.guild ? command.guild.shardId : 0)
-            .ping
-        }ms.`
+        `:ping_pong: ${this.client.restPing}ms\n:heartpulse: ${command.shard.ping}ms`
       )
       .setColor(command.member?.displayColor || "#FFFFFF")
-      .setFooter(
-        command.language.get("PING_FOOTER", {
-          shard: command.guild ? command.guild.shardId : 0,
+      .setFooter({
+        text: command.language.get("PING_FOOTER", {
+          shard: command.shard.id,
           cluster: this.client.manager.id,
-        })
-      )
+        }),
+      })
       .setTimestamp();
 
     return await command.channel.send({ embeds: [embed] });

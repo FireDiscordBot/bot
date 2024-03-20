@@ -21,7 +21,7 @@ export default class CommandStarted extends Listener {
         type: "started",
         command: command.id,
         cluster: this.client.manager.id.toString(),
-        shard: message.guild?.shardId.toString() ?? "0",
+        shard: message.shard.id.toString(),
         user_id: message.author.id, // easier to query tag
       },
       fields: {

@@ -138,7 +138,7 @@ export default class Help extends Command {
       )
       .setFooter(
         message.language.get("HELP_FOOTER", {
-          shard: message.guild?.shardId ?? 0,
+          shard: message.shard.id,
           cluster: this.client.manager.id,
         })
       )

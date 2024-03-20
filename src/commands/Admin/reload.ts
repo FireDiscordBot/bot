@@ -55,7 +55,7 @@ export default class Reload extends Command {
               guild: message.guild
                 ? `${message.guild} (${message.guild.id})`
                 : "N/A",
-              shard: message.guild ? message.guild.shardId : 0,
+              shard: message.shard.id,
               action: `All commands/languages/listeners/modules were reloaded`,
             })
           )
@@ -95,7 +95,7 @@ export default class Reload extends Command {
               guild: message.guild
                 ? `${message.guild} (${message.guild.id})`
                 : "N/A",
-              shard: message.guild ? message.guild.shardId : 0,
+              shard: message.shard.id,
               action: `${args.module.handler.classToHandle.name} ${args.module.id} was reloaded`,
             })
           )

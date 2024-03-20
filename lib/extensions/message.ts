@@ -97,6 +97,21 @@ export class FireMessage extends Message {
     );
   }
 
+  get shard() {
+    if (this.guild) return this.guild.shard;
+    else if (this.guildId) {
+      const shard = this.client.util.getShard(this.guildId);
+      if (this.client.ws.shards.has(shard))
+        return this.client.ws.shards.get(shard);
+      else return this.client.ws.shards.first();
+    } else if (
+      this.channel instanceof DMChannel &&
+      this.client.ws.shards.has(0)
+    )
+      return this.client.ws.shards.get(0);
+    else return this.client.ws.shards.first();
+  }
+
   get paginator() {
     return this.client.util.paginators.get(this.id) ?? null;
   }

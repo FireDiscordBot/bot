@@ -125,6 +125,21 @@ export class ComponentMessage {
     return this._flags;
   }
 
+  get shard() {
+    if (this.guild) return this.guild.shard;
+    else if (this.guildId) {
+      const shard = this.client.util.getShard(this.guildId);
+      if (this.client.ws.shards.has(shard))
+        return this.client.ws.shards.get(shard);
+      else return this.client.ws.shards.first();
+    } else if (
+      this.channel.real instanceof DMChannel &&
+      this.client.ws.shards.has(0)
+    )
+      return this.client.ws.shards.get(0);
+    else return this.client.ws.shards.first();
+  }
+
   get ephemeral() {
     return (this.flags & (1 << 6)) == 1 << 6;
   }
