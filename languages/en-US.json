@@ -1287,7 +1287,6 @@
   "TICKET_OVERFLOW_DELETE_REASON": "Ticket overflow category is now empty, removing it",
   "NEW_COMMAND_DESCRIPTION": "Makes a new ticket",
   "TICTACTOE_COMMAND_DESCRIPTION": "Play tic-tac-toe against server members",
-  "TICTACTOE_DMS": "It's only me and you here in our DMs, head to a server to play!",
   "TICTACTOE_OPPONENT_REQUIRED": "You need to choose an opponent to play against and it cannot be yourself",
   "TICTACTOE_OPPONENT_BUSY": "Your opponent is currently in a fierce tic-tac-toe battle and cannot play with you. Please try again later...",
   "TICTACTOE_GAME_REQUEST": "{{opponent}}, {{challenger}} has challenged you to a game of tic-tac-toe, click the button below to accept. This request will expire in 1 minute",

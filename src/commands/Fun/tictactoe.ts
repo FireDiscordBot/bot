@@ -66,9 +66,6 @@ export default class TicTacToe extends Command {
   }
 
   async run(command: ApplicationCommandMessage, args: { opponent?: FireUser }) {
-    if (command.channel.type == "DM")
-      return await command.error("TICTACTOE_DMS");
-
     if (!args.opponent || args.opponent?.id == command.author.id)
       return await command.error("TICTACTOE_OPPONENT_REQUIRED");
 
