@@ -72,6 +72,9 @@ export class GuildSettings {
         currentAdminOnly.push(category.id);
       }
     }
+    currentAdminOnly = currentAdminOnly.filter((id) =>
+      (this.guild as FireGuild).channels.cache.has(id)
+    );
     this.set<Snowflake[]>("commands.adminonly", currentAdminOnly);
     let currentModOnly = this.get<Snowflake[]>("commands.modonly", []);
     for (const [, category] of this.guild.channels.cache.filter(
@@ -89,6 +92,9 @@ export class GuildSettings {
         currentModOnly.push(category.id);
       }
     }
+    currentModOnly = currentModOnly.filter((id) =>
+      (this.guild as FireGuild).channels.cache.has(id)
+    );
     this.set<Snowflake[]>("commands.modonly", currentModOnly);
   }
 
