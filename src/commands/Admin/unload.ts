@@ -9,22 +9,29 @@ import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
 import { Module } from "@fire/lib/util/module";
 import { Argument } from "discord-akairo";
-import { Permissions } from "discord.js";
+import {
+  ApplicationCommandOptionChoiceData,
+  CacheType,
+  CommandInteractionOption,
+  Permissions,
+} from "discord.js";
 import * as centra from "centra";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 
-export default class Unload extends Command {
+export default class AdminUnload extends Command {
   constructor() {
-    super("unload", {
+    super("admin-unload", {
       description: (language: Language) =>
-        language.get("UNLOAD_COMMAND_DESCRIPTION"),
+        language.get("ADMIN_UNLOAD_COMMAND_DESCRIPTION"),
       clientPermissions: [Permissions.FLAGS.ADD_REACTIONS],
       args: [
         {
           id: "module",
           type: Argument.union("command", "language", "listener", "module"),
           readableType: "command|language|listener|module",
-          default: null,
+          autocomplete: true,
           required: true,
+          default: null,
         },
         {
           id: "broadcast",
@@ -33,9 +40,45 @@ export default class Unload extends Command {
           default: null,
         },
       ],
-      ownerOnly: true,
+      enableSlashCommand: true,
       restrictTo: "all",
+      ownerOnly: true,
+      parent: "admin",
     });
+  }
+
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    focused: CommandInteractionOption<CacheType>
+  ): Promise<string[] | ApplicationCommandOptionChoiceData[]> {
+    if (!interaction.author.isSuperuser())
+      return [
+        {
+          name: "you can't use this command, go away",
+          value: "fuck off",
+        },
+      ];
+    if (!focused.value)
+      return [
+        {
+          name: "RELOAD ALL (avoid unless absolutely necessary)",
+          value: "*",
+        },
+      ];
+    const modules = [
+      this.client.commandHandler.modules,
+      this.client.languages.modules,
+      this.client.listenerHandler.modules,
+      this.client.modules.modules,
+    ].flatMap((m) => m.map((o) => o));
+    return modules
+      .filter((module) => module.id.includes(focused.value.toString()))
+      .map((module) => ({
+        name: `${module.handler.constructor.name.replace("Handler", "")} - ${
+          module.id
+        }`,
+        value: module.id,
+      }));
   }
 
   async exec(

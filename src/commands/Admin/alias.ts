@@ -7,11 +7,11 @@ import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Message } from "@fire/lib/ws/Message";
 
-export default class Alias extends Command {
+export default class AdminAlias extends Command {
   constructor() {
-    super("alias", {
+    super("admin-alias", {
       description: (language: Language) =>
-        language.get("ALIAS_COMMAND_DESCRIPTION"),
+        language.get("ADMIN_ALIAS_COMMAND_DESCRIPTION"),
       args: [
         {
           id: "user",
@@ -28,8 +28,10 @@ export default class Alias extends Command {
           default: null,
         },
       ],
+      enableSlashCommand: true,
       superuserOnly: true,
       restrictTo: "all",
+      parent: "admin",
     });
   }
 
@@ -40,13 +42,13 @@ export default class Alias extends Command {
     const { user, alias } = args;
 
     if (!user) return;
-    if (!alias) return await message.error("ALIAS_REQUIRED_ARG");
+    if (!alias) return await message.error("ADMIN_ALIAS_REQUIRED_ARG");
 
     const existing = this.client.aliases.findKey((aliases) =>
       aliases.includes(alias.toLowerCase())
     );
     if (existing && existing != user.id)
-      return await message.error("ALIAS_EXISTS");
+      return await message.error("ADMIN_ALIAS_EXISTS");
 
     let current = this.client.aliases.get(user.id) || [];
     if (current.includes(alias.toLowerCase()))
