@@ -51,6 +51,7 @@
     "nodejs-assistant": "^0.8.0",
     "p-event": "^4.2.0",
     "pidusage": "^2.0.21",
+    "prettier": "^2.6.2",
     "semaphore-async-await": "^1.5.1",
     "semver": "^7.5.4",
     "source-map-support": "^0.5.21",
@@ -75,7 +76,6 @@
     "@types/tinycolor2": "^1.4.3",
     "@types/uuid": "^8.3.4",
     "@types/ws": "^8.5.3",
-    "prettier": "^2.5.1",
     "typescript": "^4.7.4"
   },
   "volta": {

@@ -14,6 +14,7 @@ import {
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
 import * as fuzz from "fuzzball";
+import * as prettier from "prettier";
 
 const validThemes = [
   "3024-night",
@@ -185,7 +186,11 @@ export default class Carbon extends Command {
     await modal.channel.send(modal.language.get("CARBON_IMAGE_PROCESSING"));
 
     const body = {
-      code,
+      code: prettier
+        .format(code, {
+          parser: "babel",
+        })
+        .trim(),
       windowControls: false,
       fontFamily: font,
       language: "auto",
