@@ -1,6 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
+import { GuildChannel, Snowflake } from "discord.js";
 
 export default class AdminOnlyInhibitor extends Inhibitor {
   constructor() {
@@ -14,9 +15,13 @@ export default class AdminOnlyInhibitor extends Inhibitor {
   async exec(message: FireMessage) {
     if (
       message.guild &&
-      message.guild.settings
-        .get<string[]>("commands.adminonly", [])
-        .includes(message.channelId)
+      (message.guild.settings
+        .get<Snowflake[]>("commands.adminonly", [])
+        .includes(message.channelId) ||
+        ((message.channel as GuildChannel).parentId &&
+          message.guild.settings
+            .get<Snowflake[]>("commands.adminonly", [])
+            .includes((message.channel as GuildChannel).parentId)))
     ) {
       if (message.member.isSuperuser()) return false;
       if (

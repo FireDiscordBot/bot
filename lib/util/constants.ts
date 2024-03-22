@@ -125,7 +125,7 @@ let emojis = {
   // shoutout to blobhub for the ebic emotes, https://inv.wtf/blobhub
   success: "<:yes:534174796888408074>",
   error: "<:no:534174796938870792>",
-  slashError: "<:error:837406115280060505>",
+  slashError: "<:SystemMessageInteractionFail:837406115280060505>",
   warning: "<:maybe:534174796578160640>",
   statuspage: {
     operational: "<:operational:685538400639385649>",

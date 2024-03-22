@@ -2,6 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
+import { GuildChannel, Snowflake } from "discord.js";
 
 export default class ModOnlyInhibitor extends Inhibitor {
   constructor() {
@@ -15,9 +16,13 @@ export default class ModOnlyInhibitor extends Inhibitor {
   async exec(message: FireMessage) {
     if (
       message.guild &&
-      message.guild.settings
-        .get<string[]>("commands.modonly", [])
-        .includes(message.channelId)
+      (message.guild.settings
+        .get<Snowflake[]>("commands.modonly", [])
+        .includes(message.channelId) ||
+        ((message.channel as GuildChannel).parentId &&
+          message.guild.settings
+            .get<Snowflake[]>("commands.modonly", [])
+            .includes((message.channel as GuildChannel).parentId)))
     ) {
       if (message.member.isSuperuser()) return false;
       if (

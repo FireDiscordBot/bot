@@ -4,7 +4,7 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Message } from "@fire/lib/ws/Message";
-import { Snowflake } from "discord.js";
+import { CategoryChannel, Snowflake } from "discord.js";
 import { Fire } from "@fire/lib/Fire";
 
 export class GuildSettings {
@@ -14,15 +14,23 @@ export class GuildSettings {
   constructor(client: Fire, guild: Snowflake | FireGuild) {
     this.client = client;
     this.guild = guild;
-    if (this.shouldMigrate)
-      this.runMigration().then(() =>
-        this.client.console.log(
-          `[GuildSettings] Migration complete for`,
-          this.guild instanceof FireGuild && this.guild.name
-            ? this.guild.name
-            : this.guild,
-          `${this.guild instanceof FireGuild ? "(" + this.guild.id + ")" : ""}`
-        )
+    if (
+      this.shouldMigrate &&
+      !this.get(`settings.migration.${this.migrationId}`, false)
+    )
+      this.client.waitUntilReady().then(() =>
+        this.runMigration().then(() => {
+          this.set(`settings.migration.${this.migrationId}`, true);
+          this.client.console.log(
+            `[GuildSettings] Migration complete for`,
+            this.guild instanceof FireGuild && this.guild.name
+              ? this.guild.name
+              : this.guild,
+            `${
+              this.guild instanceof FireGuild ? "(" + this.guild.id + ")" : ""
+            }`
+          );
+        })
       );
     else
       this.client.guildSettings.toMigrate =
@@ -34,11 +42,55 @@ export class GuildSettings {
 
   // will check if migration is needed for the current migration script
   get shouldMigrate() {
-    return false;
+    return (
+      this.get("commands.modonly", []).length ||
+      this.get("commands.adminonly", []).length
+    );
+  }
+
+  // unique identifier for the migration script
+  get migrationId() {
+    return "March24-restrict-command";
   }
 
   // will be empty unless there's a migration to run
-  async runMigration() {}
+  async runMigration() {
+    if (!(this.guild instanceof FireGuild)) return;
+    let currentAdminOnly = this.get<Snowflake[]>("commands.adminonly", []);
+    for (const [, category] of this.guild.channels.cache.filter(
+      (c) => c.type == "GUILD_CATEGORY"
+    )) {
+      if (!(category as CategoryChannel).children.size) continue;
+      if (
+        (category as CategoryChannel).children.every((c) =>
+          currentAdminOnly.includes(c.id)
+        )
+      ) {
+        currentAdminOnly = currentAdminOnly.filter(
+          (id) => !(category as CategoryChannel).children.has(id)
+        );
+        currentAdminOnly.push(category.id);
+      }
+    }
+    this.set<Snowflake[]>("commands.adminonly", currentAdminOnly);
+    let currentModOnly = this.get<Snowflake[]>("commands.modonly", []);
+    for (const [, category] of this.guild.channels.cache.filter(
+      (c) => c.type == "GUILD_CATEGORY"
+    )) {
+      if (!(category as CategoryChannel).children.size) continue;
+      if (
+        (category as CategoryChannel).children.every((c) =>
+          currentModOnly.includes(c.id)
+        )
+      ) {
+        currentModOnly = currentModOnly.filter(
+          (id) => !(category as CategoryChannel).children.has(id)
+        );
+        currentModOnly.push(category.id);
+      }
+    }
+    this.set<Snowflake[]>("commands.modonly", currentModOnly);
+  }
 
   has(option: string) {
     const guild = this.guild instanceof FireGuild ? this.guild.id : this.guild;
