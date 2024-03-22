@@ -17,12 +17,16 @@ export default class AdminAlias extends Command {
           id: "user",
           // this could be just user but member allows username lookup
           type: "user|member",
+          description: (language: Language) =>
+            language.get("ADMIN_ALIAS_ARGUMENT_USER_DESCRIPTION"),
           required: true,
           default: null,
         },
         {
           id: "alias",
           type: "string",
+          description: (language: Language) =>
+            language.get("ADMIN_ALIAS_ARGUMENT_ALIAS_DESCRIPTION"),
           match: "rest",
           required: true,
           default: null,
@@ -31,6 +35,7 @@ export default class AdminAlias extends Command {
       enableSlashCommand: true,
       superuserOnly: true,
       restrictTo: "all",
+      slashOnly: true,
       parent: "admin",
     });
   }

@@ -27,6 +27,8 @@ export default class AdminReload extends Command {
           type: Argument.union("command", "language", "listener", "module", [
             "*",
           ]),
+          description: (language: Language) =>
+            language.get("ADMIN_RELOAD_ARGUMENT_MODULE_DESCRIPTION"),
           readableType: "command|language|listener|module|*",
           autocomplete: true,
           required: true,
@@ -42,6 +44,7 @@ export default class AdminReload extends Command {
       enableSlashCommand: true,
       restrictTo: "all",
       ownerOnly: true,
+      slashOnly: true,
       parent: "admin",
     });
   }
@@ -71,7 +74,9 @@ export default class AdminReload extends Command {
       this.client.modules.modules,
     ].flatMap((m) => m.map((o) => o));
     return modules
-      .filter((module) => module.id.includes(focused.value.toString()))
+      .filter((module) =>
+        module.id.toLowerCase().includes(focused.value.toString().toLowerCase())
+      )
       .map((module) => ({
         name: `${module.handler.constructor.name.replace("Handler", "")} - ${
           module.id
