@@ -11,13 +11,13 @@ export default class Description extends Command {
   constructor() {
     super("description", {
       description: (language: Language) =>
-        language.get("DESC_COMMAND_DESCRIPTION"),
+        language.get("DESCRIPTION_COMMAND_DESCRIPTION"),
       userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
       args: [
         {
           id: "desc",
           description: (language: Language) =>
-            language.get("DESC_DESCRIPTION_ARGUMENT_DESCRIPTION"),
+            language.get("DESCRIPTION_DESCRIPTION_ARGUMENT_DESCRIPTION"),
           type: "string",
           match: "rest",
           required: true,
@@ -47,7 +47,7 @@ export default class Description extends Command {
     );
 
     if (!vanity.rows.length) {
-      return await command.error("DESC_NO_VANITY", {
+      return await command.error("DESCRIPTION_NO_VANITY", {
         prefix: command.util?.parsed?.prefix,
       });
     }
@@ -55,10 +55,10 @@ export default class Description extends Command {
     try {
       await this.setDesc(command.guild, args.desc);
       return args.desc
-        ? await command.success("DESC_SET")
-        : await command.success("DESC_RESET");
+        ? await command.success("DESCRIPTION_SET")
+        : await command.success("DESCRIPTION_RESET");
     } catch (e) {
-      return await command.error("DESC_FAILED");
+      return await command.error("DESCRIPTION_FAILED");
     }
   }
 }
