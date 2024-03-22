@@ -973,8 +973,8 @@ export class FireMember extends GuildMember {
     return this.client.util.isSuperuser(this.id);
   }
 
-  createReminder(when: Date, why: string, link: string) {
-    this.user.createReminder(when, why, link);
+  createReminder(when: Date, reference: number, why: string, link: string) {
+    this.user.createReminder(when, reference, why, link);
   }
 
   deleteReminder(timestamp: number) {

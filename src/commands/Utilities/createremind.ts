@@ -326,6 +326,7 @@ export default class RemindersCreate extends Command {
       const current = new Date(latestTime);
       const remind = await command.author.createReminder(
         current,
+        command.createdTimestamp,
         reminder.text,
         command.url
       );

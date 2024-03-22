@@ -134,13 +134,18 @@ export class FireUser extends User {
     return this.client.util.isSuperuser(this.id);
   }
 
-  async createReminder(when: Date, why: string, link: string) {
+  async createReminder(
+    when: Date,
+    reference: number,
+    why: string,
+    link: string
+  ) {
     if (!this.client.manager.ws?.open)
       return process.env.NODE_ENV == "development";
     const timestamp = +when;
     if (
       isNaN(timestamp) ||
-      (timestamp < +new Date() + 120_000 && !this.isSuperuser())
+      (timestamp < reference + 120_000 && !this.isSuperuser())
     )
       return false;
     const reminder = await this.client.db

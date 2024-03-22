@@ -197,6 +197,7 @@ export default class Select extends Listener {
         const date = new Date(timestamp);
         const remind = await select.author.createReminder(
           date,
+          select.createdTimestamp,
           currentRemind.text,
           currentRemind.link
         );
