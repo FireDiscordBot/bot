@@ -179,18 +179,21 @@ export default class Carbon extends Command {
     await modal.channel.ack();
     modal.flags = 64;
 
-    const code = modal.interaction.fields.getTextInputValue("code");
+    let code = modal.interaction.fields.getTextInputValue("code");
     if (!code?.length)
       return await modal.error("COMMAND_ERROR_GENERIC", { id: "carbon" });
+    try {
+      code = prettier
+        .format(code, {
+          parser: "babel",
+        })
+        .trim();
+    } catch {}
 
     await modal.channel.send(modal.language.get("CARBON_IMAGE_PROCESSING"));
 
     const body = {
-      code: prettier
-        .format(code, {
-          parser: "babel",
-        })
-        .trim(),
+      code,
       windowControls: false,
       fontFamily: font,
       language: "auto",
