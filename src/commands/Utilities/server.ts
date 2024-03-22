@@ -324,9 +324,21 @@ export default class GuildCommand extends Command {
     const security = this.getSecurity(command, guild);
     const channels = this.getChannels(command, guild);
 
-    const features: string[] = guild.features.map((feature) =>
-      this.client.util.cleanFeatureName(feature, command.language)
-    );
+    const features: string[] = guild.features
+      .filter((feature) => {
+        // Remove features that are unnecessary to display
+        if (feature == "PARTNERED" || feature == "VERIFIED") return false; // These are already displayed as badges
+        if (
+          feature == "VANITY_URL" &&
+          invite?.code &&
+          invite.code == invite.guild.vanityURLCode
+        )
+          return false;
+        return true;
+      })
+      .map((feature) =>
+        this.client.util.cleanFeatureName(feature, command.language)
+      );
 
     const roles =
       guild instanceof FireGuild
