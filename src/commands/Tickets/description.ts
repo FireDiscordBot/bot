@@ -18,6 +18,8 @@ export default class TicketDescription extends Command {
       args: [
         {
           id: "description",
+          description: (language: Language) =>
+            language.get("TICKET_DESCRIPTION_ARGUMENT_DESCRIPTION"),
           required: false,
           type: "string",
           default: null,

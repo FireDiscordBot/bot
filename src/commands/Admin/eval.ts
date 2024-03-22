@@ -60,6 +60,8 @@ export default class Eval extends Command {
           id: "code",
           type: "codeblock",
           match: "rest",
+          description: (language: Language) =>
+            language.get("EVAL_CODE_ARGUMENT_DESCRIPTION"),
           // optional since normal users will get hit with eval deez nuts regardless, much easier to not require content if nothing is done with it
           // might make it open a modal in the future if invoked via slash command
           required: false,
@@ -68,6 +70,8 @@ export default class Eval extends Command {
         {
           id: "async",
           match: "flag",
+          description: (language: Language) =>
+            language.get("EVAL_ASYNC_ARGUMENT_DESCRIPTION"),
           flag: "--async",
           default: null,
         },
@@ -75,6 +79,8 @@ export default class Eval extends Command {
           id: "depth",
           match: "option",
           type: "number",
+          description: (language: Language) =>
+            language.get("EVAL_DEPTH_ARGUMENT_DESCRIPTION"),
           flag: "--depth",
           default: 0,
         },

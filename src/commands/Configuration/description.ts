@@ -16,6 +16,8 @@ export default class Description extends Command {
       args: [
         {
           id: "desc",
+          description: (language: Language) =>
+            language.get("DESC_DESCRIPTION_ARGUMENT_DESCRIPTION"),
           type: "string",
           match: "rest",
           required: true,
