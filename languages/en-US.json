@@ -1033,7 +1033,7 @@
   "REMINDER_MISSING_CONTENT": "I need something to remind you about...",
   "REMINDER_TIME_LIMIT": "Reminders are currently limited to 2 years. This may increase in the future",
   "REMINDER_PAST_TIME": "I am unfortunately not a time travelling robot so I cannot remind you about something in the past",
-  "REMINDER_TOO_SHORT": "If you need a bot to remind you about something in less than two minutes, there's an issue that you should probably look into...",
+  "REMINDER_TOO_SHORT": "Reminders cannot be set for less than 2 minutes from now",
   "REMINDER_STEP_TOO_SHORT": "The step flag value must be 2 minutes or more",
   "REMINDER_CREATED_SINGLE": "Got it! I'll remind you {{time}}",
   "REMINDER_CREATED_MULTI": "Got it! I've set reminders for the following times,\n{{times}}\n\nIf some are missing, I may have been unable to set them...",
