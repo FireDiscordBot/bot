@@ -1154,8 +1154,9 @@ export class FireMessage extends Message {
     )
       return;
     if (
-      this.editedTimestamp &&
-      this.editedTimestamp - this.createdTimestamp > 60000
+      (this.editedTimestamp &&
+        this.editedTimestamp - this.createdTimestamp > 60000) || // ignore edits older than 1 minute
+      +new Date() - this.createdTimestamp > 604_800_000 // ignore msgs older than 7 days
     )
       return;
     const lowerContent = sanitizer(
