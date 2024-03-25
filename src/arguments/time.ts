@@ -66,6 +66,7 @@ export const parseTime = (text: string, instant: Date, IANA: string) => {
   if (!parsed.length) return null;
   const foundTimes = parsed[0].text.split(",");
   for (const time of foundTimes) text = text.replace(time, "");
-  text = text.replace(doubledUpWhitespace, " ");
-  return { text: text.trim(), date: parsed[0].start.date() };
+  text = text.replace(doubledUpWhitespace, " ").trim();
+  if (!text.length) return null;
+  return { text: text, date: parsed[0].start.date() };
 };
