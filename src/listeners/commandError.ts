@@ -40,9 +40,8 @@ export default class CommandError extends Listener {
       fields: {
         type: "error",
         command: command.id,
-        guild: message.guild
-          ? `${message.guild.name} (${message.guildId})`
-          : "N/A",
+        // TODO: possibly rename to "source" rather than guild?
+        guild: message.source,
         user: `${message.author} (${message.author.id})`,
         message_id: message.id,
         error: "",
@@ -60,11 +59,10 @@ export default class CommandError extends Listener {
         username: message.author.toString(),
       });
       const extras = {
-        button: "N/A",
         "message.id": message.id,
-        "guild.id": message.guild?.id,
-        "guild.name": message.guild?.name,
-        "guild.shard": message.shard.id,
+        "guild.id": message.guildId,
+        "source.name": message.source,
+        "source.shard": message.shard.id,
         "channel.id": message.channel?.id || "0",
         "channel.name": this.getChannelName(message.channel) || "Unknown",
         "command.name": command.id,

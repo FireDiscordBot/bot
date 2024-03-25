@@ -88,9 +88,8 @@ export default class Blacklist extends Command {
             new Message(EventType.ADMIN_ACTION, {
               user: `${command.author} (${command.author.id})`,
               user_id: command.author.id,
-              guild: command.guild
-                ? `${command.guild} (${command.guild.id})`
-                : "N/A",
+              // TODO: possibly rename to "source" rather than guild?
+              guild: command.source,
               shard: command.shard.id,
               action: `${args.user} (${args.user.id}) was unblacklisted`,
             })
@@ -110,9 +109,8 @@ export default class Blacklist extends Command {
             new Message(EventType.ADMIN_ACTION, {
               user: `${command.author} (${command.author.id})`,
               user_id: command.author.id,
-              guild: command.guild
-                ? `${command.guild} (${command.guild.id})`
-                : "N/A",
+              // TODO: possibly rename to "source" rather than guild?
+              guild: command.source,
               shard: command.shard.id,
               action: `${args.user} (${args.user.id}) was blacklisted`,
             })

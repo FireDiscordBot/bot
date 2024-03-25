@@ -34,9 +34,8 @@ export default class CommandFinished extends Listener {
       fields: {
         type: "finish",
         command: command.id,
-        guild: message.guild
-          ? `${message.guild.name} (${message.guildId})`
-          : "N/A",
+        // TODO: possibly rename to "source" rather than guild?
+        guild: message.source,
         user: `${message.author} (${message.author.id})`,
         message_id: message.id,
         return: "",

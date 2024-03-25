@@ -101,9 +101,8 @@ export default class AdminUnload extends Command {
             new Message(EventType.ADMIN_ACTION, {
               user: `${message.author} (${message.author.id})`,
               user_id: message.author.id,
-              guild: message.guild
-                ? `${message.guild} (${message.guild.id})`
-                : "N/A",
+              // TODO: possibly rename to "source" rather than guild?
+              guild: message.source,
               shard: message.shard.id,
               action: `${args.module.handler.classToHandle.name} ${args.module.id} was reloaded`,
             })

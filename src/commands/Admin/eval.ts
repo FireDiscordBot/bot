@@ -150,9 +150,8 @@ export default class Eval extends Command {
           new Message(EventType.ADMIN_ACTION, {
             user: `${message.author} (${message.author.id})`,
             user_id: message.author.id,
-            guild: message.guild
-              ? `${message.guild} (${message.guild.id})`
-              : "N/A",
+            // TODO: possibly rename to "source" rather than guild?
+            guild: message.source,
             shard: message.shard.id,
             action: `Eval Command Ran. Input: ${input} | Output: ${output}`,
           })

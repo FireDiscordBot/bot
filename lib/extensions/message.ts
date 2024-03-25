@@ -112,6 +112,16 @@ export class FireMessage extends Message {
     else return this.client.ws.shards.first();
   }
 
+  get source() {
+    return this.guild
+      ? `${this.guild} (${this.guild.id})`
+      : this.guildId
+      ? "User App"
+      : this.channel.type == "DM"
+      ? "DM"
+      : "Unknown";
+  }
+
   get paginator() {
     return this.client.util.paginators.get(this.id) ?? null;
   }

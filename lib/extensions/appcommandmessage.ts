@@ -226,6 +226,16 @@ export class ApplicationCommandMessage {
     else return this.client.ws.shards.first();
   }
 
+  get source() {
+    return this.guild
+      ? `${this.guild} (${this.guild.id})`
+      : this.guildId
+      ? "User App"
+      : this.channel.type == "DM"
+      ? "DM"
+      : "Unknown";
+  }
+
   get editedAt() {
     if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
       return this.sourceMessage.editedAt;

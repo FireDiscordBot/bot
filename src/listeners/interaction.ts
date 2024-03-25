@@ -4,6 +4,7 @@ import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { ModalMessage } from "@fire/lib/extensions/modalmessage";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Fire } from "@fire/lib/Fire";
 import { IPoint } from "@fire/lib/interfaces/aether";
@@ -17,6 +18,8 @@ import {
   Interaction,
   MessageComponentInteraction,
   ModalSubmitInteraction,
+  NewsChannel,
+  ThreadChannel,
 } from "discord.js";
 
 const { emojis } = constants;
@@ -37,6 +40,21 @@ const getShard = (interaction: Interaction) => {
     return interaction.client.ws.shards.get(0);
   else return interaction.client.ws.shards.first();
 };
+
+const getSource = (interaction: Interaction) =>
+  interaction.guild
+    ? `${interaction.guild} (${interaction.guild.id})`
+    : interaction.guildId
+    ? "User App"
+    : (
+        interaction.channel as
+          | FireTextChannel
+          | NewsChannel
+          | ThreadChannel
+          | DMChannel
+      ).type == "DM"
+    ? "DM"
+    : "Unknown";
 
 export default class InteractionListener extends Listener {
   constructor() {
@@ -78,9 +96,8 @@ export default class InteractionListener extends Listener {
               : useCustomId
               ? (interaction as MessageComponentInteraction).customId
               : "unknown",
-            guild: interaction.guild
-              ? `${interaction.guild.name} (${interaction.guildId})`
-              : "N/A",
+            // TODO: possibly rename to "source" rather than guild?
+            guild: getSource(interaction),
             user: `${interaction.user} (${interaction.user.id})`,
             message_id: interaction.id,
             reason: "blacklist",
@@ -98,9 +115,7 @@ export default class InteractionListener extends Listener {
         shard: getShard(interaction).id.toString(),
       },
       fields: {
-        guild: interaction.guild
-          ? `${interaction.guild.name} (${interaction.guildId})`
-          : "N/A",
+        guild: getSource(interaction),
         user: `${interaction.user} (${interaction.user.id})`,
       },
     };

@@ -31,9 +31,8 @@ export default class MissingPermissions extends Listener {
           type: "permissions",
           command: command.id,
           missing_type: type,
-          guild: message.guild
-            ? `${message.guild.name} (${message.guildId})`
-            : "N/A",
+          // TODO: possibly rename to "source" rather than guild?
+          guild: message.source,
           user: `${message.author} (${message.author.id})`,
           message_id: message.id,
           missing: missing.join(", "),

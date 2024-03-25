@@ -1569,6 +1569,8 @@ export default class MCLogs extends Module {
             fields: {
               guild: message.guild
                 ? `${message.guild?.name} (${message.guildId})`
+                : message.channel.type == "DM"
+                ? "DM"
                 : "Unknown",
               user: `${message.author} (${message.author.id})`,
               haste: haste.url,
@@ -1625,6 +1627,8 @@ export default class MCLogs extends Module {
                   fields: {
                     guild: message.guild
                       ? `${message.guild?.name} (${message.guildId})`
+                      : message.channel.type == "DM"
+                      ? "DM"
                       : "Unknown",
                     user: `${message.author} (${message.author.id})`,
                     ign,
@@ -1660,6 +1664,8 @@ export default class MCLogs extends Module {
                   fields: {
                     guild: message.guild
                       ? `${message.guild?.name} (${message.guildId})`
+                      : message.channel.type == "DM"
+                      ? "DM"
                       : "Unknown",
                     user: `${message.author} (${message.author.id})`,
                     ign,

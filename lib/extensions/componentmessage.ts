@@ -140,6 +140,16 @@ export class ComponentMessage {
     else return this.client.ws.shards.first();
   }
 
+  get source() {
+    return this.guild
+      ? `${this.guild} (${this.guild.id})`
+      : this.guildId
+      ? "User App"
+      : this.channel.type == "DM"
+      ? "DM"
+      : "Unknown";
+  }
+
   get ephemeral() {
     return (this.flags & (1 << 6)) == 1 << 6;
   }
