@@ -1158,7 +1158,9 @@ Please choose accurately as it will allow us to help you as quick as possible! â
     if (button.customId.startsWith("mclogscan:")) {
       const logScan = this.client.getCommand("minecraft-log-scan") as LogScan;
       button.flags = 64;
-      if (!button.member?.isAdmin(button.channel))
+      if (button.channel.type == "DM")
+        return await button.error("MINECRAFT_LOGSCAN_MANAGE_DMS");
+      else if (!button.member?.isAdmin(button.channel))
         return await button
           .error("MINECRAFT_LOGSCAN_MANAGE_ADMIN_ONLY")
           .catch(() => {});

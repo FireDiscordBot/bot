@@ -347,7 +347,9 @@ export default class Select extends Listener {
 
     if (select.customId == "mclogscan:configure" && select.guild) {
       select.flags = 64;
-      if (!select.member?.isAdmin(select.channel))
+      if (select.channel.type == "DM")
+        return await select.error("MINECRAFT_LOGSCAN_MANAGE_DMS");
+      else if (!select.member?.isAdmin(select.channel))
         return await select
           .error("MINECRAFT_LOGSCAN_MANAGE_ADMIN_ONLY")
           .catch(() => {});

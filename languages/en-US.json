@@ -773,6 +773,7 @@
   "MINECRAFT_LOGSCAN_OPTION_CRACKED": "Block Pirated Players",
   "MINECRAFT_LOGSCAN_OPTION_CRACKED_DESC": "Doesn't provide solutions for pirated versions of Minecraft",
   "MINECRAFT_LOGSCAN_MANAGE_ADMIN_ONLY": "Only admins can manage log scanning",
+  "MINECRAFT_LOGSCAN_MANAGE_DMS": "You can't use this in DMs",
   "MINECRAFT_LOGSCAN_TOGGLE_FAIL": "I was unable to toggle log scanning. Please try again or contact support",
   "MINECRAFT_LOGSCAN_ENABLED": "Log scanning has been enabled!\n\nN.B. This feature collects some data to better understand usage of this feature and to improve it further down the line.\nYou must make the members of the server aware of this! They can learn more (including how to opt out) at https://inv.wtf/mclogs-analytics",
   "MINECRAFT_LOGSCAN_DISABLED": "Log scanning has been disabled!",
