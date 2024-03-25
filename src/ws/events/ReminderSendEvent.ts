@@ -69,7 +69,9 @@ export default class ReminderSendEvent extends Event {
     ];
 
     const textLengthType =
-      data.text.includes("\n") || data.text.length >= 100 ? "_LONG" : "_SHORT";
+      data.text?.includes("\n") || data.text?.length >= 100
+        ? "_LONG"
+        : "_SHORT";
 
     const message = await user
       .send({
