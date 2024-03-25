@@ -98,7 +98,11 @@ export default class MessageInvalid extends Listener {
         if (parsedTime && message.reference) {
           const ref = await message.fetchReference().catch(() => {});
           if (ref && ref.content) parsedTime.text = ref.content;
+          else if (ref && ref.attachments.size)
+            parsedTime.text = ref.attachments.map((a) => a.url).join("\n");
         }
+
+        if (!parsedTime.text) return;
 
         // finally, we run the command as if it was invoked normally
         await remindCommand
