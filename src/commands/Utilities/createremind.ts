@@ -265,7 +265,7 @@ export default class RemindersCreate extends Command {
     let { reminder, repeat, step } = args;
     repeat++; // we need repeat to include the inital reminder
     // quick checks
-    if (!reminder)
+    if (!reminder.text?.length || !reminder.date)
       return await command.error("REMINDER_MISSING_ARG", {
         includeSlashUpsell: true,
       });
