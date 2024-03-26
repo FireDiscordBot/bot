@@ -165,7 +165,7 @@ export default class RemindersCreate extends Command {
       let parsed = casual.parse(
           clickedMessage.content,
           {
-            instant: command.createdAt,
+            instant: clickedMessage.createdAt,
             timezone: offset,
           },
           {
@@ -183,7 +183,7 @@ export default class RemindersCreate extends Command {
         (parsed = casual.parse(
           clickedMessage.embeds[0].description,
           {
-            instant: command.createdAt,
+            instant: clickedMessage.createdAt,
             timezone: dayjs
               .tz(
                 date,
