@@ -3,14 +3,14 @@ import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants, i18nOptions } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { APIMessage, PermissionFlagsBits } from "discord-api-types/v9";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   AwaitMessagesOptions,
   Collection,
   ContextMenuInteraction,
   CreateInviteOptions,
-  DeconstructedSnowflake,
   DMChannel,
+  DeconstructedSnowflake,
   EmojiIdentifierResolvable,
   GuildChannel,
   GuildMemberResolvable,
@@ -30,6 +30,7 @@ import {
   WebhookMessageOptions,
 } from "discord.js";
 import { RawMessageData, RawUserData } from "discord.js/typings/rawDataTypes";
+import Semaphore from "semaphore-async-await";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
@@ -37,7 +38,7 @@ import { FireMessage } from "./message";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
-const { emojis, reactions } = constants;
+const { reactions } = constants;
 
 export class ContextCommandMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
@@ -45,6 +46,7 @@ export class ContextCommandMessage {
   private snowflake: DeconstructedSnowflake;
   contextCommand: ContextMenuInteraction;
   sent: false | "ack" | "message";
+  getRealMessageLock: Semaphore;
   type: MessageType = "DEFAULT";
   sourceMessage: FireMessage;
   mentions: MessageMentions;
@@ -67,6 +69,7 @@ export class ContextCommandMessage {
     this.client = client;
     this.id = command.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
+    this.getRealMessageLock = new Semaphore(1);
     this.contextCommand = command;
     this.guild = client.guilds.cache.get(command.guildId) as FireGuild;
     this.command = this.client.getContextCommand(command.commandName);
@@ -444,20 +447,17 @@ export class ContextCommandMessage {
   }
 
   async getRealMessage() {
-    if (!this.realChannel) return;
+    await this.getRealMessageLock.wait(); // prevents fetching twice simultaneously
     if (this.sourceMessage instanceof FireMessage) return this.sourceMessage;
 
-    let messageId = this.latestResponse as Snowflake;
-    if (messageId == "@original") {
-      const message = await this.contextCommand.fetchReply().catch(() => {});
-      if (message) messageId = message.id;
-    }
-
-    const message = (await this.realChannel.messages
-      .fetch(messageId)
-      .catch(() => {})) as FireMessage;
-    if (message) this.sourceMessage = message;
-    return message;
+    const message = (await this.client.req
+      .webhooks(this.client.user.id, this.contextCommand.token)
+      .messages(this.latestResponse)
+      .get()) as RawMessageData;
+    if (message && message.id)
+      this.sourceMessage = new FireMessage(this.client, message);
+    this.getRealMessageLock.release();
+    return this.sourceMessage;
   }
 
   async edit(
@@ -678,37 +678,35 @@ export class FakeChannel extends BaseFakeChannel {
           },
           files,
         })
-        .then(() => {
-          this.message.sent = "message";
-        })
-        .catch(() => {});
-    else if (this.message.sent == "ack") {
+        .then(() => (this.message.sent = "message"));
+    else if (this.message.sent == "ack")
       await this.client.req
         .webhooks(this.client.user.id)(this.token)
         .messages("@original")
-        .patch({
+        .patch<RawMessageData>({
           data,
           files,
         })
-        .then(() => {
+        .then((original) => {
           this.message.sent = "message";
-        })
-        .catch(() => {});
-    } else {
-      const message = await this.client.req
+          if (original && original.id)
+            this.message.sourceMessage = new FireMessage(this.client, original);
+        });
+    else
+      await this.client.req
         .webhooks(this.client.user.id)(this.token)
-        .post<APIMessage>({
+        .post<RawMessageData>({
           data,
           files,
           query: { wait: true },
         })
         .then((message) => {
           this.message.sent = "message";
-          return message;
-        })
-        .catch(() => {});
-      if (message && message.id) this.message.latestResponse = message.id;
-    }
+          if (message && message.id) {
+            this.message.sourceMessage = new FireMessage(this.client, message);
+            this.message.latestResponse = message.id;
+          }
+        });
     this.message.getRealMessage().catch(() => {});
     return this.message;
   }

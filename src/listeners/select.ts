@@ -151,7 +151,7 @@ export default class Select extends Listener {
         const modalPromise = new Promise((resolve) =>
           this.client.modalHandlersOnce.set(select.customId, resolve)
         ) as Promise<ModalMessage>;
-        await select.interaction.showModal(
+        await select.component.showModal(
           new Modal()
             .setTitle(select.language.get("REMINDER_SNOOZE_OTHER_TITLE"))
             .setCustomId(select.customId)

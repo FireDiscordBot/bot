@@ -181,7 +181,7 @@ export default class Essential extends Module {
     if (!type) return "no type";
     if (type == "general") {
       const modalPromise = this.waitForModal(trigger);
-      await (trigger.interaction as MessageComponentInteraction).showModal(
+      await (trigger.component as MessageComponentInteraction).showModal(
         new Modal()
           .setTitle("Essential Tickets")
           .setCustomId(`essential_confirm_${trigger.author.id}`)

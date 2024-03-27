@@ -1,4 +1,3 @@
-import { APIMessage } from "discord-api-types/v9";
 import {
   AwaitMessagesOptions,
   Collection,
@@ -22,6 +21,7 @@ import {
   WebhookMessageOptions,
 } from "discord.js";
 import { RawMessageData, RawUserData } from "discord.js/typings/rawDataTypes";
+import Semaphore from "semaphore-async-await";
 import { Fire } from "../Fire";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { constants, i18nOptions } from "../util/constants";
@@ -37,14 +37,15 @@ const { reactions } = constants;
 export class ComponentMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
-  interaction: MessageComponentInteraction;
-  message: FireMessage;
+  component: MessageComponentInteraction;
   sent: false | "ack" | "message";
+  getRealMessageLock: Semaphore;
   sourceMessage: FireMessage;
   type: MessageComponentType;
   latestResponse: Snowflake;
   ephemeralSource: boolean;
   private _flags: number;
+  message: FireMessage;
   channel: FakeChannel;
   member: FireMember;
   language: Language;
@@ -59,11 +60,12 @@ export class ComponentMessage {
     this.client = client;
     this.id = component.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
+    this.getRealMessageLock = new Semaphore(1);
     this.customId = component.customId;
     this.type = component.componentType;
     this.values = [];
     if (component.isSelectMenu()) this.values = component.values;
-    this.interaction = component;
+    this.component = component;
     this.sent = false;
     this.guild = component.guild as FireGuild;
     this.realChannel = client.channels.cache.get(component.channelId) as
@@ -179,11 +181,11 @@ export class ComponentMessage {
   }
 
   get channelId() {
-    return this.interaction.channelId;
+    return this.component.channelId;
   }
 
   get guildId() {
-    return this.interaction.guildId;
+    return this.component.guildId;
   }
 
   send(key?: LanguageKeys, args?: i18nOptions) {
@@ -276,25 +278,18 @@ export class ComponentMessage {
   }
 
   async getRealMessage() {
-    if (!this.realChannel || this.ephemeralSource || this.ephemeral) return;
+    await this.getRealMessageLock.wait(); // prevents fetching twice simultaneously
+    if (this.ephemeralSource || this.ephemeral) return;
     if (this.sourceMessage instanceof FireMessage) return this.sourceMessage;
 
-    let messageId = this.latestResponse;
-    if (messageId == "@original") {
-      const message = await this.client.req
-        .webhooks(this.client.user.id, this.interaction.token)
-        .messages(messageId)
-        .get<APIMessage>()
-        .catch(() => {});
-      if (message) messageId = message.id;
-      else return;
-    }
-
-    const message = (await this.realChannel.messages
-      .fetch(messageId)
-      .catch(() => {})) as FireMessage;
-    if (message) this.sourceMessage = message;
-    return message;
+    const message = (await this.client.req
+      .webhooks(this.client.user.id, this.component.token)
+      .messages(this.latestResponse)
+      .get()) as RawMessageData;
+    if (message && message.id)
+      this.sourceMessage = new FireMessage(this.client, message);
+    this.getRealMessageLock.release();
+    return this.sourceMessage;
   }
 
   async edit(
@@ -307,10 +302,7 @@ export class ComponentMessage {
 
     if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
-      apiMessage = MessagePayload.create(
-        this.interaction,
-        options
-      ).resolveData();
+      apiMessage = MessagePayload.create(this.component, options).resolveData();
     }
 
     const { data, files } = (await apiMessage.resolveFiles()) as {
@@ -321,20 +313,19 @@ export class ComponentMessage {
     data.flags = this.flags;
 
     await this.client.req
-      .webhooks(this.client.user.id, this.interaction.token)
+      .webhooks(this.client.user.id, this.component.token)
       .messages(this.latestResponse ?? "@original")
       .patch({
         data,
         files,
-      })
-      .catch(() => {});
+      });
     return this;
   }
 
   async delete(id?: string) {
     if (this.ephemeralSource) return;
     await this.client.req
-      .webhooks(this.client.user.id, this.interaction.token)
+      .webhooks(this.client.user.id, this.component.token)
       .messages(id ?? this.latestResponse ?? "@original")
       .delete()
       .catch(() => {});
@@ -456,7 +447,7 @@ export class FakeChannel extends BaseFakeChannel {
 
   // Defer interaction ephemerally
   async defer(ephemeral: boolean = false) {
-    await this.message.interaction
+    await this.message.component
       .deferReply({ ephemeral, fetchReply: !ephemeral })
       // @ts-ignore
       .then((real: FireMessage) => {
@@ -478,7 +469,7 @@ export class FakeChannel extends BaseFakeChannel {
     if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
       apiMessage = MessagePayload.create(
-        this.message.interaction,
+        this.message.component,
         options
       ).resolveData();
     }
@@ -522,21 +513,26 @@ export class FakeChannel extends BaseFakeChannel {
         .then(() => {
           this.message.sent = "message";
           this.message.latestResponse = "@original" as Snowflake;
-        })
-        .catch(() => {});
-    else {
-      const message = await this.client.req
+        });
+    else
+      await this.client.req
         .webhooks(this.client.user.id)(this.token)
-        .post<APIMessage>({
+        .post<RawMessageData>({
           data,
           files,
           query: { wait: true },
         })
-        .catch(() => {});
-      if (message && message.id && this.message.latestResponse == "@original")
-        this.message.latestResponse = message.id;
-      else this.message.latestResponse = "@original" as Snowflake;
-    }
+        .then((message) => {
+          this.message.sent = "message";
+          if (message && message.id) {
+            this.message.sourceMessage = new FireMessage(this.client, message);
+            this.message.latestResponse =
+              this.message.latestResponse == "@original"
+                ? message.id
+                : "@original";
+          }
+        });
+
     this.message.getRealMessage().catch(() => {});
     return this.message;
   }
@@ -555,7 +551,7 @@ export class FakeChannel extends BaseFakeChannel {
     if (options instanceof MessagePayload) apiMessage = options.resolveData();
     else {
       apiMessage = MessagePayload.create(
-        this.message.interaction,
+        this.message.component,
         options
       ).resolveData();
     }
@@ -586,8 +582,7 @@ export class FakeChannel extends BaseFakeChannel {
       .then(() => {
         this.message.sent = "message";
         this.message.latestResponse = "@original" as Snowflake;
-      })
-      .catch(() => {});
+      });
     this.message.getRealMessage().catch(() => {});
     return this.message;
   }

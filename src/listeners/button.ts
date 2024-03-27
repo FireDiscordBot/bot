@@ -196,7 +196,7 @@ export default class Button extends Listener {
   async exec(button: ComponentMessage) {
     // check for deletion button
     if (button.customId == "delete_me")
-      return await button.delete(button.interaction.message.id).catch(() => {});
+      return await button.delete(button.component.message.id).catch(() => {});
     else if (button.customId == "cancel_me") return await button.delete();
     else if (button.customId.startsWith("quote_copy")) {
       button.flags = 64;
@@ -290,7 +290,7 @@ export default class Button extends Listener {
         else if (canClose == "nonticket")
           return await button.error("TICKET_NON_TICKET");
         try {
-          return await button.interaction.showModal(
+          return await button.component.showModal(
             new Modal()
               .setTitle(
                 button.language.get("TICKET_CLOSE_MODAL_TITLE", {
@@ -475,7 +475,7 @@ export default class Button extends Listener {
       const tag = await button.guild.tags.getTag(name, false);
       if (!tag) return await button.error("TAG_INVALID_TAG", { tag: name });
 
-      return await button.interaction.showModal(
+      return await button.component.showModal(
         new Modal()
           .setTitle(button.language.get("TAG_EDIT_MODAL_TITLE"))
           .setCustomId(button.customId)
@@ -1051,7 +1051,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       else if (type == "verification")
         modalObj.addComponents(...verifGFuelModalComponents);
       else modalObj.addComponents(...defaultGFuelModalComponents);
-      await (button.interaction as MessageComponentInteraction).showModal(
+      await (button.component as MessageComponentInteraction).showModal(
         modalObj
       );
 
@@ -1205,7 +1205,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           !button.member?.isModerator()
         )
           return await button.error("MINECRAFT_LOGSCAN_SOLUTION_INVALID_USER");
-        return await button.interaction.showModal(
+        return await button.component.showModal(
           new Modal()
             .setTitle(
               button.language.get("MINECRAFT_LOGSCAN_SOLUTION_MODAL_TITLE")

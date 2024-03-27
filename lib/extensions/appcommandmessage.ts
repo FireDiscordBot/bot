@@ -3,15 +3,15 @@ import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants, i18nOptions } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { APIMessage, PermissionFlagsBits } from "discord-api-types/v9";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   AutocompleteInteraction,
   AwaitMessagesOptions,
   Collection,
   CommandInteractionOptionResolver,
   CreateInviteOptions,
-  DeconstructedSnowflake,
   DMChannel,
+  DeconstructedSnowflake,
   EmojiIdentifierResolvable,
   GuildChannel,
   GuildMemberResolvable,
@@ -32,7 +32,8 @@ import {
   Util,
   WebhookMessageOptions,
 } from "discord.js";
-import { RawUserData } from "discord.js/typings/rawDataTypes";
+import { RawMessageData, RawUserData } from "discord.js/typings/rawDataTypes";
+import Semaphore from "semaphore-async-await";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { GuildTagManager } from "../util/guildtagmanager";
 import { CommandInteraction } from "./commandinteraction";
@@ -51,6 +52,7 @@ export class ApplicationCommandMessage {
   private snowflake: DeconstructedSnowflake;
   groupActivityApplication: never;
   sent: false | "ack" | "message";
+  getRealMessageLock: Semaphore;
   type: MessageType = "DEFAULT";
   sourceMessage: FireMessage;
   mentions: MessageMentions;
@@ -80,6 +82,8 @@ export class ApplicationCommandMessage {
     this.id = command.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
     this.slashCommand = command;
+
+    this.getRealMessageLock = new Semaphore(1);
   }
 
   async init() {
@@ -530,20 +534,18 @@ export class ApplicationCommandMessage {
   }
 
   async getRealMessage() {
-    if (!this.realChannel || this.slashCommand.isAutocomplete()) return;
+    await this.getRealMessageLock.wait(); // prevents fetching twice simultaneously
+    if (this.slashCommand.isAutocomplete()) return;
     if (this.sourceMessage instanceof FireMessage) return this.sourceMessage;
 
-    let messageId = this.latestResponse as Snowflake;
-    if (messageId == "@original") {
-      const message = await this.slashCommand.fetchReply().catch(() => {});
-      if (message) messageId = message.id;
-    }
-
-    const message = (await this.realChannel.messages
-      .fetch(messageId)
-      .catch(() => {})) as FireMessage;
-    if (message) this.sourceMessage = message;
-    return message;
+    const message = (await this.client.req
+      .webhooks(this.client.user.id, this.slashCommand.token)
+      .messages(this.latestResponse)
+      .get()) as RawMessageData;
+    if (message && message.id)
+      this.sourceMessage = new FireMessage(this.client, message);
+    this.getRealMessageLock.release();
+    return this.sourceMessage;
   }
 
   async edit(
@@ -790,34 +792,35 @@ export class FakeChannel extends BaseFakeChannel {
           },
           files,
         })
-        .then(() => {
-          this.message.sent = "message";
-        });
-    else if (this.message.sent == "ack") {
+        .then(() => (this.message.sent = "message"));
+    else if (this.message.sent == "ack")
       await this.client.req
         .webhooks(this.client.user.id)(this.token)
         .messages("@original")
-        .patch({
+        .patch<RawMessageData>({
           data,
           files,
         })
-        .then(() => {
+        .then((original) => {
           this.message.sent = "message";
+          if (original && original.id)
+            this.message.sourceMessage = new FireMessage(this.client, original);
         });
-    } else {
-      const message = await this.client.req
+    else
+      await this.client.req
         .webhooks(this.client.user.id)(this.token)
-        .post<APIMessage>({
+        .post<RawMessageData>({
           data,
           files,
           query: { wait: true },
         })
         .then((message) => {
           this.message.sent = "message";
-          return message;
+          if (message && message.id) {
+            this.message.sourceMessage = new FireMessage(this.client, message);
+            this.message.latestResponse = message.id;
+          }
         });
-      if (message && message.id) this.message.latestResponse = message.id;
-    }
     this.message.getRealMessage().catch(() => {});
     return this.message;
   }
