@@ -54,10 +54,6 @@ export default class CommandError extends Listener {
 
     if (typeof this.client.sentry != "undefined") {
       const sentry = this.client.sentry;
-      sentry.setUser({
-        id: message.author.id,
-        username: message.author.toString(),
-      });
       const extras = {
         "message.id": message.id,
         "guild.id": message.guildId,
@@ -72,11 +68,11 @@ export default class CommandError extends Listener {
         // sometimes leads to circular structure error
         extras["command.args"] = JSON.stringify(args);
       } catch {}
-      sentry.setExtras(extras);
-      const eventId = sentry.captureException(error);
+      const eventId = sentry.captureException(error, {
+        extra: extras,
+        user: { id: message.author.id, username: message.author.toString() },
+      });
       if (eventId) point.fields.sentry = eventId;
-      sentry.setExtras(null);
-      sentry.setUser(null);
     }
     this.client.writeToInflux([point]);
 

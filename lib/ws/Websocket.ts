@@ -69,6 +69,7 @@ export class Websocket extends Client {
       }
 
       this.manager.eventHandler.handle(decoded).catch((e) => {
+        this.manager.sentry.captureException(e);
         this.manager.client?.console.error(
           `[EventHandler] Failed to handle event from Aether due to\n${e.stack}`
         );

@@ -205,20 +205,23 @@ export default class InteractionListener extends Listener {
         });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.setExtras({
-          slashCommand: JSON.stringify(command, (_, value) =>
-            typeof value === "bigint" ? `${value}n` : value
-          ),
-          member: command.member
-            ? command.member.toString()
-            : command.user.toString(),
-          channel_id: command.channelId,
-          guild_id: command.guildId,
-          env: process.env.NODE_ENV,
+        sentry.captureException(error, {
+          extra: {
+            slashCommand: JSON.stringify(command, (_, value) =>
+              typeof value === "bigint" ? `${value}n` : value
+            ),
+            member: command.member
+              ? command.member.toString()
+              : command.user.toString(),
+            channel_id: command.channelId,
+            guild_id: command.guildId,
+            env: process.env.NODE_ENV,
+          },
+          user: {
+            id: command.user.id,
+            username: command.user.toString(),
+          },
         });
-        sentry.captureException(error);
-        sentry.setExtras(null);
-        sentry.setUser(null);
       }
     }
   }
@@ -275,18 +278,21 @@ export default class InteractionListener extends Listener {
       });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.setExtras({
-          button: JSON.stringify(button),
-          member: button.member
-            ? button.member.toString()
-            : button.user.toString(),
-          channel_id: button.channelId,
-          guild_id: button.guildId,
-          env: process.env.NODE_ENV,
+        sentry.captureException(error, {
+          extra: {
+            button: JSON.stringify(button),
+            member: button.member
+              ? button.member.toString()
+              : button.user.toString(),
+            channel_id: button.channelId,
+            guild_id: button.guildId,
+            env: process.env.NODE_ENV,
+          },
+          user: {
+            id: button.user.id,
+            username: button.user.toString(),
+          },
         });
-        sentry.captureException(error);
-        sentry.setExtras(null);
-        sentry.setUser(null);
       }
     }
   }
@@ -305,18 +311,21 @@ export default class InteractionListener extends Listener {
       });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.setExtras({
-          button: JSON.stringify(select),
-          member: select.member
-            ? select.member.toString()
-            : select.user.toString(),
-          channel_id: select.channelId,
-          guild_id: select.guildId,
-          env: process.env.NODE_ENV,
+        sentry.captureException(error, {
+          extra: {
+            button: JSON.stringify(select),
+            member: select.member
+              ? select.member.toString()
+              : select.user.toString(),
+            channel_id: select.channelId,
+            guild_id: select.guildId,
+            env: process.env.NODE_ENV,
+          },
+          user: {
+            id: select.user.id,
+            username: select.user.toString(),
+          },
         });
-        sentry.captureException(error);
-        sentry.setExtras(null);
-        sentry.setUser(null);
       }
     }
   }
@@ -335,18 +344,21 @@ export default class InteractionListener extends Listener {
         });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.setExtras({
-          modal: JSON.stringify(modal),
-          member: modal.member
-            ? modal.member.toString()
-            : modal.user.toString(),
-          channel_id: modal.channelId,
-          guild_id: modal.guildId,
-          env: process.env.NODE_ENV,
+        sentry.captureException(error, {
+          extra: {
+            modal: JSON.stringify(modal),
+            member: modal.member
+              ? modal.member.toString()
+              : modal.user.toString(),
+            channel_id: modal.channelId,
+            guild_id: modal.guildId,
+            env: process.env.NODE_ENV,
+          },
+          user: {
+            id: modal.user.id,
+            username: modal.user.toString(),
+          },
         });
-        sentry.captureException(error);
-        sentry.setExtras(null);
-        sentry.setUser(null);
       }
     }
   }
@@ -375,18 +387,21 @@ export default class InteractionListener extends Listener {
         });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.setExtras({
-          contextCommand: JSON.stringify(context),
-          member: context.member
-            ? context.member.toString()
-            : context.user.toString(),
-          channel_id: context.channelId,
-          guild_id: context.guildId,
-          env: process.env.NODE_ENV,
+        sentry.captureException(error, {
+          extra: {
+            contextCommand: JSON.stringify(context),
+            member: context.member
+              ? context.member.toString()
+              : context.user.toString(),
+            channel_id: context.channelId,
+            guild_id: context.guildId,
+            env: process.env.NODE_ENV,
+          },
+          user: {
+            id: context.user.id,
+            username: context.user.toString(),
+          },
         });
-        sentry.captureException(error);
-        sentry.setExtras(null);
-        sentry.setUser(null);
       }
     }
   }
