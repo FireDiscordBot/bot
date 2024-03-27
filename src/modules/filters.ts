@@ -3,6 +3,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
+import { ChannelItem } from "@fire/lib/interfaces/youtube";
 import {
   ActionLogTypes,
   constants,
@@ -334,8 +335,9 @@ export default class Filters extends Module {
     let found: RegExpExecArray[] = [];
     let invites: string[] = [];
     let regexec: RegExpExecArray;
+    const sanitizedSearch = sanitizer(searchString);
     for (const regex of regexes.invites)
-      while ((regexec = regex.exec(sanitizer(searchString)))) {
+      while ((regexec = regex.exec(sanitizedSearch))) {
         found.push(regexec);
         if (regexec?.length >= 3 && !invites.includes(regexec[2]))
           invites.push(regexec[2]);
@@ -576,8 +578,11 @@ export default class Filters extends Module {
       extra;
     let videoMatch: RegExpExecArray;
     const ids: string[] = [];
-    while ((videoMatch = regexes.youtube.video.exec(sanitizer(searchString))))
-      ids.push(videoMatch.groups.video);
+    const sanitizedSearch = sanitizer(searchString);
+    while ((videoMatch = regexes.youtube.video.exec(sanitizedSearch)) != null) {
+      if (!ids.includes(videoMatch.groups.video))
+        ids.push(videoMatch.groups.video);
+    }
     if (ids.length)
       await message
         .delete({
@@ -605,6 +610,7 @@ export default class Filters extends Module {
           }),
         })
         .setFooter({ text: message.author.id });
+    const logEmbeds: MessageEmbed[] = [];
     for (const details of videos.items) {
       const embed = baseEmbed();
       const statistics = {
@@ -650,10 +656,13 @@ export default class Filters extends Module {
               : description,
         },
       ]);
+      logEmbeds.push(embed);
+    }
+    // it should hopefully combine these
+    for (const embed of logEmbeds)
       await message.guild
         .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
         .catch(() => {});
-    }
   }
 
   async handleYouTubeChannel(message: FireMessage, extra: string = "") {
@@ -668,36 +677,58 @@ export default class Filters extends Module {
       " " +
       extra
     ).replace(regexes.youtube.video, "[ youtube video ]"); // prevents videos being matched
-    const match = regexes.youtube.channel.exec(sanitizer(searchString));
-    if (!match) return;
-    await message
-      .delete({
-        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
-      })
-      .catch(() => {});
+    let channelMatch: RegExpExecArray;
+    const singleChannelLinks: string[] = [];
+    const channelLinks: string[] = [];
+    const sanitizedSearch = sanitizer(searchString);
+    while (
+      (channelMatch = regexes.youtube.channel.exec(sanitizedSearch)) != null
+    ) {
+      const link = channelMatch.groups.channel;
+      const type = link.startsWith("UC") ? channelLinks : singleChannelLinks;
+      if (!type.includes(link)) type.push(link);
+    }
+    if (channelLinks.length || singleChannelLinks.length)
+      await message
+        .delete({
+          reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+        })
+        .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
-    const channel = await this.client.util
-      .getYouTubeChannel(match.groups.channel)
+    const channels: ChannelItem[] = [];
+    const multiChannels = await this.client.util
+      .getYouTubeChannels(channelLinks)
       .catch(() => {});
-    const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#FFFFFF")
-      .setTimestamp()
-      .setDescription(
-        message.guild.language.get("FILTER_YOUTUBE_LOG_DESCRIPTION", {
-          channel: message.channel.toString(),
-        }) as string
-      )
-      .setAuthor({
-        name: message.author.toString(),
-        iconURL: message.author.displayAvatarURL({
-          size: 2048,
-          format: "png",
-          dynamic: true,
-        }),
-      })
-      .setFooter(message.author.id);
-    if (channel && channel.items?.length) {
-      const details = channel.items[0];
+    if (multiChannels && multiChannels.items?.length)
+      channels.push(...multiChannels.items);
+    for (const link of singleChannelLinks) {
+      const channel = await this.client.util
+        .getYouTubeChannel(link)
+        .catch(() => {});
+      if (channel && channel.items?.length) channels.push(...channel.items);
+    }
+    if (!channels.length) return;
+    const baseEmbed = () =>
+      new MessageEmbed()
+        .setColor(message.member?.displayColor || "#FFFFFF")
+        .setTimestamp()
+        .setDescription(
+          message.guild.language.get("FILTER_YOUTUBE_LOG_DESCRIPTION", {
+            channel: message.channel.toString(),
+          }) as string
+        )
+        .setAuthor({
+          name: message.author.toString(),
+          iconURL: message.author.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          }),
+        })
+        .setFooter({ text: message.author.id });
+    const logEmbeds: MessageEmbed[] = [];
+    for (const details of channels) {
+      const embed = baseEmbed();
       const statistics = {
         subs: details.statistics?.hiddenSubscriberCount
           ? "Hidden"
@@ -711,32 +742,35 @@ export default class Filters extends Module {
           message.guild.language.id
         ),
       };
-      embed.addField(
-        message.guild.language.get("NAME"),
-        details.snippet?.title || "Unknown"
-      );
-      if (details.snippet?.customUrl)
-        embed.addField(
-          message.guild.language.get("CUSTOM_URL"),
-          `https://youtube.com/${details.snippet.customUrl}`
-        );
-      else
-        embed.addField(
-          message.guild.language.get("CHANNEL"),
-          `https://youtube.com/channel/${
-            details.id || "UCuAXFkgsw1L7xaCfnd5JJOw"
-          }`
-        );
-      embed.addField(
-        message.guild.language.get("STATISTICS"),
-        message.guild.language.get("FILTER_YOUTUBE_CHANNEL_LOG_STATS", {
-          ...statistics,
-        }) as string
-      );
+      embed.addFields([
+        {
+          name: message.guild.language.get("TITLE"),
+          value: details.snippet?.title || "Unknown",
+        },
+        {
+          name: details.snippet?.customUrl
+            ? message.guild.language.get("CUSTOM_URL")
+            : message.guild.language.get("CHANNEL"),
+          value: details.snippet?.customUrl
+            ? `https://youtube.com/${details.snippet.customUrl}`
+            : `https://youtube.com/channel/${
+                details.id || "UCuAXFkgsw1L7xaCfnd5JJOw"
+              }`,
+        },
+        {
+          name: message.guild.language.get("STATISTICS"),
+          value: message.guild.language.get(
+            "FILTER_YOUTUBE_CHANNEL_LOG_STATS",
+            statistics
+          ) as string,
+        },
+      ]);
+      logEmbeds.push(embed);
     }
-    await message.guild
-      .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
-      .catch(() => {});
+    for (const embed of logEmbeds)
+      await message.guild
+        .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
+        .catch(() => {});
   }
 
   async handleTwitch(message: FireMessage, extra: string = "") {
