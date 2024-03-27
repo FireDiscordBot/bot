@@ -307,9 +307,9 @@ export const constants = {
     paypal: /(?:paypal\.me|paypal\.com\/paypalme)\/(?<name>[\w-]+)/im,
     youtube: {
       channel:
-        /(?:you\s?tube|u\s?tube)\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/im,
+        /(?:you\s?tube|u\s?tube)\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/gim,
       video:
-        /(?:https:\/\/|http:\/\/)?(youtu\.be\/|invidio\.us\/|(?:you\s?tube|u\s?tube)\.com\/watch\?v=|(?:you\s?tube|u\s?tube)\.com\/embed\/|(?:you\s?tube|u\s?tube)\.com\/shorts\/|(?:you\s?tube|u\s?tube)\.com\/clip\/)(?<video>[\w-]+)/im,
+        /(?:https:\/\/|http:\/\/)?(youtu\.be\/|invidio\.us\/|(?:you\s?tube|u\s?tube)\.com\/watch\?v=|(?:you\s?tube|u\s?tube)\.com\/embed\/|(?:you\s?tube|u\s?tube)\.com\/shorts\/|(?:you\s?tube|u\s?tube)\.com\/clip\/)(?<video>[\w-]+)/gim,
     },
     twitch: {
       clip: /clips\.twitch\.tv\/(?<clip>\w+)/im,
