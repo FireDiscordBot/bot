@@ -12,6 +12,7 @@ export interface VideoItem {
   snippet?: VideoSnippet;
   contentDetails?: ContentDetails;
   statistics?: VideoStatistics;
+  liveStreamingDetails?: LiveStreamingDetails;
 }
 
 export interface ContentDetails {
@@ -67,6 +68,11 @@ export interface VideoStatistics {
   dislikeCount: string;
   favoriteCount: string;
   commentCount: string;
+}
+
+export interface LiveStreamingDetails {
+  scheduledStartTime: string;
+  activeLiveChatId: string;
 }
 
 export interface Channel {
