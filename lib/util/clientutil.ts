@@ -696,15 +696,15 @@ export class Util extends ClientUtil {
     };
   };
 
-  async getYouTubeVideo(id: string) {
+  async getYouTubeVideo(ids: string[]) {
     if (!process.env.YOUTUBE_KEY) return false;
     const videoReq = await centra(
       `https://www.googleapis.com/youtube/v3/videos`
     )
       .header("User-Agent", this.client.manager.ua)
       .query("key", process.env.YOUTUBE_KEY)
-      .query("id", id)
-      .query("part", "snippet,contentDetails,statistics")
+      .query("id", ids.join(","))
+      .query("part", "snippet,contentDetails,statistics,liveStreamingDetails")
       .send();
     if (videoReq.statusCode != 200) return false;
     const video: Video = await videoReq.json();
