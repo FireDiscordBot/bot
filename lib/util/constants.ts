@@ -309,7 +309,7 @@ export const constants = {
       channel:
         /(?:you\s?tube|u\s?tube)\.com\/(?:c\/|channel\/|user\/)?(?<channel>[^"\s]+)/im,
       video:
-        /(youtu\.be\/|invidio\.us\/|(?:you\s?tube|u\s?tube)\.com\/watch\?v=|(?:you\s?tube|u\s?tube)\.com\/embed\/|(?:you\s?tube|u\s?tube)\.com\/shorts\/|(?:you\s?tube|u\s?tube)\.com\/clip\/)(?<video>[\w-]+)/im,
+        /(?:https:\/\/|http:\/\/)?(youtu\.be\/|invidio\.us\/|(?:you\s?tube|u\s?tube)\.com\/watch\?v=|(?:you\s?tube|u\s?tube)\.com\/embed\/|(?:you\s?tube|u\s?tube)\.com\/shorts\/|(?:you\s?tube|u\s?tube)\.com\/clip\/)(?<video>[\w-]+)/im,
     },
     twitch: {
       clip: /clips\.twitch\.tv\/(?<clip>\w+)/im,
