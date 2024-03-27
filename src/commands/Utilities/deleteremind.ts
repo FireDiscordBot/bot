@@ -90,7 +90,7 @@ export default class RemindersDelete extends Command {
     const yesSnowflake = SnowflakeUtil.generate();
     this.client.buttonHandlersOnce.set(
       yesSnowflake,
-      this.yesButton(reminder.timestamp)
+      this.yesButton(reminder.timestamp, reminder.link)
     );
     const noSnowflake = SnowflakeUtil.generate();
     this.client.buttonHandlersOnce.set(noSnowflake, this.noButton);
@@ -112,9 +112,9 @@ export default class RemindersDelete extends Command {
     });
   }
 
-  private yesButton(timestamp: number) {
+  private yesButton(timestamp: number, link: string) {
     return async (button: ComponentMessage) => {
-      const deleted = await button.author.deleteReminder(timestamp);
+      const deleted = await button.author.deleteReminder(timestamp, link);
       return deleted
         ? await button.channel.update({
             content: button.language.getSuccess("REMINDERS_DELETE_YES"),

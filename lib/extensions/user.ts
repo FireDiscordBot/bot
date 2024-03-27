@@ -168,14 +168,15 @@ export class FireUser extends User {
     return true;
   }
 
-  async deleteReminder(timestamp: number) {
+  async deleteReminder(timestamp: number, link: string) {
     this.client.console.warn(
       `[Reminders] Deleting reminder for user ${this} with timestamp ${timestamp}`
     );
     const deleted = await this.client.db
-      .query("DELETE FROM remind WHERE uid=$1 AND forwhen=$2;", [
+      .query("DELETE FROM remind WHERE uid=$1 AND forwhen=$2 AND link=$3;", [
         this.id,
         new Date(timestamp),
+        link,
       ])
       .catch(() => false);
     if (typeof deleted == "boolean" && !deleted) return false;
@@ -184,6 +185,7 @@ export class FireUser extends User {
         new Message(EventType.REMINDER_DELETE, {
           user: this.id,
           timestamp,
+          link,
         })
       )
     );
