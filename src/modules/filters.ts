@@ -13,7 +13,6 @@ import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 import {
   CategoryChannel,
-  GuildBasedChannel,
   GuildChannel,
   Invite,
   MessageEmbed,
@@ -575,36 +574,39 @@ export default class Filters extends Module {
         .join(" ") +
       " " +
       extra;
-    const match = regexes.youtube.video.exec(sanitizer(searchString));
-    if (!match) return;
-    await message
-      .delete({
-        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
-      })
-      .catch(() => {});
+    let videoMatch: RegExpExecArray;
+    const ids: string[] = [];
+    while ((videoMatch = regexes.youtube.video.exec(sanitizer(searchString))))
+      ids.push(videoMatch.groups.video);
+    if (ids.length)
+      await message
+        .delete({
+          reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+        })
+        .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
-    const video = await this.client.util
-      .getYouTubeVideo(match.groups.video)
-      .catch(() => {});
-    const embed = new MessageEmbed()
-      .setColor(message.member?.displayColor || "#FFFFFF")
-      .setTimestamp()
-      .setDescription(
-        message.guild.language.get("FILTER_YOUTUBE_LOG_DESCRIPTION", {
-          channel: message.channel.toString(),
-        }) as string
-      )
-      .setAuthor({
-        name: message.author.toString(),
-        iconURL: message.author.displayAvatarURL({
-          size: 2048,
-          format: "png",
-          dynamic: true,
-        }),
-      })
-      .setFooter(message.author.id);
-    if (video && video.items?.length) {
-      const details = video.items[0];
+    const videos = await this.client.util.getYouTubeVideo(ids).catch(() => {});
+    if (!videos || !videos.items?.length) return;
+    const baseEmbed = () =>
+      new MessageEmbed()
+        .setColor(message.member?.displayColor || "#FFFFFF")
+        .setTimestamp()
+        .setDescription(
+          message.guild.language.get("FILTER_YOUTUBE_LOG_DESCRIPTION", {
+            channel: message.channel.toString(),
+          }) as string
+        )
+        .setAuthor({
+          name: message.author.toString(),
+          iconURL: message.author.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          }),
+        })
+        .setFooter({ text: message.author.id });
+    for (const details of videos.items) {
+      const embed = baseEmbed();
       const statistics = {
         views: parseInt(details.statistics?.viewCount || "0").toLocaleString(
           message.guild.language.id
@@ -619,33 +621,35 @@ export default class Filters extends Module {
       const description = details.snippet?.description
         ? details.snippet.description.slice(0, 100)
         : "Unknown";
-      embed
-        .addField(
-          message.guild.language.get("TITLE"),
-          `[${details.snippet?.title || "Unknown"}](https://youtu.be/${
+      embed.addFields([
+        {
+          name: message.guild.language.get("TITLE"),
+          value: `[${details.snippet?.title || "Unknown"}](https://youtu.be/${
             details.id
-          })`
-        )
-        .addField(
-          message.guild.language.get("CHANNEL"),
-          `[${
+          })`,
+        },
+        {
+          name: message.guild.language.get("CHANNEL"),
+          value: `[${
             details.snippet?.channelTitle || "Unknown"
           }](https://youtube.com/channel/${
             details.snippet?.channelId || "UCuAXFkgsw1L7xaCfnd5JJOw"
-          })`
-        )
-        .addField(
-          message.guild.language.get("STATISTICS"),
-          message.guild.language.get("FILTER_YOUTUBE_VIDEO_LOG_STATS", {
+          })`,
+        },
+        {
+          name: message.guild.language.get("STATISTICS"),
+          value: message.guild.language.get("FILTER_YOUTUBE_VIDEO_LOG_STATS", {
             ...statistics,
-          }) as string
-        )
-        .addField(
-          message.guild.language.get("DESCRIPTION"),
-          details.snippet?.description?.length >= 101
-            ? description + "..."
-            : description
-        );
+          }) as string,
+        },
+        {
+          name: message.guild.language.get("DESCRIPTION"),
+          value:
+            details.snippet?.description?.length >= 101
+              ? description + "..."
+              : description,
+        },
+      ]);
       await message.guild
         .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
         .catch(() => {});
