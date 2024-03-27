@@ -2,7 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
-import { classicRemind } from "@fire/lib/util/constants";
+import { classicRemind, constants } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { ParsedTime } from "@fire/src/arguments/time";
@@ -16,6 +16,8 @@ import {
   MessageSelectMenu,
   SnowflakeUtil,
 } from "discord.js";
+
+const { regexes } = constants;
 
 const reminderContextTimes = {
   REMINDER_SNOOZE_FIVEMIN: 300000,
@@ -215,6 +217,66 @@ export default class RemindersCreate extends Command {
         timestamp: now,
       });
 
+      let droptions = getContextOptions(parsed, command);
+
+      // Find a YouTube video, check if premiere/scheduled livestream
+      // idt this warrants supporting multiple links so it'll only do the first match
+      const ytVideos = regexes.youtube.video.exec(clickedMessage.content);
+      regexes.youtube.video.lastIndex = 0;
+      if (ytVideos && ytVideos.groups?.video) {
+        const video = await this.client.util
+          .getYouTubeVideo([ytVideos.groups.video])
+          .then((v) => {
+            if (v && v.items.length) return v.items[0];
+            else return false;
+          })
+          .catch(() => {});
+        if (
+          video &&
+          video.snippet?.liveBroadcastContent == "upcoming" &&
+          video.liveStreamingDetails?.scheduledStartTime
+        ) {
+          reminderText = reminderText.replace(ytVideos[0], video.snippet.title);
+          const titleShort =
+            video.snippet.title.slice(0, 37) +
+            (video.snippet.title.length > 37 ? "..." : "");
+          const titleShorter =
+            video.snippet.title.slice(0, 24) +
+            (video.snippet.title.length > 24 ? "..." : "");
+          const scheduledStartTime = +new Date(
+            video.liveStreamingDetails.scheduledStartTime
+          );
+          const ytOptions = [
+            {
+              label: command.language.get("REMINDER_YOUTUBE_PREMIERE", {
+                title: titleShort,
+              }),
+              value: scheduledStartTime.toString(),
+            },
+            {
+              label: command.language.get("REMINDER_YOUTUBE_PREMIERE_5_MINS", {
+                title: titleShorter,
+              }),
+              value: (scheduledStartTime - 300000).toString(),
+            },
+            {
+              label: command.language.get("REMINDER_YOUTUBE_PREMIERE_15_MINS", {
+                title: titleShorter,
+              }),
+              value: (scheduledStartTime - 900000).toString(),
+            },
+            {
+              label: command.language.get("REMINDER_YOUTUBE_PREMIERE_30_MINS", {
+                title: titleShorter,
+              }),
+              value: (scheduledStartTime - 1800000).toString(),
+            },
+          ];
+          if (parsed.length) droptions.unshift(...ytOptions);
+          else droptions = ytOptions;
+        }
+      }
+
       // Create the components
       const dropdown = new MessageSelectMenu()
         .setPlaceholder(
@@ -222,7 +284,7 @@ export default class RemindersCreate extends Command {
         )
         .setCustomId(`!snooze:${command.author.id}:${now}`)
         .setMinValues(1)
-        .addOptions(getContextOptions(parsed, command));
+        .addOptions(droptions);
       if (!parsed.length) dropdown.setMaxValues(1);
       const cancelSnowflake = SnowflakeUtil.generate();
       const cancelButton = new MessageButton()
