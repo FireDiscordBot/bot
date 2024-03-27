@@ -19,11 +19,11 @@ const cleanMap = {
   ":": [/\\:/gim],
   ".": [/\\\./gim, /\(\.\)/gim, /dot/gim, /\/\./gim, /\[\.\]/gim],
   "/": [/\.\//gim, /\\\/\//gim, /\\\//gim, /slash/gim, /\\/gim],
-  "": [regexes.zws, regexes.protocol, regexes.symbol, /\s/gim, /(\*|_|\|)/gim],
+  "": [regexes.zws, regexes.protocol, regexes.symbol, /(\*|_|\|)/gim],
   com: [/c.m/gim],
   "discord.gg/$1": [/(^|\s)\.gg(?:\/|\\)(?<code>[\w-]{1,25})[^\/]?/gim],
   // always keep this at the end
-  "lets be honest there is no reason to post this other than trying to send rick roll so lol, youtu.be/dQw4w9WgXcQ":
+  "/ lets be honest there is no reason to post this other than trying to send rick roll so lol, youtu.be/dQw4w9WgXcQ":
     [/\/(?:watch\?v=)?dQw4w9WgXcQ/gim],
 };
 
@@ -285,7 +285,7 @@ export default class Message extends Listener {
     let content = message.cleanContent;
 
     let match: RegExpExecArray;
-    while ((match = regexes.URL.exec(content)))
+    while ((match = regexes.basicURL.exec(content)))
       if (match?.length)
         try {
           const uri = new URL(match[0]);
@@ -295,10 +295,9 @@ export default class Message extends Listener {
           );
         } catch {}
 
-    for (const [replacement, regexes] of Object.entries(cleanMap)) {
+    for (const [replacement, regexes] of Object.entries(cleanMap))
       for (const regex of regexes)
         content = content.replace(regex, replacement);
-    }
 
     return sanitizer(content);
   }
