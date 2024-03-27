@@ -713,12 +713,32 @@ export class Util extends ClientUtil {
 
   async getYouTubeChannel(id: string) {
     if (!process.env.YOUTUBE_KEY) return false;
+    let typeQueryParam: string;
+    if (id.startsWith("UC")) typeQueryParam = "id";
+    else if (id.startsWith("@")) typeQueryParam = "forHandle";
+    else typeQueryParam = "forUsername";
     const channelReq = await centra(
       `https://www.googleapis.com/youtube/v3/channels`
     )
       .header("User-Agent", this.client.manager.ua)
       .query("key", process.env.YOUTUBE_KEY)
-      .query(id.startsWith("UC") ? "id" : "forUsername", id)
+      .query(typeQueryParam, id)
+      .query("part", "snippet,statistics")
+      .send();
+    if (channelReq.statusCode != 200) return false;
+    const channel: Channel = await channelReq.json();
+    return channel;
+  }
+
+  async getYouTubeChannels(ids: string[]) {
+    if (!process.env.YOUTUBE_KEY) return false;
+    ids = ids.filter((id) => id.startsWith("UC"));
+    const channelReq = await centra(
+      `https://www.googleapis.com/youtube/v3/channels`
+    )
+      .header("User-Agent", this.client.manager.ua)
+      .query("key", process.env.YOUTUBE_KEY)
+      .query("id", ids.join(","))
       .query("part", "snippet,statistics")
       .send();
     if (channelReq.statusCode != 200) return false;
