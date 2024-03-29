@@ -1116,7 +1116,9 @@ export default class MCLogs extends Module {
       if (versions.mcVersion != "1.8.9") {
         const isValidVersionReq = await centra(
           `https://maven.minecraftforge.net/net/minecraftforge/forge/${versions.mcVersion}-${versions.loaderVersion}/forge-${versions.mcVersion}-${versions.loaderVersion}-changelog.txt`
-        ).send();
+        )
+          .send()
+          .catch(() => ({ statusCode: 500 }));
         validVersion = isValidVersionReq.statusCode == 200;
       } else validVersion = true;
       if (validVersion) {
@@ -1124,7 +1126,8 @@ export default class MCLogs extends Module {
           "https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"
         )
           .header("User-Agent", this.client.manager.ua)
-          .send();
+          .send()
+          .catch(() => ({ json: async () => ({ homepage: "", promos: {} }) }));
         const data: ForgePromotions = await dataReq.json().catch(() => ({
           homepage: "",
           promos: {},
