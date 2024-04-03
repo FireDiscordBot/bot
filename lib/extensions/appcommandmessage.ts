@@ -126,9 +126,7 @@ export class ApplicationCommandMessage {
     this.author =
       (this.client.users.cache.get(user.id) as FireUser) ||
       new FireUser(this.client, user as RawUserData);
-    this.command =
-      this.client.getCommand(this.slashCommand.commandName) ||
-      this.client.getContextCommand(this.slashCommand.commandName);
+    this.command = this.client.getCommand(this.slashCommand.commandName);
     if (!this.command && this.guild && !this.guild?.tags) {
       // this might take a couple seconds so we will ack now
       this.channel = new FakeChannel(
