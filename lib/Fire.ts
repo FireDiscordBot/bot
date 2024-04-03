@@ -54,6 +54,7 @@ import {
   ClientUser,
   Collection,
   Constants,
+  ContextMenuInteraction,
   GuildFeatures,
   PresenceStatusData,
   SnowflakeUtil,
@@ -742,10 +743,11 @@ export class Fire extends AkairoClient {
     return null;
   }
 
-  getContextCommand(id: string) {
-    id = id.toLowerCase();
-    const command = this.commandHandler.modules.find((command) =>
-      command.context.includes(id)
+  getContextCommand(interaction: ContextMenuInteraction) {
+    const command = this.commandHandler.modules.find(
+      (command) =>
+        command.context.includes(interaction.commandName.toLowerCase()) ||
+        command.context.includes(interaction.commandId)
     );
     if (command) return command as Command;
   }

@@ -72,7 +72,7 @@ export class ContextCommandMessage {
     this.getRealMessageLock = new Semaphore(1);
     this.contextCommand = command;
     this.guild = client.guilds.cache.get(command.guildId) as FireGuild;
-    this.command = this.client.getContextCommand(command.commandName);
+    this.command = this.client.getContextCommand(command);
     this._flags = 0;
     if (this.command?.ephemeral) this.flags = 64;
     // @ts-ignore
