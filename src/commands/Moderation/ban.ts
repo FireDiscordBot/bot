@@ -76,7 +76,7 @@ export default class Ban extends Command {
       if (command.getMessage().type != "AUTO_MODERATION_ACTION")
         return await command.error("BAN_CONTEXT_AUTOMOD_ONLY");
       args.user = command.getMessage().member ?? command.getMessage().author;
-      args.reason = command.interaction.commandName.split("Ban - ")[1];
+      args.reason = command.contextCommand.commandName.split("Ban - ")[1];
     }
 
     if (typeof args.user == "undefined")
@@ -103,8 +103,6 @@ export default class Ban extends Command {
     const now = new Date();
     let date: number;
     if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
-    else if (args.reason == "BAN_AUTOCOMPLETE_REASON_OTHER")
-      args.reason = undefined;
     const beaned =
       args.user instanceof FireMember
         ? await args.user.bean(
