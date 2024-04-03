@@ -398,6 +398,7 @@ export class Command extends AkairoCommand {
   getSlashCommandOption(
     argument: ArgumentOptions
   ): APIApplicationCommandOption {
+    // @ts-ignore
     let options: APIApplicationCommandBasicOption & { autocomplete?: boolean } =
       {
         type: getSlashType(argument.type?.toString()),

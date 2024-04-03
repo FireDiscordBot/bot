@@ -1,8 +1,8 @@
 import { Fire } from "@fire/lib/Fire";
 import { UserSettings } from "@fire/lib/util/settings";
 import { Message } from "@fire/lib/ws/Message";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import {
   DMChannel,
   MessageEmbed,
@@ -13,7 +13,8 @@ import {
 } from "discord.js";
 import { RawUserData } from "discord.js/typings/rawDataTypes";
 import { GuildTextChannel, ModLogTypes } from "../util/constants";
-import { FakeChannel } from "./appcommandmessage";
+import { FakeChannel as SlashFakeChannel } from "./appcommandmessage";
+import { FakeChannel as ContextFakeChannel } from "./contextcommandmessage";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
 
@@ -197,7 +198,7 @@ export class FireUser extends User {
     reason: string,
     moderator: FireMember,
     days: number = 0,
-    channel?: FakeChannel | GuildTextChannel
+    channel?: SlashFakeChannel | ContextFakeChannel | GuildTextChannel
   ) {
     if (!guild || !reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";

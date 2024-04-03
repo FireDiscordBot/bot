@@ -16,7 +16,8 @@ import {
 import Semaphore from "semaphore-async-await";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { GuildTextChannel, ModLogTypes } from "../util/constants";
-import { FakeChannel } from "./appcommandmessage";
+import { FakeChannel as SlashFakeChannel } from "./appcommandmessage";
+import { FakeChannel as ContextFakeChannel } from "./contextcommandmessage";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 
@@ -399,7 +400,7 @@ export class FireMember extends GuildMember {
   async warn(
     reason: string,
     moderator: FireMember,
-    channel?: FakeChannel | GuildTextChannel
+    channel?: SlashFakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -470,7 +471,7 @@ export class FireMember extends GuildMember {
   async note(
     reason: string,
     moderator: FireMember,
-    channel?: FakeChannel | GuildTextChannel
+    channel?: SlashFakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -514,7 +515,7 @@ export class FireMember extends GuildMember {
     moderator: FireMember,
     until?: number,
     days: number = 0,
-    channel?: FakeChannel | GuildTextChannel,
+    channel?: SlashFakeChannel | ContextFakeChannel | GuildTextChannel,
     sendDM: boolean = true
   ) {
     if (!reason || !moderator) return "args";
@@ -611,7 +612,7 @@ export class FireMember extends GuildMember {
   async yeet(
     reason: string,
     moderator: FireMember,
-    channel?: FakeChannel | GuildTextChannel,
+    channel?: SlashFakeChannel | GuildTextChannel,
     sendDM: boolean = true
   ) {
     if (!reason || !moderator) return "args";
@@ -673,7 +674,7 @@ export class FireMember extends GuildMember {
   async derank(
     reason: string,
     moderator: FireMember,
-    channel?: FakeChannel | GuildTextChannel
+    channel?: SlashFakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
@@ -750,7 +751,7 @@ export class FireMember extends GuildMember {
     reason: string,
     moderator: FireMember,
     until?: number,
-    channel?: FakeChannel | GuildTextChannel,
+    channel?: SlashFakeChannel | GuildTextChannel,
     sendDM: boolean = true
   ) {
     const canTimeOut =
@@ -865,7 +866,7 @@ export class FireMember extends GuildMember {
   async unmute(
     reason: string,
     moderator: FireMember,
-    channel?: FakeChannel | GuildTextChannel
+    channel?: SlashFakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";

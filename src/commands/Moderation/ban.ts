@@ -1,20 +1,11 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { parseTime } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import {
-  ApplicationCommandOptionChoiceData,
-  CommandInteractionOption,
-  Permissions,
-} from "discord.js";
-
-const prefilledBanReasons = [
-  "BAN_AUTOCOMPLETE_REASON_SUSSY",
-  "BAN_AUTOCOMPLETE_REASON_HACKED",
-  "BAN_AUTOCOMPLETE_REASON_RULES",
-];
+import { Permissions } from "discord.js";
 
 export default class Ban extends Command {
   constructor() {
@@ -60,6 +51,7 @@ export default class Ban extends Command {
           // TODO: add min/max to this
         },
       ],
+      context: ["1225072261044764857"],
       enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
@@ -70,7 +62,7 @@ export default class Ban extends Command {
   }
 
   async run(
-    command: ApplicationCommandMessage,
+    command: ApplicationCommandMessage | ContextCommandMessage,
     args: {
       user: FireMember | FireUser;
       reason?: string;
@@ -78,6 +70,15 @@ export default class Ban extends Command {
       days?: number;
     }
   ) {
+    // Essential Discord has guild context commands for quick bans on automod flagged messages
+    // due to insane amounts of spam bots
+    if (command instanceof ContextCommandMessage) {
+      if (command.getMessage().type != "AUTO_MODERATION_ACTION")
+        return await command.error("BAN_CONTEXT_AUTOMOD_ONLY");
+      args.user = command.getMessage().member ?? command.getMessage().author;
+      args.reason = command.interaction.commandName.split("Ban - ")[1];
+    }
+
     if (typeof args.user == "undefined")
       return await command.error("BAN_USER_REQUIRED");
     else if (!args.user) return;
@@ -102,8 +103,6 @@ export default class Ban extends Command {
     const now = new Date();
     let date: number;
     if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
-    if (prefilledBanReasons.includes(args.reason))
-      args.reason = command.guild.language.get(args.reason as LanguageKeys);
     else if (args.reason == "BAN_AUTOCOMPLETE_REASON_OTHER")
       args.reason = undefined;
     const beaned =
