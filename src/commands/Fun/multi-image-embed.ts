@@ -183,7 +183,10 @@ export default class MultiImageEmbed extends Command {
       if (!webhook && typeof channel.createWebhook == "function") {
         webhook = await channel
           .createWebhook(
-            `Fire Quotes #${channel.name ? channel.name : channel.id}`,
+            `Fire Quotes #${channel.name ? channel.name : channel.id}`.slice(
+              0,
+              80
+            ),
             {
               avatar: this.client.user.displayAvatarURL({
                 size: 2048,

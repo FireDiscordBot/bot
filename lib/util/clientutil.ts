@@ -758,7 +758,7 @@ export class Util extends ClientUtil {
     if (hooks) hook = hooks.filter((hook) => !!hook.token).first();
     if (!hook) {
       hook = await destination
-        .createWebhook(`Fire Quotes #${destination.name}`, {
+        .createWebhook(`Fire Quotes #${destination.name}`.slice(0, 80), {
           avatar: this.client.user.displayAvatarURL({
             size: 2048,
             format: "png",
