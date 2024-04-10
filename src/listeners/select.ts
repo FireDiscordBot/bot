@@ -11,7 +11,6 @@ import {
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { casual } from "chrono-node";
 import {
   Formatters,
   MessageActionRow,
@@ -22,6 +21,7 @@ import {
   TextInputComponent,
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
+import { parseWithUserTimezone } from "../arguments/time";
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 import LoggingConfig from "../commands/Configuration/logging-configure";
 import LogScan from "../commands/Utilities/log-scan";
@@ -179,10 +179,15 @@ export default class Select extends Listener {
           specifyTimeModal.interaction.fields.getTextInputValue("time");
         if (!input)
           return await specifyTimeModal.error("REMINDER_SNOOZE_TIME_INVALID");
-        const parsed = casual.parseDate(input, select.createdAt, {
-          forwardDate: true,
-        });
-        const timestamp = +parsed;
+        const { parsed } = parseWithUserTimezone(
+          input,
+          select.createdAt,
+          select.author.settings.get<string>(
+            "reminders.timezone.iana",
+            "Etc/UTC"
+          )
+        );
+        const timestamp = +parsed[0].start.date();
         if (!parsed || isNaN(timestamp))
           return await specifyTimeModal.error("REMINDER_SNOOZE_TIME_INVALID");
         select.values = [timestamp.toString()];

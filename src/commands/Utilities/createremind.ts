@@ -5,7 +5,7 @@ import { Command } from "@fire/lib/util/command";
 import { classicRemind, constants } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { ParsedTime } from "@fire/src/arguments/time";
+import { ParsedTime, parseWithUserTimezone } from "@fire/src/arguments/time";
 import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
 import { ParsedResult, casual } from "chrono-node";
 import * as dayjs from "dayjs";
@@ -122,57 +122,14 @@ export default class RemindersCreate extends Command {
       if (!event) return await command.error("ERROR_CONTACT_SUPPORT");
       const now = +new Date();
 
-      // Get the date first, doesn't need to be exact with timing since we only want it to get the offset
-      // This will probably break if you try to set a reminder around the switch to/from DST
-      // but if you're doing that, fuck you.
-      // timezones suck, daylight savings sucks more
-      const preliminaryParse = casual.parse(
-        clickedMessage.content,
-        { instant: clickedMessage.createdAt },
-        {
-          forwardDate: true,
-        }
-      );
-      let offset: number = 0;
-      const date = preliminaryParse[0]?.start.date();
-      if (date) {
-        if (preliminaryParse[0].start.get("timezoneOffset") == null) {
-          // Instead of the old offset we got from browsers, we'll use an IANA timezone name
-          // and that + the date from above allows us to get the correct offset for DST
-          date.setHours(23, 59, 59, 999); // should be past the dst switch in most timezones
-          offset = dayjs
-            .tz(
-              date,
-              clickedMessage.author.settings.get<string>(
-                "reminders.timezone.iana",
-                "Etc/UTC"
-              )
-            )
-            .utcOffset();
-        }
-        // This means a timezone was specified in the text so we'll use that
-        else offset = preliminaryParse[0].start.get("timezoneOffset");
-      } else
-        offset = dayjs
-          .tz(
-            now,
-            clickedMessage.author.settings.get<string>(
-              "reminders.timezone.iana",
-              "Etc/UTC"
-            )
-          )
-          .utcOffset();
-
       // Parse with chrono-node early so we can get the content without the time
-      let parsed = casual.parse(
+      let { parsed, preliminaryParsedDate: date } = parseWithUserTimezone(
           clickedMessage.content,
-          {
-            instant: clickedMessage.createdAt,
-            timezone: offset,
-          },
-          {
-            forwardDate: true,
-          }
+          clickedMessage.createdAt,
+          clickedMessage.author.settings.get<string>(
+            "reminders.timezone.iana",
+            "Etc/UTC"
+          )
         ),
         useEmbedDescription = false;
       if (
