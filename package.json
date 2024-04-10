@@ -35,7 +35,7 @@
     "@skyra/timestamp": "^1.0.0",
     "archiver": "^5.3.1",
     "centra": "^2.5.0",
-    "chrono-node": "^2.3.7",
+    "chrono-node": "^2.7.5",
     "dayjs": "^1.11.10",
     "discord-akairo": "discord-akairo/discord-akairo",
     "discord-api-types": "^0.37.14",
