@@ -7,7 +7,7 @@ import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { ParsedTime, parseWithUserTimezone } from "@fire/src/arguments/time";
 import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
-import { ParsedResult, casual } from "chrono-node";
+import { ParsedResult, strict } from "chrono-node";
 import * as dayjs from "dayjs";
 import {
   Formatters,
@@ -32,7 +32,7 @@ const reminderContextTimes = {
   REMINDER_SNOOZE_MONTH: 2628060000,
   REMINDER_SNOOZE_OTHER: "other",
 };
-const doubledUpWhitespace = /\s{2,}/g;
+// const doubledUpWhitespace = /\s{2,}/g;
 
 const getContextOptions = (
   parsed: ParsedResult[],
@@ -60,6 +60,50 @@ const getContextOptions = (
             : time,
       };
     });
+};
+
+const ambiguousTimezones = /\b(PT|ET|CT|MT|CET)\b/gim;
+const convertAmbiguousToCurrent = (timezone: string) => {
+  const now = new Date();
+  switch (timezone) {
+    case "PT": {
+      const currentOffset = dayjs.tz(now, "America/Los_Angeles").utcOffset();
+      if (currentOffset == -480) return "PST";
+      else if (currentOffset == -420) return "PDT";
+      break;
+    }
+    case "ET": {
+      const currentOffset = dayjs.tz(now, "America/New_York").utcOffset();
+      if (currentOffset == -300) return "EST";
+      else if (currentOffset == -240) return "EDT";
+      break;
+    }
+    case "CT": {
+      const currentOffset = dayjs.tz(now, "America/Chicago").utcOffset();
+      if (currentOffset == -360) return "CST";
+      else if (currentOffset == -300) return "CDT";
+      break;
+    }
+    case "MT": {
+      const currentOffset = dayjs.tz(now, "America/Denver").utcOffset();
+      if (currentOffset == -420) return "MST";
+      else if (currentOffset == -360) return "MDT";
+      break;
+    }
+    case "CET": {
+      const currentOffset = dayjs.tz(now, "Europe/Paris").utcOffset();
+      if (currentOffset == 60) return "CET";
+      else if (currentOffset == 120) return "CEST";
+      break;
+    }
+    default:
+      return timezone;
+  }
+};
+const cleanAmbiguousTimezones = (text: string) => {
+  return text.replace(ambiguousTimezones, (match) =>
+    convertAmbiguousToCurrent(match)
+  );
 };
 
 export default class RemindersCreate extends Command {
@@ -139,8 +183,8 @@ export default class RemindersCreate extends Command {
         clickedMessage.embeds[0].description
       )
         // possibly a linked tweet or other social media post, use that instead
-        (parsed = casual.parse(
-          clickedMessage.embeds[0].description,
+        (parsed = strict.parse(
+          cleanAmbiguousTimezones(clickedMessage.embeds[0].description),
           {
             instant: clickedMessage.createdAt,
             timezone: dayjs
@@ -162,9 +206,9 @@ export default class RemindersCreate extends Command {
       let reminderText = useEmbedDescription
         ? clickedMessage.embeds[0].description
         : clickedMessage.content;
-      for (const result of parsed)
-        reminderText = reminderText.replace(result.text, "");
-      reminderText = reminderText.replace(doubledUpWhitespace, " ").trim();
+      // for (const result of parsed)
+      //   reminderText = reminderText.replace(result.text, "");
+      // reminderText = reminderText.replace(doubledUpWhitespace, " ").trim();
 
       // we push a dummy reminder that we use for "snoozing"
       event.sent.push({
