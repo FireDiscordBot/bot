@@ -141,6 +141,7 @@ export default class MCLogs extends Module {
     settingUser: RegExp;
     devEnvUser: RegExp;
     uuidArg: RegExp;
+    essentialAuth: RegExp;
     multiMcDisabled: RegExp;
     loaderVersions: LoaderRegexConfig[];
     forgeModsTableHeader: RegExp;
@@ -203,6 +204,8 @@ export default class MCLogs extends Module {
       devEnvUser: /Player\d{3}/gim,
       uuidArg:
         /--uuid,? (?<uuid>[0-9A-F]{8}-?[0-9A-F]{4}-?(?<ver>[0-9A-F])[0-9A-F]{3}-?[89AB][0-9A-F]{3}-?[0-9A-F]{12})/gim,
+      essentialAuth:
+        /Authenticating to Mojang as (?<ign>\w{1,16}) \((?<uuid>[0-9A-F]{8}-?[0-9A-F]{4}-?(?<ver>[0-9A-F])[0-9A-F]{3}-?[89AB][0-9A-F]{3}-?[0-9A-F]{12})\)/gim,
       multiMcDisabled: /^\s*\[❌] .* \(disabled\)$/gim,
       forgeModsTableHeader:
         /\|\sState\s*\|\sID\s*\|\sVersion\s*\|\sSource\s*\|(?:\sSignature\s*\|)?/gim,
@@ -1235,16 +1238,15 @@ export default class MCLogs extends Module {
     if (versions?.mcVersion == "1.8.9") {
       const allocatedRam = this.regexes.ram.exec(log);
       this.regexes.ram.lastIndex = 0;
+      const isGB = allocatedRam[0].endsWith("G");
       if (
-        parseInt(allocatedRam?.groups?.ram) >
-        (allocatedRam[0].endsWith("G") ? 4 : 4096)
+        allocatedRam &&
+        parseInt(allocatedRam?.groups?.ram) > (isGB ? 4 : 4096)
       )
         currentRecommendations.add(
           `- Most of the time you don't need more than 2GB RAM allocated (maybe 3-4GB if you use skyblock mods). You may be able to reduce the amount of RAM allocated from ${
             allocatedRam.groups.ram
-          } to ${allocatedRam[0].endsWith("G") ? "2G" : "2048M"} or ${
-            allocatedRam[0].endsWith("G") ? "3G" : "3072M"
-          }`
+          } to ${isGB ? "2G" : "2048M"} or ${isGB ? "3G" : "3072M"}`
         );
     }
 
@@ -1591,17 +1593,28 @@ export default class MCLogs extends Module {
         ]);
       message.delete().catch(() => {});
 
-      let possibleSolutions: string;
-      const settingUser = this.regexes.settingUser.exec(text);
-      this.regexes.settingUser.lastIndex = 0;
-      const ign = settingUser?.[1] ?? settingUser?.[2];
+      let possibleSolutions: string,
+        ign: string,
+        loggedUUID: string,
+        loggedUUIDVersion: string;
+      const essentialAuth = this.regexes.essentialAuth.exec(text);
+      this.regexes.essentialAuth.lastIndex = 0;
+      if (essentialAuth) {
+        ign = essentialAuth.groups?.ign;
+        loggedUUID = essentialAuth.groups?.uuid;
+        loggedUUIDVersion = essentialAuth.groups?.ver;
+      } else {
+        const settingUser = this.regexes.settingUser.exec(text);
+        this.regexes.settingUser.lastIndex = 0;
+        ign = settingUser?.[1] ?? settingUser?.[2];
+        const uuidArg = this.regexes.uuidArg.exec(text);
+        this.regexes.uuidArg.lastIndex = 0;
+        loggedUUID = uuidArg?.groups?.uuid;
+        loggedUUIDVersion = uuidArg?.groups?.ver;
+      }
       const isDevEnv =
         this.regexes.devEnvUser.test(ign) && text.includes("GradleStart");
       this.regexes.devEnvUser.lastIndex = 0;
-      const uuidArg = this.regexes.uuidArg.exec(text);
-      this.regexes.uuidArg.lastIndex = 0;
-      const loggedUUID = uuidArg?.groups?.uuid,
-        loggedUUIDVersion = uuidArg?.groups?.ver;
       if (ign && !isDevEnv) {
         try {
           const profile = await this.client.util
