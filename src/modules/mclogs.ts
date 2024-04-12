@@ -1238,7 +1238,7 @@ export default class MCLogs extends Module {
     if (versions?.mcVersion == "1.8.9") {
       const allocatedRam = this.regexes.ram.exec(log);
       this.regexes.ram.lastIndex = 0;
-      const isGB = allocatedRam[0].endsWith("G");
+      const isGB = allocatedRam?.[0].endsWith("G");
       if (
         allocatedRam &&
         parseInt(allocatedRam?.groups?.ram) > (isGB ? 4 : 4096)
