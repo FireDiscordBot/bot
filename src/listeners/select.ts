@@ -187,7 +187,7 @@ export default class Select extends Listener {
             "Etc/UTC"
           )
         );
-        const timestamp = +parsed[0].start.date();
+        const timestamp = +parsed[0]?.start.date();
         if (!parsed || isNaN(timestamp))
           return await specifyTimeModal.error("REMINDER_SNOOZE_TIME_INVALID");
         select.values = [timestamp.toString()];
