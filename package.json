@@ -48,7 +48,6 @@
     "murmurhash-js": "^1.0.0",
     "nanoid": "^3.3.4",
     "node-color-log": "^7.0.0",
-    "nodejs-assistant": "^0.8.0",
     "p-event": "^4.2.0",
     "pidusage": "^2.0.21",
     "prettier": "^2.6.2",
