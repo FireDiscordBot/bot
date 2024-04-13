@@ -1,3 +1,10 @@
+import {
+  AudioPlayerStatus,
+  NoSubscriberBehavior,
+  createAudioPlayer,
+  createAudioResource,
+  joinVoiceChannel,
+} from "@discordjs/voice";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -34,13 +41,14 @@ import {
 import { TextInputStyles } from "discord.js/typings/enums";
 import { codeblockTypeCaster } from "../arguments/codeblock";
 import Anti from "../commands/Configuration/anti";
+import Google from "../commands/Fun/google";
 import Rank from "../commands/Premium/rank";
 import LogScan from "../commands/Utilities/log-scan";
 import Essential from "../modules/essential";
 import Sk1er from "../modules/sk1er";
 import SparkUniverse from "../modules/sparkuniverse";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
-import Google from "../commands/Fun/google";
+import { Readable } from "stream";
 
 const { url, emojis, regexes } = constants;
 
@@ -1327,16 +1335,11 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       const query = button.customId.slice(7);
       const google = this.client.getCommand("google") as Google;
       const assist = await google.sendAssistantQuery(button, query);
-      // TODO: better handling of !success
-      // if (!assist || !assist.success)
-      //   return await button.edit({
-      //     content: button.language.get("GOOGLE_NO_RESPONSE"),
-      //     components: [],
-      //   });
       if (!assist) {
         return await button.edit({
           content: button.language.getError("GOOGLE_ERROR_UNKNOWN"),
           components: [],
+          attachments: [],
         });
       } else if (assist.success == false) {
         if (button.language.has(`GOOGLE_ERROR_${assist.error}`))
@@ -1345,11 +1348,13 @@ Please choose accurately as it will allow us to help you as quick as possible! â
               `GOOGLE_ERROR_${assist.error}` as LanguageKeys
             ),
             components: [],
+            attachments: [],
           });
         else
           return await button.edit({
             content: button.language.getError("GOOGLE_ERROR_UNKNOWN"),
             components: [],
+            attachments: [],
           });
       }
       let components = [],
@@ -1368,9 +1373,34 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           )
         );
       }
-      if (assist.response.screenshot.success == true) {
+      if (assist.response.screenshot?.success == true) {
         const screenshot = Buffer.from(assist.response.screenshot.image.data);
         files.push({ attachment: screenshot, name: "google.png" });
+      }
+      if (assist.response.audio && button.member?.voice.channelId) {
+        const audio = Buffer.from(assist.response.audio.data);
+        const connection = joinVoiceChannel({
+          channelId: button.member.voice.channelId,
+          guildId: button.guild.id,
+          // @ts-ignore
+          adapterCreator: button.guild.voiceAdapterCreator,
+        });
+        const player = createAudioPlayer({
+          behaviors: {
+            noSubscriber: NoSubscriberBehavior.Pause,
+          },
+        });
+        connection.subscribe(player);
+        player.on("stateChange", (oldState, newState) => {
+          if (
+            oldState.status == AudioPlayerStatus.Playing &&
+            newState.status == AudioPlayerStatus.Idle
+          ) {
+            connection.destroy();
+            player.stop(true);
+          }
+        });
+        player.play(createAudioResource(Readable.from(audio)));
       }
       return await button.edit({
         content: !files.length

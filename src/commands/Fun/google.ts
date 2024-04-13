@@ -1,3 +1,10 @@
+import {
+  AudioPlayerStatus,
+  createAudioPlayer,
+  createAudioResource,
+  joinVoiceChannel,
+  NoSubscriberBehavior,
+} from "@discordjs/voice";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
@@ -7,6 +14,7 @@ import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { MessageActionRow, MessageButton, SnowflakeUtil } from "discord.js";
+import { Readable } from "stream";
 
 enum GoogleAssistantActions {
   GET_AUTHENTICATE_URL,
@@ -41,7 +49,8 @@ type AssistantTextQueryResponse =
       success: true;
       response: {
         text?: string;
-        screen?: Buffer;
+        screen?: { type: "Buffer"; data: number[] };
+        audio: { type: "Buffer"; data: number[] };
         deviceAction?: Record<string, any>;
         suggestions?: string[];
         screenshot?:
@@ -165,6 +174,31 @@ export default class Google extends Command {
     if (assist.response.screenshot.success) {
       const screenshot = Buffer.from(assist.response.screenshot.image.data);
       files.push({ attachment: screenshot, name: "google.png" });
+    }
+    if (assist.response.audio && command.member?.voice.channelId) {
+      const audio = Buffer.from(assist.response.audio.data);
+      const connection = joinVoiceChannel({
+        channelId: command.member.voice.channelId,
+        guildId: command.guild.id,
+        // @ts-ignore
+        adapterCreator: command.guild.voiceAdapterCreator,
+      });
+      const player = createAudioPlayer({
+        behaviors: {
+          noSubscriber: NoSubscriberBehavior.Pause,
+        },
+      });
+      connection.subscribe(player);
+      player.on("stateChange", (oldState, newState) => {
+        if (
+          oldState.status == AudioPlayerStatus.Playing &&
+          newState.status == AudioPlayerStatus.Idle
+        ) {
+          connection.destroy();
+          player.stop(true);
+        }
+      });
+      player.play(createAudioResource(Readable.from(audio)));
     }
     return await command.channel.send({
       content: !files.length
