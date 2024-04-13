@@ -47,6 +47,7 @@ export enum EventType {
   SET_CUSTOM_STATUS,
   UPDATE_SETTINGS,
   INFLUX_QUERY,
+  GOOGLE_ASSISTANT,
 }
 
 export enum WebsocketStates {

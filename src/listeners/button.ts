@@ -40,6 +40,7 @@ import Essential from "../modules/essential";
 import Sk1er from "../modules/sk1er";
 import SparkUniverse from "../modules/sparkuniverse";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
+import Google from "../commands/Fun/google";
 
 const { url, emojis, regexes } = constants;
 
@@ -1308,6 +1309,105 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           return row;
         }),
       });
+    }
+
+    if (button.customId.startsWith("google:")) {
+      await button.channel.update({
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setStyle("SECONDARY")
+              .setLabel(button.language.get("GOOGLE_LOADING"))
+              .setCustomId("google_loading")
+              .setEmoji("769207087674032129")
+              .setDisabled(true)
+          ),
+        ],
+      });
+      const query = button.customId.slice(7);
+      const google = this.client.getCommand("google") as Google;
+      const assist = await google.sendAssistantQuery(button, query);
+      // TODO: better handling of !success
+      // if (!assist || !assist.success)
+      //   return await button.edit({
+      //     content: button.language.get("GOOGLE_NO_RESPONSE"),
+      //     components: [],
+      //   });
+      if (!assist) {
+        return await button.edit({
+          content: button.language.getError("GOOGLE_ERROR_UNKNOWN"),
+          components: [],
+        });
+      } else if (assist.success == false) {
+        if (button.language.has(`GOOGLE_ERROR_${assist.error}`))
+          return await button.edit({
+            content: button.language.get(
+              `GOOGLE_ERROR_${assist.error}` as LanguageKeys
+            ),
+            components: [],
+          });
+        else
+          return await button.edit({
+            content: button.language.getError("GOOGLE_ERROR_UNKNOWN"),
+            components: [],
+          });
+      }
+      let components = [],
+        files = [];
+      if (assist.response.suggestions) {
+        components.push(
+          new MessageActionRow().addComponents(
+            assist.response.suggestions
+              .filter((suggestion) => suggestion.length <= 92)
+              .map((suggestion) =>
+                new MessageButton()
+                  .setStyle("PRIMARY")
+                  .setLabel(suggestion)
+                  .setCustomId(`!google:${suggestion}`)
+              )
+          )
+        );
+      }
+      if (assist.response.screenshot.success == true) {
+        const screenshot = Buffer.from(assist.response.screenshot.image.data);
+        files.push({ attachment: screenshot, name: "google.png" });
+      }
+      return await button.edit({
+        content: !files.length
+          ? assist.response.text ?? button.language.get("GOOGLE_NO_RESPONSE")
+          : undefined,
+        files,
+        components,
+      });
+    }
+
+    if (button.customId == "googleauth") {
+      button.flags = 64;
+      await button.channel.ack();
+      const google = this.client.getCommand("google") as Google;
+      const auth = await google.getAssistantAuthUrl(button);
+      if (!auth) return await button.error("GOOGLE_AUTH_ERROR");
+      else if (auth.success == false)
+        return await button.error(
+          `GOOGLE_AUTH_ERROR_${auth.error}` as LanguageKeys
+        );
+      else
+        return await button.send("GOOGLE_AUTH_LEARN_AND_LINK", {
+          components: [
+            new MessageActionRow().addComponents(
+              new MessageButton()
+                .setStyle("LINK")
+                .setLabel(button.language.get("GOOGLE_AUTH_BUTTON_LABEL"))
+                .setURL(auth.url)
+                .setEmoji("769207087674032129")
+            ),
+          ],
+        });
+    } else if (button.customId == "googleauthn't") {
+      button.flags = 64;
+      await button.channel.ack();
+      await button.author.settings.set("assistant.noauthprompt", false);
+      await button.success("GOOGLE_AUTHNOT");
     }
 
     if (button.customId.startsWith("deploy:") && button.author.isSuperuser()) {

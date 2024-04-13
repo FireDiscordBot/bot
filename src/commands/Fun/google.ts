@@ -1,22 +1,60 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import Filters from "@fire/src/modules/filters";
-import { SnowflakeUtil } from "discord.js";
-import { Assistant, AssistantLanguage } from "nodejs-assistant";
+import { MessageActionRow, MessageButton, SnowflakeUtil } from "discord.js";
 
-type PlaywrightResponse = {
-  screenshot: { type: "Buffer"; data: number[] };
-  error?: string;
-};
+enum GoogleAssistantActions {
+  GET_AUTHENTICATE_URL,
+  TEXT_QUERY,
+  // These two are currently unused
+  UPDATE_VOLUME,
+  SWITCH_LOCALE,
+}
+
+type GoogleAssistantData =
+  | { action: GoogleAssistantActions.GET_AUTHENTICATE_URL; userId: string }
+  | {
+      action: GoogleAssistantActions.TEXT_QUERY;
+      userId: string;
+      name: string;
+      input: string;
+      image: boolean;
+    }
+  | {
+      action: GoogleAssistantActions.UPDATE_VOLUME;
+      userId: string;
+      volume: number;
+    }
+  | {
+      action: GoogleAssistantActions.SWITCH_LOCALE;
+      userId: string;
+      languageCode: string;
+    };
+
+type AssistantTextQueryResponse =
+  | {
+      success: true;
+      response: {
+        text?: string;
+        screen?: Buffer;
+        deviceAction?: Record<string, any>;
+        suggestions?: string[];
+        screenshot?:
+          | {
+              success: true;
+              image: { type: "Buffer"; data: number[] };
+            }
+          | { success: false; error: string };
+      };
+    }
+  | { success: false; error: string };
 
 export default class Google extends Command {
-  assistant: Assistant;
-
   constructor() {
     super("google", {
       description: (language: Language) =>
@@ -26,6 +64,8 @@ export default class Google extends Command {
         {
           id: "query",
           type: "string",
+          description: (language: Language) =>
+            language.get("GOOGLE_ARGUMENT_QUERY_DESCRIPTION"),
           required: true,
         },
       ],
@@ -35,119 +75,128 @@ export default class Google extends Command {
       cooldown: 5000,
       lock: "user",
     });
-    if (
-      process.env.ASSISTANT_CLIENT_ID &&
-      process.env.ASSISTANT_CLIENT_SECRET &&
-      process.env.ASSISTANT_REFRESH_TOKEN
-    )
-      this.assistant = new Assistant(
-        {
-          type: "authorized_user",
-          client_id: process.env.ASSISTANT_CLIENT_ID,
-          client_secret: process.env.ASSISTANT_CLIENT_SECRET,
-          refresh_token: process.env.ASSISTANT_REFRESH_TOKEN,
-        },
-        {
-          locale: AssistantLanguage.ENGLISH, // I may add support for automatic language switching based on user/guild language later
-          deviceId: "287698408855044097",
-          deviceModelId: "fire0682-444871677176709141",
-        }
-      );
   }
 
   async run(command: ApplicationCommandMessage, args: { query: string }) {
     if (!this.client.manager.ws?.open)
-      return await command.error("PLAYWRIGHT_ERROR_NOT_READY");
-    if (!this.assistant) {
-      await command.error("GOOGLE_MISSING_CREDENTIALS");
-      return this.remove();
-    }
+      return await command.send("GOOGLE_NOT_READY_YET");
+
+    if (!command.author.hasExperiment(2100999090, 1))
+      return await command.error("GOOGLE_COMMAND_TEMP_DISABLED");
+
+    const hasCredentials = await this.client.db
+      .query("SELECT uid FROM assistant WHERE uid = $1", [command.author.id])
+      .first()
+      .catch(() => null);
+    if (
+      typeof hasCredentials != "undefined" &&
+      hasCredentials &&
+      hasCredentials.get("uid") &&
+      hasCredentials.get("uid") != command.author.id
+    )
+      return await command.send("GOOGLE_CREDENTIAL_CHECK_FAILED");
+    const useDefaultCreds = !hasCredentials;
+
+    if (command.author.settings.has("assistant.authstate"))
+      command.author.settings.delete("assistant.authstate");
 
     // context menu shenanigans
     if (command instanceof ContextCommandMessage)
       args.query =
         (command as ContextCommandMessage).getMessage()?.content || "Hi";
 
-    const response = await this.assistant
-      .query(args.query || "Hi", {
-        audioInConfig: {
-          encoding: 1,
-          sampleRateHertz: 16000,
-        },
-        audioOutConfig: {
-          encoding: 1,
-          sampleRateHertz: 16000,
-          volumePercentage: 0,
-        },
-      })
-      .catch((e: Error) => e);
-    if (
-      response instanceof Error &&
-      response.message.includes("text_query too long.")
-    )
-      return await command.send("GOOGLE_TOO_LONG");
-    else if (response instanceof Error)
-      return this.client.commandHandler.emit(
-        "commandError",
-        command,
-        this,
-        args,
-        response
-      );
-    if (!response.html) return await command.send("GOOGLE_NO_RESPONSE");
-    const filters = this.client.getModule("filters") as Filters;
-    const html = await filters.runReplace(
-      response.html
-        ?.replace(
-          "<html>",
-          `<html style="background-image: url('https://picsum.photos/1920/1080')">`
-        )
-        .replace(
-          "Assistant.micTimeoutMs = 0;",
-          `window.onload = () => {window.document.body.innerHTML = window.document.body.innerHTML
-  .replace(
-    /<div class=\"show_text_content\">Your name is [\\w\\n]+\\.<\\/div>/gim,
-    "<div class='show_text_content'>Your name is ${command.author.username}.</div>"
-  )
-  .replace(
-    /<div class=\"show_text_content\">I remember you telling me your name was [\\w\\n]+\\.<\\/div>/gim,
-    "<div class='show_text_content'>I remember you telling me your name was ${command.author.username}.</div>"
-  );};`
-        ),
-      command.member || command.author
-    );
-    if (!html)
-      return await command.error("PLAYWRIGHT_ERROR_UNKNOWN").catch(() => {});
-    const playwrightResponse = await this.getImageFromPlaywright(
+    // Adding a way to undo never showing the auth prompt again
+    if (args.query == "SUPER_SECRET_SETTING_RESET") {
+      args.query = "Hello!";
+      command.author.settings.delete("assistant.noauthprompt");
+    }
+
+    const assist = await this.sendAssistantQuery(
       command,
-      html
+      args.query,
+      useDefaultCreds
     ).catch(() => {});
-    if (!playwrightResponse)
-      return await command.error("PLAYWRIGHT_ERROR_UNKNOWN");
-    if (playwrightResponse.error)
-      return await command.error(
-        `PLAYWRIGHT_ERROR_${playwrightResponse.error.toUpperCase()}` as LanguageKeys
+    if (!assist) return await command.send("GOOGLE_ERROR_UNKNOWN");
+    else if (assist.success == false) {
+      if (command.language.has(`GOOGLE_ERROR_${assist.error}`))
+        return await command.send(
+          `GOOGLE_ERROR_${assist.error}` as LanguageKeys
+        );
+      else return await command.send("GOOGLE_ERROR_UNKNOWN");
+    }
+    let components: MessageActionRow[] = [],
+      files = [];
+    if (assist.response.suggestions) {
+      components.push(
+        new MessageActionRow().addComponents(
+          assist.response.suggestions
+            .filter((suggestion) => suggestion.length <= 92)
+            .map((suggestion) =>
+              new MessageButton()
+                .setStyle("PRIMARY")
+                .setLabel(suggestion)
+                .setCustomId(`!google:${suggestion}`)
+            )
+        )
       );
-    else if (playwrightResponse.screenshot) {
-      const screenshot = Buffer.from(playwrightResponse.screenshot.data);
-      await command.channel
-        .send({
-          files: [{ attachment: screenshot, name: "playwright.png" }],
-        })
-        .catch(() => {});
-    } else return await command.error("PLAYWRIGHT_ERROR_UNKNOWN");
+    }
+    if (
+      useDefaultCreds &&
+      !command.author.settings.get("assistant.noauthprompt", false) &&
+      (command.author.isSuperuser()
+        ? // Allow on dev & prod for superusers
+          process.env.NODE_ENV != "staging"
+        : process.env.NODE_ENV == "production")
+    )
+      components.push(
+        new MessageActionRow().addComponents([
+          new MessageButton()
+            .setStyle("SECONDARY")
+            .setLabel(command.language.get("GOOGLE_AUTHENTICATE"))
+            .setCustomId("!googleauth")
+            .setEmoji("769207087674032129"),
+          new MessageButton()
+            .setStyle("DANGER")
+            .setLabel(command.language.get("GOOGLE_AUTHENTICATE_DONT"))
+            .setCustomId("!googleauthn't")
+            .setEmoji("769207087674032129"),
+        ])
+      );
+    if (assist.response.screenshot.success) {
+      const screenshot = Buffer.from(assist.response.screenshot.image.data);
+      files.push({ attachment: screenshot, name: "google.png" });
+    }
+    return await command.channel.send({
+      content: !files.length
+        ? assist.response.text ?? command.language.get("GOOGLE_NO_RESPONSE")
+        : undefined,
+      files,
+      components,
+    });
   }
 
-  async getImageFromPlaywright(
-    command: ApplicationCommandMessage,
-    html: string
-  ): Promise<PlaywrightResponse> {
+  async sendAssistantQuery(
+    command: ApplicationCommandMessage | ComponentMessage,
+    input: string,
+    useDefaultCreds: boolean = false
+  ): Promise<AssistantTextQueryResponse> {
     return new Promise((resolve, reject) => {
       const nonce = SnowflakeUtil.generate();
       this.client.manager.ws.handlers.set(nonce, resolve);
       this.client.manager.ws.send(
         MessageUtil.encode(
-          new Message(EventType.PLAYWRIGHT_REQUEST, { html }, nonce)
+          new Message(
+            EventType.GOOGLE_ASSISTANT,
+            {
+              action: GoogleAssistantActions.TEXT_QUERY,
+              userId: command.author.id,
+              useDefaultCreds,
+              name: command.member?.nickname || command.author.displayName,
+              input,
+              image: true,
+            } as GoogleAssistantData,
+            nonce
+          )
         )
       );
 
@@ -158,6 +207,41 @@ export default class Google extends Command {
           reject();
         }
       }, 30000);
+    });
+  }
+
+  async getAssistantAuthUrl(
+    button: ComponentMessage
+  ): Promise<
+    { success: true; url: string } | { success: false; error: string }
+  > {
+    return new Promise((resolve, reject) => {
+      const nonce = SnowflakeUtil.generate();
+      this.client.manager.ws.handlers.set(nonce, resolve);
+      button.author.settings.set(
+        "assistant.authstate",
+        `${button.author.id}:${nonce}`
+      );
+      this.client.manager.ws.send(
+        MessageUtil.encode(
+          new Message(
+            EventType.GOOGLE_ASSISTANT,
+            {
+              action: GoogleAssistantActions.GET_AUTHENTICATE_URL,
+              userId: button.author.id,
+            } as GoogleAssistantData,
+            nonce
+          )
+        )
+      );
+
+      setTimeout(() => {
+        // if still there, a response has not been received
+        if (this.client.manager.ws.handlers.has(nonce)) {
+          this.client.manager.ws.handlers.delete(nonce);
+          reject();
+        }
+      }, 5000);
     });
   }
 }
