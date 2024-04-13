@@ -535,7 +535,7 @@
   "FILTER_MESSAGE_DELETE_REASON": "Message matched active link filters",
   "GOOGLE_COMMAND_DESCRIPTION": "Speak to the Google Assistant",
   "GOOGLE_ARGUMENT_QUERY_DESCRIPTION": "The query you would like to ask the Google Assistant",
-  "GOOGLE_COMMAND_TEMP_DISABLED": "This command is temporarily disabled while updates are made to this integation. We apologize for the inconvenience and hope to have it back up soon",
+  "GOOGLE_COMMAND_TEMP_DISABLED": "This command is temporarily disabled while updates are made to this integration. We apologize for the inconvenience and hope to have it back up soon",
   "GOOGLE_NOT_READY_YET": "<a:okaygoogle:769207087674032129> The Google Assistant is not ready yet, please try again later",
   "GOOGLE_CREDENTIAL_CHECK_FAILED": "<a:okaygoogle:769207087674032129> An error occurred while checking if you've signed in",
   "GOOGLE_ERROR_UNKNOWN": "<a:okaygoogle:769207087674032129> An unknown error occurred while trying to get a response from the Google Assistant",
