@@ -194,10 +194,12 @@ export default class Google extends Command {
           oldState.status == AudioPlayerStatus.Playing &&
           newState.status == AudioPlayerStatus.Idle
         ) {
-          await this.client.util.sleep(2500);
-          if (player.state.status == AudioPlayerStatus.Idle) {
-            connection.destroy();
-            player.stop(true);
+          await this.client.util.sleep(8000);
+          if (player.state.status != AudioPlayerStatus.Playing) {
+            try {
+              connection.destroy();
+              player.stop(true);
+            } catch {}
           }
         }
       });
