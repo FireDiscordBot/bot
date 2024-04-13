@@ -1,8 +1,6 @@
 import {
-  AudioPlayerStatus,
-  NoSubscriberBehavior,
-  createAudioPlayer,
   createAudioResource,
+  getVoiceConnection,
   joinVoiceChannel,
 } from "@discordjs/voice";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
@@ -39,6 +37,7 @@ import {
   ThreadChannel,
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
+import { Readable } from "stream";
 import { codeblockTypeCaster } from "../arguments/codeblock";
 import Anti from "../commands/Configuration/anti";
 import Google from "../commands/Fun/google";
@@ -48,7 +47,6 @@ import Essential from "../modules/essential";
 import Sk1er from "../modules/sk1er";
 import SparkUniverse from "../modules/sparkuniverse";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
-import { Readable } from "stream";
 
 const { url, emojis, regexes } = constants;
 
@@ -1379,32 +1377,19 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       }
       if (assist.response.audio && button.member?.voice.channelId) {
         const audio = Buffer.from(assist.response.audio.data);
-        const connection = joinVoiceChannel({
-          channelId: button.member.voice.channelId,
-          guildId: button.guild.id,
-          // @ts-ignore
-          adapterCreator: button.guild.voiceAdapterCreator,
-        });
-        const player = createAudioPlayer({
-          behaviors: {
-            noSubscriber: NoSubscriberBehavior.Pause,
-          },
-        });
+        const connection =
+          getVoiceConnection(button.guild.id) ??
+          joinVoiceChannel({
+            channelId: button.member.voice.channelId,
+            guildId: button.guild.id,
+            // @ts-ignore
+            adapterCreator: button.guild.voiceAdapterCreator,
+          });
+        const player = this.client.util.createAssistantAudioPlayer(
+          button.member,
+          connection
+        );
         connection.subscribe(player);
-        player.on("stateChange", async (oldState, newState) => {
-          if (
-            oldState.status == AudioPlayerStatus.Playing &&
-            newState.status == AudioPlayerStatus.Idle
-          ) {
-            await this.client.util.sleep(8000);
-            if (player.state.status != AudioPlayerStatus.Playing) {
-              try {
-                connection.destroy();
-                player.stop(true);
-              } catch {}
-            }
-          }
-        });
         player.play(createAudioResource(Readable.from(audio)));
       }
       return await button.edit({

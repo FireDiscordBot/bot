@@ -1,9 +1,7 @@
 import {
-  AudioPlayerStatus,
-  createAudioPlayer,
   createAudioResource,
+  getVoiceConnection,
   joinVoiceChannel,
-  NoSubscriberBehavior,
 } from "@discordjs/voice";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
@@ -177,32 +175,19 @@ export default class Google extends Command {
     }
     if (assist.response.audio && command.member?.voice.channelId) {
       const audio = Buffer.from(assist.response.audio.data);
-      const connection = joinVoiceChannel({
-        channelId: command.member.voice.channelId,
-        guildId: command.guild.id,
-        // @ts-ignore
-        adapterCreator: command.guild.voiceAdapterCreator,
-      });
-      const player = createAudioPlayer({
-        behaviors: {
-          noSubscriber: NoSubscriberBehavior.Pause,
-        },
-      });
+      const connection =
+        getVoiceConnection(command.guild.id) ??
+        joinVoiceChannel({
+          channelId: command.member.voice.channelId,
+          guildId: command.guild.id,
+          // @ts-ignore
+          adapterCreator: command.guild.voiceAdapterCreator,
+        });
+      const player = this.client.util.createAssistantAudioPlayer(
+        command.member,
+        connection
+      );
       connection.subscribe(player);
-      player.on("stateChange", async (oldState, newState) => {
-        if (
-          oldState.status == AudioPlayerStatus.Playing &&
-          newState.status == AudioPlayerStatus.Idle
-        ) {
-          await this.client.util.sleep(8000);
-          if (player.state.status != AudioPlayerStatus.Playing) {
-            try {
-              connection.destroy();
-              player.stop(true);
-            } catch {}
-          }
-        }
-      });
       player.play(createAudioResource(Readable.from(audio)));
     }
     return await command.channel.send({

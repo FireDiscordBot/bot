@@ -1,3 +1,10 @@
+import {
+  AudioPlayer,
+  AudioPlayerStatus,
+  NoSubscriberBehavior,
+  VoiceConnection,
+  createAudioPlayer,
+} from "@discordjs/voice";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -30,13 +37,13 @@ import {
 import { murmur3 } from "murmurhash-js";
 import { cpus, totalmem } from "os";
 import * as pidusage from "pidusage";
+import { Readable } from "stream";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ClusterStats } from "../interfaces/stats";
 import { Command } from "./command";
 import { CouponType, GuildTextChannel, titleCase } from "./constants";
 import { Language, LanguageKeys } from "./language";
 import { PaginatorInterface } from "./paginators";
-import { Readable } from "stream";
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -113,6 +120,7 @@ export class Util extends ClientUtil {
   paginators: LimitedCollection<Snowflake, PaginatorInterface>;
   loadedData: { plonked: boolean; premium: boolean };
   mcProfileCache: Collection<string, MojangProfile & { retrievedAt: Date }>;
+  assistantAudioPlayers: Collection<Snowflake, AudioPlayer>;
   permissionFlags: [PermissionString, bigint][];
   premium: Collection<string, PremiumData>;
   hasRoleUpdates: string[];
@@ -131,6 +139,7 @@ export class Util extends ClientUtil {
       },
       sweepInterval: 60,
     });
+    this.assistantAudioPlayers = new Collection();
     this.mcProfileCache = new Collection();
     this.premium = new Collection();
     this.hasRoleUpdates = [];
@@ -232,6 +241,33 @@ export class Util extends ClientUtil {
         profileReq.statusCode
       );
     else return body as MojangProfile;
+  }
+
+  createAssistantAudioPlayer(member: FireMember, connection: VoiceConnection) {
+    if (this.assistantAudioPlayers.has(member.id))
+      return this.assistantAudioPlayers.get(member.id);
+    const player = createAudioPlayer({
+      behaviors: {
+        noSubscriber: NoSubscriberBehavior.Pause,
+      },
+    });
+    player.on("stateChange", async (oldState, newState) => {
+      if (
+        oldState.status == AudioPlayerStatus.Playing &&
+        newState.status == AudioPlayerStatus.Idle
+      ) {
+        await this.client.util.sleep(8000);
+        if (player.state.status != AudioPlayerStatus.Playing) {
+          try {
+            connection.destroy();
+            player.stop(true);
+            this.client.util.assistantAudioPlayers.delete(member.id);
+          } catch {}
+        }
+      }
+    });
+    this.assistantAudioPlayers.set(member.id, player);
+    return player;
   }
 
   addDashesToUUID = (uuid: string) =>
