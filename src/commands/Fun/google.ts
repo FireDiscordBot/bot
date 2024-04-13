@@ -189,11 +189,12 @@ export default class Google extends Command {
         },
       });
       connection.subscribe(player);
-      player.on("stateChange", (oldState, newState) => {
+      player.on("stateChange", async (oldState, newState) => {
         if (
           oldState.status == AudioPlayerStatus.Playing &&
           newState.status == AudioPlayerStatus.Idle
         ) {
+          await this.client.util.sleep(2500);
           connection.destroy();
           player.stop(true);
         }

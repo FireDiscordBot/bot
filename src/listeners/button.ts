@@ -1391,11 +1391,12 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           },
         });
         connection.subscribe(player);
-        player.on("stateChange", (oldState, newState) => {
+        player.on("stateChange", async (oldState, newState) => {
           if (
             oldState.status == AudioPlayerStatus.Playing &&
             newState.status == AudioPlayerStatus.Idle
           ) {
+            await this.client.util.sleep(2500);
             connection.destroy();
             player.stop(true);
           }
