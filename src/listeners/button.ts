@@ -1397,8 +1397,10 @@ Please choose accurately as it will allow us to help you as quick as possible! â
             newState.status == AudioPlayerStatus.Idle
           ) {
             await this.client.util.sleep(2500);
-            connection.destroy();
-            player.stop(true);
+            if (player.state.status == AudioPlayerStatus.Idle) {
+              connection.destroy();
+              player.stop(true);
+            }
           }
         });
         player.play(createAudioResource(Readable.from(audio)));
