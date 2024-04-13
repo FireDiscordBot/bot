@@ -30,7 +30,6 @@
   "dependencies": {
     "@aero/sanitizer": "^1.2.0",
     "@discordjs/form-data": "^3.0.1",
-    "@discordjs/opus": "^0.9.0",
     "@discordjs/voice": "^0.16.1",
     "@sapphire/async-queue": "^1.5.0",
     "@sentry/node": "^6.19.7",
@@ -52,6 +51,7 @@
     "murmurhash-js": "^1.0.0",
     "nanoid": "^3.3.4",
     "node-color-log": "^7.0.0",
+    "opusscript": "^0.1.1",
     "p-event": "^4.2.0",
     "pidusage": "^2.0.21",
     "prettier": "^2.6.2",
