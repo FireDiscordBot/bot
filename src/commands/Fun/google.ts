@@ -88,21 +88,21 @@ export default class Google extends Command {
     if (!this.client.manager.ws?.open)
       return await command.send("GOOGLE_NOT_READY_YET");
 
-    if (!command.author.hasExperiment(2100999090, 1))
-      return await command.error("GOOGLE_COMMAND_TEMP_DISABLED");
-
-    const hasCredentials = await this.client.db
-      .query("SELECT uid FROM assistant WHERE uid = $1", [command.author.id])
-      .first()
-      .catch(() => null);
-    if (
-      typeof hasCredentials != "undefined" &&
-      hasCredentials &&
-      hasCredentials.get("uid") &&
-      hasCredentials.get("uid") != command.author.id
-    )
-      return await command.send("GOOGLE_CREDENTIAL_CHECK_FAILED");
-    const useDefaultCreds = !hasCredentials;
+    let useDefaultCreds = true;
+    if (command.author.hasExperiment(2100999090, 1)) {
+      const hasCredentials = await this.client.db
+        .query("SELECT uid FROM assistant WHERE uid = $1", [command.author.id])
+        .first()
+        .catch(() => null);
+      if (
+        typeof hasCredentials != "undefined" &&
+        hasCredentials &&
+        hasCredentials.get("uid") &&
+        hasCredentials.get("uid") != command.author.id
+      )
+        return await command.send("GOOGLE_CREDENTIAL_CHECK_FAILED");
+      useDefaultCreds = !hasCredentials;
+    }
 
     if (command.author.settings.has("assistant.authstate"))
       command.author.settings.delete("assistant.authstate");
@@ -137,18 +137,23 @@ export default class Google extends Command {
       components.push(
         new MessageActionRow().addComponents(
           assist.response.suggestions
-            .filter((suggestion) => suggestion.length <= 92)
+            .filter(
+              (suggestion) =>
+                suggestion.length <=
+                100 - `!google:${command.author.id}:`.length
+            )
             .map((suggestion) =>
               new MessageButton()
                 .setStyle("PRIMARY")
                 .setLabel(suggestion)
-                .setCustomId(`!google:${suggestion}`)
+                .setCustomId(`!google:${command.author.id}:${suggestion}`)
             )
         )
       );
     }
     if (
       useDefaultCreds &&
+      command.author.hasExperiment(2100999090, 1) &&
       !command.author.settings.get("assistant.noauthprompt", false) &&
       (command.author.isSuperuser()
         ? // Allow on dev & prod for superusers
@@ -169,7 +174,7 @@ export default class Google extends Command {
             .setEmoji("769207087674032129"),
         ])
       );
-    if (assist.response.screenshot.success) {
+    if (assist.response.screenshot?.success) {
       const screenshot = Buffer.from(assist.response.screenshot.image.data);
       files.push({ attachment: screenshot, name: "google.png" });
     }

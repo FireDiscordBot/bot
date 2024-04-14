@@ -1317,7 +1317,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       });
     }
 
-    if (button.customId.startsWith("google:")) {
+    if (button.customId.startsWith(`google:${button.author.id}:`)) {
       await button.channel.update({
         components: [
           new MessageActionRow().addComponents(
@@ -1330,12 +1330,12 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           ),
         ],
       });
-      const query = button.customId.slice(7);
+      const [, , query] = button.customId.split(":");
       const google = this.client.getCommand("google") as Google;
       const assist = await google.sendAssistantQuery(button, query);
       if (!assist) {
         return await button.edit({
-          content: button.language.getError("GOOGLE_ERROR_UNKNOWN"),
+          content: button.language.get("GOOGLE_ERROR_UNKNOWN"),
           components: [],
           attachments: [],
         });
@@ -1350,7 +1350,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           });
         else
           return await button.edit({
-            content: button.language.getError("GOOGLE_ERROR_UNKNOWN"),
+            content: button.language.get("GOOGLE_ERROR_UNKNOWN"),
             components: [],
             attachments: [],
           });
@@ -1361,12 +1361,16 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         components.push(
           new MessageActionRow().addComponents(
             assist.response.suggestions
-              .filter((suggestion) => suggestion.length <= 92)
+              .filter(
+                (suggestion) =>
+                  suggestion.length <=
+                  100 - `!google:${button.author.id}:`.length
+              )
               .map((suggestion) =>
                 new MessageButton()
                   .setStyle("PRIMARY")
                   .setLabel(suggestion)
-                  .setCustomId(`!google:${suggestion}`)
+                  .setCustomId(`!google:${button.author.id}:${suggestion}`)
               )
           )
         );
