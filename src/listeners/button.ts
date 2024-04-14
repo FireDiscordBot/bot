@@ -1405,7 +1405,10 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       });
     }
 
-    if (button.customId == "googleauth") {
+    if (
+      button.customId == "googleauth" &&
+      button.author.hasExperiment(2100999090, 1)
+    ) {
       button.flags = 64;
       await button.channel.ack();
       const google = this.client.getCommand("google") as Google;
