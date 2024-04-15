@@ -181,7 +181,9 @@ export default class Google extends Command {
       const screenshot = Buffer.from(assist.response.screenshot.image.data);
       files.push({ attachment: screenshot, name: "google.png" });
     }
-    if (assist.response.audio && command.member?.voice.channelId) {
+    const canPlayAudio =
+      assist.response.audio && command.member?.voice.channelId;
+    if (canPlayAudio) {
       const audio = Buffer.from(assist.response.audio.data);
       const connection =
         getVoiceConnection(command.guild.id) ??
@@ -200,7 +202,9 @@ export default class Google extends Command {
     }
     return await command.channel.send({
       content: !files.length
-        ? assist.response.text ?? command.language.get("GOOGLE_NO_RESPONSE")
+        ? assist.response.text ?? canPlayAudio
+          ? command.language.get("GOOGLE_RESPONSE_AUDIO_ONLY")
+          : command.language.get("GOOGLE_NO_RESPONSE")
         : undefined,
       files,
       components,

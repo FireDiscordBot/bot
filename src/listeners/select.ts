@@ -204,7 +204,9 @@ export default class Select extends Listener {
         const screenshot = Buffer.from(assist.response.screenshot.image.data);
         files.push({ attachment: screenshot, name: "google.png" });
       }
-      if (assist.response.audio && select.member?.voice.channelId) {
+      const canPlayAudio =
+        assist.response.audio && select.member?.voice.channelId;
+      if (canPlayAudio) {
         const audio = Buffer.from(assist.response.audio.data);
         const connection =
           getVoiceConnection(select.guild.id) ??
@@ -223,7 +225,9 @@ export default class Select extends Listener {
       }
       return await select.edit({
         content: !files.length
-          ? assist.response.text ?? select.language.get("GOOGLE_NO_RESPONSE")
+          ? assist.response.text ?? canPlayAudio
+            ? select.language.get("GOOGLE_RESPONSE_AUDIO_ONLY")
+            : select.language.get("GOOGLE_NO_RESPONSE")
           : undefined,
         files,
         components,
