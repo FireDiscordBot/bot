@@ -184,7 +184,7 @@ export default class Select extends Listener {
       }
       let components = [],
         files = [];
-      if (assist.response.suggestions)
+      if (assist.response.suggestions?.length)
         components.push(
           new MessageActionRow().addComponents(
             new MessageSelectMenu()

@@ -138,7 +138,7 @@ export default class Google extends Command {
     }
     let components: MessageActionRow[] = [],
       files = [];
-    if (assist.response.suggestions)
+    if (assist.response.suggestions?.length)
       components.push(
         new MessageActionRow().addComponents(
           new MessageSelectMenu()
