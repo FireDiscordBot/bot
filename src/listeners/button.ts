@@ -1,8 +1,3 @@
-import {
-  createAudioResource,
-  getVoiceConnection,
-  joinVoiceChannel,
-} from "@discordjs/voice";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -37,7 +32,6 @@ import {
   ThreadChannel,
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
-import { Readable } from "stream";
 import { codeblockTypeCaster } from "../arguments/codeblock";
 import Anti from "../commands/Configuration/anti";
 import Google from "../commands/Fun/google";
@@ -1314,94 +1308,6 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           );
           return row;
         }),
-      });
-    }
-
-    if (button.customId.startsWith(`google:${button.author.id}:`)) {
-      await button.channel.update({
-        components: [
-          new MessageActionRow().addComponents(
-            new MessageButton()
-              .setStyle("SECONDARY")
-              .setLabel(button.language.get("GOOGLE_LOADING"))
-              .setCustomId("google_loading")
-              .setEmoji("769207087674032129")
-              .setDisabled(true)
-          ),
-        ],
-      });
-      const [, , query] = button.customId.split(":");
-      const google = this.client.getCommand("google") as Google;
-      const assist = await google.sendAssistantQuery(button, query);
-      if (!assist) {
-        return await button.edit({
-          content: button.language.get("GOOGLE_ERROR_UNKNOWN"),
-          components: [],
-          attachments: [],
-        });
-      } else if (assist.success == false) {
-        if (button.language.has(`GOOGLE_ERROR_${assist.error}`))
-          return await button.edit({
-            content: button.language.get(
-              `GOOGLE_ERROR_${assist.error}` as LanguageKeys
-            ),
-            components: [],
-            attachments: [],
-          });
-        else
-          return await button.edit({
-            content: button.language.get("GOOGLE_ERROR_UNKNOWN"),
-            components: [],
-            attachments: [],
-          });
-      }
-      let components = [],
-        files = [];
-      if (assist.response.suggestions) {
-        components.push(
-          new MessageActionRow().addComponents(
-            assist.response.suggestions
-              .filter(
-                (suggestion) =>
-                  suggestion.length <=
-                  100 - `!google:${button.author.id}:`.length
-              )
-              .map((suggestion) =>
-                new MessageButton()
-                  .setStyle("PRIMARY")
-                  .setLabel(suggestion)
-                  .setCustomId(`!google:${button.author.id}:${suggestion}`)
-              )
-          )
-        );
-      }
-      if (assist.response.screenshot?.success == true) {
-        const screenshot = Buffer.from(assist.response.screenshot.image.data);
-        files.push({ attachment: screenshot, name: "google.png" });
-      }
-      if (assist.response.audio && button.member?.voice.channelId) {
-        const audio = Buffer.from(assist.response.audio.data);
-        const connection =
-          getVoiceConnection(button.guild.id) ??
-          joinVoiceChannel({
-            channelId: button.member.voice.channelId,
-            guildId: button.guild.id,
-            // @ts-ignore
-            adapterCreator: button.guild.voiceAdapterCreator,
-          });
-        const player = this.client.util.createAssistantAudioPlayer(
-          button.member,
-          connection
-        );
-        connection.subscribe(player);
-        player.play(createAudioResource(Readable.from(audio)));
-      }
-      return await button.edit({
-        content: !files.length
-          ? assist.response.text ?? button.language.get("GOOGLE_NO_RESPONSE")
-          : undefined,
-        files,
-        components,
       });
     }
 

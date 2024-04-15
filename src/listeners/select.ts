@@ -1,3 +1,8 @@
+import {
+  createAudioResource,
+  getVoiceConnection,
+  joinVoiceChannel,
+} from "@discordjs/voice";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -14,6 +19,8 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import {
   Formatters,
   MessageActionRow,
+  MessageButton,
+  MessageSelectMenu,
   Modal,
   ModalActionRowComponent,
   Permissions,
@@ -21,9 +28,11 @@ import {
   TextInputComponent,
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
+import { Readable } from "stream";
 import { parseWithUserTimezone } from "../arguments/time";
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 import LoggingConfig from "../commands/Configuration/logging-configure";
+import Google from "../commands/Fun/google";
 import LogScan from "../commands/Utilities/log-scan";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 
@@ -133,6 +142,92 @@ export default class Select extends Listener {
           joined: mapRoles(join),
           left: mapRoles(leave),
         });
+    }
+
+    if (select.customId == `google:${select.author.id}`) {
+      await select.channel.update({
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setStyle("SECONDARY")
+              .setLabel(select.language.get("GOOGLE_LOADING"))
+              .setCustomId("google_loading")
+              .setEmoji("769207087674032129")
+              .setDisabled(true)
+          ),
+        ],
+      });
+      const query = select.values[0];
+      const google = this.client.getCommand("google") as Google;
+      const assist = await google.sendAssistantQuery(select, query);
+      if (!assist) {
+        return await select.edit({
+          content: select.language.get("GOOGLE_ERROR_UNKNOWN"),
+          components: [],
+          attachments: [],
+        });
+      } else if (assist.success == false) {
+        if (select.language.has(`GOOGLE_ERROR_${assist.error}`))
+          return await select.edit({
+            content: select.language.get(
+              `GOOGLE_ERROR_${assist.error}` as LanguageKeys
+            ),
+            components: [],
+            attachments: [],
+          });
+        else
+          return await select.edit({
+            content: select.language.get("GOOGLE_ERROR_UNKNOWN"),
+            components: [],
+            attachments: [],
+          });
+      }
+      let components = [],
+        files = [];
+      if (assist.response.suggestions)
+        components.push(
+          new MessageActionRow().addComponents(
+            new MessageSelectMenu()
+              .setCustomId(`!google:${select.author.id}`)
+              .setPlaceholder(select.language.get("GOOGLE_SUGGESTIONS"))
+              .setOptions(
+                assist.response.suggestions.map((suggestion) => ({
+                  label: suggestion,
+                  value: suggestion,
+                }))
+              )
+              .setMinValues(1)
+              .setMaxValues(1)
+          )
+        );
+      if (assist.response.screenshot?.success == true) {
+        const screenshot = Buffer.from(assist.response.screenshot.image.data);
+        files.push({ attachment: screenshot, name: "google.png" });
+      }
+      if (assist.response.audio && select.member?.voice.channelId) {
+        const audio = Buffer.from(assist.response.audio.data);
+        const connection =
+          getVoiceConnection(select.guild.id) ??
+          joinVoiceChannel({
+            channelId: select.member.voice.channelId,
+            guildId: select.guild.id,
+            // @ts-ignore
+            adapterCreator: select.guild.voiceAdapterCreator,
+          });
+        const player = this.client.util.createAssistantAudioPlayer(
+          select.member,
+          connection
+        );
+        connection.subscribe(player);
+        player.play(createAudioResource(Readable.from(audio)));
+      }
+      return await select.edit({
+        content: !files.length
+          ? assist.response.text ?? select.language.get("GOOGLE_NO_RESPONSE")
+          : undefined,
+        files,
+        components,
+      });
     }
 
     if (select.customId.startsWith(`snooze:${select.author.id}:`)) {

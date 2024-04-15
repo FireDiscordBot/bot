@@ -11,7 +11,12 @@ import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { MessageActionRow, MessageButton, SnowflakeUtil } from "discord.js";
+import {
+  MessageActionRow,
+  MessageButton,
+  MessageSelectMenu,
+  SnowflakeUtil,
+} from "discord.js";
 import { Readable } from "stream";
 
 enum GoogleAssistantActions {
@@ -133,24 +138,22 @@ export default class Google extends Command {
     }
     let components: MessageActionRow[] = [],
       files = [];
-    if (assist.response.suggestions) {
+    if (assist.response.suggestions)
       components.push(
         new MessageActionRow().addComponents(
-          assist.response.suggestions
-            .filter(
-              (suggestion) =>
-                suggestion.length <=
-                100 - `!google:${command.author.id}:`.length
+          new MessageSelectMenu()
+            .setCustomId(`!google:${command.author.id}`)
+            .setPlaceholder(command.language.get("GOOGLE_SUGGESTIONS"))
+            .setOptions(
+              assist.response.suggestions.map((suggestion) => ({
+                label: suggestion,
+                value: suggestion,
+              }))
             )
-            .map((suggestion) =>
-              new MessageButton()
-                .setStyle("PRIMARY")
-                .setLabel(suggestion)
-                .setCustomId(`!google:${command.author.id}:${suggestion}`)
-            )
+            .setMinValues(1)
+            .setMaxValues(1)
         )
       );
-    }
     if (
       useDefaultCreds &&
       command.author.hasExperiment(2100999090, 1) &&
