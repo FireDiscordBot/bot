@@ -187,7 +187,7 @@ export default class Google extends Command {
       // author voice will give voice state for any guild on the same cluster
       // so it's a nice little bonus if you happen to be in a vc
       // in one server and run the command in another on the same cluster
-      (command.member ?? command.author).voice.channelId;
+      (command.member ?? command.author).voice?.channelId;
     if (canPlayAudio) {
       const state = (command.member ?? command.author).voice;
       const audio = Buffer.from(assist.response.audio.data);

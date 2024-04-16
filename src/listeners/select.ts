@@ -205,19 +205,21 @@ export default class Select extends Listener {
         files.push({ attachment: screenshot, name: "google.png" });
       }
       const canPlayAudio =
-        assist.response.audio && select.member?.voice.channelId;
+        assist.response.audio &&
+        (select.member ?? select.author).voice?.channelId;
       if (canPlayAudio) {
+        const state = (select.member ?? select.author).voice;
         const audio = Buffer.from(assist.response.audio.data);
         const connection =
-          getVoiceConnection(select.guild.id) ??
+          getVoiceConnection(state.guild.id) ??
           joinVoiceChannel({
-            channelId: select.member.voice.channelId,
-            guildId: select.guild.id,
+            channelId: state.channelId,
+            guildId: state.guild.id,
             // @ts-ignore
-            adapterCreator: select.guild.voiceAdapterCreator,
+            adapterCreator: state.guild.voiceAdapterCreator,
           });
         const player = this.client.util.createAssistantAudioPlayer(
-          select.member,
+          state.member as FireMember,
           connection
         );
         connection.subscribe(player);
