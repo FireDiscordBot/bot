@@ -52,7 +52,7 @@ export class FireUser extends User {
   get voice() {
     return this.client.guilds.cache
       .find((g) => g.voiceStates.cache.has(this.id))
-      .voiceStates.cache.get(this.id);
+      ?.voiceStates.cache.get(this.id);
   }
 
   toString() {
