@@ -6,6 +6,7 @@ import {
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
@@ -182,19 +183,24 @@ export default class Google extends Command {
       files.push({ attachment: screenshot, name: "google.png" });
     }
     const canPlayAudio =
-      assist.response.audio && command.member?.voice.channelId;
+      assist.response.audio &&
+      // author voice will give voice state for any guild on the same cluster
+      // so it's a nice little bonus if you happen to be in a vc
+      // in one server and run the command in another on the same cluster
+      (command.member ?? command.author).voice.channelId;
     if (canPlayAudio) {
+      const state = (command.member ?? command.author).voice;
       const audio = Buffer.from(assist.response.audio.data);
       const connection =
-        getVoiceConnection(command.guild.id) ??
+        getVoiceConnection(state.guild.id) ??
         joinVoiceChannel({
-          channelId: command.member.voice.channelId,
-          guildId: command.guild.id,
+          channelId: state.channelId,
+          guildId: state.guild.id,
           // @ts-ignore
-          adapterCreator: command.guild.voiceAdapterCreator,
+          adapterCreator: state.guild.voiceAdapterCreator,
         });
       const player = this.client.util.createAssistantAudioPlayer(
-        command.member,
+        state.member as FireMember,
         connection
       );
       connection.subscribe(player);

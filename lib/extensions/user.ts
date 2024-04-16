@@ -49,6 +49,12 @@ export class FireUser extends User {
       : this.displayName ?? this.toString();
   }
 
+  get voice() {
+    return this.client.guilds.cache
+      .find((g) => g.voiceStates.cache.has(this.id))
+      .voiceStates.cache.get(this.id);
+  }
+
   toString() {
     return (this.discriminator == "0"
       ? this.username
