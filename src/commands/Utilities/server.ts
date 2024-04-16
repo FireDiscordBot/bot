@@ -4,7 +4,10 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { constants, zws } from "@fire/lib/util/constants";
-import { snowflakeConverter } from "@fire/lib/util/converters";
+import {
+  guildPreviewConverter,
+  snowflakeConverter,
+} from "@fire/lib/util/converters";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import * as centra from "centra";
 import {
@@ -311,10 +314,18 @@ export default class GuildCommand extends Command {
       invite = args.guild as unknown as InviteWithGuildCounts;
       args.guild = invite.guild as FireGuild | InviteGuildWithCounts;
     }
-    if (!command.guild && !args.guild)
-      return await command.error("GUILD_INPUT_REQUIRED", {
-        invite: this.client.config.inviteLink,
-      });
+    if (!command.guild && !args.guild) {
+      if (!command.guildId)
+        return await command.error("GUILD_INPUT_REQUIRED", {
+          invite: this.client.config.inviteLink,
+        });
+      const preview = await guildPreviewConverter(command, command.guildId);
+      if (preview) args.guild = preview;
+      else
+        return await command.error("GUILD_INPUT_REQUIRED", {
+          invite: this.client.config.inviteLink,
+        });
+    }
     if (!args.guild && typeof args.guild != "undefined") return;
     const guild = args.guild ? args.guild : command.guild;
 

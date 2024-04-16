@@ -106,7 +106,7 @@ export const emojiConverter = async (
 };
 
 export const guildPreviewConverter = async (
-  message: FireMessage,
+  message: FireMessage | ApplicationCommandMessage,
   argument: string,
   silent = false
 ): Promise<GuildPreview | FireGuild> => {
