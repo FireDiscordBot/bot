@@ -53,6 +53,8 @@ export default class TicTacToe extends Command {
         {
           id: "opponent",
           type: "userSilent",
+          description: (language: Language) =>
+            language.get("TICTACTOE_ARGUMENT_OPPONENT_DESCRIPTION"),
           default: null,
           required: true,
         },
@@ -66,6 +68,12 @@ export default class TicTacToe extends Command {
   }
 
   async run(command: ApplicationCommandMessage, args: { opponent?: FireUser }) {
+    if (command instanceof ApplicationCommandMessage) {
+      const message = await command.getRealMessage();
+      if (message.flags.has("EPHEMERAL"))
+        return await command.error("TICTACTOE_UNABLE_TO_PLAY_HERE");
+    }
+
     if (!args.opponent || args.opponent?.id == command.author.id)
       return await command.error("TICTACTOE_OPPONENT_REQUIRED");
 
