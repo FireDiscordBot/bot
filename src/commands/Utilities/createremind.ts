@@ -135,14 +135,18 @@ export default class RemindersCreate extends Command {
       if (
         !parsed.length &&
         clickedMessage.embeds.length &&
-        clickedMessage.content.includes(clickedMessage.embeds[0].url) &&
+        clickedMessage.content
+          .replace("x.com", "twitter.com")
+          .includes(clickedMessage.embeds[0].url) &&
         clickedMessage.embeds[0].description
       )
         // possibly a linked tweet or other social media post, use that instead
         (parsed = strict.parse(
           clickedMessage.embeds[0].description,
           {
-            instant: clickedMessage.createdAt,
+            instant: clickedMessage.embeds[0].timestamp
+              ? new Date(clickedMessage.embeds[0].timestamp)
+              : clickedMessage.createdAt,
             timezone: dayjs
               .tz(
                 date,
@@ -158,7 +162,14 @@ export default class RemindersCreate extends Command {
           }
         )),
           (useEmbedDescription = true);
-      parsed = parsed.filter((res) => res.start.date() > command.createdAt);
+      parsed = parsed
+        // Remove timex in the past, based on command reaction (probably not too far off current time)
+        .filter((res) => res.start.date() > command.createdAt)
+        // Remove duplicate times (e.g. when the same time is mentioned in multiple timezones)
+        .filter(
+          (res, index, self) =>
+            self.findIndex((r) => +r.start.date() == +res.start.date()) == index
+        );
       let reminderText = useEmbedDescription
         ? clickedMessage.embeds[0].description
         : clickedMessage.content;
