@@ -200,7 +200,7 @@ export default class Google extends Command {
           adapterCreator: state.guild.voiceAdapterCreator,
         });
       const player = this.client.util.createAssistantAudioPlayer(
-        state.member as FireMember,
+        command.member ?? command.author,
         connection
       );
       connection.subscribe(player);
