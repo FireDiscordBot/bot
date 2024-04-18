@@ -243,9 +243,12 @@ export class Util extends ClientUtil {
     else return body as MojangProfile;
   }
 
-  createAssistantAudioPlayer(member: FireMember, connection: VoiceConnection) {
-    if (this.assistantAudioPlayers.has(member.id))
-      return this.assistantAudioPlayers.get(member.id);
+  createAssistantAudioPlayer(
+    user: FireMember | FireUser,
+    connection: VoiceConnection
+  ) {
+    if (this.assistantAudioPlayers.has(user.id))
+      return this.assistantAudioPlayers.get(user.id);
     const player = createAudioPlayer({
       behaviors: {
         noSubscriber: NoSubscriberBehavior.Pause,
@@ -261,12 +264,12 @@ export class Util extends ClientUtil {
           try {
             connection.destroy();
             player.stop(true);
-            this.client.util.assistantAudioPlayers.delete(member.id);
+            this.client.util.assistantAudioPlayers.delete(user.id);
           } catch {}
         }
       }
     });
-    this.assistantAudioPlayers.set(member.id, player);
+    this.assistantAudioPlayers.set(user.id, player);
     return player;
   }
 
