@@ -591,8 +591,18 @@ export default class MCLogs extends Module {
         else optifineMatch = null;
       }
       this.regexes.optifine.lastIndex = 0;
-      if (optifineMatch && optifineMatch?.groups?.mcver == mcVersion)
+      if (optifineMatch && optifineMatch?.groups?.mcver == mcVersion) {
         optifineVersion = optifineMatch.groups.ofver.replace("_", " ").trim();
+        if (loader == Loaders.FORGE)
+          mods.push({
+            state: "Unknown",
+            modId: "optifine",
+            version: optifineVersion,
+            source: `${optifineMatch}.jar`,
+            erroredDependencies: [],
+            partial: false,
+          });
+      }
     }
 
     if (
@@ -1153,56 +1163,54 @@ export default class MCLogs extends Module {
       if (versions.optifineVersion && versions.loader == Loaders.FORGE) {
         let optifineVersions =
           this.client.manager.state.optifineVersions?.[versions.mcVersion];
-        const current = optifineVersions.find(
+        const current = optifineVersions?.find(
           (v) => v.shortName == versions.optifineVersion
         );
-        if (optifineVersions?.length) {
-          if (current)
-            optifineVersions = optifineVersions.filter((v) => {
-              // idek how current.forgeVersion can be false if versions.loader == Loaders.FORGE
-              // but FIRE-8PS exists so it's possible.... somehow
-              if (!v.forgeVersion || !current.forgeVersion) return false;
-              const [loaderMajor, loaderMinor] = versions.loaderVersion
-                .split(".")
-                .slice(-2)
-                .map(Number);
-              const [currentMajor, currentMinor] = current.forgeVersion
-                .split(".")
-                .slice(-2)
-                .map(Number);
+        if (optifineVersions?.length && current)
+          optifineVersions = optifineVersions.filter((v) => {
+            // idek how current.forgeVersion can be false if versions.loader == Loaders.FORGE
+            // but FIRE-8PS exists so it's possible.... somehow
+            if (!v.forgeVersion || !current.forgeVersion) return false;
+            const [loaderMajor, loaderMinor] = versions.loaderVersion
+              .split(".")
+              .slice(-2)
+              .map(Number);
+            const [currentMajor, currentMinor] = current.forgeVersion
+              .split(".")
+              .slice(-2)
+              .map(Number);
 
-              const isPreRelease = v.shortName.includes("pre");
-              const majorDiff = loaderMajor - currentMajor;
-              const minorDiff = loaderMinor - currentMinor;
+            const isPreRelease = v.shortName.includes("pre");
+            const majorDiff = loaderMajor - currentMajor;
+            const minorDiff = loaderMinor - currentMinor;
 
-              if (isPreRelease) {
-                if (versions.optifineVersion.includes("pre")) {
-                  return v.forgeVersion <= versions.loaderVersion;
-                } else {
-                  return (
-                    (majorDiff >= 1 || minorDiff >= 10) &&
-                    v.forgeVersion > current.forgeVersion
-                  );
-                }
-              } else {
+            if (isPreRelease) {
+              if (versions.optifineVersion.includes("pre")) {
                 return v.forgeVersion <= versions.loaderVersion;
+              } else {
+                return (
+                  (majorDiff >= 1 || minorDiff >= 10) &&
+                  v.forgeVersion > current.forgeVersion
+                );
               }
-            });
+            } else {
+              return v.forgeVersion <= versions.loaderVersion;
+            }
+          });
 
-          if (
-            optifineVersions.length &&
-            optifineVersions[0].shortName != versions.optifineVersion
-          )
-            currentSolutions.add(
-              "- **" +
-                language.get("MC_LOG_UPDATE", {
-                  item: "OptiFine",
-                  current: versions.optifineVersion,
-                  latest: optifineVersions[0].shortName,
-                }) +
-                "**"
-            );
-        }
+        if (
+          optifineVersions.length &&
+          optifineVersions[0].shortName != versions.optifineVersion
+        )
+          currentSolutions.add(
+            "- **" +
+              language.get("MC_LOG_UPDATE", {
+                item: "OptiFine",
+                current: versions.optifineVersion,
+                latest: optifineVersions[0].shortName,
+              }) +
+              "**"
+          );
       }
     } else if (versions?.loader == Loaders.OPTIFINE) {
       let optifineVersions =
