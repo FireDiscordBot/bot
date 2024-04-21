@@ -9,6 +9,7 @@ import {
   DMChannel,
   GuildChannel,
   MessageEmbed,
+  PermissionFlags,
   Permissions,
   PermissionString,
 } from "discord.js";
@@ -99,8 +100,13 @@ export default class Debug extends Command {
     const details: string[] = [];
 
     const clientMissing =
-      channel instanceof DMChannel
-        ? (cmd.clientPermissions as PermissionString[])
+      channel instanceof DMChannel || (command.guildId && !command.guild)
+        ? new Permissions(
+            cmd.clientPermissions as BitFieldResolvable<
+              PermissionString,
+              bigint
+            >
+          ).toArray()
         : channel
             .permissionsFor(this.client.user)
             .missing(
@@ -110,8 +116,13 @@ export default class Debug extends Command {
               >
             );
     const userMissing =
-      channel instanceof DMChannel
-        ? (cmd.userPermissions as PermissionString[])
+      channel instanceof DMChannel || (command.guildId && !command.guild)
+        ? new Permissions(
+            cmd.clientPermissions as BitFieldResolvable<
+              PermissionString,
+              bigint
+            >
+          ).toArray()
         : channel
             .permissionsFor(command.member)
             .missing(
