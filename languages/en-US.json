@@ -553,6 +553,7 @@
   "GOOGLE_AUTHENTICATE_DONT": "Don't prompt to authenticate",
   "GOOGLE_AUTHNOT": "You will no longer see the button to link a Google account",
   "GOOGLE_AUTH_ERROR": "Failed to get authentication link",
+  "GOOGLE_AUTH_ERROR_ALREADY_AUTHENTICATED": "You have already linked your account. If you wish to remove it, you can do so from [Google's Account Management](<https://myaccount.google.com/security>)",
   "GOOGLE_LOADING": "Asking Google Assistant...",
   "GUILDUPDATELOG_AUTHOR": "Server Update | {{name}}",
   "GUILDUPDATELOG_ICON_CHANGED": "Icon Changed",
