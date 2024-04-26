@@ -142,8 +142,6 @@ export default class Quote extends Command {
       }
       return;
     }
-    if (args.quote.content.length > 2000)
-      return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
     let webhook: ThreadhookClient;
     if (args.webhook) {
       const match = regexes.discord.webhook.exec(args.webhook);
@@ -157,6 +155,9 @@ export default class Quote extends Command {
         .quote(args.destination, args.quoter, webhook, debugMessages)
         .catch(() => {});
     }
+    if (!message) return; // we shouldn't get here without one
+    if (args.quote.content.length > 2000)
+      return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
     const quoted = await args.quote
       .quote(
         message instanceof ApplicationCommandMessage
