@@ -35,14 +35,18 @@ export default class CrossClusterQuoteEvent extends Event {
     if (!quoteCommand) return;
     const link = `${data.guild_id}/${data.channel_id}/${data.message_id}`;
     if (quoteCommand && quoteCommand.savedQuotes.has(link)) {
+      const guild = this.manager.client.guilds.cache.get(destination.guild_id);
       const saved = quoteCommand.savedQuotes.get(link);
-      if (saved instanceof FireMessage && saved.savedToQuoteBy == data.quoter)
+      if (saved instanceof FireMessage && saved.savedToQuoteBy == data.quoter) {
+        const quoter = (await guild.members.fetch(data.quoter)) as FireMember;
         return await quoteCommand.exec(null, {
           quote: saved,
+          quoter: quoter,
           webhook: data.webhook,
           debug: data.debug,
           destination,
         });
+      }
     }
     const guild = this.manager.client.guilds.cache.get(data.guild_id);
     if (!guild) return;
@@ -62,11 +66,7 @@ export default class CrossClusterQuoteEvent extends Event {
         `[Aether] Attempted cross cluster quote with unknown channel`
       );
     const message = await channel.messages
-      .fetch({
-        limit: 1,
-        around: data.message_id,
-      })
-      .then((collection) => collection.first())
+      .fetch(data.message_id)
       .catch(() => {});
     if (!message)
       return this.manager.client.console.warn(
