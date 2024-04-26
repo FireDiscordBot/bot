@@ -263,7 +263,6 @@ export default class Quote extends Command {
       messageToSave
     );
 
-    // temp
     return await command.success("QUOTE_SAVED_SUCCESS", {
       components: [
         new MessageActionRow().addComponents(
