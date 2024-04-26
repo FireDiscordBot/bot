@@ -357,7 +357,9 @@ export const messageConverter = async (
   }
 
   const quoteCommand = message.client.getCommand("quote") as Quote;
-  const link = `${linkMatch?.groups?.guild_id}/${linkMatch?.groups?.channel_id}/${linkMatch?.groups?.message_id}`;
+  const link = `${(linkMatch?.groups ?? groups)?.guild_id}/${
+    (linkMatch?.groups ?? groups)?.channel_id
+  }/${(linkMatch?.groups ?? groups)?.message_id}`;
   if (quoteCommand && quoteCommand.savedQuotes.has(link)) {
     const saved = quoteCommand.savedQuotes.get(link);
     if (
