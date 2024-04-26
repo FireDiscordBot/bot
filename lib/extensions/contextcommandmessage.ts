@@ -664,9 +664,7 @@ export class FakeChannel extends BaseFakeChannel {
     //   }
     // }
 
-    if (this.real instanceof DMChannel && (data.flags & 64) == 64)
-      data.flags -= 64;
-    else if (this.message.author.settings.get("utils.incognito", false))
+    if (this.message.author.settings.get("utils.incognito", false))
       data.flags = 64;
 
     if (!this.message.sent)

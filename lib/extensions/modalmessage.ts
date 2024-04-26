@@ -401,11 +401,8 @@ export class FakeChannel extends BaseFakeChannel {
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
 
-    if (
-      (files?.length || this.real instanceof DMChannel) &&
-      (data.flags & 64) == 64
-    )
-      data.flags -= 64;
+    if (this.message.author.settings.get("utils.incognito", false))
+      data.flags = 64;
 
     const message = await this.client.req
       .webhooks(this.client.user.id)(this.token)
@@ -446,11 +443,8 @@ export class FakeChannel extends BaseFakeChannel {
     data.flags = this.flags;
     if (typeof flags == "number") data.flags = flags;
 
-    if (
-      (files?.length || this.real instanceof DMChannel) &&
-      (data.flags & 64) == 64
-    )
-      data.flags -= 64;
+    if (this.message.author.settings.get("utils.incognito", false))
+      data.flags = 64;
 
     await this.client.req
       .interactions(this.interactionId)(this.token)
