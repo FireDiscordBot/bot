@@ -214,8 +214,8 @@ export default class Quote extends Command {
 
     if (
       command.contextCommand.commandName.endsWith("(Preview)") &&
-      !interaction.rawGuild.features.includes("DISCOVERABLE") &&
-      !constants.allowedInvites.includes(interaction.rawGuild.id) &&
+      !interaction.rawGuild?.features.includes("DISCOVERABLE") &&
+      !constants.allowedInvites.includes(interaction.rawGuild?.id) &&
       !command.author.isSuperuser()
     )
       return await command.error("QUOTE_SAVE_PREVIEW_NOT_DISCOVERABLE");
