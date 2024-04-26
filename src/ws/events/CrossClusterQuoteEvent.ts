@@ -2,6 +2,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { FireUser } from "@fire/lib/extensions/user";
 import {
   MessageLinkMatch,
   PartialQuoteDestination,
@@ -38,7 +39,9 @@ export default class CrossClusterQuoteEvent extends Event {
       const guild = this.manager.client.guilds.cache.get(destination.guild_id);
       const saved = quoteCommand.savedQuotes.get(link);
       if (saved instanceof FireMessage && saved.savedToQuoteBy == data.quoter) {
-        const quoter = (await guild.members.fetch(data.quoter)) as FireMember;
+        const quoter = guild
+          ? ((await guild.members.fetch(data.quoter)) as FireMember)
+          : ((await this.manager.client.users.fetch(data.quoter)) as FireUser);
         return await quoteCommand.exec(null, {
           quote: saved,
           quoter: quoter,

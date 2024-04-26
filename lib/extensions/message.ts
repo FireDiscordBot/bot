@@ -400,7 +400,7 @@ export class FireMessage extends Message {
 
   async quote(
     destination: GuildTextBasedChannel | PartialQuoteDestination,
-    quoter: FireMember,
+    quoter: FireMember | FireUser,
     webhook?: WebhookClient,
     debug?: string[]
   ) {
@@ -446,6 +446,14 @@ export class FireMessage extends Message {
     } else if (this.channel.type == "DM") {
       if (debug) debug.push("Message is in DMs");
       return "dm";
+    }
+
+    if (quoter instanceof FireUser) {
+      if (debug)
+        debug.push(
+          "Quoter is FireUser and message was not saved, can't continue with permission checks"
+        );
+      return "permissions";
     }
 
     const channel =
@@ -541,7 +549,7 @@ export class FireMessage extends Message {
     destination:
       | Exclude<GuildTextBasedChannel, ThreadChannel>
       | PartialQuoteDestination,
-    quoter: FireMember,
+    quoter: FireMember | FireUser,
     webhook?: WebhookClient,
     thread?: ThreadChannel,
     debug?: string[],
@@ -626,13 +634,17 @@ export class FireMessage extends Message {
     const ATTACH_FILES = Permissions.FLAGS.ATTACH_FILES,
       EMBED_LINKS = Permissions.FLAGS.EMBED_LINKS;
     const canAttach =
-      destination instanceof GuildChannel
+      destination instanceof GuildChannel && quoter instanceof FireMember
         ? quoter.permissionsIn(destination).has(ATTACH_FILES)
-        : (BigInt(destination.permissions) & ATTACH_FILES) == ATTACH_FILES;
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            ATTACH_FILES) ==
+          ATTACH_FILES;
     const canEmbed =
-      destination instanceof GuildChannel
+      destination instanceof GuildChannel && quoter instanceof FireMember
         ? quoter.permissionsIn(destination).has(EMBED_LINKS)
-        : (BigInt(destination.permissions) & EMBED_LINKS) == EMBED_LINKS;
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            EMBED_LINKS) ==
+          EMBED_LINKS;
     if (!canEmbed && content)
       content = content.replace(regexes.basicURL, (m) => `<${m}>`);
     if (!content && this.attachments.size && canAttach)
@@ -827,7 +839,7 @@ export class FireMessage extends Message {
 
   private async embedQuote(
     destination: GuildTextBasedChannel | PartialQuoteDestination,
-    quoter: FireMember,
+    quoter: FireMember | FireUser,
     debug?: string[]
   ) {
     // PartialQuoteDestination needs to be set for type here
@@ -860,7 +872,10 @@ export class FireMessage extends Message {
         .fetch(this.author)
         .catch(() => null)) as FireMember);
     const embed = new MessageEmbed()
-      .setColor(member?.displayColor || quoter.displayColor)
+      .setColor(
+        member?.displayColor ||
+          (quoter instanceof FireMember ? quoter.displayColor : null)
+      )
       .setTimestamp(this.createdAt)
       .setAuthor({
         name: member
@@ -888,15 +903,23 @@ export class FireMessage extends Message {
       language.get("JUMP_URL"),
       `[${language.get("CLICK_TO_VIEW")}](${this.url})`
     );
+    const ATTACH_FILES = Permissions.FLAGS.ATTACH_FILES;
     if (
       this.attachments?.size &&
-      quoter
-        .permissionsIn(
-          destination instanceof BaseFakeChannel
-            ? (destination.real as GuildTextBasedChannel)
-            : destination
-        )
-        .has(Permissions.FLAGS.ATTACH_FILES)
+      (quoter instanceof FireMember
+        ? quoter
+            .permissionsIn(
+              destination instanceof BaseFakeChannel
+                ? (destination.real as GuildTextBasedChannel)
+                : destination
+            )
+            .has(ATTACH_FILES)
+        : (BigInt(
+            (destination as unknown as PartialQuoteDestination)?.permissions ||
+              "0"
+          ) &
+            ATTACH_FILES) ==
+          ATTACH_FILES)
     ) {
       if (
         this.attachments.size == 1 &&

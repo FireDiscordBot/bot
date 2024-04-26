@@ -4,6 +4,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireMessageContextMenuInteraction } from "@fire/lib/extensions/messagecontextmenuinteraction";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { FireUser } from "@fire/lib/extensions/user";
 import {
   MessageLinkMatch,
   PartialQuoteDestination,
@@ -66,7 +67,7 @@ export default class Quote extends Command {
     message?: FireMessage,
     args?: {
       destination?: PartialQuoteDestination;
-      quoter?: FireMember;
+      quoter?: FireMember | FireUser;
       quote: FireMessage | "cross_cluster";
       webhook?: string;
       debug?: boolean;
@@ -144,7 +145,7 @@ export default class Quote extends Command {
     if (args.quote.content.length > 2000)
       return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
     let webhook: ThreadhookClient;
-    if (args.webhook && args.quoter) {
+    if (args.webhook) {
       const match = regexes.discord.webhook.exec(args.webhook);
       regexes.discord.webhook.lastIndex = 0;
       if (!match?.groups.id || !match?.groups.token) return;
