@@ -1,28 +1,29 @@
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
+import Quote from "@fire/src/commands/Utilities/quote";
+import * as centra from "centra";
 import {
-  DeconstructedSnowflake,
-  FetchMembersOptions,
   CategoryChannel,
+  Collection,
+  DeconstructedSnowflake,
+  Emoji,
+  FetchMembersOptions,
+  GuildChannel,
+  GuildEmoji,
+  GuildPreview,
+  Role,
+  Snowflake,
   SnowflakeUtil,
   StageChannel,
-  GuildChannel,
-  GuildPreview,
-  GuildEmoji,
-  Collection,
-  Snowflake,
-  Emoji,
-  Role,
-  VoiceChannel,
   ThreadChannel,
+  VoiceChannel,
 } from "discord.js";
-import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireTextChannel } from "../extensions/textchannel";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { FireUser } from "@fire/lib/extensions/user";
-import { constants } from "./constants";
 import * as fuzz from "fuzzball";
-import * as centra from "centra";
+import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
+import { FireTextChannel } from "../extensions/textchannel";
+import { constants } from "./constants";
 
 const messageIdRegex =
   /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
@@ -353,6 +354,17 @@ export const messageConverter = async (
   if (!linkMatch && !idMatch && !groups?.message_id) {
     if (!silent) await message.error("INVALID_MESSAGE");
     return null;
+  }
+
+  const quoteCommand = message.client.getCommand("quote") as Quote;
+  const link = `${linkMatch?.groups?.guild_id}/${linkMatch?.groups?.channel_id}/${linkMatch?.groups?.message_id}`;
+  if (quoteCommand && quoteCommand.savedQuotes.has(link)) {
+    const saved = quoteCommand.savedQuotes.get(link);
+    if (
+      saved instanceof FireMessage &&
+      saved.savedToQuoteBy == message.author.id
+    )
+      return saved;
   }
 
   if (

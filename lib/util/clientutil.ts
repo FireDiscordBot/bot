@@ -179,6 +179,7 @@ export class Util extends ClientUtil {
   }
 
   getShard(guild: string | FireGuild) {
+    if (guild == "@me") return 0; // DMs are always on shard 0
     const id = guild instanceof FireGuild ? guild.id : guild;
     return Number((BigInt(id) >> 22n) % BigInt(this.client.options.shardCount));
   }

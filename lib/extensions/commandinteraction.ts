@@ -20,8 +20,7 @@ import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
 import { FireUser } from "./user";
 
-interface TransformedOptionResult<Cached extends CacheType = CacheType>
-  extends CommandInteractionOption {
+interface TransformedOptionResult extends CommandInteractionOption {
   type: ApplicationCommandOptionType;
   options?: TransformedOptionResult[];
   attachment?: MessageAttachment;
@@ -35,9 +34,7 @@ type ResolvedData = CommandInteractionResolvedData & {
   attachments?: Collection<Snowflake, MessageAttachment>;
 };
 
-export class CommandInteractionOptionResolver<
-  Cached extends CacheType = CacheType
-> extends CommandInteractionOptionResolverBase {
+export class CommandInteractionOptionResolver extends CommandInteractionOptionResolverBase {
   public declare readonly resolved: Readonly<ResolvedData>;
   // public getAttachment(
   //   name: string,
@@ -73,79 +70,6 @@ export class CommandInteraction extends CommandInteractionBase {
     //     ) ?? [],
     //     this.transformResolvedAgain(data.data.resolved ?? {})
     //   );
-  }
-
-  private transformResolvedAgain({
-    members,
-    users,
-    channels,
-    roles,
-    messages,
-    attachments,
-  }: APIInteractionDataResolved) {
-    const result: ResolvedData = {};
-
-    if (members) {
-      result.members = new Collection();
-      for (const [id, member] of Object.entries(members)) {
-        const user = users[id];
-        result.members.set(
-          id,
-          // @ts-ignore
-          this.guild?.members._add({ user, ...member }) ?? member
-        );
-      }
-    }
-
-    if (users) {
-      result.users = new Collection();
-      for (const user of Object.values(users)) {
-        // @ts-ignore
-        result.users.set(user.id, this.client.users._add(user));
-      }
-    }
-
-    if (roles) {
-      result.roles = new Collection();
-      for (const role of Object.values(roles)) {
-        // @ts-ignore
-        result.roles.set(role.id, this.guild?.roles._add(role) ?? role);
-      }
-    }
-
-    if (channels) {
-      result.channels = new Collection();
-      for (const channel of Object.values(channels)) {
-        result.channels.set(
-          channel.id,
-          // @ts-ignore
-          this.client.channels._add(channel, this.guild) ?? channel
-        );
-      }
-    }
-
-    if (messages) {
-      result.messages = new Collection();
-      for (const message of Object.values(messages)) {
-        result.messages.set(
-          message.id,
-          // @ts-ignore
-          this.channel?.messages?._add(message) ?? message
-        );
-      }
-    }
-
-    if (attachments) {
-      result.attachments = new Collection();
-      for (const attachment of Object.values(attachments)) {
-        result.attachments.set(
-          attachment.id,
-          new MessageAttachment(attachment.url, attachment.filename, attachment)
-        );
-      }
-    }
-
-    return result;
   }
 
   private transformOptionAgain(

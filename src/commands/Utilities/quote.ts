@@ -1,31 +1,40 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireMessageContextMenuInteraction } from "@fire/lib/extensions/messagecontextmenuinteraction";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import {
   MessageLinkMatch,
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
 import { Command } from "@fire/lib/util/command";
-import { constants, GuildTextChannel } from "@fire/lib/util/constants";
+import { GuildTextChannel, constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
 import { Message } from "@fire/lib/ws/Message";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { MessageEmbed, Permissions, Snowflake } from "discord.js";
+import { EventType } from "@fire/lib/ws/util/constants";
+import {
+  Collection,
+  Constants,
+  GuildChannelResolvable,
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  Permissions,
+  Snowflake,
+} from "discord.js";
 
 const { regexes } = constants;
 
 export default class Quote extends Command {
+  savedQuotes: Collection<string, FireMessage>;
+
   constructor() {
     super("quote", {
       description: (language: Language) =>
         language.get("QUOTE_COMMAND_DESCRIPTION"),
-      clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
-      ],
       args: [
         {
           id: "quote",
@@ -40,8 +49,17 @@ export default class Quote extends Command {
           default: false,
         },
       ],
-      restrictTo: "guild",
+      context: ["save to quote", "save to quote (preview)"],
+      restrictTo: "all", // required for context cmd
+      ephemeral: true, // context only
     });
+
+    this.savedQuotes = new Collection();
+    setInterval(() => {
+      this.savedQuotes.sweep(
+        (quote) => quote.quoteSavedAt < +new Date() - 60000
+      );
+    }, 30000);
   }
 
   async exec(
@@ -54,6 +72,10 @@ export default class Quote extends Command {
       debug?: boolean;
     }
   ) {
+    if (!message.guild)
+      return await message.error("COMMAND_GUILD_ONLY", {
+        invite: this.client.config.inviteLink,
+      });
     if (!args?.quote) return;
     let debugMessages: string[];
     if (args.debug) debugMessages = [];
@@ -160,5 +182,96 @@ export default class Quote extends Command {
       else if (content.length <= 2000)
         return await message.channel.send(content);
     }
+  }
+
+  // Slash & Context commands will always try Command#run first
+  // so we can use that to have a separate context handler as quote is not a slash command
+  async run(command: ContextCommandMessage) {
+    command.flags = 64;
+
+    if (
+      command.guild &&
+      command.guild.members.me
+        .permissionsIn(command.channel.real as GuildChannelResolvable)
+        .has(Permissions.FLAGS.VIEW_CHANNEL)
+    )
+      return await command.error("QUOTE_SAVE_NOT_NEEDED");
+
+    const interaction =
+        command.contextCommand as FireMessageContextMenuInteraction,
+      messageToSave = command.getMessage() as FireMessage;
+
+    // Currently, we need either content, embeds or attachments for a message to be quoted
+    if (
+      !messageToSave.content &&
+      !messageToSave.embeds.length &&
+      !messageToSave.attachments.size &&
+      !messageToSave.components.length
+    )
+      return await command.error("QUOTE_NO_CONTENT_TO_SAVE");
+
+    if (
+      !interaction.rawGuild.features.includes("DISCOVERABLE") &&
+      !constants.allowedInvites.includes(interaction.rawGuild.id) &&
+      !command.author.isSuperuser()
+    )
+      return await command.error("QUOTE_SAVE_PREVIEW_NOT_DISCOVERABLE");
+
+    const currenlySaved = this.savedQuotes.filter(
+      (q) => q.savedToQuoteBy == command.author.id
+    );
+    if (currenlySaved.size > 5 && !command.author.premium) {
+      const sortedByDate = currenlySaved
+        .sort((a, b) => a.quoteSavedAt - b.quoteSavedAt)
+        .map((q) => q.id);
+      this.savedQuotes.sweep(
+        (q) =>
+          sortedByDate.indexOf(q.id) < sortedByDate.length - 5 &&
+          q.savedToQuoteBy == command.author.id
+      );
+    } else if (currenlySaved.size > 10 && !command.author.isSuperuser()) {
+      const sortedByDate = currenlySaved
+        .sort((a, b) => a.quoteSavedAt - b.quoteSavedAt)
+        .map((q) => q.id);
+      this.savedQuotes.sweep(
+        (q) =>
+          sortedByDate.indexOf(q.id) < sortedByDate.length - 10 &&
+          q.savedToQuoteBy == command.author.id
+      );
+    }
+
+    const rawChannel = interaction.rawChannel;
+    const channelType = Constants.ChannelTypes[rawChannel.type];
+
+    messageToSave.isSavedToQuote = true; // used to identify a saved message
+    messageToSave.savedToQuoteBy = command.author.id; // used to identify who saved the message
+    messageToSave.quoteSavedAt = +new Date();
+    messageToSave.savedQuoteData = {
+      nsfw: "nsfw" in rawChannel ? rawChannel.nsfw : false,
+      name: "name" in rawChannel ? rawChannel.name : "Unknown",
+    };
+
+    this.savedQuotes.set(
+      `${channelType == "DM" ? "@me" : command.guildId}/${
+        messageToSave.channelId
+      }/${messageToSave.id}`,
+      messageToSave
+    );
+
+    // temp
+    return await command.success("QUOTE_SAVED_SUCCESS", {
+      components: [
+        new MessageActionRow().addComponents(
+          new MessageButton()
+            .setStyle("LINK")
+            .setLabel(command.language.get("QUOTE_SAVE_BUTTON_LABEL"))
+            .setURL(
+              `https://discord.com/channels/${
+                channelType == "DM" ? "@me" : command.guildId
+              }/${messageToSave.channelId}/${messageToSave.id}`
+            )
+        ),
+      ],
+    });
   }
 }

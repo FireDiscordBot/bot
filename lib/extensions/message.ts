@@ -24,6 +24,7 @@ import {
   NewsChannel,
   Permissions,
   ReplyMessageOptions,
+  Snowflake,
   Structures,
   ThreadChannel,
   Webhook,
@@ -43,9 +44,13 @@ const { reactions, regexes, imageExts, audioExts, videoExts } = constants;
 export class FireMessage extends Message {
   declare channel: DMChannel | FireTextChannel | NewsChannel | ThreadChannel;
   invWtfResolved: Collection<string, { invite?: string; url?: string }>;
+  savedQuoteData: { nsfw: boolean; name: string };
   declare member: FireMember;
+  savedToQuoteBy: Snowflake;
   declare guild: FireGuild;
   declare author: FireUser;
+  isSavedToQuote: boolean;
+  quoteSavedAt?: number;
   declare client: Fire;
   deleteReason: string;
   starLock: Semaphore;
@@ -57,6 +62,7 @@ export class FireMessage extends Message {
   constructor(client: Fire, data: RawMessageData) {
     super(client, data);
     this.silent = false;
+    this.isSavedToQuote = false;
     this.content = this.content ?? "";
     if (this.content?.toLowerCase().endsWith(" --silent")) {
       this.content = this.content.slice(0, this.content.length - 9).trimEnd();
@@ -398,15 +404,48 @@ export class FireMessage extends Message {
     webhook?: WebhookClient,
     debug?: string[]
   ) {
-    if (this.channel.type == "DM") {
-      if (debug) debug.push("Message is in DMs");
-      return "dm";
-    }
     let thread: ThreadChannel;
     if (destination instanceof ThreadChannel) {
       // we can't assign thread to destination since we're reassigning it
       thread = this.client.channels.cache.get(destination.id) as ThreadChannel;
       destination = destination.parent as FireTextChannel;
+    }
+
+    // Saved quotes will bypass most of this method as we don't need permission checks
+    // as you can only save a message you can see
+    if (this.isSavedToQuote) {
+      if (debug) debug.push("Saved quote, taking alternate route");
+      if (this.author.system && !quoter.isSuperuser()) {
+        if (debug) debug.push("Cannot quote a system message");
+        return "system";
+      }
+      if (this.savedQuoteData.nsfw && !destination.nsfw) return "nsfw";
+
+      const canUseAttachmentsInWebhook =
+        !this.attachments.size ||
+        // limit attachment size to 25mb for premium, 10mb for regular
+        this.attachments.filter(
+          (attachment) =>
+            attachment.size > (quoter.premium ? 26214400 : 10485760)
+        ).size == 0 ||
+        !this.content;
+      const useWebhooks =
+        (destination.guild as FireGuild).hasExperiment(3959319643, 1) &&
+        (!!webhook ||
+          ((destination.guild as FireGuild).settings.get<boolean>(
+            "utils.quotehooks",
+            true
+          ) &&
+            typeof destination.fetchWebhooks == "function" &&
+            typeof destination.createWebhook == "function")) &&
+        canUseAttachmentsInWebhook;
+
+      return useWebhooks
+        ? await this.webhookQuote(destination, quoter, webhook, thread, debug)
+        : await this.embedQuote(thread ?? destination, quoter, debug);
+    } else if (this.channel.type == "DM") {
+      if (debug) debug.push("Message is in DMs");
+      return "dm";
     }
 
     const channel =
@@ -510,8 +549,10 @@ export class FireMessage extends Message {
   ) {
     let hook: Webhook | WebhookClient = webhook;
     const filters = this.client.getModule("filters") as Filters;
-    if (!this.guild?.quoteHooks) this.guild.quoteHooks = new Collection();
-    if (!this.guild?.quoteHooks.has(destination.id)) {
+    const destinationGuild = destination.guild as FireGuild;
+    if (destinationGuild && !destinationGuild?.quoteHooks)
+      destinationGuild.quoteHooks = new Collection();
+    if (!destinationGuild?.quoteHooks.has(destination.id)) {
       const hooks =
         typeof destination.fetchWebhooks == "function"
           ? await destination.fetchWebhooks().catch(() => {})
@@ -543,7 +584,7 @@ export class FireMessage extends Message {
           return await this.embedQuote(destination, quoter);
         }
       }
-    } else hook = this.guild?.quoteHooks.get(destination.id);
+    } else hook = destinationGuild?.quoteHooks.get(destination.id);
     // if hook doesn't exist by now, something went wrong
     // and it's best to just ignore it
     if (!hook) {
@@ -552,11 +593,11 @@ export class FireMessage extends Message {
       return;
     }
     if (hook instanceof Webhook && hook.channelId != destination.id) {
-      this.guild.quoteHooks.delete(destination.id);
+      destinationGuild?.quoteHooks.delete(destination.id);
       // return to top of method, pass webhook arg as null to try avoid infinite loop
       return await this.webhookQuote(destination, quoter, null, thread, debug);
     }
-    this.guild?.quoteHooks.set(destination.id, hook);
+    destinationGuild?.quoteHooks.set(destination.id, hook);
     let content = this.system ? await this.getSystemContent() : this.content;
     if (content) {
       if (!quoter?.isSuperuser() && !this.system) {
@@ -620,7 +661,7 @@ export class FireMessage extends Message {
     }
     const member =
       this.member ??
-      ((await this.guild.members
+      ((await this.guild?.members
         .fetch(this.author)
         .catch(() => null)) as FireMember);
     let components = this.components;
@@ -805,7 +846,9 @@ export class FireMessage extends Message {
       return await destination.send({
         content: language.get("QUOTE_EMBED_FROM", {
           author: this.author.toString(),
-          channel: (this.channel as FireTextChannel).name,
+          channel: this.isSavedToQuote
+            ? this.savedQuoteData.name
+            : (this.channel as FireTextChannel).name,
         }),
         embeds: this.embeds,
       });
@@ -872,11 +915,13 @@ export class FireMessage extends Message {
       }
     }
     if (this.channel != destination) {
-      if (this.guild.id != destination.guild.id)
+      if (this.guild && this.guild.id != destination.guild.id)
         embed.setFooter(
           language.get("QUOTE_EMBED_FOOTER_ALL", {
             user: quoter.toString(),
-            channel: (this.channel as FireTextChannel).name,
+            channel: this.isSavedToQuote
+              ? this.savedQuoteData.name
+              : (this.channel as FireTextChannel).name,
             guild: this.guild.name,
           })
         );
@@ -884,7 +929,9 @@ export class FireMessage extends Message {
         embed.setFooter(
           language.get("QUOTE_EMBED_FOOTER_SOME", {
             user: quoter.toString(),
-            channel: (this.channel as FireTextChannel).name,
+            channel: this.isSavedToQuote
+              ? this.savedQuoteData.name
+              : (this.channel as FireTextChannel).name,
           })
         );
     } else

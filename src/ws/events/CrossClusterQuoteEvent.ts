@@ -33,6 +33,17 @@ export default class CrossClusterQuoteEvent extends Event {
     let { destination } = data;
     const quoteCommand = this.manager.client.getCommand("quote") as Quote;
     if (!quoteCommand) return;
+    const link = `${data.guild_id}/${data.channel_id}/${data.message_id}`;
+    if (quoteCommand && quoteCommand.savedQuotes.has(link)) {
+      const saved = quoteCommand.savedQuotes.get(link);
+      if (saved instanceof FireMessage && saved.savedToQuoteBy == data.quoter)
+        return await quoteCommand.exec(null, {
+          quote: saved,
+          webhook: data.webhook,
+          debug: data.debug,
+          destination,
+        });
+    }
     const guild = this.manager.client.guilds.cache.get(data.guild_id);
     if (!guild) return;
     destination.guild = guild as FireGuild;

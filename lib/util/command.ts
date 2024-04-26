@@ -476,208 +476,221 @@ export class Command extends AkairoCommand {
         : message.contextCommand;
     if (!this.args?.length) return {};
     const args = {};
-    for (const arg of this.args) {
-      let required = arg.required;
-      if (message instanceof ContextCommandMessage) required = false;
-      let name = this.getSlashCommandArgName(arg);
-      if (arg.flag && arg.readableType == "boolean")
-        name = arg.id.toLowerCase();
-      const type =
-        arg.flag && !arg.type
-          ? ApplicationCommandOptionType.Boolean
-          : getSlashType(arg.type.toString());
-      switch (type) {
-        case ApplicationCommandOptionType.String: {
-          args[arg.id] =
-            (interaction as CommandInteraction).options.getString(
-              name,
-              required
-            ) ?? arg.default;
-          if (
-            this.client.commandHandler.resolver.types.has(
-              arg.type.toString()
-            ) &&
-            args[arg.id]
-          ) {
+    if (message instanceof ApplicationCommandMessage) {
+      for (const arg of this.args) {
+        let required = arg.required;
+        let name = this.getSlashCommandArgName(arg);
+        if (arg.flag && arg.readableType == "boolean")
+          name = arg.id.toLowerCase();
+        const type =
+          arg.flag && !arg.type
+            ? ApplicationCommandOptionType.Boolean
+            : getSlashType(arg.type.toString());
+        switch (type) {
+          case ApplicationCommandOptionType.String: {
+            args[arg.id] =
+              (interaction as CommandInteraction).options.getString(
+                name,
+                required
+              ) ?? arg.default;
+            if (
+              this.client.commandHandler.resolver.types.has(
+                arg.type.toString()
+              ) &&
+              args[arg.id]
+            ) {
+              const resolver = this.client.commandHandler.resolver.types.get(
+                arg.type.toString()
+              ) as unknown as SlashArgumentTypeCaster;
+              args[arg.id] = await resolver(message, args[arg.id]);
+            } else if (typeof arg.type == "function" && args[arg.id]) {
+              args[arg.id] = await (
+                arg.type as unknown as SlashArgumentTypeCaster
+              ).bind(this)(
+                message,
+                interaction.options.get(name)?.value.toString()
+              );
+            } else if (arg.type instanceof RegExp) {
+              const match = (args[arg.id] as string).match(arg.type);
+              if (!match) args[arg.id] = null;
+
+              const matches: RegExpExecArray[] = [];
+
+              if (arg.type.global) {
+                let matched: RegExpExecArray;
+
+                while ((matched = arg.type.exec(args[arg.id])) != null) {
+                  matches.push(matched);
+                }
+              }
+
+              args[arg.id] = { match, matches };
+            }
+            break;
+          }
+          case ApplicationCommandOptionType.Integer: {
+            args[arg.id] =
+              (interaction as CommandInteraction).options.getInteger(
+                name,
+                required
+              ) ?? arg.default;
+            break;
+          }
+          case ApplicationCommandOptionType.Boolean: {
+            args[arg.id] =
+              (interaction as CommandInteraction).options.getBoolean(
+                name,
+                required
+              ) ?? arg.default;
+            break;
+          }
+          case ApplicationCommandOptionType.User: {
+            const hasGuild = !!interaction.guild;
+            if (mustBeMember.includes(arg.type?.toString()) && hasGuild)
+              args[arg.id] =
+                interaction.options.getMember(name, required) ?? arg.default;
+            else if (canAcceptMember.includes(arg.type?.toString()) && hasGuild)
+              args[arg.id] =
+                interaction.options.getMember(name, false) ??
+                interaction.options.getUser(name, required) ??
+                arg.default;
+            else if (mustBeMember.includes(arg.type?.toString()) && !hasGuild) {
+              const didSpecifyMember = interaction.options.getMember(
+                name,
+                false
+              );
+              if (didSpecifyMember)
+                throw new InvalidArgumentContextError(arg.id);
+              else
+                args[arg.id] =
+                  interaction.options.getUser(name, required) ?? arg.default;
+            } else
+              args[arg.id] =
+                interaction.options.getUser(name, required) ?? arg.default;
+            break;
+          }
+          case ApplicationCommandOptionType.Channel: {
+            const resolvedChannel = (
+              interaction as CommandInteraction
+            ).options.getChannel(name);
+            if (
+              resolvedChannel &&
+              this.client.channels.cache.has(resolvedChannel.id)
+            )
+              args[arg.id] = this.client.channels.cache.get(resolvedChannel.id);
+            else args[arg.id] = arg.default;
+            break;
+          }
+          case ApplicationCommandOptionType.Role: {
+            const role = (interaction as CommandInteraction).options.getRole(
+              name
+            );
+            if (role instanceof Role) args[arg.id] = role;
+            else if (typeof role == "object" && role?.id)
+              // @ts-ignore
+              args[arg.id] = new Role(this.client, role, {
+                id: interaction.guildId,
+              });
+            else args[arg.id] = arg.default;
+            break;
+          }
+          case ApplicationCommandOptionType.Mentionable: {
+            const mentionable = (
+              interaction as CommandInteraction
+            ).options.getMentionable(name);
+            if (
+              mentionable instanceof Role ||
+              mentionable instanceof FireMember
+            )
+              args[arg.id] = mentionable;
+            else if (mentionable instanceof FireUser && message.guild) {
+              const member = await message.guild.members
+                .fetch(mentionable)
+                .catch(() => {});
+              if (member) args[arg.id] = member;
+            } else args[arg.id] = arg.default;
+            break;
+          }
+          case ApplicationCommandOptionType.Attachment: {
+            args[arg.id] =
+              (interaction as CommandInteraction).options?.getAttachment?.(
+                name,
+                required
+              ) ?? arg.default;
+            break;
+          }
+          default: {
             const resolver = this.client.commandHandler.resolver.types.get(
               arg.type.toString()
             ) as unknown as SlashArgumentTypeCaster;
-            args[arg.id] = await resolver(message, args[arg.id]);
-          } else if (typeof arg.type == "function" && args[arg.id]) {
+            if (typeof resolver == "function")
+              args[arg.id] = await resolver(
+                message,
+                interaction.options.get(name, required)?.value.toString()
+              );
+          }
+        }
+        if (
+          typeof args[arg.id] == "undefined" &&
+          typeof arg.type == "function"
+        ) {
+          try {
             args[arg.id] = await (
               arg.type as unknown as SlashArgumentTypeCaster
             ).bind(this)(
               message,
-              interaction.options.get(name)?.value.toString()
+              interaction.options.get(name, true)?.value.toString()
             );
-          } else if (arg.type instanceof RegExp) {
-            const match = (args[arg.id] as string).match(arg.type);
-            if (!match) args[arg.id] = null;
-
-            const matches: RegExpExecArray[] = [];
-
-            if (arg.type.global) {
-              let matched: RegExpExecArray;
-
-              while ((matched = arg.type.exec(args[arg.id])) != null) {
-                matches.push(matched);
-              }
-            }
-
-            args[arg.id] = { match, matches };
+          } catch {
+            args[arg.id] = arg.default;
           }
-          break;
-        }
-        case ApplicationCommandOptionType.Integer: {
-          args[arg.id] =
-            (interaction as CommandInteraction).options.getInteger(
-              name,
-              required
-            ) ?? arg.default;
-          break;
-        }
-        case ApplicationCommandOptionType.Boolean: {
-          args[arg.id] =
-            (interaction as CommandInteraction).options.getBoolean(
-              name,
-              required
-            ) ?? arg.default;
-          break;
-        }
-        case ApplicationCommandOptionType.User: {
-          const hasGuild = !!interaction.guild;
-          if (mustBeMember.includes(arg.type?.toString()) && hasGuild)
-            args[arg.id] =
-              interaction.options.getMember(name, required) ?? arg.default;
-          else if (canAcceptMember.includes(arg.type?.toString()) && hasGuild)
-            args[arg.id] =
-              interaction.options.getMember(name, false) ??
-              interaction.options.getUser(name, required) ??
-              arg.default;
-          else if (mustBeMember.includes(arg.type?.toString()) && !hasGuild) {
-            const didSpecifyMember = interaction.options.getMember(name, false);
-            if (didSpecifyMember) throw new InvalidArgumentContextError(arg.id);
-            else
-              args[arg.id] =
-                interaction.options.getUser(name, required) ?? arg.default;
-          } else
-            args[arg.id] =
-              interaction.options.getUser(name, required) ?? arg.default;
-          break;
-        }
-        case ApplicationCommandOptionType.Channel: {
-          const resolvedChannel = (
-            interaction as CommandInteraction
-          ).options.getChannel(name);
-          if (
-            resolvedChannel &&
-            this.client.channels.cache.has(resolvedChannel.id)
-          )
-            args[arg.id] = this.client.channels.cache.get(resolvedChannel.id);
-          else args[arg.id] = arg.default;
-          break;
-        }
-        case ApplicationCommandOptionType.Role: {
-          const role = (interaction as CommandInteraction).options.getRole(
-            name
-          );
-          if (role instanceof Role) args[arg.id] = role;
-          else if (typeof role == "object" && role?.id)
-            // @ts-ignore
-            args[arg.id] = new Role(this.client, role, {
-              id: interaction.guildId,
-            });
-          else args[arg.id] = arg.default;
-          break;
-        }
-        case ApplicationCommandOptionType.Mentionable: {
-          const mentionable = (
-            interaction as CommandInteraction
-          ).options.getMentionable(name);
-          if (mentionable instanceof Role || mentionable instanceof FireMember)
-            args[arg.id] = mentionable;
-          else if (mentionable instanceof FireUser && message.guild) {
-            const member = await message.guild.members
-              .fetch(mentionable)
-              .catch(() => {});
-            if (member) args[arg.id] = member;
-          } else args[arg.id] = arg.default;
-          break;
-        }
-        case ApplicationCommandOptionType.Attachment: {
-          args[arg.id] =
-            (interaction as CommandInteraction).options?.getAttachment?.(
-              name,
-              required
-            ) ?? arg.default;
-          break;
-        }
-        default: {
-          const resolver = this.client.commandHandler.resolver.types.get(
-            arg.type.toString()
-          ) as unknown as SlashArgumentTypeCaster;
-          if (typeof resolver == "function")
-            args[arg.id] = await resolver(
-              message,
-              interaction.options.get(name, required)?.value.toString()
-            );
-        }
-      }
-      if (typeof args[arg.id] == "undefined" && typeof arg.type == "function") {
-        try {
-          args[arg.id] = await (
-            arg.type as unknown as SlashArgumentTypeCaster
-          ).bind(this)(
-            message,
-            interaction.options.get(name, true)?.value.toString()
-          );
-        } catch {
+        } else if (typeof args[arg.id] == "undefined")
           args[arg.id] = arg.default;
-        }
-      } else if (typeof args[arg.id] == "undefined") args[arg.id] = arg.default;
-    }
-    for (const arg of this.args) {
-      let values: any[];
-      if (Array.isArray(args[arg.id])) values = args[arg.id];
-      else values = [args[arg.id]];
-      for (const value of values) {
-        if (typeof value == "undefined" || value == null) continue;
-        if (
-          value == arg.default &&
-          !interaction.options.get(this.getSlashCommandArgName(arg), false)
-        )
-          continue;
-        if (typeof value != "object") {
-          message.util.parsed.content += ` ${arg.flag ?? ""}${
-            arg.match == "flag" ? "" : ` ${value}`
-          }`;
-          message.util.parsed.afterPrefix += ` ${arg.flag ?? ""}${
-            arg.match == "flag" ? "" : ` ${value}`
-          }`;
-        } else if (typeof value == "object") {
-          let stringified: string;
-          if (value instanceof FireUser || value instanceof FireMember)
-            stringified = `@${value}`;
-          else if (value instanceof Role) stringified = `@${value.name}`;
-          else if (value instanceof GuildChannel)
-            stringified = `#${value.name}`;
-          else if (value instanceof DMChannel)
-            stringified = `#${value.recipient} (${value.recipient.id})`;
-          else if (value instanceof MessageAttachment) stringified = value.name;
-          else if (value instanceof Invite)
-            stringified = `discord.gg/${value.code}`;
-          else if (value instanceof AkairoModule) stringified = value.id;
-          else if (
-            interaction.options.get(this.getSlashCommandArgName(arg), false)
-              ?.type == "STRING"
+      }
+      for (const arg of this.args) {
+        let values: any[];
+        if (Array.isArray(args[arg.id])) values = args[arg.id];
+        else values = [args[arg.id]];
+        for (const value of values) {
+          if (typeof value == "undefined" || value == null) continue;
+          if (
+            value == arg.default &&
+            !interaction.options.get(this.getSlashCommandArgName(arg), false)
           )
-            stringified = interaction.options
-              .get(this.getSlashCommandArgName(arg), true)
-              .value.toString();
-          else stringified = "UNKNOWN_ARG_TYPE";
-          if (arg.flag) stringified = `${arg.flag} ${stringified}`;
-          message.util.parsed.content += ` ${stringified}`;
-          message.util.parsed.afterPrefix += ` ${stringified}`;
+            continue;
+          if (typeof value != "object") {
+            message.util.parsed.content += ` ${arg.flag ?? ""}${
+              arg.match == "flag" ? "" : ` ${value}`
+            }`;
+            message.util.parsed.afterPrefix += ` ${arg.flag ?? ""}${
+              arg.match == "flag" ? "" : ` ${value}`
+            }`;
+          } else if (typeof value == "object") {
+            let stringified: string;
+            if (value instanceof FireUser || value instanceof FireMember)
+              stringified = `@${value}`;
+            else if (value instanceof Role) stringified = `@${value.name}`;
+            else if (value instanceof GuildChannel)
+              stringified = `#${value.name}`;
+            else if (value instanceof DMChannel)
+              stringified = `#${value.recipient} (${value.recipient.id})`;
+            else if (value instanceof MessageAttachment)
+              stringified = value.name;
+            else if (value instanceof Invite)
+              stringified = `discord.gg/${value.code}`;
+            else if (value instanceof AkairoModule) stringified = value.id;
+            else if (
+              interaction.options.get(this.getSlashCommandArgName(arg), false)
+                ?.type == "STRING"
+            )
+              stringified = interaction.options
+                .get(this.getSlashCommandArgName(arg), true)
+                .value.toString();
+            else stringified = "UNKNOWN_ARG_TYPE";
+            if (arg.flag) stringified = `${arg.flag} ${stringified}`;
+            message.util.parsed.content += ` ${stringified}`;
+            message.util.parsed.afterPrefix += ` ${stringified}`;
+          }
         }
       }
     }
