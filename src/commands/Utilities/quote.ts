@@ -255,9 +255,11 @@ export default class Quote extends Command {
     };
 
     this.savedQuotes.set(
-      `${channelType == "DM" ? "@me" : command.guildId}/${
-        messageToSave.channelId
-      }/${messageToSave.id}`,
+      `${
+        channelType == "DM" || channelType == "GROUP_DM"
+          ? "@me"
+          : command.guildId
+      }/${messageToSave.channelId}/${messageToSave.id}`,
       messageToSave
     );
 
@@ -270,7 +272,9 @@ export default class Quote extends Command {
             .setLabel(command.language.get("QUOTE_SAVE_BUTTON_LABEL"))
             .setURL(
               `https://discord.com/channels/${
-                channelType == "DM" ? "@me" : command.guildId
+                channelType == "DM" || channelType == "GROUP_DM"
+                  ? "@me"
+                  : command.guildId
               }/${messageToSave.channelId}/${messageToSave.id}`
             )
         ),
