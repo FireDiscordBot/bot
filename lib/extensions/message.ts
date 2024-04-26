@@ -430,13 +430,8 @@ export class FireMessage extends Message {
         ).size == 0 ||
         !this.content;
       const useWebhooks =
-        (destination.guild as FireGuild).hasExperiment(3959319643, 1) &&
         (!!webhook ||
-          ((destination.guild as FireGuild).settings.get<boolean>(
-            "utils.quotehooks",
-            true
-          ) &&
-            typeof destination.fetchWebhooks == "function" &&
+          (typeof destination.fetchWebhooks == "function" &&
             typeof destination.createWebhook == "function")) &&
         canUseAttachmentsInWebhook;
 
