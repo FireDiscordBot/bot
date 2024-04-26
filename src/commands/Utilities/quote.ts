@@ -72,7 +72,7 @@ export default class Quote extends Command {
       debug?: boolean;
     }
   ) {
-    if (!message.guild)
+    if (message && !message.guild)
       return await message.error("COMMAND_GUILD_ONLY", {
         invite: this.client.config.inviteLink,
       });
