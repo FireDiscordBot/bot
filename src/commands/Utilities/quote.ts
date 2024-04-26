@@ -213,6 +213,7 @@ export default class Quote extends Command {
       return await command.error("QUOTE_NO_CONTENT_TO_SAVE");
 
     if (
+      command.contextCommand.commandName.endsWith("(Preview)") &&
       !interaction.rawGuild.features.includes("DISCOVERABLE") &&
       !constants.allowedInvites.includes(interaction.rawGuild.id) &&
       !command.author.isSuperuser()
