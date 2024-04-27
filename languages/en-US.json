@@ -539,6 +539,7 @@
   "GOOGLE_NOT_READY_YET": "<a:okaygoogle:769207087674032129> The Google Assistant is not ready yet, please try again later",
   "GOOGLE_CREDENTIAL_CHECK_FAILED": "<a:okaygoogle:769207087674032129> An error occurred while checking if you've signed in",
   "GOOGLE_ERROR_UNKNOWN": "<a:okaygoogle:769207087674032129> An unknown error occurred while trying to get a response from the Google Assistant",
+  "GOOGLE_ERROR_TEXT_TOO_LONG": "<a:okaygoogle:769207087674032129> Your query is too long!",
   "GOOGLE_ERROR_ACCESS_REVOKED": "<a:okaygoogle:769207087674032129> You appear to have revoked Fire's access to your account. Future responses will not use your account and you will need to re-link your account if you wish to continue using the personalized assistant",
   "GOOGLE_ERROR_INVALID_GRANT": "<a:okaygoogle:769207087674032129> Something went wrong when trying to access Google Assistant using your account so I will now use the default responses. You may need to remove access from the Fire app on [Google's Account Management](<https://myaccount.google.com/security>) if you wish to link again",
   "GOOGLE_ERROR_VOLUME_OUT_OF_RANGE": "<a:okaygoogle:769207087674032129> The volume must be between 0 and 100",
