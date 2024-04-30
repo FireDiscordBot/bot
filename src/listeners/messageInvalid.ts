@@ -209,9 +209,12 @@ export default class MessageInvalid extends Listener {
           null,
           quote.channel != "debug.", // will return converter error msgs if using debug.discord.com
           quote
-        ).catch(() => {});
-        // TODO: maybe return the caught error and add an else here?
-        if (convertedMessage) {
+        ).catch((err) => err); // return the caught error
+
+        if (convertedMessage instanceof Error) {
+          // handle the error here
+          console.error(convertedMessage);
+        } else if (convertedMessage) {
           const args = {
             quote: convertedMessage as FireMessage,
             debug: quote.channel == "debug.",
