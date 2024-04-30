@@ -213,7 +213,7 @@ export default class MessageInvalid extends Listener {
 
         if (convertedMessage instanceof Error) {
           // handle the error here
-          console.error(convertedMessage);
+          return convertedMessage;
         } else if (convertedMessage) {
           const args = {
             quote: convertedMessage as FireMessage,
