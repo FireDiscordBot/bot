@@ -89,12 +89,11 @@ export default class ChannelDelete extends Listener {
         .setFooter(channel.id);
       if (channel instanceof FireTextChannel && channel.topic)
         embed.addField(language.get("TOPIC"), channel.topic);
-      // TODO: re-add without humanize
-      // if (channel instanceof FireTextChannel && channel.rateLimitPerUser)
-      //   embed.addField(
-      //     language.get("SLOWMODE"),
-      //     humanize(channel.rateLimitPerUser, language.id.split("-")[0])
-      //   );
+      if (channel instanceof FireTextChannel && channel.rateLimitPerUser)
+        embed.addField(
+          language.get("SLOWMODE"),
+          `${channel.rateLimitPerUser} seconds`
+        );
       if (channel.permissionOverwrites.cache.size > 1) {
         const canView = channel.permissionOverwrites.cache
           .filter((overwrite) =>
