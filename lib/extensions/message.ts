@@ -1021,10 +1021,19 @@ export class FireMessage extends Message {
     if (stars >= minimum) {
       if (!this.starLock) this.starLock = new Semaphore(1);
       await this.starLock.acquire();
+      if (stars != this.guild.starboardReactions.get(this.id)) {
+        // Someone likely added/removed a reaction which would result in this method being called again
+        // so we can return if it doesn't match
+        this.starLock.release();
+        return;
+      }
       setTimeout(() => {
         this.starLock.release();
       }, 3500);
-      const [content, embed] = this.getStarboardMessage(emoji, stars);
+      const [content, embed] = this.getStarboardMessage(
+        emoji,
+        this.guild.starboardReactions.get(this.id)
+      );
       if (this.guild.starboardMessages.has(this.id)) {
         const message = (await starboard.messages
           .fetch(this.guild.starboardMessages.get(this.id))
