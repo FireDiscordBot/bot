@@ -1336,7 +1336,9 @@ export default class MCLogs extends Module {
     );
 
     const solutions = currentSolutions.size
-      ? `${language.get("MC_LOG_POSSIBLE_SOLUTIONS")}:\n${[...currentSolutions]
+      ? `## ${language.get("MC_LOG_POSSIBLE_SOLUTIONS")}:\n${[
+          ...currentSolutions,
+        ]
           .map((s) => s.replace("\n", "**\n**"))
           .join("\n")}`
       : "";
