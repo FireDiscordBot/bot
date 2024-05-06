@@ -5,9 +5,13 @@ import "module-alias/register";
 import * as dayjs from "dayjs";
 import * as utc from "dayjs/plugin/utc";
 import * as timezone from "dayjs/plugin/timezone";
+// import * as relativeTime from "dayjs/plugin/relativeTime";
+import * as calendar from "dayjs/plugin/calendar";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+// dayjs.extend(relativeTime);
+dayjs.extend(calendar);
 
 import "@fire/lib/extensions";
 

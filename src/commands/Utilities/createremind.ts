@@ -128,7 +128,10 @@ export default class RemindersCreate extends Command {
           clickedMessage.createdAt,
           clickedMessage.author.settings.get<string>(
             "reminders.timezone.iana",
-            "Etc/UTC"
+            command.author.settings.get<string>(
+              "reminders.timezone.iana",
+              "Etc/UTC"
+            )
           )
         ),
         useEmbedDescription = false;
@@ -152,7 +155,10 @@ export default class RemindersCreate extends Command {
                 date,
                 clickedMessage.author.settings.get<string>(
                   "reminders.timezone.iana",
-                  "Etc/UTC"
+                  command.author.settings.get<string>(
+                    "reminders.timezone.iana",
+                    "Etc/UTC"
+                  )
                 )
               )
               .utcOffset(),
@@ -172,16 +178,38 @@ export default class RemindersCreate extends Command {
         // i cba to make another variable for first field value so we'll just copy it to the description
         clickedMessage.embeds[0].description =
           clickedMessage.embeds[0].fields[0].value;
+        const timestamp = dayjs.tz(
+          clickedMessage.embeds[0].timestamp,
+          clickedMessage.author.settings.get<string>(
+            "reminders.timezone.iana",
+            command.author.settings.get<string>(
+              "reminders.timezone.iana",
+              "Etc/UTC"
+            )
+          )
+        );
+        // TODO: figure out if we can detect 12/24 hour time so we can only display one
+        const relativeTimeString = timestamp.calendar(now, {
+          sameDay: `[Today at] HH:mm (h:mm A)`,
+          nextDay: `[Tomorrow at] HH:mm (h:mm A)`,
+          nextWeek: `dddd [at] HH:mm (h:mm A)`,
+          lastDay: `[Yesterday at] HH:mm (h:mm A)`,
+          lastWeek: `[Last] dddd [at] HH:mm (h:mm A)`,
+          sameElse: "DD/MM/YYYY [at] HH:mm (h:mm A)",
+        });
         parsed = strict.parse(
-          clickedMessage.embeds[0].description,
+          relativeTimeString,
           {
-            instant: new Date(clickedMessage.embeds[0].timestamp),
+            instant: clickedMessage.createdAt,
             timezone: dayjs
               .tz(
                 date,
                 clickedMessage.author.settings.get<string>(
                   "reminders.timezone.iana",
-                  "Etc/UTC"
+                  command.author.settings.get<string>(
+                    "reminders.timezone.iana",
+                    "Etc/UTC"
+                  )
                 )
               )
               .utcOffset(),
@@ -190,6 +218,9 @@ export default class RemindersCreate extends Command {
             forwardDate: true,
           }
         );
+
+        // @ts-ignore
+        parsed[0].text = relativeTimeString;
         useEmbedDescription = true;
       }
       parsed = parsed
@@ -304,6 +335,8 @@ export default class RemindersCreate extends Command {
               ? clickedMessage.author.id == command.author.id
                 ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
                 : "REMINDER_CONTEXT_CONTENT_WITH_AUTHOR_TZ"
+              : command.author.settings.has("reminders.timezone.iana")
+              ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
               : "REMINDER_CONTEXT_CONTENT"
             : "REMINDER_CONTEXT_CONTENT_NO_TZ",
           {
