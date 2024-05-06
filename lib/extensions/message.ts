@@ -738,11 +738,12 @@ export class FireMessage extends Message {
       automodEmbeds.push(embed);
     }
     const username =
-      usernameOverride || (this.system && this.guild)
-        ? this.guild.name
+      usernameOverride ||
+      (this.system && this.guild && this.reference?.guildId != this.guild.id
+        ? this.guild?.name
         : member
         ? member.display.replace(/#0000/gim, "")
-        : this.author.display.replace(/#0000/gim, "");
+        : this.author.display.replace(/#0000/gim, ""));
     return await hook
       .send({
         content: content.length ? content : null,
@@ -783,22 +784,25 @@ export class FireMessage extends Message {
           e.code == 50035 &&
           e.message.includes("Username cannot contain")
         ) {
-          const blockedUsername = regexes.blockedUsername.exec(e.message)[1];
-          const usernameIndex = username
-            .toLowerCase()
-            .indexOf(blockedUsername.toLowerCase());
-          const matchedUsername = username.slice(
-            usernameIndex,
-            blockedUsername.length
-          );
-          return await this.webhookQuote(
-            destination,
-            quoter,
-            webhook,
-            thread,
-            debug,
-            username.replace(matchedUsername, "[blocked]")
-          );
+          const blockedUsername = regexes.blockedUsername.exec(e.message)?.[1];
+          regexes.blockedUsername.lastIndex = 0;
+          if (blockedUsername) {
+            const usernameIndex = username
+              .toLowerCase()
+              .indexOf(blockedUsername.toLowerCase());
+            const matchedUsername = username.slice(
+              usernameIndex,
+              blockedUsername.length
+            );
+            return await this.webhookQuote(
+              destination,
+              quoter,
+              webhook,
+              thread,
+              debug,
+              username.replace(matchedUsername, "[blocked]")
+            );
+          }
         }
         // this will ensure deleted webhooks are deleted
         // but also allow webhooks to be refreshed
@@ -863,9 +867,10 @@ export class FireMessage extends Message {
       extraEmbeds.push(...this.embeds);
     const member =
       this.member ??
-      ((await this.guild.members
+      ((await this.guild?.members
         .fetch(this.author)
-        .catch(() => null)) as FireMember);
+        .catch(() => null)) as FireMember) ??
+      null;
     const embed = new MessageEmbed()
       .setColor(
         member?.displayColor ||
