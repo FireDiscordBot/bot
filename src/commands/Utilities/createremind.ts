@@ -162,6 +162,36 @@ export default class RemindersCreate extends Command {
           }
         )),
           (useEmbedDescription = true);
+      if (
+        !parsed.length &&
+        clickedMessage.embeds.length &&
+        clickedMessage.applicationId == "711035674723221574" &&
+        clickedMessage.embeds[0].timestamp > now &&
+        clickedMessage.embeds[0].fields[0]?.name == "Scheduled"
+      ) {
+        // i cba to make another variable for first field value so we'll just copy it to the description
+        clickedMessage.embeds[0].description =
+          clickedMessage.embeds[0].fields[0].value;
+        parsed = strict.parse(
+          clickedMessage.embeds[0].description,
+          {
+            instant: new Date(clickedMessage.embeds[0].timestamp),
+            timezone: dayjs
+              .tz(
+                date,
+                clickedMessage.author.settings.get<string>(
+                  "reminders.timezone.iana",
+                  "Etc/UTC"
+                )
+              )
+              .utcOffset(),
+          },
+          {
+            forwardDate: true,
+          }
+        );
+        useEmbedDescription = true;
+      }
       parsed = parsed
         // Remove timex in the past, based on command reaction (probably not too far off current time)
         .filter((res) => res.start.date() > command.createdAt)
