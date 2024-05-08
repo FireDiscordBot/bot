@@ -191,7 +191,7 @@ export default class MCLogs extends Module {
     this.regexes = {
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets:
-        /--accessToken \S+|\(Session ID is token:|Authorization ?: ?(Bearer\n?\w*)/gim,
+        /--accessToken,? \S+|\(Session ID is token:|Authorization ?: ?(Bearer\n?\w*)/gim,
       jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx(?:\d{1,2}G|\d{3,5}M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
       optifine:
         /OptiFine_(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
@@ -200,7 +200,7 @@ export default class MCLogs extends Module {
       email: /[\w.+-]{1,50}@[\w-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
       home: /(\/Users\/[\w\sÀ-ÖØ-öø-ÿ]+|\/home\/\w+|C:\\Users\\[\w\sÀ-ÖØ-öø-ÿ]+)/gim,
       settingUser:
-        /(?:\/INFO]: Setting user: (\w{1,16})|--username, (\w{1,16}))/gim,
+        /(?:\/INFO]: Setting user: (\w{1,16})|--username,? (\w{1,16}))/gim,
       devEnvUser: /Player\d{3}/gim,
       uuidArg:
         /--uuid,? (?<uuid>[0-9A-F]{8}-?[0-9A-F]{4}-?(?<ver>[0-9A-F])[0-9A-F]{3}-?[89AB][0-9A-F]{3}-?[0-9A-F]{12})/gim,
@@ -304,10 +304,10 @@ export default class MCLogs extends Module {
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /--version, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--version,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
 
             // below is a variation of the above regex, but for some reason it has the minecraft version THREE TIMES and idk why. it seems to only show in JVM crashes (hs_err_pid.log files)
-            /--version (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /--version,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
 
             // and then we have this.
             /Started Feather \((?<featherver>\w*)\)/gim,
@@ -331,8 +331,8 @@ export default class MCLogs extends Module {
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /--fml\.forgeVersion, (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /--fml\.mcVersion, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /--fml\.forgeVersion,? (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--fml\.mcVersion,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
@@ -388,8 +388,8 @@ export default class MCLogs extends Module {
         {
           loader: Loaders.FORGE,
           regexes: [
-            /--fml\.forgeVersion, (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /--fml\.mcVersion, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /--fml\.forgeVersion,? (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--fml\.mcVersion,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
           ],
         },
         {
