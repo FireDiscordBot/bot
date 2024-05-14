@@ -121,28 +121,28 @@ export default class AdminUnload extends Command {
         return await message.react("📤");
       } else {
         args.module.remove();
-        // check if only a single cluster is running and if so, sync commands with aether
-        const stats = (await (
-          await centra(
-            process.env.REST_HOST
-              ? `https://${process.env.REST_HOST}/v2/stats`
-              : `http://127.0.0.1:${process.env.REST_PORT}/v2/stats`
-          )
-            .header("User-Agent", this.client.manager.ua)
-            .send()
-        )
-          .json()
-          .catch(() => {})) as ClusterStats[] | void;
-        if (stats && stats.length == 1)
-          this.client.manager.ws.send(
-            MessageUtil.encode(
-              new Message(EventType.REQUEST_COMMANDS, {
-                id: this.client.manager.id,
-                commands: getCommands(this.client),
-                allCommands: getAllCommands(this.client),
-              })
+        if (this.client.manager.REST_HOST) {
+          // check if only a single cluster is running and if so, sync commands with aether
+          const stats = (await (
+            await centra(
+              `${this.client.manager.REST_HOST}/${this.client.manager.CURRENT_REST_VERSION}/stats`
             )
-          );
+              .header("User-Agent", this.client.manager.ua)
+              .send()
+          )
+            .json()
+            .catch(() => {})) as ClusterStats[] | void;
+          if (stats && stats.length == 1)
+            this.client.manager.ws.send(
+              MessageUtil.encode(
+                new Message(EventType.REQUEST_COMMANDS, {
+                  id: this.client.manager.id,
+                  commands: getCommands(this.client),
+                  allCommands: getAllCommands(this.client),
+                })
+              )
+            );
+        }
         return await message.success("SLASH_COMMAND_HANDLE_SUCCESS");
       }
     } catch {

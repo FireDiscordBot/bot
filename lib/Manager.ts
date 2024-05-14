@@ -10,6 +10,13 @@ import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
 
 export class Manager {
+  readonly REST_HOST = process.env.REST_HOST
+    ? `https://${process.env.REST_HOST}`
+    : process.env.REST_PORT
+    ? `http://127.0.0.1:${process.env.REST_PORT}`
+    : null; // realistically never gonna be encountered
+  readonly CURRENT_REST_VERSION = "v2";
+
   state: Partial<ManagerState> = {};
   private _ready: boolean = false;
   eventHandler: EventHandler;

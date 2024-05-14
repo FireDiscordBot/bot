@@ -135,7 +135,7 @@ export const guildPreviewConverter = async (
     !preview.features.includes("DISCOVERABLE") &&
     !message.author.isSuperuser()
   ) {
-    if (!message.client.manager.ws?.open) {
+    if (!message.client.manager.ws?.open || !message.client.manager.REST_HOST) {
       const member = await message.client.req
         .guilds(preview.id)
         .members(message.author.id)
@@ -147,9 +147,7 @@ export const guildPreviewConverter = async (
     }
     let isPublic = false;
     const publicGuildsReq = await centra(
-      process.env.REST_HOST
-        ? `https://${process.env.REST_HOST}/public`
-        : `http://localhost:${process.env.REST_PORT}/public`
+      `${message.client.manager.REST_HOST}/public`
     )
       .header("User-Agent", message.client.manager.ua)
       .header("Authorization", process.env.WS_AUTH)

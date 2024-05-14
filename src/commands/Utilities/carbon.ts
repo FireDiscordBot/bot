@@ -131,7 +131,7 @@ export default class Carbon extends Command {
     }
   ) {
     if (
-      !(process.env.REST_HOST || process.env.REST_PORT) ||
+      !this.client.manager.REST_HOST ||
       !process.env.WS_AUTH ||
       !this.client.manager.ws?.open
     )
@@ -201,9 +201,7 @@ export default class Carbon extends Command {
     };
 
     const image = await centra(
-      process.env.REST_HOST
-        ? `https://${process.env.REST_HOST}/img/carbon`
-        : `http://localhost:${process.env.REST_PORT}/img/carbon`,
+      `${this.client.manager.REST_HOST}/img/carbon`,
       "POST"
     )
       .header("User-Agent", this.client.manager.ua)

@@ -227,10 +227,10 @@ export class Util extends ClientUtil {
   }
 
   async mcProfile(player: string) {
+    if (!this.client.manager.REST_HOST)
+      throw new MojangAPIError("No REST host set", 500);
     const profileReq = await centra(
-      process.env.REST_HOST
-        ? `https://${process.env.REST_HOST}/v2/minecraft/uuid/${player}`
-        : `http://127.0.0.1:${process.env.REST_PORT}/v2/minecraft/uuid/${player}`
+      `${this.client.manager.REST_HOST}/${this.client.manager.CURRENT_REST_VERSION}/minecraft/uuid/${player}`
     )
       .header("User-Agent", this.client.manager.ua)
       .send();

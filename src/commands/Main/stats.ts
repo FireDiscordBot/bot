@@ -30,14 +30,16 @@ export default class Stats extends Command {
   }
 
   async exec(message: FireMessage, args: { cluster?: number }) {
-    if (!this.client.manager.ws?.open || args.cluster == this.client.manager.id)
+    if (
+      !this.client.manager.ws?.open ||
+      !this.client.manager.REST_HOST ||
+      args.cluster == this.client.manager.id
+    )
       return await this.singularStats(message);
     let clusterStats: ClusterStats;
     const stats: ClusterStats[] = await (
       await centra(
-        process.env.REST_HOST
-          ? `https://${process.env.REST_HOST}/v2/stats`
-          : `http://127.0.0.1:${process.env.REST_PORT}/v2/stats`
+        `${this.client.manager.REST_HOST}/${this.client.manager.CURRENT_REST_VERSION}/stats`
       )
         .header("User-Agent", this.client.manager.ua)
         .send()

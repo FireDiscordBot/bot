@@ -114,10 +114,11 @@ export default class Modal extends Listener {
       const enUS = this.client.getLanguage("en-US");
       const url = "https://" + modal.customId.slice(19);
 
+      if (!this.client.manager.REST_HOST)
+        return await modal.error("ERROR_CONTACT_SUPPORT");
+
       const logInfoReq = await centra(
-        process.env.REST_HOST
-          ? `https://${process.env.REST_HOST}/v2/minecraft/logs`
-          : `http://127.0.0.1:${process.env.REST_PORT}/v2/minecraft/logs`,
+        `${this.client.manager.REST_HOST}/${this.client.manager.CURRENT_REST_VERSION}/minecraft/logs`,
         "POST"
       )
         .header("User-Agent", this.client.manager.ua)
