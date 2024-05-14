@@ -1700,15 +1700,21 @@ export default class MCLogs extends Module {
                       ? "DM"
                       : "Unknown",
                     user: `${message.author} (${message.author.id})`,
-                    ign,
-                    uuid: profile,
+                    ign: profile.name,
+                    uuid: profile.id,
+                    uuidDashed: profile.idDashed,
                     haste: haste.url,
                     raw: haste.raw,
                   },
                 },
               ]);
           }
-        } catch {}
+        } catch (e) {
+          this.client.console.error(
+            `[MCLogs] Failed to get Mojang profile for ${ign}\n${e.stack}`
+          );
+          this.client.sentry.captureException(e);
+        }
       } else
         possibleSolutions = await this.getSolutions(
           message.member ?? message.author,
