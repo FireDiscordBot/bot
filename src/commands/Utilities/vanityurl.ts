@@ -115,6 +115,7 @@ export default class VanityURL extends Command {
             ) as string,
           });
         } catch (e) {
+          // Special case for when the server has too many invites
           if (e instanceof DiscordAPIError && e.code == 30016)
             return await command.error("VANITYURL_INVITE_SERVER_MAX");
         }
