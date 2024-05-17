@@ -36,7 +36,7 @@ import * as sentry from "@sentry/node";
 
 const {
   regexes: {
-    discord: { webhookPartial },
+    discord: { webhookPartialWithId },
   },
 } = constants;
 
@@ -59,7 +59,7 @@ if (loadSentry) {
       if (breadcrumb.type != "http") return breadcrumb;
       else if (breadcrumb.data?.url?.includes("/webhooks/")) {
         breadcrumb.data.url = breadcrumb.data.url.replace(
-          webhookPartial,
+          webhookPartialWithId,
           "/webhooks/:id/:token"
         );
         return breadcrumb;
