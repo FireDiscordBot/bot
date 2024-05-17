@@ -54,6 +54,7 @@ if (loadSentry) {
   sentry.init({
     dsn: process.env.SENTRY_DSN,
     release: `fire@${version}`,
+    environment: process.env.NODE_ENV,
     beforeBreadcrumb: (breadcrumb) => {
       if (breadcrumb.type != "http") return breadcrumb;
       else if (breadcrumb.data?.url?.includes("/webhooks/")) {
