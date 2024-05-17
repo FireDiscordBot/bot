@@ -157,14 +157,15 @@ export default class Help extends Command {
     let args: string[] = command.getArgumentsClean();
     const embed = {
       color: message.member?.displayColor,
-      title: titleCase(command.id),
+      title: titleCase(command.id.replace("-", " ")),
       description: command.description(message.language),
       fields: [
         {
           name: message.language.get("HELP_USAGE"),
-          value: `${message.util.parsed.prefix || "$"}${command.id} ${
-            args?.join(" ").replace(/\] \[/gim, " ") || ""
-          }`,
+          value: `${message.util.parsed.prefix || "$"}${command.id.replace(
+            "-",
+            " "
+          )} ${args?.join(" ").replace(/\] \[/gim, " ") || ""}`,
           inline: false,
         },
         message instanceof FireMessage
