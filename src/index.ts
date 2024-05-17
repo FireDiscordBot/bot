@@ -30,8 +30,15 @@ dotEnvExtended.load({
 if (process.env.NODE_ENV == "litecord") process.env.NODE_ENV = "development";
 
 import { Manager } from "@fire/lib/Manager";
+import { constants } from "@fire/lib/util/constants";
 import { getCommitHash } from "@fire/lib/util/gitUtils";
 import * as sentry from "@sentry/node";
+
+const {
+  regexes: {
+    discord: { webhookPartial },
+  },
+} = constants;
 
 const version =
   process.env.NODE_ENV == "development"
@@ -47,6 +54,18 @@ if (loadSentry) {
   sentry.init({
     dsn: process.env.SENTRY_DSN,
     release: `fire@${version}`,
+    beforeBreadcrumb: (breadcrumb) => {
+      if (breadcrumb.type != "http") return breadcrumb;
+      else if (breadcrumb.data?.url?.includes("/webhooks/")) {
+        breadcrumb.data.url = breadcrumb.data.url.replace(
+          webhookPartial,
+          "/webhooks/:id/:token"
+        );
+        return breadcrumb;
+      }
+
+      return breadcrumb;
+    },
   });
 }
 
