@@ -543,6 +543,7 @@ export class Util extends ClientUtil {
         .missing(command.userPermissions).length
     )
       return false;
+    else if (command.group && command.slashOnly) return false;
     return true;
   }
 
