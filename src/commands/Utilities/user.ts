@@ -197,7 +197,7 @@ export default class User extends Command {
         );
       const roles = member.roles.cache
         .filter((role) => role.id != command.guild.id)
-        .sorted((roleA, roleB) => roleA.position - roleB.position)
+        .sorted((roleA, roleB) => roleB.position - roleA.position)
         .map((role) => role.toString());
       if (roles.length)
         embed.addField(
