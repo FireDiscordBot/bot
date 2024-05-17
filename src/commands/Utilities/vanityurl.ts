@@ -4,7 +4,7 @@ import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { Invite } from "discord.js";
+import { DiscordAPIError, Invite } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];
 const validityRegex = /^[a-zA-Z0-9]{3,25}$/gim;
@@ -105,16 +105,19 @@ export default class VanityURL extends Command {
 
       // this will be false if above failed
       if (!invite)
-        invite = await channel
-          .createInvite({
+        try {
+          invite = await channel.createInvite({
             unique: true,
             temporary: false,
             maxAge: 0,
             reason: command.guild.language.get(
               "VANITYURL_INVITE_CREATE_REASON"
             ) as string,
-          })
-          .catch();
+          });
+        } catch (e) {
+          if (e instanceof DiscordAPIError && e.code == 30016)
+            return await command.error("VANITYURL_INVITE_SERVER_MAX");
+        }
 
       // if all that failed, return error
       if (!invite) return await command.error("VANITYURL_INVITE_FAILED");

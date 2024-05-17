@@ -1444,6 +1444,7 @@
   "VANITYURL_REGEX_FAIL": "Vanity URLs can only contain characters A-Z0-9 and be between 3 and 10 characters",
   "VANITYURL_ALREADY_EXISTS": "That code is already in use!",
   "VANITYURL_INVITE_CREATE_REASON": "Creating an invite to be used with the server's custom inv.wtf vanity",
+  "VANITYURL_INVITE_SERVER_MAX": "This server has reached the maximum number of invites (1,000) meaning I cannot create one for your vanity url. Try providing an invite code or cleaning up your invites.",
   "VANITYURL_INVITE_FAILED": "I failed to find an invite to use. Try providing one after your custom code",
   "VANITYURL_BLACKLISTED": "This server has been blacklisted from vanity features",
   "VANITYURL_CREATED": "Your Vanity URL is <{{vanity}}>",
