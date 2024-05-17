@@ -1,28 +1,27 @@
-import {
-  MessageActionRow,
-  MessageReaction,
-  MessageButton,
-  SnowflakeUtil,
-  MessageEmbed,
-  Permissions,
-  GuildEmoji,
-  Snowflake,
-  Role,
-} from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import * as pEvent from "p-event";
 import { ActionLogTypes, constants } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import {
+  MessageActionRow,
+  MessageButton,
+  MessageEmbed,
+  MessageReaction,
+  Role,
+  Snowflake,
+  SnowflakeUtil,
+} from "discord.js";
+import * as pEvent from "p-event";
 
 export default class ReactionRole extends Command {
   constructor() {
     super("reactionrole", {
       description: (language: Language) =>
         language.get("REACTIONROLE_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
-      userPermissions: [Permissions.FLAGS.MANAGE_ROLES],
+      clientPermissions: [PermissionFlagsBits.ManageRoles],
+      userPermissions: [PermissionFlagsBits.ManageRoles],
       args: [
         {
           id: "role",

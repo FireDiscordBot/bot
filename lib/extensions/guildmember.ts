@@ -1,5 +1,6 @@
 import * as sanitizer from "@aero/sanitizer";
 import { Fire } from "@fire/lib/Fire";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   DMChannel,
   Formatters,
@@ -134,8 +135,8 @@ export class FireMember extends GuildMember {
     else if (channel instanceof ThreadChannel) channel = channel.parent;
     if (channel instanceof DMChannel) return false;
     return channel
-      ? this.permissionsIn(channel).has(Permissions.FLAGS.MANAGE_GUILD)
-      : this.permissions.has(Permissions.FLAGS.MANAGE_GUILD);
+      ? this.permissionsIn(channel).has(PermissionFlagsBits.ManageGuild)
+      : this.permissions.has(PermissionFlagsBits.ManageGuild);
   }
 
   async blacklist(reason: string) {
@@ -210,7 +211,9 @@ export class FireMember extends GuildMember {
       this.isModerator() ||
       this.roles.highest.rawPosition >=
         this.guild.members.me.roles.highest.rawPosition ||
-      !this.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
+      !this.guild.members.me.permissions.has(
+        PermissionFlagsBits.ManageNicknames
+      )
     )
       return;
     // we'll try to fallback on other names (display name & username) if it is a hoisted nickname
@@ -252,7 +255,9 @@ export class FireMember extends GuildMember {
       this.isModerator() ||
       this.roles.highest.rawPosition >=
         this.guild.members.me.roles.highest.rawPosition ||
-      !this.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_NICKNAMES)
+      !this.guild.members.me.permissions.has(
+        PermissionFlagsBits.ManageNicknames
+      )
     )
       return;
     const badName = this.guild.settings.get<string>(
@@ -372,7 +377,7 @@ export class FireMember extends GuildMember {
         this.roles.highest.rawPosition <
           this.guild.members.me.roles.highest.rawPosition &&
         this.guild.members.me.permissions.has(
-          Permissions.FLAGS.MANAGE_NICKNAMES
+          PermissionFlagsBits.ManageNicknames
         )
       )
         await this.edit(
@@ -757,7 +762,9 @@ export class FireMember extends GuildMember {
     const canTimeOut =
       until &&
       until < +new Date() + 2419199999 &&
-      this.guild.members.me?.permissions?.has("MODERATE_MEMBERS");
+      this.guild.members.me?.permissions?.has(
+        PermissionFlagsBits.ModerateMembers
+      );
     if (!reason || !moderator) return "args";
     if (!moderator.isModerator(channel)) return "forbidden";
     let useEdit = false;

@@ -1,14 +1,14 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
-import { Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class StarboardMinimum extends Command {
   constructor() {
     super("starboard-minimum", {
       description: (language: Language) =>
         language.get("STARBOARD_MINIMUM_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       restrictTo: "guild",
       args: [
         {

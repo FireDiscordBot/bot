@@ -3,15 +3,13 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
-  BitFieldResolvable,
   CommandInteractionOption,
   DMChannel,
   GuildChannel,
   MessageEmbed,
-  PermissionFlags,
   Permissions,
-  PermissionString,
 } from "discord.js";
 import { StringMap, TOptions } from "i18next";
 
@@ -101,36 +99,14 @@ export default class Debug extends Command {
 
     const clientMissing =
       channel instanceof DMChannel || (command.guildId && !command.guild)
-        ? new Permissions(
-            cmd.clientPermissions as BitFieldResolvable<
-              PermissionString,
-              bigint
-            >
-          ).toArray()
+        ? new Permissions(cmd.clientPermissions).toArray()
         : channel
             .permissionsFor(this.client.user)
-            .missing(
-              cmd.clientPermissions as BitFieldResolvable<
-                PermissionString,
-                bigint
-              >
-            );
+            .missing(cmd.clientPermissions);
     const userMissing =
       channel instanceof DMChannel || (command.guildId && !command.guild)
-        ? new Permissions(
-            cmd.clientPermissions as BitFieldResolvable<
-              PermissionString,
-              bigint
-            >
-          ).toArray()
-        : channel
-            .permissionsFor(command.member)
-            .missing(
-              cmd.userPermissions as BitFieldResolvable<
-                PermissionString,
-                bigint
-              >
-            );
+        ? new Permissions(cmd.clientPermissions).toArray()
+        : channel.permissionsFor(command.member).missing(cmd.userPermissions);
 
     const permissionChecks = clientMissing?.length || userMissing?.length;
 
@@ -187,7 +163,7 @@ export default class Debug extends Command {
     if (cmd.id == "mute" && command.guild && channel instanceof GuildChannel) {
       const canSend = channel.permissionOverwrites.cache
         .filter((overwrite) =>
-          overwrite.allow.has(Permissions.FLAGS.SEND_MESSAGES)
+          overwrite.allow.has(PermissionFlagsBits.SendMessages)
         )
         .map((overwrite) => overwrite.id);
       const roles = [
@@ -197,7 +173,7 @@ export default class Debug extends Command {
         ...command.guild.roles.cache
           .filter(
             (role) =>
-              role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
+              role.permissions.has(PermissionFlagsBits.Administrator) &&
               !canSend.find((id) => id == role.id)
           )
           .values(),
@@ -237,7 +213,7 @@ export default class Debug extends Command {
       !command.guild ||
       (command.guild &&
         command.guild.members.me?.permissions.has(
-          Permissions.FLAGS.EMBED_LINKS
+          PermissionFlagsBits.EmbedLinks
         ))
     )
       return await command.channel.send({

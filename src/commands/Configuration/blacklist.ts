@@ -1,13 +1,14 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { MessageEmbed, Permissions } from "discord.js";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { Message } from "@fire/lib/ws/Message";
 import { ModLogTypes } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { Message } from "@fire/lib/ws/Message";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageEmbed } from "discord.js";
 
 export default class Blacklist extends Command {
   constructor() {
@@ -47,11 +48,11 @@ export default class Blacklist extends Command {
       return await command.error("BLACKLIST_BOT");
     if (
       !command.author.isSuperuser() &&
-      !command.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+      !command.member?.permissions.has(PermissionFlagsBits.ManageGuild)
     )
       return await command.error("BLACKLIST_FORBIDDEN", {
-        manage: command.language.get(
-          "PERMISSIONS.MANAGE_GUILD" as LanguageKeys
+        manage: this.client.util.cleanPermissionName(
+          PermissionFlagsBits.ManageGuild
         ),
       });
 
@@ -64,14 +65,14 @@ export default class Blacklist extends Command {
     )
       return await command.error("MODERATOR_ACTION_DISALLOWED");
 
-    if (command.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+    if (command.member?.permissions.has(PermissionFlagsBits.ManageGuild))
       await this.localBlacklist(command, args);
     else if (command.author.isSuperuser())
       await this.globalBlacklist(command, args);
     else
       return await command.error("BLACKLIST_FORBIDDEN", {
-        manage: command.language.get(
-          "PERMISSIONS.MANAGE_GUILD" as LanguageKeys
+        manage: this.client.util.cleanPermissionName(
+          PermissionFlagsBits.ManageGuild
         ),
       });
   }

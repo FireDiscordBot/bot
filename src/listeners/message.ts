@@ -5,8 +5,8 @@ import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
 import MCLogs from "@fire/src/modules/mclogs";
 import * as centra from "centra";
-import { APIMessage } from "discord-api-types/v9";
-import { Permissions, Snowflake, TextChannel } from "discord.js";
+import { APIMessage, PermissionFlagsBits } from "discord-api-types/v9";
+import { Snowflake, TextChannel } from "discord.js";
 
 const { regexes, prodBotId } = constants;
 const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
@@ -71,8 +71,8 @@ export default class Message extends Listener {
         member
           .permissionsIn(message.channel as TextChannel)
           .has([
-            Permissions.FLAGS.VIEW_CHANNEL,
-            Permissions.FLAGS.READ_MESSAGE_HISTORY,
+            PermissionFlagsBits.ViewChannel,
+            PermissionFlagsBits.ReadMessageHistory,
           ])
       )
         return;

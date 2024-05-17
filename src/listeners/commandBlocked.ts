@@ -3,12 +3,8 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import {
-  MessageActionRow,
-  MessageButton,
-  Permissions,
-  ThreadChannel,
-} from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageActionRow, MessageButton, ThreadChannel } from "discord.js";
 
 export default class CommandBlocked extends Listener {
   constructor() {
@@ -54,7 +50,7 @@ export default class CommandBlocked extends Listener {
       });
     else if (reason == "slashonly") {
       const canInvite = message.member?.permissions.has(
-        Permissions.FLAGS.MANAGE_GUILD
+        PermissionFlagsBits.ManageGuild
       );
       const mention = command.getSlashCommandMention(message.guild);
       if (mention == null)

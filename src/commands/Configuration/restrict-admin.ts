@@ -1,14 +1,15 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { CategoryChannel, Permissions, Snowflake } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { CategoryChannel, Snowflake } from "discord.js";
 
 export default class RestrictAdmin extends Command {
   constructor() {
     super("restrict-admin", {
       description: (language: Language) =>
         language.get("RESTRICT_ADMIN_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.ADMINISTRATOR],
+      userPermissions: [PermissionFlagsBits.Administrator],
       args: [
         {
           id: "category",

@@ -2,7 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Unmute extends Command {
   constructor() {
@@ -10,8 +10,8 @@ export default class Unmute extends Command {
       description: (language: Language) =>
         language.get("UNMUTE_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.MODERATE_MEMBERS,
-        Permissions.FLAGS.MANAGE_ROLES,
+        PermissionFlagsBits.ModerateMembers,
+        PermissionFlagsBits.ManageRoles,
       ],
       args: [
         {

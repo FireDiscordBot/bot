@@ -2,14 +2,14 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Derank extends Command {
   constructor() {
     super("derank", {
       description: (language: Language) =>
         language.get("DERANK_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
+      clientPermissions: [PermissionFlagsBits.ManageRoles],
       args: [
         {
           id: "user",

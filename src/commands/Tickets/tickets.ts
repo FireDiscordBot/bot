@@ -1,7 +1,8 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { MessageEmbed, Permissions } from "discord.js";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageEmbed } from "discord.js";
 
 export default class Tickets extends Command {
   constructor() {
@@ -9,11 +10,11 @@ export default class Tickets extends Command {
       description: (language: Language) =>
         language.get("TICKET_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.MANAGE_CHANNELS,
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
+        PermissionFlagsBits.ManageChannels,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
       ],
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       restrictTo: "guild",
       args: [
         {

@@ -1,7 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class AutoDecancer extends Command {
   constructor() {
@@ -9,8 +9,8 @@ export default class AutoDecancer extends Command {
       description: (language: Language) =>
         language.get("AUTODECANCER_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_NICKNAMES,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.ManageNicknames,
       ],
       enableSlashCommand: true,
       moderatorOnly: true,

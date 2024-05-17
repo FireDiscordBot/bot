@@ -1,21 +1,17 @@
-import {
-  CommandInteractionOption,
-  GuildEmoji,
-  Permissions,
-  Role,
-} from "discord.js";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { CommandInteractionOption, GuildEmoji, Role } from "discord.js";
 
 export default class EmojiLock extends Command {
   constructor() {
     super("emojilock", {
       description: (language: Language) =>
         language.get("EMOJILOCK_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS],
-      userPermissions: [Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS],
+      clientPermissions: [PermissionFlagsBits.ManageEmojisAndStickers],
+      userPermissions: [PermissionFlagsBits.ManageEmojisAndStickers],
       args: [
         {
           id: "emoji",

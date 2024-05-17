@@ -2,14 +2,14 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Kick extends Command {
   constructor() {
     super("kick", {
       description: (language: Language) =>
         language.get("KICK_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.KICK_MEMBERS],
+      clientPermissions: [PermissionFlagsBits.KickMembers],
       args: [
         {
           id: "user",

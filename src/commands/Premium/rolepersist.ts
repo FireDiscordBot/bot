@@ -3,14 +3,15 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { ModLogTypes } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { MessageEmbed, Permissions, Role } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageEmbed, Role } from "discord.js";
 
 export default class RolePersist extends Command {
   constructor() {
     super("rolepersist", {
       description: (language: Language) =>
         language.get("ROLEPERSIST_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_ROLES],
+      userPermissions: [PermissionFlagsBits.ManageRoles],
       args: [
         {
           id: "user",

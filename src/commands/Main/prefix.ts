@@ -1,8 +1,8 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
 import { constants } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 const validActions = {
   add: ["add", "new"],
@@ -19,7 +19,7 @@ export default class Prefix extends Command {
     super("prefix", {
       description: (language: Language) =>
         language.get("PREFIX_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "action", // if not a valid action, will be used as prefix

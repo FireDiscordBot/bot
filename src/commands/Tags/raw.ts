@@ -1,9 +1,10 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { CommandInteractionOption, Permissions } from "discord.js";
-import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { CommandInteractionOption } from "discord.js";
 
 export default class TagRaw extends Command {
   constructor() {
@@ -11,8 +12,8 @@ export default class TagRaw extends Command {
       description: (language: Language) =>
         language.get("TAG_RAW_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
       ],
       args: [
         {

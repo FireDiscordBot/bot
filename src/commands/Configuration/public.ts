@@ -1,20 +1,17 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { Command } from "@fire/lib/util/command";
 import { ActionLogTypes, constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { Message } from "@fire/lib/ws/Message";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import VanityURLs from "@fire/src/modules/vanityurls";
-import { GuildFeatures, Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { GuildFeatures } from "discord.js";
 
 export default class Public extends Command {
   constructor() {
     super("public", {
       description: (language: Language) =>
         language.get("PUBLIC_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       enableSlashCommand: true,
       restrictTo: "guild",
       slashOnly: true,

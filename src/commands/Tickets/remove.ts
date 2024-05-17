@@ -1,9 +1,9 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class TicketRemove extends Command {
   constructor() {
@@ -11,8 +11,8 @@ export default class TicketRemove extends Command {
       description: (language: Language) =>
         language.get("TICKET_REMOVE_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_ROLES,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.ManageRoles,
       ],
       args: [
         {
@@ -40,12 +40,12 @@ export default class TicketRemove extends Command {
       return await message.error("TICKET_NON_TICKET");
     if (
       !channel.topic.includes(message.author.id) &&
-      !message.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS)
+      !message.member.permissions.has(PermissionFlagsBits.ManageChannels)
     )
       return await message.error("TICKET_REMOVE_FORBIDDEN");
     if (channel.topic.includes(args.user.id))
       return await message.error("TICKET_REMOVE_AUTHOR");
-    if (!args.user.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL))
+    if (!args.user.permissionsIn(channel).has(PermissionFlagsBits.ViewChannel))
       return await message.error("TICKET_REMOVE_NOT_FOUND");
     const updated = await channel.permissionOverwrites
       .edit(

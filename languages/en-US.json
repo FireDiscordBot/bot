@@ -215,11 +215,15 @@
     "USE_APPLICATION_COMMANDS": "Use Application Commands",
     "REQUEST_TO_SPEAK": "Request to Speak",
     "MANAGE_THREADS": "Manage Threads",
-    "CREATE_PRIVATE_THREADS": "Create Private Threads",
+    "USE_PUBLIC_THREADS": "Use Public Threads",
     "CREATE_PUBLIC_THREADS": "Create Public Threads",
+    "USE_PRIVATE_THREADS": "Use Private Threads",
+    "CREATE_PRIVATE_THREADS": "Create Private Threads",
     "USE_EXTERNAL_STICKERS": "Use External Stickers",
     "SEND_MESSAGES_IN_THREADS": "Send Messages in Threads",
-    "MODERATE_MEMBERS": "Timeout Members"
+    "START_EMBEDDED_ACTIVITIES": "Start Activities",
+    "MODERATE_MEMBERS": "Timeout Members",
+    "MANAGE_EVENTS": "Manage Events"
   },
   "ACTIVITY_TYPES": {
     "1": "Join",

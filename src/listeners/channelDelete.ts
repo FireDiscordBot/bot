@@ -2,13 +2,8 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ActionLogTypes, titleCase } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import {
-  DMChannel,
-  GuildChannel,
-  MessageEmbed,
-  Permissions,
-  Snowflake,
-} from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { DMChannel, GuildChannel, MessageEmbed, Snowflake } from "discord.js";
 
 export default class ChannelDelete extends Listener {
   constructor() {
@@ -98,7 +93,7 @@ export default class ChannelDelete extends Listener {
       if (channel.permissionOverwrites.cache.size > 1) {
         const canView = channel.permissionOverwrites.cache
           .filter((overwrite) =>
-            overwrite.allow.has(Permissions.FLAGS.VIEW_CHANNEL)
+            overwrite.allow.has(PermissionFlagsBits.ViewChannel)
           )
           .map((overwrite) => overwrite.id);
         const roles = [
@@ -108,7 +103,7 @@ export default class ChannelDelete extends Listener {
           ...guild.roles.cache
             .filter(
               (role) =>
-                role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
+                role.permissions.has(PermissionFlagsBits.Administrator) &&
                 !canView.find((id) => id == role.id)
             )
             .values(),
@@ -127,7 +122,7 @@ export default class ChannelDelete extends Listener {
         const viewers = [...roles.map((role) => role.toString()), ...members];
         embed.addField(language.get("VIEWABLE_BY"), `${viewers.join(" - ")}`);
       }
-      if (guild.members.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
+      if (guild.members.me.permissions.has(PermissionFlagsBits.ViewAuditLog)) {
         const auditLogActions = await guild
           .fetchAuditLogs({ limit: 2, type: "CHANNEL_DELETE" })
           .catch(() => {});

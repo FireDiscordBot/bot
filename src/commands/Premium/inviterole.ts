@@ -1,15 +1,16 @@
-import { MessageEmbed, Permissions, Invite, Role } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { ActionLogTypes } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Invite, MessageEmbed, Role } from "discord.js";
 
 export default class InviteRole extends Command {
   constructor() {
     super("inviterole", {
       description: (language: Language) =>
         language.get("INVITEROLE_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "invite",

@@ -1,19 +1,19 @@
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Command } from "@fire/lib/util/command";
+import { constants } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
-  MessageSelectOptionData,
-  MessageSelectMenu,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
-  Permissions,
-  Snowflake,
+  MessageSelectMenu,
+  MessageSelectOptionData,
   Role,
+  Snowflake,
 } from "discord.js";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { constants } from "@fire/lib/util/constants";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
 
 const {
   regexes: { unicodeEmoji },
@@ -25,9 +25,9 @@ export default class Rank extends Command {
       description: (language: Language) =>
         language.get("RANK_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_ROLES,
-        Permissions.FLAGS.EMBED_LINKS,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.ManageRoles,
+        PermissionFlagsBits.EmbedLinks,
       ],
       restrictTo: "guild",
       args: [

@@ -1,9 +1,9 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class TicketAdd extends Command {
   constructor() {
@@ -11,8 +11,8 @@ export default class TicketAdd extends Command {
       description: (language: Language) =>
         language.get("TICKET_ADD_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_ROLES,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.ManageRoles,
       ],
       args: [
         {
@@ -41,7 +41,7 @@ export default class TicketAdd extends Command {
     if (
       // TODO: below doesn't work with ticket threads
       !channel.topic?.includes(message.author.id) &&
-      !message.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS)
+      !message.member.permissions.has(PermissionFlagsBits.ManageChannels)
     )
       return await message.error("TICKET_ADD_FORBIDDEN");
     const updated = await channel.permissionOverwrites

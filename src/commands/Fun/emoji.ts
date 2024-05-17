@@ -1,9 +1,10 @@
-import { DiscordAPIError, GuildEmoji, Permissions } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
 import * as centra from "centra";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { DiscordAPIError, GuildEmoji } from "discord.js";
 
 const snowflakeRegex = /^(\d{15,21})$/gim;
 
@@ -13,10 +14,10 @@ export default class Emoji extends Command {
       description: (language: Language) =>
         language.get("EMOJI_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.ManageEmojisAndStickers,
       ],
-      userPermissions: [Permissions.FLAGS.MANAGE_EMOJIS_AND_STICKERS],
+      userPermissions: [PermissionFlagsBits.ManageEmojisAndStickers],
       args: [
         {
           id: "name",

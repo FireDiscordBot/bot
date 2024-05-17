@@ -1,7 +1,8 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions, Role } from "discord.js";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Role } from "discord.js";
 
 export default class Autorole extends Command {
   constructor() {
@@ -9,11 +10,11 @@ export default class Autorole extends Command {
       description: (language: Language) =>
         language.get("AUTOROLE_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
-        Permissions.FLAGS.MANAGE_ROLES,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
+        PermissionFlagsBits.ManageRoles,
       ],
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       restrictTo: "guild",
       args: [
         {
@@ -58,7 +59,8 @@ export default class Autorole extends Command {
     if (
       args.role &&
       (args.role.managed ||
-        args.role.rawPosition >= message.guild.members.me.roles.highest.rawPosition ||
+        args.role.rawPosition >=
+          message.guild.members.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
         (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
           message.guild.ownerId != message.author.id))

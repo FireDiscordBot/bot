@@ -2,6 +2,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ActionLogTypes, titleCase } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   DMChannel,
   GuildBasedChannel,
@@ -29,9 +30,8 @@ export default class ChannelCreate extends Listener {
     if (
       channel instanceof GuildChannel &&
       muteRole &&
-      !guild.me
-        .permissionsIn(channel)
-        .missing(muteCommand.clientPermissions as PermissionResolvable[]).length
+      !guild.me.permissionsIn(channel).missing(muteCommand.clientPermissions)
+        .length
     )
       await channel.permissionOverwrites
         .edit(
@@ -58,7 +58,7 @@ export default class ChannelCreate extends Listener {
         if (
           !channel
             .permissionsFor(guild.me)
-            .has(Permissions.FLAGS.MANAGE_ROLES) ||
+            .has(PermissionFlagsBits.ManageRoles) ||
           !(channel instanceof GuildChannel)
         )
           continue;
@@ -112,7 +112,7 @@ export default class ChannelCreate extends Listener {
       if (!channel.isThread() && channel.permissionOverwrites.cache.size > 1) {
         const canView = channel.permissionOverwrites.cache
           .filter((overwrite) =>
-            overwrite.allow.has(Permissions.FLAGS.VIEW_CHANNEL)
+            overwrite.allow.has(PermissionFlagsBits.ViewChannel)
           )
           .map((overwrite) => overwrite.id);
         const roles = [
@@ -122,7 +122,7 @@ export default class ChannelCreate extends Listener {
           ...guild.roles.cache
             .filter(
               (role) =>
-                role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
+                role.permissions.has(PermissionFlagsBits.Administrator) &&
                 !canView.find((id) => id == role.id)
             )
             .values(),
@@ -141,7 +141,7 @@ export default class ChannelCreate extends Listener {
         const viewers = [...roles.map((role) => role.toString()), ...members];
         embed.addField(language.get("VIEWABLE_BY"), `${viewers.join(" - ")}`);
       }
-      if (guild.members.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
+      if (guild.members.me.permissions.has(PermissionFlagsBits.ViewAuditLog)) {
         const auditLogActions = await guild
           .fetchAuditLogs({ limit: 2, type: "CHANNEL_CREATE" })
           .catch(() => {});

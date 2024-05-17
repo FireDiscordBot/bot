@@ -1,8 +1,8 @@
-import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
+import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 const nameRegex =
   /^[-_\p{L}\p{N}\p{Script=Devanagari}\p{Script=Thai}]{1,32}$/gmu;
@@ -12,8 +12,8 @@ export default class TagSlash extends Command {
     super("tag-slash", {
       description: (language: Language) =>
         language.get("TAG_SLASH_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
-      clientPermissions: [Permissions.FLAGS.SEND_MESSAGES],
+      userPermissions: [PermissionFlagsBits.ManageMessages],
+      clientPermissions: [PermissionFlagsBits.SendMessages],
       args: [
         {
           id: "ephemeral",

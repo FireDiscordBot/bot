@@ -3,7 +3,7 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { GuildLogManager } from "@fire/lib/util/logmanager";
-import { Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 type validTypes = "moderation" | "action" | "members";
 const valid = ["moderation", "action", "members"];
@@ -16,7 +16,7 @@ export default class LoggingToggle extends Command {
     super("logging-toggle", {
       description: (language: Language) =>
         language.get("LOGGING_TOGGLE_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "type",

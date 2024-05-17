@@ -2,14 +2,14 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Unban extends Command {
   constructor() {
     super("unban", {
       description: (language: Language) =>
         language.get("UNBAN_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.BAN_MEMBERS],
+      clientPermissions: [PermissionFlagsBits.BanMembers],
       args: [
         {
           id: "user",

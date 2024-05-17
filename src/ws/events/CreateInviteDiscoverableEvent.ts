@@ -4,7 +4,8 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { Permissions, Snowflake } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Snowflake } from "discord.js";
 
 export default class CreateInviteDiscoverableEvent extends Event {
   constructor(manager: Manager) {
@@ -32,7 +33,7 @@ export default class CreateInviteDiscoverableEvent extends Event {
       !guild.features.includes("DISCOVERABLE") ||
       !guild.me
         ?.permissionsIn(guild.discoverableInviteChannel)
-        ?.has(Permissions.FLAGS.CREATE_INSTANT_INVITE)
+        ?.has(PermissionFlagsBits.CreateInstantInvite)
     )
       return this.noInvite(nonce);
 

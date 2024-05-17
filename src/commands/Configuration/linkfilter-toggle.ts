@@ -2,7 +2,8 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { CommonContext } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { MessageActionRow, MessageSelectMenu, Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageActionRow, MessageSelectMenu } from "discord.js";
 
 export type LinkFilters =
   | "discord"
@@ -77,8 +78,8 @@ export default class LinkfilterToggle extends Command {
     super("linkfilter-toggle", {
       description: (language: Language) =>
         language.get("LINKFILTER_TOGGLE_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      clientPermissions: [PermissionFlagsBits.ManageMessages],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       enableSlashCommand: true,
       parent: "linkfilter",
       restrictTo: "guild",

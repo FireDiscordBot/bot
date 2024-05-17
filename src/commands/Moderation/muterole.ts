@@ -1,7 +1,8 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions, Role } from "discord.js";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Role } from "discord.js";
 
 export default class MuteRole extends Command {
   constructor() {
@@ -17,15 +18,15 @@ export default class MuteRole extends Command {
         },
       ],
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES_IN_THREADS,
-        Permissions.FLAGS.CREATE_PRIVATE_THREADS,
-        Permissions.FLAGS.CREATE_PUBLIC_THREADS,
-        Permissions.FLAGS.REQUEST_TO_SPEAK,
-        Permissions.FLAGS.MANAGE_CHANNELS,
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.ADD_REACTIONS,
-        Permissions.FLAGS.MANAGE_ROLES,
-        Permissions.FLAGS.SPEAK,
+        PermissionFlagsBits.SendMessagesInThreads,
+        PermissionFlagsBits.CreatePrivateThreads,
+        PermissionFlagsBits.CreatePublicThreads,
+        PermissionFlagsBits.RequestToSpeak,
+        PermissionFlagsBits.ManageChannels,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.AddReactions,
+        PermissionFlagsBits.ManageRoles,
+        PermissionFlagsBits.Speak,
       ],
       enableSlashCommand: true,
       moderatorOnly: true,

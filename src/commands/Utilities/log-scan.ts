@@ -2,12 +2,8 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { CommonContext } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import {
-  MessageActionRow,
-  MessageButton,
-  MessageSelectMenu,
-  Permissions,
-} from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageActionRow, MessageButton, MessageSelectMenu } from "discord.js";
 
 export default class LogScan extends Command {
   valid = {
@@ -77,8 +73,8 @@ export default class LogScan extends Command {
     super("minecraft-log-scan", {
       description: (language: Language) =>
         language.get("MINECRAFT_LOGSCAN_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      clientPermissions: [PermissionFlagsBits.ManageMessages],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       enableSlashCommand: false,
       restrictTo: "guild",
       parent: "minecraft",

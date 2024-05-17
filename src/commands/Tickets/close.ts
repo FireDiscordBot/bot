@@ -1,12 +1,16 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { SnowflakeUtil, MessageOptions, Permissions } from "discord.js";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
-import { MessageActionRow } from "discord.js";
-import { MessageButton } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import {
+  MessageActionRow,
+  MessageButton,
+  MessageOptions,
+  SnowflakeUtil,
+} from "discord.js";
 
 const { emojis } = constants;
 
@@ -16,9 +20,9 @@ export default class CloseTicket extends Command {
       description: (language: Language) =>
         language.get("CLOSE_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.MANAGE_CHANNELS,
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_ROLES,
+        PermissionFlagsBits.ManageChannels,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.ManageRoles,
       ],
       args: [
         {

@@ -1,18 +1,19 @@
-import { Formatters, MessageEmbed, Permissions, Snowflake } from "discord.js";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { LanguageKeys } from "@fire/lib/util/language";
 import {
   ActionLogTypes,
-  constants,
   MemberLogTypes,
   ModLogTypes,
+  constants,
 } from "@fire/lib/util/constants";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Formatters, MessageEmbed, Snowflake } from "discord.js";
 
 const {
   regexes: { joinleavemsgs },
@@ -48,7 +49,9 @@ export default class GuildMemberAdd extends Listener {
     if (
       member.guild.premium &&
       !member.user.bot &&
-      member.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD) &&
+      member.guild.members.me.permissions.has(
+        PermissionFlagsBits.ManageGuild
+      ) &&
       member.guild.inviteUses
     ) {
       const before = member.guild.inviteUses.clone();
@@ -83,7 +86,9 @@ export default class GuildMemberAdd extends Listener {
       }
     } else if (
       member.guild.premium &&
-      member.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD) &&
+      member.guild.members.me.permissions.has(
+        PermissionFlagsBits.ManageGuild
+      ) &&
       !member.guild.inviteUses
     )
       await member.guild.loadInvites();
@@ -112,7 +117,7 @@ export default class GuildMemberAdd extends Listener {
       );
       if (
         role &&
-        member.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_ROLES)
+        member.guild.members.me.permissions.has(PermissionFlagsBits.ManageRoles)
       )
         await member.roles
           .add(role, member.guild.language.get("AUTOROLE_REASON"))
@@ -132,7 +137,7 @@ export default class GuildMemberAdd extends Listener {
         if (
           role &&
           member.guild.members.me.permissions.has(
-            Permissions.FLAGS.MANAGE_ROLES
+            PermissionFlagsBits.ManageRoles
           )
         )
           await member.roles
@@ -233,7 +238,7 @@ export default class GuildMemberAdd extends Listener {
       if (
         member.user.bot &&
         member.guild.members.me.permissions.has(
-          Permissions.FLAGS.VIEW_AUDIT_LOG
+          PermissionFlagsBits.ViewAuditLog
         )
       ) {
         const auditLogActions = await member.guild

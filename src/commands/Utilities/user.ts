@@ -12,20 +12,19 @@ import {
   APIApplication,
   APIChannel,
   ApplicationFlags,
+  PermissionFlagsBits,
 } from "discord-api-types/v9";
 import {
   ClientUser,
+  DMChannel,
   DeconstructedSnowflake,
   DiscordAPIError,
-  DMChannel,
   Formatters,
   GuildBasedChannel,
-  GuildPreview,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
   Permissions,
-  PermissionString,
   Snowflake,
   SnowflakeUtil,
   ThreadChannel,
@@ -207,24 +206,25 @@ export default class User extends Command {
           this.client.util.shorten(roles, 1000, " - "),
           false
         );
-      if (!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+      if (!member.permissions.has(PermissionFlagsBits.Administrator)) {
         let perms = [];
-        const keyPerms: PermissionString[] = [
-          "BAN_MEMBERS",
-          "CHANGE_NICKNAME",
-          "KICK_MEMBERS",
-          "MANAGE_CHANNELS",
-          "MANAGE_GUILD",
-          "MANAGE_EMOJIS_AND_STICKERS",
-          "MANAGE_MESSAGES",
-          "MANAGE_NICKNAMES",
-          "MANAGE_ROLES",
-          "MANAGE_WEBHOOKS",
-          "MENTION_EVERYONE",
-          "VIEW_AUDIT_LOG",
-          "VIEW_GUILD_INSIGHTS",
-          "MANAGE_THREADS",
-          "MODERATE_MEMBERS",
+        const keyPerms = [
+          PermissionFlagsBits.BanMembers,
+          PermissionFlagsBits.ChangeNickname,
+          PermissionFlagsBits.KickMembers,
+          PermissionFlagsBits.ManageChannels,
+          PermissionFlagsBits.ManageGuild,
+          PermissionFlagsBits.ManageEmojisAndStickers,
+          PermissionFlagsBits.ManageMessages,
+          PermissionFlagsBits.ManageNicknames,
+          PermissionFlagsBits.ManageRoles,
+          PermissionFlagsBits.ManageWebhooks,
+          PermissionFlagsBits.MentionEveryone,
+          PermissionFlagsBits.ViewAuditLog,
+          PermissionFlagsBits.ViewGuildInsights,
+          PermissionFlagsBits.ManageThreads,
+          PermissionFlagsBits.ModerateMembers,
+          PermissionFlagsBits.ManageEvents,
         ];
         for (const permission of keyPerms)
           if (member.permissions.has(permission))
@@ -241,7 +241,7 @@ export default class User extends Command {
         embed.addField(
           `» ${command.language.get("PERMISSIONS_TEXT")}`,
           this.client.util.cleanPermissionName(
-            "ADMINISTRATOR",
+            PermissionFlagsBits.Administrator,
             command.language
           ),
           false
@@ -590,7 +590,7 @@ export default class User extends Command {
         info.push(
           member
             ?.permissionsIn(channel as GuildBasedChannel)
-            .has(Permissions.FLAGS.VIEW_CHANNEL)
+            .has(PermissionFlagsBits.ViewChannel)
             ? command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
                 type: command.language.get("CHANNEL"),
                 extra: channel.toString(),
@@ -627,7 +627,7 @@ export default class User extends Command {
         if (
           member
             ?.permissionsIn(channel as GuildBasedChannel)
-            .has(Permissions.FLAGS.VIEW_CHANNEL)
+            .has(PermissionFlagsBits.ViewChannel)
         )
           viewable = true;
       }
@@ -670,7 +670,7 @@ export default class User extends Command {
         if (
           member
             ?.permissionsIn(channel as GuildBasedChannel)
-            .has(Permissions.FLAGS.VIEW_CHANNEL)
+            .has(PermissionFlagsBits.ViewChannel)
         )
           viewable = true;
       }

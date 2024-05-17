@@ -14,6 +14,7 @@ import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import * as centra from "centra";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   CategoryChannel,
   EmbedFieldData,
@@ -25,7 +26,6 @@ import {
   Modal,
   ModalActionRowComponent,
   NewsChannel,
-  Permissions,
   Snowflake,
   SnowflakeUtil,
   TextInputComponent,
@@ -394,11 +394,11 @@ export default class Button extends Listener {
 
     if (button.customId.startsWith("anti:") && button.guild) {
       button.flags = 64;
-      if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
+      if (!button.member?.permissions.has(PermissionFlagsBits.ManageMessages))
         return await button
           .error("MISSING_PERMISSIONS_USER", {
             permissions: this.client.util.cleanPermissionName(
-              "MANAGE_MESSAGES",
+              PermissionFlagsBits.ManageMessages,
               button.language
             ),
             command: "anti",
@@ -457,11 +457,11 @@ export default class Button extends Listener {
     }
 
     if (button.customId.startsWith("tag_edit:") && button.guild) {
-      if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
+      if (!button.member?.permissions.has(PermissionFlagsBits.ManageMessages))
         return await button
           .error("MISSING_PERMISSIONS_USER", {
             permissions: this.client.util.cleanPermissionName(
-              "MANAGE_MESSAGES",
+              PermissionFlagsBits.ManageMessages,
               button.language
             ),
             command: "tag edit",
@@ -524,11 +524,11 @@ export default class Button extends Listener {
         button.guild.tags = new GuildTagManager(this.client, button.guild);
         await button.guild.tags.init();
       }
-      if (!button.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
+      if (!button.member?.permissions.has(PermissionFlagsBits.ManageMessages))
         return await button
           .error("MISSING_PERMISSIONS_USER", {
             permissions: this.client.util.cleanPermissionName(
-              "MANAGE_MESSAGES",
+              PermissionFlagsBits.ManageMessages,
               button.language
             ),
             command: "tag delete",

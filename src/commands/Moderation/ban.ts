@@ -5,14 +5,14 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { parseTime } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Ban extends Command {
   constructor() {
     super("ban", {
       description: (language: Language) =>
         language.get("BAN_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.BAN_MEMBERS],
+      clientPermissions: [PermissionFlagsBits.BanMembers],
       args: [
         {
           id: "user",

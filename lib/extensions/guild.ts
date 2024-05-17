@@ -15,6 +15,7 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { GuildSettings } from "@fire/lib/util/settings";
 import TicketName from "@fire/src/commands/Tickets/name";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   BaseFetchOptions,
   CategoryChannel,
@@ -27,6 +28,7 @@ import {
   GuildAuditLogsFetchOptions,
   GuildAuditLogsResolvable,
   GuildBasedChannel,
+  GuildChannel,
   GuildFeatures,
   MessageActionRow,
   MessageAttachment,
@@ -35,7 +37,6 @@ import {
   MessageEmbedOptions,
   PermissionOverwriteOptions,
   PermissionResolvable,
-  Permissions,
   Role,
   Snowflake,
   StageChannel,
@@ -69,6 +70,28 @@ const BOOST_TIERS = {
   TIER_2: 2,
   TIER_3: 3,
 };
+
+const MUTE_DENY_PERMISSION_BITS =
+  PermissionFlagsBits.CreatePrivateThreads |
+  PermissionFlagsBits.CreatePublicThreads |
+  PermissionFlagsBits.SendMessagesInThreads |
+  PermissionFlagsBits.RequestToSpeak |
+  PermissionFlagsBits.SendMessages |
+  PermissionFlagsBits.AddReactions |
+  PermissionFlagsBits.Speak;
+const MUTE_DENY_PERMISSION_OPTIONS = {
+  SEND_MESSAGES_IN_THREADS: false,
+  CREATE_PRIVATE_THREADS: false,
+  CREATE_PUBLIC_THREADS: false,
+  REQUEST_TO_SPEAK: false,
+  SEND_MESSAGES: false,
+  ADD_REACTIONS: false,
+  SPEAK: false,
+};
+const VIEW_AND_MANAGE_PERMISSION_BITS = (channel: GuildChannel) =>
+  (channel.isVoice()
+    ? PermissionFlagsBits.Connect
+    : PermissionFlagsBits.ViewChannel) | PermissionFlagsBits.ManageRoles;
 
 export class FireGuild extends Guild {
   quoteHooks: Collection<string, Webhook | WebhookClient>;
@@ -163,7 +186,7 @@ export class FireGuild extends Guild {
             channel.type == "GUILD_TEXT" &&
             channel
               .permissionsFor(this.roles.everyone, false)
-              ?.has("VIEW_CHANNEL")
+              ?.has(PermissionFlagsBits.ViewChannel)
         )
         .first() as FireTextChannel)
     );
@@ -206,9 +229,7 @@ export class FireGuild extends Guild {
     if (this.muteRole) return this.muteRole;
     const muteCommand = this.client.getCommand("mute");
     if (
-      this.members.me.permissions.missing(
-        muteCommand.clientPermissions as PermissionResolvable[]
-      ).length
+      this.members.me.permissions.missing(muteCommand.clientPermissions).length
     )
       return;
     const role = await this.roles
@@ -232,43 +253,19 @@ export class FireGuild extends Guild {
       if (
         !this.me
           .permissionsIn(channel)
-          .has(
-            (channel.isVoice()
-              ? Permissions.FLAGS.CONNECT
-              : Permissions.FLAGS.VIEW_CHANNEL) | Permissions.FLAGS.MANAGE_ROLES
-          )
+          .has(VIEW_AND_MANAGE_PERMISSION_BITS(channel))
       )
         continue;
       const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
         typeof denied == "undefined" ||
-        !denied.has(
-          Permissions.FLAGS.CREATE_PRIVATE_THREADS |
-            Permissions.FLAGS.CREATE_PUBLIC_THREADS |
-            Permissions.FLAGS.SEND_MESSAGES_IN_THREADS |
-            Permissions.FLAGS.REQUEST_TO_SPEAK |
-            Permissions.FLAGS.SEND_MESSAGES |
-            Permissions.FLAGS.ADD_REACTIONS |
-            Permissions.FLAGS.SPEAK
-        )
+        !denied.has(MUTE_DENY_PERMISSION_BITS)
       )
         await channel.permissionOverwrites
-          .edit(
-            role,
-            {
-              SEND_MESSAGES_IN_THREADS: false,
-              CREATE_PRIVATE_THREADS: false,
-              CREATE_PUBLIC_THREADS: false,
-              REQUEST_TO_SPEAK: false,
-              SEND_MESSAGES: false,
-              ADD_REACTIONS: false,
-              SPEAK: false,
-            },
-            {
-              reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
-              type: 0,
-            }
-          )
+          .edit(role, MUTE_DENY_PERMISSION_OPTIONS, {
+            reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
+            type: 0,
+          })
           .catch(() => {});
     }
     return role;
@@ -279,9 +276,7 @@ export class FireGuild extends Guild {
     let changed: Role | void = role;
     const muteCommand = this.client.getCommand("mute");
     if (
-      this.members.me.permissions.missing(
-        muteCommand.clientPermissions as PermissionResolvable[]
-      ).length
+      this.members.me.permissions.missing(muteCommand.clientPermissions).length
     )
       return;
     if (
@@ -301,43 +296,19 @@ export class FireGuild extends Guild {
       if (
         !this.me
           .permissionsIn(channel)
-          .has(
-            (channel.isVoice()
-              ? Permissions.FLAGS.CONNECT
-              : Permissions.FLAGS.VIEW_CHANNEL) | Permissions.FLAGS.MANAGE_ROLES
-          )
+          .has(VIEW_AND_MANAGE_PERMISSION_BITS(channel))
       )
         continue;
       const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
         typeof denied == "undefined" ||
-        !denied.has(
-          Permissions.FLAGS.CREATE_PRIVATE_THREADS |
-            Permissions.FLAGS.CREATE_PUBLIC_THREADS |
-            Permissions.FLAGS.SEND_MESSAGES_IN_THREADS |
-            Permissions.FLAGS.REQUEST_TO_SPEAK |
-            Permissions.FLAGS.SEND_MESSAGES |
-            Permissions.FLAGS.ADD_REACTIONS |
-            Permissions.FLAGS.SPEAK
-        )
+        !denied.has(MUTE_DENY_PERMISSION_BITS)
       )
         await channel.permissionOverwrites
-          .edit(
-            role,
-            {
-              SEND_MESSAGES_IN_THREADS: false,
-              CREATE_PRIVATE_THREADS: false,
-              CREATE_PUBLIC_THREADS: false,
-              REQUEST_TO_SPEAK: false,
-              SEND_MESSAGES: false,
-              ADD_REACTIONS: false,
-              SPEAK: false,
-            },
-            {
-              reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
-              type: 0,
-            }
-          )
+          .edit(role, MUTE_DENY_PERMISSION_OPTIONS, {
+            reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
+            type: 0,
+          })
           .catch(() => (changed = void 0));
     }
     return changed;
@@ -347,9 +318,7 @@ export class FireGuild extends Guild {
     if (!this.muteRole) return;
     const muteCommand = this.client.getCommand("mute");
     if (
-      this.members.me.permissions.missing(
-        muteCommand.clientPermissions as PermissionResolvable[]
-      ).length
+      this.members.me.permissions.missing(muteCommand.clientPermissions).length
     )
       return;
     const role = this.muteRole;
@@ -357,43 +326,19 @@ export class FireGuild extends Guild {
       if (
         !this.me
           .permissionsIn(channel)
-          .has(
-            (channel.isVoice()
-              ? Permissions.FLAGS.CONNECT
-              : Permissions.FLAGS.VIEW_CHANNEL) | Permissions.FLAGS.MANAGE_ROLES
-          )
+          .has(VIEW_AND_MANAGE_PERMISSION_BITS(channel))
       )
         continue;
       const denied = channel.permissionOverwrites.cache.get(role.id)?.deny;
       if (
         typeof denied == "undefined" ||
-        !denied.has(
-          Permissions.FLAGS.CREATE_PRIVATE_THREADS |
-            Permissions.FLAGS.CREATE_PUBLIC_THREADS |
-            Permissions.FLAGS.SEND_MESSAGES_IN_THREADS |
-            Permissions.FLAGS.REQUEST_TO_SPEAK |
-            Permissions.FLAGS.SEND_MESSAGES |
-            Permissions.FLAGS.ADD_REACTIONS |
-            Permissions.FLAGS.SPEAK
-        )
+        !denied.has(MUTE_DENY_PERMISSION_BITS)
       )
         await channel.permissionOverwrites
-          .edit(
-            role,
-            {
-              SEND_MESSAGES_IN_THREADS: false,
-              CREATE_PRIVATE_THREADS: false,
-              CREATE_PUBLIC_THREADS: false,
-              REQUEST_TO_SPEAK: false,
-              SEND_MESSAGES: false,
-              ADD_REACTIONS: false,
-              SPEAK: false,
-            },
-            {
-              reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
-              type: 0,
-            }
-          )
+          .edit(role, MUTE_DENY_PERMISSION_OPTIONS, {
+            reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
+            type: 0,
+          })
           .catch(() => {});
     }
   }
@@ -444,7 +389,7 @@ export class FireGuild extends Guild {
         : ((await this.members
             .fetch({ user: this.client.user.id, cache: true })
             .catch(() => {})) as FireMember);
-    if (!me || !me.permissions.has("MANAGE_ROLES")) return;
+    if (!me || !me.permissions.has(PermissionFlagsBits.ManageRoles)) return;
     const now = +new Date();
     for (const [id] of this.mutes.filter(
       // likely never gonna be equal but if somehow it is then you're welcome
@@ -505,7 +450,7 @@ export class FireGuild extends Guild {
         : ((await this.members
             .fetch({ user: this.client.user.id, cache: true })
             .catch(() => {})) as FireMember);
-    if (!me || !me.permissions.has("BAN_MEMBERS")) return;
+    if (!me || !me.permissions.has(PermissionFlagsBits.BanMembers)) return;
     const now = +new Date();
     for (const [id] of this.tempBans.filter(
       // likely never gonna be equal but if somehow it is then you're welcome
@@ -676,7 +621,9 @@ export class FireGuild extends Guild {
     for (const [id, perms] of this.permRoles) {
       for (const [, channel] of this.guildChannels.cache.filter(
         (channel) =>
-          channel.permissionsFor(this.me).has(Permissions.FLAGS.MANAGE_ROLES) &&
+          channel
+            .permissionsFor(this.me)
+            .has(PermissionFlagsBits.ManageRoles) &&
           (channel.permissionOverwrites.cache.get(id)?.allow.bitfield !=
             perms.allow ||
             channel.permissionOverwrites.cache.get(id)?.deny.bitfield !=
@@ -708,7 +655,7 @@ export class FireGuild extends Guild {
     if (
       !this.premium ||
       !this.available ||
-      !this.members.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+      !this.members.me.permissions.has(PermissionFlagsBits.ManageGuild)
     )
       return;
     this.inviteUses = new Collection();
@@ -741,7 +688,7 @@ export class FireGuild extends Guild {
           this.features.includes("DISCOVERABLE") &&
           this.me
             ?.permissionsIn(this.discoverableInviteChannel)
-            ?.has(Permissions.FLAGS.CREATE_INSTANT_INVITE)))
+            ?.has(PermissionFlagsBits.CreateInstantInvite)))
     );
   }
 
@@ -820,7 +767,7 @@ export class FireGuild extends Guild {
     if (
       !this.members.me
         .permissionsIn(channel)
-        .has(Permissions.FLAGS.MANAGE_WEBHOOKS)
+        .has(PermissionFlagsBits.ManageWebhooks)
     )
       return await (channel as FireTextChannel)
         .send({
@@ -852,7 +799,7 @@ export class FireGuild extends Guild {
     if (
       !this.members.me
         .permissionsIn(channel)
-        .has(Permissions.FLAGS.MANAGE_WEBHOOKS)
+        .has(PermissionFlagsBits.ManageWebhooks)
     )
       return await (channel as FireTextChannel)
         .send({
@@ -884,7 +831,7 @@ export class FireGuild extends Guild {
     if (
       !this.members.me
         .permissionsIn(channel)
-        .has(Permissions.FLAGS.MANAGE_WEBHOOKS)
+        .has(PermissionFlagsBits.ManageWebhooks)
     )
       return await (channel as FireTextChannel)
         .send({
@@ -1172,7 +1119,7 @@ export class FireGuild extends Guild {
           category.permissionOverwrites.cache.filter(
             (overwrite) =>
               overwrite.type == "member" &&
-              overwrite.allow.has(Permissions.FLAGS.MANAGE_THREADS)
+              overwrite.allow.has(PermissionFlagsBits.ManageThreads)
           ).size
         ) {
           const members = await this.members
@@ -1199,36 +1146,36 @@ export class FireGuild extends Guild {
               )
               .map((overwrite) => {
                 // we can't set manage roles without admin so just remove it
-                if (overwrite.allow.has(Permissions.FLAGS.MANAGE_ROLES))
+                if (overwrite.allow.has(PermissionFlagsBits.ManageRoles))
                   overwrite.allow = overwrite.allow.remove(
-                    Permissions.FLAGS.MANAGE_ROLES
+                    PermissionFlagsBits.ManageRoles
                   );
-                if (overwrite.deny.has(Permissions.FLAGS.MANAGE_ROLES))
+                if (overwrite.deny.has(PermissionFlagsBits.ManageRoles))
                   overwrite.deny = overwrite.deny.remove(
-                    Permissions.FLAGS.MANAGE_ROLES
+                    PermissionFlagsBits.ManageRoles
                   );
                 return overwrite;
               }),
             {
               allow: [
-                Permissions.FLAGS.VIEW_CHANNEL,
-                Permissions.FLAGS.SEND_MESSAGES,
+                PermissionFlagsBits.ViewChannel,
+                PermissionFlagsBits.SendMessages,
               ],
               type: "member",
               id: author.id,
             },
             {
               allow: [
-                Permissions.FLAGS.VIEW_CHANNEL,
-                Permissions.FLAGS.SEND_MESSAGES,
-                Permissions.FLAGS.MANAGE_CHANNELS,
+                PermissionFlagsBits.ViewChannel,
+                PermissionFlagsBits.SendMessages,
+                PermissionFlagsBits.ManageChannels,
               ],
               type: "member",
               id: this.members.me.id,
             },
             {
               id: this.roles.everyone.id,
-              deny: [Permissions.FLAGS.VIEW_CHANNEL],
+              deny: [PermissionFlagsBits.ViewChannel],
               type: "role",
             },
           ],
@@ -1318,7 +1265,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     if (!author) return "forbidden";
     if (!this.tickets.includes(channel)) return "nonticket";
     if (
-      !author.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS) &&
+      !author.permissions.has(PermissionFlagsBits.ManageChannels) &&
       (channel instanceof FireTextChannel
         ? !channel.topic.includes(author.id)
         : !channel.name.includes(author.id))

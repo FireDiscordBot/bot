@@ -2,14 +2,15 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { Permissions, Role } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Role } from "discord.js";
 
 export default class Block extends Command {
   constructor() {
     super("block", {
       description: (language: Language) =>
         language.get("BLOCK_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
+      clientPermissions: [PermissionFlagsBits.ManageRoles],
       args: [
         {
           id: "who",

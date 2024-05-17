@@ -1,16 +1,11 @@
 import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { MinecraftLogInfo } from "@fire/lib/interfaces/mclogs";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
-import {
-  Channel,
-  MessageEmbed,
-  Permissions,
-  Snowflake,
-  ThreadChannel,
-} from "discord.js";
 import * as centra from "centra";
-import { MinecraftLogInfo } from "@fire/lib/interfaces/mclogs";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Channel, MessageEmbed, Snowflake, ThreadChannel } from "discord.js";
 
 export default class Modal extends Listener {
   constructor() {
@@ -69,11 +64,11 @@ export default class Modal extends Listener {
     if (modal.customId.startsWith("tag_edit:") && modal.guild) {
       await modal.channel.ack();
       modal.flags = 64; // make messages ephemeral
-      if (!modal.member?.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES))
+      if (!modal.member?.permissions.has(PermissionFlagsBits.ManageMessages))
         return await modal
           .error("MISSING_PERMISSIONS_USER", {
             permissions: this.client.util.cleanPermissionName(
-              "MANAGE_MESSAGES",
+              PermissionFlagsBits.ManageMessages,
               modal.language
             ),
             command: "tag edit",

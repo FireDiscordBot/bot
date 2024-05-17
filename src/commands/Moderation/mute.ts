@@ -3,7 +3,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { parseTime } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Mute extends Command {
   constructor() {
@@ -39,9 +39,9 @@ export default class Mute extends Command {
         },
       ],
       clientPermissions: [
-        Permissions.FLAGS.MODERATE_MEMBERS,
-        Permissions.FLAGS.MANAGE_CHANNELS,
-        Permissions.FLAGS.MANAGE_ROLES,
+        PermissionFlagsBits.ModerateMembers,
+        PermissionFlagsBits.ManageChannels,
+        PermissionFlagsBits.ManageRoles,
       ],
       enableSlashCommand: true,
       restrictTo: "guild",

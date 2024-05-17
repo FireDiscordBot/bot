@@ -11,14 +11,15 @@ import {
   titleCase,
 } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { MessageActionRow, MessageSelectMenu, Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageActionRow, MessageSelectMenu } from "discord.js";
 
 export default class LoggingConfig extends Command {
   constructor() {
     super("logging-configure", {
       description: (language: Language) =>
         language.get("LOGGING_CONFIG_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [],
       enableSlashCommand: true,
       restrictTo: "guild",

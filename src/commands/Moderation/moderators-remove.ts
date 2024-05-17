@@ -2,7 +2,8 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
-import { Permissions, Role } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Role } from "discord.js";
 import Moderators from "./moderators";
 
 export default class RemoveModerator extends Command {
@@ -10,7 +11,7 @@ export default class RemoveModerator extends Command {
     super("moderators-remove", {
       description: (language: Language) =>
         language.get("MODERATORS_REMOVE_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "moderator",

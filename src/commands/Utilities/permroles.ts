@@ -1,19 +1,20 @@
+import { FireMessage } from "@fire/lib/extensions/message";
+import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
-import { MessageEmbed, TextChannel, Permissions, Role } from "discord.js";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageEmbed, Permissions, Role, TextChannel } from "discord.js";
 
 export default class PermRoles extends Command {
   constructor() {
     super("permroles", {
       description: (language: Language) =>
         language.get("PERMROLES_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
-      userPermissions: [Permissions.FLAGS.MANAGE_ROLES],
+      clientPermissions: [PermissionFlagsBits.ManageRoles],
+      userPermissions: [PermissionFlagsBits.ManageRoles],
       args: [
         {
           id: "role",
@@ -116,8 +117,8 @@ export default class PermRoles extends Command {
     if (!channelPerms) return await message.error("PERMROLES_NOTHING_TO_COPY");
 
     if (
-      channelPerms.allow.has(Permissions.FLAGS.MANAGE_ROLES) ||
-      channelPerms.deny.has(Permissions.FLAGS.MANAGE_ROLES)
+      channelPerms.allow.has(PermissionFlagsBits.ManageRoles) ||
+      channelPerms.deny.has(PermissionFlagsBits.ManageRoles)
     )
       return await message.error("PERMROLES_MANAGE_ROLES");
 
@@ -163,7 +164,7 @@ export default class PermRoles extends Command {
         !channel.type.endsWith("thread") &&
         channel
           .permissionsFor(message.guild.me)
-          .has(Permissions.FLAGS.MANAGE_ROLES) &&
+          .has(PermissionFlagsBits.ManageRoles) &&
         (channel.permissionOverwrites.cache.get(args.role.id)?.allow.bitfield !=
           channelPerms.allow.bitfield ||
           channel.permissionOverwrites.cache.get(args.role.id)?.deny.bitfield !=

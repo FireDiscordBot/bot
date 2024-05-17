@@ -1,29 +1,29 @@
-import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { ClusterStats } from "@fire/lib/interfaces/stats";
-import { EventType } from "@fire/lib/ws/util/constants";
+import { Command } from "@fire/lib/util/command";
+import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { Language } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
-import { Command } from "@fire/lib/util/command";
-import { Message } from "@fire/lib/ws/Message";
 import { Module } from "@fire/lib/util/module";
+import { Message } from "@fire/lib/ws/Message";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
+import * as centra from "centra";
 import { Argument } from "discord-akairo";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   ApplicationCommandOptionChoiceData,
   CacheType,
   CommandInteractionOption,
-  Permissions,
 } from "discord.js";
-import * as centra from "centra";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 
 export default class AdminUnload extends Command {
   constructor() {
     super("admin-unload", {
       description: (language: Language) =>
         language.get("ADMIN_UNLOAD_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.ADD_REACTIONS],
+      clientPermissions: [PermissionFlagsBits.AddReactions],
       args: [
         {
           id: "module",

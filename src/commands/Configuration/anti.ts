@@ -2,7 +2,8 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { CommonContext } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { MessageActionRow, MessageButton, Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageActionRow, MessageButton } from "discord.js";
 
 export default class Anti extends Command {
   valid = ["everyone", "zws", "spoiler"];
@@ -10,8 +11,8 @@ export default class Anti extends Command {
     super("anti", {
       description: (language: Language) =>
         language.get("ANTI_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
-      userPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
+      clientPermissions: [PermissionFlagsBits.ManageMessages],
+      userPermissions: [PermissionFlagsBits.ManageMessages],
       enableSlashCommand: true,
       restrictTo: "guild",
       slashOnly: true,

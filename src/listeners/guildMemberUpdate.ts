@@ -7,12 +7,12 @@ import {
 } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   AuditLogChange,
   Formatters,
   GuildAuditLogsEntry,
   MessageEmbed,
-  Permissions,
   Snowflake,
 } from "discord.js";
 
@@ -62,7 +62,9 @@ export default class GuildMemberUpdate extends Listener {
       const canTimeOut =
         until &&
         until < +new Date() + 2419199999 &&
-        newMember.guild.members.me?.permissions?.has("MODERATE_MEMBERS");
+        newMember.guild.members.me?.permissions?.has(
+          PermissionFlagsBits.ModerateMembers
+        );
       if (until == 0 || +new Date() < until)
         canTimeOut
           ? await newMember
@@ -124,7 +126,7 @@ export default class GuildMemberUpdate extends Listener {
       if (
         role &&
         newMember.guild.members.me.permissions.has(
-          Permissions.FLAGS.MANAGE_ROLES
+          PermissionFlagsBits.ManageRoles
         )
       )
         await newMember.roles
@@ -150,7 +152,7 @@ export default class GuildMemberUpdate extends Listener {
         if (
           role &&
           newMember.guild.members.me.permissions.has(
-            Permissions.FLAGS.MANAGE_ROLES
+            PermissionFlagsBits.ManageRoles
           )
         )
           await newMember.roles
@@ -162,7 +164,7 @@ export default class GuildMemberUpdate extends Listener {
     if (
       !newMember.guild.settings.has("log.members") ||
       !newMember.guild.members.me.permissions.has(
-        Permissions.FLAGS.VIEW_AUDIT_LOG
+        PermissionFlagsBits.ViewAuditLog
       )
     )
       return;

@@ -3,7 +3,8 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import VanityURLs from "@fire/src/modules/vanityurls";
-import { Invite, Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Invite } from "discord.js";
 
 const deleteKeywords = ["remove", "delete", "true", "yeet", "disable"];
 const validityRegex = /^[a-zA-Z0-9]{3,25}$/gim;
@@ -15,8 +16,8 @@ export default class VanityURL extends Command {
     super("vanityurl", {
       description: (language: Language) =>
         language.get("VANITYURL_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.CREATE_INSTANT_INVITE],
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      clientPermissions: [PermissionFlagsBits.CreateInstantInvite],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "code",
@@ -89,7 +90,9 @@ export default class VanityURL extends Command {
     if (!invite) {
       if (
         command.guild.features.includes("VANITY_URL") &&
-        command.guild.members.me.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+        command.guild.members.me.permissions.has(
+          PermissionFlagsBits.ManageGuild
+        )
       ) {
         const vanity = await command.guild.fetchVanityData().catch(() => {});
         if (vanity) invite = await this.client.fetchInvite(vanity.code).catch();

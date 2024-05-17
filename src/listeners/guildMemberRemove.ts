@@ -7,13 +7,8 @@ import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import {
-  Formatters,
-  MessageEmbed,
-  Permissions,
-  Snowflake,
-  ThreadChannel,
-} from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Formatters, MessageEmbed, Snowflake, ThreadChannel } from "discord.js";
 
 const {
   regexes: { joinleavemsgs },
@@ -114,7 +109,7 @@ export default class GuildMemberRemove extends Listener {
       let moderator: FireMember, action: string, reason: string;
       if (
         member.guild.members.me.permissions.has(
-          Permissions.FLAGS.VIEW_AUDIT_LOG
+          PermissionFlagsBits.ViewAuditLog
         )
       ) {
         const auditLogActions = await member.guild

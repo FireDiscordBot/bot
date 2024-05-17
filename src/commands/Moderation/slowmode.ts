@@ -2,7 +2,8 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
-import { CategoryChannel, GuildChannel, Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { CategoryChannel } from "discord.js";
 
 // TODO: make this more slash command friendly
 
@@ -15,10 +16,10 @@ export default class Slowmode extends Command {
       description: (language: Language) =>
         language.get("SLOWMODE_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.MANAGE_CHANNELS,
-        Permissions.FLAGS.SEND_MESSAGES,
+        PermissionFlagsBits.ManageChannels,
+        PermissionFlagsBits.SendMessages,
       ],
-      userPermissions: [Permissions.FLAGS.MANAGE_CHANNELS],
+      userPermissions: [PermissionFlagsBits.ManageChannels],
       args: [
         {
           id: "delay",
@@ -112,7 +113,7 @@ export default class Slowmode extends Command {
         channel.rateLimitPerUser != delay &&
         message.guild.me
           .permissionsIn(channel)
-          .has(Permissions.FLAGS.MANAGE_CHANNELS)
+          .has(PermissionFlagsBits.ManageChannels)
       )
         await channel
           .setRateLimitPerUser(

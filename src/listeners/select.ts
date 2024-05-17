@@ -16,6 +16,7 @@ import {
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Formatters,
   MessageActionRow,
@@ -23,7 +24,6 @@ import {
   MessageSelectMenu,
   Modal,
   ModalActionRowComponent,
-  Permissions,
   Snowflake,
   TextInputComponent,
 } from "discord.js";
@@ -399,11 +399,11 @@ export default class Select extends Listener {
 
     if (select.customId == "linkfilters" && select.guild) {
       select.flags = 64;
-      if (!select.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+      if (!select.member?.permissions.has(PermissionFlagsBits.ManageGuild))
         return await select
           .error("MISSING_PERMISSIONS_USER", {
             permissions: this.client.util.cleanPermissionName(
-              "MANAGE_GUILD",
+              PermissionFlagsBits.ManageGuild,
               select.language
             ),
             command: "linkfilter",
@@ -485,11 +485,11 @@ export default class Select extends Listener {
     if (select.customId.startsWith("logging-configure:") && select.guild) {
       const guild = select.guild;
       select.flags = 64;
-      if (!select.member?.permissions.has(Permissions.FLAGS.MANAGE_GUILD))
+      if (!select.member?.permissions.has(PermissionFlagsBits.ManageGuild))
         return await select
           .error("MISSING_PERMISSIONS_USER", {
             permissions: this.client.util.cleanPermissionName(
-              "MANAGE_GUILD",
+              PermissionFlagsBits.ManageGuild,
               select.language
             ),
             command: "logging configure",

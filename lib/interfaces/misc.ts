@@ -159,7 +159,7 @@ export class BaseFakeChannel {
   //   const roles = member.roles.cache;
   //   const permissions = new Permissions(roles.map((role) => role.permissions));
 
-  //   if (permissions.has(Permissions.FLAGS.ADMINISTRATOR))
+  //   if (permissions.has(PermissionFlagsBits.Administrator))
   //     return new Permissions(Permissions.ALL).freeze();
 
   //   const overwrites = this.overwritesFor(member, true, roles);
@@ -182,7 +182,7 @@ export class BaseFakeChannel {
   //     .freeze();
   // }
   // private rolePermissions(role: Role) {
-  //   if (role.permissions.has(Permissions.FLAGS.ADMINISTRATOR))
+  //   if (role.permissions.has(PermissionFlagsBits.Administrator))
   //     return new Permissions(Permissions.ALL).freeze();
 
   //   const channel = this.real;

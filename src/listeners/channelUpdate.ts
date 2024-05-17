@@ -2,13 +2,12 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { ActionLogTypes, constants, titleCase } from "@fire/lib/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   DMChannel,
   GuildBasedChannel,
   GuildChannel,
   MessageEmbed,
-  PermissionResolvable,
-  Permissions,
   StageChannel,
   VoiceChannel,
 } from "discord.js";
@@ -36,20 +35,18 @@ export default class ChannelUpdate extends Listener {
     if (
       after instanceof GuildChannel &&
       muteRole &&
-      !guild.me
-        .permissionsIn(after)
-        .missing(muteCommand.clientPermissions as PermissionResolvable[])
+      !guild.me.permissionsIn(after).missing(muteCommand.clientPermissions)
         .length &&
       !after.permissionOverwrites.cache
         .get(muteRole.id)
         ?.deny.has(
-          Permissions.FLAGS.CREATE_PRIVATE_THREADS |
-            Permissions.FLAGS.CREATE_PUBLIC_THREADS |
-            Permissions.FLAGS.SEND_MESSAGES_IN_THREADS |
-            Permissions.FLAGS.REQUEST_TO_SPEAK |
-            Permissions.FLAGS.SEND_MESSAGES |
-            Permissions.FLAGS.ADD_REACTIONS |
-            Permissions.FLAGS.SPEAK
+          PermissionFlagsBits.CreatePrivateThreads |
+            PermissionFlagsBits.CreatePublicThreads |
+            PermissionFlagsBits.SendMessagesInThreads |
+            PermissionFlagsBits.RequestToSpeak |
+            PermissionFlagsBits.SendMessages |
+            PermissionFlagsBits.AddReactions |
+            PermissionFlagsBits.Speak
         )
     )
       await after.permissionOverwrites

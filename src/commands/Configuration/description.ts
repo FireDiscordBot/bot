@@ -1,9 +1,9 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import VanityURLs from "@fire/src/modules/vanityurls";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
+import { Language } from "@fire/lib/util/language";
+import VanityURLs from "@fire/src/modules/vanityurls";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Description extends Command {
   module: VanityURLs;
@@ -12,7 +12,7 @@ export default class Description extends Command {
     super("description", {
       description: (language: Language) =>
         language.get("DESCRIPTION_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "desc",

@@ -1,10 +1,10 @@
 import { Fire } from "@fire/lib/Fire";
 import {
-  AkairoModule,
   ArgumentGenerator as AkairoArgumentGenerator,
   ArgumentOptions as AkairoArgumentOptions,
   Command as AkairoCommand,
   CommandOptions as AkairoCommandOptions,
+  AkairoModule,
   Flag,
 } from "discord-akairo";
 import {
@@ -15,16 +15,16 @@ import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
   ChannelType,
+  PermissionFlagsBits,
 } from "discord-api-types/v9";
 import {
   ApplicationCommandOptionChoiceData,
   CommandInteractionOption,
-  DiscordAPIError,
   DMChannel,
+  DiscordAPIError,
   GuildChannel,
   Invite,
   MessageAttachment,
-  Permissions,
   Role,
   Snowflake,
 } from "discord.js";
@@ -41,15 +41,11 @@ import {
   InteractionContexts,
 } from "../interfaces/interactions";
 import { Message } from "../ws/Message";
-import { EventType } from "../ws/util/constants";
 import { MessageUtil } from "../ws/util/MessageUtil";
+import { EventType } from "../ws/util/constants";
 import { SlashArgumentTypeCaster } from "./commandhandler";
 import { UseExec, UseRun } from "./constants";
 import { Language } from "./language";
-
-type ArgumentGenerator = (
-  ...a: Parameters<AkairoArgumentGenerator>
-) => IterableIterator<ArgumentOptions | Flag>;
 
 const getSlashType = (type: string) => {
   switch (type) {
@@ -174,6 +170,9 @@ export class InvalidArgumentContextError extends Error {
 }
 
 export class Command extends AkairoCommand {
+  public declare userPermissions: bigint[];
+  public declare clientPermissions: bigint[];
+
   requiresExperiment?: { id: number; bucket: number };
   declare description: (language: Language) => string;
   slashIds: Record<Snowflake, Snowflake>; // map of guild id to snowflake if guild specific
@@ -199,9 +198,9 @@ export class Command extends AkairoCommand {
     else options?.aliases?.push(id);
     if (!options?.clientPermissions && !options?.slashOnly)
       options.clientPermissions = [
-        Permissions.FLAGS.USE_EXTERNAL_EMOJIS,
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.ADD_REACTIONS,
+        PermissionFlagsBits.UseExternalEmojis,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.AddReactions,
       ];
     if (
       options.args instanceof Array &&

@@ -1,10 +1,11 @@
-import { MessageEmbed, Permissions, version as djsver } from "discord.js";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { humanFileSize } from "@fire/lib/util/clientutil";
 import { ClusterStats } from "@fire/lib/interfaces/stats";
-import { Language } from "@fire/lib/util/language";
+import { humanFileSize } from "@fire/lib/util/clientutil";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 import * as centra from "centra";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageEmbed, version as djsver } from "discord.js";
 import { totalmem } from "os";
 
 export default class Stats extends Command {
@@ -13,8 +14,8 @@ export default class Stats extends Command {
       description: (language: Language) =>
         language.get("STATS_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
       ],
       restrictTo: "all",
       args: [

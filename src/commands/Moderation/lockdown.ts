@@ -3,12 +3,12 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Command } from "@fire/lib/util/command";
 import { categoryChannelConverter } from "@fire/lib/util/converters";
 import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Collection,
   MessageEmbed,
   PermissionOverwriteOptions,
   PermissionOverwrites,
-  Permissions,
 } from "discord.js";
 
 const update = (
@@ -37,11 +37,11 @@ export default class Lockdown extends Command {
       description: (language: Language) =>
         language.get("LOCKDOWN_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.MANAGE_CHANNELS,
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
+        PermissionFlagsBits.ManageChannels,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
       ],
-      userPermissions: [Permissions.FLAGS.MANAGE_CHANNELS],
+      userPermissions: [PermissionFlagsBits.ManageChannels],
       args: [
         {
           id: "action",
@@ -96,10 +96,10 @@ export default class Lockdown extends Command {
         channel.type == "GUILD_TEXT" &&
         channel
           .permissionsFor(message.guild.roles.everyone)
-          .has(Permissions.FLAGS.VIEW_CHANNEL) &&
+          .has(PermissionFlagsBits.ViewChannel) &&
         channel
           .permissionsFor(message.guild.roles.everyone)
-          .has(Permissions.FLAGS.SEND_MESSAGES)
+          .has(PermissionFlagsBits.SendMessages)
     ) as Collection<string, FireTextChannel>;
     const startReason = message.guild.language.get("LOCKDOWN_REASON", {
       user: message.author.toString(),
@@ -113,7 +113,6 @@ export default class Lockdown extends Command {
         "mod.lockdownmessages",
         []
       );
-    const start = +new Date();
     for (const channel of channels.values())
       await channel.permissionOverwrites
         .set(
@@ -132,7 +131,7 @@ export default class Lockdown extends Command {
                 )
               : {
                   id: this.client.user.id,
-                  allow: ["SEND_MESSAGES"],
+                  allow: [PermissionFlagsBits.SendMessages],
                   type: "member",
                 },
           ],
@@ -201,10 +200,10 @@ export default class Lockdown extends Command {
         channel.type == "GUILD_TEXT" &&
         channel
           .permissionsFor(message.guild.roles.everyone)
-          .has(Permissions.FLAGS.VIEW_CHANNEL) &&
+          .has(PermissionFlagsBits.ViewChannel) &&
         !channel
           .permissionsFor(message.guild.roles.everyone)
-          .has(Permissions.FLAGS.SEND_MESSAGES) &&
+          .has(PermissionFlagsBits.SendMessages) &&
         locked.includes(channel.id)
     ) as Collection<string, FireTextChannel>;
     let lockdownMessages = message.guild.settings.get<string[]>(
@@ -247,7 +246,7 @@ export default class Lockdown extends Command {
                 )
               : {
                   id: this.client.user.id,
-                  allow: ["SEND_MESSAGES"],
+                  allow: [PermissionFlagsBits.SendMessages],
                   type: "member",
                 },
           ],

@@ -4,6 +4,7 @@ import { Command } from "@fire/lib/util/command";
 import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import VanityURLs from "@fire/src/modules/vanityurls";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   CommandInteractionOption,
   MessageActionRow,
@@ -11,7 +12,6 @@ import {
   MessageEmbed,
   MessageEmbedOptions,
   MessageSelectMenu,
-  Permissions,
   PermissionString,
 } from "discord.js";
 
@@ -21,8 +21,8 @@ export default class Help extends Command {
       description: (language: Language) =>
         language.get("HELP_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.EMBED_LINKS,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.EmbedLinks,
       ],
       aliases: ["helpme", "commands", "h"],
       args: [
@@ -152,10 +152,9 @@ export default class Help extends Command {
 
   async sendUsage(message: FireMessage, command: Command) {
     let permissions: string[] = [];
-    for (const perm of (command.userPermissions || []) as Array<
-      PermissionString | bigint
-    >)
-      permissions.push(this.client.util.cleanPermissionName(perm));
+    if (command.userPermissions)
+      for (const perm of command.userPermissions)
+        permissions.push(this.client.util.cleanPermissionName(perm));
     let args: string[] = command.getArgumentsClean();
     const embed = {
       color: message.member?.displayColor,

@@ -2,11 +2,11 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { GuildTextChannel } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   HexColorString,
   MessageAttachment,
   MessageEmbed,
-  Permissions,
   ThreadChannel,
   Webhook,
   WebhookClient,
@@ -39,8 +39,8 @@ export default class MultiImageEmbed extends Command {
     super("multi-image-embed", {
       description: (language: Language) =>
         language.get("MULTIIMGEMBED_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_WEBHOOKS],
-      userPermissions: [Permissions.FLAGS.ATTACH_FILES],
+      clientPermissions: [PermissionFlagsBits.ManageWebhooks],
+      userPermissions: [PermissionFlagsBits.AttachFiles],
       args: [
         {
           id: "image-one",

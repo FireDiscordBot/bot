@@ -1,10 +1,10 @@
-import { MessageEmbedOptions, MessageEmbed, Permissions } from "discord.js";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageEmbed, MessageEmbedOptions } from "discord.js";
 
 // TODO: make this more slash command friendly
 
@@ -17,10 +17,10 @@ export default class Purge extends Command {
       description: (language: Language) =>
         language.get("PURGE_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.VIEW_CHANNEL,
-        Permissions.FLAGS.MANAGE_MESSAGES,
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.ManageMessages,
       ],
-      userPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
+      userPermissions: [PermissionFlagsBits.ManageMessages],
       args: [
         {
           id: "amount",

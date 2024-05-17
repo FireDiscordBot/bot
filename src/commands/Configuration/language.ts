@@ -1,9 +1,9 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
-import { Permissions } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class LanguageCommand extends Command {
   constructor() {
@@ -34,7 +34,7 @@ export default class LanguageCommand extends Command {
       });
     else if (
       message.guild &&
-      message.member.permissions.has(Permissions.FLAGS.MANAGE_GUILD)
+      message.member.permissions.has(PermissionFlagsBits.ManageGuild)
     ) {
       message.guild.settings.set<string>("utils.language", args.language.id);
       return await message.channel.send(

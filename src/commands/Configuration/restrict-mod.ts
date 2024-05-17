@@ -1,14 +1,15 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { CategoryChannel, Permissions, Snowflake } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { CategoryChannel, Snowflake } from "discord.js";
 
 export default class RestrictModerator extends Command {
   constructor() {
     super("restrict-moderator", {
       description: (language: Language) =>
         language.get("RESTRICT_MODERATOR_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "category",

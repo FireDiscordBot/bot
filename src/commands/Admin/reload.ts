@@ -1,26 +1,26 @@
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { EventType } from "@fire/lib/ws/util/constants";
+import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
-import { Command } from "@fire/lib/util/command";
 import { Module } from "@fire/lib/util/module";
 import { Message } from "@fire/lib/ws/Message";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { Argument } from "discord-akairo";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   ApplicationCommandOptionChoiceData,
   CacheType,
   CommandInteractionOption,
-  Permissions,
 } from "discord.js";
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 
 export default class AdminReload extends Command {
   constructor() {
     super("admin-reload", {
       description: (language: Language) =>
         language.get("ADMIN_RELOAD_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.ADD_REACTIONS],
+      clientPermissions: [PermissionFlagsBits.AddReactions],
       args: [
         {
           id: "module",

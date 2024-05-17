@@ -10,6 +10,7 @@ import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
 import { Argument } from "discord-akairo";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 const disableArgs = ["off", "disable", "false"];
 
@@ -23,7 +24,7 @@ export default class JoinMSG extends Command {
     super("joinmsg", {
       description: (language: Language) =>
         language.get("JOINMSG_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "channel",

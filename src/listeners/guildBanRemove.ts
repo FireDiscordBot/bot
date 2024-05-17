@@ -1,8 +1,9 @@
-import { GuildAuditLogsEntry, MessageEmbed, Permissions } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Listener } from "@fire/lib/util/listener";
 import { ActionLogTypes } from "@fire/lib/util/constants";
+import { Listener } from "@fire/lib/util/listener";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { GuildAuditLogsEntry, MessageEmbed } from "discord.js";
 
 export default class GuildBanRemove extends Listener {
   constructor() {
@@ -16,7 +17,7 @@ export default class GuildBanRemove extends Listener {
     if (
       !guild ||
       typeof guild.fetchAuditLogs != "function" ||
-      !guild.members.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)
+      !guild.members.me.permissions.has(PermissionFlagsBits.ViewAuditLog)
     )
       return;
     let action: GuildAuditLogsEntry;

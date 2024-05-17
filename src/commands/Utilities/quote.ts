@@ -16,6 +16,7 @@ import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
 import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Collection,
   Constants,
@@ -23,7 +24,6 @@ import {
   MessageActionRow,
   MessageButton,
   MessageEmbed,
-  Permissions,
   Snowflake,
 } from "discord.js";
 
@@ -195,7 +195,7 @@ export default class Quote extends Command {
       command.guild &&
       command.guild.members.me
         .permissionsIn(command.channel.real as GuildChannelResolvable)
-        .has(Permissions.FLAGS.VIEW_CHANNEL)
+        .has(PermissionFlagsBits.ViewChannel)
     )
       return await command.error("QUOTE_SAVE_NOT_NEEDED");
 

@@ -9,12 +9,12 @@ import {
   LinkfilterExcludedItem,
 } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Channel,
   Collection,
   GuildChannel,
   MessageEmbed,
-  Permissions,
   Role,
 } from "discord.js";
 
@@ -31,8 +31,8 @@ export default class LinkfilterExclude extends Command {
     super("linkfilter-exclude", {
       description: (language: Language) =>
         language.get("LINKFILTER_EXCLUDE_COMMAND_DESCRIPTION"),
-      clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      clientPermissions: [PermissionFlagsBits.ManageMessages],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "user",

@@ -1,7 +1,8 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
-import { Permissions, Role, StageChannel, VoiceChannel } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Role, StageChannel, VoiceChannel } from "discord.js";
 
 export default class VCRole extends Command {
   constructor() {
@@ -9,10 +10,10 @@ export default class VCRole extends Command {
       description: (language: Language) =>
         language.get("VCROLE_COMMAND_DESCRIPTION"),
       userPermissions: [
-        Permissions.FLAGS.MANAGE_CHANNELS,
-        Permissions.FLAGS.MANAGE_ROLES,
+        PermissionFlagsBits.ManageChannels,
+        PermissionFlagsBits.ManageRoles,
       ],
-      clientPermissions: [Permissions.FLAGS.MANAGE_ROLES],
+      clientPermissions: [PermissionFlagsBits.ManageRoles],
       args: [
         {
           id: "channel",

@@ -38,6 +38,7 @@ import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 
 const { reactions, regexes, imageExts, audioExts, videoExts } = constants;
 
@@ -300,7 +301,11 @@ export class FireMessage extends Message {
     if (
       !this.channel ||
       (this.guild &&
-        !this.guild.members.me?.permissions.has("READ_MESSAGE_HISTORY"))
+        !this.guild.members.me?.permissions.has(
+          PermissionFlagsBits.ViewChannel |
+            PermissionFlagsBits.ReadMessageHistory |
+            PermissionFlagsBits.SendMessages
+        ))
     )
       return this; // we need to return a message to prevent issues so just return this
     return (await super.reply(options)) as FireMessage;
@@ -463,10 +468,10 @@ export class FireMessage extends Message {
     const isLurkable =
       this.guild.roles.everyone
         .permissionsIn(channel)
-        .has(Permissions.FLAGS.VIEW_CHANNEL) &&
+        .has(PermissionFlagsBits.ViewChannel) &&
       this.guild.roles.everyone
         .permissionsIn(channel)
-        .has(Permissions.FLAGS.READ_MESSAGE_HISTORY);
+        .has(PermissionFlagsBits.ReadMessageHistory);
     if (debug) debug.push(`Is lurkable: ${isLurkable}`);
     let member: FireMember;
     if (this.guild.id == destination?.guild?.id) member = quoter;
@@ -508,7 +513,7 @@ export class FireMessage extends Message {
     )
       if (
         !member ||
-        !member.permissionsIn(channel).has(Permissions.FLAGS.VIEW_CHANNEL)
+        !member.permissionsIn(channel).has(PermissionFlagsBits.ViewChannel)
       ) {
         if (debug)
           debug.push(
@@ -626,8 +631,8 @@ export class FireMessage extends Message {
       name: string;
       description?: string;
     }[] = [];
-    const ATTACH_FILES = Permissions.FLAGS.ATTACH_FILES,
-      EMBED_LINKS = Permissions.FLAGS.EMBED_LINKS;
+    const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
+      EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
     const canAttach =
       destination instanceof GuildChannel && quoter instanceof FireMember
         ? quoter.permissionsIn(destination).has(ATTACH_FILES)
@@ -903,7 +908,7 @@ export class FireMessage extends Message {
       language.get("JUMP_URL"),
       `[${language.get("CLICK_TO_VIEW")}](${this.url})`
     );
-    const ATTACH_FILES = Permissions.FLAGS.ATTACH_FILES;
+    const ATTACH_FILES = PermissionFlagsBits.AttachFiles;
     if (
       this.attachments?.size &&
       (quoter instanceof FireMember
@@ -1200,7 +1205,7 @@ export class FireMessage extends Message {
       this.guild.settings.get<boolean>("mod.antieveryone", false) &&
       (this.content?.includes("@everyone") ||
         this.content?.includes("@here")) &&
-      !this.member.permissions.has(Permissions.FLAGS.MENTION_EVERYONE)
+      !this.member.permissions.has(PermissionFlagsBits.MentionEveryone)
     )
       return await this.delete({
         reason: this.guild.language.get("ANTI_DELETE_REASON_EVERYONE"),
@@ -1345,7 +1350,7 @@ The lack of this is a sign that this message may have been sent automatically by
               result instanceof FireMessage &&
               result.guild?.members.me
                 ?.permissionsIn(this.channel as FireTextChannel)
-                ?.has("ADD_REACTIONS")
+                ?.has(PermissionFlagsBits.AddReactions)
             )
               result.react("🎣").catch(() => {});
           });

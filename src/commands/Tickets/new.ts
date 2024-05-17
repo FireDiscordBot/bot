@@ -4,7 +4,8 @@ import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
 import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { GuildBasedChannel, Permissions, ThreadChannel } from "discord.js";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { GuildBasedChannel, ThreadChannel } from "discord.js";
 
 const { emojis } = constants;
 
@@ -14,10 +15,10 @@ export default class NewTicket extends Command {
       description: (language: Language) =>
         language.get("NEW_COMMAND_DESCRIPTION"),
       clientPermissions: [
-        Permissions.FLAGS.MANAGE_CHANNELS,
-        Permissions.FLAGS.SEND_MESSAGES,
-        Permissions.FLAGS.MANAGE_ROLES,
-        Permissions.FLAGS.EMBED_LINKS,
+        PermissionFlagsBits.ManageChannels,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.ManageRoles,
+        PermissionFlagsBits.EmbedLinks,
       ],
       restrictTo: "guild",
       args: [
@@ -47,9 +48,9 @@ export default class NewTicket extends Command {
       !message.guild.me
         ?.permissionsIn(message.channel as GuildBasedChannel)
         .has(
-          Permissions.FLAGS.VIEW_CHANNEL |
-            Permissions.FLAGS.SEND_MESSAGES |
-            Permissions.FLAGS.CREATE_PRIVATE_THREADS
+          PermissionFlagsBits.ViewChannel |
+            PermissionFlagsBits.SendMessages |
+            PermissionFlagsBits.CreatePrivateThreads
         )
     )
       return this.client.commandHandler.emit(
@@ -60,9 +61,9 @@ export default class NewTicket extends Command {
         message.guild.me
           ?.permissionsIn(message.channel as GuildBasedChannel)
           .missing(
-            Permissions.FLAGS.VIEW_CHANNEL |
-              Permissions.FLAGS.SEND_MESSAGES |
-              Permissions.FLAGS.CREATE_PRIVATE_THREADS
+            PermissionFlagsBits.ViewChannel |
+              PermissionFlagsBits.SendMessages |
+              PermissionFlagsBits.CreatePrivateThreads
           )
       );
     const creating = await message.send("NEW_TICKET_CREATING");

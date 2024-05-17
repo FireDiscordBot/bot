@@ -1,15 +1,16 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { NewsChannel, Permissions, Snowflake } from "discord.js";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import { NewsChannel, Snowflake } from "discord.js";
 
 export default class LogIgnore extends Command {
   constructor() {
     super("logignore", {
       description: (language: Language) =>
         language.get("LOGIGNORE_COMMAND_DESCRIPTION"),
-      userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
+      userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "channel",

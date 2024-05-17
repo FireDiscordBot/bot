@@ -60,7 +60,7 @@ export default class ThreadDelete extends Listener {
       // if (channel.permissionOverwrites.size > 1) {
       //   const canView = channel.permissionOverwrites
       //     .filter((overwrite) =>
-      //       overwrite.allow.has(Permissions.FLAGS.VIEW_CHANNEL)
+      //       overwrite.allow.has(PermissionFlagsBits.ViewChannel)
       //     )
       //     .map((overwrite) => overwrite.id);
       //   const roles = [
@@ -70,7 +70,7 @@ export default class ThreadDelete extends Listener {
       //     ...guild.roles.cache
       //       .filter(
       //         (role) =>
-      //           role.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
+      //           role.permissions.has(PermissionFlagsBits.Administrator) &&
       //           !canView.find((id) => id == role.id)
       //       )
       //       .values(),
@@ -91,7 +91,7 @@ export default class ThreadDelete extends Listener {
       // }
 
       // there doesn't seem to be an audit log event for deleting threads
-      // if (guild.members.me.permissions.has(Permissions.FLAGS.VIEW_AUDIT_LOG)) {
+      // if (guild.members.me.permissions.has(PermissionFlagsBits.ViewAuditLog)) {
       //   const auditLogActions = await guild
       //     .fetchAuditLogs({ limit: 2, type: "CHANNEL_DELETE" })
       //     .catch(() => {});

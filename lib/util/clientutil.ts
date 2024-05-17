@@ -17,8 +17,8 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import * as centra from "centra";
 import { ClientUtil } from "discord-akairo";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
-  BitFieldResolvable,
   Collection,
   GuildChannel,
   GuildTextBasedChannel,
@@ -56,6 +56,9 @@ export const humanFileSize = (size: number) => {
 
 const AllowedImageFormats = ["webp", "png", "jpg", "jpeg", "gif"];
 const AllowedImageSizes = Array.from({ length: 9 }, (e, i) => 2 ** (i + 4));
+
+const guildRegex = /guild/,
+  underscoreRegex = /_/gim;
 
 export class MojangAPIError extends Error {
   status: number;
@@ -455,7 +458,10 @@ export class Util extends ClientUtil {
     if (language.has(`PERMISSIONS.${name}` as LanguageKeys))
       return language.get(`PERMISSIONS.${name}` as LanguageKeys);
     return titleCase(
-      name.toLowerCase().replace(/_/gim, " ").replace(/guild/, "server")
+      name
+        .toLowerCase()
+        .replace(underscoreRegex, " ")
+        .replace(guildRegex, "server")
     );
   }
 
@@ -463,7 +469,7 @@ export class Util extends ClientUtil {
     language = language ?? this.client.getLanguage("en-US");
     if (language.has(`FEATURES.${feature}` as unknown as LanguageKeys))
       return language.get(`FEATURES.${feature}` as unknown as LanguageKeys);
-    return titleCase(feature.toLowerCase().replace(/guild/, "server"), "_");
+    return titleCase(feature.toLowerCase().replace(guildRegex, "server"), "_");
   }
 
   bitToPermissionString(permission: bigint) {
@@ -529,21 +535,12 @@ export class Util extends ClientUtil {
     )
       return false;
     else if (command.channel == "guild" && !context.guild) return false;
+    else if (command.userPermissions?.length && !context.guild) return false;
     else if (
-      (command.userPermissions as PermissionString[])?.length &&
-      !context.guild
-    )
-      return false;
-    else if (
-      (command.userPermissions as PermissionString[])?.length &&
+      command.userPermissions?.length &&
       (context.channel as GuildChannel)
         .permissionsFor(context.member ?? context.author)
-        .missing(
-          command.userPermissions as BitFieldResolvable<
-            PermissionString,
-            bigint
-          >
-        ).length
+        .missing(command.userPermissions).length
     )
       return false;
     return true;
@@ -849,7 +846,7 @@ export class Util extends ClientUtil {
 
     const parsedCommand = message.util?.parsed?.command;
     const canInvite = message.member?.permissions.has(
-      Permissions.FLAGS.MANAGE_GUILD
+      PermissionFlagsBits.ManageGuild
     );
     const mention = parsedCommand?.getSlashCommandMention(message.guild);
     if (mention == null) return false;
