@@ -1,6 +1,7 @@
 import { ArgumentTypeCaster } from "discord-akairo";
 
-const codeblockRegex = /(?:```(?<language>[A-Za-z0-9\\-\\.]*)\n)(?<content>[\s\S]+)(?:```)/im;
+const codeblockRegex =
+  /(?:```(?<language>[A-Za-z0-9\\-\\.]*)\n)(?<content>[\s\S]+)(?:```)/im;
 
 export interface Codeblock {
   language?: string;

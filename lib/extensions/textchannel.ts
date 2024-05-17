@@ -1,6 +1,6 @@
-import { RawGuildChannelData } from "discord.js/typings/rawDataTypes";
-import { TextChannel, Structures } from "discord.js";
 import { Fire } from "@fire/lib/Fire";
+import { Structures, TextChannel } from "discord.js";
+import { RawGuildChannelData } from "discord.js/typings/rawDataTypes";
 import { FireGuild } from "./guild";
 
 export class FireTextChannel extends TextChannel {

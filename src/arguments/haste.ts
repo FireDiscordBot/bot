@@ -1,7 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
-import { ArgumentTypeCaster } from "discord-akairo";
 import * as centra from "centra";
+import { ArgumentTypeCaster } from "discord-akairo";
 
 const {
   regexes: { haste },

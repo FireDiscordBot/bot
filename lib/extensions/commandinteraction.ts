@@ -1,7 +1,6 @@
 import { APIAttachment } from "discord-api-types/v9";
 import {
   ApplicationCommandOptionType,
-  CacheType,
   Collection,
   CommandInteraction as CommandInteractionBase,
   CommandInteractionOption,

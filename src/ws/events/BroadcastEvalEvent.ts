@@ -1,8 +1,8 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Event } from "@fire/lib/ws/event/Event";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord.js";
 
 export default class BroadcastEvalEvent extends Event {

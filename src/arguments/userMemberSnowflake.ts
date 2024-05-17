@@ -1,13 +1,13 @@
-import {
-  userConverter,
-  memberConverter,
-  snowflakeConverter,
-} from "@fire/lib/util/converters";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { DeconstructedSnowflake, Snowflake } from "discord.js";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
+import {
+  memberConverter,
+  snowflakeConverter,
+  userConverter,
+} from "@fire/lib/util/converters";
+import { DeconstructedSnowflake, Snowflake } from "discord.js";
 
 export const userMemberSnowflakeTypeCaster = async (
   message: FireMessage | ApplicationCommandMessage,

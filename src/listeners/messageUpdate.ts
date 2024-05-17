@@ -1,9 +1,9 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { MessageEmbed, Snowflake } from "discord.js";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
+import { MessageEmbed, Snowflake } from "discord.js";
 import Message from "./message";
-import { ActionLogTypes } from "@fire/lib/util/constants";
 
 export default class MessageUpdate extends Listener {
   constructor() {

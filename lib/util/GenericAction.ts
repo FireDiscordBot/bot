@@ -1,18 +1,18 @@
-import {
-  MessageReactionResolvable,
-  MessageReaction,
-  CachedManager,
-  PartialTypes,
-  NewsChannel,
-  Snowflake,
-  Constants,
-} from "discord.js";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireTextChannel } from "../extensions/textchannel";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { FireUser } from "@fire/lib/extensions/user";
 import { Fire } from "@fire/lib/Fire";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
+import {
+  CachedManager,
+  Constants,
+  MessageReaction,
+  MessageReactionResolvable,
+  NewsChannel,
+  PartialTypes,
+  Snowflake,
+} from "discord.js";
+import { FireTextChannel } from "../extensions/textchannel";
 
 const { PartialTypes } = Constants;
 

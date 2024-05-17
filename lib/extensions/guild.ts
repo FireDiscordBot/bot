@@ -36,7 +36,6 @@ import {
   MessageEmbed,
   MessageEmbedOptions,
   PermissionOverwriteOptions,
-  PermissionResolvable,
   Role,
   Snowflake,
   StageChannel,

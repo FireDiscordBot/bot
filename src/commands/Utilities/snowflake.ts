@@ -1,9 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
-import { Language } from "@fire/lib/util/language";
-import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
-import User from "./user";
 import { snowflakeConverter } from "@fire/lib/util/converters";
+import { Language } from "@fire/lib/util/language";
+import User from "./user";
 
 export default class Snowflake extends Command {
   userCommand: User;

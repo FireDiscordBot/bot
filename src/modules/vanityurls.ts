@@ -1,13 +1,13 @@
-import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { VanityURL } from "@fire/lib/interfaces/invwtf";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { VanityURL } from "@fire/lib/interfaces/invwtf";
+import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { Language } from "@fire/lib/util/language";
-import { MessageEmbed, Invite } from "discord.js";
 import { Module } from "@fire/lib/util/module";
 import { Message } from "@fire/lib/ws/Message";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import * as centra from "centra";
+import { Invite, MessageEmbed } from "discord.js";
 
 export default class VanityURLs extends Module {
   blacklisted: string[];

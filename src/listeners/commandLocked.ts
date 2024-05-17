@@ -1,6 +1,6 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Listener } from "@fire/lib/util/listener";
 import { Command } from "@fire/lib/util/command";
+import { Listener } from "@fire/lib/util/listener";
 
 export default class CommandLocked extends Listener {
   constructor() {

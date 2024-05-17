@@ -3,8 +3,8 @@ import * as centra from "centra";
 import { Constants, DiscordAPIError, HTTPError } from "discord.js";
 import { constants } from "../util/constants";
 import { APIRequest } from "./APIRequest";
-import { RateLimitError } from "./RateLimitError";
 import { RESTManager } from "./RESTManager";
+import { RateLimitError } from "./RateLimitError";
 
 const {
   Events: { DEBUG, RATE_LIMIT, INVALID_REQUEST_WARNING },

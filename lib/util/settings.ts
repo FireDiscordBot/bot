@@ -1,11 +1,11 @@
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { DiscoveryUpdateOp } from "../interfaces/stats";
-import { EventType } from "@fire/lib/ws/util/constants";
+import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Message } from "@fire/lib/ws/Message";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { CategoryChannel, Snowflake } from "discord.js";
-import { Fire } from "@fire/lib/Fire";
+import { DiscoveryUpdateOp } from "../interfaces/stats";
 
 export class GuildSettings {
   guild: Snowflake | FireGuild;

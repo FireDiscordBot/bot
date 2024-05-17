@@ -1,5 +1,5 @@
-import { Language } from "@fire/lib/util/language";
 import * as language from "@fire/i18n/en-GB.json";
+import { Language } from "@fire/lib/util/language";
 
 // Language#get falls back to en-US if the selected language
 // does not have a certain string, so only strings that are different

@@ -1,6 +1,6 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { ArgumentTypeCaster } from "discord-akairo";
 import { Command } from "@fire/lib/util/command";
+import { ArgumentTypeCaster } from "discord-akairo";
 
 export const commandTypeCaster: ArgumentTypeCaster = (
   message: FireMessage,

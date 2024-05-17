@@ -24,7 +24,6 @@ import {
   MessageActionRow,
   MessageButton,
   MessageEmbed,
-  Permissions,
   Snowflake,
   SnowflakeUtil,
   ThreadChannel,

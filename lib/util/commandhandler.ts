@@ -1,16 +1,16 @@
+import { Fire } from "@fire/lib/Fire";
+import { FireMessage } from "@fire/lib/extensions/message";
 import {
   CommandHandler as AkairoCommandHandler,
+  Category,
   CommandHandlerOptions,
   Constants,
-  Category,
 } from "discord-akairo";
-import { DiscordAPIError, ThreadChannel, Collection } from "discord.js";
+import { Collection, DiscordAPIError, ThreadChannel } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ContextCommandMessage } from "../extensions/contextcommandmessage";
-import { CommandUtil, ParsedComponentData } from "./commandutil";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { Fire } from "@fire/lib/Fire";
 import { Command } from "./command";
+import { CommandUtil, ParsedComponentData } from "./commandutil";
 import { UseExec, UseRun } from "./constants";
 
 const { CommandHandlerEvents } = Constants;

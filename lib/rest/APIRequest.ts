@@ -1,9 +1,9 @@
-import { AbortController } from "abort-controller";
 import * as FormData from "@discordjs/form-data";
+import { Fire } from "@fire/lib/Fire";
+import { AbortController } from "abort-controller";
+import * as centra from "centra";
 import { RequestOptions } from "./APIRouter";
 import { RESTManager } from "./RESTManager";
-import { Fire } from "@fire/lib/Fire";
-import * as centra from "centra";
 
 export class APIRequest {
   options: RequestOptions;

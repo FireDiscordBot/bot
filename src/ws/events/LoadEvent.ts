@@ -1,13 +1,13 @@
-import { EventType } from "@fire/lib/ws/util/constants";
-import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
+import { Event } from "@fire/lib/ws/event/Event";
+import { EventType } from "@fire/lib/ws/util/constants";
 
 export default class LoadEvent extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.LOAD_MODULE);
   }
 
- async run(data: {
+  async run(data: {
     name: string;
     type: "Command" | "Language" | "Listener" | "Module";
     action: "reload" | "unload";

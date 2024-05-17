@@ -1,14 +1,14 @@
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { FireUser } from "@fire/lib/extensions/user";
 import {
   ClientOptions,
-  HTTPOptions,
   Constants,
+  HTTPOptions,
   Intents,
   Options,
   Sweepers,
 } from "discord.js";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { FireUser } from "@fire/lib/extensions/user";
 
 let litecord: { http?: HTTPOptions } = {};
 if (process.env.USE_LITECORD == "true")

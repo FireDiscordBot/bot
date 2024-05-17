@@ -8,8 +8,6 @@ import {
   GuildBasedChannel,
   GuildChannel,
   MessageEmbed,
-  PermissionResolvable,
-  Permissions,
 } from "discord.js";
 
 export default class ChannelCreate extends Listener {

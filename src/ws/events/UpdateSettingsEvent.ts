@@ -1,12 +1,12 @@
-import { EventType } from "@fire/lib/ws/util/constants";
-import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
-import { Snowflake } from "discord.js";
-import { GuildSettings, UserSettings } from "@fire/lib/util/settings";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { Message } from "@fire/lib/ws/Message";
-import { FireUser } from "@fire/lib/extensions/user";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireUser } from "@fire/lib/extensions/user";
+import { GuildSettings, UserSettings } from "@fire/lib/util/settings";
+import { Message } from "@fire/lib/ws/Message";
+import { Event } from "@fire/lib/ws/event/Event";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { Snowflake } from "discord.js";
 
 type Primitive = string | boolean | number | null;
 

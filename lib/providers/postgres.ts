@@ -1,8 +1,8 @@
-import { Client, ResultIterator, ArrayValue, Primitive } from "ts-postgres";
+import { Fire } from "@fire/lib/Fire";
+import { Provider } from "discord-akairo";
 import { Collection, Snowflake } from "discord.js";
 import Semaphore from "semaphore-async-await";
-import { Provider } from "discord-akairo";
-import { Fire } from "@fire/lib/Fire";
+import { ArrayValue, Client, Primitive, ResultIterator } from "ts-postgres";
 
 export class PostgresProvider extends Provider {
   declare items: Collection<Snowflake, any>;

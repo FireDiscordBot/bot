@@ -5,6 +5,7 @@ import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants, i18nOptions } from "@fire/lib/util/constants";
 import Filters from "@fire/src/modules/filters";
 import * as centra from "centra";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Channel,
   Collection,
@@ -22,7 +23,6 @@ import {
   MessageReaction,
   MessageSelectMenu,
   NewsChannel,
-  Permissions,
   ReplyMessageOptions,
   Snowflake,
   Structures,
@@ -38,7 +38,6 @@ import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
-import { PermissionFlagsBits } from "discord-api-types/v9";
 
 const { reactions, regexes, imageExts, audioExts, videoExts } = constants;
 

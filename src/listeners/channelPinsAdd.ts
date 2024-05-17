@@ -1,9 +1,9 @@
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageReference, MessageEmbed } from "discord.js";
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { Listener } from "@fire/lib/util/listener";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { ActionLogTypes } from "@fire/lib/util/constants";
+import { Listener } from "@fire/lib/util/listener";
+import { MessageEmbed, MessageReference } from "discord.js";
 
 export default class ChannelPinsAdd extends Listener {
   constructor() {

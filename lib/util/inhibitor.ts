@@ -1,7 +1,7 @@
-import { Inhibitor as AkairoInhibitor, InhibitorOptions } from "discord-akairo";
 import { Fire } from "@fire/lib/Fire";
-import { FireMessage } from "../extensions/message";
+import { Inhibitor as AkairoInhibitor, InhibitorOptions } from "discord-akairo";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
+import { FireMessage } from "../extensions/message";
 import { Command } from "./command";
 
 export class Inhibitor extends AkairoInhibitor {

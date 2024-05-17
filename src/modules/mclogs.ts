@@ -11,6 +11,7 @@ import {
   validPasteURLs,
 } from "@fire/lib/util/clientutil";
 import { constants, titleCase } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 import {
@@ -22,7 +23,6 @@ import {
 import { lt as semverLessThan } from "semver";
 import { getCodeblockMatch } from "../arguments/codeblock";
 import Filters from "./filters";
-import { Language } from "@fire/lib/util/language";
 
 const { mcLogFilters, regexes } = constants;
 

@@ -1,9 +1,9 @@
 import { FireMessage } from "@fire/lib/extensions/message";
-import { LanguageKeys } from "@fire/lib/util/language";
 import { FireUser } from "@fire/lib/extensions/user";
+import { ActionLogTypes } from "@fire/lib/util/constants";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { MessageEmbed } from "discord.js";
-import { ActionLogTypes } from "@fire/lib/util/constants";
 
 export default class MessageDelete extends Listener {
   constructor() {

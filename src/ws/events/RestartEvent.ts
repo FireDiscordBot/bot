@@ -1,11 +1,11 @@
+import { Manager } from "@fire/lib/Manager";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { ManagerState } from "@fire/lib/interfaces/aether";
-import { Manager } from "@fire/lib/Manager";
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
-import { Event } from "@fire/lib/ws/event/Event";
 import { Message } from "@fire/lib/ws/Message";
-import { EventType } from "@fire/lib/ws/util/constants";
+import { Event } from "@fire/lib/ws/event/Event";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import GuildCheckEvent from "./GuildCheckEvent";
 
 export default class RestartEvent extends Event {

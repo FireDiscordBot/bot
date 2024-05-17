@@ -1,5 +1,3 @@
-import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
 import { Command, InvalidArgumentContextError } from "@fire/lib/util/command";

@@ -1,10 +1,10 @@
 import * as dotEnvExtended from "dotenv-extended";
-import "source-map-support/register";
 import "module-alias/register";
+import "source-map-support/register";
 
 import * as dayjs from "dayjs";
-import * as utc from "dayjs/plugin/utc";
 import * as timezone from "dayjs/plugin/timezone";
+import * as utc from "dayjs/plugin/utc";
 // import * as relativeTime from "dayjs/plugin/relativeTime";
 import * as calendar from "dayjs/plugin/calendar";
 
@@ -29,8 +29,8 @@ dotEnvExtended.load({
 
 if (process.env.NODE_ENV == "litecord") process.env.NODE_ENV = "development";
 
-import { getCommitHash } from "@fire/lib/util/gitUtils";
 import { Manager } from "@fire/lib/Manager";
+import { getCommitHash } from "@fire/lib/util/gitUtils";
 import * as sentry from "@sentry/node";
 
 const version =

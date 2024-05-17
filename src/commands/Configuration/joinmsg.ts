@@ -1,16 +1,11 @@
-import {
-  MessageMentionOptions,
-  MessageEmbed,
-  Permissions,
-  Snowflake,
-} from "discord.js";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
 import { Argument } from "discord-akairo";
 import { PermissionFlagsBits } from "discord-api-types/v9";
+import { MessageEmbed, MessageMentionOptions, Snowflake } from "discord.js";
 
 const disableArgs = ["off", "disable", "false"];
 

@@ -1,7 +1,7 @@
-import { Experiment } from "@fire/lib/interfaces/experiments";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
+import { Experiment } from "@fire/lib/interfaces/experiments";
+import { Event } from "@fire/lib/ws/event/Event";
+import { EventType } from "@fire/lib/ws/util/constants";
 
 export default class ReloadExperimentsEvent extends Event {
   constructor(manager: Manager) {

@@ -1,12 +1,12 @@
+import { Fire } from "@fire/lib/Fire";
 import {
-  ApplicationCommandMessage,
   FakeChannel as AppFakeChannel,
+  ApplicationCommandMessage,
 } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Fire } from "@fire/lib/Fire";
 import {
   DMChannel,
   EmojiResolvable,

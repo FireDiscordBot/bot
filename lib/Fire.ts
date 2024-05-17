@@ -33,9 +33,12 @@ import {
   textChannelSilentTypeCaster,
   textChannelTypeCaster,
 } from "@fire/src/arguments/textChannel";
+import { timeTypeCaster } from "@fire/src/arguments/time";
 import { userSilentTypeCaster, userTypeCaster } from "@fire/src/arguments/user";
 import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
 import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
+import GuildUnavailable from "@fire/src/listeners/guildUnavailable";
+import AetherStats from "@fire/src/modules/aetherstats";
 import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
 import * as Sentry from "@sentry/node";
 import {
@@ -87,9 +90,6 @@ import { Module, ModuleHandler } from "./util/module";
 import { Message } from "./ws/Message";
 import { MessageUtil } from "./ws/util/MessageUtil";
 import { EventType } from "./ws/util/constants";
-import { timeTypeCaster } from "@fire/src/arguments/time";
-import AetherStats from "@fire/src/modules/aetherstats";
-import GuildUnavailable from "@fire/src/listeners/guildUnavailable";
 // this shit has some weird import fuckery, this is the only way I can use it
 const i18n = i18next as unknown as typeof i18next.default;
 

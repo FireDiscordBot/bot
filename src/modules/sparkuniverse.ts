@@ -1,16 +1,16 @@
-import {
-  MessageActionRow,
-  CategoryChannel,
-  MessageButton,
-  Snowflake,
-  Channel,
-} from "discord.js";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import { Module } from "@fire/lib/util/module";
+import {
+  CategoryChannel,
+  Channel,
+  MessageActionRow,
+  MessageButton,
+  Snowflake,
+} from "discord.js";
 
 const supportMarketplaceBugMessage =
   "Please select the product you require support with below.";

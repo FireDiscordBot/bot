@@ -5,9 +5,9 @@ import { ManagerState } from "./interfaces/aether";
 import { Command } from "./util/command";
 import { getCommitHash } from "./util/gitUtils";
 import { Module } from "./util/module";
-import { EventHandler } from "./ws/event/EventHandler";
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
+import { EventHandler } from "./ws/event/EventHandler";
 
 export class Manager {
   readonly REST_HOST = process.env.REST_HOST

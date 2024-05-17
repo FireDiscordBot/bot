@@ -1,6 +1,6 @@
 import { Payload } from "@fire/lib/interfaces/aether";
-import { deflateSync, inflateSync } from "zlib";
 import { Message } from "@fire/lib/ws/Message";
+import { deflateSync, inflateSync } from "zlib";
 
 export class MessageUtil {
   static encode(message: Message) {

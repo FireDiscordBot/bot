@@ -37,7 +37,6 @@ import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
-import { FireMessageContextMenuInteraction } from "./messagecontextmenuinteraction";
 
 const { reactions } = constants;
 

@@ -1,4 +1,4 @@
-import { ThreadChannel, ThreadMember, Snowflake, Constants } from "discord.js";
+import { Constants, Snowflake, ThreadChannel, ThreadMember } from "discord.js";
 import { GenericAction } from "../GenericAction";
 
 const { Events } = Constants;

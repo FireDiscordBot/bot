@@ -12,7 +12,6 @@ import {
   MessageEmbed,
   MessageEmbedOptions,
   MessageSelectMenu,
-  PermissionString,
 } from "discord.js";
 
 export default class Help extends Command {

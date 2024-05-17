@@ -1,10 +1,10 @@
 import {
-  WebhookMessageOptions,
-  WebhookClientOptions,
-  WebhookClientData,
   MessagePayload,
-  WebhookClient,
   Snowflake,
+  WebhookClient,
+  WebhookClientData,
+  WebhookClientOptions,
+  WebhookMessageOptions,
 } from "discord.js";
 
 export class ThreadhookClient extends WebhookClient {

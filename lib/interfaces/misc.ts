@@ -5,6 +5,7 @@ import {
   Snowflake,
   ThreadChannel,
 } from "discord.js";
+import { Fire } from "../Fire";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ComponentMessage } from "../extensions/componentmessage";
 import { ContextCommandMessage } from "../extensions/contextcommandmessage";
@@ -12,7 +13,6 @@ import { FireGuild } from "../extensions/guild";
 import { FireMessage } from "../extensions/message";
 import { ModalMessage } from "../extensions/modalmessage";
 import { FireTextChannel } from "../extensions/textchannel";
-import { Fire } from "../Fire";
 
 // basefakechannel more like basedfakechannel amirite
 export class BaseFakeChannel {

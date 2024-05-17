@@ -1,9 +1,8 @@
-import { MessageReaction, GuildEmoji, Snowflake } from "discord.js";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Listener } from "@fire/lib/util/listener";
+import { MessageReaction } from "discord.js";
 
 export default class MessageReactionRemove extends Listener {
   constructor() {

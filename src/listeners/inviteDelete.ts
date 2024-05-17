@@ -1,7 +1,7 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { ActionLogTypes } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import { MessageEmbed, Invite } from "discord.js";
+import { Invite, MessageEmbed } from "discord.js";
 
 export default class InviteDelete extends Listener {
   constructor() {

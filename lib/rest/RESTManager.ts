@@ -1,8 +1,8 @@
+import { Fire } from "@fire/lib/Fire";
 import { Collection, Constants } from "discord.js";
-import { RequestHandler } from "./RequestHandler";
 import { APIRequest } from "./APIRequest";
 import routeBuilder, { RequestOptions } from "./APIRouter";
-import { Fire } from "@fire/lib/Fire";
+import { RequestHandler } from "./RequestHandler";
 
 const { Endpoints } = Constants;
 

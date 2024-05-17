@@ -1,8 +1,8 @@
+import * as enUS from "@fire/i18n/en-US.json";
+import { Fire } from "@fire/lib/Fire";
 import { AkairoHandler, AkairoModule } from "discord-akairo";
 import { StringMap, TOptions } from "i18next";
-import * as enUS from "@fire/i18n/en-US.json";
-import { constants, i18nOptions } from "./constants";
-import { Fire } from "@fire/lib/Fire";
+import { constants } from "./constants";
 
 type LanguageOptions = Partial<typeof enUS>;
 export type LanguageKeys = keyof typeof enUS;

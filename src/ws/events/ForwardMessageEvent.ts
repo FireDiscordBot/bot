@@ -1,14 +1,14 @@
+import { Manager } from "@fire/lib/Manager";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Event } from "@fire/lib/ws/event/Event";
+import { EventType } from "@fire/lib/ws/util/constants";
 import {
   BaseMessageComponentOptions,
   MessageActionRowOptions,
-  MessageEmbedOptions,
   MessageEmbed,
+  MessageEmbedOptions,
   Snowflake,
 } from "discord.js";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { Event } from "@fire/lib/ws/event/Event";
-import { Manager } from "@fire/lib/Manager";
 
 export default class ForwardMessageEvent extends Event {
   constructor(manager: Manager) {
@@ -16,7 +16,8 @@ export default class ForwardMessageEvent extends Event {
   }
 
   async run(data: {
-    buttons?: (Required<BaseMessageComponentOptions> & MessageActionRowOptions)[];
+    buttons?: (Required<BaseMessageComponentOptions> &
+      MessageActionRowOptions)[];
     message: string | MessageEmbedOptions[];
     parseUsers: Snowflake[];
     channel?: Snowflake;

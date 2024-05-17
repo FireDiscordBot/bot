@@ -1,6 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 import Moderators from "./moderators";
 
 export default class ListModerators extends Command {

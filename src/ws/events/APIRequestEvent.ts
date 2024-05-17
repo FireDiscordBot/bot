@@ -1,8 +1,8 @@
+import { Manager } from "@fire/lib/Manager";
+import { Message } from "@fire/lib/ws/Message";
+import { Event } from "@fire/lib/ws/event/Event";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { Event } from "@fire/lib/ws/event/Event";
-import { Message } from "@fire/lib/ws/Message";
-import { Manager } from "@fire/lib/Manager";
 
 type HTTPMethod = "get" | "post" | "delete" | "patch" | "put";
 const methods = ["get", "post", "delete", "patch", "put"];

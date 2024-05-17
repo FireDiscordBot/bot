@@ -1,8 +1,8 @@
-import { PremiumData, SubscriptionStatus } from "@fire/lib/interfaces/premium";
-import { EventType } from "@fire/lib/ws/util/constants";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { Event } from "@fire/lib/ws/event/Event";
 import { Manager } from "@fire/lib/Manager";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { PremiumData, SubscriptionStatus } from "@fire/lib/interfaces/premium";
+import { Event } from "@fire/lib/ws/event/Event";
+import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord.js";
 
 const paidStatuses = ["trialing", "active", "past_due"];

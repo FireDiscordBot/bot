@@ -1,10 +1,10 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { Language } from "@fire/lib/util/language";
-import { Command } from "@fire/lib/util/command";
 import {
   MojangAPIError,
   ProfileNotFoundError,
 } from "@fire/lib/util/clientutil";
+import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 
 export default class MinecraftUUID extends Command {
   constructor() {

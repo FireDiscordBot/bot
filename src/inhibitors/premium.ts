@@ -1,9 +1,9 @@
-import { SubscriptionStatus } from "@fire/lib/interfaces/premium";
-import { FireMessage } from "@fire/lib/extensions/message";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMessage } from "@fire/lib/extensions/message";
+import { SubscriptionStatus } from "@fire/lib/interfaces/premium";
+import { Command } from "@fire/lib/util/command";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 import { Collection, Snowflake } from "discord.js";
-import { Command } from "@fire/lib/util/command";
 
 const paidStatuses = ["trialing", "active", "past_due"];
 const hasPaid = (status: SubscriptionStatus) => paidStatuses.includes(status);

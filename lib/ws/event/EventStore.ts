@@ -1,7 +1,7 @@
 import { Manager } from "@fire/lib/Manager";
+import { Collection } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
-import { Collection } from "discord.js";
 import { Event } from "./Event";
 
 export class EventStore extends Collection<number, Event> {

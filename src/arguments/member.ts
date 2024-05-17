@@ -1,6 +1,6 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { memberConverter } from "@fire/lib/util/converters";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { memberConverter } from "@fire/lib/util/converters";
 import { ArgumentTypeCaster } from "discord-akairo";
 
 export const memberTypeCaster: ArgumentTypeCaster = (

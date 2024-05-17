@@ -1,11 +1,9 @@
 import { Fire } from "@fire/lib/Fire";
 import {
-  ArgumentGenerator as AkairoArgumentGenerator,
   ArgumentOptions as AkairoArgumentOptions,
   Command as AkairoCommand,
   CommandOptions as AkairoCommandOptions,
   AkairoModule,
-  Flag,
 } from "discord-akairo";
 import {
   APIApplicationCommandBasicOption,

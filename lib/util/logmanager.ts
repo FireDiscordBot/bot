@@ -7,9 +7,9 @@ import {
   Webhook,
 } from "discord.js";
 import Semaphore from "semaphore-async-await";
+import { Fire } from "../Fire";
 import { FireGuild } from "../extensions/guild";
 import { FireTextChannel } from "../extensions/textchannel";
-import { Fire } from "../Fire";
 import { ActionLogTypes, MemberLogTypes, ModLogTypes } from "./constants";
 
 type logContent = string | MessageEmbed | MessageEmbedOptions;

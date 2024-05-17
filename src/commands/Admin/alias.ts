@@ -1,11 +1,11 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { FireUser } from "@fire/lib/extensions/user";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
+import { Language } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 
 export default class AdminAlias extends Command {
   constructor() {

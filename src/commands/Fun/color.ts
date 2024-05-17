@@ -1,11 +1,11 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { constants } from "@fire/lib/util/constants";
-import { MessageAttachment, Role } from "discord.js";
-import { Language } from "@fire/lib/util/language";
 import { Command } from "@fire/lib/util/command";
-import * as tinycolor from "tinycolor2";
+import { constants } from "@fire/lib/util/constants";
+import { Language } from "@fire/lib/util/language";
 import * as centra from "centra";
+import { MessageAttachment, Role } from "discord.js";
+import * as tinycolor from "tinycolor2";
 
 const maybeColor = (phrase: string) =>
   phrase

@@ -5,8 +5,8 @@ import { Command } from "@fire/lib/util/command";
 import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { EventType } from "@fire/lib/ws/util/constants";
 import {
   ApplicationCommandType,
   RESTPutAPIApplicationCommandsResult,

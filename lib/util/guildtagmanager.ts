@@ -1,10 +1,10 @@
-import { LimitedCollection, DiscordAPIError, Snowflake } from "discord.js";
-import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireGuild } from "@fire/lib/extensions/guild";
-import { FireUser } from "@fire/lib/extensions/user";
 import { Fire } from "@fire/lib/Fire";
-import * as fuzz from "fuzzball";
+import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireUser } from "@fire/lib/extensions/user";
 import { APIApplicationCommand } from "discord-api-types/v9";
+import { DiscordAPIError, LimitedCollection, Snowflake } from "discord.js";
+import * as fuzz from "fuzzball";
 
 const slashCommandNameRegex =
   /^[-_\p{L}\p{N}\p{Script=Devanagari}\p{Script=Thai}]{1,32}$/gmu;
