@@ -1296,7 +1296,23 @@ export default class MCLogs extends Module {
           let isOutdated = mod.version != latest;
           // but we'll check semver just in case it's a version that's not yet released
           // or we haven't fetched since the latest update
-          if (isSemVer) isOutdated = semverLessThan(mod.version, latest);
+          if (isSemVer)
+            try {
+              isOutdated = semverLessThan(mod.version, latest);
+            } catch (e) {
+              if (
+                e instanceof TypeError &&
+                e.message.includes("Invalid Version")
+              ) {
+                this.client.sentry.captureException(e, {
+                  extra: {
+                    mod: mod.modId,
+                    current: mod.version,
+                    latest,
+                  },
+                });
+              }
+            }
           if (isOutdated)
             currentRecommendations.add(
               "- " +
