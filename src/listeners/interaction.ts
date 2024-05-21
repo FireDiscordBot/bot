@@ -1,4 +1,5 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { AutocompleteInteraction } from "@fire/lib/extensions/autocompleteinteraction";
 import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
@@ -14,7 +15,6 @@ import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import {
   ApplicationCommandOptionChoiceData,
-  AutocompleteInteraction,
   ContextMenuInteraction,
   DMChannel,
   Interaction,
