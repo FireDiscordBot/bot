@@ -3,9 +3,11 @@ import { CommandInteraction } from "@fire/lib/extensions/commandinteraction";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { MessageContextMenuInteraction } from "@fire/lib/extensions/messagecontextmenuinteraction";
 import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
+import { UserContextMenuInteraction } from "@fire/lib/extensions/usercontextmenuinteraction";
 import { Fire } from "@fire/lib/Fire";
 import { IPoint } from "@fire/lib/interfaces/aether";
 import { constants } from "@fire/lib/util/constants";
@@ -145,7 +147,11 @@ export default class InteractionListener extends Listener {
         interaction as AutocompleteInteraction
       );
     else if (interaction.isContextMenu())
-      return await this.handleContextMenu(interaction);
+      return await this.handleContextMenu(
+        interaction as
+          | UserContextMenuInteraction
+          | MessageContextMenuInteraction
+      );
     else if (interaction.isButton())
       return await this.handleButton(interaction);
     else if (interaction.isSelectMenu())
@@ -363,7 +369,9 @@ export default class InteractionListener extends Listener {
     }
   }
 
-  async handleContextMenu(context: ContextMenuInteraction) {
+  async handleContextMenu(
+    context: UserContextMenuInteraction | MessageContextMenuInteraction
+  ) {
     try {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(context.channelId).catch(() => {});

@@ -7,7 +7,6 @@ import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   AwaitMessagesOptions,
   Collection,
-  ContextMenuInteraction,
   CreateInviteOptions,
   DMChannel,
   DeconstructedSnowflake,
@@ -35,8 +34,10 @@ import { BaseFakeChannel } from "../interfaces/misc";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
+import { MessageContextMenuInteraction } from "./messagecontextmenuinteraction";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
+import { UserContextMenuInteraction } from "./usercontextmenuinteraction";
 
 const { reactions } = constants;
 
@@ -44,7 +45,7 @@ export class ContextCommandMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   attachments: Collection<string, MessageAttachment>;
   private snowflake: DeconstructedSnowflake;
-  contextCommand: ContextMenuInteraction;
+  contextCommand: MessageContextMenuInteraction | UserContextMenuInteraction;
   sent: false | "ack" | "message";
   getRealMessageLock: Semaphore;
   type: MessageType = "DEFAULT";
@@ -65,7 +66,10 @@ export class ContextCommandMessage {
   id: Snowflake;
   client: Fire;
 
-  constructor(client: Fire, command: ContextMenuInteraction) {
+  constructor(
+    client: Fire,
+    command: MessageContextMenuInteraction | UserContextMenuInteraction
+  ) {
     this.client = client;
     this.id = command.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);

@@ -109,6 +109,28 @@ export default class RemindersCreate extends Command {
     command: ApplicationCommandMessage | ContextCommandMessage | FireMessage,
     args: { reminder: ParsedTime | null; repeat: number; step: string }
   ) {
+    if (
+      !(command instanceof FireMessage) &&
+      !(
+        command instanceof ContextCommandMessage
+          ? command.contextCommand
+          : command.slashCommand
+      ).authorizingIntegrationOwners.includes(command.author.id) &&
+      command.hasExperiment(3028355873, 1)
+    )
+      return await command.error("REMINDER_NOT_AUTHORIZED_USER_APP", {
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setStyle("LINK")
+              .setLabel(command.language.get("ADD_USER_APP"))
+              .setURL(
+                `https://discord.com/oauth2/authorize?client_id=${this.client.user.id}`
+              )
+          ),
+        ],
+      });
+
     // handle context menu before actual command
     if (command instanceof ContextCommandMessage) {
       const clickedMessage = (

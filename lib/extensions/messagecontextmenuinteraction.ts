@@ -2,7 +2,7 @@ import { Fire } from "@fire/lib/Fire";
 import { APIChannel } from "discord-api-types/v9";
 import {
   GuildFeatures,
-  MessageContextMenuInteraction,
+  MessageContextMenuInteraction as MessageContextMenuInteractionBase,
   Snowflake,
   Structures,
 } from "discord.js";
@@ -17,21 +17,26 @@ type PartialGuild = {
 type RawInteractionDataWithExtras = RawInteractionData & {
   channel: APIChannel;
   guild: PartialGuild;
+  authorizing_integration_owners: Record<string, Snowflake>;
 };
 
-export class FireMessageContextMenuInteraction extends MessageContextMenuInteraction {
+export class MessageContextMenuInteraction extends MessageContextMenuInteractionBase {
   rawChannel: APIChannel;
   rawGuild: PartialGuild;
+  authorizingIntegrationOwners: Snowflake[];
 
   constructor(client: Fire, data: RawInteractionDataWithExtras) {
     super(client, data);
     this.rawChannel = data.channel;
     this.rawGuild = data.guild;
+    this.authorizingIntegrationOwners = Object.values(
+      data.authorizing_integration_owners
+    );
   }
 }
 
 Structures.extend(
   "MessageContextMenuInteraction",
   // @ts-ignore
-  () => FireMessageContextMenuInteraction
+  () => MessageContextMenuInteraction
 );

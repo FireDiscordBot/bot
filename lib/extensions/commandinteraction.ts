@@ -56,9 +56,13 @@ export class CommandInteraction extends CommandInteractionBase {
   declare guild: FireGuild;
   declare client: Fire;
   targetId: Snowflake;
+  authorizingIntegrationOwners: Snowflake[];
 
   constructor(client: Fire, data: any) {
     super(client, data);
+    this.authorizingIntegrationOwners = Object.values(
+      data.authorizing_integration_owners
+    );
 
     // if (data.data.options?.find((opt) => opt.type == 11))
     //   // likely changed above, retransform options

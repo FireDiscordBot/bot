@@ -2,7 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { FireMessageContextMenuInteraction } from "@fire/lib/extensions/messagecontextmenuinteraction";
+import { MessageContextMenuInteraction } from "@fire/lib/extensions/messagecontextmenuinteraction";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import {
@@ -199,8 +199,7 @@ export default class Quote extends Command {
     )
       return await command.error("QUOTE_SAVE_NOT_NEEDED");
 
-    const interaction =
-        command.contextCommand as FireMessageContextMenuInteraction,
+    const interaction = command.contextCommand as MessageContextMenuInteraction,
       messageToSave = command.getMessage() as FireMessage;
 
     // Currently, we need either content, embeds or attachments for a message to be quoted

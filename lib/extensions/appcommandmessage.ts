@@ -5,7 +5,6 @@ import { constants, i18nOptions } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
-  AutocompleteInteraction,
   AwaitMessagesOptions,
   Collection,
   CommandInteractionOptionResolver,
@@ -36,6 +35,7 @@ import { RawMessageData, RawUserData } from "discord.js/typings/rawDataTypes";
 import Semaphore from "semaphore-async-await";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { GuildTagManager } from "../util/guildtagmanager";
+import { AutocompleteInteraction } from "./autocompleteinteraction";
 import { CommandInteraction } from "./commandinteraction";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
@@ -43,7 +43,7 @@ import { FireMessage } from "./message";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
-const { emojis, reactions } = constants;
+const { reactions } = constants;
 
 export class ApplicationCommandMessage {
   slashCommand: CommandInteraction | AutocompleteInteraction;
