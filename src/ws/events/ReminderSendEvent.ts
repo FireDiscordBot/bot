@@ -90,7 +90,11 @@ export default class ReminderSendEvent extends Event {
         ),
         components,
       })
-      .catch(() => {});
+      .catch((e: Error) => {
+        this.manager.client.console.error(
+          `[Aether] Failed to send reminder to ${user} (${data.user}) due to ${e.message}`
+        );
+      });
     if (message) {
       // ensure reminder is deleted
       this.manager?.ws.send(
