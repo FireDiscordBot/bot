@@ -69,6 +69,13 @@ export default class TicTacToe extends Command {
 
   async run(command: ApplicationCommandMessage, args: { opponent?: FireUser }) {
     if (command instanceof ApplicationCommandMessage) {
+      if (command.author.settings.get<boolean>("utils.incognito", false))
+        return await command.error("TICTACTOE_INCOGNITO", {
+          command: this.client
+            .getCommand("incognito")
+            .getSlashCommandMention(command.guild),
+        });
+
       const message = await command.getRealMessage();
       if (message.flags.has("EPHEMERAL"))
         return await command.error("TICTACTOE_UNABLE_TO_PLAY_HERE");
