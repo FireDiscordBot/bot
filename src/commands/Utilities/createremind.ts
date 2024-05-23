@@ -125,7 +125,7 @@ export default class RemindersCreate extends Command {
               .setStyle("LINK")
               .setLabel(command.language.get("ADD_USER_APP"))
               .setURL(
-                `https://discord.com/oauth2/authorize?client_id=${this.client.user.id}`
+                `https://discord.com/oauth2/authorize?client_id=${this.client.user.id}&integration_type=1&scope=applications.commands`
               )
           ),
         ],

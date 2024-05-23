@@ -1052,7 +1052,7 @@
   "REMINDERS_CREATE_MSG_ARG_DESCRIPTION": "Your reminder message & time (e.g. \"do thing 1h\" or \"do thing at 9pm PST\"). Defaults to UTC",
   "REMINDERS_CREATE_REPEAT_ARG_DESCRIPTION": "The amount of times the reminder should repeat, up to a maximum of 5 (requires step argument)",
   "REMINDERS_CREATE_STEP_ARG_DESCRIPTION": "The amount of time between each repeat, in the format \"X mins X days\" etc.",
-  "REMINDER_NOT_AUTHORIZED_USER_APP": "To ensure that Fire can always deliver DMs to you, you must add Fire as a User App by using the button below and selecting \"Try It Now\"",
+  "REMINDER_NOT_AUTHORIZED_USER_APP": "To ensure that Fire can always deliver DMs to you, you must add Fire as a User App by using the button below",
   "REMINDER_MISSING_ARG": "Reminder argument was not provided or invalid! Make sure to include the time for your reminder along with the reminder itself",
   "REMINDER_MISSING_CONTEXT": "Something went wrong while creating a reminder. Make sure the message you choose has content",
   "REMINDER_INVALID_REPEAT": "The repeat flag value is invalid, it must range from 1 to 5",
