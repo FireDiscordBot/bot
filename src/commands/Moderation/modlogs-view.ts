@@ -61,6 +61,8 @@ export default class ModlogsView extends Command {
     command: ApplicationCommandMessage | ContextCommandMessage,
     args: { user: FireMember | FireUser; type?: string }
   ) {
+    if (command instanceof ContextCommandMessage)
+      args.user = command.getMemberOrUser(true);
     if (!args.user) return;
     const logs = await this.client.db
       .query(

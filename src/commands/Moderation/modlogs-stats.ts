@@ -35,6 +35,8 @@ export default class ModlogsStats extends Command {
     command: ApplicationCommandMessage | ContextCommandMessage,
     args: { user: FireMember | FireUser; type?: string }
   ) {
+    if (command instanceof ContextCommandMessage)
+      args.user = command.getMemberOrUser(true);
     if (!args.user) return;
     const types: Record<string, number> = {};
     for (const type of Object.values(ModLogTypesEnumToString)) types[type] = 0;
