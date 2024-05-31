@@ -1,4 +1,5 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -77,7 +78,7 @@ export default class User extends Command {
   }
 
   async run(
-    command: ApplicationCommandMessage,
+    command: ApplicationCommandMessage | ContextCommandMessage,
     args: {
       user?:
         | FireMember
@@ -86,7 +87,10 @@ export default class User extends Command {
     }
   ) {
     if (typeof args.user == "undefined")
-      args.user = command.member || command.author;
+      args.user =
+        command instanceof ContextCommandMessage
+          ? command.getMemberOrUser(false) ?? command.member ?? command.author
+          : command.member ?? command.author;
     else if (
       args.user?.hasOwnProperty("snowflake") ||
       command.util?.parsed?.alias == "snowflake"
@@ -387,7 +391,10 @@ export default class User extends Command {
     return emojis;
   }
 
-  getInfo(command: ApplicationCommandMessage, member: FireMember | FireUser) {
+  getInfo(
+    command: ApplicationCommandMessage | ContextCommandMessage,
+    member: FireMember | FireUser
+  ) {
     let user = member instanceof FireMember ? member.user : member;
     const now = new Date();
     const isCakeDay =
@@ -461,7 +468,7 @@ export default class User extends Command {
   }
 
   async snowflakeInfo(
-    command: ApplicationCommandMessage,
+    command: ApplicationCommandMessage | ContextCommandMessage,
     snowflake: { snowflake: Snowflake } & DeconstructedSnowflake
   ) {
     let user: FireUser;

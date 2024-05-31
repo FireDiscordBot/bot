@@ -220,7 +220,18 @@ export class ContextCommandMessage {
   }
 
   getUser(required = false) {
-    return this.contextCommand.options.getUser("user", required);
+    return this.contextCommand.options.getUser("user", required) as FireUser;
+  }
+
+  getMember(required = false) {
+    return this.contextCommand.options.getMember(
+      "user",
+      required
+    ) as FireMember;
+  }
+
+  getMemberOrUser(required = false) {
+    return this.getMember(false) ?? this.getUser(required);
   }
 
   get cleanContent() {
