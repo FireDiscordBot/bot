@@ -144,8 +144,7 @@ export default class MultiImageEmbed extends Command {
   ) {
     let color: string | tinycolor.Instance =
       command.member?.displayHexColor ?? tinycolor.random();
-    if (args.color) color = maybeColor(args.color);
-    if (typeof color != "string") color = color.toHexString();
+    if (args.color) color = maybeColor(args.color)?.toHexString() ?? color;
 
     const makeEmbed = (attch: MessageAttachment, first: boolean) =>
       new MessageEmbed()
