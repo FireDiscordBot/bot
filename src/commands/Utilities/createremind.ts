@@ -287,7 +287,10 @@ export default class RemindersCreate extends Command {
           video.snippet?.liveBroadcastContent == "upcoming" &&
           video.liveStreamingDetails?.scheduledStartTime
         ) {
-          reminderText = reminderText.replace(ytVideos[0], video.snippet.title);
+          reminderText = clickedMessage.content.replace(
+            ytVideos[0],
+            video.snippet.title
+          );
           const titleShort =
             video.snippet.title.slice(0, 37) +
             (video.snippet.title.length > 37 ? "..." : "");
