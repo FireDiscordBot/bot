@@ -282,52 +282,66 @@ export default class RemindersCreate extends Command {
             else return false;
           })
           .catch(() => {});
-        if (
-          video &&
-          video.snippet?.liveBroadcastContent == "upcoming" &&
-          video.liveStreamingDetails?.scheduledStartTime
-        ) {
+        if (video) {
+          // We'll replace the link with the title regardless of
+          // whether or not it is upcoming since we have the data anyways
           reminderText = clickedMessage.content.replace(
             ytVideos[0],
             video.snippet.title
           );
-          const titleShort =
-            video.snippet.title.slice(0, 37) +
-            (video.snippet.title.length > 37 ? "..." : "");
-          const titleShorter =
-            video.snippet.title.slice(0, 24) +
-            (video.snippet.title.length > 24 ? "..." : "");
-          const scheduledStartTime = +new Date(
-            video.liveStreamingDetails.scheduledStartTime
-          );
-          const ytOptions = [
-            {
-              label: command.language.get("REMINDER_YOUTUBE_PREMIERE", {
-                title: titleShort,
-              }),
-              value: scheduledStartTime.toString(),
-            },
-            {
-              label: command.language.get("REMINDER_YOUTUBE_PREMIERE_5_MINS", {
-                title: titleShorter,
-              }),
-              value: (scheduledStartTime - 300000).toString(),
-            },
-            {
-              label: command.language.get("REMINDER_YOUTUBE_PREMIERE_15_MINS", {
-                title: titleShorter,
-              }),
-              value: (scheduledStartTime - 900000).toString(),
-            },
-            {
-              label: command.language.get("REMINDER_YOUTUBE_PREMIERE_30_MINS", {
-                title: titleShorter,
-              }),
-              value: (scheduledStartTime - 1800000).toString(),
-            },
-          ];
-          if (parsed.length) droptions.unshift(...ytOptions);
-          else droptions = ytOptions;
+          if (
+            video.snippet?.liveBroadcastContent == "upcoming" &&
+            video.liveStreamingDetails?.scheduledStartTime
+          ) {
+            const scheduledStartTime = +new Date(
+              video.liveStreamingDetails.scheduledStartTime
+            );
+            if (scheduledStartTime > now) {
+              const titleShort =
+                video.snippet.title.slice(0, 37) +
+                (video.snippet.title.length > 37 ? "..." : "");
+              const titleShorter =
+                video.snippet.title.slice(0, 24) +
+                (video.snippet.title.length > 24 ? "..." : "");
+              const ytOptions = [
+                {
+                  label: command.language.get("REMINDER_YOUTUBE_PREMIERE", {
+                    title: titleShort,
+                  }),
+                  value: scheduledStartTime.toString(),
+                },
+                {
+                  label: command.language.get(
+                    "REMINDER_YOUTUBE_PREMIERE_5_MINS",
+                    {
+                      title: titleShorter,
+                    }
+                  ),
+                  value: (scheduledStartTime - 300000).toString(),
+                },
+                {
+                  label: command.language.get(
+                    "REMINDER_YOUTUBE_PREMIERE_15_MINS",
+                    {
+                      title: titleShorter,
+                    }
+                  ),
+                  value: (scheduledStartTime - 900000).toString(),
+                },
+                {
+                  label: command.language.get(
+                    "REMINDER_YOUTUBE_PREMIERE_30_MINS",
+                    {
+                      title: titleShorter,
+                    }
+                  ),
+                  value: (scheduledStartTime - 1800000).toString(),
+                },
+              ];
+              if (parsed.length) droptions.unshift(...ytOptions);
+              else droptions = ytOptions;
+            }
+          }
         }
       }
 
