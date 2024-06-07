@@ -64,6 +64,11 @@ export const parseTime = (text: string, instant: Date, IANA: string) => {
     );
   }
   if (!parsed.length) return null;
+
+  // idk why but "they" results in a match for a year in the future
+  // so we'll just filter it out (and any other weird matches that come up)
+  parsed = parsed.filter((v) => v.text != "they");
+
   const foundTimes = parsed[0].text.split(",");
   for (const time of foundTimes) text = text.replace(time, "");
   text = text.replace(doubledUpWhitespace, " ").trim();
