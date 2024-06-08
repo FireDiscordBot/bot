@@ -191,7 +191,7 @@ export default class MCLogs extends Module {
     this.regexes = {
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets:
-        /--accessToken,? \S+|\(Session ID is token:|Authorization ?: ?(Bearer\n?\w*)/gim,
+        /--accessToken,? [^\?\s]+|\(Session ID is token:|Authorization ?: ?(Bearer\n?\w*)/gim,
       jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx(?:\d{1,2}G|\d{3,5}M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
       optifine:
         /OptiFine_(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
@@ -203,7 +203,7 @@ export default class MCLogs extends Module {
         /(?:\/INFO]: Setting user: (\w{1,16})|--username,? (\w{1,16}))/gim,
       devEnvUser: /Player\d{3}/gim,
       uuidArg:
-        /--uuid,? (?<uuid>[0-9A-F]{8}-?[0-9A-F]{4}-?(?<ver>[0-9A-F])[0-9A-F]{3}-?[89AB][0-9A-F]{3}-?[0-9A-F]{12})/gim,
+        /--uuid,? (?:(?<uuid>[0-9A-F]{8}-?[0-9A-F]{4}-?(?<ver>[0-9A-F])[0-9A-F]{3}-?[89AB][0-9A-F]{3}-?[0-9A-F]{12})|(?<invalid>\w*))/gim,
       essentialAuth:
         /Authenticating to Mojang as (?<ign>\w{1,16}) \((?<uuid>[0-9A-F]{8}-?[0-9A-F]{4}-?(?<ver>[0-9A-F])[0-9A-F]{3}-?[89AB][0-9A-F]{3}-?[0-9A-F]{12})\)/gim,
       multiMcDisabled: /^\s*\[❌] .* \(disabled\)$/gim,
@@ -1625,7 +1625,9 @@ export default class MCLogs extends Module {
       let possibleSolutions: string,
         ign: string,
         loggedUUID: string,
-        loggedUUIDVersion: string;
+        loggedUUIDVersion: string,
+        loggedUUIDInvalid = false,
+        cracked = false;
       const essentialAuth = this.regexes.essentialAuth.exec(text);
       this.regexes.essentialAuth.lastIndex = 0;
       if (essentialAuth) {
@@ -1640,6 +1642,7 @@ export default class MCLogs extends Module {
         this.regexes.uuidArg.lastIndex = 0;
         loggedUUID = uuidArg?.groups?.uuid;
         loggedUUIDVersion = uuidArg?.groups?.ver;
+        if (uuidArg?.groups?.invalid) loggedUUIDInvalid = true;
       }
       const isDevEnv =
         this.regexes.devEnvUser.test(ign) && text.includes("GradleStart");
@@ -1656,11 +1659,13 @@ export default class MCLogs extends Module {
             ) &&
             (profile instanceof ProfileNotFoundError ||
               (loggedUUIDVersion && loggedUUIDVersion != "4") ||
+              loggedUUIDInvalid ||
               (!(profile instanceof Error) &&
                 loggedUUID &&
                 (loggedUUID.includes("-") ? profile.idDashed : profile.id) !=
                   loggedUUID))
           ) {
+            cracked = true;
             // user has not opted out of data collection for analytics
             if (!message.hasExperiment(2219986954, 1))
               this.client.writeToInflux([
@@ -1690,7 +1695,8 @@ export default class MCLogs extends Module {
                   },
                 },
               ]);
-            possibleSolutions = message.guild.language.get("MC_LOG_CRACKED");
+            possibleSolutions =
+              "\n" + message.guild.language.get("MC_LOG_CRACKED");
           } else if (!(profile instanceof MojangAPIError)) {
             possibleSolutions = await this.getSolutions(
               message.member ?? message.author,
@@ -1753,7 +1759,8 @@ export default class MCLogs extends Module {
           new MessageButton()
             .setStyle("PRIMARY")
             .setCustomId("!mclogscan:solution")
-            .setLabel(message.language.get("MC_LOG_REPORT_SOLUTION")),
+            .setLabel(message.language.get("MC_LOG_REPORT_SOLUTION"))
+            .setDisabled(cracked),
         ]),
       ];
 
