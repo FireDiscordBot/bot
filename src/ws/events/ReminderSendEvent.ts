@@ -17,6 +17,7 @@ import {
 } from "discord.js";
 
 const { regexes } = constants;
+const PLACEHOLDER_ID = "0".repeat(15);
 
 // This will always get sent to shard 0 so we can handle
 // interactions here too
@@ -53,7 +54,7 @@ export default class ReminderSendEvent extends Event {
     let deconstructed: DeconstructedSnowflake;
     if (snowflake) deconstructed = SnowflakeUtil.deconstruct(snowflake);
 
-    if (data.link?.includes("000000000000000000")) delete data.link;
+    if (data.link?.includes(PLACEHOLDER_ID)) delete data.link;
 
     const components = [
       new MessageActionRow().addComponents([

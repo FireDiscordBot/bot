@@ -44,6 +44,7 @@ import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
 const { reactions } = constants;
+const PLACEHOLDER_ID = "0".repeat(15);
 
 export class ApplicationCommandMessage {
   slashCommand: CommandInteraction | AutocompleteInteraction;
@@ -266,11 +267,11 @@ export class ApplicationCommandMessage {
     if (this.sourceMessage)
       return `https://discord.com/channels/${
         this.guild ? this.guild.id : "@me"
-      }/${this.realChannel?.id || "0"}/${this.sourceMessage.id}`;
+      }/${this.realChannel?.id || PLACEHOLDER_ID}/${this.sourceMessage.id}`;
     else
       return `https://discord.com/channels/${
         this.guild ? this.guild.id : "@me"
-      }/${this.realChannel?.id || "0"}/${this.id}`;
+      }/${this.realChannel?.id || PLACEHOLDER_ID}/${this.id}`;
   }
 
   get guildId() {
