@@ -366,8 +366,7 @@ export class GuildLogManager {
       .catch((e) => {
         if (e instanceof DiscordAPIError && e.code == 10015)
           data.webhook = null;
-        else if (!(e instanceof DiscordAPIError))
-          this.client.sentry.captureException(e);
+        else this.client.sentry.captureException(e);
         data.queue.push(
           ...sending
             .filter((log) => !data.queue.find((q) => q.content == log.content))
@@ -488,8 +487,7 @@ export class GuildLogManager {
       .catch((e) => {
         if (e instanceof DiscordAPIError && e.code == 10015)
           data.webhook = null;
-        else if (!(e instanceof DiscordAPIError))
-          this.client.sentry.captureException(e);
+        else this.client.sentry.captureException(e);
         data.queue.push(
           ...sending
             .filter((log) => !data.queue.find((q) => q.content == log.content))
