@@ -50,6 +50,17 @@ enum Loaders {
 
 type ModLoaders = "Forge" | "Fabric" | "Quilt";
 
+const validEssentialLoaders = [
+  Loaders.FORGE,
+  Loaders.FEATHER_FORGE,
+  Loaders.FABRIC,
+  Loaders.FEATHER_FABRIC,
+];
+
+const ESSENTIAL_TO_SEMVER_REGEX = /(?<main>\d\.\d\.\d)(\.(?<last>\d))/gim;
+const essentialVersionToSemver = (version: string) =>
+  version.replace(ESSENTIAL_TO_SEMVER_REGEX, "$1-$3");
+
 type ModSource = `${string}.jar`;
 export type MinecraftVersion =
   | `${number}.${number}.${number}`
@@ -87,10 +98,27 @@ type ForgeModNonPartial = {
   erroredDependencies: DependencyInfo[];
   partial: false;
 };
+type ForgeEssentialMod = {
+  state: string;
+  modId: "essential" | "essential-container";
+  commit: string;
+  branch: string;
+  version: string;
+  source: ModSource;
+  erroredDependencies: DependencyInfo[];
+  partial: false;
+};
 type FabricModNonPartial = {
   modId: string;
   version: string;
   subMods: FabricModNonPartial[];
+  partial: false;
+};
+type FabricEssentialMod = {
+  modId: "essential" | "essential-container";
+  commit: string;
+  branch: string;
+  version: string;
   partial: false;
 };
 type PartialMod = {
@@ -98,7 +126,12 @@ type PartialMod = {
   erroredDependencies: DependencyInfo[];
   partial: true;
 };
-export type ModInfo = ForgeModNonPartial | PartialMod | FabricModNonPartial;
+export type ModInfo =
+  | ForgeModNonPartial
+  | ForgeEssentialMod
+  | PartialMod
+  | FabricModNonPartial
+  | FabricEssentialMod;
 type DependencyInfo = {
   name: string;
   requiredVersion: string;
@@ -156,6 +189,7 @@ export default class MCLogs extends Module {
     fabricCrashModsHeader: RegExp;
     fabricCrashModEntry: RegExp;
     fabricCrashSubModEntry: RegExp;
+    essentialVersion: RegExp;
     fullLogJavaVersion: RegExp;
     crashReportJavaVersion: RegExp;
     jvmCrashJavaVersion: RegExp;
@@ -212,7 +246,7 @@ export default class MCLogs extends Module {
       forgeModsTableEntry:
         /\s*(?<state>[ULCHIJADE]+)\s*\|\s*(?<modid>[a-z][a-z0-9_.-]{1,63})\s*\|\s*(?<version>[\w\-\+\.!\[\]]+)\s*\|\s*(?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\s*\|/gim,
       classicForgeModsEntry:
-        /(?<state>[ULCHIJADE]+)\s+(?<modid>[a-z][a-z0-9_.-]{1,63})\{(?<version>[\w\-\+\.!\[\]]+)\}\s+\[(?<name>[^\]]+)\]\s+\((?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\)\s*$/gim,
+        /(?<state>[ULCHIJADE]+)\s+(?<modid>[a-z][a-z0-9_.-]{1,63})\{(?<version>[\w\-\+\.!\[\]\*]+|@VER)\}\s+\[(?<name>[^\]]+)\]\s+\((?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\)\s*$/gim,
       forgeValidModFile:
         /Found valid mod file (?<source>[\w\s\-\+\.'`!()\[\]]+\.jar) with {(?<modid>[a-z][a-z0-9_.-]{1,63}(?:,[a-z][a-z0-9_.-]{1,63})*)} mods - versions {(?<version>[\w\-\+\.!\[\]]+(?:,[\w\s\-\+\.!\[\]]+)*)}/gim,
       forgeDependenciesError:
@@ -230,6 +264,8 @@ export default class MCLogs extends Module {
         /^\t{2}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+]+)$/gim,
       fabricCrashSubModEntry:
         /^\t{3}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+]+)$/gim,
+      essentialVersion:
+        /Starting Essential v(?<version>\d\.\d\.\d\.\d) \(#(?<commit>\b[0-9a-f]{10})\) \[(?<branch>\w*)\]/gim,
       fullLogJavaVersion:
         /Java is (?<name>.* VM), version (?<version>\d*\.\d*\.\d*(?:_\d{1,3})?(?:-b\d{1,3})?). running on (?<os>(?<osname>[\w\s]*):(?<osarch>\w*):(?<osversion>.*)), installed at (?<path>.*)$/gim,
       crashReportJavaVersion:
@@ -598,7 +634,7 @@ export default class MCLogs extends Module {
             state: "Unknown",
             modId: "optifine",
             version: optifineVersion,
-            source: `${optifineMatch}.jar`,
+            source: `${optifineMatch[0]}.jar`,
             erroredDependencies: [],
             partial: false,
           });
@@ -863,6 +899,54 @@ export default class MCLogs extends Module {
             ],
             partial: true,
           });
+      }
+    }
+
+    const essentialVersionMatch = this.regexes.essentialVersion.exec(log);
+    this.regexes.essentialVersion.lastIndex = 0;
+    if (essentialVersionMatch && validEssentialLoaders.includes(loader)) {
+      const { version, commit, branch } = essentialVersionMatch.groups;
+      if (
+        !mods.find(
+          (i) => i.modId == "essential" || i.modId == "essential-container"
+        )
+      )
+        mods.push(
+          loader == Loaders.FORGE || loader == Loaders.FEATHER_FORGE
+            ? ({
+                state: "Unknown",
+                modId: "essential",
+                version,
+                commit,
+                branch,
+                source: `Essential (forge_${mcVersion}).jar`,
+                erroredDependencies: [],
+                partial: false,
+              } as ForgeEssentialMod)
+            : ({
+                modId: "essential",
+                version,
+                commit,
+                branch,
+                partial: false,
+              } as FabricEssentialMod)
+        );
+      else if (loader == Loaders.FORGE || loader == Loaders.FEATHER_FORGE) {
+        // I don't think it'll actually ever appear as a mod on Forge
+        // but if it does then this will add the extra info to it
+        const essentialMod = mods.find(
+          (i) => i.modId == "essential" || i.modId == "essential-container"
+        ) as ForgeEssentialMod;
+        essentialMod.version = version;
+        essentialMod.commit = commit;
+        essentialMod.branch = branch;
+      } else if (loader == Loaders.FABRIC || loader == Loaders.FEATHER_FABRIC) {
+        const essentialMod = mods.find(
+          (i) => i.modId == "essential" || i.modId == "essential-container"
+        ) as FabricEssentialMod;
+        essentialMod.version = version;
+        essentialMod.commit = commit;
+        essentialMod.branch = branch;
       }
     }
 
@@ -1280,6 +1364,12 @@ export default class MCLogs extends Module {
     if (versions.mods.length)
       for (const mod of versions.mods) {
         if (
+          (mod.modId == "essential" || mod.modId == "essential-container") &&
+          mod.partial == false &&
+          mod.version == "1.0.0"
+        )
+          continue;
+        if (
           mod.modId.toLowerCase() in this.modVersions &&
           mod.partial == false
         ) {
@@ -1343,6 +1433,25 @@ export default class MCLogs extends Module {
           }
         }
       }
+
+    if (versions.mods.find((m) => m.modId == "skytils")) {
+      const skytils = versions.mods.find((m) => m.modId == "skytils");
+      if (skytils.partial == false && skytils.version == "1.10.0-pre9") {
+        const essential = versions.mods.find(
+          (m) => m.modId == "essential" || m.modId == "essential-container"
+        );
+        if (
+          essential &&
+          essential.partial == false &&
+          semverLessThan(essentialVersionToSemver(essential.version), "1.3.2-6")
+        )
+          currentSolutions.add(
+            "- **You'll need to update Essential to the latest version. The game should prompt you to update before the crash occurs but if not," +
+              " you can download the latest version from " +
+              "[the Essential website](<https://essential.gg/downloads>) or [Modrinth](<https://modrinth.com/mod/essential>)**"
+          );
+      }
+    }
 
     this.getSolutionsAnalytics(
       user,
