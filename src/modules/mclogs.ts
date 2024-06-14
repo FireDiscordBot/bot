@@ -20,7 +20,7 @@ import {
   MessageButton,
   MessageEmbed,
 } from "discord.js";
-import { lt as semverLessThan } from "semver";
+import { lt as semverLessThan, gt as semverGreaterThan } from "semver";
 import { getCodeblockMatch } from "../arguments/codeblock";
 import Filters from "./filters";
 
@@ -1436,7 +1436,11 @@ export default class MCLogs extends Module {
 
     if (versions.mods.find((m) => m.modId == "skytils")) {
       const skytils = versions.mods.find((m) => m.modId == "skytils");
-      if (skytils.partial == false && skytils.version == "1.10.0-pre9") {
+      if (
+        skytils.partial == false &&
+        (semverGreaterThan(skytils.version, "1.10.0-pre8") ||
+          semverGreaterThan(skytils.version, "1.9.7"))
+      ) {
         const essential = versions.mods.find(
           (m) => m.modId == "essential" || m.modId == "essential-container"
         );
