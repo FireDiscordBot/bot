@@ -12,6 +12,9 @@ import {
   VoiceChannel,
 } from "discord.js";
 
+const hasTopic = (channel: GuildBasedChannel) => "topic" in channel;
+const hasRegion = (channel: GuildBasedChannel) => "rtcRegion" in channel;
+
 export default class ChannelUpdate extends Listener {
   constructor() {
     super("channelUpdate", {
@@ -101,10 +104,10 @@ export default class ChannelUpdate extends Listener {
       before.parentId != after.parentId ||
       newOverwrites.length ||
       removedOverwrites.length ||
-      // @ts-ignore (cba to do instance checks everywhere, ignoring is easier)
-      before.topic != after.topic ||
-      // @ts-ignore
-      before.region != after.region;
+      (hasTopic(before) && hasTopic(after) && before.topic != after.topic) ||
+      (hasRegion(before) &&
+        hasRegion(after) &&
+        before.rtcRegion != after.rtcRegion);
 
     if (guild.settings.has("log.action") && notableChanges) {
       const language = guild.language;
@@ -119,7 +122,10 @@ export default class ChannelUpdate extends Listener {
           iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
         })
         .setFooter(after.id);
-      if (before.name != after.name)
+      if (
+        before.name != after.name &&
+        before.name.length + after.name.length <= 1020
+      )
         embed.addField(language.get("NAME"), `${before.name} ➜ ${after.name}`);
       if (before.parentId != after.parentId)
         embed.addField(
@@ -128,43 +134,40 @@ export default class ChannelUpdate extends Listener {
             after.parent?.name || constants.escapedShruggie
           }`
         );
-      // @ts-ignore
-      if (before.topic != after.topic)
+      if (hasTopic(before) && hasTopic(after) && before.topic != after.topic)
         embed.addField(
           language.get("TOPIC"),
-          // @ts-ignore
           `${before.topic || language.get("NO_TOPIC")} ➜ ${
-            // @ts-ignore
             after.topic || language.get("NO_TOPIC")
           }`
         );
       if (
-        (before instanceof VoiceChannel || before instanceof StageChannel) &&
-        (after instanceof VoiceChannel || after instanceof StageChannel)
-      )
-        if (before.rtcRegion != after.rtcRegion) {
-          embed.addField(
-            language.get("REGION"),
-            `${
-              language.get(
-                `REGIONS.${before.rtcRegion}` as unknown as LanguageKeys
-              ) || constants.escapedShruggie
-            } ➜ ${
-              language.get(
-                `REGIONS.${after.rtcRegion}` as unknown as LanguageKeys
-              ) || constants.escapedShruggie
-            }`
-          );
-        }
+        hasRegion(before) &&
+        hasRegion(after) &&
+        before.rtcRegion != after.rtcRegion
+      ) {
+        embed.addField(
+          language.get("REGION"),
+          `${
+            language.get(
+              `REGIONS.${before.rtcRegion}` as unknown as LanguageKeys
+            ) || constants.escapedShruggie
+          } ➜ ${
+            language.get(
+              `REGIONS.${after.rtcRegion}` as unknown as LanguageKeys
+            ) || constants.escapedShruggie
+          }`
+        );
+      }
       if (newOverwrites.length)
         embed.addField(
           language.get("ADDED_OVERWRITES"),
-          newOverwrites.join(" - ")
+          this.client.util.shorten(newOverwrites, 1024, " - ")
         );
       if (removedOverwrites.length)
         embed.addField(
           language.get("REMOVED_OVERWRITES"),
-          removedOverwrites.join(" - ")
+          this.client.util.shorten(removedOverwrites, 1024, " - ")
         );
       if (embed.fields.length)
         await guild
