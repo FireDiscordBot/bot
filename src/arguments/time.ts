@@ -1,4 +1,7 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { Fire } from "@fire/lib/Fire";
 import { classicRemind, constants } from "@fire/lib/util/constants";
 import { ParsedResult, casual } from "chrono-node";
 import * as dayjs from "dayjs";
@@ -18,18 +21,25 @@ export const timeTypeCaster: ArgumentTypeCaster = (
   return parseTime(
     content,
     message.createdAt,
-    message.author.settings.get<string>("reminders.timezone.iana", "Etc/UTC")
+    message.author.settings.get<string>("reminders.timezone.iana", "Etc/UTC"),
+    message
   );
 };
 
 const doubledUpWhitespace = /\s{2,}/g;
 
-export const parseTime = (text: string, instant: Date, IANA: string) => {
+export const parseTime = (
+  text: string,
+  instant: Date,
+  IANA: string,
+  context: FireMessage | ApplicationCommandMessage | ContextCommandMessage
+) => {
   text = text.trim();
   let useClassic = false;
   for (const regex of Object.values(time)) {
     if (Array.isArray(regex)) continue;
-    if (regex.test(text)) useClassic = true;
+    if (regex.test(text))
+      useClassic = context.author.hasExperiment(2760158308, 1);
     regex.lastIndex = 0;
   }
   let parsed: ParsedResult[];

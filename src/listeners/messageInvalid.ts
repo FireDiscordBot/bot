@@ -91,7 +91,8 @@ export default class MessageInvalid extends Listener {
           message.author.settings.get<string>(
             "reminders.timezone.iana",
             "Etc/UTC"
-          )
+          ),
+          message
         );
 
         // replace reminder text with reference content if applicable
