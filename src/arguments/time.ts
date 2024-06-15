@@ -1,7 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { Fire } from "@fire/lib/Fire";
 import { classicRemind, constants } from "@fire/lib/util/constants";
 import { ParsedResult, casual } from "chrono-node";
 import * as dayjs from "dayjs";
