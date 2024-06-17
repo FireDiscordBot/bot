@@ -902,6 +902,24 @@ export default class MCLogs extends Module {
       }
     }
 
+    // Split commit hash from version in Fabric crash reports
+    if (
+      mods.find(
+        (i) =>
+          i.modId == "essential" &&
+          i.partial == false &&
+          i.version.includes("+")
+      )
+    ) {
+      const essential = mods.find(
+        (i) => i.modId == "essential"
+      ) as FabricEssentialMod;
+      const [version, commit] = essential.version.split("+");
+      essential.version = version;
+      if (commit.startsWith("g")) essential.commit = commit.substring(1);
+      else essential.branch = commit;
+    }
+
     const essentialVersionMatch = this.regexes.essentialVersion.exec(log);
     this.regexes.essentialVersion.lastIndex = 0;
     if (essentialVersionMatch && validEssentialLoaders.includes(loader)) {
