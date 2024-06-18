@@ -18,7 +18,7 @@ const tokenResetExcluded = [
 const cleanMap = {
   ":": [/\\:/gim],
   ".": [/\\\./gim, /\(\.\)/gim, /dot/gim, /\/\./gim, /\[\.\]/gim],
-  "/": [/\.\//gim, /\\\/\//gim, /\\\//gim, /slash/gim, /\\/gim],
+  "/": [/\.\//gim, /\\\/\//gim, /\\\//gim, /slash/gim, /\\/gim, /\s\//gim],
   "": [regexes.zws, regexes.protocol, regexes.symbol, /(\*|_|\|)/gim],
   com: [/c.m/gim],
   "discord.gg/$1": [/(^|\s)\.gg(?:\/|\\)(?<code>[\w-]{1,25})[^\/]?/gim],
