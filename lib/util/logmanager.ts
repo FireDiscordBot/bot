@@ -34,7 +34,12 @@ export class GuildLogManager {
   private _data: {
     moderation: {
       type: LoggerTypes.MODERATION;
-      queue: { content: logContent; type: ModLogTypes; reason: QueueReasons }[];
+      queue: {
+        content: logContent;
+        type: ModLogTypes;
+        reason: QueueReasons;
+        error?: Error;
+      }[];
       forceFullQueue: boolean;
       webhook: Webhook;
       lock: Semaphore;
@@ -252,6 +257,7 @@ export class GuildLogManager {
             .map((log) => ({
               ...log,
               reason: QueueReasons.EXCEPTION_WHILE_SENDING,
+              error: e,
             }))
         );
       });
@@ -373,6 +379,7 @@ export class GuildLogManager {
             .map((log) => ({
               ...log,
               reason: QueueReasons.EXCEPTION_WHILE_SENDING,
+              error: e,
             }))
         );
       });
@@ -494,6 +501,7 @@ export class GuildLogManager {
             .map((log) => ({
               ...log,
               reason: QueueReasons.EXCEPTION_WHILE_SENDING,
+              error: e,
             }))
         );
       });
