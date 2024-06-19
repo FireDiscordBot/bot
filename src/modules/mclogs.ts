@@ -62,9 +62,18 @@ const essentialVersionToSemver = (version: string) =>
   version.replace(ESSENTIAL_TO_SEMVER_REGEX, "$1-$3");
 
 type ModSource = `${string}.jar`;
+
 export type MinecraftVersion =
   | `${number}.${number}.${number}`
   | `${number}.${number}`;
+export type ModVersions = {
+  [version: MinecraftVersion]: { [loader in ModLoaders]?: string };
+};
+export type ModVersionData = {
+  versions: ModVersions;
+  alternateModIds?: string[];
+};
+
 export interface OptifineVersion {
   name: string;
   shortName: string;
@@ -72,9 +81,7 @@ export interface OptifineVersion {
   releaseDate: Date;
   fileName: string;
 }
-export type ModVersions = {
-  [loader in ModLoaders]: string;
-};
+
 type Haste = { url: string; raw: string };
 type LoaderRegexConfig = {
   loader: Loaders;
@@ -481,6 +488,17 @@ export default class MCLogs extends Module {
 
   get modVersions() {
     return this.client.manager.state.modVersions;
+  }
+
+  getMainModId(modId: string) {
+    modId = modId.toLowerCase();
+    if (this.modVersions[modId]) return modId;
+    else
+      for (const [mainId, data] of Object.entries(this.modVersions)) {
+        if (data.alternateModIds?.includes(modId)) return mainId;
+      }
+    // if we end up here, it's likely unknown so we'll just return the input
+    return modId;
   }
 
   private canUse(guild?: FireGuild, user?: FireUser) {
@@ -1387,12 +1405,10 @@ export default class MCLogs extends Module {
           mod.version == "1.0.0"
         )
           continue;
-        if (
-          mod.modId.toLowerCase() in this.modVersions &&
-          mod.partial == false
-        ) {
+        const mainModId = this.getMainModId(mod.modId);
+        if (mainModId in this.modVersions && mod.partial == false) {
           let latest =
-            this.modVersions[mod.modId.toLowerCase()]?.[versions.mcVersion]?.[
+            this.modVersions[mainModId]?.versions[versions.mcVersion]?.[
               versions.loader as ModLoaders
             ];
           if (mod.version == latest || !latest) continue;

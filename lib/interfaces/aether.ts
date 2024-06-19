@@ -1,6 +1,6 @@
 import {
   MinecraftVersion,
-  ModVersions,
+  ModVersionData,
   OptifineVersion,
 } from "@fire/src/modules/mclogs";
 
@@ -52,7 +52,7 @@ export interface Caches {
 export interface ManagerState {
   guildExperiments: GuildExperimentConfig[];
   userExperiments: UserExperimentConfig[];
-  modVersions: Record<string, Record<MinecraftVersion, ModVersions>>;
+  modVersions: Record<string, ModVersionData>;
   optifineVersions: Record<MinecraftVersion, OptifineVersion[]>;
 }
 
