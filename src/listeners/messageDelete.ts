@@ -47,11 +47,14 @@ export default class MessageDelete extends Listener {
           message.id,
         ])
         .catch(() => {});
+      // Attempt to delete starboard message before we remove the data
+      await this.client.req
+        .channels(message.guild.starboard.id)
+        .messages(message.guild.starboardMessages.get(message.id))
+        .delete()
+        .catch(() => {});
       message.guild.starboardMessages.delete(message.id);
       message.guild.starboardReactions.delete(message.id);
-      message.guild.starboardMessages.delete(
-        message.guild.starboardMessages.findKey((board) => board == message.id)
-      );
     }
 
     if (message.partial || message.author.bot) return;
