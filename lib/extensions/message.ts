@@ -979,12 +979,13 @@ export class FireMessage extends Message {
 
     // same condition, checks if still partial
     if (this.partial) return;
-    else if (user?.id == this.author?.id || user.bot) return;
 
     const starEmoji: string = this.guild.settings
       .get("starboard.emoji", "⭐")
       .trim();
     let stars = this.reactions.cache.get(starEmoji)?.count || 0;
+
+    if (stars == 1 && (user.id == this.author.id || user.bot)) stars = 0;
 
     const starboard = this.guild.starboard;
     if (!starboard || this.channel.id == starboard.id) return;
@@ -1003,14 +1004,18 @@ export class FireMessage extends Message {
       else this.guild.starboardReactions.set(this.id, stars);
     } else {
       let cachedStars = this.guild.starboardReactions.get(this.id);
-      if (action == "add") cachedStars++;
-      else if (action == "remove") cachedStars--;
+      if (action == "add" && user.id != this.author.id && !user.bot)
+        cachedStars++;
+      else if (action == "remove" && user.id != this.author.id && !user.bot)
+        cachedStars--;
       // if this is false, we've (probably) drifted too much so we use the reaction count instead of the cached count
       if (
         (cachedStars > stars && cachedStars - stars >= 8) ||
         (stars > cachedStars && stars - cachedStars >= 8)
       )
         stars = cachedStars;
+      // unchanged, don't do anything
+      if (stars == this.guild.starboardReactions.get(this.id)) return;
       stars > 0
         ? this.guild.starboardReactions.set(this.id, stars)
         : this.guild.starboardReactions.delete(this.id);
