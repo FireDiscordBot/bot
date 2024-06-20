@@ -197,7 +197,7 @@ export default class User extends Command {
     if (member) {
       if (member?.avatar && member?.avatar != user.avatar)
         embed.setThumbnail(
-          member.avatarURL({ size: 2048, format: "png", dynamic: true })
+          member.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
         );
       const roles = member.roles.cache
         .filter((role) => role.id != command.guild.id)

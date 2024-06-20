@@ -1,8 +1,10 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Listener } from "@fire/lib/util/listener";
-import { Collection, GuildAuditLogsEntry } from "discord.js";
+import { Collection, GuildAuditLogsEntry, MessageEmbed } from "discord.js";
 import GuildMemberUpdate from "./guildMemberUpdate";
+import { FireUser } from "@fire/lib/extensions/user";
+import { ModLogTypes } from "@fire/lib/util/constants";
 
 export default class GuildAuditLogEntryCreate extends Listener {
   guildMemberUpdate: GuildMemberUpdate;
@@ -47,8 +49,8 @@ export default class GuildAuditLogEntryCreate extends Listener {
     const targetAndExecutor = (await guild.members.fetch({
       user: [auditLogEntry.targetId, auditLogEntry.executorId],
     })) as Collection<string, FireMember>;
-    const target = targetAndExecutor.get(auditLogEntry.target.id);
-    const executor = targetAndExecutor.get(auditLogEntry.executor.id);
+    const target = targetAndExecutor.get(auditLogEntry.targetId);
+    const executor = targetAndExecutor.get(auditLogEntry.executorId);
 
     for (const change of auditLogEntry.changes) {
       if (change.key == "nick")
@@ -89,8 +91,8 @@ export default class GuildAuditLogEntryCreate extends Listener {
     const targetAndExecutor = (await guild.members.fetch({
       user: [auditLogEntry.targetId, auditLogEntry.executorId],
     })) as Collection<string, FireMember>;
-    const target = targetAndExecutor.get(auditLogEntry.target.id);
-    const executor = targetAndExecutor.get(auditLogEntry.executor.id);
+    const target = targetAndExecutor.get(auditLogEntry.targetId);
+    const executor = targetAndExecutor.get(auditLogEntry.executorId);
 
     for (const change of auditLogEntry.changes)
       if (change.key == "$add")
@@ -101,5 +103,109 @@ export default class GuildAuditLogEntryCreate extends Listener {
         await this.guildMemberUpdate
           .logRoleRemove(auditLogEntry, change, guild, { target, executor })
           .catch(() => {});
+  }
+
+  async ["MEMBER_BAN_ADD"](
+    auditLogEntry: GuildAuditLogsEntry<"MEMBER_BAN_ADD">,
+    guild: FireGuild
+  ) {
+    if (auditLogEntry.executorId == this.client.user.id) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    if (executor.user.bot) return; // I may add support for specific bots in the future
+
+    const target = (await this.client.users.fetch(
+      auditLogEntry.targetId
+    )) as FireUser;
+
+    const logEntry = await guild
+      .createModLogEntry(
+        target,
+        executor,
+        ModLogTypes.BAN,
+        auditLogEntry.reason ??
+          guild.language.get("MODERATOR_ACTION_DEFAULT_REASON")
+      )
+      .catch(() => {});
+    if (!logEntry) return;
+    const embed = new MessageEmbed()
+      .setColor(executor.displayColor || "#FFFFFF")
+      .setTimestamp(auditLogEntry.createdAt)
+      .setAuthor({
+        name: guild.language.get("BAN_LOG_AUTHOR", { user: target.display }),
+        iconURL: target.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
+      .addFields([
+        {
+          name: guild.language.get("MODERATOR"),
+          value: executor.toString(),
+        },
+        {
+          name: guild.language.get("REASON"),
+          value:
+            auditLogEntry.reason ??
+            guild.language.get("MODERATOR_ACTION_DEFAULT_REASON"),
+        },
+      ])
+      .setFooter({ text: `${target.id} | ${executor.id}` });
+    await guild.modLog(embed, ModLogTypes.BAN).catch(() => {});
+  }
+
+  async ["MEMBER_BAN_REMOVE"](
+    auditLogEntry: GuildAuditLogsEntry<"MEMBER_BAN_REMOVE">,
+    guild: FireGuild
+  ) {
+    if (auditLogEntry.executorId == this.client.user.id) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    if (executor.user.bot) return; // I may add support for specific bots in the future
+
+    const target = (await this.client.users.fetch(
+      auditLogEntry.targetId
+    )) as FireUser;
+
+    const logEntry = await guild
+      .createModLogEntry(
+        target,
+        executor,
+        ModLogTypes.UNBAN,
+        auditLogEntry.reason ??
+          guild.language.get("MODERATOR_ACTION_DEFAULT_REASON")
+      )
+      .catch(() => {});
+    if (!logEntry) return;
+    const embed = new MessageEmbed()
+      .setColor(executor.displayColor || "#FFFFFF")
+      .setTimestamp(auditLogEntry.createdAt)
+      .setAuthor({
+        name: guild.language.get("UNBAN_LOG_AUTHOR", { user: target.display }),
+        iconURL: target.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
+      .addFields([
+        {
+          name: guild.language.get("MODERATOR"),
+          value: executor.toString(),
+        },
+        {
+          name: guild.language.get("REASON"),
+          value:
+            auditLogEntry.reason ??
+            guild.language.get("MODERATOR_ACTION_DEFAULT_REASON"),
+        },
+      ])
+      .setFooter({ text: `${target.id} | ${executor.id}` });
+    await guild.modLog(embed, ModLogTypes.UNBAN).catch(() => {});
   }
 }

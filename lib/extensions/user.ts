@@ -229,7 +229,11 @@ export class FireUser extends User {
       .setTimestamp()
       .setAuthor({
         name: guild.language.get("BAN_LOG_AUTHOR", { user: this.display }),
-        iconURL: this.avatarURL({ size: 2048, format: "png", dynamic: true }),
+        iconURL: this.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
       })
       .addField(guild.language.get("MODERATOR"), moderator.toString())
       .addField(guild.language.get("REASON"), reason)
