@@ -43,59 +43,20 @@ export class GuildSettings {
   // will check if migration is needed for the current migration script
   get shouldMigrate() {
     return (
-      this.get("commands.modonly", []).length ||
-      this.get("commands.adminonly", []).length
+      this.has("auditlog.member_update.latestid") ||
+      this.has("auditlog.member_role_update.latestid")
     );
   }
 
   // unique identifier for the migration script
   get migrationId() {
-    return "March24-restrict-command";
+    return "June24-audit-logs-event";
   }
 
   // will be empty unless there's a migration to run
   async runMigration() {
-    if (!(this.guild instanceof FireGuild)) return;
-    let currentAdminOnly = this.get<Snowflake[]>("commands.adminonly", []);
-    for (const [, category] of this.guild.channels.cache.filter(
-      (c) => c.type == "GUILD_CATEGORY"
-    )) {
-      if (!(category as CategoryChannel).children.size) continue;
-      if (
-        (category as CategoryChannel).children.every((c) =>
-          currentAdminOnly.includes(c.id)
-        )
-      ) {
-        currentAdminOnly = currentAdminOnly.filter(
-          (id) => !(category as CategoryChannel).children.has(id)
-        );
-        currentAdminOnly.push(category.id);
-      }
-    }
-    currentAdminOnly = currentAdminOnly.filter((id) =>
-      (this.guild as FireGuild).channels.cache.has(id)
-    );
-    this.set<Snowflake[]>("commands.adminonly", currentAdminOnly);
-    let currentModOnly = this.get<Snowflake[]>("commands.modonly", []);
-    for (const [, category] of this.guild.channels.cache.filter(
-      (c) => c.type == "GUILD_CATEGORY"
-    )) {
-      if (!(category as CategoryChannel).children.size) continue;
-      if (
-        (category as CategoryChannel).children.every((c) =>
-          currentModOnly.includes(c.id)
-        )
-      ) {
-        currentModOnly = currentModOnly.filter(
-          (id) => !(category as CategoryChannel).children.has(id)
-        );
-        currentModOnly.push(category.id);
-      }
-    }
-    currentModOnly = currentModOnly.filter((id) =>
-      (this.guild as FireGuild).channels.cache.has(id)
-    );
-    this.set<Snowflake[]>("commands.modonly", currentModOnly);
+    this.delete("auditlog.member_update.latestid");
+    this.delete("auditlog.member_role_update.latestid");
   }
 
   has(option: string) {

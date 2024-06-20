@@ -105,10 +105,8 @@ export class FireGuild extends Guild {
   tempBans: Collection<Snowflake, number>;
   inviteUses: Collection<string, number>;
   mutes: Collection<Snowflake, number>;
-  fetchingMemberUpdates: boolean;
   muteCheckTask: NodeJS.Timeout;
   banCheckTask: NodeJS.Timeout;
-  fetchingRoleUpdates: boolean;
   settings: GuildSettings;
   logger: GuildLogManager;
   tags: GuildTagManager;
@@ -118,8 +116,6 @@ export class FireGuild extends Guild {
     super(client, data);
 
     this.settings = new GuildSettings(client, this);
-    this.fetchingMemberUpdates = false;
-    this.fetchingRoleUpdates = false;
     this.mutes = new Collection();
     this.loadMutes();
     this.loadBans();
