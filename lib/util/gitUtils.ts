@@ -3,7 +3,13 @@ import { readFileSync } from "fs";
 
 export const getCommitHash = () => {
   try {
-    return readFileSync("commit.txt").toString().trim();
+    return readFileSync(
+      __dirname.includes("/dist/") || __dirname.includes("\\dist\\")
+        ? "dist/commit.txt"
+        : "commit.txt"
+    )
+      .toString()
+      .trim();
   } catch (e) {
     // can be incorrect if we're not on the latest commit
     // (e.g. if a deploy was reverted temporarily)
