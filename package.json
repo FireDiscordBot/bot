@@ -16,7 +16,7 @@
     "litecord": "yarn compile && yarn runlc",
     "rundev": "NODE_ENV=development node dist/src/index.js",
     "runlc": "NODE_ENV=litecord node dist/src/index.js",
-    "compile": "rm -rf dist/ && tsc",
+    "compile": "rm -rf dist/ && tsc && git rev-parse HEAD > dist/commit.txt",
     "start": "NODE_ENV=production node dist/src/index.js",
     "format": "prettier . --write"
   },
