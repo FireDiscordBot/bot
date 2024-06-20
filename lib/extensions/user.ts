@@ -21,11 +21,9 @@ import { FireMember } from "./guildmember";
 export class FireUser extends User {
   settings: UserSettings;
   declare client: Fire;
-  displayName: string;
 
-  constructor(client: Fire, data: RawUserData & { global_name?: string }) {
+  constructor(client: Fire, data: RawUserData) {
     super(client, data);
-    this.displayName = data.global_name;
     this.settings = new UserSettings(this.client, this);
   }
 
@@ -44,9 +42,9 @@ export class FireUser extends User {
   }
 
   get display() {
-    return this.displayName && this.displayName.toLowerCase() != this.toString()
-      ? `${this.displayName} (${this})`
-      : this.displayName ?? this.toString();
+    return this.globalName && this.globalName.toLowerCase() != this.toString()
+      ? `${this.globalName} (${this})`
+      : this.globalName ?? this.toString();
   }
 
   get voice() {

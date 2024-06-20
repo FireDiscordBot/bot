@@ -232,7 +232,7 @@ export default class Google extends Command {
               action: GoogleAssistantActions.TEXT_QUERY,
               userId: command.author.id,
               useDefaultCreds,
-              name: command.member?.nickname || command.author.displayName,
+              name: command.member?.nickname || command.author.globalName,
               input,
               image: true,
             } as GoogleAssistantData,

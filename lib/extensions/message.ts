@@ -145,9 +145,11 @@ export class FireMessage extends Message {
               return user ? `@${user.username}` : input;
             }
 
-            const member = this.channel.guild.members.cache.get(id);
+            const member = this.channel.guild.members.cache.get(
+              id
+            ) as FireMember;
             if (member) {
-              return `@${member.displayName}`;
+              return `@${member.globalName}`;
             } else {
               const user = this.channel.client.users.cache.get(id);
               return user ? `@${user.username}` : input;
@@ -173,9 +175,7 @@ export class FireMessage extends Message {
   async getSystemContent() {
     const lang = this.guild.language ?? this.language;
     const user =
-      this.member?.nickname ??
-      this.author?.displayName ??
-      this.author?.username;
+      this.member?.nickname ?? this.author?.globalName ?? this.author?.username;
     if (this.type == "GUILD_MEMBER_JOIN")
       return lang.get(
         `QUOTE_SYSTSEM_MESSAGE_JOIN.JOIN_MESSAGE_${

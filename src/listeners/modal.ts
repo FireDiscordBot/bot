@@ -127,7 +127,7 @@ export default class Modal extends Listener {
       const infoEmbed = new MessageEmbed()
         .setTitle(enUS.get("MINECRAFT_LOGSCAN_SOLUTION_EMBED_TITLE"))
         .setAuthor({
-          name: `${modal.author.displayName} (${modal.author.id})`,
+          name: `${modal.author.globalName} (${modal.author.id})`,
           iconURL: modal.author.displayAvatarURL({
             size: 2048,
             format: "png",

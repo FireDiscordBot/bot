@@ -84,7 +84,7 @@ export default class GuildMemberRemove extends Listener {
           [joinleavemsgs.user, member.toString()],
           [joinleavemsgs.mention, member.toMention()],
           [joinleavemsgs.name, member.user.username],
-          [joinleavemsgs.displayName, member.user.displayName],
+          [joinleavemsgs.displayName, member.user.globalName],
           [joinleavemsgs.discrim, member.user.discriminator],
           [joinleavemsgs.guild, member.guild.name],
           [

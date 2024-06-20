@@ -36,8 +36,8 @@ export class FireMember extends GuildMember {
   }
 
   // @ts-ignore
-  get displayName() {
-    return this.nickname ?? this.user.displayName;
+  get globalName() {
+    return this.nickname ?? this.user.globalName;
   }
 
   get language() {
@@ -171,13 +171,13 @@ export class FireMember extends GuildMember {
         if (
           !member.nickname ||
           member.nickname == badName ||
-          member.nickname == user.displayName ||
+          member.nickname == user.globalName ||
           member.nickname == user.username
         )
           return false;
         if (member.nickname[0] < "0") return true;
       },
-      displayName: user.displayName && user.displayName[0] < "0",
+      globalName: user.globalName && user.globalName[0] < "0",
 
       // pomelo'd usernames can technically be hoisted but only with a period/underscore
       // so we'll just consider them not hoisted to make things easier.
@@ -197,8 +197,8 @@ export class FireMember extends GuildMember {
         if (!member.nickname || member.nickname == badName) return false;
         return !member.client.util.isASCII(member.nickname);
       },
-      displayName:
-        user.displayName && !member.client.util.isASCII(user.displayName),
+      globalName:
+        user.globalName && !member.client.util.isASCII(user.globalName),
       username: !member.client.util.isASCII(user.username),
     };
   }
@@ -206,7 +206,7 @@ export class FireMember extends GuildMember {
   private async dehoist() {
     const hoisted = this.isHoisted();
     if (
-      (!hoisted.nickname && !hoisted.displayName && !hoisted.username) ||
+      (!hoisted.nickname && !hoisted.globalName && !hoisted.username) ||
       !this.guild.settings.get<boolean>("mod.autodehoist") ||
       this.isModerator() ||
       this.roles.highest.rawPosition >=
@@ -218,7 +218,7 @@ export class FireMember extends GuildMember {
       return;
     // we'll try to fallback on other names (display name & username) if it is a hoisted nickname
     // first up, let's try the display name which we can fallback to by just removing the nickname
-    if (hoisted.nickname && !hoisted.displayName)
+    if (hoisted.nickname && !hoisted.globalName)
       return this.edit(
         { nick: null },
         this.guild.language.get("AUTODEHOIST_NICKTODISPLAY_REASON")
@@ -227,14 +227,14 @@ export class FireMember extends GuildMember {
     // next up is the username, which we'll only use for pomelo'd users as they're guaranteed to be non-hoisted
     // or at least not as badly hoisted, since they can use periods & underscores
     // we also check the nickname to ensure we're not unnecessarily editing it
-    if (hoisted.displayName && !hoisted.username && !this.nickname)
+    if (hoisted.globalName && !hoisted.username && !this.nickname)
       return this.edit(
         { nick: this.user.username },
         this.guild.language.get("AUTODEHOIST_USERNAMEFALLBACK_REASON")
       );
     // if they have a nickname/display name and we're here with a hoisted username,
     // we can ignore it as the nickname/display name is not hoisted so it's fine
-    if (this.displayName && hoisted.username) return;
+    if (this.globalName && hoisted.username) return;
     // If we got past all that, we'll need to use the server's "bad name" setting
     // as we have nothing else to fallback on.
     const badName = this.guild.settings.get<string>(
@@ -250,7 +250,7 @@ export class FireMember extends GuildMember {
   private async decancer() {
     const nonASCII = this.isNonASCII();
     if (
-      (!nonASCII.nickname && !nonASCII.displayName && !nonASCII.username) ||
+      (!nonASCII.nickname && !nonASCII.globalName && !nonASCII.username) ||
       !this.guild.settings.get<boolean>("mod.autodecancer") ||
       this.isModerator() ||
       this.roles.highest.rawPosition >=
@@ -279,7 +279,7 @@ export class FireMember extends GuildMember {
           { nick: sanitized },
           this.guild.language.get("AUTODECANCER_NICKNAME_REASON")
         );
-      else if (!nonASCII.displayName)
+      else if (!nonASCII.globalName)
         return this.edit(
           { nick: null }, // display name shows when there's no nickname
           this.guild.language.get("AUTODECANCER_NICKTODISPLAY_REASON")
@@ -294,8 +294,8 @@ export class FireMember extends GuildMember {
           { nick: badName },
           this.guild.language.get("AUTODECANCER_BADNAME_REASON")
         );
-    } else if (nonASCII.displayName && !this.nickname) {
-      let sanitized: string = sanitizer(this.user.displayName);
+    } else if (nonASCII.globalName && !this.nickname) {
+      let sanitized: string = sanitizer(this.user.globalName);
       if (this.guild.settings.get<boolean>("mod.autodehoist"))
         // we need to make sure our sanitized nickname isn't hoisted
         // and since we're sanitizing, we won't care about removing characters from the start
@@ -319,7 +319,7 @@ export class FireMember extends GuildMember {
           { nick: badName },
           this.guild.language.get("AUTODECANCER_BADNAME_REASON")
         );
-    } else if (nonASCII.username && !this.displayName) {
+    } else if (nonASCII.username && !this.globalName) {
       let sanitized: string = sanitizer(this.user.username);
       if (this.guild.settings.get<boolean>("mod.autodehoist"))
         // we need to make sure our sanitized nickname isn't hoisted
@@ -363,17 +363,17 @@ export class FireMember extends GuildMember {
     // check if the user has the server's bad name as their nickname
     if (
       !hoisted.nickname &&
-      !hoisted.displayName &&
+      !hoisted.globalName &&
       !hoisted.username &&
       !nonASCII.nickname &&
-      !nonASCII.displayName &&
+      !nonASCII.globalName &&
       !nonASCII.username
     ) {
       // specifically check for "John Doe 0" because it used that before redoing this for pomelo
       if (
         (this.nickname == badName ||
           this.nickname == "John Doe 0" ||
-          this.nickname == this.user.displayName) &&
+          this.nickname == this.user.globalName) &&
         this.roles.highest.rawPosition <
           this.guild.members.me.roles.highest.rawPosition &&
         this.guild.members.me.permissions.has(
@@ -388,8 +388,8 @@ export class FireMember extends GuildMember {
                 ? `Nickname is equal to server bad name, ${badName}`
                 : this.nickname == "John Doe 0"
                 ? "Nickname is equal to default bad name with 0 discriminator (pomelo'd)"
-                : this.nickname == this.user.displayName
-                ? `Nickname is equal to display name, ${this.user.displayName}`
+                : this.nickname == this.user.globalName
+                ? `Nickname is equal to display name, ${this.user.globalName}`
                 : "idk why this happened, it probably shouldn't have, please report this as an issue in discord.gg/firebot",
           })
         ).catch(() => {});

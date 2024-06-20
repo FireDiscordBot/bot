@@ -403,13 +403,13 @@ export default class User extends Command {
       now.getFullYear() != user.createdAt.getFullYear();
     let info = [
       `**${command.language.get("MENTION")}:** ${user.toMention()}`,
-      user.displayName
+      user.globalName
         ? `**${command.language.get("DISPLAY_NAME")}:**${
             member instanceof FireMember &&
             member.guild?.id == "342506939340685312"
               ? ":".repeat(++this.plsShutUp)
               : ""
-          } ${user.displayName}`
+          } ${user.globalName}`
         : undefined,
       `**${command.language.get("CREATED")}** ${Formatters.time(
         user.createdAt,
