@@ -88,7 +88,7 @@ export default class DiscordStatus extends Command {
       .setColor(
         constants.statuspage.colors[summary.status.indicator] ||
           message.member?.displayColor ||
-          "#ffffff"
+          "#FFFFFF"
       )
       .addField(
         message.language.get("STATUS_LATEST_INCIDENT"),

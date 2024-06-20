@@ -269,7 +269,11 @@ export default class GuildMemberUpdate extends Listener {
           : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
       })
       .setTimestamp(action.createdTimestamp)
-      .setColor(target ? target?.displayColor : "#ffffff")
+      .setColor(
+        target && target.displayColor
+          ? target?.displayColor
+          : executor.displayColor ?? "#FFFFFF"
+      )
       .setFooter(action.targetId)
       .addField(
         guild.language.get("TIMEOUTLOG_GIVEN"),
@@ -308,7 +312,11 @@ export default class GuildMemberUpdate extends Listener {
           : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
       })
       .setTimestamp(action.createdTimestamp)
-      .setColor(target ? target?.displayColor : "#ffffff")
+      .setColor(
+        target && target.displayColor
+          ? target?.displayColor
+          : executor.displayColor ?? "#FFFFFF"
+      )
       .setFooter(action.targetId);
     if (executor && executor.id != action.targetId)
       embed.addField(guild.language.get("MODERATOR"), executor.toString());
