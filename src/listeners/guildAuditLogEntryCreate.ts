@@ -45,7 +45,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
       return;
 
     const targetAndExecutor = (await guild.members.fetch({
-      user: [auditLogEntry.target.id, auditLogEntry.executor.id],
+      user: [auditLogEntry.targetId, auditLogEntry.executorId],
     })) as Collection<string, FireMember>;
     const target = targetAndExecutor.get(auditLogEntry.target.id);
     const executor = targetAndExecutor.get(auditLogEntry.executor.id);
@@ -87,7 +87,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
       return;
 
     const targetAndExecutor = (await guild.members.fetch({
-      user: [auditLogEntry.target.id, auditLogEntry.executor.id],
+      user: [auditLogEntry.targetId, auditLogEntry.executorId],
     })) as Collection<string, FireMember>;
     const target = targetAndExecutor.get(auditLogEntry.target.id);
     const executor = targetAndExecutor.get(auditLogEntry.executor.id);
