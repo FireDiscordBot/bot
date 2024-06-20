@@ -208,4 +208,56 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setFooter({ text: `${target.id} | ${executor.id}` });
     await guild.modLog(embed, ModLogTypes.UNBAN).catch(() => {});
   }
+
+  async ["MEMBER_KICK"](
+    auditLogEntry: GuildAuditLogsEntry<"MEMBER_KICK">,
+    guild: FireGuild
+  ) {
+    if (auditLogEntry.executorId == this.client.user.id) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    if (executor.user.bot) return; // I may add support for specific bots in the future
+
+    const target = (await this.client.users.fetch(
+      auditLogEntry.targetId
+    )) as FireUser;
+
+    const logEntry = await guild
+      .createModLogEntry(
+        target,
+        executor,
+        ModLogTypes.KICK,
+        auditLogEntry.reason ??
+          guild.language.get("MODERATOR_ACTION_DEFAULT_REASON")
+      )
+      .catch(() => {});
+    if (!logEntry) return;
+    const embed = new MessageEmbed()
+      .setColor(executor.displayColor || "#E74C3C")
+      .setTimestamp(auditLogEntry.createdAt)
+      .setAuthor({
+        name: guild.language.get("KICK_LOG_AUTHOR", { user: target.display }),
+        iconURL: target.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
+        }),
+      })
+      .addFields([
+        {
+          name: guild.language.get("MODERATOR"),
+          value: executor.toString(),
+        },
+        {
+          name: guild.language.get("REASON"),
+          value:
+            auditLogEntry.reason ??
+            guild.language.get("MODERATOR_ACTION_DEFAULT_REASON"),
+        },
+      ])
+      .setFooter({ text: `${target.id} | ${executor.id}` });
+    await guild.modLog(embed, ModLogTypes.KICK).catch(() => {});
+  }
 }
