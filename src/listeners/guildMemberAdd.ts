@@ -241,6 +241,10 @@ export default class GuildMemberAdd extends Listener {
           PermissionFlagsBits.ViewAuditLog
         )
       ) {
+        // this is (or at least should be) infrequent enough
+        // to make moving it to guildAuditLogEntryCreate not completely necessarys
+        // however, it might be worth doing so to add extra details and/or have it in mod logs
+        // especially since this is the last audit fetch remaining
         const auditLogActions = await member.guild
           .fetchAuditLogs({ limit: 2, type: "BOT_ADD" })
           .catch(() => {});
