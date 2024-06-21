@@ -744,14 +744,32 @@ export class FireGuild extends Guild {
     };
   }
 
+  isAnyLogTypeEnabled() {
+    return (
+      (
+        this.settings.has("log.action") &&
+        this.channels.cache.get(this.settings.get<Snowflake>("log.action"))
+      )?.type == "GUILD_TEXT" ||
+      (this.settings.has("log.moderation") &&
+        this.channels.cache.get(this.settings.get<Snowflake>("log.moderation"))
+          ?.type == "GUILD_TEXT") ||
+      (this.settings.has("log.members") &&
+        this.channels.cache.get(this.settings.get<Snowflake>("log.members"))
+          ?.type == "GUILD_TEXT")
+    );
+  }
+
   async actionLog(
     log: string | MessageEmbed | MessageEmbedOptions,
     type: ActionLogTypes
   ) {
+    if (this.isAnyLogTypeEnabled() && !this.logger)
+      this.logger = new GuildLogManager(this.client, this);
+    if (!this.logger?.isActionEnabled()) return;
+
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.action")
     );
-    if (!channel || channel.type != "GUILD_TEXT") return;
 
     const flags = this.settings.get(
       "logging.action.flags",
@@ -760,6 +778,7 @@ export class FireGuild extends Guild {
     if (type != ActionLogTypes.SYSTEM && (flags & type) != type) return;
 
     if (
+      channel &&
       !this.members.me
         .permissionsIn(channel)
         .has(PermissionFlagsBits.ManageWebhooks)
@@ -771,7 +790,6 @@ export class FireGuild extends Guild {
         })
         .catch(() => {});
     else {
-      if (!this.logger) this.logger = new GuildLogManager(this.client, this);
       return await this.logger.handleAction(log, type);
     }
   }
@@ -780,10 +798,13 @@ export class FireGuild extends Guild {
     log: string | MessageEmbed | MessageEmbedOptions,
     type: ModLogTypes
   ) {
+    if (this.isAnyLogTypeEnabled() && !this.logger)
+      this.logger = new GuildLogManager(this.client, this);
+    if (!this.logger?.isModerationEnabled()) return;
+
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.moderation")
     );
-    if (!channel || channel.type != "GUILD_TEXT") return;
 
     const flags = this.settings.get(
       "logging.moderation.flags",
@@ -792,6 +813,7 @@ export class FireGuild extends Guild {
     if (type != ModLogTypes.SYSTEM && (flags & type) != type) return;
 
     if (
+      channel &&
       !this.members.me
         .permissionsIn(channel)
         .has(PermissionFlagsBits.ManageWebhooks)
@@ -812,10 +834,13 @@ export class FireGuild extends Guild {
     log: string | MessageEmbed | MessageEmbedOptions,
     type: MemberLogTypes
   ) {
+    if (this.isAnyLogTypeEnabled() && !this.logger)
+      this.logger = new GuildLogManager(this.client, this);
+    if (!this.logger?.isMembersEnabled()) return;
+
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.members")
     );
-    if (!channel || channel.type != "GUILD_TEXT") return;
 
     const flags = this.settings.get(
       "logging.members.flags",
@@ -824,6 +849,7 @@ export class FireGuild extends Guild {
     if (type != MemberLogTypes.SYSTEM && (flags & type) != type) return;
 
     if (
+      channel &&
       !this.members.me
         .permissionsIn(channel)
         .has(PermissionFlagsBits.ManageWebhooks)

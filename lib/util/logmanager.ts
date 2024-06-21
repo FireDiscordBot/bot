@@ -147,6 +147,33 @@ export class GuildLogManager {
       .length;
   }
 
+  isModerationEnabled() {
+    return (
+      this.guild.settings.has("log.moderation") &&
+      this.guild.channels.cache.has(
+        this.guild.settings.get<Snowflake>("log.moderation")
+      )
+    );
+  }
+
+  isMembersEnabled() {
+    return (
+      this.guild.settings.has("log.members") &&
+      this.guild.channels.cache.has(
+        this.guild.settings.get<Snowflake>("log.members")
+      )
+    );
+  }
+
+  isActionEnabled() {
+    return (
+      this.guild.settings.has("log.action") &&
+      this.guild.channels.cache.has(
+        this.guild.settings.get<Snowflake>("log.action")
+      )
+    );
+  }
+
   async handleModeration(content: logContent, type: ModLogTypes) {
     if (!this.rateLimitListener)
       this.rateLimitListener = this.client.getListener(
