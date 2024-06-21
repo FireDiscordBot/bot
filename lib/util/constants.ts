@@ -253,6 +253,14 @@ export const constants = {
   audioExts: [".mp3", ".wav", ".flac", ".alac", ".m4a"],
   videoExts: [".mp4", ".mkv", ".mov", ".webm"],
   prodBotId: "444871677176709141",
+  dayjsCalendarFormats: {
+    sameDay: `[Today at] HH:mm (h:mm A)`,
+    nextDay: `[Tomorrow at] HH:mm (h:mm A)`,
+    nextWeek: `dddd [at] HH:mm (h:mm A)`,
+    lastDay: `[Yesterday at] HH:mm (h:mm A)`,
+    lastWeek: `[Last] dddd [at] HH:mm (h:mm A)`,
+    sameElse: "DD/MM/YYYY [at] HH:mm (h:mm A)",
+  },
   regexes: {
     maskedLink: /\[(?<name>.+)\]\((?<link><?https?:\/\/.+>?)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,

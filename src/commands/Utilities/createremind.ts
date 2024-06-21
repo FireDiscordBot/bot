@@ -211,14 +211,10 @@ export default class RemindersCreate extends Command {
           )
         );
         // TODO: figure out if we can detect 12/24 hour time so we can only display one
-        const relativeTimeString = timestamp.calendar(now, {
-          sameDay: `[Today at] HH:mm (h:mm A)`,
-          nextDay: `[Tomorrow at] HH:mm (h:mm A)`,
-          nextWeek: `dddd [at] HH:mm (h:mm A)`,
-          lastDay: `[Yesterday at] HH:mm (h:mm A)`,
-          lastWeek: `[Last] dddd [at] HH:mm (h:mm A)`,
-          sameElse: "DD/MM/YYYY [at] HH:mm (h:mm A)",
-        });
+        const relativeTimeString = timestamp.calendar(
+          now,
+          constants.dayjsCalendarFormats
+        );
         parsed = strict.parse(
           relativeTimeString,
           {
