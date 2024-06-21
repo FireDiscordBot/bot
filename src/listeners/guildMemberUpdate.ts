@@ -191,7 +191,10 @@ export default class GuildMemberUpdate extends Listener {
           : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
       })
       .setTimestamp(action.createdTimestamp)
-      .setColor(roles.random().hexColor as `#${string}`)
+      .setColor(
+        roles.filter((r) => !!r.color).random()?.hexColor ??
+          roles.first()?.hexColor
+      )
       .addField(
         guild.language.get("ROLEADDLOG_FIELD_TITLE"),
         roles.map((role) => role.toString()).join(" - ")
@@ -233,7 +236,10 @@ export default class GuildMemberUpdate extends Listener {
           : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
       })
       .setTimestamp(action.createdTimestamp)
-      .setColor(roles.random().hexColor as `#${string}`)
+      .setColor(
+        roles.filter((r) => !!r.color).random()?.hexColor ??
+          roles.first()?.hexColor
+      )
       .addField(
         guild.language.get("ROLEREMOVELOG_FIELD_TITLE"),
         roles.map((role) => role.toString()).join(" - ")
