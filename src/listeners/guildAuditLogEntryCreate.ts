@@ -1,18 +1,45 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { Listener } from "@fire/lib/util/listener";
-import { Collection, GuildAuditLogsEntry, MessageEmbed } from "discord.js";
-import GuildMemberUpdate from "./guildMemberUpdate";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import {
   ActionLogTypes,
   ModLogTypes,
   titleCase,
 } from "@fire/lib/util/constants";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { PermissionFlagsBits } from "discord-api-types/v9";
+import { Listener } from "@fire/lib/util/listener";
 import { GuildLogManager } from "@fire/lib/util/logmanager";
 import * as dayjs from "dayjs";
+import { PermissionFlagsBits } from "discord-api-types/v9";
+import {
+  ChannelFlags,
+  Collection,
+  GuildAuditLogsEntry,
+  MessageEmbed,
+  NonThreadGuildBasedChannel,
+  PermissionOverwriteManager,
+  PermissionOverwrites,
+} from "discord.js";
+import { ChannelTypes } from "discord.js/typings/enums";
+import { RawPermissionOverwriteData } from "discord.js/typings/rawDataTypes";
+import GuildMemberUpdate from "./guildMemberUpdate";
+
+const ReverseChannelTypes = {
+  0: "GUILD_TEXT",
+  1: "DM",
+  2: "GUILD_VOICE",
+  3: "GROUP_DM",
+  4: "GUILD_CATEGORY",
+  5: "GUILD_NEWS",
+  6: "GUILD_STORE",
+  7: "UNKNOWN",
+  10: "GUILD_NEWS_THREAD",
+  11: "GUILD_PUBLIC_THREAD",
+  12: "GUILD_PRIVATE_THREAD",
+  13: "GUILD_STAGE_VOICE",
+  14: "GUILD_DIRECTORY",
+  15: "GUILD_FORUM",
+};
 
 export default class GuildAuditLogEntryCreate extends Listener {
   guildMemberUpdate: GuildMemberUpdate;
@@ -344,8 +371,9 @@ export default class GuildAuditLogEntryCreate extends Listener {
         const memberIds = canView.filter(
           (id) => !roles.find((role) => role.id == id)
         );
-        // owner can always see
-        memberIds.push(guild.ownerId);
+        if (!memberIds.includes(guild.ownerId))
+          // owner can always see
+          memberIds.push(guild.ownerId);
         const members: string[] = memberIds.length
           ? await guild.members
               .fetch({ user: memberIds })
@@ -367,5 +395,123 @@ export default class GuildAuditLogEntryCreate extends Listener {
         .actionLog(embed, ActionLogTypes.CHANNEL_CREATE)
         .catch(() => {});
     }
+  }
+
+  async ["CHANNEL_DELETE"](
+    auditLogEntry: GuildAuditLogsEntry<"CHANNEL_DELETE">,
+    guild: FireGuild
+  ) {
+    if (!guild.logger) guild.logger = new GuildLogManager(this.client, guild);
+    if (!guild.logger.isActionEnabled()) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    const target = guild.channels.cache.get(auditLogEntry.targetId) ?? {
+      // if we're here, the channel was already evicted from the cache
+      // so we need to construct an object with the data we need
+      name: auditLogEntry.target.name as string,
+      type: ReverseChannelTypes[
+        auditLogEntry.target.type as number
+      ] as keyof typeof ChannelTypes,
+      topic:
+        "topic" in auditLogEntry.target
+          ? (auditLogEntry.target.topic as string)
+          : undefined,
+      permissionOverwrites: new PermissionOverwriteManager(
+        // @ts-ignore / the types are wrong for PermissionOverwriteManager's constructor
+        { client: this.client },
+        "permission_overwrites" in auditLogEntry.target
+          ? (auditLogEntry.target
+              .permission_overwrites as RawPermissionOverwriteData[])
+          : ([] as RawPermissionOverwriteData[])
+      ),
+      // nsfw:
+      //   "nsfw" in auditLogEntry.target
+      //     ? (auditLogEntry.target.nsfw as boolean)
+      //     : false,
+      rateLimitPerUser:
+        "rate_limit_per_user" in auditLogEntry.target
+          ? (auditLogEntry.target.rate_limit_per_user as number)
+          : undefined,
+    };
+
+    const embed = new MessageEmbed()
+      .setColor("#E74C3C")
+      .setTimestamp()
+      .setAuthor({
+        name: guild.language.get("CHANNELDELETELOG_AUTHOR", {
+          type: titleCase(target.type.replace(/_/g, " ")),
+          guild: guild.name,
+        }),
+        iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
+      .addFields({ name: guild.language.get("NAME"), value: target.name })
+      .setFooter({ text: auditLogEntry.targetId });
+    if ("topic" in target && target.topic)
+      embed.addFields({
+        name: guild.language.get("TOPIC"),
+        value: target.topic,
+      });
+    if ("rateLimitPerUser" in target && target.rateLimitPerUser)
+      // this doesn't work too well for very short values (as it says "a few seconds" rather than the actual value)
+      // but it's good enough
+      embed.addFields({
+        name: guild.language.get("SLOWMODE"),
+        value: dayjs(+new Date() + target.rateLimitPerUser * 1000).fromNow(
+          true
+        ),
+      });
+    if (
+      "permissionOverwrites" in target &&
+      target.permissionOverwrites.cache.size > 1
+    ) {
+      const canView = target.permissionOverwrites.cache
+        .filter((overwrite) =>
+          overwrite.allow.has(PermissionFlagsBits.ViewChannel)
+        )
+        .map((overwrite) => overwrite.id);
+      const roles = [
+        ...canView
+          .map((id) => guild.roles.cache.get(id))
+          .filter((role) => !!role),
+        ...guild.roles.cache
+          .filter(
+            (role) =>
+              role.permissions.has(PermissionFlagsBits.Administrator) &&
+              !canView.find((id) => id == role.id)
+          )
+          .values(),
+      ];
+      const memberIds = canView.filter(
+        (id) => !roles.find((role) => role.id == id)
+      );
+      if (!memberIds.includes(guild.ownerId))
+        // owner can always see
+        memberIds.push(guild.ownerId);
+      const members: string[] = memberIds.length
+        ? await guild.members
+            .fetch({ user: memberIds })
+            .then((found) => found.map((member) => member.toString()))
+            .catch(() => [])
+        : [];
+      const viewers = [...roles.map((role) => role.toString()), ...members];
+      if (viewers.length)
+        embed.addFields({
+          name: guild.language.get("VIEWABLE_BY"),
+          value: this.client.util.shorten(viewers, 1024, " - "),
+        });
+    }
+    embed.addFields({
+      name: guild.language.get("DELETED_BY"),
+      value: `${executor} (${executor.id})`,
+    });
+    if (auditLogEntry.reason)
+      embed.addFields({
+        name: guild.language.get("REASON"),
+        value: auditLogEntry.reason,
+      });
+    // if (raw) embed.addField(language.get("RAW"), raw);
+    await guild.actionLog(embed, ActionLogTypes.CHANNEL_DELETE).catch(() => {});
   }
 }
