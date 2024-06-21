@@ -819,7 +819,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
         },
       ])
       .setFooter({ text: auditLogEntry.targetId });
-    if (target.permissions)
+    if (target.permissions.bitfield)
       embed.addFields({
         name: guild.language.get("PERMISSIONS_TEXT"),
         value: this.client.util.shorten(
