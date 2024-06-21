@@ -20,6 +20,7 @@ import {
   MessageEmbed,
   NewsChannel,
   PermissionOverwriteManager,
+  Permissions,
   TextChannel,
   ThreadChannel,
 } from "discord.js";
@@ -45,6 +46,24 @@ const ReverseChannelTypes = {
 };
 
 const REPLACE_UNDERSCORE_REGEX = /_/g;
+const KEY_PERMISSIONS = [
+  "BAN_MEMBERS",
+  "CHANGE_NICKNAME",
+  "KICK_MEMBERS",
+  "MANAGE_CHANNELS",
+  "MANAGE_GUILD",
+  "MANAGE_EMOJIS_AND_STICKERS",
+  "MANAGE_MESSAGES",
+  "MANAGE_NICKNAMES",
+  "MANAGE_ROLES",
+  "MANAGE_WEBHOOKS",
+  "MENTION_EVERYONE",
+  "VIEW_AUDIT_LOG",
+  "VIEW_GUILD_INSIGHTS",
+  "MANAGE_THREADS",
+  "MODERATE_MEMBERS",
+  "MANAGE_EVENTS",
+];
 
 export default class GuildAuditLogEntryCreate extends Listener {
   guildMemberUpdate: GuildMemberUpdate;
@@ -676,5 +695,155 @@ export default class GuildAuditLogEntryCreate extends Listener {
       });
     // if (raw) embed.addField(language.get("RAW"), raw);
     await guild.actionLog(embed, ActionLogTypes.CHANNEL_DELETE).catch(() => {});
+  }
+
+  async ["ROLE_CREATE"](
+    auditLogEntry: GuildAuditLogsEntry<"ROLE_CREATE">,
+    guild: FireGuild
+  ) {
+    if (!guild.logger) guild.logger = new GuildLogManager(this.client, guild);
+    if (!guild.logger.isActionEnabled()) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    const target = guild.roles.cache.get(auditLogEntry.targetId);
+
+    const embed = new MessageEmbed()
+      .setColor(target.color || "#2ECC71")
+      .setTimestamp(target.createdAt)
+      .setAuthor({
+        name: guild.language.get("ROLECREATELOG_AUTHOR", {
+          guild: guild.name,
+        }),
+        iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
+      .addFields([
+        { name: guild.language.get("NAME"), value: target.name },
+        {
+          name: guild.language.get("POSITION"),
+          value: target.position.toString(),
+        },
+        {
+          name: guild.language.get("HOISTED"),
+          value: target.hoist
+            ? constants.emojis.success
+            : constants.emojis.error,
+        },
+        {
+          name: guild.language.get("MENTIONABLE"),
+          value: target.mentionable
+            ? constants.emojis.success
+            : constants.emojis.error,
+        },
+      ])
+      .setFooter({ text: auditLogEntry.targetId });
+    if (target.permissions.bitfield)
+      embed.addFields({
+        name: guild.language.get("PERMISSIONS_TEXT"),
+        value: this.client.util.shorten(
+          target.permissions
+            .toArray()
+            // sort the permissions so the key permissions are at the top
+            // and less likely to be cut off
+            .sort((a, b) => (KEY_PERMISSIONS.includes(a) ? -1 : 1))
+            .map((p) =>
+              this.client.util.cleanPermissionName(p, guild.language)
+            ),
+          1024,
+          ", "
+        ),
+      });
+    embed.addFields({
+      name: guild.language.get("CREATED_BY"),
+      value: `${executor} (${executor.id})`,
+    });
+    if (auditLogEntry.reason)
+      embed.addFields({
+        name: guild.language.get("REASON"),
+        value: auditLogEntry.reason,
+      });
+    await guild.actionLog(embed, ActionLogTypes.ROLE_CREATE).catch(() => {});
+  }
+
+  async ["ROLE_DELETE"](
+    auditLogEntry: GuildAuditLogsEntry<"ROLE_DELETE">,
+    guild: FireGuild
+  ) {
+    if (!guild.logger) guild.logger = new GuildLogManager(this.client, guild);
+    if (!guild.logger.isActionEnabled()) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    const target = guild.roles.cache.get(auditLogEntry.targetId) ?? {
+      // if we're here, the role was already evicted from the cache
+      // so we need to construct an object with the data we need
+      name: auditLogEntry.changes.find((c) => c.key == "name").old as string,
+      // permissions may be inaccurate due to it being sent as a number
+      // rather than a string
+      permissions: new Permissions(
+        BigInt(
+          auditLogEntry.changes.find((c) => c.key == "permissions")
+            .old as number
+        )
+      ),
+      color: auditLogEntry.changes.find((c) => c.key == "color").old as number,
+      hoist: auditLogEntry.changes.find((c) => c.key == "hoist").old as boolean,
+      mentionable: auditLogEntry.changes.find((c) => c.key == "mentionable")
+        .old as boolean,
+    };
+
+    const embed = new MessageEmbed()
+      .setColor(target.color || "#E74C3C")
+      .setTimestamp()
+      .setAuthor({
+        name: guild.language.get("ROLEDELETELOG_AUTHOR", {
+          guild: guild.name,
+        }),
+        iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
+      .addFields([
+        { name: guild.language.get("NAME"), value: target.name },
+        {
+          name: guild.language.get("HOISTED"),
+          value: target.hoist
+            ? constants.emojis.success
+            : constants.emojis.error,
+        },
+        {
+          name: guild.language.get("MENTIONABLE"),
+          value: target.mentionable
+            ? constants.emojis.success
+            : constants.emojis.error,
+        },
+      ])
+      .setFooter({ text: auditLogEntry.targetId });
+    if (target.permissions)
+      embed.addFields({
+        name: guild.language.get("PERMISSIONS_TEXT"),
+        value: this.client.util.shorten(
+          target.permissions
+            .toArray()
+            // sort the permissions so the key permissions are at the top
+            // and less likely to be cut off
+            .sort((a, b) => (KEY_PERMISSIONS.includes(a) ? -1 : 1))
+            .map((p) =>
+              this.client.util.cleanPermissionName(p, guild.language)
+            ),
+          1024,
+          ", "
+        ),
+      });
+    embed.addFields({
+      name: guild.language.get("DELETED_BY"),
+      value: `${executor} (${executor.id})`,
+    });
+    if (auditLogEntry.reason)
+      embed.addFields({
+        name: guild.language.get("REASON"),
+        value: auditLogEntry.reason,
+      });
+    await guild.actionLog(embed, ActionLogTypes.ROLE_DELETE).catch(() => {});
   }
 }
