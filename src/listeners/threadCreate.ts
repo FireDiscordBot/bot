@@ -32,39 +32,5 @@ export default class ThreadCreate extends Listener {
           language.get("SLOWMODE_SYNC_REASON")
         )
         .catch(() => {});
-
-    if (guild.settings.has("log.action")) {
-      const owner = await guild.members.fetch(channel.ownerId).catch(() => {});
-      const autoArchiveDuration =
-        typeof channel.autoArchiveDuration == "string"
-          ? 10080
-          : channel.autoArchiveDuration;
-      const autoArchiveAt = new Date(+new Date() + autoArchiveDuration * 60000);
-      const embed = new MessageEmbed()
-        .setColor("#2ECC71")
-        .setTimestamp(channel.createdAt)
-        .setAuthor({
-          name: language.get("THREADCREATELOG_AUTHOR", { guild: guild.name }),
-          iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
-        })
-        .addField(language.get("NAME"), channel.name)
-        .addField(language.get("CHANNEL"), parent.toString())
-        .addField(language.get("ARCHIVE"), Formatters.time(autoArchiveAt, "R"))
-        .addField(
-          language.get("CREATED_BY"),
-          owner ? `${owner} (${owner.id})` : channel.ownerId
-        )
-        .setFooter(channel.id);
-      if (parent.isText() && parent.messages.cache.has(channel.id))
-        embed.addField(
-          language.get("THREAD_MESSAGE"),
-          `[${language.get("CLICK_TO_VIEW")}](${
-            parent.messages.cache.get(channel.id).url
-          })`
-        );
-      await guild
-        .actionLog(embed, ActionLogTypes.CHANNEL_CREATE)
-        .catch(() => {});
-    }
   }
 }

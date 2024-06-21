@@ -12,13 +12,15 @@ import { GuildLogManager } from "@fire/lib/util/logmanager";
 import * as dayjs from "dayjs";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
-  ChannelFlags,
   Collection,
+  Formatters,
+  ForumChannel,
   GuildAuditLogsEntry,
   MessageEmbed,
-  NonThreadGuildBasedChannel,
+  NewsChannel,
   PermissionOverwriteManager,
-  PermissionOverwrites,
+  TextChannel,
+  ThreadChannel,
 } from "discord.js";
 import { ChannelTypes } from "discord.js/typings/enums";
 import { RawPermissionOverwriteData } from "discord.js/typings/rawDataTypes";
@@ -321,80 +323,131 @@ export default class GuildAuditLogEntryCreate extends Listener {
       // we should never need this, but just in case...
       (await guild.channels.fetch(auditLogEntry.targetId));
 
-    if (guild.settings.has("log.action")) {
-      const embed = new MessageEmbed()
-        .setColor("#2ECC71")
-        .setTimestamp(target.createdAt)
-        .setAuthor({
-          name: guild.language.get("CHANNELCREATELOG_AUTHOR", {
-            type: titleCase(target.type.replace(/_/g, " ")),
-            guild: guild.name,
-          }),
-          iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
-        })
-        .addFields({ name: guild.language.get("NAME"), value: target.name });
-      if (target instanceof FireTextChannel && target.topic)
-        embed.addFields({
-          name: guild.language.get("TOPIC"),
-          value: target.topic,
-        });
-
-      if (target instanceof FireTextChannel && target.rateLimitPerUser)
-        // this doesn't work too well for very short values (as it says "a few seconds" rather than the actual value)
-        // but it's good enough
-        embed.addFields({
-          name: guild.language.get("SLOWMODE"),
-          value: dayjs(+new Date() + target.rateLimitPerUser * 1000).fromNow(
-            true
-          ),
-        });
-
-      // target will never be a thread but this check makes typings easier
-      if (!target.isThread() && target.permissionOverwrites.cache.size > 1) {
-        const canView = target.permissionOverwrites.cache
-          .filter((overwrite) =>
-            overwrite.allow.has(PermissionFlagsBits.ViewChannel)
-          )
-          .map((overwrite) => overwrite.id);
-        const roles = [
-          ...canView
-            .map((id) => guild.roles.cache.get(id))
-            .filter((role) => !!role),
-          ...guild.roles.cache
-            .filter(
-              (role) =>
-                role.permissions.has(PermissionFlagsBits.Administrator) &&
-                !canView.find((id) => id == role.id)
-            )
-            .values(),
-        ];
-        const memberIds = canView.filter(
-          (id) => !roles.find((role) => role.id == id)
-        );
-        if (!memberIds.includes(guild.ownerId))
-          // owner can always see
-          memberIds.push(guild.ownerId);
-        const members: string[] = memberIds.length
-          ? await guild.members
-              .fetch({ user: memberIds })
-              .then((found) => found.map((member) => member.toString()))
-              .catch(() => [])
-          : [];
-        const viewers = [...roles.map((role) => role.toString()), ...members];
-        if (viewers.length)
-          embed.addFields({
-            name: guild.language.get("VIEWABLE_BY"),
-            value: this.client.util.shorten(viewers, 1024, " - "),
-          });
-      }
+    const embed = new MessageEmbed()
+      .setColor("#2ECC71")
+      .setTimestamp(target.createdAt)
+      .setAuthor({
+        name: guild.language.get("CHANNELCREATELOG_AUTHOR", {
+          type: titleCase(target.type.replace(/_/g, " ")),
+          guild: guild.name,
+        }),
+        iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
+      .addFields({ name: guild.language.get("NAME"), value: target.name });
+    if (target instanceof FireTextChannel && target.topic)
       embed.addFields({
-        name: guild.language.get("CREATED_BY"),
-        value: `${executor} (${executor.id})`,
+        name: guild.language.get("TOPIC"),
+        value: target.topic,
       });
-      await guild
-        .actionLog(embed, ActionLogTypes.CHANNEL_CREATE)
-        .catch(() => {});
+
+    if (target instanceof FireTextChannel && target.rateLimitPerUser)
+      // this doesn't work too well for very short values (as it says "a few seconds" rather than the actual value)
+      // but it's good enough
+      embed.addFields({
+        name: guild.language.get("SLOWMODE"),
+        value: dayjs(+new Date() + target.rateLimitPerUser * 1000).fromNow(
+          true
+        ),
+      });
+
+    // target will never be a thread but this check makes typings easier
+    if (!target.isThread() && target.permissionOverwrites.cache.size > 1) {
+      const canView = target.permissionOverwrites.cache
+        .filter((overwrite) =>
+          overwrite.allow.has(PermissionFlagsBits.ViewChannel)
+        )
+        .map((overwrite) => overwrite.id);
+      const roles = [
+        ...canView
+          .map((id) => guild.roles.cache.get(id))
+          .filter((role) => !!role),
+        ...guild.roles.cache
+          .filter(
+            (role) =>
+              role.permissions.has(PermissionFlagsBits.Administrator) &&
+              !canView.find((id) => id == role.id)
+          )
+          .values(),
+      ];
+      const memberIds = canView.filter(
+        (id) => !roles.find((role) => role.id == id)
+      );
+      if (!memberIds.includes(guild.ownerId))
+        // owner can always see
+        memberIds.push(guild.ownerId);
+      const members: string[] = memberIds.length
+        ? await guild.members
+            .fetch({ user: memberIds })
+            .then((found) => found.map((member) => member.toString()))
+            .catch(() => [])
+        : [];
+      const viewers = [...roles.map((role) => role.toString()), ...members];
+      if (viewers.length)
+        embed.addFields({
+          name: guild.language.get("VIEWABLE_BY"),
+          value: this.client.util.shorten(viewers, 1024, " - "),
+        });
     }
+    embed.addFields({
+      name: guild.language.get("CREATED_BY"),
+      value: `${executor} (${executor.id})`,
+    });
+    await guild.actionLog(embed, ActionLogTypes.CHANNEL_CREATE).catch(() => {});
+  }
+
+  async ["THREAD_CREATE"](
+    auditLogEntry: GuildAuditLogsEntry<"THREAD_CREATE">,
+    guild: FireGuild
+  ) {
+    if (!guild.logger) guild.logger = new GuildLogManager(this.client, guild);
+    if (!guild.logger.isActionEnabled()) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    const parent = guild.channels.cache.find(
+      (c) => "threads" in c && c.threads.cache.has(auditLogEntry.targetId)
+    ) as NewsChannel | TextChannel | ForumChannel;
+    const thread =
+      parent.threads.cache.get(auditLogEntry.targetId) ??
+      // we should never need this, but just in case...
+      ((await guild.channels.fetch(auditLogEntry.targetId)) as ThreadChannel);
+
+    const autoArchiveDuration =
+      typeof thread.autoArchiveDuration == "string"
+        ? 10080
+        : thread.autoArchiveDuration;
+    const autoArchiveAt = new Date(+new Date() + autoArchiveDuration * 60000);
+    const embed = new MessageEmbed()
+      .setColor("#2ECC71")
+      .setTimestamp(thread.createdAt)
+      .setAuthor({
+        name: guild.language.get("THREADCREATELOG_AUTHOR", {
+          guild: guild.name,
+        }),
+        iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
+      .addFields([
+        { name: guild.language.get("NAME"), value: thread.name },
+        { name: guild.language.get("CHANNEL"), value: parent.toString() },
+        {
+          name: guild.language.get("ARCHIVE"),
+          value: Formatters.time(autoArchiveAt, "R"),
+        },
+        {
+          name: guild.language.get("CREATED_BY"),
+          value: executor ? `${executor} (${executor.id})` : thread.ownerId,
+        },
+      ])
+      .setFooter({ text: auditLogEntry.targetId });
+    if (parent.isText() && parent.messages.cache.has(thread.id))
+      embed.addFields({
+        name: guild.language.get("THREAD_MESSAGE"),
+        value: `[${guild.language.get("CLICK_TO_VIEW")}](${
+          parent.messages.cache.get(thread.id).url
+        })`,
+      });
+    await guild.actionLog(embed, ActionLogTypes.CHANNEL_CREATE).catch(() => {});
   }
 
   async ["CHANNEL_DELETE"](
