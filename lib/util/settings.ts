@@ -42,21 +42,20 @@ export class GuildSettings {
 
   // will check if migration is needed for the current migration script
   get shouldMigrate() {
-    return (
-      this.has("auditlog.member_update.latestid") ||
-      this.has("auditlog.member_role_update.latestid")
-    );
+    return this.has("logging.action.flags");
   }
 
   // unique identifier for the migration script
   get migrationId() {
-    return "June24-audit-logs-event";
+    return "June24-new-action-log-flags";
   }
 
   // will be empty unless there's a migration to run
   async runMigration() {
-    this.delete("auditlog.member_update.latestid");
-    this.delete("auditlog.member_role_update.latestid");
+    let currentFlags = this.get<number>("logging.action.flags");
+    if ((currentFlags & (1 << 15)) != 1 << 15) currentFlags |= 1 << 15;
+    if ((currentFlags & (1 << 16)) != 1 << 16) currentFlags |= 1 << 16;
+    this.set("logging.action.flags", currentFlags);
   }
 
   has(option: string) {
