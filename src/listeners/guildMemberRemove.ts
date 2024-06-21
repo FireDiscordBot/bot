@@ -106,35 +106,6 @@ export default class GuildMemberRemove extends Listener {
     }
 
     if (member.guild.settings.has("log.members")) {
-      let moderator: FireMember, action: string, reason: string;
-      if (
-        member.guild.members.me.permissions.has(
-          PermissionFlagsBits.ViewAuditLog
-        )
-      ) {
-        const auditLogActions = await member.guild
-          .fetchAuditLogs({ limit: 5 })
-          .catch(() => {});
-        if (auditLogActions) {
-          const auditAction = auditLogActions.entries.find(
-            (entry) =>
-              ["MEMBER_BAN_ADD", "MEMBER_KICK"].includes(entry.action) &&
-              // @ts-ignore
-              entry.target?.id == member.id
-          );
-          if (auditAction) {
-            moderator = (await member.guild.members
-              .fetch(auditAction.executor)
-              .catch(() => {})) as FireMember;
-            action = language.get(
-              `AUDIT_ACTION_${auditAction.action}` as LanguageKeys
-            ) as string;
-            reason =
-              auditAction.reason ||
-              language.get("MODERATOR_ACTION_DEFAULT_REASON");
-          }
-        }
-      }
       const embed = new MessageEmbed()
         .setColor(member.partial ? "#E74C3C" : member.displayColor || "#E74C3C")
         .setTimestamp()
@@ -150,12 +121,6 @@ export default class GuildMemberRemove extends Listener {
           url: "https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif",
         })
         .setFooter(member.id);
-      if (moderator && action)
-        embed.addField(
-          language.get("AUDIT_ACTION_BY", { action }),
-          `${moderator} (${moderator.id})`
-        );
-      if (action && reason) embed.addField(language.get("REASON"), reason);
       if (!member.partial) {
         embed.addField(
           language.get("JOINED_FIELD"),
