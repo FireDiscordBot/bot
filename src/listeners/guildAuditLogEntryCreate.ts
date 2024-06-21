@@ -4,6 +4,7 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import {
   ActionLogTypes,
+  constants,
   ModLogTypes,
   titleCase,
 } from "@fire/lib/util/constants";
@@ -42,6 +43,8 @@ const ReverseChannelTypes = {
   14: "GUILD_DIRECTORY",
   15: "GUILD_FORUM",
 };
+
+const REPLACE_UNDERSCORE_REGEX = /_/g;
 
 export default class GuildAuditLogEntryCreate extends Listener {
   guildMemberUpdate: GuildMemberUpdate;
@@ -328,7 +331,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setTimestamp(target.createdAt)
       .setAuthor({
         name: guild.language.get("CHANNELCREATELOG_AUTHOR", {
-          type: titleCase(target.type.replace(/_/g, " ")),
+          type: titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
           guild: guild.name,
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
@@ -392,6 +395,11 @@ export default class GuildAuditLogEntryCreate extends Listener {
       name: guild.language.get("CREATED_BY"),
       value: `${executor} (${executor.id})`,
     });
+    if (auditLogEntry.reason)
+      embed.addFields({
+        name: guild.language.get("REASON"),
+        value: auditLogEntry.reason,
+      });
     await guild.actionLog(embed, ActionLogTypes.CHANNEL_CREATE).catch(() => {});
   }
 
@@ -422,7 +430,8 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setColor("#2ECC71")
       .setTimestamp(thread.createdAt)
       .setAuthor({
-        name: guild.language.get("THREADCREATELOG_AUTHOR", {
+        name: guild.language.get("CHANNELCREATELOG_AUTHOR", {
+          type: titleCase(thread.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
           guild: guild.name,
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
@@ -446,6 +455,11 @@ export default class GuildAuditLogEntryCreate extends Listener {
         value: `[${guild.language.get("CLICK_TO_VIEW")}](${
           parent.messages.cache.get(thread.id).url
         })`,
+      });
+    if (auditLogEntry.reason)
+      embed.addFields({
+        name: guild.language.get("REASON"),
+        value: auditLogEntry.reason,
       });
     await guild.actionLog(embed, ActionLogTypes.CHANNEL_CREATE).catch(() => {});
   }
@@ -494,7 +508,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setTimestamp()
       .setAuthor({
         name: guild.language.get("CHANNELDELETELOG_AUTHOR", {
-          type: titleCase(target.type.replace(/_/g, " ")),
+          type: titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
           guild: guild.name,
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
@@ -555,6 +569,102 @@ export default class GuildAuditLogEntryCreate extends Listener {
           value: this.client.util.shorten(viewers, 1024, " - "),
         });
     }
+    embed.addFields({
+      name: guild.language.get("DELETED_BY"),
+      value: `${executor} (${executor.id})`,
+    });
+    if (auditLogEntry.reason)
+      embed.addFields({
+        name: guild.language.get("REASON"),
+        value: auditLogEntry.reason,
+      });
+    // if (raw) embed.addField(language.get("RAW"), raw);
+    await guild.actionLog(embed, ActionLogTypes.CHANNEL_DELETE).catch(() => {});
+  }
+
+  async ["THREAD_DELETE"](
+    auditLogEntry: GuildAuditLogsEntry<"THREAD_DELETE">,
+    guild: FireGuild
+  ) {
+    if (!guild.logger) guild.logger = new GuildLogManager(this.client, guild);
+    if (!guild.logger.isActionEnabled()) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    const target = (guild.channels.cache.get(
+      auditLogEntry.targetId
+    ) as ThreadChannel) ?? {
+      // if we're here, the channel was already evicted from the cache
+      // so we need to construct an object with the data we need
+      name: auditLogEntry.target.name as string,
+      type: ReverseChannelTypes[
+        auditLogEntry.target.type as number
+      ] as keyof typeof ChannelTypes,
+      archived:
+        "archived" in auditLogEntry.target
+          ? (auditLogEntry.target.archived as boolean)
+          : undefined,
+      locked:
+        "locked" in auditLogEntry.target
+          ? (auditLogEntry.target.locked as boolean)
+          : undefined,
+      autoArchiveDuration:
+        "auto_archive_duration" in auditLogEntry.target
+          ? (auditLogEntry.target.auto_archive_duration as number)
+          : undefined,
+      rateLimitPerUser:
+        "rate_limit_per_user" in auditLogEntry.target
+          ? (auditLogEntry.target.rate_limit_per_user as number)
+          : undefined,
+      // appliedTags:
+      //   "applied_tags" in auditLogEntry.target
+      //     ? (auditLogEntry.target.applied_tags as string[])
+      //     : undefined,
+    };
+
+    const embed = new MessageEmbed()
+      .setColor("#E74C3C")
+      .setTimestamp()
+      .setAuthor({
+        name: guild.language.get("CHANNELDELETELOG_AUTHOR", {
+          type: titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
+          guild: guild.name,
+        }),
+        iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
+      .addFields({ name: guild.language.get("NAME"), value: target.name })
+      .setFooter({ text: auditLogEntry.targetId });
+    if (typeof target.archived == "boolean")
+      embed.addFields({
+        name: guild.language.get("ARCHIVED"),
+        value: target.archived
+          ? constants.emojis.success
+          : constants.emojis.error,
+      });
+    if (typeof target.locked == "boolean")
+      embed.addFields({
+        name: guild.language.get("LOCKED"),
+        value: target.locked
+          ? constants.emojis.success
+          : constants.emojis.error,
+      });
+    if (target.autoArchiveDuration)
+      embed.addFields({
+        name: guild.language.get("AUTO_ARCHIVE_DURATION"),
+        value: dayjs(+new Date() + target.autoArchiveDuration * 60_000).fromNow(
+          true
+        ),
+      });
+    if (target.rateLimitPerUser)
+      // this doesn't work too well for very short values (as it says "a few seconds" rather than the actual value)
+      // but it's good enough
+      embed.addFields({
+        name: guild.language.get("SLOWMODE"),
+        value: dayjs(+new Date() + target.rateLimitPerUser * 1000).fromNow(
+          true
+        ),
+      });
     embed.addFields({
       name: guild.language.get("DELETED_BY"),
       value: `${executor} (${executor.id})`,
