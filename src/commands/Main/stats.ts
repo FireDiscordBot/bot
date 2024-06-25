@@ -76,13 +76,13 @@ export default class Stats extends Command {
         })
       )
       .setTimestamp()
-      .setFooter(
-        message.language.get("STATS_FOOTER", {
+      .setFooter({
+        text: message.language.get("STATS_FOOTER", {
           pid: process.pid,
           cluster: this.client.manager.id,
           shard: message.shard.id,
-        })
-      )
+        }),
+      })
       .addField(
         message.language.get("GUILDS"),
         `${clusterStats.guilds.toLocaleString(message.language.id)}/${stats
@@ -139,13 +139,13 @@ export default class Stats extends Command {
         })
       )
       .setTimestamp()
-      .setFooter(
-        message.language.get("STATS_FOOTER", {
+      .setFooter({
+        text: message.language.get("STATS_FOOTER", {
           pid: process.pid,
           cluster: this.client.manager.id,
           shard: message.shard.id,
-        })
-      )
+        }),
+      })
       .addField(
         message.language.get("GUILDS"),
         `${stats.guilds.toLocaleString(message.language.id)}`,

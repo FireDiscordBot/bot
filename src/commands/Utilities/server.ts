@@ -375,7 +375,7 @@ export default class GuildCommand extends Command {
           dynamic: true,
         }),
       })
-      .setFooter(guild.id)
+      .setFooter({ text: guild.id })
       .setTimestamp();
     if (info.length)
       embed.addField(command.language.get("GUILD_ABOUT"), info.join("\n"));

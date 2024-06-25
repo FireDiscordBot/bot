@@ -101,9 +101,9 @@ export default class MessageDelete extends Listener {
           }),
         })
         .setDescription(description + content)
-        .setFooter(
-          `${message.author.id} | ${message.id} | ${message.channelId}`
-        );
+        .setFooter({
+          text: `${message.author.id} | ${message.id} | ${message.channelId}`,
+        });
       if (message.attachments.size)
         embed.addField(
           message.guild.language.get("ATTACHMENTS"),

@@ -122,7 +122,9 @@ export default class MessageUpdate extends Listener {
             ? after.content
             : after.content.slice(0, 1001) + "..."
         )
-        .setFooter(`${after.author.id} | ${after.id} | ${after.channel.id}`);
+        .setFooter({
+          text: `${after.author.id} | ${after.id} | ${after.channel.id}`,
+        });
       await guild.actionLog(embed, ActionLogTypes.MESSAGE_EDIT);
     }
   }

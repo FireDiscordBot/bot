@@ -228,7 +228,7 @@ export default class GuildMemberAdd extends Listener {
           language.get("ACCOUNT_CREATED"),
           Formatters.time(member.user.createdAt, "R")
         )
-        .setFooter(member.id);
+        .setFooter({ text: member.id });
       const randInt = this.client.util.randInt(0, 100);
       if (!member.guild.premium && randInt == 69)
         embed.addField(

@@ -133,7 +133,7 @@ export default class RolePersist extends Command {
         }),
       })
       .addField(member.guild.language.get("MODERATOR"), moderator.toString())
-      .setFooter(`${member.id} | ${moderator.id}`);
+      .setFooter({ text: `${member.id} | ${moderator.id}` });
     if (roles.length)
       embed.addField(
         member.guild.language.get("ROLES"),

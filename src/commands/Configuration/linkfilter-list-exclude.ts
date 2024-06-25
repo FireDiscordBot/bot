@@ -35,7 +35,7 @@ export default class LinkfilterListExclude extends Command {
         }),
       })
       .setColor(command.member?.displayColor || "#FFFFFF")
-      .setFooter(command.guildId);
+      .setFooter({ text: command.guildId });
     const roles = current
       .filter((i) => i.startsWith("role:"))
       .map((r) => command.guild.roles.cache.get(r.slice(5)).name);

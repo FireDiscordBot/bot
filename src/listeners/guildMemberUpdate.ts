@@ -199,7 +199,7 @@ export default class GuildMemberUpdate extends Listener {
         guild.language.get("ROLEADDLOG_FIELD_TITLE"),
         roles.map((role) => role.toString()).join(" - ")
       )
-      .setFooter(action.targetId);
+      .setFooter({ text: action.targetId });
     if (executor && executor.id != action.targetId)
       embed.addField(guild.language.get("MODERATOR"), executor.toString());
     if (action.reason)
@@ -244,7 +244,7 @@ export default class GuildMemberUpdate extends Listener {
         guild.language.get("ROLEREMOVELOG_FIELD_TITLE"),
         roles.map((role) => role.toString()).join(" - ")
       )
-      .setFooter(action.targetId);
+      .setFooter({ text: action.targetId });
     if (executor && executor.id != action.targetId)
       embed.addField(guild.language.get("MODERATOR"), executor.toString());
     if (action.reason)
@@ -280,7 +280,7 @@ export default class GuildMemberUpdate extends Listener {
           ? target?.displayColor
           : executor.displayColor ?? "#FFFFFF"
       )
-      .setFooter(action.targetId)
+      .setFooter({ text: action.targetId })
       .addField(
         guild.language.get("TIMEOUTLOG_GIVEN"),
         Formatters.time(new Date(change.new as string), "R")
@@ -323,7 +323,7 @@ export default class GuildMemberUpdate extends Listener {
           ? target?.displayColor
           : executor.displayColor ?? "#FFFFFF"
       )
-      .setFooter(action.targetId);
+      .setFooter({ text: action.targetId });
     if (executor && executor.id != action.targetId)
       embed.addField(guild.language.get("MODERATOR"), executor.toString());
     if (change.old)

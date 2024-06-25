@@ -175,7 +175,7 @@ export default class Eval extends Command {
         type.toString() != "any" ? `Output Type: ${type}` : "fuck"
       );
     if (input.length <= 1024) embed.addField(":inbox_tray: Input", input);
-    embed.setFooter(`Cluster ID: ${this.client.manager.id}`);
+    embed.setFooter({ text: `Cluster ID: ${this.client.manager.id}` });
     if (embed.description == "fuck") embed.description = null;
     if (result.length > 1014) {
       const paginator = new WrappedPaginator("```js", "```", 1500);

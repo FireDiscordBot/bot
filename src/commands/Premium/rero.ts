@@ -174,7 +174,7 @@ export default class ReactionRole extends Command {
         reaction.emoji?.toString() || constants.escapedShruggie
       )
       .addField(message.guild.language.get("ROLE"), role.toString())
-      .setFooter(`${role.id} | ${message.author.id}`);
+      .setFooter({ text: `${role.id} | ${message.author.id}` });
     return await message.guild.actionLog(embed, ActionLogTypes.REACTION_ROLE);
   }
 
@@ -206,7 +206,7 @@ export default class ReactionRole extends Command {
         reaction.emoji?.toString() || constants.escapedShruggie
       )
       .addField(message.guild.language.get("ROLE"), role.toString())
-      .setFooter(`${role.id} | ${message.author.id}`);
+      .setFooter({ text: `${role.id} | ${message.author.id}` });
     return await message.guild.actionLog(embed, ActionLogTypes.REACTION_ROLE);
   }
 

@@ -120,7 +120,7 @@ export default class GuildMemberRemove extends Listener {
           }),
           url: "https://i.giphy.com/media/5C0a8IItAWRebylDRX/source.gif",
         })
-        .setFooter(member.id);
+        .setFooter({ text: member.id });
       if (!member.partial) {
         embed.addField(
           language.get("JOINED_FIELD"),

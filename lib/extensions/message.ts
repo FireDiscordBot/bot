@@ -943,28 +943,28 @@ export class FireMessage extends Message {
     }
     if (this.channel != destination) {
       if (this.guild && this.guild.id != destination.guild.id)
-        embed.setFooter(
-          language.get("QUOTE_EMBED_FOOTER_ALL", {
+        embed.setFooter({
+          text: language.get("QUOTE_EMBED_FOOTER_ALL", {
             user: quoter.toString(),
             channel: this.isSavedToQuote
               ? this.savedQuoteData.name
               : (this.channel as FireTextChannel).name,
             guild: this.guild.name,
-          })
-        );
+          }),
+        });
       else
-        embed.setFooter(
-          language.get("QUOTE_EMBED_FOOTER_SOME", {
+        embed.setFooter({
+          text: language.get("QUOTE_EMBED_FOOTER_SOME", {
             user: quoter.toString(),
             channel: this.isSavedToQuote
               ? this.savedQuoteData.name
               : (this.channel as FireTextChannel).name,
-          })
-        );
+          }),
+        });
     } else
-      embed.setFooter(
-        language.get("QUOTE_EMBED_FOOTER", { user: quoter.toString() })
-      );
+      embed.setFooter({
+        text: language.get("QUOTE_EMBED_FOOTER", { user: quoter.toString() }),
+      });
     return await destination
       .send({ embeds: [embed, ...extraEmbeds], components: this.components })
       .catch(() => {});
@@ -1115,7 +1115,7 @@ export class FireMessage extends Message {
         }),
       })
       .setColor(this.member?.displayColor || "#FFFFFF")
-      .setFooter(this.id);
+      .setFooter({ text: this.id });
     if (this.content) embed.setDescription(this.content);
     if (this.embeds.length) {
       const first = this.embeds[0];
@@ -1331,7 +1331,7 @@ export class FireMessage extends Message {
           `This message was sent with no "nonce" which is used for message deduplication by Discord's official clients.
 The lack of this is a sign that this message may have been sent automatically by a poorly made script.`
         )
-        .setFooter(this.author.id);
+        .setFooter({ text: this.author.id });
       return await updatesChannel.send({ embeds: [embed] }).catch(() => {});
     };
     const triggerFilter = async (match?: string) => {

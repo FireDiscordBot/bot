@@ -59,7 +59,7 @@ export default class ModlogsStats extends Command {
           : command.member?.displayColor || "#FFFFFF"
       )
       .setTimestamp()
-      .setFooter(args.user.id);
+      .setFooter({ text: args.user.id });
     for (const [type, count] of Object.entries(types)) {
       if (count)
         countsEmbed.addField(

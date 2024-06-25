@@ -121,7 +121,7 @@ export default class ChannelUpdate extends Listener {
           }),
           iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
         })
-        .setFooter(after.id);
+        .setFooter({ text: after.id });
       if (
         before.name != after.name &&
         before.name.length + after.name.length <= 1020

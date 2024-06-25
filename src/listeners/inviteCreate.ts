@@ -32,7 +32,9 @@ export default class InviteCreate extends Listener {
           language.get("CREATED_BY"),
           invite.inviter?.toString() || constants.escapedShruggie
         )
-        .setFooter(`${invite.channel.id} | ${invite.inviter?.id || ""}`);
+        .setFooter({
+          text: `${invite.channel.id} | ${invite.inviter?.id || ""}`,
+        });
       await guild
         .actionLog(embed, ActionLogTypes.INVITE_CREATE)
         .catch(() => {});

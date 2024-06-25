@@ -35,7 +35,7 @@ export default class ThreadMembersUpdate extends Listener {
           }),
           iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
         })
-        .setFooter(thread.id);
+        .setFooter({ text: thread.id });
       if (added.size) {
         const ids = added.map((member) => member.id);
         const members = await guild.members

@@ -30,12 +30,12 @@ export default class Purge extends Listener {
           dynamic: true,
         }),
       })
-      .setFooter(
-        message.guild.language.get("PURGE_LOG_FOOTER", {
+      .setFooter({
+        text: message.guild.language.get("PURGE_LOG_FOOTER", {
           user: message.author.id,
           channel: message.channelId,
-        })
-      );
+        }),
+      });
     if (reason) embed.addField(message.guild.language.get("REASON"), reason);
     if (purged.length) {
       try {

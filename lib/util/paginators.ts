@@ -462,14 +462,21 @@ export class PaginatorEmbedInterface extends PaginatorInterface {
     this.embed.setDescription(this.pages[displayPage].toString());
     if (this.footer.text)
       this.footer.iconURL
-        ? this.embed.setFooter(
-            `Page ${displayPage + 1}/${this.pageCount} | ${this.footer.text}`,
-            this.footer.iconURL
-          )
-        : this.embed.setFooter(
-            `Page ${displayPage + 1}/${this.pageCount} | ${this.footer.text}`
-          );
-    else this.embed.setFooter(`Page ${displayPage + 1}/${this.pageCount}`);
+        ? this.embed.setFooter({
+            text: `Page ${displayPage + 1}/${this.pageCount} | ${
+              this.footer.text
+            }`,
+            iconURL: this.footer.iconURL,
+          })
+        : this.embed.setFooter({
+            text: `Page ${displayPage + 1}/${this.pageCount} | ${
+              this.footer.text
+            }`,
+          });
+    else
+      this.embed.setFooter({
+        text: `Page ${displayPage + 1}/${this.pageCount}`,
+      });
     return this.embeds.length ? [this.embed, ...this.embeds] : this.embed;
   }
 

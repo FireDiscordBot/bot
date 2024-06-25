@@ -83,7 +83,7 @@ export default class GuildUpdate extends Listener {
           name: language.get("GUILDUPDATELOG_AUTHOR", { name: after.name }),
           iconURL: after.iconURL({ size: 2048, format: "png", dynamic: true }),
         })
-        .setFooter(after.id);
+        .setFooter({ text: after.id });
       if (before.name != after.name)
         embed.addField(language.get("NAME"), `${before.name} ➜ ${after.name}`);
       if (before.systemChannelId != after.systemChannelId)

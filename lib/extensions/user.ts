@@ -237,7 +237,7 @@ export class FireUser extends User {
       })
       .addField(guild.language.get("MODERATOR"), moderator.toString())
       .addField(guild.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter({ text: `${this.id} | ${moderator.id}` });
     await guild.modLog(embed, ModLogTypes.BAN).catch(() => {});
     if (channel)
       return await channel

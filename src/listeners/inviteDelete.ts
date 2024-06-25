@@ -28,7 +28,7 @@ export default class InviteDelete extends Listener {
         })
         .addField(language.get("FILTER_INVITE_LOG_CODE"), invite.code)
         .addField(language.get("CHANNEL"), invite.channel.name)
-        .setFooter(invite.channel.id);
+        .setFooter({ text: invite.channel.id });
       await guild
         .actionLog(embed, ActionLogTypes.INVITE_DELETE)
         .catch(() => {});

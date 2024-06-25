@@ -353,15 +353,15 @@ export default class User extends Command {
         while (components.length) components.pop();
     }
     member?.presence?.clientStatus
-      ? embed.setFooter(
-          user.id,
-          member.presence.activities.find(
+      ? embed.setFooter({
+          text: user.id,
+          iconURL: member.presence.activities.find(
             (activity) => activity.type == "STREAMING"
           )
             ? statusEmojis.streaming
-            : statusEmojis[member.presence.status]
-        )
-      : embed.setFooter(user.id);
+            : statusEmojis[member.presence.status],
+        })
+      : embed.setFooter({ text: user.id });
     return await command.channel.send({ embeds: [embed], components });
   }
 

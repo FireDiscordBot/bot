@@ -64,7 +64,7 @@ export default class Warnings extends Command {
       );
     }
     const embed = new MessageEmbed()
-      .setFooter(args.user.id)
+      .setFooter({ text: args.user.id })
       .setColor(
         args.user instanceof FireMember
           ? args.user.displayColor || "#FFFFFF"

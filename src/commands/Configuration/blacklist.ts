@@ -184,7 +184,7 @@ export default class Blacklist extends Command {
             "MODERATOR_ACTION_DEFAULT_REASON"
           ) as string)
       )
-      .setFooter(`${args.user.id} | ${command.author.id}`);
+      .setFooter({ text: `${args.user.id} | ${command.author.id}` });
     await command.guild.modLog(
       embed,
       isPlonked ? ModLogTypes.UNBLACKLIST : ModLogTypes.BLACKLIST

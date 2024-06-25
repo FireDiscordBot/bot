@@ -426,7 +426,7 @@ export class FireGuild extends Guild {
             iconURL: this.iconURL({ size: 2048, format: "png", dynamic: true }),
           })
           .addField(this.language.get("MODERATOR"), me.toString())
-          .setFooter(id.toString());
+          .setFooter({ text: id.toString() });
         if (!dbremove)
           embed.addField(
             this.language.get("ERROR"),
@@ -1567,7 +1567,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       })
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
-      .setFooter(`${user.id} | ${moderator.id}`);
+      .setFooter({ text: `${user.id} | ${moderator.id}` });
     await this.modLog(embed, ModLogTypes.UNBAN).catch(() => {});
     if (channel)
       return await channel
@@ -1637,7 +1637,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       })
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter({ text: `${this.id} | ${moderator.id}` });
     await this.modLog(embed, ModLogTypes.BLOCK).catch(() => {});
     return await channel
       .send({
@@ -1720,7 +1720,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       })
       .addField(this.language.get("MODERATOR"), moderator.toString())
       .addField(this.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter({ text: `${this.id} | ${moderator.id}` });
     await this.modLog(embed, ModLogTypes.UNBLOCK).catch(() => {});
     return await channel
       .send({

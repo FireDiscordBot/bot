@@ -424,7 +424,7 @@ export class FireMember extends GuildMember {
       })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter({ text: `${this.id} | ${moderator.id}` });
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.WARN, reason)
       .catch(() => {});
@@ -489,7 +489,7 @@ export class FireMember extends GuildMember {
       )
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter({ text: `${this.id} | ${moderator.id}` });
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.NOTE, reason)
       .catch(() => {});
@@ -570,7 +570,7 @@ export class FireMember extends GuildMember {
       })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter({ text: `${this.id} | ${moderator.id}` });
     if (until) {
       embed.addField(
         this.guild.language.get("BAN_WILL_BE_UNBANNED"),
@@ -648,7 +648,7 @@ export class FireMember extends GuildMember {
       })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter({ text: `${this.id} | ${moderator.id}` });
     let noDM: boolean = false;
     if (sendDM) {
       await this.send(
@@ -724,7 +724,7 @@ export class FireMember extends GuildMember {
       })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter({ text: `${this.id} | ${moderator.id}` });
     if (failed)
       embed.addField(
         this.guild.language.get("DERANK_FAILED_TO_REMOVE"),
@@ -829,7 +829,7 @@ export class FireMember extends GuildMember {
       })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter({ text: `${this.id} | ${moderator.id}` });
     if (until) {
       embed.addField(
         this.guild.language.get("MUTE_WILL_BE_UNMUTED"),
@@ -960,7 +960,7 @@ export class FireMember extends GuildMember {
       })
       .addField(this.guild.language.get("MODERATOR"), moderator.toString())
       .addField(this.guild.language.get("REASON"), reason)
-      .setFooter(`${this.id} | ${moderator.id}`);
+      .setFooter({ text: `${this.id} | ${moderator.id}` });
     if (!dbremove)
       embed.addField(
         this.guild.language.get("ERROR"),

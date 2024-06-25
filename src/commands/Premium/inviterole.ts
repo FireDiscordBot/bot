@@ -76,7 +76,7 @@ export default class InviteRole extends Command {
             message.guild.language.get("MODERATOR"),
             message.author.toString()
           )
-          .setFooter(`${role.id} | ${message.author.id}`);
+          .setFooter({ text: `${role.id} | ${message.author.id}` });
         await message.guild
           .actionLog(embed, ActionLogTypes.INVITE_ROLE_DELETE)
           .catch(() => {});
@@ -116,7 +116,7 @@ export default class InviteRole extends Command {
           message.guild.language.get("MODERATOR"),
           message.author.toString()
         )
-        .setFooter(`${role.id} | ${message.author.id}`);
+        .setFooter({ text: `${role.id} | ${message.author.id}` });
       await message.guild
         .actionLog(embed, ActionLogTypes.INVITE_ROLE_CREATE)
         .catch(() => {});

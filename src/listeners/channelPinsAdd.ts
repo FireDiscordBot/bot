@@ -40,7 +40,7 @@ export default class ChannelPinsAdd extends Listener {
           url: message.url,
         })
         .addField(language.get("PINNED_BY"), member.toString())
-        .setFooter(`${message.id} | ${member.id} | ${channel.id}`);
+        .setFooter({ text: `${message.id} | ${member.id} | ${channel.id}` });
       await guild.actionLog(embed, ActionLogTypes.PINS_ADD);
     }
   }

@@ -135,12 +135,12 @@ export default class Help extends Command {
             "[Blob Hub Studios](https://inv.wtf/blobhub) & [Icons](https://inv.wtf/icons)",
         })
       )
-      .setFooter(
-        message.language.get("HELP_FOOTER", {
+      .setFooter({
+        text: message.language.get("HELP_FOOTER", {
           shard: message.shard.id,
           cluster: this.client.manager.id,
-        })
-      )
+        }),
+      })
       .setTimestamp();
     const upsellEmbed = await this.client.util.getSlashUpsellEmbed(message);
     return await message.channel.send({
