@@ -31,7 +31,7 @@ export default class CommandStarted extends Listener {
         guild: message.source,
         user: `${message.author} (${message.author.id})`,
         message_id: message.id,
-        args: message.util.parsed.content,
+        args: message.util?.parsed?.content ?? "Content not available",
       },
     };
     this.client.writeToInflux([point]);
