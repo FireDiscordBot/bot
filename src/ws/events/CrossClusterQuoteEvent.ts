@@ -11,7 +11,10 @@ import { Manager } from "@fire/lib/Manager";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import Quote from "@fire/src/commands/Utilities/quote";
+import { Constants } from "discord-akairo";
 import { NewsChannel, Snowflake, ThreadChannel } from "discord.js";
+
+const { CommandHandlerEvents } = Constants;
 
 export default class CrossClusterQuoteEvent extends Event {
   constructor(manager: Manager) {
@@ -31,6 +34,9 @@ export default class CrossClusterQuoteEvent extends Event {
         `[Aether] Attempted cross cluster quote with no destination`,
         JSON.stringify(data)
       );
+    this.manager.client.console[data.debug ? "log" : "debug"](
+      `[Aether] Received cross cluster quote for ${data.destination.guild_id}/${data.destination.id}/${data.message_id} from quoter ${data.quoter}`
+    );
     let { destination } = data;
     const quoteCommand = this.manager.client.getCommand("quote") as Quote;
     if (!quoteCommand) return;
@@ -75,12 +81,38 @@ export default class CrossClusterQuoteEvent extends Event {
       return this.manager.client.console.warn(
         `[Aether] Attempted cross cluster quote with unknown message`
       );
-    return await quoteCommand.exec(null, {
+    const args = {
       quote: message as FireMessage,
       quoter: member as FireMember,
       webhook: data.webhook,
       debug: data.debug,
       destination,
-    });
+    };
+    this.manager.client.commandHandler.emit(
+      CommandHandlerEvents.COMMAND_STARTED,
+      message,
+      quoteCommand,
+      args
+    );
+    return await quoteCommand
+      .exec(null, args)
+      .then((ret) => {
+        this.manager.client.commandHandler.emit(
+          CommandHandlerEvents.COMMAND_FINISHED,
+          message,
+          quoteCommand,
+          args,
+          ret
+        );
+      })
+      .catch((err) => {
+        this.manager.client.commandHandler.emit(
+          "commandError",
+          message,
+          quoteCommand,
+          args,
+          err
+        );
+      });
   }
 }
