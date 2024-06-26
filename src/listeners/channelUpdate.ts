@@ -23,8 +23,9 @@ export default class ChannelUpdate extends Listener {
     if (
       after instanceof GuildChannel &&
       muteRole &&
-      !guild.me.permissionsIn(after).missing(muteCommand.clientPermissions)
-        .length &&
+      !guild.members.me
+        .permissionsIn(after)
+        .missing(muteCommand.clientPermissions).length &&
       !after.permissionOverwrites.cache
         .get(muteRole.id)
         ?.deny.has(

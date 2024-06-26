@@ -26,8 +26,9 @@ export default class ChannelCreate extends Listener {
     if (
       channel instanceof GuildChannel &&
       muteRole &&
-      !guild.me.permissionsIn(channel).missing(muteCommand.clientPermissions)
-        .length
+      !guild.members.me
+        .permissionsIn(channel)
+        .missing(muteCommand.clientPermissions).length
     )
       await channel.permissionOverwrites
         .edit(
