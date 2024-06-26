@@ -17,6 +17,7 @@ import {
   Formatters,
   ForumChannel,
   GuildAuditLogsEntry,
+  GuildForumTagData,
   MessageEmbed,
   NewsChannel,
   PermissionOverwriteManager,
@@ -64,6 +65,7 @@ const KEY_PERMISSIONS = [
   "MODERATE_MEMBERS",
   "MANAGE_EVENTS",
 ];
+const TEXT_AND_NEWS_TYPES = [0, 5];
 
 export default class GuildAuditLogEntryCreate extends Listener {
   guildMemberUpdate: GuildMemberUpdate;
@@ -113,7 +115,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
     const target = targetAndExecutor.get(auditLogEntry.targetId);
     const executor = targetAndExecutor.get(auditLogEntry.executorId);
 
-    for (const change of auditLogEntry.changes) {
+    for (const change of auditLogEntry.changes)
       if (change.key == "nick")
         this.guildMemberUpdate.logNickChange(auditLogEntry, change, guild, {
           target,
@@ -124,7 +126,6 @@ export default class GuildAuditLogEntryCreate extends Listener {
           target,
           executor,
         });
-    }
   }
 
   async ["MEMBER_ROLE_UPDATE"](
@@ -355,7 +356,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
       })
-      .addFields({ name: guild.language.get("NAME"), value: target.name });
+      .addFields([{ name: guild.language.get("NAME"), value: target.name }]);
     if (target instanceof FireTextChannel && target.topic)
       embed.addFields({
         name: guild.language.get("TOPIC"),
@@ -370,6 +371,12 @@ export default class GuildAuditLogEntryCreate extends Listener {
         value: dayjs(+new Date() + target.rateLimitPerUser * 1000).fromNow(
           true
         ),
+      });
+
+    if ("nsfw" in target)
+      embed.addFields({
+        name: guild.language.get("AGE_RESTRICTED"),
+        value: target.nsfw ? constants.emojis.success : constants.emojis.error,
       });
 
     // target will never be a thread but this check makes typings easier
@@ -432,13 +439,14 @@ export default class GuildAuditLogEntryCreate extends Listener {
     const executor = (await guild.members.fetch(
       auditLogEntry.executorId
     )) as FireMember;
-    const parent = guild.channels.cache.find(
+    let parent = guild.channels.cache.find(
       (c) => "threads" in c && c.threads.cache.has(auditLogEntry.targetId)
     ) as NewsChannel | TextChannel | ForumChannel;
     const thread =
-      parent.threads.cache.get(auditLogEntry.targetId) ??
+      parent?.threads.cache.get(auditLogEntry.targetId) ??
       // we should never need this, but just in case...
       ((await guild.channels.fetch(auditLogEntry.targetId)) as ThreadChannel);
+    if (!parent && thread.parent) parent = thread.parent; // might get it from fetch
 
     const autoArchiveDuration =
       typeof thread.autoArchiveDuration == "string"
@@ -457,10 +465,18 @@ export default class GuildAuditLogEntryCreate extends Listener {
       })
       .addFields([
         { name: guild.language.get("NAME"), value: thread.name },
-        { name: guild.language.get("CHANNEL"), value: parent.toString() },
+        parent
+          ? { name: guild.language.get("CHANNEL"), value: parent.toString() }
+          : undefined,
         {
           name: guild.language.get("ARCHIVE"),
           value: Formatters.time(autoArchiveAt, "R"),
+        },
+        {
+          name: guild.language.get("SLOWMODE"),
+          value: dayjs(+new Date() + thread.rateLimitPerUser * 1000).fromNow(
+            true
+          ),
         },
         {
           name: guild.language.get("CREATED_BY"),
@@ -468,19 +484,351 @@ export default class GuildAuditLogEntryCreate extends Listener {
         },
       ])
       .setFooter({ text: auditLogEntry.targetId });
-    if (parent.isText() && parent.messages.cache.has(thread.id))
+    if (parent?.isText() && parent?.messages.cache.has(thread.id))
       embed.addFields({
         name: guild.language.get("THREAD_MESSAGE"),
         value: `[${guild.language.get("CLICK_TO_VIEW")}](${
           parent.messages.cache.get(thread.id).url
         })`,
       });
+    if (parent?.type == "GUILD_FORUM" && thread.appliedTags.length) {
+      const tags = thread.appliedTags
+        .map((id) => parent.availableTags.find((t) => t.id == id))
+        .filter((tag) => !!tag)
+        .map((tag) =>
+          tag.emoji?.id
+            ? `<:emoji:${tag.emoji.id}> ${tag.name}`
+            : tag.emoji?.name
+            ? `${tag.emoji.name} ${tag.name}`
+            : tag.name
+        );
+      embed.addFields({
+        name: guild.language.get("TAGS"),
+        value: this.client.util.shorten(tags, 1024, " - "),
+      });
+    }
     if (auditLogEntry.reason)
       embed.addFields({
         name: guild.language.get("REASON"),
         value: auditLogEntry.reason,
       });
     await guild.actionLog(embed, ActionLogTypes.CHANNEL_CREATE).catch(() => {});
+  }
+
+  async ["CHANNEL_UPDATE"](
+    auditLogEntry: GuildAuditLogsEntry<"CHANNEL_UPDATE">,
+    guild: FireGuild
+  ) {
+    if (!guild.logger) guild.logger = new GuildLogManager(this.client, guild);
+    if (!guild.logger.isActionEnabled()) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    let target = guild.channels.cache.get(auditLogEntry.targetId);
+
+    const embed = new MessageEmbed()
+      .setColor("#2ECC71")
+      .setTimestamp(auditLogEntry.createdAt)
+      .setAuthor({
+        name: guild.language.get("CHANNELUPDATELOG_AUTHOR", {
+          type: titleCase(target.type.replace(/_/g, " ")),
+          channel: target.name,
+        }),
+        iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
+      .addFields({
+        name: guild.language.get("UPDATED_BY"),
+        value: `${executor} (${executor.id})`,
+      })
+      .setFooter({ text: auditLogEntry.targetId });
+    for (const change of auditLogEntry.changes) {
+      switch (change.key) {
+        case "name": {
+          if (
+            (change.old as string).length + (change.new as string).length <=
+            1020
+          )
+            embed.addFields({
+              name: guild.language.get("NAME"),
+              value: `${change.old} ➜ ${change.new}`,
+            });
+          break;
+        }
+        case "topic": {
+          const value = `${change.old || guild.language.get("NO_TOPIC")} ➜ ${
+            change.new || guild.language.get("NO_TOPIC")
+          }`;
+          if (value.length <= 1024)
+            embed.addFields({
+              name: guild.language.get("TOPIC"),
+              value,
+            });
+          break;
+        }
+        case "nsfw": {
+          embed.addFields({
+            name: guild.language.get("AGE_RESTRICTED"),
+            value: `${
+              change.old ? constants.emojis.success : constants.emojis.error
+            } ➜ ${
+              change.new ? constants.emojis.success : constants.emojis.error
+            }`,
+          });
+          break;
+        }
+        case "rate_limit_per_user": {
+          embed.addFields({
+            name: guild.language.get("SLOWMODE"),
+            value: `${
+              change.old == 0
+                ? guild.language.get("NO_SLOWMODE")
+                : dayjs(+new Date() + (change.old as number) * 1000).fromNow(
+                    true
+                  )
+            } ➜ ${
+              change.new == 0
+                ? guild.language.get("NO_SLOWMODE")
+                : dayjs(+new Date() + (change.new as number) * 1000).fromNow(
+                    true
+                  )
+            }`,
+          });
+          break;
+        }
+        case "type": {
+          if (
+            !TEXT_AND_NEWS_TYPES.includes(change.old as number) &&
+            !TEXT_AND_NEWS_TYPES.includes(change.new as number)
+          )
+            break;
+          embed.addFields({
+            name: guild.language.get("ANNOUNCEMENT_CHANNEL"),
+            value: `${
+              change.old == 5
+                ? constants.emojis.success
+                : constants.emojis.error
+            } ➜ ${
+              change.new == 5
+                ? constants.emojis.success
+                : constants.emojis.error
+            }`,
+          });
+          break;
+        }
+        case "default_auto_archive_duration": {
+          embed.addFields({
+            name: guild.language.get("DEFAULT_AUTO_ARCHIVE_DURATION"),
+            value: `${dayjs(
+              +new Date() + (change.old as number) * 60_000
+            ).fromNow(true)} ➜ ${dayjs(
+              +new Date() + (change.new as number) * 60_000
+            ).fromNow(true)}`,
+          });
+          break;
+        }
+        // @ts-ignore
+        case "available_tags": {
+          const oldTags = (change.old as GuildForumTagData[])
+            .map((tag) =>
+              tag.emoji?.id
+                ? `<:emoji:${tag.emoji.id}> ${tag.name}`
+                : tag.emoji?.name
+                ? `${tag.emoji.name} ${tag.name}`
+                : tag.name
+            )
+            .filter((tag) => !!tag);
+          const newTags = (change.new as GuildForumTagData[])
+            .map((tag) =>
+              tag.emoji?.id
+                ? `<:emoji:${tag.emoji.id}> ${tag.name}`
+                : tag.emoji?.name
+                ? `${tag.emoji.name} ${tag.name}`
+                : tag.name
+            )
+            .filter((tag) => !!tag);
+          const deletedTags = oldTags.filter((tag) => !newTags.includes(tag));
+          const createdTags = newTags.filter((tag) => !oldTags.includes(tag));
+          if (deletedTags.length)
+            embed.addFields({
+              // I'm 99% sure this can only be a single item but we'll keep it as an array just in case
+              // but the field name will look a lil' odd
+              name: guild.language.get("DELETED_TAG"),
+              value: this.client.util.shorten(deletedTags, 1024, " - "),
+            });
+          if (createdTags.length)
+            embed.addFields({
+              // same for this,
+              name: guild.language.get("CREATED_TAG"),
+              value: this.client.util.shorten(createdTags, 1024, " - "),
+            });
+          break;
+        }
+        // @ts-ignore
+        case "default_reaction_emoji": {
+          const oldEmoji = (change.old as unknown as {
+            emoji_id: string;
+            emoji_name: string;
+          }) ?? {
+            emoji_id: null,
+            emoji_name: null,
+          };
+          const newEmoji = (change.new as unknown as {
+            emoji_id: string;
+            emoji_name: string;
+          }) ?? {
+            emoji_id: null,
+            emoji_name: null,
+          };
+          embed.addFields({
+            name: guild.language.get("DEFAULT_REACTION_EMOJI"),
+            value: `${
+              oldEmoji.emoji_id
+                ? `<:emoji:${oldEmoji.emoji_id}> ${oldEmoji.emoji_name}`
+                : oldEmoji.emoji_name
+                ? `${oldEmoji.emoji_name}`
+                : guild.language.get("NO_EMOJI")
+            } ➜ ${
+              newEmoji.emoji_id
+                ? `<:emoji:${newEmoji.emoji_id}> ${newEmoji.emoji_name}`
+                : newEmoji.emoji_name
+                ? `${newEmoji.emoji_name}`
+                : guild.language.get("NO_EMOJI")
+            }`,
+          });
+          break;
+        }
+      }
+    }
+    if (auditLogEntry.reason)
+      embed.addFields({
+        name: guild.language.get("REASON"),
+        value: auditLogEntry.reason,
+      });
+    if (embed.fields.length == (auditLogEntry.reason ? 2 : 1)) return;
+    await guild.actionLog(embed, ActionLogTypes.CHANNEL_UPDATE).catch(() => {});
+  }
+
+  async ["THREAD_UPDATE"](
+    auditLogEntry: GuildAuditLogsEntry<"THREAD_UPDATE">,
+    guild: FireGuild
+  ) {
+    if (!guild.logger) guild.logger = new GuildLogManager(this.client, guild);
+    if (!guild.logger.isActionEnabled()) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    let parent = guild.channels.cache.find(
+      (c) => "threads" in c && c.threads.cache.has(auditLogEntry.targetId)
+    ) as NewsChannel | TextChannel | ForumChannel;
+    const thread =
+      parent.threads.cache.get(auditLogEntry.targetId) ??
+      // we should never need this, but just in case...
+      ((await guild.channels.fetch(auditLogEntry.targetId)) as ThreadChannel);
+    if (!parent && thread.parent) parent = thread.parent; // might get it from fetch
+
+    const embed = new MessageEmbed()
+      .setColor("#2ECC71")
+      .setTimestamp(auditLogEntry.createdAt)
+      .setAuthor({
+        name: guild.language.get("CHANNELUPDATELOG_AUTHOR", {
+          type: titleCase(thread.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
+          channel: thread.name,
+        }),
+        iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
+      .addFields({
+        name: guild.language.get("UPDATED_BY"),
+        value: `${executor} (${executor.id})`,
+      })
+      .setFooter({ text: auditLogEntry.targetId });
+    for (const change of auditLogEntry.changes) {
+      switch (change.key) {
+        case "name": {
+          if (
+            (change.old as string).length + (change.new as string).length <=
+            1020
+          )
+            embed.addFields({
+              name: guild.language.get("NAME"),
+              value: `${change.old} ➜ ${change.new}`,
+            });
+          break;
+        }
+        case "archived": {
+          embed.addFields({
+            name: guild.language.get("ARCHIVED"),
+            value: `${
+              change.old ? constants.emojis.success : constants.emojis.error
+            } ➜ ${
+              change.new ? constants.emojis.success : constants.emojis.error
+            }`,
+          });
+          break;
+        }
+        case "locked": {
+          embed.addFields({
+            name: guild.language.get("LOCKED"),
+            value: `${
+              change.old ? constants.emojis.success : constants.emojis.error
+            } ➜ ${
+              change.new ? constants.emojis.success : constants.emojis.error
+            }`,
+          });
+          break;
+        }
+        // @ts-ignore
+        case "applied_tags": {
+          // @ts-ignore
+          const oldTags = (change.old as string[])
+            .map((id) =>
+              (parent as ForumChannel).availableTags.find((t) => t.id == id)
+            )
+            .filter((tag) => !!tag)
+            .map((tag) =>
+              tag.emoji?.id
+                ? `<:emoji:${tag.emoji.id}> ${tag.name}`
+                : tag.emoji?.name
+                ? `${tag.emoji.name} ${tag.name}`
+                : tag.name
+            );
+          // @ts-ignore
+          const newTags = (change.new as string[])
+            .map((id) =>
+              (parent as ForumChannel).availableTags.find((t) => t.id == id)
+            )
+            .filter((tag) => !!tag)
+            .map((tag) =>
+              tag.emoji?.id
+                ? `<:emoji:${tag.emoji.id}> ${tag.name}`
+                : tag.emoji?.name
+                ? `${tag.emoji.name} ${tag.name}`
+                : tag.name
+            );
+          const removedTags = oldTags.filter((tag) => !newTags.includes(tag));
+          const addedTags = newTags.filter((tag) => !oldTags.includes(tag));
+          if (removedTags.length)
+            embed.addFields({
+              name: guild.language.get("REMOVED_TAGS"),
+              value: this.client.util.shorten(removedTags, 1024, " - "),
+            });
+          if (addedTags.length)
+            embed.addFields({
+              name: guild.language.get("ADDED_TAGS"),
+              value: this.client.util.shorten(addedTags, 1024, " - "),
+            });
+          break;
+        }
+      }
+    }
+    if (auditLogEntry.reason)
+      embed.addFields({
+        name: guild.language.get("REASON"),
+        value: auditLogEntry.reason,
+      });
+    if (embed.fields.length == (auditLogEntry.reason ? 2 : 1)) return;
+    await guild.actionLog(embed, ActionLogTypes.CHANNEL_UPDATE).catch(() => {});
   }
 
   async ["CHANNEL_DELETE"](
@@ -524,7 +872,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
 
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
-      .setTimestamp()
+      .setTimestamp(auditLogEntry.createdAt)
       .setAuthor({
         name: guild.language.get("CHANNELDELETELOG_AUTHOR", {
           type: titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
@@ -636,15 +984,20 @@ export default class GuildAuditLogEntryCreate extends Listener {
         "rate_limit_per_user" in auditLogEntry.target
           ? (auditLogEntry.target.rate_limit_per_user as number)
           : undefined,
-      // appliedTags:
-      //   "applied_tags" in auditLogEntry.target
-      //     ? (auditLogEntry.target.applied_tags as string[])
-      //     : undefined,
+      appliedTags:
+        "applied_tags" in auditLogEntry.target
+          ? (auditLogEntry.target.applied_tags as string[])
+          : undefined,
     };
+
+    const allForumTags = guild.channels.cache
+      .filter((c) => c.type == "GUILD_FORUM")
+      .map((c) => c as ForumChannel)
+      .flatMap((c) => c.availableTags);
 
     const embed = new MessageEmbed()
       .setColor("#E74C3C")
-      .setTimestamp()
+      .setTimestamp(auditLogEntry.createdAt)
       .setAuthor({
         name: guild.language.get("CHANNELDELETELOG_AUTHOR", {
           type: titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
@@ -684,6 +1037,22 @@ export default class GuildAuditLogEntryCreate extends Listener {
           true
         ),
       });
+    if (target.appliedTags.length && allForumTags.length) {
+      const tags = target.appliedTags
+        .map((id) => allForumTags.find((t) => t.id == id))
+        .filter((tag) => !!tag)
+        .map((tag) =>
+          tag.emoji?.id
+            ? `<:emoji:${tag.emoji.id}> ${tag.name}`
+            : tag.emoji?.name
+            ? `${tag.emoji.name} ${tag.name}`
+            : tag.name
+        );
+      embed.addFields({
+        name: guild.language.get("TAGS"),
+        value: this.client.util.shorten(tags, 1024, " - "),
+      });
+    }
     embed.addFields({
       name: guild.language.get("DELETED_BY"),
       value: `${executor} (${executor.id})`,
@@ -796,7 +1165,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
 
     const embed = new MessageEmbed()
       .setColor(target.color || "#E74C3C")
-      .setTimestamp()
+      .setTimestamp(auditLogEntry.createdAt)
       .setAuthor({
         name: guild.language.get("ROLEDELETELOG_AUTHOR", {
           guild: guild.name,
