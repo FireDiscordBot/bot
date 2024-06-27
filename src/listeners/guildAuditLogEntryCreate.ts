@@ -463,26 +463,28 @@ export default class GuildAuditLogEntryCreate extends Listener {
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
       })
-      .addFields([
-        { name: guild.language.get("NAME"), value: thread.name },
-        parent
-          ? { name: guild.language.get("CHANNEL"), value: parent.toString() }
-          : undefined,
-        {
-          name: guild.language.get("ARCHIVE"),
-          value: Formatters.time(autoArchiveAt, "R"),
-        },
-        {
-          name: guild.language.get("SLOWMODE"),
-          value: dayjs(+new Date() + thread.rateLimitPerUser * 1000).fromNow(
-            true
-          ),
-        },
-        {
-          name: guild.language.get("CREATED_BY"),
-          value: executor ? `${executor} (${executor.id})` : thread.ownerId,
-        },
-      ])
+      .addFields(
+        [
+          { name: guild.language.get("NAME"), value: thread.name },
+          parent
+            ? { name: guild.language.get("CHANNEL"), value: parent.toString() }
+            : undefined,
+          {
+            name: guild.language.get("ARCHIVE"),
+            value: Formatters.time(autoArchiveAt, "R"),
+          },
+          {
+            name: guild.language.get("SLOWMODE"),
+            value: dayjs(+new Date() + thread.rateLimitPerUser * 1000).fromNow(
+              true
+            ),
+          },
+          {
+            name: guild.language.get("CREATED_BY"),
+            value: executor ? `${executor} (${executor.id})` : thread.ownerId,
+          },
+        ].filter((field) => !!field)
+      )
       .setFooter({ text: auditLogEntry.targetId });
     if (parent?.isText() && parent?.messages.cache.has(thread.id))
       embed.addFields({
