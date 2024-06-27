@@ -1039,7 +1039,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
           true
         ),
       });
-    if (target.appliedTags.length && allForumTags.length) {
+    if (target.appliedTags?.length && allForumTags.length) {
       const tags = target.appliedTags
         .map((id) => allForumTags.find((t) => t.id == id))
         .filter((tag) => !!tag)
