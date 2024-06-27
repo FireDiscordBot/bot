@@ -783,7 +783,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
         // @ts-ignore
         case "applied_tags": {
           // @ts-ignore
-          const oldTags = (change.old as string[])
+          const oldTags = ((change.old as string[]) ?? [])
             .map((id) =>
               (parent as ForumChannel).availableTags.find((t) => t.id == id)
             )
@@ -796,7 +796,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
                 : tag.name
             );
           // @ts-ignore
-          const newTags = (change.new as string[])
+          const newTags = ((change.new as string[]) ?? [])
             .map((id) =>
               (parent as ForumChannel).availableTags.find((t) => t.id == id)
             )
