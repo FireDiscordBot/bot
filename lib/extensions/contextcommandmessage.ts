@@ -1,9 +1,18 @@
 import { Fire } from "@fire/lib/Fire";
-import { ArgumentOptions, Command } from "@fire/lib/util/command";
+import {
+  ArgumentOptions,
+  Command,
+  InvalidArgumentContextError,
+} from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants, i18nOptions } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { PermissionFlagsBits } from "discord-api-types/v9";
+import {
+  APIGuildMember,
+  APIInteractionDataResolvedGuildMember,
+  APIUser,
+  PermissionFlagsBits,
+} from "discord-api-types/v9";
 import {
   AwaitMessagesOptions,
   Collection,
@@ -225,6 +234,8 @@ export class ContextCommandMessage {
   }
 
   getMember(required = false) {
+    if (!this.guild && !required) return null;
+    else if (!this.guild) throw new InvalidArgumentContextError("member");
     return this.contextCommand.options.getMember(
       "user",
       required
@@ -232,6 +243,7 @@ export class ContextCommandMessage {
   }
 
   getMemberOrUser(required = false) {
+    if (!this.guild) return this.getUser(required);
     return this.getMember(false) ?? this.getUser(required);
   }
 
