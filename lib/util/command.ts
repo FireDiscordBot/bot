@@ -95,6 +95,7 @@ const canAcceptMember = [
 ];
 
 const mustBeMember = ["member", "memberSilent"];
+const MEMBER_INSTEAD_OF_USER = "is of type: USER; expected a non-empty value.";
 
 const getChannelTypes = (
   type: string
@@ -544,8 +545,17 @@ export class Command extends AkairoCommand {
           case ApplicationCommandOptionType.User: {
             const hasGuild = !!interaction.guild;
             if (mustBeMember.includes(arg.type?.toString()) && hasGuild)
-              args[arg.id] =
-                interaction.options.getMember(name, required) ?? arg.default;
+              try {
+                args[arg.id] =
+                  interaction.options.getMember(name, required) ?? arg.default;
+              } catch (e) {
+                if (
+                  e instanceof TypeError &&
+                  e.message.includes(MEMBER_INSTEAD_OF_USER)
+                )
+                  return await message.error("MEMBER_NOT_FOUND_COMPONENT");
+                else throw e;
+              }
             else if (canAcceptMember.includes(arg.type?.toString()) && hasGuild)
               args[arg.id] =
                 interaction.options.getMember(name, false) ??
