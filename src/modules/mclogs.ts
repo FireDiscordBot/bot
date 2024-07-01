@@ -11,7 +11,7 @@ import {
   validPasteURLs,
 } from "@fire/lib/util/clientutil";
 import { constants, titleCase } from "@fire/lib/util/constants";
-import { Language } from "@fire/lib/util/language";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 import {
@@ -38,6 +38,15 @@ const clientDetection = {
     "Loading BLC START...",
   ],
 };
+
+enum LogType {
+  VANILLA = "VANILLA_LOG",
+  LATEST = "LATEST_LOG",
+  DEBUG = "DEBUG_LOG",
+  CRASH_REPORT = "CRASH_REPORT",
+  JVM_CRASH = "JVM_CRASH",
+  UNKNOWN = "LOG",
+}
 
 enum Loaders {
   FORGE = "Forge",
@@ -88,6 +97,7 @@ type LoaderRegexConfig = {
   regexes: RegExp[];
 };
 type VersionInfo = {
+  logType: LogType;
   loader: Loaders;
   mcVersion: MinecraftVersion;
   loaderVersion: string;
@@ -152,6 +162,18 @@ const forgeDependenciesErrors = [
   "[main/ERROR] [net.minecraftforge.fml.loading.ModSorter/LOADING]: Missing or unsupported mandatory dependencies:",
 ];
 const missingDep = "[MISSING]";
+
+const crashReportHeader = "---- Minecraft Crash Report ----";
+const jvmCrashHeader =
+  "# A fatal error has been detected by the Java Runtime Environment:";
+const jvmCrashLines = [
+  "# Problematic frame:",
+  "---------------  T H R E A D  ---------------",
+];
+const vanillaLogFirstLines = [
+  "[Datafixer Bootstrap/INFO]",
+  "[Client thread/INFO]: Setting user: ",
+];
 
 const modIdClean = /_|\-/g;
 const subSubMod = "|    \\--";
@@ -589,7 +611,8 @@ export default class MCLogs extends Module {
     splitLog: string[],
     lang: Language
   ): VersionInfo {
-    let loader: Loaders,
+    let logType: LogType,
+      loader: Loaders,
       mcVersion: MinecraftVersion,
       loaderVersion: string,
       optifineVersion: string,
@@ -597,6 +620,18 @@ export default class MCLogs extends Module {
       mods: ModInfo[] = [],
       javaVersion: string,
       javaVendor: string;
+
+    if (splitLog[0].trim() == crashReportHeader) logType = LogType.CRASH_REPORT;
+    else if (vanillaLogFirstLines.some((l) => splitLog[0].trim().includes(l)))
+      logType = LogType.VANILLA;
+    else if (
+      splitLog[1] == jvmCrashHeader ||
+      jvmCrashLines.some((l) => log.includes(l))
+    )
+      logType = LogType.JVM_CRASH;
+    else if (log.includes("[main/DEBUG]")) logType = LogType.DEBUG;
+    else if (log.includes("[main/INFO]")) logType = LogType.LATEST;
+    else logType = LogType.UNKNOWN;
 
     for (const config of this.regexes.loaderVersions) {
       const matches = config.regexes.map((regex) => regex.exec(log));
@@ -1007,6 +1042,7 @@ export default class MCLogs extends Module {
     this.regexes.jvmCrashJavaVersion.lastIndex = 0;
 
     return {
+      logType,
       loader,
       mcVersion,
       loaderVersion,
@@ -1758,6 +1794,7 @@ export default class MCLogs extends Module {
                 : "Unknown",
               user: `${message.author} (${message.author.id})`,
               haste: haste.url,
+              log_type: mcInfo.logType,
               loader: mcInfo?.loader,
               loader_version: mcInfo?.loaderVersion,
               mc_version: mcInfo?.mcVersion,
@@ -1898,11 +1935,19 @@ export default class MCLogs extends Module {
           new MessageButton()
             .setStyle("LINK")
             .setURL(haste.url ?? "https://google.com/something_broke_lol")
-            .setLabel(message.language.get("MC_LOG_VIEW")),
+            .setLabel(
+              message.language.get(
+                `MC_LOG_VIEW_${mcInfo.logType}` as LanguageKeys
+              )
+            ),
           new MessageButton()
             .setStyle("LINK")
             .setURL(haste.raw ?? "https://google.com/something_broke_lol")
-            .setLabel(message.language.get("MC_LOG_VIEW_RAW")),
+            .setLabel(
+              message.language.get(
+                `MC_LOG_VIEW_${mcInfo.logType}_RAW` as LanguageKeys
+              )
+            ),
           new MessageButton()
             .setStyle("PRIMARY")
             .setCustomId("!mclogscan:solution")
@@ -1921,18 +1966,24 @@ export default class MCLogs extends Module {
         );
       if (mcInfo.loader)
         details.push(
-          (message.guild ?? message).language.get("MC_LOG_LOADER_INFO", {
-            version: mcInfo.loaderVersion?.trim(),
-            minecraft: mcInfo.mcVersion?.trim(),
-            loader:
-              (mcInfo.loader == Loaders.FEATHER_FORGE ||
-                mcInfo.loader == Loaders.FEATHER_FABRIC) &&
-              mcInfo.featherVersion
-                ? `${mcInfo.loader.slice(0, 7)} ${
-                    mcInfo.featherVersion
-                  } ${mcInfo.loader.slice(8)}`
-                : mcInfo.loader?.trim(),
-          })
+          (message.guild ?? message).language.get(
+            mcInfo.mods.length
+              ? "MC_LOG_LOADER_INFO_WITH_MODS"
+              : "MC_LOG_LOADER_INFO",
+            {
+              version: mcInfo.loaderVersion?.trim(),
+              minecraft: mcInfo.mcVersion?.trim(),
+              loader:
+                (mcInfo.loader == Loaders.FEATHER_FORGE ||
+                  mcInfo.loader == Loaders.FEATHER_FABRIC) &&
+                mcInfo.featherVersion
+                  ? `${mcInfo.loader.slice(0, 7)} ${
+                      mcInfo.featherVersion
+                    } ${mcInfo.loader.slice(8)}`
+                  : mcInfo.loader?.trim(),
+              mods: mcInfo.mods.length,
+            }
+          )
         );
       if (mcInfo.optifineVersion && mcInfo.loader != Loaders.OPTIFINE)
         details.push(
