@@ -6,7 +6,13 @@ import {
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { MessageEmbed, Permissions, Role, TextChannel } from "discord.js";
+import {
+  MessageEmbed,
+  OverwriteType,
+  Permissions,
+  Role,
+  TextChannel,
+} from "discord.js";
 
 export default class PermRoles extends Command {
   constructor() {
@@ -111,10 +117,17 @@ export default class PermRoles extends Command {
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
 
+    const exists = message.guild.permRoles.has(args.role.id);
     const channelPerms = (
       message.channel as TextChannel
     ).permissionOverwrites.cache.get(args.role.id);
-    if (!channelPerms) return await message.error("PERMROLES_NOTHING_TO_COPY");
+    if (
+      !channelPerms ||
+      (!exists &&
+        channelPerms.allow.bitfield == 0n &&
+        channelPerms.deny.bitfield == 0n)
+    )
+      return await message.error("PERMROLES_NOTHING_TO_COPY");
 
     if (
       channelPerms.allow.has(PermissionFlagsBits.ManageRoles) ||
@@ -136,11 +149,14 @@ export default class PermRoles extends Command {
     )
       return await message.error("PERMROLES_MISSING_PERMISSIONS");
 
-    const exists = message.guild.permRoles.has(args.role.id);
     const inserted = await this.client.db
       .query(
         exists
-          ? "UPDATE permroles SET (allow, deny) = ($1, $2) WHERE gid=$3 AND rid=$4;"
+          ? channelPerms.allow.bitfield == 0n &&
+            channelPerms.deny.bitfield == 0n
+            ? // delete if exists & no perms are allowed/denied
+              "DELETE FROM permroles WHERE gid=$3 AND rid=$4;"
+            : "UPDATE permroles SET (allow, deny) = ($1, $2) WHERE gid=$3 AND rid=$4;"
           : "INSERT INTO permroles (allow, deny, gid, rid) VALUES ($1, $2, $3, $4);",
         [
           channelPerms.allow.bitfield.toString(),
@@ -179,13 +195,16 @@ export default class PermRoles extends Command {
                 (overwrite) => overwrite.id != args.role.id
               )
               .toJSON(),
-            {
-              allow: channelPerms.allow,
-              deny: channelPerms.deny,
-              id: args.role.id,
-              type: "role",
-            },
-          ],
+            channelPerms.allow.bitfield == 0n &&
+            channelPerms.deny.bitfield == 0n
+              ? undefined // if allow & deny are 0, we don't add an overwrite
+              : {
+                  allow: channelPerms.allow,
+                  deny: channelPerms.deny,
+                  id: args.role.id,
+                  type: "role" as OverwriteType,
+                },
+          ].filter((overwrite) => !!overwrite),
           message.guild.language.get("PERMROLES_REASON")
         )
         .catch(() => failed++);
