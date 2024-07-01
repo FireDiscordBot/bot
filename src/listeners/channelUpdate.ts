@@ -1,7 +1,12 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { DMChannel, GuildBasedChannel, GuildChannel } from "discord.js";
+import {
+  DMChannel,
+  GuildBasedChannel,
+  GuildChannel,
+  OverwriteType,
+} from "discord.js";
 
 export default class ChannelUpdate extends Listener {
   constructor() {
@@ -54,6 +59,39 @@ export default class ChannelUpdate extends Listener {
             reason: guild.language.get("MUTE_ROLE_CREATE_REASON"),
             type: 0,
           }
+        )
+        .catch(() => {});
+
+    if (
+      !(after instanceof GuildChannel) ||
+      !after.permissionsFor(guild.me).has(PermissionFlagsBits.ManageRoles)
+    )
+      return;
+
+    if (!guild.permRoles) await guild.loadPermRoles();
+    if (
+      guild.permRoles.size &&
+      guild.permRoles.some(
+        (_, role) => !after.permissionOverwrites.cache.has(role)
+      )
+    )
+      await after.permissionOverwrites
+        .set(
+          [
+            ...guild.permRoles
+              // Remove roles that already have overwrites on the channel
+              // We don't want to touch those as they should already be correct
+              // and if not, they might be from someone about to change the permissions for the permrole
+              .filter((_, role) => !after.permissionOverwrites.cache.has(role))
+              .map((data, role) => ({
+                allow: data.allow,
+                deny: data.deny,
+                id: role,
+                type: "role" as OverwriteType, // idk why this is necessary but whatever
+              })),
+            ...after.permissionOverwrites.cache.toJSON(),
+          ],
+          guild.language.get("PERMROLES_REASON")
         )
         .catch(() => {});
   }
