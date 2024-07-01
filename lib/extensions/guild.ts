@@ -598,6 +598,7 @@ export class FireGuild extends Guild {
 
   async loadPermRoles() {
     this.permRoles = new Collection();
+    if (1 == 1) return; // stupid conition to fool vscode into thinking the code below isn't unreachable
     const permRoles = await this.client.db
       .query("SELECT * FROM permroles WHERE gid=$1;", [this.id])
       .catch(() => {});
