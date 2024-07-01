@@ -1365,9 +1365,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         if (messages) {
           const commitMsg = messages.find(
             (m) =>
-              m.embeds.length &&
-              m.embeds[0].title.startsWith(`[bot:${branch}]`) &&
-              m.embeds[0].description.includes(commit)
+              m.embeds.length && m.embeds[0].title.startsWith(`[bot:${branch}]`)
           );
           if (commitMsg)
             if (commitMsg.hasThread) threadId = commitMsg.id;
