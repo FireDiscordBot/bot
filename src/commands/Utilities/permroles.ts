@@ -194,7 +194,7 @@ export default class PermRoles extends Command {
       (channel) =>
         !channel.isThread() &&
         channel
-          .permissionsFor(message.guild.me)
+          .permissionsFor(message.guild.members.me)
           .has(PermissionFlagsBits.ManageRoles) &&
         (channel.permissionOverwrites.cache.get(args.role.id)?.allow.bitfield !=
           channelPerms.allow.bitfield ||

@@ -64,7 +64,9 @@ export default class ChannelUpdate extends Listener {
 
     if (
       !(after instanceof GuildChannel) ||
-      !after.permissionsFor(guild.me).has(PermissionFlagsBits.ManageRoles)
+      !after
+        .permissionsFor(guild.members.me)
+        .has(PermissionFlagsBits.ManageRoles)
     )
       return;
 

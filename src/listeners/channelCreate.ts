@@ -49,7 +49,9 @@ export default class ChannelCreate extends Listener {
 
     if (
       !(channel instanceof GuildChannel) ||
-      !channel.permissionsFor(guild.me).has(PermissionFlagsBits.ManageRoles)
+      !channel
+        .permissionsFor(guild.members.me)
+        .has(PermissionFlagsBits.ManageRoles)
     )
       return;
 
