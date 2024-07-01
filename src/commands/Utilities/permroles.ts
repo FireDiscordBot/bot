@@ -155,29 +155,44 @@ export default class PermRoles extends Command {
           ? channelPerms.allow.bitfield == 0n &&
             channelPerms.deny.bitfield == 0n
             ? // delete if exists & no perms are allowed/denied
-              "DELETE FROM permroles WHERE gid=$3 AND rid=$4;"
+              "DELETE FROM permroles WHERE gid=$1 AND rid=$2;"
             : "UPDATE permroles SET (allow, deny) = ($1, $2) WHERE gid=$3 AND rid=$4;"
           : "INSERT INTO permroles (allow, deny, gid, rid) VALUES ($1, $2, $3, $4);",
-        [
-          channelPerms.allow.bitfield.toString(),
-          channelPerms.deny.bitfield.toString(),
-          message.guild.id,
-          args.role.id,
-        ]
+        exists &&
+          channelPerms.allow.bitfield == 0n &&
+          channelPerms.deny.bitfield == 0n
+          ? [message.guild.id, args.role.id]
+          : [
+              channelPerms.allow.bitfield.toString(),
+              channelPerms.deny.bitfield.toString(),
+              message.guild.id,
+              args.role.id,
+            ]
       )
       .catch(() => {});
     if (!inserted) return await message.error("PERMROLES_DB_ERROR");
 
-    message.guild.permRoles.set(args.role.id, {
-      allow: channelPerms.allow.bitfield,
-      deny: channelPerms.deny.bitfield,
-    });
+    if (
+      exists &&
+      channelPerms.allow.bitfield == 0n &&
+      channelPerms.deny.bitfield == 0n
+    )
+      message.guild.permRoles.delete(args.role.id);
+    else
+      message.guild.permRoles.set(args.role.id, {
+        allow: channelPerms.allow.bitfield,
+        deny: channelPerms.deny.bitfield,
+      });
 
-    const updating = await message.send("PERMROLES_UPDATING_CHANNELS");
+    const updating = await message.send(
+      message.guild.permRoles.has(args.role.id)
+        ? "PERMROLES_UPDATING_CHANNELS"
+        : "PERMROLES_UPDATING_CHANNELS_REMOVE"
+    );
     let failed = 0;
     for (const [, channel] of message.guild.guildChannels.cache.filter(
       (channel) =>
-        !channel.type.endsWith("thread") &&
+        !channel.isThread() &&
         channel
           .permissionsFor(message.guild.me)
           .has(PermissionFlagsBits.ManageRoles) &&
@@ -210,7 +225,11 @@ export default class PermRoles extends Command {
         .catch(() => failed++);
     return await updating.edit(
       message.language.get(
-        failed ? "PERMROLES_FINISHED_FAIL_SOME" : "PERMROLES_FINISHED",
+        failed
+          ? "PERMROLES_FINISHED_FAIL_SOME"
+          : message.guild.permRoles.has(args.role.id)
+          ? "PERMROLES_FINISHED"
+          : "PERMROLES_FINISHED_REMOVE",
         { failed }
       )
     );
