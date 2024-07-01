@@ -196,10 +196,12 @@ export default class PermRoles extends Command {
         channel
           .permissionsFor(message.guild.members.me)
           .has(PermissionFlagsBits.ManageRoles) &&
-        (channel.permissionOverwrites.cache.get(args.role.id)?.allow.bitfield !=
-          channelPerms.allow.bitfield ||
-          channel.permissionOverwrites.cache.get(args.role.id)?.deny.bitfield !=
-            channelPerms.deny.bitfield)
+        (message.guild.permRoles.has(args.role.id)
+          ? channel.permissionOverwrites.cache.get(args.role.id)?.allow
+              .bitfield != channelPerms.allow.bitfield ||
+            channel.permissionOverwrites.cache.get(args.role.id)?.deny
+              .bitfield != channelPerms.deny.bitfield
+          : true)
     ))
       await channel.permissionOverwrites
         .set(
