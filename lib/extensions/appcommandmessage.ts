@@ -533,9 +533,15 @@ export class ApplicationCommandMessage {
   }
 
   async getRealMessage() {
-    await this.getRealMessageLock.wait(); // prevents fetching twice simultaneously
-    if (this.slashCommand.isAutocomplete()) return;
-    if (this.sourceMessage instanceof FireMessage) return this.sourceMessage;
+    await this.getRealMessageLock.acquire();
+    if (this.slashCommand.isAutocomplete()) {
+      this.getRealMessageLock.release();
+      return;
+    }
+    if (this.sourceMessage instanceof FireMessage) {
+      this.getRealMessageLock.release();
+      return this.sourceMessage;
+    }
 
     const message = (await this.client.req
       .webhooks(this.client.user.id, this.slashCommand.token)
