@@ -32,7 +32,7 @@ export default class PermRoles extends Command {
   }
 
   async exec(message: FireMessage, args: { role?: Role }) {
-    if (message.guild.guildChannels.cache.size >= 100)
+    if (message.guild.guildChannels.cache.size >= 100 && !message.guild.premium)
       return await message.error("PERMROLES_CHANNEL_LIMIT");
 
     if (!message.guild.permRoles) await message.guild.loadPermRoles();

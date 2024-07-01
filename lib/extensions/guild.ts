@@ -612,7 +612,7 @@ export class FireGuild extends Guild {
       });
     }
     await this.client.waitUntilReady();
-    if (this.guildChannels.cache.size >= 100) return;
+    if (this.guildChannels.cache.size >= 100 && !this.premium) return;
     for (const [id, perms] of this.permRoles) {
       for (const [, channel] of this.guildChannels.cache.filter(
         (channel) =>
