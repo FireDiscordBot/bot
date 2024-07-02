@@ -207,7 +207,7 @@ export class RequestHandler {
       const resetAfter = res.headers["x-ratelimit-reset-after"];
 
       this.limit = limit ? Number(limit) : Infinity;
-      this.remaining = remaining ? Number(remaining) : 1;
+      this.remaining = remaining ? Number(remaining) : 0;
 
       this.reset =
         reset || resetAfter
