@@ -74,7 +74,11 @@ export default class ChannelUpdate extends Listener {
     if (
       guild.permRoles.size &&
       guild.permRoles.some(
-        (_, role) => !after.permissionOverwrites.cache.has(role)
+        (data, role) =>
+          !after.permissionOverwrites.cache.has(role) ||
+          after.permissionOverwrites.cache.get(role).allow.bitfield !=
+            data.allow ||
+          after.permissionOverwrites.cache.get(role).deny.bitfield != data.deny
       )
     )
       await after.permissionOverwrites
