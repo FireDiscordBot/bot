@@ -725,7 +725,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
       (c) => "threads" in c && c.threads.cache.has(auditLogEntry.targetId)
     ) as NewsChannel | TextChannel | ForumChannel;
     const thread =
-      parent.threads.cache.get(auditLogEntry.targetId) ??
+      parent?.threads.cache.get(auditLogEntry.targetId) ??
       // we should never need this, but just in case...
       ((await guild.channels.fetch(auditLogEntry.targetId)) as ThreadChannel);
     if (!parent && thread.parent) parent = thread.parent; // might get it from fetch
