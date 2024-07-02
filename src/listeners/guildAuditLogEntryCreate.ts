@@ -1141,6 +1141,20 @@ export default class GuildAuditLogEntryCreate extends Listener {
     auditLogEntry: GuildAuditLogsEntry<"ROLE_DELETE">,
     guild: FireGuild
   ) {
+    // TODO: maybe move to roleDelete event instead of having in audit?
+    // We need to remove non-existent roles from permroles
+    // to avoid an infinite loop of trying to set permissions
+    // due to not seeing the permission set as the role doesn't exist
+    if (guild.permRoles.has(auditLogEntry.targetId)) {
+      guild.permRoles.delete(auditLogEntry.targetId);
+      await this.client.db
+        .query("DELETE FROM permroles WHERE gid=$1 AND rid=$2;", [
+          guild.id,
+          auditLogEntry.targetId,
+        ])
+        .catch(() => {});
+    }
+
     if (!guild.logger) guild.logger = new GuildLogManager(this.client, guild);
     if (!guild.logger.isActionEnabled()) return;
 
