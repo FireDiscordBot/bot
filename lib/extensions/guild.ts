@@ -607,6 +607,7 @@ export class FireGuild extends Guild {
         `[Guild] Failed to load permission roles for ${this.name} (${this.id})`
       );
     for await (const role of permRoles) {
+      if (!this.roles.cache.has(role.get("rid") as Snowflake)) continue;
       this.permRoles.set(role.get("rid") as Snowflake, {
         allow: BigInt(role.get("allow") as string),
         deny: BigInt(role.get("deny") as string),
