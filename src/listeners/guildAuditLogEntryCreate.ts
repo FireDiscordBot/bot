@@ -1145,7 +1145,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
     // We need to remove non-existent roles from permroles
     // to avoid an infinite loop of trying to set permissions
     // due to not seeing the permission set as the role doesn't exist
-    if (guild.permRoles.has(auditLogEntry.targetId)) {
+    if (guild.permRoles?.has(auditLogEntry.targetId)) {
       guild.permRoles.delete(auditLogEntry.targetId);
       await this.client.db
         .query("DELETE FROM permroles WHERE gid=$1 AND rid=$2;", [
