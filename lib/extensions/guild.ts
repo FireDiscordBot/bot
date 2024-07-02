@@ -35,6 +35,7 @@ import {
   MessageButton,
   MessageEmbed,
   MessageEmbedOptions,
+  OverwriteType,
   PermissionOverwriteOptions,
   Role,
   Snowflake,
@@ -598,7 +599,6 @@ export class FireGuild extends Guild {
 
   async loadPermRoles() {
     this.permRoles = new Collection();
-    if (1 == 1) return; // stupid conition to fool vscode into thinking the code below isn't unreachable
     const permRoles = await this.client.db
       .query("SELECT * FROM permroles WHERE gid=$1;", [this.id])
       .catch(() => {});
@@ -614,37 +614,39 @@ export class FireGuild extends Guild {
     }
     await this.client.waitUntilReady();
     if (this.guildChannels.cache.size >= 100 && !this.premium) return;
-    for (const [id, perms] of this.permRoles) {
-      for (const [, channel] of this.guildChannels.cache.filter(
-        (channel) =>
-          channel
-            .permissionsFor(this.me)
-            .has(PermissionFlagsBits.ManageRoles) &&
-          (channel.permissionOverwrites.cache.get(id)?.allow.bitfield !=
-            perms.allow ||
-            channel.permissionOverwrites.cache.get(id)?.deny.bitfield !=
-              perms.deny)
-      ))
-        channel.permissionOverwrites
-          .set(
-            [
-              ...channel.permissionOverwrites.cache
-                .filter(
-                  // ensure the overwrites below are used instead
-                  (overwrite) => overwrite.id != id
-                )
-                .toJSON(),
-              {
-                allow: perms.allow,
-                deny: perms.deny,
-                id: id,
-                type: "role",
-              },
-            ],
-            this.language.get("PERMROLES_REASON")
-          )
-          .catch(() => {});
-    }
+    for (const [, channel] of this.guildChannels.cache.filter(
+      (channel) =>
+        channel
+          .permissionsFor(this.members.me)
+          .has(PermissionFlagsBits.ManageRoles) &&
+        this.permRoles.some(
+          (data, role) =>
+            !channel.permissionOverwrites.cache.has(role) ||
+            channel.permissionOverwrites.cache.get(role).allow.bitfield !=
+              data.allow ||
+            channel.permissionOverwrites.cache.get(role).deny.bitfield !=
+              data.deny
+        )
+    ))
+      await channel.permissionOverwrites
+        .set(
+          [
+            ...channel.permissionOverwrites.cache
+              .filter(
+                // ensure the overwrites below are used instead
+                (overwrite) => !this.permRoles.has(overwrite.id)
+              )
+              .toJSON(),
+            ...this.permRoles.map((data, role) => ({
+              allow: data.allow,
+              deny: data.deny,
+              id: role,
+              type: "role" as OverwriteType, // idk why this is necessary but whatever
+            })),
+          ],
+          this.language.get("PERMROLES_REASON")
+        )
+        .catch(() => {});
   }
 
   async loadInvites() {
