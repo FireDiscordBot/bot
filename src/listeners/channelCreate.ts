@@ -66,12 +66,14 @@ export default class ChannelCreate extends Listener {
                 (overwrite) => !guild.permRoles.has(overwrite.id)
               )
               .toJSON(),
-            ...guild.permRoles.map((data, role) => ({
-              allow: data.allow,
-              deny: data.deny,
-              id: role,
-              type: "role" as OverwriteType, // idk why this is necessary but whatever
-            })),
+            ...guild.permRoles
+              .filter((_, rid) => guild.roles.cache.has(rid))
+              .map((data, role) => ({
+                allow: data.allow,
+                deny: data.deny,
+                id: role,
+                type: "role" as OverwriteType, // idk why this is necessary but whatever
+              })),
           ],
           guild.language.get("PERMROLES_REASON")
         )

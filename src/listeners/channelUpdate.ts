@@ -73,13 +73,16 @@ export default class ChannelUpdate extends Listener {
     if (!guild.permRoles) await guild.loadPermRoles();
     if (
       guild.permRoles.size &&
-      guild.permRoles.some(
-        (data, role) =>
-          !after.permissionOverwrites.cache.has(role) ||
-          after.permissionOverwrites.cache.get(role).allow.bitfield !=
-            data.allow ||
-          after.permissionOverwrites.cache.get(role).deny.bitfield != data.deny
-      )
+      guild.permRoles
+        .filter((_, rid) => guild.roles.cache.has(rid))
+        .some(
+          (data, role) =>
+            !after.permissionOverwrites.cache.has(role) ||
+            after.permissionOverwrites.cache.get(role).allow.bitfield !=
+              data.allow ||
+            after.permissionOverwrites.cache.get(role).deny.bitfield !=
+              data.deny
+        )
     )
       await after.permissionOverwrites
         .set(
@@ -88,7 +91,11 @@ export default class ChannelUpdate extends Listener {
               // Remove roles that already have overwrites on the channel
               // We don't want to touch those as they should already be correct
               // and if not, they might be from someone about to change the permissions for the permrole
-              .filter((_, role) => !after.permissionOverwrites.cache.has(role))
+              .filter(
+                (_, role) =>
+                  !after.permissionOverwrites.cache.has(role) &&
+                  guild.roles.cache.has(role)
+              )
               .map((data, role) => ({
                 allow: data.allow,
                 deny: data.deny,

@@ -620,14 +620,16 @@ export class FireGuild extends Guild {
         channel
           .permissionsFor(this.members.me)
           .has(PermissionFlagsBits.ManageRoles) &&
-        this.permRoles.some(
-          (data, role) =>
-            !channel.permissionOverwrites.cache.has(role) ||
-            channel.permissionOverwrites.cache.get(role).allow.bitfield !=
-              data.allow ||
-            channel.permissionOverwrites.cache.get(role).deny.bitfield !=
-              data.deny
-        )
+        this.permRoles
+          .filter((_, rid) => this.roles.cache.has(rid))
+          .some(
+            (data, role) =>
+              !channel.permissionOverwrites.cache.has(role) ||
+              channel.permissionOverwrites.cache.get(role).allow.bitfield !=
+                data.allow ||
+              channel.permissionOverwrites.cache.get(role).deny.bitfield !=
+                data.deny
+          )
     ))
       await channel.permissionOverwrites
         .set(
@@ -638,12 +640,14 @@ export class FireGuild extends Guild {
                 (overwrite) => !this.permRoles.has(overwrite.id)
               )
               .toJSON(),
-            ...this.permRoles.map((data, role) => ({
-              allow: data.allow,
-              deny: data.deny,
-              id: role,
-              type: "role" as OverwriteType, // idk why this is necessary but whatever
-            })),
+            ...this.permRoles
+              .filter((_, rid) => this.roles.cache.has(rid))
+              .map((data, role) => ({
+                allow: data.allow,
+                deny: data.deny,
+                id: role,
+                type: "role" as OverwriteType, // idk why this is necessary but whatever
+              })),
           ],
           this.language.get("PERMROLES_REASON")
         )
