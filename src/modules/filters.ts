@@ -12,9 +12,11 @@ import {
 } from "@fire/lib/util/constants";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   CategoryChannel,
   GuildChannel,
+  GuildChannelResolvable,
   Invite,
   MessageEmbed,
 } from "discord.js";
@@ -302,7 +304,8 @@ export default class Filters extends Module {
     const deleteInvite = async (inv: Invite) => {
       if (
         inv.guild.id != message.guild.id &&
-        !constants.allowedInvites.includes(inv.guild.id)
+        !constants.allowedInvites.includes(inv.guild.id) &&
+        message.type != "AUTO_MODERATION_ACTION"
       )
         await message
           .delete({
@@ -310,7 +313,7 @@ export default class Filters extends Module {
           })
           .catch(() => {});
     };
-    const deleteFail = async (e: Error) =>
+    const deleteFail = async () =>
       await message
         .delete({
           reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
@@ -358,7 +361,7 @@ export default class Filters extends Module {
           extra.includes(exec[0])
         )
           continue;
-        await deleteFail(e);
+        if (message.type != "AUTO_MODERATION_ACTION") await deleteFail();
       }
       if (message.guild.logIgnored.includes(message.channelId)) continue;
       const embed = new MessageEmbed()
@@ -366,8 +369,17 @@ export default class Filters extends Module {
         .setTimestamp()
         .setDescription(
           message.guild.language.get("FILTER_INVITE_LOG_DESCRIPTION", {
-            channel: message.channel.toString(),
-          }) as string
+            channel:
+              message.type == "AUTO_MODERATION_ACTION"
+                ? message.guild.channels.cache
+                    .get(
+                      message.embeds[0].fields.find(
+                        (f) => f.name == "channel_id"
+                      ).value
+                    )
+                    .toString()
+                : message.channel.toString(),
+          })
         )
         .setAuthor({
           name: message.author.toString(),
@@ -414,9 +426,20 @@ export default class Filters extends Module {
           exec[0],
           false
         );
-      await message.guild
-        .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
-        .catch(() => {});
+      if (
+        message.type == "AUTO_MODERATION_ACTION" &&
+        message.guild.members.me
+          .permissionsIn(message.channel as GuildChannelResolvable)
+          .has(
+            PermissionFlagsBits.SendMessages |
+              PermissionFlagsBits.ReadMessageHistory
+          )
+      )
+        await message.reply({ embeds: [embed] }).catch(() => {});
+      else
+        await message.guild
+          .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
+          .catch(() => {});
     }
   }
 
@@ -537,19 +560,28 @@ export default class Filters extends Module {
       extra;
     const match = regexes.paypal.exec(sanitizer(searchString));
     if (!match) return;
-    await message
-      .delete({
-        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
-      })
-      .catch(() => {});
+    if (message.type != "AUTO_MODERATION_ACTION")
+      await message
+        .delete({
+          reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+        })
+        .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get("FILTER_PAYPAL_LOG_DESCRIPTION", {
-          channel: message.channel.toString(),
-        }) as string
+          channel:
+            message.type == "AUTO_MODERATION_ACTION"
+              ? message.guild.channels.cache
+                  .get(
+                    message.embeds[0].fields.find((f) => f.name == "channel_id")
+                      .value
+                  )
+                  .toString()
+              : message.channel.toString(),
+        })
       )
       .setAuthor({
         name: message.author.toString(),
@@ -560,9 +592,20 @@ export default class Filters extends Module {
         }),
       })
       .setFooter({ text: message.author.id });
-    await message.guild
-      .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
-      .catch(() => {});
+    if (
+      message.type == "AUTO_MODERATION_ACTION" &&
+      message.guild.members.me
+        .permissionsIn(message.channel as GuildChannelResolvable)
+        .has(
+          PermissionFlagsBits.SendMessages |
+            PermissionFlagsBits.ReadMessageHistory
+        )
+    )
+      await message.reply({ embeds: [embed] }).catch(() => {});
+    else
+      await message.guild
+        .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
+        .catch(() => {});
   }
 
   async handleYouTubeVideo(message: FireMessage, extra: string = "") {
@@ -583,7 +626,7 @@ export default class Filters extends Module {
       if (!ids.includes(videoMatch.groups.video))
         ids.push(videoMatch.groups.video);
     }
-    if (ids.length)
+    if (ids.length && message.type != "AUTO_MODERATION_ACTION")
       await message
         .delete({
           reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
@@ -598,8 +641,17 @@ export default class Filters extends Module {
         .setTimestamp()
         .setDescription(
           message.guild.language.get("FILTER_YOUTUBE_LOG_DESCRIPTION", {
-            channel: message.channel.toString(),
-          }) as string
+            channel:
+              message.type == "AUTO_MODERATION_ACTION"
+                ? message.guild.channels.cache
+                    .get(
+                      message.embeds[0].fields.find(
+                        (f) => f.name == "channel_id"
+                      ).value
+                    )
+                    .toString()
+                : message.channel.toString(),
+          })
         )
         .setAuthor({
           name: message.author.toString(),
@@ -646,7 +698,7 @@ export default class Filters extends Module {
           name: message.guild.language.get("STATISTICS"),
           value: message.guild.language.get("FILTER_YOUTUBE_VIDEO_LOG_STATS", {
             ...statistics,
-          }) as string,
+          }),
         },
         {
           name: message.guild.language.get("DESCRIPTION"),
@@ -658,11 +710,36 @@ export default class Filters extends Module {
       ]);
       logEmbeds.push(embed);
     }
+    if (
+      message.type == "AUTO_MODERATION_ACTION" &&
+      message.guild.members.me
+        .permissionsIn(message.channel as GuildChannelResolvable)
+        .has(
+          PermissionFlagsBits.SendMessages |
+            PermissionFlagsBits.ReadMessageHistory
+        )
+    )
+      if (logEmbeds.length <= 10)
+        await message.reply({ embeds: logEmbeds }).catch(() => {});
+      else {
+        // there shouldn't be more than 20 so just these two should be fine
+        await message
+          .reply({
+            embeds: logEmbeds.slice(0, 10),
+          })
+          .catch(() => {});
+        await message
+          .reply({
+            embeds: logEmbeds.slice(10),
+          })
+          .catch(() => {});
+      }
     // it should hopefully combine these
-    for (const embed of logEmbeds)
-      await message.guild
-        .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
-        .catch(() => {});
+    else
+      for (const embed of logEmbeds)
+        await message.guild
+          .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
+          .catch(() => {});
   }
 
   async handleYouTubeChannel(message: FireMessage, extra: string = "") {
@@ -688,7 +765,10 @@ export default class Filters extends Module {
       const type = link.startsWith("UC") ? channelLinks : singleChannelLinks;
       if (!type.includes(link)) type.push(link);
     }
-    if (channelLinks.length || singleChannelLinks.length)
+    if (
+      (channelLinks.length || singleChannelLinks.length) &&
+      message.type != "AUTO_MODERATION_ACTION"
+    )
       await message
         .delete({
           reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
@@ -714,8 +794,17 @@ export default class Filters extends Module {
         .setTimestamp()
         .setDescription(
           message.guild.language.get("FILTER_YOUTUBE_LOG_DESCRIPTION", {
-            channel: message.channel.toString(),
-          }) as string
+            channel:
+              message.type == "AUTO_MODERATION_ACTION"
+                ? message.guild.channels.cache
+                    .get(
+                      message.embeds[0].fields.find(
+                        (f) => f.name == "channel_id"
+                      ).value
+                    )
+                    .toString()
+                : message.channel.toString(),
+          })
         )
         .setAuthor({
           name: message.author.toString(),
@@ -762,15 +851,41 @@ export default class Filters extends Module {
           value: message.guild.language.get(
             "FILTER_YOUTUBE_CHANNEL_LOG_STATS",
             statistics
-          ) as string,
+          ),
         },
       ]);
       logEmbeds.push(embed);
     }
-    for (const embed of logEmbeds)
-      await message.guild
-        .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
-        .catch(() => {});
+    if (
+      message.type == "AUTO_MODERATION_ACTION" &&
+      message.guild.members.me
+        .permissionsIn(message.channel as GuildChannelResolvable)
+        .has(
+          PermissionFlagsBits.SendMessages |
+            PermissionFlagsBits.ReadMessageHistory
+        )
+    )
+      if (logEmbeds.length <= 10)
+        await message.reply({ embeds: logEmbeds }).catch(() => {});
+      else {
+        // there shouldn't be more than 20 so just these two should be fine
+        await message
+          .reply({
+            embeds: logEmbeds.slice(0, 10),
+          })
+          .catch(() => {});
+        await message
+          .reply({
+            embeds: logEmbeds.slice(10),
+          })
+          .catch(() => {});
+      }
+    // it should hopefully combine these
+    else
+      for (const embed of logEmbeds)
+        await message.guild
+          .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
+          .catch(() => {});
   }
 
   async handleTwitch(message: FireMessage, extra: string = "") {
@@ -787,11 +902,12 @@ export default class Filters extends Module {
     const clipMatch = regexes.twitch.clip.exec(sanitizer(searchString));
     const channelMatch = regexes.twitch.channel.exec(sanitizer(searchString));
     if (!clipMatch && !channelMatch) return;
-    await message
-      .delete({
-        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
-      })
-      .catch(() => {});
+    if (message.type != "AUTO_MODERATION_ACTION")
+      await message
+        .delete({
+          reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+        })
+        .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#FFFFFF")
@@ -802,7 +918,7 @@ export default class Filters extends Module {
             ? "FILTER_TWITCH_CLIP_LOG_DESCRIPTION"
             : "FILTER_TWITCH_CHANNEL_LOG_DESCRIPTION",
           { channel: message.channel.toString() }
-        ) as string
+        )
       )
       .setAuthor({
         name: message.author.toString(),
@@ -813,9 +929,20 @@ export default class Filters extends Module {
         }),
       })
       .setFooter({ text: message.author.id });
-    await message.guild
-      .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
-      .catch(() => {});
+    if (
+      message.type == "AUTO_MODERATION_ACTION" &&
+      message.guild.members.me
+        .permissionsIn(message.channel as GuildChannelResolvable)
+        .has(
+          PermissionFlagsBits.SendMessages |
+            PermissionFlagsBits.ReadMessageHistory
+        )
+    )
+      await message.reply({ embeds: [embed] }).catch(() => {});
+    else
+      await message.guild
+        .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
+        .catch(() => {});
   }
 
   async handleTwitter(message: FireMessage, extra: string = "") {
@@ -831,19 +958,28 @@ export default class Filters extends Module {
       extra;
     const match = regexes.twitter.exec(sanitizer(searchString));
     if (!match) return;
-    await message
-      .delete({
-        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
-      })
-      .catch(() => {});
+    if (message.type != "AUTO_MODERATION_ACTION")
+      await message
+        .delete({
+          reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+        })
+        .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get("FILTER_TWITTER_LOG_DESCRIPTION", {
-          channel: message.channel.toString(),
-        }) as string
+          channel:
+            message.type == "AUTO_MODERATION_ACTION"
+              ? message.guild.channels.cache
+                  .get(
+                    message.embeds[0].fields.find((f) => f.name == "channel_id")
+                      .value
+                  )
+                  .toString()
+              : message.channel.toString(),
+        })
       )
       .setAuthor({
         name: message.author.toString(),
@@ -854,9 +990,20 @@ export default class Filters extends Module {
         }),
       })
       .setFooter({ text: message.author.id });
-    await message.guild
-      .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
-      .catch(() => {});
+    if (
+      message.type == "AUTO_MODERATION_ACTION" &&
+      message.guild.members.me
+        .permissionsIn(message.channel as GuildChannelResolvable)
+        .has(
+          PermissionFlagsBits.SendMessages |
+            PermissionFlagsBits.ReadMessageHistory
+        )
+    )
+      await message.reply({ embeds: [embed] }).catch(() => {});
+    else
+      await message.guild
+        .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
+        .catch(() => {});
   }
 
   async handleShort(message: FireMessage, extra: string = "") {
@@ -872,19 +1019,28 @@ export default class Filters extends Module {
       extra;
     const match = this.shortURLRegex.exec(sanitizer(searchString));
     if (!match) return;
-    await message
-      .delete({
-        reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
-      })
-      .catch(() => {});
+    if (message.type != "AUTO_MODERATION_ACTION")
+      await message
+        .delete({
+          reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
+        })
+        .catch(() => {});
     if (message.guild.logIgnored.includes(message.channelId)) return;
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
       .setDescription(
         message.guild.language.get("FILTER_SHORT_LOG_DESCRIPTION", {
-          channel: message.channel.toString(),
-        }) as string
+          channel:
+            message.type == "AUTO_MODERATION_ACTION"
+              ? message.guild.channels.cache
+                  .get(
+                    message.embeds[0].fields.find((f) => f.name == "channel_id")
+                      .value
+                  )
+                  .toString()
+              : message.channel.toString(),
+        })
       )
       .setAuthor({
         name: message.author.toString(),
@@ -895,8 +1051,19 @@ export default class Filters extends Module {
         }),
       })
       .setFooter({ text: message.author.id });
-    await message.guild
-      .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
-      .catch(() => {});
+    if (
+      message.type == "AUTO_MODERATION_ACTION" &&
+      message.guild.members.me
+        .permissionsIn(message.channel as GuildChannelResolvable)
+        .has(
+          PermissionFlagsBits.SendMessages |
+            PermissionFlagsBits.ReadMessageHistory
+        )
+    )
+      await message.reply({ embeds: [embed] }).catch(() => {});
+    else
+      await message.guild
+        .actionLog(embed, ActionLogTypes.LINKFILTER_TRIGGERED)
+        .catch(() => {});
   }
 }
