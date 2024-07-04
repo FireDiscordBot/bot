@@ -114,7 +114,7 @@ export default class Message extends Listener {
         {
           message: `Token${tokens.length > 1 ? "s" : ""} found in ${
             message.guild ? "a server" : "DMs"
-          } sent by ${message.author.bot ? "a bot" : "a user"}`,
+          }, sent by ${message.author.bot ? "a bot" : "a user"}`,
           content: Buffer.from(tokens.join(" - ")).toString("base64"),
         },
         "json"
