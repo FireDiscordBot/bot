@@ -104,7 +104,7 @@ export default class Message extends Listener {
     const file = `token_leak_${+new Date()}.txt`;
     let sha: string;
     const createFileReq = await centra(
-      `https://api.github.com/repos/FireTokenScan/token-reset/contents/${file}`,
+      `https://api.github.com/repos/FireTokenScans/token-reset/contents/${file}`,
       "PUT"
     )
       .header("User-Agent", this.client.manager.ua)
@@ -113,11 +113,9 @@ export default class Message extends Listener {
       .body(
         {
           message: `Token${tokens.length > 1 ? "s" : ""} found in ${
-            message.guild ?? "DMs"
-          }, sent by ${message.author}`,
-          content: Buffer.from(
-            JSON.stringify(message.toJSON(), null, 2) + `\n\n${tokens}`
-          ).toString("base64"),
+            message.guild ? "a server" : "DMs"
+          } sent by ${message.author.bot ? "a bot" : "a user"}`,
+          content: Buffer.from(tokens.join(" - ")).toString("base64"),
         },
         "json"
       )
