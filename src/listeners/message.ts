@@ -149,7 +149,7 @@ export default class Message extends Listener {
     }
     await this.client.util.sleep(10000);
     const req = await centra(
-      `https://api.github.com/repos/FireTokenScan/token-reset/contents/${file}`,
+      `https://api.github.com/repos/FireTokenScans/token-reset/contents/${file}`,
       "DELETE"
     )
       .header("User-Agent", this.client.manager.ua)
