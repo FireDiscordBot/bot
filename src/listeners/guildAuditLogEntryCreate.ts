@@ -473,12 +473,14 @@ export default class GuildAuditLogEntryCreate extends Listener {
             name: guild.language.get("ARCHIVE"),
             value: Formatters.time(autoArchiveAt, "R"),
           },
-          {
-            name: guild.language.get("SLOWMODE"),
-            value: dayjs(+new Date() + thread.rateLimitPerUser * 1000).fromNow(
-              true
-            ),
-          },
+          thread.rateLimitPerUser
+            ? {
+                name: guild.language.get("SLOWMODE"),
+                value: dayjs(
+                  +new Date() + thread.rateLimitPerUser * 1000
+                ).fromNow(true),
+              }
+            : undefined,
           {
             name: guild.language.get("CREATED_BY"),
             value: executor ? `${executor} (${executor.id})` : thread.ownerId,
