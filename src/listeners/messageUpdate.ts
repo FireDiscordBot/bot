@@ -29,17 +29,6 @@ export default class MessageUpdate extends Listener {
 
     const messageListener = this.client.getListener("message") as Message;
 
-    let toSearch =
-      after.content +
-      after.embeds.map((embed) => JSON.stringify(embed)).join(" ");
-    if (
-      messageListener.tokenRegex.test(toSearch) &&
-      process.env.GITHUB_TOKENS_TOKEN
-    )
-      await messageListener.tokenReset(after, toSearch);
-
-    if (!guild) return;
-
     if (guild.starboardMessages?.has(after.id) && guild.starboard) {
       const currentStarboardMsg = await guild.starboard.messages
         .fetch(after.id)

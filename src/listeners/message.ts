@@ -4,16 +4,10 @@ import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
 import MCLogs from "@fire/src/modules/mclogs";
-import * as centra from "centra";
-import { APIMessage, PermissionFlagsBits } from "discord-api-types/v9";
-import { Snowflake, TextChannel } from "discord.js";
+import { APIMessage } from "discord-api-types/v9";
+import { Snowflake } from "discord.js";
 
-const { regexes, prodBotId } = constants;
-const tokenExtras = /(?:(?:  )?',(?: ')?\n?|  '|\s|\n)/gim;
-const snowflakeRegex = /\d{15,21}/gim;
-const tokenResetExcluded = [
-  "571661221854707713", // Assyst, spits out a fake token in eval which is separate to the bot
-];
+const { regexes } = constants;
 
 const cleanMap = {
   ":": [/\\:/gim],
@@ -55,112 +49,6 @@ export default class Message extends Listener {
       emitter: "client",
       event: "messageCreate",
     });
-    this.tokenRegex =
-      /[a-zA-Z0-9_-]{23,28}\.[a-zA-Z0-9_-]{6,7}\.[a-zA-Z0-9_-]{27,38}/gm;
-    this.recentTokens = [];
-  }
-
-  async tokenReset(message: FireMessage, foundIn: string) {
-    if (message.guild && process.env.NODE_ENV != "production") {
-      // check for prod bot
-      const member = await message.guild.members
-        .fetch(prodBotId)
-        .catch(() => {});
-      if (
-        member &&
-        member
-          .permissionsIn(message.channel as TextChannel)
-          .has([
-            PermissionFlagsBits.ViewChannel,
-            PermissionFlagsBits.ReadMessageHistory,
-          ])
-      )
-        return;
-    }
-    let tokens: string[] = [];
-    let exec: RegExpExecArray;
-    while ((exec = this.tokenRegex.exec(foundIn))) {
-      if (exec?.length && !this.recentTokens.includes(exec[0]))
-        tokens.push(exec[0]);
-    }
-    this.tokenRegex.lastIndex = 0;
-    for (let [index, token] of tokens.entries()) {
-      const original = (" " + token).trimStart(); // creates a deep copy
-      if (token.charAt(24) != ".")
-        token = original.slice(0, 24) + "." + original.slice(24);
-      if (token.charAt(31) != ".")
-        token =
-          (original.length >= 58 ? original : token).slice(0, 31) +
-          "." +
-          (original.length >= 58 ? original : token).slice(31);
-      if (token != original) tokens[index] = token;
-      const user = Buffer.from(token.split(".")[0], "base64").toString("ascii");
-      if (!snowflakeRegex.test(user)) delete tokens[index];
-      snowflakeRegex.lastIndex = 0;
-    }
-    tokens = tokens.filter((token) => !!token); // remove empty items
-    if (!tokens.length) return;
-    this.recentTokens.push(...tokens);
-    const file = `token_leak_${+new Date()}.txt`;
-    let sha: string;
-    const createFileReq = await centra(
-      `https://api.github.com/repos/FireTokenScans/token-reset/contents/${file}`,
-      "PUT"
-    )
-      .header("User-Agent", this.client.manager.ua)
-      .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
-      .header("X-GitHub-Api-Version", "2022-11-28")
-      .body(
-        {
-          message: `Token${tokens.length > 1 ? "s" : ""} found in ${
-            message.guild ? "a server" : "DMs"
-          }, sent by ${message.author.bot ? "a bot" : "a user"}`,
-          content: Buffer.from(tokens.join(" - ")).toString("base64"),
-        },
-        "json"
-      )
-      .send();
-    if (createFileReq.statusCode == 201) {
-      this.client.console.warn(
-        `[Listener] Uploaded file with ${tokens.length} tokens for user${
-          tokens.length > 1 ? "s" : ""
-        } ${tokens
-          .map((token) =>
-            Buffer.from(token.split(".")[0], "base64").toString("ascii")
-          )
-          .join(", ")}, found in message from ${message.author} in guild ${
-          message.guild?.name ?? "DMs"
-        } as ${file}`
-      );
-      const body = await createFileReq.json();
-      sha = body.content.sha;
-    } else {
-      this.client.console.error(
-        `[Listener] Failed to upload file with ${
-          tokens.length
-        } tokens for user${tokens.length > 1 ? "s" : ""} ${tokens
-          .map((token) =>
-            Buffer.from(token.split(".")[0], "base64").toString("ascii")
-          )
-          .join(", ")}, found in message from ${message.author} in guild ${
-          message.guild?.name ?? "DMs"
-        }`
-      );
-    }
-    await this.client.util.sleep(10000);
-    const req = await centra(
-      `https://api.github.com/repos/FireTokenScans/token-reset/contents/${file}`,
-      "DELETE"
-    )
-      .header("User-Agent", this.client.manager.ua)
-      .header("Authorization", `token ${process.env.GITHUB_TOKENS_TOKEN}`)
-      .header("X-GitHub-Api-Version", "2022-11-28")
-      .body({ message: `Delete ${file}`, sha }, "json")
-      .send();
-    if (req.statusCode != 200)
-      this.client.console.error(
-        `[Listener] Failed to delete token file ${file}`
-      );
   }
 
   async exec(message: FireMessage) {
@@ -177,8 +65,7 @@ export default class Message extends Listener {
       if (theyForgot && message.guild?.members.me?.permissions.has(67584n))
         await message
           .reply({
-            // random zws to stop helperboat responding, get fucked techno
-            content: "You forgo\u200bt the hyphen! It's Spider-Man*",
+            content: "You forgot the hyphen! It's Spider-Man*",
             allowedMentions: { users: [message.author.id] },
           })
           .catch(() => {});
@@ -198,20 +85,6 @@ export default class Message extends Listener {
 
     await message.runAntiFilters().catch(() => {});
     await message.runPhishFilters().catch(() => {});
-
-    if (!tokenResetExcluded.includes(message.author.id)) {
-      let toSearch = (
-        message.content +
-        message.embeds.map((embed) => JSON.stringify(embed)).join(" ") +
-        message.attachments
-          .map((attachment) => attachment.description)
-          .join(" ")
-      ).replace(tokenExtras, "");
-      if (this.tokenRegex.test(toSearch) && process.env.GITHUB_TOKENS_TOKEN) {
-        this.tokenRegex.lastIndex = 0;
-        await this.tokenReset(message, toSearch);
-      }
-    }
 
     if (
       (message.channelId == "888494860460515388" ||
