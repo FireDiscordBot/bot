@@ -14,7 +14,7 @@ export default class MessageUpdate extends Listener {
   }
 
   async exec(before: FireMessage, after: FireMessage) {
-    if (this.client.manager.id != 0 && !after.guild) return;
+    if (!after.guild) return;
     const guild = after.guild;
 
     // Ensures people get dehoisted/decancered even if
