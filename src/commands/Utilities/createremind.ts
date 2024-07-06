@@ -348,7 +348,9 @@ export default class RemindersCreate extends Command {
         )
         .setCustomId(`!snooze:${command.author.id}:${now}`)
         .setMinValues(1)
-        .addOptions(droptions.filter((o) => +o.value > now));
+        .addOptions(
+          droptions.filter((o) => o.value == "other" || +o.value > now)
+        );
       if (!parsed.length) dropdown.setMaxValues(1);
       const cancelSnowflake = SnowflakeUtil.generate();
       const cancelButton = new MessageButton()
