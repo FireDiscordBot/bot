@@ -1517,12 +1517,13 @@ export default class MCLogs extends Module {
         if (
           essential &&
           essential.partial == false &&
+          essential.version != "1.0.0" &&
           semverLessThan(essentialVersionToSemver(essential.version), "1.3.2-6")
         )
           currentSolutions.add(
             "- **You'll need to update Essential to the latest version. The game should prompt you to update before the crash occurs but if not," +
               " you can download the latest version from " +
-              "[the Essential website](<https://essential.gg/downloads>) or [Modrinth](<https://modrinth.com/mod/essential>)**"
+              "[the Essential website](<https://essential.gg/downloads>) (scroll down past the installer) or [Modrinth](<https://modrinth.com/mod/essential>)**"
           );
       }
     }
