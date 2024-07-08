@@ -189,6 +189,15 @@ This is caused by a new AMD driver update that appears to be a complete rewrite 
   This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead**`,
 };
 
+const builtInMods = [
+  "FML",
+  "mcp",
+  "Forge",
+  "minecraft",
+  "java",
+  "fabricloader",
+];
+
 export default class MCLogs extends Module {
   statsTask: NodeJS.Timeout;
   regexes: {
@@ -1982,7 +1991,8 @@ export default class MCLogs extends Module {
                       mcInfo.featherVersion
                     } ${mcInfo.loader.slice(8)}`
                   : mcInfo.loader?.trim(),
-              mods: mcInfo.mods.length,
+              mods: mcInfo.mods.filter((m) => !builtInMods.includes(m.modId))
+                .length,
             }
           )
         );
