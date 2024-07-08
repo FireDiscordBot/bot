@@ -275,7 +275,7 @@ export default class MCLogs extends Module {
       forgeModsTableEntry:
         /\s*(?<state>[ULCHIJADE]+)\s*\|\s*(?<modid>[a-z][a-z0-9_.-]{1,63})\s*\|\s*(?<version>[\w\-\+\.!\[\]]+)\s*\|\s*(?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\s*\|/gim,
       classicForgeModsEntry:
-        /(?<state>[ULCHIJADE]+)\s+(?<modid>[a-z][a-z0-9_.-]{1,63})\{(?<version>[\w\-\+\.!\[\]\*]+|@VER)\}\s+\[(?<name>[^\]]+)\]\s+\((?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\)\s*$/gim,
+        /(?<state>[ULCHIJADE]+)\s+(?<modid>[a-z][a-z0-9_' .-]{1,63})\{(?<version>[\w\-\+\.!\[\]\*]+|@VER)\}\s+\[(?<name>[^\]]+)\]\s+\((?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\)\s*$/gim,
       forgeValidModFile:
         /Found valid mod file (?<source>[\w\s\-\+\.'`!()\[\]]+\.jar) with {(?<modid>[a-z][a-z0-9_.-]{1,63}(?:,[a-z][a-z0-9_.-]{1,63})*)} mods - versions {(?<version>[\w\-\+\.!\[\]]+(?:,[\w\s\-\+\.!\[\]]+)*)}/gim,
       forgeDependenciesError:
