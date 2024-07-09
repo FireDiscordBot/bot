@@ -14,6 +14,7 @@ export default class AetherStats extends Module {
 
   async init() {
     if (!this.client.manager.ws) return;
+    await this.client.waitUntilReady();
     if (this.statsTask) clearInterval(this.statsTask);
     await this.sendStats();
     this.statsTask = setInterval(() => {
