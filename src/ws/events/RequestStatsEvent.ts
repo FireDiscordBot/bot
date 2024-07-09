@@ -11,6 +11,7 @@ export default class AliasSyncEvent extends Event {
 
   async run(_: unknown, nonce: string) {
     if (!this.manager.ws?.open) return;
+    await this.manager.client.waitUntilRawReady();
     const stats = await this.manager.client.util.getClusterStats();
     this.manager.ws.send(
       MessageUtil.encode(new Message(EventType.SEND_STATS, stats, nonce))

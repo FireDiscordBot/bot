@@ -144,6 +144,7 @@ export class Fire extends AkairoClient {
 
   // Private Utilities
   private readyWait: Promise<Fire>;
+  private rawReadyWait: Promise<Fire>;
 
   // temp until akairo stops being weird and reverting itself
   clearInterval: typeof clearInterval;
@@ -519,6 +520,15 @@ export class Fire extends AkairoClient {
       this.once("ready", () => resolve(this));
     });
     return this.readyWait;
+  }
+
+  waitUntilRawReady() {
+    if (this.rawReadyWait) return this.rawReadyWait;
+    this.rawReadyWait = new Promise((resolve) => {
+      if (!!this.readyAt) return resolve(this);
+      this.ws.once("READY", () => resolve(this));
+    });
+    return this.rawReadyWait;
   }
 
   isRunningCommand(user: FireMember | FireUser) {
