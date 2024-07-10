@@ -378,7 +378,7 @@ export default class MCLogs extends Module {
       forgeDependenciesError:
         /Mod ID: '(?<dep>[a-z][a-z0-9_.-]{1,63})', Requested by: '(?<requiredby>[a-z][a-z0-9_.-]{1,63})', Expected range: '[\(\[](?<low>[\w\.\-+]+),(?<high>[\w\.\-+]+)?[\)\]]', Actual version: '(?<actual>[\w\.\-+]+|\[MISSING\])'/gim,
       forgeDupedModsError:
-        /\tMod ID: '(?<modid>[a-z][a-z0-9_' .-]{1,63})' from mod files: (?<first>[\w\s\-\+\.'`!()\[\]]+\.jar(?:, )?), (?<second>[\w\s\-\+\.'`!()\[\]]+\.jar)/gim,
+        /\tMod ID: '(?<modid>[a-z][a-z0-9_' .-]{1,63})' from mod files: (?<sources>(?:(?:, )?[\w\s\-\+\.'`!()\[\]]+\.jar)*)/gim,
       fabricModsHeader:
         /\[main\/INFO]:? (?:\(FabricLoader\) )?Loading \d{1,4} mods:/gim,
       classicFabricModsEntry:
@@ -1136,10 +1136,10 @@ export default class MCLogs extends Module {
           dupedMods.shift()
         ))
       ) {
-        const { modid, first, second } = dupedModMatch.groups;
+        const { modid, sources } = dupedModMatch.groups;
         duplicateMods.push({
           modId: modid,
-          sources: [first, second] as ModSource[],
+          sources: sources.split(", ") as ModSource[],
         });
       }
     }
