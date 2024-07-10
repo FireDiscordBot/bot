@@ -78,6 +78,7 @@ export default class VerifyEssentialMod extends Command {
     if (!args?.hash)
       return await command.error("VERIFY_ESSENTIAL_MOD_NO_ARGUMENTS");
     const file = await this.getEssentialFileForChecksum(args.hash);
+    if (!file) return await command.error("VERIFY_ESSENTIAL_MOD_INVALID_HASH");
     return await command.channel.send({
       embeds: [this.getFileEmbed(file, command)],
     });
