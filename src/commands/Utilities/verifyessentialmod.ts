@@ -56,6 +56,8 @@ export default class VerifyEssentialMod extends Command {
       enableSlashCommand: true,
       restrictTo: "guild",
       slashOnly: true,
+      ephemeral: true,
+      deferAnyways: false,
     });
     this.essentialOrgId = "61853a125d653656b5e732b8";
   }
@@ -71,6 +73,8 @@ export default class VerifyEssentialMod extends Command {
   }
 
   async runSlash(command: ApplicationCommandMessage, args?: CommandArgs) {
+    if ((command.flags & 64) == 64) command.flags -= 64;
+    await command.channel.ack(false);
     if (!args?.hash)
       return await command.error("VERIFY_ESSENTIAL_MOD_NO_ARGUMENTS");
     const file = await this.getEssentialFileForChecksum(args.hash);
@@ -80,6 +84,7 @@ export default class VerifyEssentialMod extends Command {
   }
 
   async runContext(command: ContextCommandMessage) {
+    await command.channel.ack(true);
     const message = command.getMessage(false);
     if (!message) return await command.error("VERIFY_ESSENTIAL_MOD_NO_MESSAGE");
     if (!message.attachments.size)
@@ -118,6 +123,9 @@ export default class VerifyEssentialMod extends Command {
       return await command.error("VERIFY_ESSENTIAL_MOD_NO_VALID_FILES");
 
     await message.reply({ embeds });
+    return await command.success(
+      "VERIFY_ESSENTIAL_MOD_VALID_FOUND_AND_REPLIED"
+    );
   }
 
   private async getEssentialFileForChecksum(checksum: string) {

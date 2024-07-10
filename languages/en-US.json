@@ -1501,6 +1501,7 @@
   "VERIFY_ESSENTIAL_MOD_VERSIONS": "Versions",
   "VERIFY_ESSENTIAL_MOD_PLATFORMS": "Platforms",
   "VERIFY_ESSENTIAL_MOD_BRANCHES": "Branches",
+  "VERIFY_ESSENTIAL_MOD_VALID_FOUND_AND_REPLIED": "I found a valid version(s) in that message and have replied to it with details",
   "WARN_FAILED_ENTRY": "User was not warned due to an error logging the warn",
   "WARN_LOG_AUTHOR": "Warn | {{user}}",
   "WARN_LOG_DM_FAIL": "Unable to send DM, user was not warned.",
