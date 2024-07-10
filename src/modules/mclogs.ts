@@ -156,6 +156,7 @@ type VersionInfo = {
   javaVersion: string;
   jvmType: string;
   mods: ModInfo[];
+  duplicateMods: DupedModsData[];
 };
 type ForgeClassicModStateChars =
   | "U"
@@ -230,6 +231,10 @@ type DependencyInfo = {
   requiredVersion: string;
   actual: string;
 };
+type DupedModsData = {
+  modId: string;
+  sources: ModSource[];
+};
 
 const classicForgeModsHeader =
   "States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored";
@@ -238,6 +243,7 @@ const forgeDependenciesErrors = [
   "[main/ERROR]: Missing or unsupported mandatory dependencies:",
   "[main/ERROR] [net.minecraftforge.fml.loading.ModSorter/LOADING]: Missing or unsupported mandatory dependencies:",
 ];
+const forgeDupedModsErrors = ["[main/ERROR]: Found duplicate mods:"];
 const missingDep = "[MISSING]";
 
 const crashReportHeader = "---- Minecraft Crash Report ----";
@@ -298,6 +304,7 @@ export default class MCLogs extends Module {
     classicForgeModsEntry: RegExp;
     forgeValidModFile: RegExp;
     forgeDependenciesError: RegExp;
+    forgeDupedModsError: RegExp;
     fabricModsHeader: RegExp;
     classicFabricModsEntry: RegExp;
     fabricModsEntry: RegExp;
@@ -370,6 +377,8 @@ export default class MCLogs extends Module {
         /Found valid mod file (?<source>[\w\s\-\+\.'`!()\[\]]+\.jar) with {(?<modid>[a-z][a-z0-9_.-]{1,63}(?:,[a-z][a-z0-9_.-]{1,63})*)} mods - versions {(?<version>[\w\-\+\.!\[\]]+(?:,[\w\s\-\+\.!\[\]]+)*)}/gim,
       forgeDependenciesError:
         /Mod ID: '(?<dep>[a-z][a-z0-9_.-]{1,63})', Requested by: '(?<requiredby>[a-z][a-z0-9_.-]{1,63})', Expected range: '[\(\[](?<low>[\w\.\-+]+),(?<high>[\w\.\-+]+)?[\)\]]', Actual version: '(?<actual>[\w\.\-+]+|\[MISSING\])'/gim,
+      forgeDupedModsError:
+        /\tMod ID: '(?<modid>[a-z][a-z0-9_' .-]{1,63})' from mod files: (?<first>[\w\s\-\+\.'`!()\[\]]+\.jar(?:, )?), (?<second>[\w\s\-\+\.'`!()\[\]]+\.jar)/gim,
       fabricModsHeader:
         /\[main\/INFO]:? (?:\(FabricLoader\) )?Loading \d{1,4} mods:/gim,
       classicFabricModsEntry:
@@ -708,6 +717,7 @@ export default class MCLogs extends Module {
       optifineVersion: string,
       featherVersion: string,
       mods: ModInfo[] = [],
+      duplicateMods: DupedModsData[] = [],
       javaVersion: string,
       javaVendor: string;
 
@@ -1075,7 +1085,7 @@ export default class MCLogs extends Module {
       forgeDependenciesErrors.some((e) => log.includes(e))
     ) {
       const dependenciesErrorIndex = splitLog.findIndex((v) =>
-        forgeDependenciesErrors.some((e) => v.endsWith(e))
+        forgeDependenciesErrors.some((e) => v.trim().endsWith(e))
       );
       const dependencyErrors = splitLog.slice(dependenciesErrorIndex + 1); // start with first item
       let depErrorMatch: RegExpExecArray;
@@ -1109,6 +1119,28 @@ export default class MCLogs extends Module {
             ],
             partial: true,
           });
+      }
+    }
+
+    if (
+      loader == Loaders.FORGE &&
+      forgeDupedModsErrors.some((e) => log.includes(e))
+    ) {
+      const dupedModsErrorIndex = splitLog.findIndex((v) =>
+        forgeDupedModsErrors.some((e) => v.trim().endsWith(e))
+      );
+      const dupedMods = splitLog.slice(dupedModsErrorIndex + 1); // start with first item
+      let dupedModMatch: RegExpExecArray;
+      while (
+        (dupedModMatch = this.regexes.forgeDupedModsError.exec(
+          dupedMods.shift()
+        ))
+      ) {
+        const { modid, first, second } = dupedModMatch.groups;
+        duplicateMods.push({
+          modId: modid,
+          sources: [first, second] as ModSource[],
+        });
       }
     }
 
@@ -1209,6 +1241,7 @@ export default class MCLogs extends Module {
       javaVersion,
       jvmType: javaVendor,
       mods,
+      duplicateMods,
     };
   }
 
@@ -1402,6 +1435,15 @@ export default class MCLogs extends Module {
         if (logLower.includes(err.toLowerCase()))
           currentSolutions.add(`- **${sol}**`);
       }
+
+    if (versions.duplicateMods.length)
+      for (const dupe of versions.duplicateMods)
+        currentSolutions.add(
+          `- **${language.get("MC_LOG_DUPE_MOD", {
+            mod: dupe.modId,
+            sources: dupe.sources.map((s) => `\`${s}\``).join(", "),
+          })}**`
+        );
 
     for (const [err, sol] of Object.entries(this.bgs.solutions)) {
       if (logLower.includes(err.toLowerCase()))
