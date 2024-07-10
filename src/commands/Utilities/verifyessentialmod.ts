@@ -117,7 +117,7 @@ export default class VerifyEssentialMod extends Command {
     if (!embeds.length)
       return await command.error("VERIFY_ESSENTIAL_MOD_NO_VALID_FILES");
 
-    await command.channel.send({ embeds });
+    await message.reply({ embeds });
   }
 
   private async getEssentialFileForChecksum(checksum: string) {
