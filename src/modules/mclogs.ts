@@ -70,6 +70,56 @@ const ESSENTIAL_TO_SEMVER_REGEX = /(?<main>\d\.\d\.\d)(\.(?<last>\d))/gim;
 const essentialVersionToSemver = (version: string) =>
   version.replace(ESSENTIAL_TO_SEMVER_REGEX, "$1-$3");
 
+const cleanModVersion = (
+  version: string,
+  mcVer: string,
+  loader: ModLoaders
+) => {
+  const versionBase = `${mcVer
+    .split("-pre")[0]
+    .split("-rc")[0]
+    .split(".")
+    .filter((_, index) => index != 2)
+    .join(".")}`;
+  const versionRange = `${versionBase}.x`;
+  const patchVersions = `${versionBase.replace(".", "\\.")}\.\\d{1,2}`;
+  const patchVersionsRegex = new RegExp(
+    `-${patchVersions}-|-${patchVersions}|${patchVersions}-`,
+    "gim"
+  );
+  return version
+    .replace(`mc${mcVer}-`, "")
+    .replace(`-for-${mcVer}`, "")
+    .replace(`+${mcVer}`, "")
+    .replace(`+mc${mcVer}`, "")
+    .replace(`${mcVer}-`, "")
+    .replace(`${mcVer} - `, "")
+    .replace(`-${mcVer}`, "")
+    .replace(`- ${mcVer}`, "")
+    .replace(`+mc${versionBase}`, "")
+    .replace(`mc${versionBase}-`, "")
+    .replace(`-for-${versionBase}`, "")
+    .replace(`+${versionBase}`, "")
+    .replace(`${versionBase}-`, "")
+    .replace(`${versionBase} - `, "")
+    .replace(`-${versionBase}`, "")
+    .replace(`- ${versionBase}`, "")
+    .replace(`mc${versionRange}-`, "")
+    .replace(`-for-${versionRange}`, "")
+    .replace(`+${versionRange}`, "")
+    .replace(`+mc${versionRange}`, "")
+    .replace(`${versionRange}-`, "")
+    .replace(`${versionRange} - `, "")
+    .replace(`-${versionRange}`, "")
+    .replace(`- ${versionRange}`, "")
+    .replace(patchVersionsRegex, "")
+    .replace(`-${loader}`, "")
+    .replace(`-${loader.toLowerCase()}`, "")
+    .replace(`${loader}-`, "")
+    .replace(`${loader.toLowerCase()}-`, "")
+    .trim();
+};
+
 type ModSource = `${string}.jar`;
 
 export type MinecraftVersion =
@@ -107,9 +157,34 @@ type VersionInfo = {
   jvmType: string;
   mods: ModInfo[];
 };
+type ForgeClassicModStateChars =
+  | "U"
+  | "L"
+  | "C"
+  | "H"
+  | "I"
+  | "J"
+  | "A"
+  | "D"
+  | "E";
+type ForgeClassicModState =
+  `${ForgeClassicModStateChars}${ForgeClassicModStateChars}*`;
+type ForgeModState =
+  | "Unknown"
+  | ForgeClassicModState
+  | "ERROR"
+  | "VALIDATE"
+  | "CONSTRUCT"
+  | "COMMON_SETUP"
+  | "SIDED_SETUP"
+  | "ENQUEUE_IMC"
+  | "PROCESS_IMC"
+  | "COMPLETE"
+  | "DONE";
 type ForgeModNonPartial = {
-  state: string;
+  state: ForgeModState;
   modId: string;
+  name?: string; // not always included
   version: string;
   source: ModSource;
   erroredDependencies: DependencyInfo[];
@@ -118,6 +193,7 @@ type ForgeModNonPartial = {
 type ForgeEssentialMod = {
   state: string;
   modId: "essential" | "essential-container";
+  name: "Essential";
   commit: string;
   branch: string;
   version: string;
@@ -157,6 +233,7 @@ type DependencyInfo = {
 
 const classicForgeModsHeader =
   "States: 'U' = Unloaded 'L' = Loaded 'C' = Constructed 'H' = Pre-initialized 'I' = Initialized 'J' = Post-initialized 'A' = Available 'D' = Disabled 'E' = Errored";
+const forgeModsListHeader = "\tMod List: ";
 const forgeDependenciesErrors = [
   "[main/ERROR]: Missing or unsupported mandatory dependencies:",
   "[main/ERROR] [net.minecraftforge.fml.loading.ModSorter/LOADING]: Missing or unsupported mandatory dependencies:",
@@ -217,6 +294,7 @@ export default class MCLogs extends Module {
     loaderVersions: LoaderRegexConfig[];
     forgeModsTableHeader: RegExp;
     forgeModsTableEntry: RegExp;
+    forgeModsListEntry: RegExp;
     classicForgeModsEntry: RegExp;
     forgeValidModFile: RegExp;
     forgeDependenciesError: RegExp;
@@ -282,7 +360,10 @@ export default class MCLogs extends Module {
       forgeModsTableHeader:
         /\|\sState\s*\|\sID\s*\|\sVersion\s*\|\sSource\s*\|(?:\sSignature\s*\|)?/gim,
       forgeModsTableEntry:
-        /\s*(?<state>[ULCHIJADE]+)\s*\|\s*(?<modid>[a-z][a-z0-9_.-]{1,63})\s*\|\s*(?<version>[\w\-\+\.!\[\]]+)\s*\|\s*(?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\s*\|/gim,
+        /\s*(?<state>[ULCHIJADE]+)\s*\|\s*(?<modid>[a-z][a-z0-9_' .-]{1,63})\s*\|\s*(?<version>[\w\-\+\.!\[\]]+)\s*\|\s*(?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\s*\|/gim,
+      forgeModsListEntry:
+        // source's ".jar" is optional here since it can be cut off with very long file names
+        /\t{2}(?<source>[\w\s\-\+\.'`!()\[\]]+(?:\.jar)?)\s*\|(?<name>[^|]*)\s*\|(?<modid>[a-z][a-z0-9_' .-]{1,63})\|(?<version>[\w\-\+\.!\[\] ]+)\s*\|(?<state>ERROR|VALIDATE|CONSTRUCT|COMMON_SETUP|SIDED_SETUP|ENQUEUE_IMC|PROCESS_IMC|COMPLETE|DONE)\s*\|/gim,
       classicForgeModsEntry:
         /(?<state>[ULCHIJADE]+)\s+(?<modid>[a-z][a-z0-9_' .-]{1,63})\{(?<version>[\w\-\+\.!\[\]\*]+|@VER)\}\s+\[(?<name>[^\]]+)\]\s+\((?<source>[\w\s\-\+\.'`!()\[\]]+\.jar)\)\s*$/gim,
       forgeValidModFile:
@@ -695,6 +776,7 @@ export default class MCLogs extends Module {
           mods.push({
             state: "Unknown",
             modId: "optifine",
+            name: "Optifine",
             version: optifineVersion,
             source: `${optifineMatch[0]}.jar`,
             erroredDependencies: [],
@@ -722,15 +804,44 @@ export default class MCLogs extends Module {
         this.regexes.forgeModsTableEntry.lastIndex = 0;
         if (!mods.find((i) => i.modId == modMatch.groups.modid))
           mods.push({
-            state: modMatch.groups.state,
-            modId: modMatch.groups.modid,
-            version: modMatch.groups.version,
-            source: modMatch.groups.source as ModSource,
+            state: modMatch.groups.state as ForgeModState,
+            modId: modMatch.groups.modid.trim(),
+            version: cleanModVersion(
+              modMatch.groups.version.trim(),
+              mcVersion,
+              "Forge"
+            ),
+            source: modMatch.groups.source.trim() as ModSource,
             erroredDependencies: [],
             partial: false,
           });
       }
       this.regexes.forgeModsTableHeader.lastIndex = 0;
+    } else if (loader == Loaders.FORGE && log.includes(forgeModsListHeader)) {
+      const modsListIndex = splitLog.findIndex((v) =>
+        v.includes(forgeModsListHeader)
+      );
+      const modsList = splitLog.slice(modsListIndex + 1); // start at mods list, while loop should stop at end
+      let modMatch: RegExpExecArray;
+      while (
+        (modMatch = this.regexes.forgeModsListEntry.exec(modsList.shift()))
+      ) {
+        this.regexes.forgeModsListEntry.lastIndex = 0;
+        if (!mods.find((i) => i.modId == modMatch.groups.modid.trim()))
+          mods.push({
+            state: modMatch.groups.state.trim() as ForgeModState,
+            modId: modMatch.groups.modid.trim(),
+            name: modMatch.groups.name.trim() || undefined,
+            version: cleanModVersion(
+              modMatch.groups.version.trim(),
+              mcVersion,
+              "Forge"
+            ),
+            source: modMatch.groups.source.trim() as ModSource,
+            erroredDependencies: [],
+            partial: false,
+          });
+      }
     } else if (
       loader == Loaders.FORGE &&
       log.includes(classicForgeModsHeader)
@@ -746,10 +857,15 @@ export default class MCLogs extends Module {
         this.regexes.classicForgeModsEntry.lastIndex = 0;
         if (!mods.find((i) => i.modId == modMatch.groups.modid))
           mods.push({
-            state: modMatch.groups.state,
-            modId: modMatch.groups.modid,
-            version: modMatch.groups.version,
-            source: modMatch.groups.source as ModSource,
+            state: modMatch.groups.state as ForgeModState,
+            modId: modMatch.groups.modid.trim(),
+            name: modMatch.groups.name.trim() || undefined,
+            version: cleanModVersion(
+              modMatch.groups.version.trim(),
+              mcVersion,
+              "Forge"
+            ),
+            source: modMatch.groups.source.trim() as ModSource,
             erroredDependencies: [],
             partial: false,
           });
@@ -771,7 +887,7 @@ export default class MCLogs extends Module {
               mods.push({
                 state: "Unknown",
                 modId,
-                version: versions[index],
+                version: cleanModVersion(versions[index], mcVersion, "Forge"),
                 source: modMatch.groups.source as ModSource,
                 erroredDependencies: [],
                 partial: false,
@@ -781,7 +897,7 @@ export default class MCLogs extends Module {
             mods.push({
               state: "Unknown",
               modId: modIds[0],
-              version: versions[0],
+              version: cleanModVersion(versions[0], mcVersion, "Forge"),
               source: modMatch.groups.source as ModSource,
               erroredDependencies: [],
               partial: false,
@@ -790,7 +906,11 @@ export default class MCLogs extends Module {
           mods.push({
             state: "Unknown",
             modId: modMatch.groups.modid,
-            version: modMatch.groups.version,
+            version: cleanModVersion(
+              modMatch.groups.version,
+              mcVersion,
+              "Forge"
+            ),
             source: modMatch.groups.source as ModSource,
             erroredDependencies: [],
             partial: false,
@@ -823,7 +943,11 @@ export default class MCLogs extends Module {
               if (parentMod && "subMods" in parentMod)
                 parentMod.subMods.push({
                   modId: modMatch.groups.modid,
-                  version: modMatch.groups.version,
+                  version: cleanModVersion(
+                    modMatch.groups.version,
+                    mcVersion,
+                    "Fabric"
+                  ),
                   subMods: [], // don't think it can have any but this is just to make TS happy
                   partial: false,
                 });
@@ -832,7 +956,11 @@ export default class MCLogs extends Module {
                 if (!tempSubMods[via]) tempSubMods[via] = [];
                 tempSubMods[via].push({
                   modId: modMatch.groups.modid,
-                  version: modMatch.groups.version,
+                  version: cleanModVersion(
+                    modMatch.groups.version,
+                    mcVersion,
+                    "Fabric"
+                  ),
                   subMods: [],
                   partial: false,
                 });
@@ -840,7 +968,11 @@ export default class MCLogs extends Module {
             } else {
               mods.push({
                 modId: modMatch.groups.modid,
-                version: modMatch.groups.version,
+                version: cleanModVersion(
+                  modMatch.groups.version,
+                  mcVersion,
+                  "Fabric"
+                ),
                 subMods: tempSubMods[modMatch.groups.modid] || [],
                 partial: false,
               });
@@ -869,14 +1001,22 @@ export default class MCLogs extends Module {
             if (parentMod && "subMods" in parentMod)
               parentMod.subMods.push({
                 modId: modMatch.groups.modid,
-                version: modMatch.groups.version,
+                version: cleanModVersion(
+                  modMatch.groups.version,
+                  mcVersion,
+                  "Fabric"
+                ),
                 subMods: [],
                 partial: false,
               });
           } else if (!mods.find((i) => i.modId == modMatch.groups.modid))
             mods.push({
               modId: modMatch.groups.modid,
-              version: modMatch.groups.version,
+              version: cleanModVersion(
+                modMatch.groups.version,
+                mcVersion,
+                "Fabric"
+              ),
               subMods: [],
               partial: false,
             });
@@ -900,7 +1040,11 @@ export default class MCLogs extends Module {
         if (!mods.find((i) => i.modId == modMatch.groups.modid))
           mods.push({
             modId: modMatch.groups.modid,
-            version: modMatch.groups.version,
+            version: cleanModVersion(
+              modMatch.groups.version,
+              mcVersion,
+              "Fabric"
+            ),
             subMods: [],
             partial: false,
           });
@@ -914,7 +1058,11 @@ export default class MCLogs extends Module {
           if (parentMod && "subMods" in parentMod)
             parentMod.subMods.push({
               modId: subModMatch.groups.modid,
-              version: subModMatch.groups.version,
+              version: cleanModVersion(
+                subModMatch.groups.version,
+                mcVersion,
+                "Fabric"
+              ),
               subMods: [],
               partial: false,
             });
@@ -996,6 +1144,7 @@ export default class MCLogs extends Module {
             ? ({
                 state: "Unknown",
                 modId: "essential",
+                name: "Essential",
                 version,
                 commit,
                 branch,
