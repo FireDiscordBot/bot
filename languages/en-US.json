@@ -1496,7 +1496,7 @@
   "VERIFY_ESSENTIAL_MOD_TITLE_PINNED": "Valid Essential Pinned Jar Found",
   "VERIFY_ESSENTIAL_MOD_TITLE_STAGE2": "Valid Essential Stage 2 Jar Found",
   "VERIFY_ESSENTIAL_MOD_TITLE_CONTAINER": "Valid Essential Container Jar Found",
-  "VERIFY_ESSENTIAL_MOD_FOOTER": "Filename: {{fileName}} | Attachment ID: {{id}}",
+  "VERIFY_ESSENTIAL_MOD_FOOTER": "Filename: {{fileName}} | Attachment ID: {{id}} | Requested By: {{author}}",
   "VERIFY_ESSENTIAL_MOD_VERSION": "Version",
   "VERIFY_ESSENTIAL_MOD_VERSIONS": "Versions",
   "VERIFY_ESSENTIAL_MOD_PLATFORMS": "Platforms",

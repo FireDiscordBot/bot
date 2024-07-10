@@ -199,6 +199,12 @@ export default class VerifyEssentialMod extends Command {
         text: command.language.get("VERIFY_ESSENTIAL_MOD_FOOTER", {
           fileName: attachment.name,
           id: attachment.id,
+          author: command.author.id,
+        }),
+        iconURL: command.author.displayAvatarURL({
+          size: 2048,
+          format: "png",
+          dynamic: true,
         }),
       });
     return embed;
