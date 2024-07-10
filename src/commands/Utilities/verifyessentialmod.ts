@@ -51,7 +51,7 @@ export default class VerifyEssentialMod extends Command {
           required: false,
         },
       ],
-      guilds: ["564052798044504084", "864592657572560958"],
+      guilds: ["864592657572560958"],
       context: ["verify mod file"],
       enableSlashCommand: true,
       restrictTo: "guild",
