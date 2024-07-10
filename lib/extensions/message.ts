@@ -788,23 +788,35 @@ export class FireMessage extends Message {
           e.code == 50035 &&
           e.message.includes("Username cannot contain")
         ) {
+          usernameOverride = username;
           const blockedUsername = regexes.blockedUsername.exec(e.message)?.[1];
           regexes.blockedUsername.lastIndex = 0;
           if (blockedUsername) {
-            const usernameIndex = username
-              .toLowerCase()
-              .indexOf(blockedUsername.toLowerCase());
-            const matchedUsername = username.slice(
-              usernameIndex,
-              blockedUsername.length
-            );
+            while (
+              usernameOverride
+                .toLowerCase()
+                .includes(blockedUsername.toLowerCase())
+            ) {
+              const usernameIndex = usernameOverride
+                .toLowerCase()
+                .indexOf(blockedUsername.toLowerCase());
+              const matchedUsername = usernameOverride.slice(
+                usernameIndex,
+                usernameIndex + blockedUsername.length
+              );
+              if (matchedUsername)
+                usernameOverride = usernameOverride.replaceAll(
+                  matchedUsername,
+                  "[blocked]"
+                );
+            }
             return await this.webhookQuote(
               destination,
               quoter,
               webhook,
               thread,
               debug,
-              username.replace(matchedUsername, "[blocked]")
+              usernameOverride
             );
           }
         }
