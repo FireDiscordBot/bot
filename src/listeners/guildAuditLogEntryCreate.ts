@@ -445,7 +445,10 @@ export default class GuildAuditLogEntryCreate extends Listener {
     const thread =
       parent?.threads.cache.get(auditLogEntry.targetId) ??
       // we should never need this, but just in case...
-      ((await guild.channels.fetch(auditLogEntry.targetId)) as ThreadChannel);
+      ((await guild.channels
+        .fetch(auditLogEntry.targetId)
+        .catch(() => {})) as ThreadChannel);
+    if (!thread) return; // probably private and missing perms
     if (!parent && thread.parent) parent = thread.parent; // might get it from fetch
 
     const autoArchiveDuration =
@@ -729,7 +732,10 @@ export default class GuildAuditLogEntryCreate extends Listener {
     const thread =
       parent?.threads.cache.get(auditLogEntry.targetId) ??
       // we should never need this, but just in case...
-      ((await guild.channels.fetch(auditLogEntry.targetId)) as ThreadChannel);
+      ((await guild.channels
+        .fetch(auditLogEntry.targetId)
+        .catch(() => {})) as ThreadChannel);
+    if (!thread) return; // probably private and missing perms
     if (!parent && thread.parent) parent = thread.parent; // might get it from fetch
 
     const embed = new MessageEmbed()
