@@ -114,7 +114,8 @@ export default class GuildMemberUpdate extends Listener {
         await command.sendLog(
           newMember,
           roles,
-          newMember.guild.members.me as FireMember
+          newMember.guild.members.me as FireMember,
+          newMember.guild.language.get("ROLEPERSIST_AUTO_REMOVE_REASON")
         );
       }
     }

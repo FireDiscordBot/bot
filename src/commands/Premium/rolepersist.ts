@@ -6,6 +6,13 @@ import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import { MessageEmbed, Role } from "discord.js";
 
+// TODO: create modlog entry first, block if failed
+// this is the vehavior moderation commands follow
+// and even though this is in the premium category
+// it should still be treated as one
+
+// also needs a general code cleanup too but effort
+
 export default class RolePersist extends Command {
   constructor() {
     super("rolepersist", {
@@ -30,6 +37,15 @@ export default class RolePersist extends Command {
             language.get("ROLEPERSIST_ARGUMENT_ROLE_DESCRIPTION"),
           default: undefined,
         },
+        {
+          id: "reason",
+          type: "string",
+          description: (language: Language) =>
+            language.get("ROLEPERSIST_ARGUMENT_REASON_DESCRIPTION"),
+          required: false,
+          default: null,
+          match: "rest",
+        },
       ],
       enableSlashCommand: true,
       restrictTo: "guild",
@@ -41,7 +57,7 @@ export default class RolePersist extends Command {
 
   async run(
     message: ApplicationCommandMessage,
-    args: { user: FireMember; role: Role }
+    args: { user: FireMember; role: Role; reason?: string }
   ) {
     if (
       args.role &&
@@ -91,7 +107,13 @@ export default class RolePersist extends Command {
       await args.user.roles
         .add(roles, message.guild.language.get("ROLEPERSIST_REASON"))
         .catch(() => {});
-      await this.sendLog(args.user, roles, message.member).catch(() => {});
+      await this.sendLog(
+        args.user,
+        roles,
+        message.member,
+        args.reason ??
+          message.guild.language.get("MODERATOR_ACTION_DEFAULT_REASON")
+      ).catch(() => {});
     }
     return added &&
       (added.status.startsWith("INSERT") || added.status.startsWith("UPDATE"))
@@ -105,19 +127,14 @@ export default class RolePersist extends Command {
       : await message.error("ROLEPERSIST_FAILED");
   }
 
-  async sendLog(member: FireMember, roles: Role[], moderator: FireMember) {
+  async sendLog(
+    member: FireMember,
+    roles: Role[],
+    moderator: FireMember,
+    reason: string
+  ) {
     await member.guild
-      .createModLogEntry(
-        member,
-        moderator,
-        ModLogTypes.ROLE_PERSIST,
-        member.guild.language.get(
-          roles.length
-            ? "ROLEPERSIST_MODLOG_REASON"
-            : "ROLEPERSIST_REMOVE_MODLOG_REASON",
-          { roles: roles.map((role) => role.name).join(", ") }
-        ) as string
-      )
+      .createModLogEntry(member, moderator, ModLogTypes.ROLE_PERSIST, reason)
       .catch(() => {});
     const embed = new MessageEmbed()
       .setTimestamp()
@@ -132,13 +149,22 @@ export default class RolePersist extends Command {
           dynamic: true,
         }),
       })
-      .addField(member.guild.language.get("MODERATOR"), moderator.toString())
+      .addFields([
+        {
+          name: member.guild.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        {
+          name: member.guild.language.get("REASON"),
+          value: reason,
+        },
+      ])
       .setFooter({ text: `${member.id} | ${moderator.id}` });
     if (roles.length)
-      embed.addField(
-        member.guild.language.get("ROLES"),
-        roles.map((role) => role.toString()).join(" - ")
-      );
+      embed.addFields({
+        name: member.guild.language.get("ROLES"),
+        value: roles.map((role) => role.toString()).join(" - "),
+      });
     return await member.guild
       .modLog(embed, ModLogTypes.ROLE_PERSIST)
       .catch(() => {});
