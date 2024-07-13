@@ -38,7 +38,8 @@ export default class VerifyEssentialMod extends Command {
   essentialOrgId: string;
 
   constructor() {
-    super("verify-essential-mod", {
+    // renamed from verify to check because "users are retarded"
+    super("check-essential-mod", {
       description: (language: Language) =>
         language.get("VERIFY_ESSENTIAL_MOD_COMMAND_DESCRIPTION"),
       args: [
