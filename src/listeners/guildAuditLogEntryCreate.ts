@@ -975,9 +975,12 @@ export default class GuildAuditLogEntryCreate extends Listener {
       // if we're here, the channel was already evicted from the cache
       // so we need to construct an object with the data we need
       name: auditLogEntry.target.name as string,
-      type: ReverseChannelTypes[
-        auditLogEntry.target.type as number
-      ] as keyof typeof ChannelTypes,
+      type:
+        // type can be missing here for some reason
+        // so we'll just default to public thread
+        (ReverseChannelTypes[
+          auditLogEntry.target.type as number
+        ] as keyof typeof ChannelTypes) ?? "GUILD_PUBLIC_THREAD",
       archived:
         "archived" in auditLogEntry.target
           ? (auditLogEntry.target.archived as boolean)
