@@ -547,7 +547,7 @@ export class Command extends AkairoCommand {
             if (mustBeMember.includes(arg.type?.toString()) && hasGuild)
               try {
                 args[arg.id] =
-                  interaction.options.getMember(name, required) ?? arg.default;
+                  interaction.options.getMember(name, true) ?? arg.default;
               } catch (e) {
                 if (
                   e instanceof TypeError &&

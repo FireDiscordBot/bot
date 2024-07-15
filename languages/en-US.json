@@ -1164,6 +1164,7 @@
   "ROLEPERSIST_ARGUMENT_USER_DESCRIPTION": "The user who will have the role persisted to them",
   "ROLEPERSIST_ARGUMENT_ROLE_DESCRIPTION": "The role that will be persisted to the user",
   "ROLEPERSIST_ARGUMENT_REASON_DESCRIPTION": "The reason for persisting the role to this user",
+  "ROLEPERSIST_MISSING_USER": "The user you provided is either invalid or missing",
   "ROLEPERSIST_ROLE_INVALID": "I am unable to persist this role. It must be lower than my top role & your top role, not managed & not the everyone role",
   "ROLEPERSIST_SELF": "You cannot persist roles to yourself!",
   "ROLEPERSIST_GOD": "You cannot persist roles to someone higher than yourself",

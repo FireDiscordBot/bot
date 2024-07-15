@@ -59,6 +59,8 @@ export default class RolePersist extends Command {
     message: ApplicationCommandMessage,
     args: { user: FireMember; role: Role; reason?: string }
   ) {
+    if (!args.user) return await message.error("ROLEPERSIST_MISSING_USER");
+
     if (
       args.role &&
       (args.role.managed ||
