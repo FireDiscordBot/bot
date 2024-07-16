@@ -11,7 +11,15 @@ const { regexes } = constants;
 
 const cleanMap = {
   ":": [/\\:/gim],
-  ".": [/\\\./gim, /\(\.\)/gim, /dot/gim, /\/\./gim, /\[\.\]/gim],
+  ".": [
+    /\\\./gim,
+    /\(\.\)/gim,
+    /dot/gim,
+    /\/\./gim,
+    /\[\.\]/gim,
+    /\s*\./gim,
+    /\.\s*/gim,
+  ],
   "/": [/\.\//gim, /\\\/\//gim, /\\\//gim, /slash/gim, /\\/gim, /\s\//gim],
   "": [regexes.zws, regexes.protocol, regexes.symbol, /(\*|_|\|)/gim],
   com: [/c.m/gim],
