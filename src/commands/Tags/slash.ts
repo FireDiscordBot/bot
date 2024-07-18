@@ -51,7 +51,13 @@ export default class TagSlash extends Command {
       message.guild.tags = new GuildTagManager(this.client, message.guild);
       await message.guild.tags.init();
     }
-    if (message.guild.tags.names.some((name) => !nameRegex.test(name)))
+    if (
+      message.guild.tags.names.some((name) => {
+        const test = !nameRegex.test(name);
+        nameRegex.lastIndex = 0;
+        return test;
+      })
+    )
       return await message.error("TAG_SLASH_NAME_INVALID");
     if (!current) {
       const prepared = await message.guild.tags?.prepareSlashCommands();
