@@ -2,12 +2,9 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
 import { Command } from "@fire/lib/util/command";
-import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import { GuildBasedChannel, ThreadChannel } from "discord.js";
-
-const { emojis } = constants;
 
 export default class NewTicket extends Command {
   constructor() {
@@ -85,15 +82,21 @@ export default class NewTicket extends Command {
       return await creating.edit(message.language.getError("NEW_TICKET_LIMIT"));
     else if (ticket == "lock")
       return await creating.edit(
-        `${emojis.error} ${message.language.get("NEW_TICKET_LOCK", {
-          limit: message.guild.settings.get<number>("tickets.limit", 1),
-        })}`
+        `${this.client.util.useEmoji("error")} ${message.language.get(
+          "NEW_TICKET_LOCK",
+          {
+            limit: message.guild.settings.get<number>("tickets.limit", 1),
+          }
+        )}`
       );
     else if (ticket == "toggled")
       return await creating.edit(
-        `${emojis.error} ${message.language.get("NEW_TICKET_TOGGLED", {
-          message: message.guild.settings.get<string>("tickets.togglemsg"),
-        })}`
+        `${this.client.util.useEmoji("error")} ${message.language.get(
+          "NEW_TICKET_TOGGLED",
+          {
+            message: message.guild.settings.get<string>("tickets.togglemsg"),
+          }
+        )}`
       );
     else if (ticket instanceof Error)
       return this.client.commandHandler.emit(
@@ -108,9 +111,12 @@ export default class NewTicket extends Command {
       ticket instanceof ThreadChannel
     )
       return await creating.edit(
-        `${emojis.success} ${message.language.get("NEW_TICKET_CREATED", {
-          channel: ticket.toString(),
-        })}`
+        `${this.client.util.useEmoji("success")} ${message.language.get(
+          "NEW_TICKET_CREATED",
+          {
+            channel: ticket.toString(),
+          }
+        )}`
       );
   }
 }

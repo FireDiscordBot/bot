@@ -1,7 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
-import { constants } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -12,10 +11,6 @@ import {
   Permissions,
 } from "discord.js";
 import { StringMap, TOptions } from "i18next";
-
-const {
-  emojis: { success, error },
-} = constants;
 
 export default class Debug extends Command {
   constructor() {
@@ -135,13 +130,24 @@ export default class Debug extends Command {
 
       if (permMsgUser || permMsgClient)
         details.push(
-          `${error} ${command.language.get("DEBUG_PERMS_CHECKS_FAIL")}` +
+          `${this.client.util.useEmoji("error")} ${command.language.get(
+            "DEBUG_PERMS_CHECKS_FAIL"
+          )}` +
             (permMsgUser ? `\n${permMsgUser}` : "") +
             (permMsgClient ? `\n${permMsgClient}` : "")
         );
     } else if (permissionChecks)
-      details.push(`${error} ${command.language.get("DEBUG_REQUIRES_PERMS")}`);
-    else details.push(`${success} ${command.language.get("DEBUG_PERMS_PASS")}`);
+      details.push(
+        `${this.client.util.useEmoji("error")} ${command.language.get(
+          "DEBUG_REQUIRES_PERMS"
+        )}`
+      );
+    else
+      details.push(
+        `${this.client.util.useEmoji("success")} ${command.language.get(
+          "DEBUG_PERMS_PASS"
+        )}`
+      );
 
     const disabledCommands =
       command.guild?.settings.get<string[]>("disabled.commands", []) ?? [];
@@ -149,15 +155,21 @@ export default class Debug extends Command {
     if (disabledCommands.includes(cmd.id)) {
       if (command.member?.isModerator() || command.author.isSuperuser())
         details.push(
-          `${success} ${command.language.get("DEBUG_COMMAND_DISABLE_BYPASS")}`
+          `${this.client.util.useEmoji("success")} ${command.language.get(
+            "DEBUG_COMMAND_DISABLE_BYPASS"
+          )}`
         );
       else
         details.push(
-          `${error} ${command.language.get("DEBUG_COMMAND_DISABLED")}`
+          `${this.client.util.useEmoji("error")} ${command.language.get(
+            "DEBUG_COMMAND_DISABLED"
+          )}`
         );
     } else if (command.guild)
       details.push(
-        `${success} ${command.language.get("DEBUG_COMMAND_NOT_DISABLED")}`
+        `${this.client.util.useEmoji("success")} ${command.language.get(
+          "DEBUG_COMMAND_NOT_DISABLED"
+        )}`
       );
 
     if (cmd.id == "mute" && command.guild && channel instanceof GuildChannel) {
@@ -196,16 +208,22 @@ export default class Debug extends Command {
 
       if (bypass.length > 0)
         details.push(
-          `${error} ${command.language.get("DEBUG_MUTE_BYPASS", {
-            channel: channel.toString(),
-            bypass: bypass.map((b) => b.toString()).join(", "),
-          })}`
+          `${this.client.util.useEmoji("error")} ${command.language.get(
+            "DEBUG_MUTE_BYPASS",
+            {
+              channel: channel.toString(),
+              bypass: bypass.map((b) => b.toString()).join(", "),
+            }
+          )}`
         );
       else
         details.push(
-          `${success} ${command.language.get("DEBUG_MUTE_NO_BYPASS", {
-            channel: channel.toString(),
-          })}`
+          `${this.client.util.useEmoji("success")} ${command.language.get(
+            "DEBUG_MUTE_NO_BYPASS",
+            {
+              channel: channel.toString(),
+            }
+          )}`
         );
     }
 
@@ -220,13 +238,19 @@ export default class Debug extends Command {
         embeds: [this.createEmbed(command, details)],
       });
     else {
-      details.push(`${error} ${command.language.get("DEBUG_NO_EMBEDS")}`);
+      details.push(
+        `${this.client.util.useEmoji("error")} ${command.language.get(
+          "DEBUG_NO_EMBEDS"
+        )}`
+      );
       return await command.channel.send({ content: details.join("\n") });
     }
   }
 
   private createEmbed(command: ApplicationCommandMessage, details: string[]) {
-    const issues = details.filter((detail) => detail.startsWith(error));
+    const issues = details.filter((detail) =>
+      detail.startsWith(this.client.util.useEmoji("error"))
+    );
     return new MessageEmbed()
       .setTitle(
         command.language.get(
@@ -247,7 +271,10 @@ export default class Debug extends Command {
     return await command.channel.send({
       embeds: [
         this.createEmbed(command, [
-          `${error} ${command.language.get(key, args)}`,
+          `${this.client.util.useEmoji("error")} ${command.language.get(
+            key,
+            args
+          )}`,
         ]),
       ],
     });
@@ -261,7 +288,10 @@ export default class Debug extends Command {
     return await command.channel.send({
       embeds: [
         this.createEmbed(command, [
-          `${success} ${command.language.get(key, args)}`,
+          `${this.client.util.useEmoji("success")} ${command.language.get(
+            key,
+            args
+          )}`,
         ]),
       ],
     });

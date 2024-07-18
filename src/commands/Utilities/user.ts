@@ -31,12 +31,6 @@ import {
   UserFlagsString,
 } from "discord.js";
 
-const {
-  emojis,
-  statusEmojis,
-  emojis: { badges },
-} = constants;
-
 const isValidURL = (url: string) => {
   try {
     new URL(url);
@@ -160,40 +154,15 @@ export default class User extends Command {
           format: "png",
           dynamic: true,
         }),
-        url:
-          application && application.bot_public
-            ? `https://discord.com/oauth2/authorize?client_id=${
-                application.id
-              }&scope=bot%20applications.commands${
-                application.id == this.client.user.id
-                  ? "&permissions=1007021303"
-                  : ""
-              }`
-            : null,
       })
       .addField(`» ${command.language.get("ABOUT")}`, info.join("\n"));
     if (badges.length)
       embed.setDescription(
         application
-          ? `${badges.join("  ")}${
-              user.settings.get("affiliates_highlighted_label.official", false)
-                ? `\n${emojis.official} Official`
-                : ""
-            }\n\n${application.description}`
-          : `${badges.join("  ")}${
-              user.settings.get("affiliates_highlighted_label.official", false)
-                ? `\n${emojis.official} Official`
-                : ""
-            }`
+          ? `${badges.join("  ")}\n\n${application.description}`
+          : badges.join("  ")
       );
-    else if (application)
-      embed.setDescription(
-        `${
-          user.settings.get("affiliates_highlighted_label.official", false)
-            ? `\n${emojis.official} Official`
-            : ""
-        }\n\n${application.description}`
-      );
+    else if (application) embed.setDescription(application.description);
     if (member) {
       if (member?.avatar && member?.avatar != user.avatar)
         embed.setThumbnail(
@@ -265,8 +234,8 @@ export default class User extends Command {
         appInfo.push(
           `${
             application.flags & ApplicationFlags.GatewayGuildMembers
-              ? emojis.success
-              : emojis.warning
+              ? this.client.util.useEmoji("success")
+              : this.client.util.useEmoji("warning")
           } ${command.language.get("USER_BOT_MEMBERS_INTENT")}`
         );
       else appInfo.push(command.language.getError("USER_BOT_MEMBERS_INTENT"));
@@ -279,8 +248,8 @@ export default class User extends Command {
         appInfo.push(
           `${
             application.flags & ApplicationFlags.GatewayPresence
-              ? emojis.success
-              : emojis.warning
+              ? this.client.util.useEmoji("success")
+              : this.client.util.useEmoji("warning")
           } ${command.language.get("USER_BOT_PRESENCE_INTENT")}`
         );
       else appInfo.push(command.language.getError("USER_BOT_PRESENCE_INTENT"));
@@ -293,8 +262,8 @@ export default class User extends Command {
         appInfo.push(
           `${
             application.flags & ApplicationFlags.GatewayMessageContent
-              ? emojis.success
-              : emojis.warning
+              ? this.client.util.useEmoji("success")
+              : this.client.util.useEmoji("warning")
           } ${command.language.get("USER_BOT_MESSAGE_CONTENT_INTENT")}`
         );
       else
@@ -358,8 +327,14 @@ export default class User extends Command {
           iconURL: member.presence.activities.find(
             (activity) => activity.type == "STREAMING"
           )
-            ? statusEmojis.streaming
-            : statusEmojis[member.presence.status],
+            ? `https://cdn.discordapp.com/emojis/${
+                this.client.util.getEmoji("STATUS_STREAMING").id
+              }.png`
+            : `https://cdn.discordapp.com/emojis/${
+                this.client.util.getEmoji(
+                  `STATUS_${member.presence.status.toUpperCase()}`
+                ).id
+              }.png`,
         })
       : embed.setFooter({ text: user.id });
     return await command.channel.send({ embeds: [embed], components });
@@ -373,20 +348,27 @@ export default class User extends Command {
   ) {
     const flags = user.flags?.toArray() || [];
     let emojis: string[] = [];
-    if (guild && guild.ownerId == user.id) emojis.push(badges["OWNER"]);
+    if (user.bot && flags.includes("VERIFIED_BOT"))
+      emojis.push(
+        this.client.util.useEmoji("VERIFIED_BOT1") +
+          this.client.util.useEmoji("VERIFIED_BOT2")
+      );
+    if (guild && guild.ownerId == user.id)
+      emojis.push(this.client.util.useEmoji("GUILD_OWNER"));
     emojis.push(
-      ...Object.keys(badges)
+      ...Object.keys(constants.badges)
         .filter((badge: UserFlagsString) => flags.includes(badge))
-        .map((badge) => badges[badge])
+        .map((badge) => this.client.util.useEmoji(badge))
     );
-    if (
-      user.id == "190916650143318016" &&
-      content?.toLowerCase().includes("staff")
-    )
-      emojis.push(badges.DISCORD_EMPLOYEE);
-    if (user.isSuperuser()) emojis.push(badges.FIRE_ADMIN);
-    if (user.premium) emojis.push(badges.FIRE_PREMIUM);
-    if (user.id == "159985870458322944") emojis.push(badges.FUCK_MEE6);
+    if (user.isSuperuser())
+      emojis.push(this.client.util.useEmoji("FIRE_ADMIN"));
+    if (user.premium) emojis.push(this.client.util.useEmoji("FIRE_PREMIUM"));
+    if (user.id == "159985870458322944")
+      emojis.push(this.client.util.useEmoji("NO_MEE6"));
+    // useEmoji will return an empty string if the emoji is not found
+    // so this will remove any empty strings from the list
+    // which shouldn't happen but just in case
+    emojis = emojis.filter((emoji) => !!emoji);
     if (emojis.length) emojis.push(zws);
     return emojis;
   }

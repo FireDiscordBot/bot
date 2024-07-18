@@ -39,7 +39,7 @@ import { FireMember } from "./guildmember";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
-const { reactions, regexes, imageExts, audioExts, videoExts } = constants;
+const { regexes, imageExts, audioExts, videoExts } = constants;
 
 export class FireMessage extends Message {
   declare channel: DMChannel | FireTextChannel | NewsChannel | ThreadChannel;
@@ -319,7 +319,7 @@ export class FireMessage extends Message {
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
-      ? this.react(reactions.success).catch(() => {})
+      ? this.react(this.client.util.useEmoji("success")).catch(() => {})
       : this.channel.send({
           content: this.language.getSuccess(key, args),
           allowedMentions: args?.allowedMentions,
@@ -338,7 +338,7 @@ export class FireMessage extends Message {
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
-      ? this.react(reactions.warning).catch(() => {})
+      ? this.react(this.client.util.useEmoji("warning")).catch(() => {})
       : this.reply({
           content: this.language.getWarning(key, args),
           allowedMentions: args?.allowedMentions,
@@ -357,7 +357,7 @@ export class FireMessage extends Message {
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
     return !key
-      ? this.react(reactions.error).catch(() => {})
+      ? this.react(this.client.util.useEmoji("error")).catch(() => {})
       : this.reply({
           content: this.language.getError(key, args),
           allowedMentions: args?.allowedMentions,

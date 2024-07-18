@@ -187,6 +187,20 @@ export class Util extends ClientUtil {
     return Number((BigInt(id) >> 22n) % BigInt(this.client.options.shardCount));
   }
 
+  useEmoji(name: string) {
+    const emoji = this.client.manager.state.appEmojis.find(
+      (emoji) => emoji.name == name
+    );
+    if (!emoji) return "";
+    return `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`;
+  }
+
+  getEmoji(name: string) {
+    return this.client.manager.state.appEmojis.find(
+      (emoji) => emoji.name == name
+    );
+  }
+
   getDiscoverableGuilds() {
     return this.client.guilds.cache
       .filter((guild: FireGuild) => guild.isPublic())

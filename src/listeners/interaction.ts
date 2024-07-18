@@ -11,7 +11,6 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { UserContextMenuInteraction } from "@fire/lib/extensions/usercontextmenuinteraction";
 import { Fire } from "@fire/lib/Fire";
 import { IPoint } from "@fire/lib/interfaces/aether";
-import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import {
   ApplicationCommandOptionChoiceData,
@@ -23,8 +22,6 @@ import {
   NewsChannel,
   ThreadChannel,
 } from "discord.js";
-
-const { emojis } = constants;
 
 const getShard = (interaction: Interaction) => {
   if (interaction.guild) return interaction.guild.shard;
@@ -207,7 +204,9 @@ export default class InteractionListener extends Listener {
       const guild = this.client.guilds.cache.get(command.guildId);
       if (!guild)
         await this.error(command, error).catch(() => {
-          command.reply(`${emojis.error} Something went wrong...`);
+          command.reply(
+            `${this.client.util.useEmoji("error")} Something went wrong...`
+          );
         });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
@@ -280,7 +279,9 @@ export default class InteractionListener extends Listener {
       if (!message.message) await message.getRealMessage().catch(() => {});
     } catch (error) {
       await this.error(button, error).catch(() => {
-        button.reply(`${emojis.error} Something went wrong...`);
+        button.reply(
+          `${this.client.util.useEmoji("error")} Something went wrong...`
+        );
       });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
@@ -313,7 +314,9 @@ export default class InteractionListener extends Listener {
       this.client.emit("select", message);
     } catch (error) {
       await this.error(select, error).catch(() => {
-        select.reply(`${emojis.error} Something went wrong...`);
+        select.reply(
+          `${this.client.util.useEmoji("error")} Something went wrong...`
+        );
       });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
@@ -346,7 +349,9 @@ export default class InteractionListener extends Listener {
       const guild = this.client.guilds.cache.get(modal.guildId);
       if (!guild)
         await this.error(modal, error).catch(() => {
-          modal.reply(`${emojis.error} Something went wrong...`);
+          modal.reply(
+            `${this.client.util.useEmoji("error")} Something went wrong...`
+          );
         });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
@@ -391,7 +396,9 @@ export default class InteractionListener extends Listener {
       const guild = this.client.guilds.cache.get(context.guildId);
       if (!guild)
         await this.error(context, error).catch(() => {
-          context.reply(`${emojis.error} Something went wrong...`);
+          context.reply(
+            `${this.client.util.useEmoji("error")} Something went wrong...`
+          );
         });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
@@ -423,9 +430,13 @@ export default class InteractionListener extends Listener {
     error: Error
   ) {
     return interaction.reply({
-      content: `${emojis.error} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
+      content: `${this.client.util.useEmoji(
+        "error"
+      )} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
 
-      If this is a slash command, try inviting the bot to a server (<${this.client.config.inviteLink}>) if you haven't already and try again.
+      If this is a slash command, try inviting the bot to a server (<${
+        this.client.config.inviteLink
+      }>) if you haven't already and try again.
 
       Error Message: ${error.message}`,
       ephemeral: true,

@@ -10,7 +10,6 @@ import { MessageEmbed, MessageMentionOptions, Snowflake } from "discord.js";
 const disableArgs = ["off", "disable", "false"];
 
 const {
-  emojis,
   regexes: { joinleavemsgs },
 } = constants;
 
@@ -150,7 +149,7 @@ export default class LeaveMSG extends Command {
     for (const [regex, replacement] of regexes)
       msg = msg.replace(regex as RegExp, replacement as string);
     return await message.channel.send({
-      content: `${emojis.success} ${message.language.get(
+      content: `${this.client.util.useEmoji("success")} ${message.language.get(
         "LEAVEMSG_SET_SUCCESS",
         { channel: channel.toString() }
       )} ${msg}`,

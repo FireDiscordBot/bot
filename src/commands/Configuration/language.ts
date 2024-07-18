@@ -39,7 +39,7 @@ export default class LanguageCommand extends Command {
       message.guild.settings.set<string>("utils.language", args.language.id);
       return await message.channel.send(
         // message.success will use message.language which will use author's language if not default
-        `${constants.emojis.success} ${args.language.get(
+        `${this.client.util.useEmoji("success")} ${args.language.get(
           "LANGUAGE_COMMAND_HELLO_GUILD"
         )}`
       );

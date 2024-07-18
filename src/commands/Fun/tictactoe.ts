@@ -4,7 +4,6 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import {
   Collection,
@@ -27,8 +26,6 @@ interface GameData {
   channel: Snowflake;
   current: string;
 }
-
-const { emojis } = constants;
 
 // these are the positions required for winning
 const winningStates = [
@@ -94,7 +91,7 @@ export default class TicTacToe extends Command {
       const existing = this.games.get(authorHasGame);
       const endId = SnowflakeUtil.generate();
       const endGameMessage = await command.channel.send({
-        content: `${emojis.error} ${command.language.get(
+        content: `${this.client.util.useEmoji("error")} ${command.language.get(
           "TICTACTOE_EXISTING"
         )}`,
         components: [

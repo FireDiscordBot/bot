@@ -3,6 +3,7 @@ import {
   ModVersionData,
   OptifineVersion,
 } from "@fire/src/modules/mclogs";
+import { APIEmoji } from "discord-api-types/v9";
 
 export type Payload = {
   op: number; // opcode
@@ -54,6 +55,7 @@ export interface ManagerState {
   userExperiments: UserExperimentConfig[];
   modVersions: Record<string, ModVersionData>;
   optifineVersions: Record<MinecraftVersion, OptifineVersion[]>;
+  appEmojis: APIEmoji[];
 }
 
 export interface IPoint {

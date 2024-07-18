@@ -17,7 +17,17 @@ export class Manager {
     : null; // realistically never gonna be encountered
   readonly CURRENT_REST_VERSION = "v2";
 
-  state: Partial<ManagerState> = {};
+  state: ManagerState = {
+    // we set it to empty values so that
+    // if something tries to access state too early,
+    // they'll just get empty data rather than needing
+    // to check if the property exists
+    guildExperiments: [],
+    userExperiments: [],
+    modVersions: {},
+    optifineVersions: {},
+    appEmojis: [],
+  };
   private _ready: boolean = false;
   eventHandler: EventHandler;
   reconnector: Reconnector;

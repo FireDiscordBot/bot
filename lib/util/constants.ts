@@ -123,118 +123,18 @@ const websiteDomain = `${
   process.env.NODE_ENV == "development" ? "local." : ""
 }getfire.bot`;
 
-let emojis = {
-  // shoutout to blobhub for the ebic emotes, https://inv.wtf/blobhub
-  success: "<:yes:534174796888408074>",
-  error: "<:no:534174796938870792>",
-  slashError: "<:SystemMessageInteractionFail:837406115280060505>",
-  warning: "<:maybe:534174796578160640>",
-  statuspage: {
-    operational: "<:operational:685538400639385649>",
-    degraded_performance: "<:degraded_performance:685538400228343808>",
-    partial_outage: "<:partial_outage:685538400555499675>",
-    major_outage: "<:major_outage:685538400639385706>",
-    under_maintenance: "<:maintenance:685538400337395743>",
-  },
-  badges: {
-    DISCORD_EMPLOYEE: "<:DiscordStaff:844154550402809916>",
-    PARTNERED_SERVER_OWNER: "<:partnericon:844154710637805580>",
-    HYPESQUAD_EVENTS: "<:HypesquadEvents:698349980192079882>",
-    BUGHUNTER_LEVEL_1: "<:BugHunter:844155858354962432>",
-    BUGHUNTER_LEVEL_2: "<:GoldBugHunter:698350544103669771>",
-    EARLY_SUPPORTER: "<:EarlySupporter:698350657073053726>",
-    VERIFIED_BOT:
-      "<:verifiedbot1:943307495319937094><:verifiedbot2:943307562604978187>",
-    EARLY_VERIFIED_BOT_DEVELOPER: "<:VerifiedBotDev:720179031785340938>",
-    DISCORD_CERTIFIED_MODERATOR: "<:ModeratorAlumni:1099767566840369282>",
-    ACTIVE_DEVELOPER: "<:ActiveDev:1099767706133213304>",
-    PARTNERED: "<:PartnerWithBanner:844154648680071189>",
-    VERIFIED: "<:VerifiedWithBanner:751196492517081189>",
-    OWNER: "<:ownercrown:831858918161776661>",
-    FIRE_ADMIN: "<:FireVerified:671243744774848512>",
-    FIRE_PREMIUM: "<:FirePremium:680519037704208466>",
-    FUCK_MEE6: "<:fuckmee6allmyhomieshatemee6:909928935310118992>",
-  },
-  official: "<:official:1039934429273014303>",
-  channels: {
-    category: "<:channelcategory:1046397076176650292>",
-    text: "<:channeltext:794243232648921109>",
-    voice: "<:channelvoice:794243248444407838>",
-    stage: "<:channelstage:831890012366307379>",
-    news: "<:channelannouncements:794243262822350919>",
-    thread: "<:channelthread:1046398508070092833>",
-    forum: "<:channelforum:1046399668441059338>",
-  },
-};
-
-let reactions = {
-  success: "yes:534174796888408074",
-  error: "no:534174796938870792",
-  warning: "maybe:534174796578160640",
-};
-
-// e.g. for litecord
-if (process.env.EMOJI_SET == "1") {
-  emojis = {
-    ...emojis,
-    success: "<:yes:823119635246350338>",
-    error: "<:no:823119661787906050>",
-    warning: "<:maybe:823119649234354181>",
-    statuspage: {
-      operational: "<:operational:823120412668985344>",
-      degraded_performance: "<:degraded_performance:823244090849230848>",
-      partial_outage: "<:partial_outage:823120413453320192>",
-      major_outage: "<:major_outage:823120412668985345>",
-      under_maintenance: "<:maintenance:823244090849230849>",
-    },
-    badges: {
-      DISCORD_EMPLOYEE: "<:DiscordStaff:823121736273887237>",
-      PARTNERED_SERVER_OWNER: "<a:PartnerShine:823121735774765059>",
-      HYPESQUAD_EVENTS: "<:HypesquadEvents:823121736273887233>",
-      BUGHUNTER_LEVEL_1: "<:BugHunter:823121736273887236>",
-      BUGHUNTER_LEVEL_2: "<:GoldBugHunter:823122047726125056>",
-      EARLY_SUPPORTER: "<:EarlySupporter:823121736273887232>",
-      VERIFIED_BOT:
-        "<:verifiedbot1:823121735774765057><:verifiedbot2:823121736273887239>",
-      EARLY_VERIFIED_BOT_DEVELOPER: "<:VerifiedBotDev:823121736273887234>",
-      DISCORD_CERTIFIED_MODERATOR: "",
-      ACTIVE_DEVELOPER: "",
-      PARTNERED: "<:PartnerWithBanner:823121736273887238>",
-      VERIFIED: "<:VerifiedWithBanner:823121735774765058>",
-      OWNER: "",
-      FIRE_ADMIN: "<:FireVerified:823121736273887240>",
-      FIRE_PREMIUM: "<:FirePremium:823121735774765056>",
-      FUCK_MEE6: "<:fuckmee6allmyhomieshatemee6:823121735774765060>",
-    },
-    channels: {
-      category: "",
-      text: "<:channeltext:823154571105927169>",
-      voice: "<:channelvoice:823154571105927168>",
-      stage: "",
-      news: "<:channelannouncements:823154571105927170>",
-      thread: "",
-      forum: "",
-    },
-  };
-
-  reactions = {
-    ...reactions,
-    success: "yes:823119635246350338",
-    error: "no:823119661787906050",
-    warning: "maybe:823119649234354181",
-  };
-}
-
 export const constants = {
-  emojis,
-  statusEmojis: {
-    online: "https://cdn.discordapp.com/emojis/775514569430663178.png?v=1",
-    dnd: "https://cdn.discordapp.com/emojis/775514595951378452.png?v=1",
-    idle: "https://cdn.discordapp.com/emojis/775514610925174784.png?v=1",
-    offline: "https://cdn.discordapp.com/emojis/775514629811208252.png?v=1",
-    streaming: "https://cdn.discordapp.com/emojis/775514644273954896.png?v=1",
-  },
-  reactions,
+  badges: [
+    "DISCORD_EMPLOYEE",
+    "PARTNERED_SERVER_OWNER",
+    "HYPESQUAD_EVENTS",
+    "BUGHUNTER_LEVEL_1",
+    "BUGHUNTER_LEVEL_2",
+    "EARLY_SUPPORTER",
+    "EARLY_VERIFIED_BOT_DEVELOPER",
+    "DISCORD_CERTIFIED_MODERATOR",
+    "ACTIVE_DEVELOPER",
+  ],
   // urls
   url: {
     discovery: "https://getfire.bot/discover",

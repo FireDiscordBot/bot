@@ -32,8 +32,6 @@ import { FireMessage } from "./message";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
-const { reactions } = constants;
-
 export class ComponentMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
@@ -205,12 +203,14 @@ export class ComponentMessage {
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage.react(reactions.success).catch(() => {});
+        return this.sourceMessage
+          .react(this.client.util.useEmoji("success"))
+          .catch(() => {});
       else
         return this.getRealMessage().then((message) => {
           if (!message || !(message instanceof FireMessage))
             return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
-          message.react(reactions.success).catch(() => {
+          message.react(this.client.util.useEmoji("success")).catch(() => {
             return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
           });
         });
@@ -231,12 +231,14 @@ export class ComponentMessage {
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage.react(reactions.warning).catch(() => {});
+        return this.sourceMessage
+          .react(this.client.util.useEmoji("warning"))
+          .catch(() => {});
       else
         return this.getRealMessage().then((message) => {
           if (!message || !(message instanceof FireMessage))
             return this.warn("SLASH_COMMAND_HANDLE_FAIL");
-          message.react(reactions.warning).catch(() => {
+          message.react(this.client.util.useEmoji("warning")).catch(() => {
             return this.warn("SLASH_COMMAND_HANDLE_FAIL");
           });
         });
@@ -257,12 +259,14 @@ export class ComponentMessage {
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
       if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage.react(reactions.error).catch(() => {});
+        return this.sourceMessage
+          .react(this.client.util.useEmoji("error"))
+          .catch(() => {});
       else
         return this.getRealMessage().then((message) => {
           if (!message || !(message instanceof FireMessage))
             return this.error("SLASH_COMMAND_HANDLE_FAIL");
-          message.react(reactions.error).catch(() => {
+          message.react(this.client.util.useEmoji("error")).catch(() => {
             return this.error("SLASH_COMMAND_HANDLE_FAIL");
           });
         });

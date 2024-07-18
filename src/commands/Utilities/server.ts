@@ -29,10 +29,6 @@ export type InviteWithGuildCounts = Invite & {
   guild: FireGuild | InviteGuildWithCounts;
 };
 
-const {
-  emojis: { badges, channels },
-} = constants;
-
 export default class GuildCommand extends Command {
   constructor() {
     super("server", {
@@ -59,14 +55,21 @@ export default class GuildCommand extends Command {
     guild: FireGuild | GuildPreview | InviteGuildWithCounts,
     author?: FireMember | FireUser
   ) {
-    const emojis: string[] = [];
+    let emojis: string[] = [];
 
-    if (guild.id == "564052798044504084") emojis.push(badges.FIRE_ADMIN);
+    if (guild.id == "564052798044504084")
+      emojis.push(this.client.util.useEmoji("FIRE_ADMIN"));
     if (this.client.util?.premium.has(guild.id))
-      emojis.push(badges.FIRE_PREMIUM);
-    if (guild.features.includes("PARTNERED")) emojis.push(badges.PARTNERED);
-    if (guild.features.includes("VERIFIED")) emojis.push(badges.VERIFIED);
+      emojis.push(this.client.util.useEmoji("FIRE_PREMIUM"));
+    if (guild.features.includes("PARTNERED"))
+      emojis.push(this.client.util.useEmoji("PARTNERED"));
+    if (guild.features.includes("VERIFIED"))
+      emojis.push(this.client.util.useEmoji("VERIFIED"));
 
+    // useEmoji will return an empty string if the emoji is not found
+    // so this will remove any empty strings from the list
+    // which shouldn't happen but just in case
+    emojis = emojis.filter((emoji) => !!emoji);
     if (emojis.length) emojis.push(zws);
 
     return emojis;
@@ -160,11 +163,11 @@ export default class GuildCommand extends Command {
     if (guild instanceof GuildPreview) return info;
 
     const VERIFICATION_LEVEL_EMOJI = {
-      VERY_HIGH: constants.emojis.statuspage.operational,
-      HIGH: constants.emojis.statuspage.operational,
-      MEDIUM: constants.emojis.statuspage.partial_outage,
-      LOW: constants.emojis.statuspage.major_outage,
-      NONE: constants.emojis.statuspage.major_outage,
+      VERY_HIGH: this.client.util.useEmoji("statuspage_operational"),
+      HIGH: this.client.util.useEmoji("statuspage_operational"),
+      MEDIUM: this.client.util.useEmoji("statuspage_partial"),
+      LOW: this.client.util.useEmoji("statuspage_major"),
+      NONE: this.client.util.useEmoji("statuspage_major"),
     };
 
     const emoji = VERIFICATION_LEVEL_EMOJI[guild.verificationLevel];
@@ -178,51 +181,51 @@ export default class GuildCommand extends Command {
       switch (guild.explicitContentFilter) {
         case "ALL_MEMBERS":
           info.push(
-            `${constants.emojis.statuspage.operational} ${command.language.get(
-              "GUILD_FILTER_ALL"
-            )}`
+            `${this.client.util.useEmoji(
+              "statuspage_operational"
+            )} ${command.language.get("GUILD_FILTER_ALL")}`
           );
           break;
         case "MEMBERS_WITHOUT_ROLES":
           info.push(
-            `${
-              constants.emojis.statuspage.partial_outage
-            } ${command.language.get("GUILD_FILTER_NO_ROLE")}`
+            `${this.client.util.useEmoji(
+              "statuspage_partial"
+            )} ${command.language.get("GUILD_FILTER_NO_ROLE")}`
           );
           break;
         case "DISABLED":
           info.push(
-            `${constants.emojis.statuspage.major_outage} ${command.language.get(
-              "GUILD_FILTER_NONE"
-            )}`
+            `${this.client.util.useEmoji(
+              "statuspage_major"
+            )} ${command.language.get("GUILD_FILTER_NONE")}`
           );
           break;
       }
 
       if (guild.defaultMessageNotifications == "ONLY_MENTIONS")
         info.push(
-          `${constants.emojis.statuspage.operational} ${command.language.get(
-            "GUILD_NOTIFS_MENTIONS"
-          )}`
+          `${this.client.util.useEmoji(
+            "statuspage_operational"
+          )} ${command.language.get("GUILD_NOTIFS_MENTIONS")}`
         );
       else
         info.push(
-          `${constants.emojis.statuspage.partial_outage} ${command.language.get(
-            "GUILD_NOTIFS_ALL"
-          )}`
+          `${this.client.util.useEmoji(
+            "statuspage_partial"
+          )} ${command.language.get("GUILD_NOTIFS_ALL")}`
         );
 
       if (guild.mfaLevel == "ELEVATED")
         info.push(
-          `${constants.emojis.statuspage.operational} ${command.language.get(
-            "GUILD_MFA_ENABLED"
-          )}`
+          `${this.client.util.useEmoji(
+            "statuspage_operational"
+          )} ${command.language.get("GUILD_MFA_ENABLED")}`
         );
       else
         info.push(
-          `${constants.emojis.statuspage.major_outage} ${command.language.get(
-            "GUILD_MFA_NONE"
-          )}`
+          `${this.client.util.useEmoji(
+            "statuspage_major"
+          )} ${command.language.get("GUILD_MFA_NONE")}`
         );
     }
 
@@ -280,26 +283,28 @@ export default class GuildCommand extends Command {
     if (!(guild instanceof FireGuild)) return null;
     return {
       [command.language.get("TOTAL") + ":"]: guild.channels.cache.size,
-      [channels.category]: guild.channels.cache.filter(
-        (channel) => channel.type == "GUILD_CATEGORY"
-      ).size,
-      [channels.text]: guild.channels.cache.filter(
+      [this.client.util.useEmoji("GUILD_CATEGORY")]:
+        guild.channels.cache.filter(
+          (channel) => channel.type == "GUILD_CATEGORY"
+        ).size,
+      [this.client.util.useEmoji("GUILD_TEXT")]: guild.channels.cache.filter(
         (channel) => channel.type == "GUILD_TEXT"
       ).size,
-      [channels.voice]: guild.channels.cache.filter(
+      [this.client.util.useEmoji("GUILD_VOICE")]: guild.channels.cache.filter(
         (channel) => channel.type == "GUILD_VOICE"
       ).size,
-      [channels.news]: guild.channels.cache.filter(
+      [this.client.util.useEmoji("GUILD_NEWS")]: guild.channels.cache.filter(
         (channel) => channel.type == "GUILD_NEWS"
       ).size,
-      [channels.stage]: guild.channels.cache.filter(
-        (channel) => channel.type == "GUILD_STAGE_VOICE"
-      ).size,
-      [channels.forum]: guild.channels.cache.filter(
+      [this.client.util.useEmoji("GUILD_STAGE_VOICE")]:
+        guild.channels.cache.filter(
+          (channel) => channel.type == "GUILD_STAGE_VOICE"
+        ).size,
+      [this.client.util.useEmoji("GUILD_FORUM")]: guild.channels.cache.filter(
         (channel) => channel.type == "GUILD_FORUM"
       ).size,
-      [channels.thread]: guild.channels.cache.filter((channel) =>
-        channel.isThread()
+      [this.client.util.useEmoji("GUILD_THREAD")]: guild.channels.cache.filter(
+        (channel) => channel.isThread()
       ).size,
     };
   }

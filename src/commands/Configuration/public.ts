@@ -49,23 +49,21 @@ export default class Public extends Command {
     if (!current) {
       await command.success("PUBLIC_ENABLED", { vanity: vanitys.get("code") });
       await command.guild.actionLog(
-        `${constants.emojis.statuspage.operational} ${command.language.get(
-          "PUBLIC_ENABLED_LOG",
-          {
-            user: command.author.toString(),
-          }
-        )}`,
+        `${this.client.util.useEmoji(
+          "statuspage_operational"
+        )} ${command.language.get("PUBLIC_ENABLED_LOG", {
+          user: command.author.toString(),
+        })}`,
         ActionLogTypes.SYSTEM
       );
     } else {
       await command.success("PUBLIC_DISABLED");
       await command.guild.actionLog(
-        `${constants.emojis.statuspage.major_outage} ${command.language.get(
-          "PUBLIC_DISABLED_LOG",
-          {
-            user: command.author.toString(),
-          }
-        )}`,
+        `${this.client.util.useEmoji(
+          "statuspage_major"
+        )} ${command.language.get("PUBLIC_DISABLED_LOG", {
+          user: command.author.toString(),
+        })}`,
         ActionLogTypes.SYSTEM
       );
     }

@@ -42,7 +42,7 @@ import Sk1er from "../modules/sk1er";
 import SparkUniverse from "../modules/sparkuniverse";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 
-const { url, emojis, regexes } = constants;
+const { url, regexes } = constants;
 
 const reminderSnoozeTimes = {
   REMINDER_SNOOZE_FIVEMIN: 300000,
@@ -843,12 +843,11 @@ export default class Button extends Listener {
       } else
         await button
           .edit({
-            content: `${emojis.success} ${button.language.get(
-              "NEW_TICKET_CREATED",
-              {
-                channel: ticket.toString(),
-              }
-            )}`,
+            content: `${this.client.util.useEmoji(
+              "success"
+            )} ${button.language.get("NEW_TICKET_CREATED", {
+              channel: ticket.toString(),
+            })}`,
             components: [],
           })
           .catch(() => {});
@@ -1002,12 +1001,11 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       } else
         await button
           .edit({
-            content: `${emojis.success} ${button.language.get(
-              "NEW_TICKET_CREATED",
-              {
-                channel: ticket.toString(),
-              }
-            )}`,
+            content: `${this.client.util.useEmoji(
+              "success"
+            )} ${button.language.get("NEW_TICKET_CREATED", {
+              channel: ticket.toString(),
+            })}`,
             components: [],
           })
           .catch(() => {});

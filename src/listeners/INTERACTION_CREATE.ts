@@ -2,12 +2,9 @@
 // this is listening to an event directly from the gateway
 
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Severity } from "@sentry/node";
 import { APIInteraction, InteractionType } from "discord-api-types/v9";
-
-const { emojis } = constants;
 
 export default class InteractionCreate extends Listener {
   constructor() {
@@ -52,9 +49,13 @@ export default class InteractionCreate extends Listener {
         data: {
           type: 4,
           data: {
-            content: `${emojis.error} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
+            content: `${this.client.util.useEmoji(
+              "error"
+            )} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
 
-If this is a slash command, try inviting the bot to a server (<${this.client.config.inviteLink}>) if you haven't already and try again.
+If this is a slash command, try inviting the bot to a server (<${
+              this.client.config.inviteLink
+            }>) if you haven't already and try again.
 
 Error Message: ${error.message}`,
             flags: 64,
@@ -68,9 +69,13 @@ Error Message: ${error.message}`,
       .webhooks(this.client.user.id)(interaction.token)
       .post({
         data: {
-          content: `${emojis.error} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
+          content: `${this.client.util.useEmoji(
+            "error"
+          )} An error occured while trying to handle this interaction that may be caused by being in DMs or the bot not being present...
 
-If this is a slash command and the bot is not present, try inviting the bot (<${this.client.config.inviteLink}>) and try again.
+If this is a slash command and the bot is not present, try inviting the bot (<${
+            this.client.config.inviteLink
+          }>) and try again.
 
 Error Message: ${error.message}`,
         },

@@ -376,7 +376,9 @@ export default class GuildAuditLogEntryCreate extends Listener {
     if ("nsfw" in target)
       embed.addFields({
         name: guild.language.get("AGE_RESTRICTED"),
-        value: target.nsfw ? constants.emojis.success : constants.emojis.error,
+        value: target.nsfw
+          ? this.client.util.useEmoji("success")
+          : this.client.util.useEmoji("error"),
       });
 
     // target will never be a thread but this check makes typings easier
@@ -577,9 +579,13 @@ export default class GuildAuditLogEntryCreate extends Listener {
           embed.addFields({
             name: guild.language.get("AGE_RESTRICTED"),
             value: `${
-              change.old ? constants.emojis.success : constants.emojis.error
+              change.old
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
             } ➜ ${
-              change.new ? constants.emojis.success : constants.emojis.error
+              change.new
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
             }`,
           });
           break;
@@ -613,12 +619,12 @@ export default class GuildAuditLogEntryCreate extends Listener {
             name: guild.language.get("ANNOUNCEMENT_CHANNEL"),
             value: `${
               change.old == 5
-                ? constants.emojis.success
-                : constants.emojis.error
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
             } ➜ ${
               change.new == 5
-                ? constants.emojis.success
-                : constants.emojis.error
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
             }`,
           });
           break;
@@ -770,9 +776,13 @@ export default class GuildAuditLogEntryCreate extends Listener {
           embed.addFields({
             name: guild.language.get("ARCHIVED"),
             value: `${
-              change.old ? constants.emojis.success : constants.emojis.error
+              change.old
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
             } ➜ ${
-              change.new ? constants.emojis.success : constants.emojis.error
+              change.new
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
             }`,
           });
           break;
@@ -781,9 +791,13 @@ export default class GuildAuditLogEntryCreate extends Listener {
           embed.addFields({
             name: guild.language.get("LOCKED"),
             value: `${
-              change.old ? constants.emojis.success : constants.emojis.error
+              change.old
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
             } ➜ ${
-              change.new ? constants.emojis.success : constants.emojis.error
+              change.new
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
             }`,
           });
           break;
@@ -1024,15 +1038,15 @@ export default class GuildAuditLogEntryCreate extends Listener {
       embed.addFields({
         name: guild.language.get("ARCHIVED"),
         value: target.archived
-          ? constants.emojis.success
-          : constants.emojis.error,
+          ? this.client.util.useEmoji("success")
+          : this.client.util.useEmoji("error"),
       });
     if (typeof target.locked == "boolean")
       embed.addFields({
         name: guild.language.get("LOCKED"),
         value: target.locked
-          ? constants.emojis.success
-          : constants.emojis.error,
+          ? this.client.util.useEmoji("success")
+          : this.client.util.useEmoji("error"),
       });
     if (target.autoArchiveDuration)
       embed.addFields({
@@ -1109,14 +1123,14 @@ export default class GuildAuditLogEntryCreate extends Listener {
         {
           name: guild.language.get("HOISTED"),
           value: target.hoist
-            ? constants.emojis.success
-            : constants.emojis.error,
+            ? this.client.util.useEmoji("success")
+            : this.client.util.useEmoji("error"),
         },
         {
           name: guild.language.get("MENTIONABLE"),
           value: target.mentionable
-            ? constants.emojis.success
-            : constants.emojis.error,
+            ? this.client.util.useEmoji("success")
+            : this.client.util.useEmoji("error"),
         },
       ])
       .setFooter({ text: auditLogEntry.targetId });
@@ -1204,14 +1218,14 @@ export default class GuildAuditLogEntryCreate extends Listener {
         {
           name: guild.language.get("HOISTED"),
           value: target.hoist
-            ? constants.emojis.success
-            : constants.emojis.error,
+            ? this.client.util.useEmoji("success")
+            : this.client.util.useEmoji("error"),
         },
         {
           name: guild.language.get("MENTIONABLE"),
           value: target.mentionable
-            ? constants.emojis.success
-            : constants.emojis.error,
+            ? this.client.util.useEmoji("success")
+            : this.client.util.useEmoji("error"),
         },
       ])
       .setFooter({ text: auditLogEntry.targetId });

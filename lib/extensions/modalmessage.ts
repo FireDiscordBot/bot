@@ -31,8 +31,6 @@ import { FireMessage } from "./message";
 import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
-const { reactions } = constants;
-
 export class ModalMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;

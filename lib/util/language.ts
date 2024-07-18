@@ -53,19 +53,22 @@ export class Language extends AkairoModule {
   }
 
   getSuccess(key: LanguageKeys, args?: TOptions<StringMap>) {
-    return `${constants.emojis.success} ${this.get(key, args)}`;
+    return `${this.client.util.useEmoji("success")} ${this.get(key, args)}`;
   }
 
   getWarning(key: LanguageKeys, args?: TOptions<StringMap>) {
-    return `${constants.emojis.warning} ${this.get(key, args)}`;
+    return `${this.client.util.useEmoji("warning")} ${this.get(key, args)}`;
   }
 
   getError(key: LanguageKeys, args?: TOptions<StringMap>) {
-    return `${constants.emojis.error} ${this.get(key, args)}`;
+    return `${this.client.util.useEmoji("error")} ${this.get(key, args)}`;
   }
 
   getSlashError(key: LanguageKeys, args?: TOptions<StringMap>) {
-    return `${constants.emojis.slashError} ${this.get(key, args)}`;
+    return `${this.client.util.useEmoji("interactionerror")} ${this.get(
+      key,
+      args
+    )}`;
   }
 }
 

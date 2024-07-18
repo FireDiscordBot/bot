@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
-import { constants, zws } from "@fire/lib/util/constants";
+import { zws } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import {
   PaginatorEmbedInterface,
@@ -13,8 +13,6 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { Codeblock } from "@fire/src/arguments/codeblock";
 import { MessageEmbed } from "discord.js";
 import { inspect } from "util";
-
-const { emojis } = constants;
 
 const codeBlock = (lang: string, expression: any) => {
   return `\`\`\`${lang}\n${expression || zws}\`\`\``;
@@ -130,8 +128,12 @@ export default class Eval extends Command {
     const { success, result, type } = await this.eval(message, args);
     if (message instanceof FireMessage)
       success
-        ? await message.react(emojis.success)?.catch(() => {})
-        : await message.react(emojis.error)?.catch(() => {});
+        ? await message
+            .react(this.client.util.useEmoji("success"))
+            ?.catch(() => {})
+        : await message
+            .react(this.client.util.useEmoji("error"))
+            ?.catch(() => {});
     if (this.client.manager.ws) {
       let input: string, output: string;
       try {
@@ -167,8 +169,8 @@ export default class Eval extends Command {
     const embed = new MessageEmbed()
       .setTitle(
         success
-          ? `${emojis.success} Evaluation Complete`
-          : `${emojis.error} Evaluation Failed`
+          ? `${this.client.util.useEmoji("success")} Evaluation Complete`
+          : `${this.client.util.useEmoji("error")} Evaluation Failed`
       )
       .setColor(success ? message.member?.displayColor : "#ef5350")
       .setDescription(

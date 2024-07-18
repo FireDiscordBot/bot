@@ -2,7 +2,6 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Command } from "@fire/lib/util/command";
-import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -11,8 +10,6 @@ import {
   MessageOptions,
   SnowflakeUtil,
 } from "discord.js";
-
-const { emojis } = constants;
 
 export default class CloseTicket extends Command {
   constructor() {
@@ -64,7 +61,7 @@ export default class CloseTicket extends Command {
     if (!willClose)
       return message instanceof ApplicationCommandMessage
         ? await message.edit(
-            `${emojis.error} ${message.language.get(
+            `${this.client.util.useEmoji("error")} ${message.language.get(
               "TICKET_CONFIRMATION_EXPIRED"
             )}`
           )

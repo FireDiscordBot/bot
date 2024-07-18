@@ -7,6 +7,14 @@ import * as centra from "centra";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import { MessageEmbed } from "discord.js";
 
+const statusToAppEmoji = {
+  operational: "statuspage_operational",
+  degraded_performance: "statuspage_degraded",
+  partial_outage: "statuspage_partial",
+  major_outage: "statuspage_major",
+  under_maintenance: "statuspage_maintenance",
+};
+
 export default class DiscordStatus extends Command {
   constructor() {
     super("dstatus", {
@@ -48,7 +56,9 @@ export default class DiscordStatus extends Command {
     const components = summary.components
       .filter((component) => !component.group_id)
       .flatMap((group) => [
-        `├${constants.emojis.statuspage[group.status]} **${group.name}**: ${
+        `├${this.client.util.useEmoji(statusToAppEmoji[group.status])} **${
+          group.name
+        }**: ${
           message.language.get("STATUSPAGE_COMPONENT_STATUS", {
             returnObjects: true,
           })[group.status.toLowerCase()] ||
@@ -64,9 +74,9 @@ export default class DiscordStatus extends Command {
           })
           .map(
             (groupComponent) =>
-              `├─${constants.emojis.statuspage[groupComponent.status]} **${
-                groupComponent.name
-              }**: ${
+              `├─${this.client.util.useEmoji(
+                statusToAppEmoji[groupComponent.status]
+              )} **${groupComponent.name}**: ${
                 message.language.get("STATUSPAGE_COMPONENT_STATUS", {
                   returnObjects: true,
                 })[groupComponent.status.toLowerCase()] ||
