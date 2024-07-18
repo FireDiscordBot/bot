@@ -703,7 +703,11 @@ export default class User extends Command {
           dynamic: true,
         }),
       })
-      .setDescription(command.language.get("USER_SNOWFLAKE_DESCRIPTION"))
+      .setDescription(
+        command.language.get("USER_SNOWFLAKE_DESCRIPTION", {
+          snowflakeEmoji: this.client.util.useEmoji("snowflake"),
+        })
+      )
       .addField(`» ${command.language.get("ABOUT")}`, info.join("\n"));
 
     if (user || command.util?.parsed?.command?.id == "snowflake")

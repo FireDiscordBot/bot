@@ -179,7 +179,7 @@
   "DEFAULT_REACTION_EMOJI": "Default Reaction Emoji",
   "EXPLICIT_CONTENT_FILTER": "Explicit Content Filter",
   "DEFAULT_AUTO_ARCHIVE_DURATION": "Default Auto Archive Duration",
-  "REGION_AUTOMATIC": "<:wumpus_land:759529118671831040> Automatic",
+  "REGION_AUTOMATIC": "{{automaticEmoji}} Automatic",
   "REGIONS": {
     "brazil": "🇧🇷 Brazil",
     "europe": "🇪🇺 Europe",
@@ -194,7 +194,7 @@
     "us-south": "🇺🇸 US South",
     "us-east": "🇺🇸 US East",
     "us-west": "🇺🇸 US West",
-    "null": "<:wumpus_land:759529118671831040> Automatic"
+    "null": "{{automaticEmoji}} Automatic"
   },
   "KEY_PERMISSIONS": "Key Permissions",
   "PERMISSIONS_TEXT": "Permissions",
@@ -1242,7 +1242,7 @@
   "USER_COMMAND_DESCRIPTION": "Get a general overview of a user.",
   "SNOWFLAKE_COMMAND_DESCRIPTION": "Get information about a Discord snowflake",
   "SNOWFLAKE_ARGUMENT_DESCRIPTION": "Any valid snowflake",
-  "USER_SNOWFLAKE_DESCRIPTION": "It looks like that isn't a valid user, but it is a valid snowflake! <:snowflak:784510818556706867>\n\nA [Snowflake](https://discord.com/developers/docs/reference#snowflakes) is essentially a unique ID for a resource (message, user, channel, etc) which contains a timestamp.\n\nYou can copy the snowflakes from messages in Discord by right clicking on them.\nYou must have Developer Mode enabled, which is found in User Settings > Advanced",
+  "USER_SNOWFLAKE_DESCRIPTION": "It looks like that isn't a valid user, but it is a valid snowflake! {{snowflakeemoji}}\n\nA [Snowflake](https://discord.com/developers/docs/reference#snowflakes) is essentially a unique ID for a resource (message, user, channel, etc) which contains a timestamp.\n\nYou can copy the snowflakes from messages in Discord by right clicking on them.\nYou must have Developer Mode enabled, which is found in User Settings > Advanced",
   "USER_SNOWFLAKE_BELONGS_TO": "**Belongs To**: {{type}}",
   "USER_SNOWFLAKE_BELONGS_TO_EXTRA": "**Belongs To**: {{type}} ({{extra}})",
   "USER_BOT_PUBLIC": "Public Bot",

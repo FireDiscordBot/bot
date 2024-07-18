@@ -66,10 +66,11 @@ export default class Color extends Command {
       });
     }
 
-    const colorInfo = `<:pallete:804044718379237407> ${message.language.get(
-      "COLOR_HEADING",
-      { color: color.toName() || color.toHexString() }
-    )}
+    const colorInfo = `${this.client.util.useEmoji(
+      "pallete"
+    )} ${message.language.get("COLOR_HEADING", {
+      color: color.toName() || color.toHexString(),
+    })}
 
 **HEX:** ${color.toHexString()}
 **HEX8:** ${color.toHex8String()}
