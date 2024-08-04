@@ -355,16 +355,16 @@ export default class User extends Command {
       );
     if (guild && guild.ownerId == user.id)
       emojis.push(this.client.util.useEmoji("GUILD_OWNER"));
-    emojis.push(
-      ...Object.keys(constants.badges)
-        .filter((badge: UserFlagsString) => flags.includes(badge))
-        .map((badge) => this.client.util.useEmoji(badge))
-    );
     if (user.isSuperuser())
       emojis.push(this.client.util.useEmoji("FIRE_ADMIN"));
     if (user.premium) emojis.push(this.client.util.useEmoji("FIRE_PREMIUM"));
     if (user.id == "159985870458322944")
       emojis.push(this.client.util.useEmoji("NO_MEE6"));
+    emojis.push(
+      ...constants.badges
+        .filter((badge: UserFlagsString) => flags.includes(badge))
+        .map((badge) => this.client.util.useEmoji(badge))
+    );
     // useEmoji will return an empty string if the emoji is not found
     // so this will remove any empty strings from the list
     // which shouldn't happen but just in case
