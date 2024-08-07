@@ -77,6 +77,7 @@ export default class Ban extends Command {
         return await command.error("BAN_CONTEXT_AUTOMOD_ONLY");
       args.user = command.getMessage().member ?? command.getMessage().author;
       args.reason = command.contextCommand.commandName.split("Ban - ")[1];
+      args.days = 7;
     }
 
     if (typeof args.user == "undefined")
