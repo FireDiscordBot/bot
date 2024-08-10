@@ -393,7 +393,7 @@ export default class MCLogs extends Module {
       fabricCrashSubModEntry:
         /^\t{3}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+]+)$/gim,
       essentialVersion:
-        /Starting Essential v(?<version>\d\.\d\.\d\.\d) \(#(?<commit>\b[0-9a-f]{10})\) \[(?<branch>\w*)\]/gim,
+        /Starting Essential v(?<version>\d\.\d\.\d(?:.\d)?) \(#(?<commit>\b[0-9a-f]{10})\) \[(?<branch>\w*)\]/gim,
       fullLogJavaVersion:
         /Java is (?<name>.* VM), version (?<version>\d*\.\d*\.\d*(?:_\d{1,3})?(?:-b\d{1,3})?). running on (?<os>(?<osname>[\w\s]*):(?<osarch>\w*):(?<osversion>.*)), installed at (?<path>.*)$/gim,
       crashReportJavaVersion:
