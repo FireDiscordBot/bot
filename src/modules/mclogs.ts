@@ -1468,7 +1468,9 @@ export default class MCLogs extends Module {
         .catch(() => [] as FabricLoaderVersion[]);
       if (
         loaderData.length &&
-        loaderData[0].loader.version != versions.loaderVersion
+        loaderData[0].loader.version != versions.loaderVersion &&
+        // gotta love telling users to update from 0.16.0 to 0.15.11
+        semverLessThan(versions.loaderVersion, loaderData[0].loader.version)
       )
         currentSolutions.add(
           "- **" +
