@@ -342,4 +342,60 @@ export default class GuildMemberUpdate extends Listener {
       embed.addField(guild.language.get("REASON"), action.reason);
     await guild.memberLog(embed, MemberLogTypes.MEMBER_UPDATE).catch(() => {});
   }
+
+  async logVerificationBypass(
+    action: GuildAuditLogsEntry<"MEMBER_UPDATE">,
+    change: AuditLogChange,
+    guild: FireGuild,
+    members: {
+      target: FireMember;
+      executor: FireMember;
+    }
+  ) {
+    const target = members.target;
+    const executor = members.executor;
+    if (executor && executor.user.bot && executor.id != this.client.user.id)
+      return;
+    const embed = new MessageEmbed()
+      .setAuthor({
+        name: target ? target.toString() : action.targetId,
+        iconURL: target
+          ? target.user.displayAvatarURL({
+              size: 2048,
+              format: "png",
+              dynamic: true,
+            })
+          : guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      })
+      .setTimestamp(action.createdTimestamp)
+      .setColor(
+        target && target.displayColor
+          ? target?.displayColor
+          : executor.displayColor ?? "#FFFFFF"
+      )
+      .setFooter({ text: action.targetId })
+      .addFields({
+        name: guild.language.get("VERIFICATIONBYPASSLOG_FIELD_TITLE"),
+        value: `${
+          change.old
+            ? this.client.util.useEmoji("success")
+            : this.client.util.useEmoji("error")
+        } ➜ ${
+          change.new
+            ? this.client.util.useEmoji("success")
+            : this.client.util.useEmoji("error")
+        }`,
+      });
+    if (executor && executor.id != action.targetId)
+      embed.addFields({
+        name: guild.language.get("MODERATOR"),
+        value: executor.toString(),
+      });
+    if (action.reason)
+      embed.addFields({
+        name: guild.language.get("REASON"),
+        value: action.reason,
+      });
+    await guild.memberLog(embed, MemberLogTypes.MEMBER_UPDATE).catch(() => {});
+  }
 }

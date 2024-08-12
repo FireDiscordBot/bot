@@ -126,6 +126,17 @@ export default class GuildAuditLogEntryCreate extends Listener {
           target,
           executor,
         });
+      // @ts-ignore, key not added yet
+      else if (change.key == "bypasses_verification")
+        this.guildMemberUpdate.logVerificationBypass(
+          auditLogEntry,
+          change,
+          guild,
+          {
+            target,
+            executor,
+          }
+        );
   }
 
   async ["MEMBER_ROLE_UPDATE"](
