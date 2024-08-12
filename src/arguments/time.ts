@@ -81,7 +81,17 @@ export const parseTime = (
   const foundTimes = parsed[0].text.split(",");
   for (const time of foundTimes) text = text.replace(time, "");
   text = text.replace(doubledUpWhitespace, " ").trim();
-  return { text: text, date: parsed[0].start.date() };
+
+  // temp fix for "tomorrow" having the wrong hour value
+  let parsedDate = parsed[0].start.date();
+  const parsedTags = parsed[0].start.tags();
+  if (parsedTags.size == 2 && parsedTags.has("casualReference/tomorrow")) {
+    const originalHours = instant.getHours();
+    const parsedHours = parsed[0].start.date().getHours();
+    if (originalHours != parsedHours) parsedDate.setHours(originalHours);
+  }
+
+  return { text, date: parsedDate };
 };
 
 export const parseWithUserTimezone = (
