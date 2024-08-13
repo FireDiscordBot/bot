@@ -105,31 +105,25 @@ const launchersDropdown = new MessageSelectMenu()
       label: "Official Launcher",
       value: "official",
       default: false,
-      emoji: "989151286287040512",
+      // emoji: "989151286287040512",
     },
     {
       label: "Curseforge",
       value: "curseforge",
       default: false,
-      emoji: "1002100323562819594",
+      // emoji: "1002100323562819594",
     },
     {
       label: "MultiMC/Prism",
       value: "multimc",
       default: false,
-      emoji: "1002101259161051146",
+      // emoji: "1002101259161051146",
     },
     {
       label: "Feather",
       value: "feather",
       default: false,
-      emoji: "1048569592240410724",
-    },
-    {
-      label: "PolyMC",
-      value: "polymc",
-      default: false,
-      emoji: "1035582585063088198",
+      // emoji: "1048569592240410724",
     },
   ]);
 
