@@ -4,6 +4,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
+import { Fire } from "@fire/lib/Fire";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Module } from "@fire/lib/util/module";
 import {
@@ -95,37 +96,38 @@ const cancelButton = new MessageButton()
   .setStyle("DANGER")
   .setCustomId("cancel_me");
 
-const launchersDropdown = new MessageSelectMenu()
-  .setCustomId("essential_ticket_log_launcher")
-  .setPlaceholder("Select your launcher (what you use to launch the game)")
-  .setMinValues(1)
-  .setMaxValues(1)
-  .addOptions([
-    {
-      label: "Official Launcher",
-      value: "official",
-      default: false,
-      // emoji: "989151286287040512",
-    },
-    {
-      label: "Curseforge",
-      value: "curseforge",
-      default: false,
-      // emoji: "1002100323562819594",
-    },
-    {
-      label: "MultiMC/Prism",
-      value: "multimc",
-      default: false,
-      // emoji: "1002101259161051146",
-    },
-    {
-      label: "Feather",
-      value: "feather",
-      default: false,
-      // emoji: "1048569592240410724",
-    },
-  ]);
+const launchersDropdown = (bot: Fire) =>
+  new MessageSelectMenu()
+    .setCustomId("essential_ticket_log_launcher")
+    .setPlaceholder("Select your launcher (what you use to launch the game)")
+    .setMinValues(1)
+    .setMaxValues(1)
+    .addOptions([
+      {
+        label: "Official Launcher",
+        value: "official",
+        default: false,
+        emoji: bot.util.useEmoji("MINECRAFT"),
+      },
+      {
+        label: "Curseforge",
+        value: "curseforge",
+        default: false,
+        emoji: bot.util.useEmoji("CURSEFORGE"),
+      },
+      {
+        label: "MultiMC/Prism",
+        value: "multimc",
+        default: false,
+        emoji: bot.util.useEmoji("PRISM"),
+      },
+      {
+        label: "Feather",
+        value: "feather",
+        default: false,
+        emoji: bot.util.useEmoji("FEATHER"),
+      },
+    ]);
 
 export default class Essential extends Module {
   otherGuildIds: Snowflake[] = ["874755593506803733"];
@@ -298,7 +300,11 @@ You can run \`/latestlog\` for instructions on how to find your log.`
     )({
       content:
         "Please select what launcher you use from the dropdown below to get instructions on how to find the log",
-      components: [new MessageActionRow().addComponents(launchersDropdown)],
+      components: [
+        new MessageActionRow().addComponents(
+          launchersDropdown(ticket.client as Fire)
+        ),
+      ],
     });
   }
 
