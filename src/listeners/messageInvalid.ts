@@ -42,7 +42,7 @@ export default class MessageInvalid extends Listener {
     if (
       // (this.client.config.dev && process.env.USE_LITECORD != "true") ||
       this.botQuoteRegex.test(message.content) ||
-      !message.guild ||
+      // !message.guild ||
       message.editedAt
     ) {
       this.botQuoteRegex.lastIndex = 0;
@@ -121,7 +121,7 @@ export default class MessageInvalid extends Listener {
     if (
       (quoteCommand.isDisabled(message.guild) &&
         !message.author?.isSuperuser()) ||
-      process.env.NODE_ENV != "production"
+      (process.env.NODE_ENV != "production" && message.guild)
     ) {
       this.cleanCommandUtil(message);
       return;

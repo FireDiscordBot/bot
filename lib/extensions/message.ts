@@ -447,7 +447,7 @@ export class FireMessage extends Message {
       return "dm";
     }
 
-    if (quoter instanceof FireUser) {
+    if (quoter instanceof FireUser && destination.guild) {
       if (debug)
         debug.push(
           "Quoter is FireUser and message was not saved, can't continue with permission checks"
@@ -473,19 +473,20 @@ export class FireMessage extends Message {
         .has(PermissionFlagsBits.ReadMessageHistory);
     if (debug) debug.push(`Is lurkable: ${isLurkable}`);
     let member: FireMember;
-    if (this.guild.id == destination?.guild?.id) member = quoter;
+    if (this.guild.id == destination?.guild?.id && quoter instanceof FireMember)
+      member = quoter;
     if (
       !this.guild.features?.includes("DISCOVERABLE") ||
       (this.guild.features?.includes("DISCOVERABLE") && !isLurkable)
     ) {
-      if (this.guild.id != destination?.guild.id) {
+      if (this.guild.id != destination?.guild?.id) {
         member = (await this.guild.members
           .fetch({ user: quoter, cache: false })
           .catch(() => undefined)) as FireMember;
-      } else member = quoter;
+      } else if (quoter instanceof FireMember) member = quoter;
     }
 
-    if (debug)
+    if (debug && member)
       debug.push(
         `Member is of type ${member?.constructor.name ?? typeof member}`
       );
@@ -529,6 +530,7 @@ export class FireMessage extends Message {
       ).size == 0 ||
       !this.content;
     const useWebhooks =
+      destination.guild &&
       (destination.guild as FireGuild).hasExperiment(3959319643, 1) &&
       (!!webhook ||
         ((destination.guild as FireGuild).settings.get<boolean>(
@@ -867,7 +869,7 @@ export class FireMessage extends Message {
       if (debug) debug.push("Destination is not a channel or thread");
       return;
     }
-    const { language } = destination.guild as FireGuild;
+    const { language } = (destination.guild as FireGuild) ?? quoter;
     const extraEmbeds: MessageEmbed[] = [];
     if (!this.content && this.author.bot && this.embeds.length) {
       return await destination.send({
@@ -954,7 +956,7 @@ export class FireMessage extends Message {
       }
     }
     if (this.channel != destination) {
-      if (this.guild && this.guild.id != destination.guild.id)
+      if (this.guild && this.guild.id != destination.guild?.id)
         embed.setFooter({
           text: language.get("QUOTE_EMBED_FOOTER_ALL", {
             user: quoter.toString(),

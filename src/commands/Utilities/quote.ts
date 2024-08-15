@@ -73,7 +73,11 @@ export default class Quote extends Command {
       debug?: boolean;
     }
   ) {
-    if (message && !message.guild)
+    if (
+      message &&
+      !message.guild &&
+      !message.author.hasExperiment(3069732134, 1)
+    )
       return await message.error("COMMAND_GUILD_ONLY", {
         invite: this.client.config.inviteLink,
       });
@@ -163,7 +167,7 @@ export default class Quote extends Command {
         message instanceof ApplicationCommandMessage
           ? (message.realChannel as GuildTextChannel)
           : (message.channel as GuildTextChannel),
-        message.member,
+        message.member ?? message.author,
         webhook,
         debugMessages
       )
