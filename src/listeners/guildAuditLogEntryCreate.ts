@@ -362,7 +362,9 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setTimestamp(target.createdAt)
       .setAuthor({
         name: guild.language.get("CHANNELCREATELOG_AUTHOR", {
-          type: titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
+          type: target.type
+            ? titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " "))
+            : "Unknown",
           guild: guild.name,
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
@@ -474,7 +476,9 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setTimestamp(thread.createdAt)
       .setAuthor({
         name: guild.language.get("CHANNELCREATELOG_AUTHOR", {
-          type: titleCase(thread.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
+          type: thread.type
+            ? titleCase(thread.type.replace(REPLACE_UNDERSCORE_REGEX, " "))
+            : "Unknown",
           guild: guild.name,
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
@@ -552,7 +556,9 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setTimestamp(auditLogEntry.createdAt)
       .setAuthor({
         name: guild.language.get("CHANNELUPDATELOG_AUTHOR", {
-          type: titleCase(target.type.replace(/_/g, " ")),
+          type: target.type
+            ? titleCase(target.type.replace(/_/g, " "))
+            : "Unknown",
           channel: target.name,
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
@@ -760,7 +766,9 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setTimestamp(auditLogEntry.createdAt)
       .setAuthor({
         name: guild.language.get("CHANNELUPDATELOG_AUTHOR", {
-          type: titleCase(thread.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
+          type: thread.type
+            ? titleCase(thread.type.replace(REPLACE_UNDERSCORE_REGEX, " "))
+            : "Unknown",
           channel: thread.name,
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
@@ -910,7 +918,9 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setTimestamp(auditLogEntry.createdAt)
       .setAuthor({
         name: guild.language.get("CHANNELDELETELOG_AUTHOR", {
-          type: titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
+          type: target.type
+            ? titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " "))
+            : "Unknown",
           guild: guild.name,
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
@@ -1038,7 +1048,9 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setTimestamp(auditLogEntry.createdAt)
       .setAuthor({
         name: guild.language.get("CHANNELDELETELOG_AUTHOR", {
-          type: titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " ")),
+          type: target.type
+            ? titleCase(target.type.replace(REPLACE_UNDERSCORE_REGEX, " "))
+            : "Unknown",
           guild: guild.name,
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
