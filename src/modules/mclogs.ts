@@ -604,6 +604,7 @@ export default class MCLogs extends Module {
       " with Fabric Loader ",
       "net/digitalingot/feather-server-api-proto",
       'Essential branch set to "stable" via default.',
+      "Using QUIC because both parties support it.",
     ];
   }
 
