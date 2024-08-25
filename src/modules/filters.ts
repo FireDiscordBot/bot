@@ -60,7 +60,7 @@ export default class Filters extends Module {
   }
 
   // Ensures next filter doesn't get stopped by an error in the previous
-  async safeExc(promise: Function, ...args: any[]) {
+  private async safelyRunPromise(promise: Function, ...args: any[]) {
     try {
       await promise(...args);
     } catch {}
@@ -133,7 +133,7 @@ export default class Filters extends Module {
           this.client.console.warn(`[Filters] Running handler(s) for ${name}`);
         this.filters[name].map(
           async (handler) =>
-            await this.safeExc(handler.bind(this), message, extra)
+            await this.safelyRunPromise(handler.bind(this), message, extra)
         );
       }
   }
@@ -457,7 +457,11 @@ export default class Filters extends Module {
               embed.url,
               inviteMatch[0]
             );
-            await this.safeExc(this.handleInvite.bind(this), message, "");
+            await this.safelyRunPromise(
+              this.handleInvite.bind(this),
+              message,
+              ""
+            );
           }
         }
       } catch {}
