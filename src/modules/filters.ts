@@ -336,17 +336,15 @@ export default class Filters extends Module {
       " " +
       message.attachments.map((attachment) => attachment.description).join(" ");
     let found: RegExpExecArray[] = [];
-    let invites: string[] = [];
     let regexec: RegExpExecArray;
     const sanitizedSearch = sanitizer(searchString);
     for (const regex of regexes.invites)
       while ((regexec = regex.exec(sanitizedSearch))) {
         found.push(regexec);
-        if (regexec?.length >= 3 && !invites.includes(regexec[2]))
-          invites.push(regexec[2]);
       }
     found = found.filter(
-      (exec, pos) => exec?.length >= 3 && invites.indexOf(exec[2]) == pos
+      (exec, pos, arr) =>
+        exec?.length >= 3 && arr.findIndex((m) => m[2] == exec[2]) == pos
     ); // remove non matches and duplicates
     for (const exec of found) {
       let invite: Invite;
@@ -391,41 +389,37 @@ export default class Filters extends Module {
         })
         .setFooter({ text: message.author.id });
       if (invite) {
-        if (invite.guild.description.length + embed.description.length < 4000)
+        if (invite.guild.description?.length + embed.description.length < 4000)
           embed.setDescription(
             embed.description + `\n\n${invite.guild.description}`
           );
-        embed
-          .addField(
-            message.guild.language.get("FILTER_INVITE_LOG_CODE"),
-            invite.code,
-            false
-          )
-          .addField(
-            message.guild.language.get("GUILD"),
-            `${invite.guild.name} (${invite.guild.id})`,
-            false
-          )
-          .addField(
-            message.guild.language.get("CHANNEL"),
-            `${invite.channel.name} (${invite.channel.id})`,
-            false
-          )
-          .addField(
-            message.guild.language.get("MEMBERS"),
-            `⬤ ${invite.presenceCount.toLocaleString(
+        embed.addFields([
+          {
+            name: message.guild.language.get("FILTER_INVITE_LOG_CODE"),
+            value: invite.code,
+          },
+          {
+            name: message.guild.language.get("GUILD"),
+            value: `${invite.guild.name} (${invite.guild.id})`,
+          },
+          {
+            name: message.guild.language.get("CHANNEL"),
+            value: `${invite.channel.name} (${invite.channel.id})`,
+          },
+          {
+            name: message.guild.language.get("MEMBERS"),
+            value: `⬤ ${invite.presenceCount.toLocaleString(
               message.guild.language.id
             )} | ⭘ ${invite.memberCount.toLocaleString(
               message.guild.language.id
             )}`,
-            false
-          );
+          },
+        ]);
       } else
-        embed.addField(
-          message.guild.language.get("FILTER_INVITE_LOG_LINK"),
-          exec[0],
-          false
-        );
+        embed.addFields({
+          name: message.guild.language.get("FILTER_INVITE_LOG_LINK"),
+          value: exec[0],
+        });
       if (
         message.type == "AUTO_MODERATION_ACTION" &&
         message.guild.members.me
@@ -477,6 +471,12 @@ export default class Filters extends Module {
     )
       return;
     if (message?.member.isModerator(message.channel)) return;
+    // probably not necessary since we should always have exec but whatever
+    if (exec?.groups?.code)
+      if (exec.groups.code.endsWith("https"))
+        exec.groups.code = exec.groups.code.slice(0, -5);
+      else if (exec.groups.code.endsWith("http"))
+        exec.groups.code = exec.groups.code.slice(0, -4);
     let invite: Invite;
     if (
       [
