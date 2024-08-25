@@ -14,10 +14,7 @@ export class GuildSettings {
   constructor(client: Fire, guild: Snowflake | FireGuild) {
     this.client = client;
     this.guild = guild;
-    if (
-      this.shouldMigrate &&
-      !this.get(`settings.migration.${this.migrationId}`, false)
-    )
+    if (this.unmigrated)
       this.client.waitUntilReady().then(() =>
         this.runMigration().then(() => {
           this.set(`settings.migration.${this.migrationId}`, true);
@@ -35,8 +32,18 @@ export class GuildSettings {
   }
 
   // will check if migration is needed for the current migration script
-  get shouldMigrate() {
+  // must be synchronous so it can be used in the constructor and the getter below
+  shouldMigrate() {
     return this.has("logging.action.flags");
+  }
+
+  // boolean to determine whether the migration has been run (based on the migrationId)
+  // if a migration is needed (based on the return value of shouldMigrate)
+  get unmigrated() {
+    return (
+      this.shouldMigrate() &&
+      !this.get(`settings.migration.${this.migrationId}`, false)
+    );
   }
 
   // unique identifier for the migration script
@@ -116,19 +123,35 @@ export class UserSettings {
   constructor(client: Fire, user: Snowflake | FireUser) {
     this.client = client;
     this.user = user;
-    if (this.shouldMigrate)
-      this.runMigration().then(() =>
+    if (this.unmigrated)
+      this.runMigration().then(() => {
+        this.set(`settings.migration.${this.migrationId}`, true);
         this.client.console.log(
           `[GuildSettings] Migration complete for`,
           this.user instanceof FireUser ? this.user.toString() : this.user,
           `${this.user instanceof FireUser ? "(" + this.user.id + ")" : ""}`
-        )
-      );
+        );
+      });
   }
 
   // will check if migration is needed for the current migration script
-  get shouldMigrate() {
+  // must be synchronous so it can be used in the constructor and the getter below
+  shouldMigrate() {
     return false;
+  }
+
+  // boolean to determine whether the migration has been run (based on the migrationId)
+  // if a migration is needed (based on the return value of shouldMigrate)
+  get unmigrated() {
+    return (
+      this.shouldMigrate() &&
+      !this.get(`settings.migration.${this.migrationId}`, false)
+    );
+  }
+
+  // unique identifier for the current migration script
+  get migrationId() {
+    return "";
   }
 
   // will be empty unless there's a migration to run
