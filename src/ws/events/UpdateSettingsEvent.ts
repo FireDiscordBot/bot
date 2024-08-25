@@ -26,6 +26,7 @@ export default class UpdateSettingsEvent extends Event {
   ) {
     let settings: UserSettings | GuildSettings;
     if (data.type == "user") {
+      const userSettings = this.manager.client.userSettings;
       const user = (await this.manager.client.users
         .fetch(data.id)
         .catch(() => {})) as FireUser;
@@ -39,8 +40,10 @@ export default class UpdateSettingsEvent extends Event {
             )
           )
         );
+      if (!userSettings.items.has(user.id)) await userSettings.init(user.id);
       settings = user.settings;
     } else if (data.type == "guild") {
+      const guildSettings = this.manager.client.guildSettings;
       const guild = this.manager.client.guilds.cache.get(data.id) as FireGuild;
       if (!guild)
         return this.manager.ws.send(
@@ -52,6 +55,8 @@ export default class UpdateSettingsEvent extends Event {
             )
           )
         );
+      if (!guildSettings.items.has(guild.id))
+        await guildSettings.init(guild.id);
       settings = guild.settings;
     }
 
