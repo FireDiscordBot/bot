@@ -1,14 +1,10 @@
 import { Fire } from "@fire/lib/Fire";
 import { Provider } from "discord-akairo";
 import { Collection, Snowflake } from "discord.js";
-import Semaphore from "semaphore-async-await";
 import { ArrayValue, Client, Primitive, ResultIterator } from "ts-postgres";
 
 export class PostgresProvider extends Provider {
   declare items: Collection<Snowflake, any>;
-  currentMigration: boolean;
-  migrationLock: Semaphore;
-  toMigrate: Snowflake[]; // array of keys that require migration
   dataColumn: string;
   tableName: string;
   idColumn: string;
@@ -25,14 +21,8 @@ export class PostgresProvider extends Provider {
     this.dataColumn = dataColumn;
     this.tableName = tableName;
     this.idColumn = idColumn;
-    this.toMigrate = [];
     this.bot = bot;
     this.db = db;
-
-    // if migration is needed on a table,
-    // this will be tableName == "table"
-    this.currentMigration = false;
-    this.migrationLock = new Semaphore(2);
   }
 
   // shouldCheckShards is used to load all configs (e.g. for migrating guilds fire has left)
@@ -60,9 +50,6 @@ export class PostgresProvider extends Provider {
             : data
           : row
       );
-
-      // add to list so migration can be tracked (will remove upon completion)
-      if (this.currentMigration) this.toMigrate.push(id);
     }
     return this.items;
   }

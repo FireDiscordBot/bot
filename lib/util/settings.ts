@@ -4,7 +4,7 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { CategoryChannel, Snowflake } from "discord.js";
+import { Snowflake } from "discord.js";
 import { DiscoveryUpdateOp } from "../interfaces/stats";
 
 export class GuildSettings {
@@ -32,12 +32,6 @@ export class GuildSettings {
           );
         })
       );
-    else
-      this.client.guildSettings.toMigrate =
-        this.client.guildSettings.toMigrate.filter(
-          (id) =>
-            id != (this.guild instanceof FireGuild ? this.guild.id : this.guild)
-        );
   }
 
   // will check if migration is needed for the current migration script
@@ -130,12 +124,6 @@ export class UserSettings {
           `${this.user instanceof FireUser ? "(" + this.user.id + ")" : ""}`
         )
       );
-    else
-      this.client.userSettings.toMigrate =
-        this.client.userSettings.toMigrate.filter(
-          (id) =>
-            id != (this.user instanceof FireUser ? this.user.id : this.user)
-        );
   }
 
   // will check if migration is needed for the current migration script
