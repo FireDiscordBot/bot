@@ -382,11 +382,11 @@ export default class MCLogs extends Module {
       fabricModsHeader:
         /\[main\/INFO]:? (?:\(FabricLoader\) )?Loading \d{1,4} mods:/gim,
       classicFabricModsEntry:
-        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)(?: via (?<via>[a-z0-9_\-]{2,}))?$/gim,
+        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}]+)(?: via (?<via>[a-z0-9_\-]{2,}))?$/gim,
       fabricModsEntry:
-        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)$/gim,
+        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}]+)$/gim,
       fabricSubModEntry:
-        /^\s+(?<subtype>\\--|\|--|\|\s+\\--) (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+]+)$/gim,
+        /^\s+(?<subtype>\\--|\|--|\|\s+\\--) (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}]+)$/gim,
       fabricCrashModsHeader: /^\tFabric Mods: $/gim,
       fabricCrashModEntry:
         /^\t{2}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+]+)$/gim,
@@ -1644,6 +1644,8 @@ export default class MCLogs extends Module {
           mod.version == "1.0.0"
         )
           continue;
+        // skip broken version, found with "inventoryhud" mod
+        if (mod.partial == false && mod.version == "${version}") continue;
         const mainModId = this.getMainModId(mod.modId);
         if (mainModId in this.modVersions && mod.partial == false) {
           let latest =
