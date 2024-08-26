@@ -53,8 +53,8 @@ enum Loaders {
   FABRIC = "Fabric",
   QUILT = "Quilt",
   OPTIFINE = "Vanilla w/OptiFine HD U", // will be shown as "Vanilla w/OptiFine HD U H4"
-  FEATHER_FORGE = "Feather on Forge", // Feather's version will be inserted before displaying
-  FEATHER_FABRIC = "Feather on Fabric", // same here
+  FEATHER_FORGE = "Feather with Forge", // Feather's version will be inserted before displaying
+  FEATHER_FABRIC = "Feather with Fabric", // same here
 }
 
 type ModLoaders = "Forge" | "Fabric" | "Quilt";
@@ -382,16 +382,16 @@ export default class MCLogs extends Module {
       fabricModsHeader:
         /\[main\/INFO]:? (?:\(FabricLoader\) )?Loading \d{1,4} mods:/gim,
       classicFabricModsEntry:
-        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}]+)(?: via (?<via>[a-z0-9_\-]{2,}))?$/gim,
+        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}/]+)(?: via (?<via>[a-z0-9_\-]{2,}))?$/gim,
       fabricModsEntry:
-        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}]+)$/gim,
+        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}/]+)$/gim,
       fabricSubModEntry:
-        /^\s+(?<subtype>\\--|\|--|\|\s+\\--) (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}]+)$/gim,
+        /^\s+(?<subtype>\\--|\|--|\|\s+\\--) (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}/]+)$/gim,
       fabricCrashModsHeader: /^\tFabric Mods: $/gim,
       fabricCrashModEntry:
-        /^\t{2}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+]+)$/gim,
+        /^\t{2}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+${}/]+)$/gim,
       fabricCrashSubModEntry:
-        /^\t{3}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+]+)$/gim,
+        /^\t{3}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+${}/]+)$/gim,
       essentialVersion:
         /Starting Essential v(?<version>\d\.\d\.\d(?:.\d)?) \(#(?<commit>\b[0-9a-f]{10})\) \[(?<branch>\w*)\]/gim,
       fullLogJavaVersion:
@@ -402,27 +402,51 @@ export default class MCLogs extends Module {
         /^vm_info: (?<name>.* VM) \(.*\) for (?<os>(?<osname>[\w\s]*)-(?<osarch>\w*)) JRE \((?<version>\d*\.\d*\.\d*(?:_\d{1,3})?(?:-b\d{1,3})?)\)/gim,
       loaderVersions: [
         // The Feather regexes need to be above the regular loader regexes since otherwise, they'd be matched by the regular ones
+        // We also need to match the Feather version first so we can have it to validate if we're actually on Feather
         {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
-            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
+            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
+            /^\s+\- feather release\/(?<featherver>\w+)$/gim,
+            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER_FABRIC,
+          regexes: [
+            /Started Feather \((?<featherver>\w*)\)/gim,
             /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
             /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
-            /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
+            /feather(?:@|\s*)release\/(?<featherver>\w+)$/gim,
+            /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER_FABRIC,
+          regexes: [
+            /Started Feather \((?<featherver>\w*)\)/gim,
             /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
             /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
-            /Started Feather \((?<featherver>\w*)\)/gim,
+          ],
+        },
+        {
+          loader: Loaders.FEATHER_FABRIC,
+          regexes: [
+            /^\t{2}feather: Feather Client release\/(?<featherver>[\w\.\-+${}/]+)$/gim,
+            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
@@ -758,8 +782,10 @@ export default class MCLogs extends Module {
           loader = config.loader;
         else if (
           // reset if we're on Feather without its version
-          config.loader == Loaders.FEATHER_FORGE ||
-          config.loader == Loaders.FEATHER_FABRIC
+          mcVersion &&
+          loaderVersion &&
+          (config.loader == Loaders.FEATHER_FORGE ||
+            config.loader == Loaders.FEATHER_FABRIC)
         )
           mcVersion = loaderVersion = undefined;
       }
@@ -928,7 +954,7 @@ export default class MCLogs extends Module {
           });
       }
     } else if (
-      loader == Loaders.FABRIC &&
+      (loader == Loaders.FABRIC || loader == Loaders.FEATHER_FABRIC) &&
       this.regexes.fabricModsHeader.test(log)
     ) {
       this.regexes.fabricModsHeader.lastIndex = 0;
@@ -1035,7 +1061,7 @@ export default class MCLogs extends Module {
         }
       }
     } else if (
-      loader == Loaders.FABRIC &&
+      (loader == Loaders.FABRIC || loader == Loaders.FEATHER_FABRIC) &&
       this.regexes.fabricCrashModsHeader.test(log)
     ) {
       this.regexes.fabricCrashModsHeader.lastIndex = 0;
@@ -1451,7 +1477,10 @@ export default class MCLogs extends Module {
         currentSolutions.add(`- **${sol}**`);
     }
 
-    if (versions?.loader == Loaders.FABRIC) {
+    if (
+      versions?.loader == Loaders.FABRIC ||
+      versions?.loader == Loaders.FEATHER_FABRIC
+    ) {
       if (versions?.optifineVersion)
         currentSolutions.add(
           `- **Fabric is not supported by OptiFine. It is recommended to use the (way better) alternatives from this list \n<https://lambdaurora.dev/optifine_alternatives>**`
@@ -2200,12 +2229,13 @@ export default class MCLogs extends Module {
         );
 
       const logHaste = (message.guild ?? message).language
-        .get("MC_LOG_HASTE", {
+        .get(ign ? "MC_LOG_HASTE_WITH_IGN" : "MC_LOG_HASTE", {
           extra: msgType == "uploaded" ? message.content : "",
           details: details.map((d) => `- ${d}`).join("\n"),
           user: message.author.toMention(),
           solutions: possibleSolutions,
           msgType,
+          ign,
         })
         .trim();
 
@@ -2225,7 +2255,13 @@ export default class MCLogs extends Module {
         else
           return await message.channel.send({
             content: (message.guild ?? message).language.get(
-              mcInfo.loader ? "MC_LOG_HASTE_WITH_LOADER" : "MC_LOG_HASTE",
+              mcInfo.loader
+                ? ign
+                  ? "MC_LOG_HASTE_WITH_LOADER_AND_IGN"
+                  : "MC_LOG_HASTE_WITH_LOADER"
+                : ign
+                ? "MC_LOG_HASTE_WITH_IGN"
+                : "MC_LOG_HASTE",
               {
                 extra: msgType == "uploaded" ? message.content : "",
                 solutions: (message.guild ?? message).language.get(
@@ -2236,6 +2272,7 @@ export default class MCLogs extends Module {
                 minecraft: mcInfo.mcVersion,
                 loader: mcInfo.loader,
                 msgType,
+                ign,
               }
             ),
             allowedMentions,
