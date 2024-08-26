@@ -10,7 +10,7 @@ export default class MigrationInhibitor extends Inhibitor {
   }
 
   async exec(message: FireMessage) {
-    if (message.guild.settings.unmigrated) {
+    if (message.guild?.settings.unmigrated) {
       await message.error("CONFIG_GUILD_MIGRATION").catch(() => {});
       return true;
     } else if (message.author.settings.unmigrated) {
