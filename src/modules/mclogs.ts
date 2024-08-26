@@ -1833,7 +1833,7 @@ export default class MCLogs extends Module {
           )
             rawURL.pathname = rawURL.pathname.slice(0, -4);
           pasteURLs.push(rawURL);
-          message.content = message.content.replace(match, "");
+          message.content = message.content.replaceAll(match, "");
         }
       }
     }
