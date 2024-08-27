@@ -74,6 +74,24 @@ export class ProfileNotFoundError extends MojangAPIError {
   }
 }
 
+export class UUIDConflictError extends MojangAPIError {
+  ign: string;
+  checkUUID: string;
+  constructor(ign: string, checkUUID: string) {
+    super("UUID conflict", 209);
+    this.ign = ign;
+    this.checkUUID = checkUUID;
+  }
+}
+
+export class ProfileConflictError extends MojangAPIError {
+  profile: MojangProfile;
+  constructor(profile: MojangProfile) {
+    super("IGN does not match requested, UUID matches checked", 209);
+    this.profile = profile;
+  }
+}
+
 type PasteURL =
   | "h.inv.wtf"
   | "hst.sh"
@@ -243,17 +261,36 @@ export class Util extends ClientUtil {
     }
   }
 
-  async mcProfile(player: string) {
+  async mcProfile(player: string, uuid?: string) {
     if (!this.client.manager.REST_HOST)
       throw new MojangAPIError("No REST host set", 500);
     const profileReq = await centra(
-      `${this.client.manager.REST_HOST}/${this.client.manager.CURRENT_REST_VERSION}/minecraft/uuid/${player}`
+      `${this.client.manager.REST_HOST}/${
+        this.client.manager.CURRENT_REST_VERSION
+      }/minecraft/uuid/${player}?checkUUID=${uuid ?? "false"}`
     )
       .header("User-Agent", this.client.manager.ua)
       .send();
     const body = await profileReq.json();
     if (profileReq.statusCode == 404) throw new ProfileNotFoundError();
-    else if (profileReq.statusCode != 200)
+    else if (
+      profileReq.statusCode == 209 &&
+      "success" in body &&
+      body.success == false
+    )
+      throw new UUIDConflictError(player, uuid);
+    else if (profileReq.statusCode == 209) {
+      // We should have a profile here, but the name will be different
+      if (
+        "name" in body &&
+        body.name != player &&
+        "id" in body &&
+        "idDashed" in body &&
+        (uuid == body.id || uuid == body.idDashed)
+      )
+        throw new ProfileConflictError(body as MojangProfile);
+      else throw new MojangAPIError("Conflict", 209);
+    } else if (profileReq.statusCode != 200)
       throw new MojangAPIError(
         body.error ?? "Unknown error",
         profileReq.statusCode

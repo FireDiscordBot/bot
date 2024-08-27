@@ -686,6 +686,8 @@
   "MC_LOG_MOBILE_UNSUPPORTED": "Logs from mobile devices (PojavLauncher) are not supported.",
   "MC_LOG_CHEATS_FOUND": "Cheats found. Bailing out, you are on your own now. Good luck.",
   "MC_LOG_CRACKED": "It seems you may be using a cracked/pirated version of the game which is not supported. You should buy the game if possible.",
+  "MC_LOG_UUID_CONFLICT": "Your player information is contradicting itself and I am unable to determine the correct information. Solutions cannot currently be provided",
+  "MC_LOG_PROFILE_CONFLICT": "Your username does not match with your UUID! This can occur if you've recently changed your username and can cause issues with authentication. Try logging out of the launcher and back in again",
   "MC_LOG_HASTE": "{{user}} {{msgType}} a log, {{extra}}\n{{details}}\n{{solutions}}",
   "MC_LOG_HASTE_WITH_IGN": "{{user}} ({{ign}}) {{msgType}} a log, {{extra}}\n{{details}}\n{{solutions}}",
   "MC_LOG_HASTE_WITH_LOADER": "{{user}} {{msgType}} a log from {{loader}} {{version}} on {{minecraft}}, {{extra}}\n{{solutions}}",

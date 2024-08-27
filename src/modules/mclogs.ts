@@ -7,7 +7,9 @@ import { FabricLoaderVersion } from "@fire/lib/interfaces/fabricmc";
 import { ForgePromotions } from "@fire/lib/interfaces/minecraftforge";
 import {
   MojangAPIError,
+  ProfileConflictError,
   ProfileNotFoundError,
+  UUIDConflictError,
   validPasteURLs,
 } from "@fire/lib/util/clientutil";
 import { constants, titleCase } from "@fire/lib/util/constants";
@@ -70,6 +72,10 @@ const ESSENTIAL_TO_SEMVER_REGEX = /(?<main>\d\.\d\.\d)(\.(?<last>\d))/gim;
 const essentialVersionToSemver = (version: string) =>
   version.replace(ESSENTIAL_TO_SEMVER_REGEX, "$1-$3");
 
+// These regexes could probably be stored once created and reused, e.g. saving patchVersionsRegex along with the corresponding versionBase
+// but that's too much effort for now as it is 00:34 and I'm tired
+// Also, this is a big hot mess, but it's all we can do without knowing the exact versioning schemes of the mods
+// Aether does it better as it goes based off the game_versions property from Modrinth's API for known mods
 const cleanModVersion = (
   version: string,
   mcVer: string,
@@ -82,42 +88,46 @@ const cleanModVersion = (
     .filter((_, index) => index != 2)
     .join(".")}`;
   const versionRange = `${versionBase}.x`;
-  const patchVersions = `${versionBase.replace(".", "\\.")}\.\\d{1,2}`;
+  // Replaces versions that do not match our current but have the same major version (e.g. 1.20.4 if we're on 1.20.6)
   const patchVersionsRegex = new RegExp(
-    `-${patchVersions}-|-${patchVersions}|${patchVersions}-`,
+    `(?:\\+|-for-|\\s?-\\s?)?(?:mc)?${versionBase}\\.\\d{1,2}(?:$|\\+|-for-|\\s?-\\s?)`,
     "gim"
   );
-  return version
-    .replace(`mc${mcVer}-`, "")
-    .replace(`-for-${mcVer}`, "")
-    .replace(`+${mcVer}`, "")
-    .replace(`+mc${mcVer}`, "")
-    .replace(`${mcVer}-`, "")
-    .replace(`${mcVer} - `, "")
-    .replace(`-${mcVer}`, "")
-    .replace(`- ${mcVer}`, "")
-    .replace(`+mc${versionBase}`, "")
-    .replace(`mc${versionBase}-`, "")
-    .replace(`-for-${versionBase}`, "")
-    .replace(`+${versionBase}`, "")
-    .replace(`${versionBase}-`, "")
-    .replace(`${versionBase} - `, "")
-    .replace(`-${versionBase}`, "")
-    .replace(`- ${versionBase}`, "")
-    .replace(`mc${versionRange}-`, "")
-    .replace(`-for-${versionRange}`, "")
-    .replace(`+${versionRange}`, "")
-    .replace(`+mc${versionRange}`, "")
-    .replace(`${versionRange}-`, "")
-    .replace(`${versionRange} - `, "")
-    .replace(`-${versionRange}`, "")
-    .replace(`- ${versionRange}`, "")
+  // Replaces the base version (e.g. 1.21 for 1.21.1 or 1.20 for 1.20.6)
+  const versionBaseRegex = new RegExp(
+    `(?:\\+|-for-|\\s?-\\s?)?(?:mc)?${versionBase}(?:$|\\+|-for-|\\s?-\\s?)`,
+    "gim"
+  );
+  // This replaces a fixed range of versions that fit within the same major group (e.g. 1.20.4-1.20.6 if base is 1.20)
+  const versionRangesRegex = new RegExp(
+    `(?:\\+|-for-|\\s?-\\s?)?(?:mc)?${versionBase}\\.\\d{1,2}-${versionBase}\\.\\d{1,2}(?:$|\\+|-for-|\\s?-\\s?)`,
+    "gim"
+  );
+  // This replaces a wildcard version range (e.g. 1.20.x)
+  const versionRangeRegex = new RegExp(
+    `(?:\\+|-for-|\\s?-\\s?)?(?:mc)?${versionRange}(?:$|\\+|-for-|\\s?-\\s?)`,
+    "gim"
+  );
+  // and finally, we replace the current version
+  const currentVersionRegex = new RegExp(
+    `(?:\\+|-for-|\\s?-\\s?)?(?:mc)?${mcVer}(?:$|\\+|-for-|\\s?-\\s?)`,
+    "gim"
+  );
+  const temp = version
+    // This needs to go first as the range may include our current version
+    .replace(versionRangesRegex, "")
+    .replace(currentVersionRegex, "")
+    .replace(versionRangeRegex, "")
     .replace(patchVersionsRegex, "")
+    .replace(versionBaseRegex, "")
     .replace(`-${loader}`, "")
     .replace(`-${loader.toLowerCase()}`, "")
     .replace(`${loader}-`, "")
     .replace(`${loader.toLowerCase()}-`, "")
     .trim();
+
+  console.log("after", { temp });
+  return temp;
 };
 
 type ModSource = `${string}.jar`;
@@ -2069,7 +2079,10 @@ export default class MCLogs extends Module {
       if (ign && !isDevEnv) {
         try {
           const profile = await this.client.util
-            .mcProfile(ign)
+            .mcProfile(
+              ign,
+              loggedUUID ? loggedUUID.replaceAll("-", "") : undefined
+            )
             .catch((e: MojangAPIError) => e);
           if (
             message.guild.settings.get<boolean>(
@@ -2149,7 +2162,15 @@ export default class MCLogs extends Module {
                   },
                 },
               ]);
-          }
+          } else if (profile instanceof UUIDConflictError)
+            possibleSolutions =
+              "\n" + message.guild.language.get("MC_LOG_UUID_CONFLICT");
+          else if (profile instanceof ProfileConflictError)
+            possibleSolutions = `## ${message.guild.language.get(
+              "MC_LOG_POSSIBLE_SOLUTIONS"
+            )}:\n- **${message.guild.language.get(
+              "MC_LOG_PROFILE_CONFLICT"
+            )}**`;
         } catch (e) {
           this.client.console.error(
             `[MCLogs] Failed to get Mojang profile for ${ign}\n${e.stack}`
