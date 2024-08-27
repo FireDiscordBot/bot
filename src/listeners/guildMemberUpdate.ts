@@ -113,7 +113,9 @@ export default class GuildMemberUpdate extends Listener {
         const command = this.client.getCommand("rolepersist") as RolePersist;
         await command.sendLog(
           newMember,
-          roles,
+          newMember.guild.roles.cache
+            .filter((role) => ids.includes(role.id) && !roles.includes(role))
+            .toJSON(),
           newMember.guild.members.me as FireMember,
           newMember.guild.language.get("ROLEPERSIST_AUTO_REMOVE_REASON")
         );
