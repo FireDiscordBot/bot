@@ -113,21 +113,20 @@ const cleanModVersion = (
     `(?:\\+|-for-|\\s?-\\s?)?(?:mc)?${mcVer}(?:$|\\+|-for-|\\s?-\\s?)`,
     "gim"
   );
-  const temp = version
-    // This needs to go first as the range may include our current version
-    .replace(versionRangesRegex, "")
-    .replace(currentVersionRegex, "")
-    .replace(versionRangeRegex, "")
-    .replace(patchVersionsRegex, "")
-    .replace(versionBaseRegex, "")
-    .replace(`-${loader}`, "")
-    .replace(`-${loader.toLowerCase()}`, "")
-    .replace(`${loader}-`, "")
-    .replace(`${loader.toLowerCase()}-`, "")
-    .trim();
-
-  console.log("after", { temp });
-  return temp;
+  return (
+    version
+      // This needs to go first as the range may include our current version
+      .replace(versionRangesRegex, "")
+      .replace(currentVersionRegex, "")
+      .replace(versionRangeRegex, "")
+      .replace(patchVersionsRegex, "")
+      .replace(versionBaseRegex, "")
+      .replace(`-${loader}`, "")
+      .replace(`-${loader.toLowerCase()}`, "")
+      .replace(`${loader}-`, "")
+      .replace(`${loader.toLowerCase()}-`, "")
+      .trim()
+  );
 };
 
 type ModSource = `${string}.jar`;
