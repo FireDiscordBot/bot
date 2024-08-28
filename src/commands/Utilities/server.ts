@@ -362,7 +362,8 @@ export default class GuildCommand extends Command {
       })
       .map((feature) =>
         this.client.util.cleanFeatureName(feature, command.language)
-      );
+      )
+      .sort();
 
     const roles =
       guild instanceof FireGuild
