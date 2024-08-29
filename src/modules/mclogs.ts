@@ -21,6 +21,7 @@ import {
   MessageAttachment,
   MessageButton,
   MessageEmbed,
+  Util,
 } from "discord.js";
 import { lt as semverLessThan, gt as semverGreaterThan } from "semver";
 import { getCodeblockMatch } from "../arguments/codeblock";
@@ -2292,7 +2293,7 @@ export default class MCLogs extends Module {
                 minecraft: mcInfo.mcVersion,
                 loader: mcInfo.loader,
                 msgType,
-                ign,
+                ign: Util.escapeMarkdown(ign),
               }
             ),
             allowedMentions,
