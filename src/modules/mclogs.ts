@@ -2256,7 +2256,7 @@ export default class MCLogs extends Module {
           user: message.author.toMention(),
           solutions: possibleSolutions,
           msgType,
-          ign,
+          ign: Util.escapeMarkdown(ign),
         })
         .trim();
 
