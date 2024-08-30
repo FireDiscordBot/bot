@@ -353,7 +353,9 @@ export default class Select extends Listener {
           );
         if (message.components.length)
           message.components = message.components.filter(
-            (r) => !r.components.find((c) => c.type == "SELECT_MENU")
+            (r) =>
+              r instanceof MessageActionRow &&
+              !r.components.find((c) => c.type == "SELECT_MENU")
           );
         return await select.edit({
           embeds: message.embeds,

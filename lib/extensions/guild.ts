@@ -1480,6 +1480,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         name: message.stickers.map((sticker) => sticker.name)[0],
       })}`;
     for (const row of message.components) {
+      if (!(row instanceof MessageActionRow)) continue;
       const links = row.components.filter(
         (c): c is MessageButton => c.type == "BUTTON" && c.style == "LINK"
       );

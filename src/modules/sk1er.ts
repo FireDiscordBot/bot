@@ -4,7 +4,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Module } from "@fire/lib/util/module";
-import { CategoryChannel, Snowflake } from "discord.js";
+import { CategoryChannel, MessageActionRow, Snowflake } from "discord.js";
 
 const categories = {
   "🖥️": "958837673651478529",
@@ -47,11 +47,8 @@ export default class Sk1er extends Module {
     let emoji: string;
     if (!trigger.message) return "no message";
     const component = (trigger.message as FireMessage).components
-      .map((component) =>
-        component.type == "ACTION_ROW"
-          ? component?.components ?? component
-          : component
-      )
+      .filter((c) => c instanceof MessageActionRow)
+      .map((component) => component.components)
       .flat()
       .find(
         (component) =>

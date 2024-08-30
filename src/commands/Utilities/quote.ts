@@ -211,7 +211,8 @@ export default class Quote extends Command {
       !messageToSave.content &&
       !messageToSave.embeds.length &&
       !messageToSave.attachments.size &&
-      !messageToSave.components.length
+      !messageToSave.components.filter((c) => c instanceof MessageActionRow)
+        .length
     )
       return await command.error("QUOTE_NO_CONTENT_TO_SAVE");
 

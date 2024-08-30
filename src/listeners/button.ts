@@ -1300,12 +1300,14 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       });
       return await button.channel.update({
         content: content.join("\n"),
-        components: button.message.components.map((row) => {
-          row.components = row.components.map((component) =>
-            component.setDisabled(true)
-          );
-          return row;
-        }),
+        components: button.message.components
+          .filter((c) => c instanceof MessageActionRow)
+          .map((row) => {
+            row.components = row.components.map((component) =>
+              component.setDisabled(true)
+            );
+            return row;
+          }),
       });
     }
 

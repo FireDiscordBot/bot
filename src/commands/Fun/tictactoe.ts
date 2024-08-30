@@ -378,9 +378,12 @@ export default class TicTacToe extends Command {
       );
       this.games.set(gameId, game);
 
-      const components = buttonMessage.components;
+      const components = buttonMessage.components.filter(
+        (c) => c instanceof MessageActionRow
+      );
       const actionRowIndex = components.findIndex(
         (component) =>
+          component &&
           component.type == "ACTION_ROW" &&
           component.components.find(
             (component) =>
@@ -429,9 +432,9 @@ export default class TicTacToe extends Command {
         }
 
         for (const [index, row] of components.entries()) {
-          row.components = row.components.map((component) =>
-            component.setDisabled(true)
-          );
+          row.components = row.components
+            .filter((c) => !!c)
+            .map((component) => component.setDisabled(true));
           components[index] = row;
         }
 
