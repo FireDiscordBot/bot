@@ -2259,7 +2259,7 @@ export default class MCLogs extends Module {
           user: message.author.toMention(),
           solutions: possibleSolutions,
           msgType,
-          ign: Util.escapeMarkdown(ign),
+          ign: ign ? Util.escapeMarkdown(ign) : undefined,
         })
         .trim();
 
@@ -2296,7 +2296,7 @@ export default class MCLogs extends Module {
                 minecraft: mcInfo.mcVersion,
                 loader: mcInfo.loader,
                 msgType,
-                ign: Util.escapeMarkdown(ign),
+                ign: ign ? Util.escapeMarkdown(ign) : undefined,
               }
             ),
             allowedMentions,
