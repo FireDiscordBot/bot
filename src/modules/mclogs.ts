@@ -1297,8 +1297,7 @@ export default class MCLogs extends Module {
 
     if (
       (versions.loader == Loaders.FEATHER_FORGE ||
-        versions.loader == Loaders.FEATHER_FABRIC ||
-        versions.mods.find((m) => m.modId == "feather")) &&
+        versions.loader == Loaders.FEATHER_FABRIC) &&
       user instanceof FireMember &&
       user.guild.settings.get<boolean>("minecraft.logscan.clients", false) &&
       !user.guild.settings.get<boolean>("minecraft.logscan.allowfeather", false)
