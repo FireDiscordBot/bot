@@ -247,7 +247,7 @@ export class FireGuild extends Guild {
     this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.guildChannels.cache) {
       if (
-        !this.me
+        !this.members.me
           .permissionsIn(channel)
           .has(VIEW_AND_MANAGE_PERMISSION_BITS(channel))
       )
@@ -290,7 +290,7 @@ export class FireGuild extends Guild {
     this.settings.set<string>("mod.mutedrole", role.id);
     for (const [, channel] of this.guildChannels.cache) {
       if (
-        !this.me
+        !this.members.me
           .permissionsIn(channel)
           .has(VIEW_AND_MANAGE_PERMISSION_BITS(channel))
       )
@@ -320,7 +320,7 @@ export class FireGuild extends Guild {
     const role = this.muteRole;
     for (const [, channel] of this.guildChannels.cache) {
       if (
-        !this.me
+        !this.members.me
           .permissionsIn(channel)
           .has(VIEW_AND_MANAGE_PERMISSION_BITS(channel))
       )
@@ -687,7 +687,7 @@ export class FireGuild extends Guild {
         +new Date() - this.createdTimestamp > 2629800000) ||
         (this.features &&
           this.features.includes("DISCOVERABLE") &&
-          this.me
+          this.members.me
             ?.permissionsIn(this.discoverableInviteChannel)
             ?.has(PermissionFlagsBits.CreateInstantInvite)))
     );
@@ -1103,7 +1103,12 @@ export class FireGuild extends Guild {
       "{uuid}": uuidv4().slice(0, 4),
       "{crab}": "🦀", // CRAB IN DA CODE
     };
-    let name = this.settings.get<string>("tickets.name", "ticket-{increment}");
+    let name = this.settings.get<string>(
+      "tickets.name",
+      this.hasExperiment(1651882237, 1)
+        ? `${author} (${author.id})`
+        : "ticket-{increment}"
+    );
     for (const [key, value] of Object.entries(variables)) {
       name = name.replace(key, value);
     }
@@ -1117,19 +1122,11 @@ export class FireGuild extends Guild {
 
     let ticket: FireTextChannel | ThreadChannel;
 
-    if (
-      channel &&
-      this.hasExperiment(1651882237, 1) &&
-      this.features.includes("PRIVATE_THREADS")
-    ) {
+    if (channel && this.hasExperiment(1651882237, 1)) {
       ticket = (await channel.threads
         .create({
-          name: `${author} (${author.id})`,
-          autoArchiveDuration: this.features.includes(
-            "SEVEN_DAY_THREAD_ARCHIVE"
-          )
-            ? 10080
-            : 4320,
+          name,
+          autoArchiveDuration: this.settings.get("tickets.autoarchive", 10080),
           reason: this.language.get(
             subject
               ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
@@ -1152,7 +1149,11 @@ export class FireGuild extends Guild {
           const members = await this.members
             .fetch({
               user: category.permissionOverwrites.cache
-                .filter((overwrite) => overwrite.type == "member")
+                .filter(
+                  (overwrite) =>
+                    overwrite.type == "member" &&
+                    overwrite.allow.has(PermissionFlagsBits.ManageThreads)
+                )
                 .map((overwrite) => overwrite.id),
             })
             .catch(() => {});
@@ -1246,8 +1247,10 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       )
       .setTimestamp()
       .setColor(author.displayColor || "#FFFFFF")
-      .addField(this.language.get("SUBJECT"), subject)
-      .addField(this.language.get("USER"), authorInfo);
+      .addFields([
+        { name: this.language.get("SUBJECT"), value: subject },
+        { name: this.language.get("USER"), value: authorInfo },
+      ]);
     embed.addFields(additionalFields);
     const description =
       descriptionOverride ?? this.settings.get<string>("tickets.description");
