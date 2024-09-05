@@ -43,7 +43,7 @@ export default class StarboardChannel extends Command {
         : await command.success("STARBOARD_CHANNEL_RESET");
     }
 
-    const missing = command.guild.me
+    const missing = command.guild.members.me
       .permissionsIn(args.channel)
       .missing([
         PermissionFlagsBits.SendMessages,

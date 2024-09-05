@@ -31,7 +31,7 @@ export default class CreateInviteDiscoverableEvent extends Event {
     if (
       !guild ||
       !guild.features.includes("DISCOVERABLE") ||
-      !guild.me
+      !guild.members.me
         ?.permissionsIn(guild.discoverableInviteChannel)
         ?.has(PermissionFlagsBits.CreateInstantInvite)
     )

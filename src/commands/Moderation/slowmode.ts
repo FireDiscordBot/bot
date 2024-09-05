@@ -111,7 +111,7 @@ export default class Slowmode extends Command {
     for (const channel of channels) {
       if (
         channel.rateLimitPerUser != delay &&
-        message.guild.me
+        message.guild.members.me
           .permissionsIn(channel)
           .has(PermissionFlagsBits.ManageChannels)
       )

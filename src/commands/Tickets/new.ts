@@ -42,7 +42,7 @@ export default class NewTicket extends Command {
       return await message.error("NEW_TICKET_THREAD");
     if (
       message.guild.hasExperiment(1651882237, 1) &&
-      !message.guild.me
+      !message.guild.members.me
         ?.permissionsIn(message.channel as GuildBasedChannel)
         .has(
           PermissionFlagsBits.ViewChannel |
@@ -55,7 +55,7 @@ export default class NewTicket extends Command {
         message,
         message.util?.parsed?.command,
         "client",
-        message.guild.me
+        message.guild.members.me
           ?.permissionsIn(message.channel as GuildBasedChannel)
           .missing(
             PermissionFlagsBits.ViewChannel |
