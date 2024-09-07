@@ -391,11 +391,14 @@ export class RequestHandler {
       retries: request.retries,
       limit: 0,
       remaining: 0,
+      reason: undefined,
     };
     if (typeof this.limit == "number" && this.limit != null)
       fields.limit ??= this.limit;
     if (typeof this.remaining == "number" && this.remaining)
       fields.remaining = this.remaining;
+    if (typeof request.options?.reason == "string")
+      fields.reason = request.options.reason;
     this.manager.client.writeToInflux([
       {
         measurement: "requests",
