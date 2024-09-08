@@ -1,7 +1,6 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { ActionLogTypes, constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import { Formatters, MessageEmbed, ThreadChannel } from "discord.js";
+import { ThreadChannel } from "discord.js";
 
 export default class ThreadDelete extends Listener {
   constructor() {
@@ -12,8 +11,7 @@ export default class ThreadDelete extends Listener {
   }
 
   async exec(thread: ThreadChannel) {
-    const guild = thread.guild as FireGuild,
-      language = guild.language;
+    const guild = thread.guild as FireGuild;
 
     if (guild.ticketIds.includes(thread.id)) {
       const newTickets = guild.ticketIds.filter((c) => c != thread.id);
