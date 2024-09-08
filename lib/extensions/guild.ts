@@ -280,10 +280,13 @@ export class FireGuild extends Guild {
       role.permissions.bitfield != 0n
     ) {
       changed = await role
-        .edit({
-          position: this.members.me.roles.highest.rawPosition - 2,
-          permissions: [],
-        })
+        .edit(
+          {
+            position: this.members.me.roles.highest.rawPosition - 2,
+            permissions: [],
+          },
+          this.language.get("MUTE_ROLE_CREATE_REASON")
+        )
         .catch(() => {});
       if (!changed) return false;
     }
