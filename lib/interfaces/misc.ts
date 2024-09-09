@@ -243,3 +243,14 @@ export class BaseFakeChannel {
   //   };
   // }
 }
+function isVoice() {
+  throw new Error("Function not implemented.");
+}
+
+function isThread() {
+  throw new Error("Function not implemented.");
+}
+
+function isDirectory() {
+  throw new Error("Function not implemented.");
+}

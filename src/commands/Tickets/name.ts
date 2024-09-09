@@ -35,6 +35,13 @@ export default class TicketName extends Command {
   }
 
   async exec(message: FireMessage, args: { name?: string }) {
+    const parents = message.guild.settings.get<string[]>("tickets.parent", []);
+    if (
+      message.guild.hasExperiment(1651882237, 1) &&
+      message.guild.channels.cache.get(parents[0])?.type != "GUILD_CATEGORY"
+    )
+      return await message.error("TICKET_NAME_UNAVAILABLE_F0R_THREADS");
+
     const variables = {
       "{increment}": message.guild.settings
         .get("tickets.increment", 0)

@@ -1,3 +1,4 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
@@ -41,7 +42,7 @@ export default class Tickets extends Command {
     } else return await this.sendDefaultMessage(message);
   }
 
-  async sendDefaultMessage(message: FireMessage) {
+  async sendDefaultMessage(message: FireMessage | ApplicationCommandMessage) {
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#FFFFFF")
       .setTimestamp()
@@ -54,30 +55,41 @@ export default class Tickets extends Command {
           dynamic: true,
         }),
       })
-      .addField(
-        `${message.util.parsed?.prefix}ticket category [<category>]`,
-        message.language.get("TICKET_CATEGORY_DESCRIPTION")
-      )
-      .addField(
-        `${message.util.parsed?.prefix}ticket limit <number>`,
-        message.language.get("TICKET_LIMIT_DESCRIPTION")
-      )
-      .addField(
-        `${message.util.parsed?.prefix}ticket name [<name>]`,
-        message.language.get("TICKET_NAME_DESCRIPTION")
-      )
-      .addField(
-        `${message.util.parsed?.prefix}ticket description [<description>]`,
-        message.language.get("TICKET_DESCRIPTION_DESCRIPTION")
-      )
-      .addField(
-        `${message.util.parsed?.prefix}ticket alert [<role>]`,
-        message.language.get("TICKET_ALERT_DESCRIPTION")
-      )
-      .addField(
-        `${message.util.parsed?.prefix}ticket list`,
-        message.language.get("TICKET_LIST_DESCRIPTION")
-      );
+      .addFields([
+        {
+          name: `${message.util.parsed?.prefix}ticket enable [<category> <channel>]`,
+          value: message.language.get("TICKET_ENABLE_DESCRIPTION"),
+        },
+        {
+          name: `${message.util.parsed?.prefix}ticket toggle`,
+          value: message.language.get("TICKET_TOGGLE_DESCRIPTION"),
+        },
+        {
+          name: `${message.util.parsed?.prefix}ticket limit <number>`,
+          value: message.language.get("TICKET_LIMIT_DESCRIPTION"),
+        },
+
+        {
+          name: `${message.util.parsed?.prefix}ticket name [<name>]`,
+          value: message.language.get("TICKET_NAME_DESCRIPTION"),
+        },
+        {
+          name: `${message.util.parsed?.prefix}ticket description [<description>]`,
+          value: message.language.get("TICKET_DESCRIPTION_DESCRIPTION"),
+        },
+        {
+          name: `${message.util.parsed?.prefix}ticket alert [<role>]`,
+          value: message.language.get("TICKET_ALERT_DESCRIPTION"),
+        },
+        {
+          name: `${message.util.parsed?.prefix}ticket invitable`,
+          value: message.language.get("TICKET_INVITABLE_DESCRIPTION"),
+        },
+        {
+          name: `${message.util.parsed?.prefix}ticket list`,
+          value: message.language.get("TICKET_LIST_DESCRIPTION"),
+        },
+      ]);
     return await message.channel.send({ embeds: [embed] });
   }
 }

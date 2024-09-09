@@ -39,33 +39,49 @@ export default class CloseTicket extends Command {
 
   async exec(message: FireMessage, args: { reason: string }) {
     if (!message.member) return; // how
-    const buttonSnowflake = SnowflakeUtil.generate();
-    const buttonOptions = {
-      components: [
-        new MessageActionRow().addComponents(
-          new MessageButton()
-            .setStyle("DANGER")
-            .setCustomId(buttonSnowflake)
-            .setLabel(message.language.get("TICKET_CLOSE_BUTTON_TEXT"))
-            .setEmoji("534174796938870792")
+    if (
+      !(
+        message instanceof ApplicationCommandMessage
+          ? message.channel.real
+          : message.channel
+      ).isThread() ||
+      message.member.isModerator()
+    ) {
+      const buttonSnowflake = SnowflakeUtil.generate();
+      const buttonOptions = {
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setStyle("DANGER")
+              .setCustomId(buttonSnowflake)
+              .setLabel(message.language.get("TICKET_CLOSE_BUTTON_TEXT"))
+              .setEmoji("534174796938870792")
+          ),
+        ],
+      } as MessageOptions & { split?: false };
+      await message.channel.send({
+        content: message.language.getError(
+          (message instanceof ApplicationCommandMessage
+            ? message.channel.real
+            : message.channel
+          ).isThread()
+            ? "TICKET_WILL_CLOSE_THREAD"
+            : "TICKET_WILL_CLOSE"
         ),
-      ],
-    } as MessageOptions & { split?: false };
-    await message.channel.send({
-      content: message.language.getError("TICKET_WILL_CLOSE"),
-      ...buttonOptions,
-    });
-    const willClose = await this.getConfirmationPromise(buttonSnowflake).catch(
-      () => {}
-    );
-    if (!willClose)
-      return message instanceof ApplicationCommandMessage
-        ? await message.edit(
-            `${this.client.util.useEmoji("error")} ${message.language.get(
-              "TICKET_CONFIRMATION_EXPIRED"
-            )}`
-          )
-        : await message.error("ERROR_CONTACT_SUPPORT");
+        ...buttonOptions,
+      });
+      const willClose = await this.getConfirmationPromise(
+        buttonSnowflake
+      ).catch(() => {});
+      if (!willClose)
+        return message instanceof ApplicationCommandMessage
+          ? await message.edit(
+              `${this.client.util.useEmoji("error")} ${message.language.get(
+                "TICKET_CONFIRMATION_EXPIRED"
+              )}`
+            )
+          : await message.error("ERROR_CONTACT_SUPPORT");
+    }
     const closure = await message.guild.closeTicket(
       message.channel as FireTextChannel,
       message.member,

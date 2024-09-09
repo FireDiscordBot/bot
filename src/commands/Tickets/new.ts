@@ -4,7 +4,7 @@ import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { GuildBasedChannel, ThreadChannel } from "discord.js";
+import { GuildBasedChannel, Snowflake, ThreadChannel } from "discord.js";
 
 export default class NewTicket extends Command {
   constructor() {
@@ -40,11 +40,16 @@ export default class NewTicket extends Command {
         message.channel.real instanceof ThreadChannel)
     )
       return await message.error("NEW_TICKET_THREAD");
+    const parents = message.guild.settings.get<Snowflake[]>(
+      "tickets.parent",
+      []
+    );
     if (
       message.guild.hasExperiment(1651882237, 1) &&
+      parents.length &&
       !message.guild.members.me
-        ?.permissionsIn(message.channel as GuildBasedChannel)
-        .has(
+        ?.permissionsIn(message.guild.channels.cache.get(parents[0]))
+        ?.has(
           PermissionFlagsBits.ViewChannel |
             PermissionFlagsBits.SendMessages |
             PermissionFlagsBits.CreatePrivateThreads
@@ -56,7 +61,7 @@ export default class NewTicket extends Command {
         message.util?.parsed?.command,
         "client",
         message.guild.members.me
-          ?.permissionsIn(message.channel as GuildBasedChannel)
+          ?.permissionsIn(message.guild.channels.cache.get(parents[0]))
           .missing(
             PermissionFlagsBits.ViewChannel |
               PermissionFlagsBits.SendMessages |
@@ -70,10 +75,19 @@ export default class NewTicket extends Command {
         args.subject,
         message.channel as FireTextChannel
       )
-      // return author as it'll just return
-      .catch(() => "author");
+      .catch((e) => {
+        this.client.sentry.captureException(e, {
+          extra: {
+            guild: message.guild.id,
+            author: message.author.id,
+          },
+        });
+        return "error";
+      });
     // how?
     if (ticket == "author" || ticket == "blacklisted") return;
+    else if (ticket == "error")
+      return await creating.edit(message.language.getError("NEW_TICKET_ERROR"));
     else if (ticket == "disabled")
       return await creating.edit(
         message.language.getError("NEW_TICKET_DISABLED")

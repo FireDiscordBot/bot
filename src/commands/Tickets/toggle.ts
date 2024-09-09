@@ -30,7 +30,7 @@ export default class TicketToggle extends Command {
   }
 
   async exec(message: FireMessage, args: { message: string }) {
-    if (!message.guild.settings.has("tickets.parent"))
+    if (!message.guild.areTicketsEnabled())
       return await message.error("TICKET_TOGGLE_NOT_ENABLED");
     const current = message.guild.settings.get<string>("tickets.togglemsg");
     if (!args.message && !current)

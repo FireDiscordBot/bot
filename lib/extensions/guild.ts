@@ -986,6 +986,12 @@ export class FireGuild extends Guild {
     return !this.hasExperiment(id, bucket);
   }
 
+  areTicketsEnabled() {
+    const parents = this.settings.get<Snowflake[]>("tickets.parent", []);
+    if (!parents.length || !this.channels.cache.has(parents[0])) return false;
+    return true;
+  }
+
   get tickets() {
     const textChannelsAndThreads = [
       ...this.channels.cache
@@ -1047,11 +1053,16 @@ export class FireGuild extends Guild {
     const permits = this.ticketLock.lock.getPermits();
     if (!permits) return "lock";
 
+    // we need this parents var so we have a duplicate of FireGuild#areTicketsEnabled
     const parents = this.settings.get<Snowflake[]>("tickets.parent", []);
     if (!parents.length || !this.channels.cache.has(parents[0]))
       return "disabled";
     const toggled = this.settings.has("tickets.togglemsg");
     if (toggled) return "toggled";
+
+    const useThreads =
+      this.hasExperiment(1651882237, 1) &&
+      this.channels.cache.get(parents[0]).type != "GUILD_CATEGORY";
 
     category =
       category ||
@@ -1061,7 +1072,7 @@ export class FireGuild extends Guild {
           parents.includes(chan.id) &&
           chan.children.size < 50
       ) as CategoryChannel);
-    if (!category) {
+    if (!category && !useThreads) {
       const originalParent = this.channels.cache.get(
         parents[0]
       ) as CategoryChannel;
@@ -1106,12 +1117,9 @@ export class FireGuild extends Guild {
       "{uuid}": uuidv4().slice(0, 4),
       "{crab}": "🦀", // CRAB IN DA CODE
     };
-    let name = this.settings.get<string>(
-      "tickets.name",
-      this.hasExperiment(1651882237, 1)
-        ? `${author} (${author.id})`
-        : "ticket-{increment}"
-    );
+    let name = useThreads
+      ? `${author} (${author.id})`
+      : this.settings.get<string>("tickets.name", "ticket-{increment}");
     for (const [key, value] of Object.entries(variables)) {
       name = name.replace(key, value);
     }
@@ -1125,8 +1133,18 @@ export class FireGuild extends Guild {
 
     let ticket: FireTextChannel | ThreadChannel;
 
-    if (channel && this.hasExperiment(1651882237, 1)) {
-      ticket = (await channel.threads
+    if (useThreads) {
+      const threadParent = this.channels.cache.get(parents[0]);
+      if (
+        !threadParent.isText() ||
+        // the following should not be possible
+        // and are purely for typings
+        threadParent.isVoice() ||
+        threadParent.isThread() ||
+        threadParent.type == "GUILD_NEWS"
+      )
+        return "disabled";
+      ticket = (await threadParent.threads
         .create({
           name,
           autoArchiveDuration: this.settings.get("tickets.autoarchive", 10080),
@@ -1143,7 +1161,7 @@ export class FireGuild extends Guild {
       if (ticket instanceof ThreadChannel) {
         await ticket.members.add(author).catch(() => {});
         if (
-          category.permissionOverwrites.cache.filter(
+          threadParent.permissionOverwrites.cache.filter(
             (overwrite) =>
               overwrite.type == "member" &&
               overwrite.allow.has(PermissionFlagsBits.ManageThreads)
@@ -1151,7 +1169,7 @@ export class FireGuild extends Guild {
         ) {
           const members = await this.members
             .fetch({
-              user: category.permissionOverwrites.cache
+              user: threadParent.permissionOverwrites.cache
                 .filter(
                   (overwrite) =>
                     overwrite.type == "member" &&

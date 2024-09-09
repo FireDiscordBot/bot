@@ -29,6 +29,9 @@ export default class TicketLimit extends Command {
   }
 
   async exec(message: FireMessage, args: { limit?: number }) {
+    if (!message.guild.areTicketsEnabled())
+      return await message.error("TICKETS_DISABLED_ACTION_BLOCKED");
+
     const limit = args.limit;
     if (!limit || limit > 5 || limit < 0)
       return await message.error("TICKETS_INVALID_LIMIT");

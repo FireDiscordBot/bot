@@ -30,6 +30,9 @@ export default class TicketRemove extends Command {
   }
 
   async exec(message: FireMessage, args: { user: FireMember }) {
+    if (!message.guild.areTicketsEnabled())
+      return await message.error("TICKETS_DISABLED_ACTION_BLOCKED");
+
     if (!args.user) return await message.error("TICKET_REMOVE_NOBODY");
     const channel = message.channel as FireTextChannel;
     const channels = message.guild.settings.get<string[]>(

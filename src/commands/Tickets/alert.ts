@@ -30,6 +30,9 @@ export default class TicketAlert extends Command {
   }
 
   async exec(message: FireMessage, args: { alert?: Role }) {
+    if (!message.guild.areTicketsEnabled())
+      return await message.error("TICKETS_DISABLED_ACTION_BLOCKED");
+
     if (typeof args.alert == "undefined") {
       message.guild.settings.delete("tickets.alert");
       return await message.success("TICKET_ALERT_RESET");

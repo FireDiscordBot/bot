@@ -31,6 +31,9 @@ export default class TicketDescription extends Command {
   }
 
   async exec(message: FireMessage, args: { description?: string }) {
+    if (!message.guild.areTicketsEnabled())
+      return await message.error("TICKETS_DISABLED_ACTION_BLOCKED");
+
     if (!args.description) {
       message.guild.settings.delete("tickets.description");
       return await message.success("TICKET_DESCRIPTION_RESET");
