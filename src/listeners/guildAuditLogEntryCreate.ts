@@ -436,7 +436,12 @@ export default class GuildAuditLogEntryCreate extends Listener {
       name: guild.language.get("CREATED_BY"),
       value: `${executor} (${executor.id})`,
     });
-    if (auditLogEntry.reason)
+    if (
+      auditLogEntry.reason &&
+      (target instanceof FireTextChannel
+        ? target.topic != auditLogEntry.reason
+        : true)
+    )
       embed.addFields({
         name: guild.language.get("REASON"),
         value: auditLogEntry.reason,
