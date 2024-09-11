@@ -73,6 +73,11 @@ const ESSENTIAL_TO_SEMVER_REGEX = /(?<main>\d\.\d\.\d)(\.(?<last>\d))/gim;
 const essentialVersionToSemver = (version: string) =>
   version.replace(ESSENTIAL_TO_SEMVER_REGEX, "$1-$3");
 
+const minecraftVersionToSemver = (version: string) =>
+  version.length == 4 ? `${version}.0` : version;
+
+const REMOVE_BUILD_NUMBER = /build\.\d{1,3}/gim;
+
 // These regexes could probably be stored once created and reused, e.g. saving patchVersionsRegex along with the corresponding versionBase
 // but that's too much effort for now as it is 00:34 and I'm tired
 // Also, this is a big hot mess, but it's all we can do without knowing the exact versioning schemes of the mods
@@ -126,7 +131,11 @@ const cleanModVersion = (
       .replace(`-${loader.toLowerCase()}`, "")
       .replace(`${loader}-`, "")
       .replace(`${loader.toLowerCase()}-`, "")
-      .trim()
+      .replace(loader, "")
+      .replace(REMOVE_BUILD_NUMBER, "")
+      // special case for Fabric Language Kotlin
+      .replace(" kotlin.", "+kotlin.")
+      .trim() || version
   );
 };
 
@@ -271,17 +280,6 @@ const vanillaLogFirstLines = [
 const modIdClean = /_|\-/g;
 const subSubMod = "|    \\--";
 
-const patcherAMDIssue = {
-  hasPatcherAndAMD: `- **If you have started crashing recently when joining a server, you'll need to disable Patcher's entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
-This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead**`,
-  hasPatcherGPUUnknown: `- **If you have started crashing recently when joining a server & have an AMD GPU, you'll need to disable Patcher's entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
-This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead**`,
-  noPatcherAndAMD: `- **If you're using Patcher & have started crashing recently when joining a server, you'll need to disable entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
-  This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead**`,
-  noPatcherGPUUnknown: `- **If you have started crashing recently when joining a server, are using Patcher & have an AMD GPU, you'll need to disable entity culling by going to \`.minecraft/config\`, opening the \`patcher.toml\` file and changing \`entity_culling = true\` to \`entity_culling = false\`.
-  This is caused by a new AMD driver update that appears to be a complete rewrite of the driver. If you suffer a large performance hit after disabling entity culling, you can try downgrading your GPU driver instead**`,
-};
-
 const builtInMods = [
   "FML",
   "mcp",
@@ -392,16 +390,16 @@ export default class MCLogs extends Module {
       fabricModsHeader:
         /\[main\/INFO]:? (?:\(FabricLoader\) )?Loading \d{1,4} mods:/gim,
       classicFabricModsEntry:
-        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}/]+)(?: via (?<via>[a-z0-9_\-]{2,}))?$/gim,
+        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}/\s]+)(?: via (?<via>[a-z0-9_\-]{2,}))?$/gim,
       fabricModsEntry:
-        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}/]+)$/gim,
+        /^\s+\- (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}/\s]+)$/gim,
       fabricSubModEntry:
-        /^\s+(?<subtype>\\--|\|--|\|\s+\\--) (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}/]+)$/gim,
+        /^\s+(?<subtype>\\--|\|--|\|\s+\\--) (?<modid>[a-z0-9_\-]{2,}) (?<version>[\w\.\-+${}/\s]+)$/gim,
       fabricCrashModsHeader: /^\tFabric Mods: $/gim,
       fabricCrashModEntry:
-        /^\t{2}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+${}/]+)$/gim,
+        /^\t{2}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+${}/\s]+)$/gim,
       fabricCrashSubModEntry:
-        /^\t{3}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+${}/]+)$/gim,
+        /^\t{3}(?<modid>[a-z0-9_\-]{2,}): (?<name>.+) (?<version>[\w\.\-+${}/\s]+)$/gim,
       essentialVersion:
         /Starting Essential v(?<version>\d\.\d\.\d(?:.\d)?) \(#(?<commit>\b[0-9a-f]{10})\) \[(?<branch>\w*)\]/gim,
       fullLogJavaVersion:
@@ -454,7 +452,7 @@ export default class MCLogs extends Module {
         {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
-            /^\t{2}feather: Feather Client release\/(?<featherver>[\w\.\-+${}/]+)$/gim,
+            /^\t{2}feather: Feather Client release\/(?<featherver>[\w\.\-+${}/\s]+)$/gim,
             /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
             /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
@@ -1277,7 +1275,10 @@ export default class MCLogs extends Module {
       featherVersion,
       javaVersion,
       jvmType: javaVendor,
-      mods,
+      // I often use this list for checking two logs against each other
+      // so having them sorted means the diff is easier to read
+      // though I'm not sure how it isn't sorted in the first place
+      mods: mods.sort((a, b) => a.modId.localeCompare(b.modId)),
       duplicateMods,
     };
   }
@@ -1440,29 +1441,6 @@ export default class MCLogs extends Module {
 
     let currentSolutions = new Set<string>();
     let currentRecommendations = new Set<string>();
-
-    if (
-      (versions.mcVersion == "1.8.9" || versions.mcVersion == "1.12.2") &&
-      versions.mods.find((m) => m.modId == "patcher") &&
-      log.includes("AMD Radeon")
-    )
-      currentSolutions.add(patcherAMDIssue.hasPatcherAndAMD);
-    else if (
-      (versions.mcVersion == "1.8.9" || versions.mcVersion == "1.12.2") &&
-      versions.mods.find((m) => m.modId == "patcher") &&
-      log.includes("exit code -805306369")
-    )
-      currentSolutions.add(patcherAMDIssue.hasPatcherGPUUnknown);
-    else if (
-      (versions.mcVersion == "1.8.9" || versions.mcVersion == "1.12.2") &&
-      log.includes("AMD Radeon")
-    )
-      currentSolutions.add(patcherAMDIssue.noPatcherAndAMD);
-    else if (
-      (versions.mcVersion == "1.8.9" || versions.mcVersion == "1.12.2") &&
-      log.includes("exit code -805306369")
-    )
-      currentSolutions.add(patcherAMDIssue.noPatcherGPUUnknown);
 
     if (versions.mcVersion in this.bgs.versions)
       for (const [err, sol] of Object.entries(
@@ -1642,6 +1620,30 @@ export default class MCLogs extends Module {
       currentRecommendations.add(
         "- Unless you know what you're doing, modifying your JVM args could have unintended side effects. It's best to use the defaults."
       );
+
+    if (versions.mods.find((m) => m.modId == "java")) {
+      const javaVersion = (
+        versions.mods.find((m) => m.modId == "java") as Exclude<
+          ModInfo,
+          PartialMod
+        >
+      ).version;
+      const mcVersion = minecraftVersionToSemver(versions.mcVersion);
+      try {
+        if (semverLessThan(mcVersion, "1.17.0") && javaVersion != "8")
+          currentRecommendations.add(
+            `- Minecraft versions 1.16.5 and earlier require Java 8 whereas you are using Java ${javaVersion}! It's best to use the correct version of Java for your Minecraft version.`
+          );
+        else if (semverLessThan(mcVersion, "1.20.5") && javaVersion != "17")
+          currentRecommendations.add(
+            `- Minecraft versions 1.20.4 and earlier require Java 17 whereas you are using Java ${javaVersion}. It's best to use the correct version of Java for your Minecraft version.`
+          );
+        else if (semverGreaterThan(mcVersion, "1.20.4") && javaVersion != "21")
+          currentRecommendations.add(
+            `- Minecraft versions 1.20.5 and later require Java 21 whereas you are using Java ${javaVersion}. It's best to use the correct version of Java for your Minecraft version.`
+          );
+      } catch {} // prob just invalid semver, possibly from snapshots
+    }
 
     if (versions?.mcVersion == "1.8.9") {
       const allocatedRam = this.regexes.ram.exec(log);
