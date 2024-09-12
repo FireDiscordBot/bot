@@ -124,7 +124,7 @@ export default class MessageInvalid extends Listener {
             this.client.commandHandler.emit(
               CommandHandlerEvents.COMMAND_FINISHED,
               message,
-              quoteCommand,
+              remindCommand,
               args,
               ret
             );
@@ -133,7 +133,7 @@ export default class MessageInvalid extends Listener {
             this.client.commandHandler.emit(
               "commandError",
               message,
-              quoteCommand,
+              remindCommand,
               args,
               err
             );
