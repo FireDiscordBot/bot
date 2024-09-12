@@ -242,7 +242,7 @@ export default class Select extends Listener {
       ) as ReminderSendEvent;
       if (!event) return await select.error("REMINDER_SNOOZE_ERROR");
       const currentRemind = event.sent.find((r) =>
-        select.customId.endsWith(r.timestamp.toString())
+        select.customId.endsWith(`${r.user}:${r.timestamp}`)
       );
       if (!currentRemind || !currentRemind.link)
         return await select.error("REMINDER_SNOOZE_UNKNOWN");

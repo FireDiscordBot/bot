@@ -1259,7 +1259,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       if (!event) return await button.error("REMINDER_SNOOZE_ERROR");
       else if (
         !event.sent.find((r) =>
-          button.customId.endsWith(r.timestamp.toString())
+          button.customId.endsWith(`${r.user}:${r.timestamp}`)
         )
       )
         return await button.error("REMINDER_SNOOZE_UNKNOWN");
@@ -1267,11 +1267,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         .setPlaceholder(
           button.author.language.get("REMINDER_SNOOZE_PLACEHOLDER")
         )
-        .setCustomId(
-          `!snooze:${button.author.id}:${button.customId.slice(
-            `snooze:${button.author.id}:`.length
-          )}`
-        )
+        .setCustomId(`!${button.customId}`)
         .setMaxValues(1)
         .setMinValues(1)
         .addOptions(

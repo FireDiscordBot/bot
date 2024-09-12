@@ -358,7 +358,9 @@ export default class RemindersCreate extends Command {
         .setStyle("DANGER")
         .setCustomId(`!${cancelSnowflake}`);
       this.client.buttonHandlersOnce.set(cancelSnowflake, (b) => {
-        event.sent = event.sent.filter((r) => r.timestamp != now);
+        event.sent = event.sent.filter(
+          (r) => r.timestamp != now && r.user != command.author.id
+        );
         b.channel.update({
           content: command.language.get("REMINDER_CONTEXT_CANCELLED"),
           components: [],
