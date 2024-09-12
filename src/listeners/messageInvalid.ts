@@ -112,6 +112,11 @@ export default class MessageInvalid extends Listener {
           repeat,
           step,
         };
+        message.util.parsed.content = `${
+          parsedTime.text
+        } ${parsedTime.date.toLocaleString()}${
+          repeat ? ` --repeat ${repeat}` : ""
+        }${step ? ` --step ${step}` : ""}`;
         this.client.commandHandler.emit(
           CommandHandlerEvents.COMMAND_STARTED,
           message,
