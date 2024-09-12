@@ -105,14 +105,39 @@ export default class MessageInvalid extends Listener {
 
         if (!parsedTime?.text) return;
 
-        // finally, we run the command as if it was invoked normally
+        // and now comes running the command,
+        // events included for analytics and debugging
+        const args = {
+          reminder: parsedTime,
+          repeat,
+          step,
+        };
+        this.client.commandHandler.emit(
+          CommandHandlerEvents.COMMAND_STARTED,
+          message,
+          remindCommand,
+          args
+        );
         await remindCommand
-          .run(message, {
-            reminder: parsedTime,
-            repeat,
-            step,
+          .run(message, args)
+          .then((ret) => {
+            this.client.commandHandler.emit(
+              CommandHandlerEvents.COMMAND_FINISHED,
+              message,
+              quoteCommand,
+              args,
+              ret
+            );
           })
-          .catch(() => {});
+          .catch((err) => {
+            this.client.commandHandler.emit(
+              "commandError",
+              message,
+              quoteCommand,
+              args,
+              err
+            );
+          });
       }
     }
 
