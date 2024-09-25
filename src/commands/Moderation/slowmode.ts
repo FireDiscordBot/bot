@@ -71,7 +71,9 @@ export default class Slowmode extends Command {
       (message.util?.parsed?.alias == "slowmodeall" || args.global)
     )
       return await this.globalSlowmode(message, args.delay);
-    if (!["GUILD_TEXT", "category", undefined].includes(args.channel?.type))
+    if (
+      !["GUILD_TEXT", "GUILD_CATEGORY", undefined].includes(args.channel?.type)
+    )
       return await message.error("SLOWMODE_INVALID_TYPE");
     let failed = [];
     if (args.channel?.type == "GUILD_CATEGORY") {
