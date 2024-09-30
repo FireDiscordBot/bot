@@ -166,7 +166,7 @@ export default class TicTacToe extends Command {
         {
           challenger: command.author.username,
           opponent: opponent.toMention(),
-          timer: Formatters.time(Math.ceil(+new Date() + 60_500 / 1000), "R"),
+          timer: Formatters.time(Math.ceil((+new Date() + 60_500) / 1000), "R"),
         }
       ),
       ...requestMsgOptions,
