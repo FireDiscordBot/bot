@@ -7,6 +7,7 @@ import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import {
   Collection,
+  Formatters,
   MessageActionRow,
   MessageButton,
   Snowflake,
@@ -165,6 +166,7 @@ export default class TicTacToe extends Command {
         {
           challenger: command.author.username,
           opponent: opponent.toMention(),
+          timer: Formatters.time(+new Date() + 60_500, "R"),
         }
       ),
       ...requestMsgOptions,
