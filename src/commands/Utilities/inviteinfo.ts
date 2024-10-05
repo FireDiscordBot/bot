@@ -2,6 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import GuildCommand, { InviteWithGuildCounts } from "./server";
+import { match } from "assert";
 
 export default class InviteInfo extends Command {
   command: GuildCommand;
@@ -12,7 +13,7 @@ export default class InviteInfo extends Command {
       args: [
         {
           id: "invite",
-          type: /^[\w-]{1,25}$/im,
+          type: /^(?:(?:https?:\/\/)?discord(?:app)?\.(?:com|gg)\/(?:invite\/)?)?(?<invite>[\w-]{1,25})$/im,
           readableType: "invite",
           description: (language: Language) =>
             language.get("INVITEINFO_ARGUMENT_INVITE_DESCRIPTION"),
@@ -33,9 +34,10 @@ export default class InviteInfo extends Command {
   ) {
     if (!this.command)
       this.command = this.client.getCommand("guild") as GuildCommand;
-    if (!args.invite?.match) return await command.error("INVITEINFO_NO_INVITE");
+    if (!args.invite?.match?.groups?.invite)
+      return await command.error("INVITEINFO_NO_INVITE");
     const invite = (await this.client
-      .fetchInvite(args.invite.match[0])
+      .fetchInvite(args.invite.match.groups.invite)
       .catch((e) => e)) as InviteWithGuildCounts | Error;
     if (invite instanceof Error)
       return await command.error("INVITEINFO_INVALID");
