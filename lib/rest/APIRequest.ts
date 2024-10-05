@@ -47,7 +47,7 @@ export class APIRequest {
       this.options.versioned === false
         ? this.client.options.http.api
         : `${this.client.options.http.api}/v${this.client.options.http.version}`;
-    const url = API + this.path;
+    const url = API + this.path.replaceAll("../", "");
     let headers: {
       [key: string]: any;
     } = this.client.useCanary
