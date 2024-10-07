@@ -300,6 +300,7 @@ export class FireMessage extends Message {
   async reply(options: string | MessagePayload | ReplyMessageOptions) {
     if (
       !this.channel ||
+      this.deleted ||
       (this.guild &&
         !this.guild.members.me?.permissions.has(
           PermissionFlagsBits.ViewChannel |
