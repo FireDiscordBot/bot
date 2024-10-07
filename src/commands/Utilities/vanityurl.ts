@@ -52,16 +52,17 @@ export default class VanityURL extends Command {
         .first()
         .catch(() => {});
       if (!current) return await command.error("VANITYURL_CODE_REQUIRED");
-      else
+      else {
+        const currentEmbed = await this.module.current(
+          command.guild,
+          current.get("code") as string,
+          command.language
+        );
+        if (!currentEmbed) return await command.error("ERROR_CONTACT_SUPPORT");
         return await command.channel.send({
-          embeds: [
-            await this.module.current(
-              command.guild,
-              current.get("code") as string,
-              command.language
-            ),
-          ],
+          embeds: [currentEmbed],
         });
+      }
     }
 
     if (deleteKeywords.includes(args.code)) {
