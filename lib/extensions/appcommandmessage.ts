@@ -1,7 +1,7 @@
 import { Fire } from "@fire/lib/Fire";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
-import { constants, i18nOptions } from "@fire/lib/util/constants";
+import { i18nOptions } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -642,6 +642,7 @@ export class ApplicationCommandMessage {
 
 export class FakeChannel extends BaseFakeChannel {
   declare message: ApplicationCommandMessage;
+  ackLock = new Semaphore(1);
 
   constructor(
     message: ApplicationCommandMessage,
@@ -723,13 +724,15 @@ export class FakeChannel extends BaseFakeChannel {
 
   // Defer interaction unless ephemeral & not set to defer anyways
   async ack(ephemeral = false) {
+    await this.ackLock.acquire();
+    if (this.message.sent) return this.ackLock.release();
     if (
       ((ephemeral || (this.flags & 64) != 0) &&
         !this.message.command?.deferAnyways) ||
       this.message.slashCommand.isAutocomplete()
     )
-      return;
-    if (this.message.sent) return;
+      return this.ackLock.release();
+    if (this.message.sent) return this.ackLock.release();
     if (this.message.author.settings.get<boolean>("utils.incognito", false))
       ephemeral = true;
     await this.message.slashCommand
@@ -742,6 +745,7 @@ export class FakeChannel extends BaseFakeChannel {
         if (real) this.message.sourceMessage = real as FireMessage; // literally (real)
       })
       .catch(() => (this.message.sent = "ack"));
+    this.ackLock.release();
   }
 
   async send(

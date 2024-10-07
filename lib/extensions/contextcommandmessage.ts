@@ -5,14 +5,9 @@ import {
   InvalidArgumentContextError,
 } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
-import { constants, i18nOptions } from "@fire/lib/util/constants";
+import { i18nOptions } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import {
-  APIGuildMember,
-  APIInteractionDataResolvedGuildMember,
-  APIUser,
-  PermissionFlagsBits,
-} from "discord-api-types/v9";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   AwaitMessagesOptions,
   Collection,
@@ -568,6 +563,7 @@ export class ContextCommandMessage {
 
 export class FakeChannel extends BaseFakeChannel {
   declare message: ContextCommandMessage;
+  ackLock = new Semaphore(1);
 
   constructor(
     message: ContextCommandMessage,
@@ -649,7 +645,9 @@ export class FakeChannel extends BaseFakeChannel {
 
   // Defer interaction unless ephemeral (excl. incognito)
   async ack(ephemeral = false) {
-    if (ephemeral || (this.flags & 64) != 0) return;
+    await this.ackLock.acquire();
+    if (this.message.sent) return this.ackLock.release();
+    if (ephemeral || (this.flags & 64) != 0) return this.ackLock.release();
     await this.message.contextCommand
       .deferReply({
         ephemeral: this.message.author.settings.get("utils.incognito", false),
@@ -660,6 +658,7 @@ export class FakeChannel extends BaseFakeChannel {
         if (real) this.message.sourceMessage = real as FireMessage; // literally (real)
       })
       .catch(() => (this.message.sent = "ack"));
+    this.ackLock.release();
   }
 
   async send(

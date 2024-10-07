@@ -24,7 +24,7 @@ import { RawMessageData, RawUserData } from "discord.js/typings/rawDataTypes";
 import Semaphore from "semaphore-async-await";
 import { Fire } from "../Fire";
 import { BaseFakeChannel } from "../interfaces/misc";
-import { constants, i18nOptions } from "../util/constants";
+import { i18nOptions } from "../util/constants";
 import { Language, LanguageKeys } from "../util/language";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
@@ -363,6 +363,7 @@ export class ComponentMessage {
 
 export class FakeChannel extends BaseFakeChannel {
   declare message: ComponentMessage;
+  ackLock = new Semaphore(1);
 
   constructor(
     message: ComponentMessage,
@@ -444,6 +445,8 @@ export class FakeChannel extends BaseFakeChannel {
 
   // Acknowledges without sending a message
   async ack() {
+    await this.ackLock.acquire();
+    if (this.message.sent) return this.ackLock.release();
     await this.client.req
       .interactions(this.interactionId)(this.token)
       .callback.post({
@@ -453,6 +456,7 @@ export class FakeChannel extends BaseFakeChannel {
         this.message.sent = "ack";
       })
       .catch(() => (this.message.sent = "ack"));
+    this.ackLock.release();
   }
 
   // Defer interaction ephemerally
