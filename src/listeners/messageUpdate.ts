@@ -99,18 +99,22 @@ export default class MessageUpdate extends Listener {
             channel: after.channel.toString(),
           })
         )
-        .addField(
-          guild.language.get("BEFORE"),
-          before.content.length <= 1000
-            ? before.content
-            : before.content.slice(0, 1001) + "..."
-        )
-        .addField(
-          guild.language.get("AFTER"),
-          after.content.length <= 1000
-            ? after.content
-            : after.content.slice(0, 1001) + "..."
-        )
+        .addFields([
+          {
+            name: guild.language.get("BEFORE"),
+            value:
+              before.content.length <= 1000
+                ? before.content
+                : before.content.slice(0, 1001) + "...",
+          },
+          {
+            name: guild.language.get("AFTER"),
+            value:
+              after.content.length <= 1000
+                ? after.content
+                : after.content.slice(0, 1001) + "...",
+          },
+        ])
         .setFooter({
           text: `${after.author.id} | ${after.id} | ${after.channel.id}`,
         });

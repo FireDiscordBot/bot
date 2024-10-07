@@ -1011,7 +1011,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
         name: guild.language.get("REASON"),
         value: auditLogEntry.reason,
       });
-    // if (raw) embed.addField(language.get("RAW"), raw);
+    // if (raw) embed.addFields({ name: language.get("RAW"), value: raw });
     await guild.actionLog(embed, ActionLogTypes.CHANNEL_DELETE).catch(() => {});
   }
 
@@ -1133,7 +1133,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
         name: guild.language.get("REASON"),
         value: auditLogEntry.reason,
       });
-    // if (raw) embed.addField(language.get("RAW"), raw);
+    // if (raw) embed.addFields({ name: language.get("RAW"), value: raw });
     await guild.actionLog(embed, ActionLogTypes.CHANNEL_DELETE).catch(() => {});
   }
 

@@ -78,23 +78,34 @@ export default class TagInfo extends Command {
           : cachedTag.content.slice(0, 249) + "..."
       )
       .setTimestamp()
-      .addField(message.language.get("TAG_NAME"), cachedTag.name);
-    if (cachedTag.aliases.length)
-      embed.addField(
-        message.language.get("TAG_ALIASES"),
-        cachedTag.aliases.join(", ")
-      );
-    if (cachedTag.createdBy)
-      embed.addField(
-        message.language.get("TAG_CREATOR"),
-        typeof cachedTag.createdBy == "string"
-          ? cachedTag.createdBy
-          : `${cachedTag.createdBy.toMention()} (${cachedTag.createdBy.toString()})`
-      );
-    if (cachedTag.uses)
-      embed.addField(
-        message.language.get("TAG_USES"),
-        cachedTag.uses.toLocaleString(message.language.id)
+      .addFields(
+        [
+          {
+            name: message.language.get("TAG_NAME"),
+            value: cachedTag.name,
+          },
+          cachedTag.aliases.length
+            ? {
+                name: message.language.get("TAG_ALIASES"),
+                value: cachedTag.aliases.join(", "),
+              }
+            : null,
+          cachedTag.createdBy
+            ? {
+                name: message.language.get("TAG_CREATOR"),
+                value:
+                  typeof cachedTag.createdBy == "string"
+                    ? cachedTag.createdBy
+                    : `${cachedTag.createdBy.toMention()} (${cachedTag.createdBy.toString()})`,
+              }
+            : null,
+          cachedTag.uses
+            ? {
+                name: message.language.get("TAG_USES"),
+                value: cachedTag.uses.toLocaleString(message.language.id),
+              }
+            : null,
+        ].filter((field) => !!field)
       );
 
     return await message.channel.send({

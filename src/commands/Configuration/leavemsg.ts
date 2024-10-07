@@ -79,12 +79,12 @@ export default class LeaveMSG extends Command {
           .setColor(message.member.displayColor || "#FFFFFF")
           .setTimestamp()
           .setDescription(message.language.getError("LEAVEMSG_SETUP_REQUIRED"))
-          .addField(
-            message.language.get("VARIABLES"),
-            Object.entries(variableMap)
+          .addFields({
+            name: message.language.get("VARIABLES"),
+            value: Object.entries(variableMap)
               .map(([key, val]) => `${key}: ${val}`)
-              .join("\n")
-          );
+              .join("\n"),
+          });
         return await message.channel.send({ embeds: [embed] });
       }
       const channel = message.guild.channels.cache.get(
@@ -99,15 +99,19 @@ export default class LeaveMSG extends Command {
           })
         );
       if (channel)
-        embed
-          .addField(message.language.get("CHANNEL"), channel?.toString())
-          .addField(message.language.get("MESSAGE"), msg);
-      embed.addField(
-        message.language.get("VARIABLES"),
-        Object.entries(variableMap)
+        embed.addFields([
+          {
+            name: message.language.get("CHANNEL"),
+            value: channel?.toString(),
+          },
+          { name: message.language.get("MESSAGE"), value: msg },
+        ]);
+      embed.addFields({
+        name: message.language.get("VARIABLES"),
+        value: Object.entries(variableMap)
           .map(([key, val]) => `${key}: ${val}`)
-          .join("\n")
-      );
+          .join("\n"),
+      });
       return await message.channel.send({ embeds: [embed] });
     } else if (
       typeof args.channel == "string" &&

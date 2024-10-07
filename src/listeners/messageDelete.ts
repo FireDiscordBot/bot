@@ -101,39 +101,55 @@ export default class MessageDelete extends Listener {
           }),
         })
         .setDescription(description + content)
+        .addFields(
+          [
+            message.attachments.size
+              ? {
+                  name: message.guild.language.get("ATTACHMENTS"),
+                  value:
+                    message.attachments
+                      .map((attach) => attach.name)
+                      .join("\n") +
+                    "\n\n" +
+                    message.guild.language.get("MSGDELETELOG_ATTACH_WARN"),
+                }
+              : null,
+            message.activity
+              ? {
+                  name: message.guild.language.get("ACTIVITY"),
+                  value:
+                    (message.activity.partyId.startsWith("spotify:")
+                      ? message.guild.language.get(
+                          "MSGDELETELOG_SPOTIFY_ACTIVITY"
+                        ) + "\n"
+                      : "") +
+                    message.guild.language.get("MSGDELETELOG_ACTIVITY", {
+                      partyID: message.activity.partyId,
+                      type: message.guild.language.get(
+                        `ACTIVITY_TYPES.${message.activity.type}` as unknown as LanguageKeys
+                      ),
+                    }),
+                }
+              : null,
+            message.selfDelete
+              ? {
+                  name: message.guild.language.get("DELETED_BY"),
+                  value:
+                    message.guild.members.me?.toString() ??
+                    this.client.user.toString(),
+                }
+              : null,
+            message.deleteReason
+              ? {
+                  name: message.guild.language.get("REASON"),
+                  value: message.deleteReason,
+                }
+              : null,
+          ].filter((field) => !!field)
+        )
         .setFooter({
           text: `${message.author.id} | ${message.id} | ${message.channelId}`,
         });
-      if (message.attachments.size)
-        embed.addField(
-          message.guild.language.get("ATTACHMENTS"),
-          message.attachments.map((attach) => attach.name).join("\n") +
-            "\n\n" +
-            message.guild.language.get("MSGDELETELOG_ATTACH_WARN")
-        );
-      if (message.activity)
-        embed.addField(
-          message.guild.language.get("ACTIVITY"),
-          (message.activity.partyId.startsWith("spotify:")
-            ? message.guild.language.get("MSGDELETELOG_SPOTIFY_ACTIVITY") + "\n"
-            : "") +
-            message.guild.language.get("MSGDELETELOG_ACTIVITY", {
-              partyID: message.activity.partyId,
-              type: message.guild.language.get(
-                `ACTIVITY_TYPES.${message.activity.type}` as unknown as LanguageKeys
-              ),
-            })
-        );
-      if (message.selfDelete)
-        embed.addField(
-          message.guild.language.get("DELETED_BY"),
-          message.guild.members.me?.toString() ?? this.client.user?.toString()
-        );
-      if (message.deleteReason)
-        embed.addField(
-          message.guild.language.get("REASON"),
-          message.deleteReason
-        );
       if (embed.description != description || embed.fields.length)
         await message.guild.actionLog(embed, ActionLogTypes.MESSAGE_DELETE);
     }

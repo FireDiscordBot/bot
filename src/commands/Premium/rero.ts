@@ -165,15 +165,20 @@ export default class ReactionRole extends Command {
         }),
         url: reaction.message?.url,
       })
-      .addField(
-        message.guild.language.get("MODERATOR"),
-        message.author.toString()
-      )
-      .addField(
-        message.guild.language.get("EMOJI"),
-        reaction.emoji?.toString() || constants.escapedShruggie
-      )
-      .addField(message.guild.language.get("ROLE"), role.toString())
+      .addFields([
+        {
+          name: message.guild.language.get("MODERATOR"),
+          value: message.author.toString(),
+        },
+        {
+          name: message.guild.language.get("EMOJI"),
+          value: reaction.emoji?.toString() || constants.escapedShruggie,
+        },
+        {
+          name: message.guild.language.get("ROLE"),
+          value: role.toString(),
+        },
+      ])
       .setFooter({ text: `${role.id} | ${message.author.id}` });
     return await message.guild.actionLog(embed, ActionLogTypes.REACTION_ROLE);
   }
@@ -197,15 +202,20 @@ export default class ReactionRole extends Command {
         }),
         url: reaction.message?.url,
       })
-      .addField(
-        message.guild.language.get("MODERATOR"),
-        message.author.toString()
-      )
-      .addField(
-        message.guild.language.get("EMOJI"),
-        reaction.emoji?.toString() || constants.escapedShruggie
-      )
-      .addField(message.guild.language.get("ROLE"), role.toString())
+      .addFields([
+        {
+          name: message.guild.language.get("MODERATOR"),
+          value: message.author.toString(),
+        },
+        {
+          name: message.guild.language.get("EMOJI"),
+          value: reaction.emoji?.toString() || constants.escapedShruggie,
+        },
+        {
+          name: message.guild.language.get("ROLE"),
+          value: role.toString(),
+        },
+      ])
       .setFooter({ text: `${role.id} | ${message.author.id}` });
     return await message.guild.actionLog(embed, ActionLogTypes.REACTION_ROLE);
   }

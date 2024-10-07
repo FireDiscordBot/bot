@@ -47,22 +47,27 @@ export default class Moderators extends Command {
       );
     const embed = new MessageEmbed()
       .setColor(command.member?.displayColor || "#FFFFFF")
-      .addField(
-        command.language.get("MODERATORS_ROLES"),
-        mentions.roles.join("\n") || command.language.get("NO_MODERATOR_ROLES")
-      )
-      .addField(
-        command.language.get("MODERATORS_MEMBERS"),
-        mentions.members.join("\n") ||
-          command.language.get("NO_MODERATOR_MEMBERS")
-      );
+      .addFields([
+        {
+          name: command.language.get("MODERATORS_ROLES"),
+          value:
+            mentions.roles.join("\n") ||
+            command.language.get("NO_MODERATOR_ROLES"),
+        },
+        {
+          name: command.language.get("MODERATORS_MEMBERS"),
+          value:
+            mentions.members.join("\n") ||
+            command.language.get("NO_MODERATOR_MEMBERS"),
+        },
+      ]);
     if (invalid.length)
-      embed.addField(
-        command.language.get("MODERATORS_REMOVE_INVALID"),
-        command.language.get("MODERATORS_REMOVED", {
+      embed.addFields({
+        name: command.language.get("MODERATORS_REMOVE_INVALID"),
+        value: command.language.get("MODERATORS_REMOVED", {
           invalid: invalid.join(", "),
-        })
-      );
+        }),
+      });
     return await command.channel.send({ embeds: [embed] });
   }
 }

@@ -49,14 +49,20 @@ export default class LinkfilterListExclude extends Command {
       .fetch({ user: userIds })
       .catch(() => {});
     if (roles.length)
-      embed.addField(command.language.get("ROLES"), roles.join(", "));
+      embed.addFields({
+        name: command.language.get("ROLES"),
+        value: roles.join(", "),
+      });
     if (channels.length)
-      embed.addField(command.language.get("CHANNELS"), channels.join(", "));
+      embed.addFields({
+        name: command.language.get("CHANNELS"),
+        value: channels.join(", "),
+      });
     if (members && members.size)
-      embed.addField(
-        command.language.get("MEMBERS"),
-        members.map((m) => m.toString()).join(", ")
-      );
+      embed.addFields({
+        name: command.language.get("MEMBERS"),
+        value: members.map((m) => m.toString()).join(", "),
+      });
     return await command.channel.send({ embeds: [embed] });
   }
 }

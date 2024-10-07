@@ -126,10 +126,21 @@ export default class Redirects extends Module {
         }),
       })
       .setColor("#2ECC71")
-      .addField(language.get("REDIRECT_SHORT_URL"), `https://inv.wtf/${code}`)
-      .addField("URL", data.url)
-      .addField(language.get("CLICKS"), data.clicks.toLocaleString(language.id))
-      .addField(language.get("LINKS"), data.links.toLocaleString(language.id))
+      .addFields([
+        {
+          name: language.get("REDIRECT_SHORT_URL"),
+          value: `https://inv.wtf/${code}`,
+        },
+        { name: "URL", value: data.url },
+        {
+          name: language.get("CLICKS"),
+          value: data.clicks.toLocaleString(language.id),
+        },
+        {
+          name: language.get("LINKS"),
+          value: data.links.toLocaleString(language.id),
+        },
+      ])
       .setTimestamp();
     return embed;
   }

@@ -58,7 +58,10 @@ export default class TicketName extends Command {
       const embed = new MessageEmbed()
         .setColor(message.member?.displayColor || "#FFFFFF")
         .setTimestamp()
-        .addField(message.language.get("VARIABLES"), variableString);
+        .addFields({
+          name: message.language.get("VARIABLES"),
+          value: variableString,
+        });
       return await message.channel.send({ embeds: [embed] });
     } else {
       if (args.name.length > 50)

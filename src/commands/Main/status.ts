@@ -100,17 +100,16 @@ export default class FireStatus extends Command {
           message.member?.displayColor ||
           "#FFFFFF"
       )
-      .addField(
-        message.language.get("STATUS_LATEST_INCIDENT"),
-        `[${latest.name}](${latest.shortlink})\n${message.language.get(
+      .addFields({
+        name: message.language.get("STATUS_LATEST_INCIDENT"),
+        value: `[${latest.name}](${latest.shortlink})\n${message.language.get(
           "STATUS"
         )}: **${
           message.language.get("STATUSPAGE_INCIDENT_STATUS", {
             returnObjects: true,
           })[latest.status.toLowerCase()] || titleCase(latest.status)
         }**`,
-        true
-      )
+      })
       .setTimestamp();
 
     await message.channel.send({ embeds: [embed] });

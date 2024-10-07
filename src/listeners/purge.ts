@@ -36,20 +36,22 @@ export default class Purge extends Listener {
           channel: message.channelId,
         }),
       });
-    if (reason) embed.addField(message.guild.language.get("REASON"), reason);
+    if (reason)
+      embed.addFields({
+        name: message.guild.language.get("REASON"),
+        value: reason,
+      });
     if (purged.length) {
       try {
-        embed.addField(
-          message.guild.language.get("PURGED_MESSAGES"),
-          await this.client.util.haste(JSON.stringify(purged, null, 4)),
-          false
-        );
+        embed.addFields({
+          name: message.guild.language.get("PURGED_MESSAGES"),
+          value: await this.client.util.haste(JSON.stringify(purged, null, 4)),
+        });
       } catch {
-        embed.addField(
-          message.guild.language.get("PURGED_MESSAGES"),
-          message.guild.language.get("PURGED_MESSAGES_FAILED"),
-          false
-        );
+        embed.addFields({
+          name: message.guild.language.get("PURGED_MESSAGES"),
+          value: message.guild.language.get("PURGED_MESSAGES_FAILED"),
+        });
       }
     }
     return await message.guild.actionLog(embed, ActionLogTypes.PURGE);

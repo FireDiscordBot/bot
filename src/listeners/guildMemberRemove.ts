@@ -122,18 +122,21 @@ export default class GuildMemberRemove extends Listener {
         })
         .setFooter({ text: member.id });
       if (!member.partial) {
-        embed.addField(
-          language.get("JOINED_FIELD"),
-          Formatters.time(member.joinedAt, "R")
-        );
+        embed.addFields({
+          name: language.get("JOINED_FIELD"),
+          value: Formatters.time(member.joinedAt, "R"),
+        });
         if (member.nickname)
-          embed.addField(language.get("NICKNAME"), member.nickname);
+          embed.addFields({
+            name: language.get("NICKNAME"),
+            value: member.nickname,
+          });
         const roles = member.roles.cache
           .filter((role) => role.id != member.guild.roles.everyone.id)
           .map((role) => role.toString())
           .join(", ");
         if (roles && roles.length <= 1024)
-          embed.addField(language.get("ROLES"), roles);
+          embed.addFields({ name: language.get("ROLES"), value: roles });
       }
       await member.guild.memberLog(embed, MemberLogTypes.LEAVE);
     }

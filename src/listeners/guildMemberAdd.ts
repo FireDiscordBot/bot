@@ -224,17 +224,17 @@ export default class GuildMemberAdd extends Listener {
           }),
           url: "https://i.giphy.com/media/Nx0rz3jtxtEre/giphy.gif",
         })
-        .addField(
-          language.get("ACCOUNT_CREATED"),
-          Formatters.time(member.user.createdAt, "R")
-        )
+        .addFields({
+          name: language.get("ACCOUNT_CREATED"),
+          value: Formatters.time(member.user.createdAt, "R"),
+        })
         .setFooter({ text: member.id });
       const randInt = this.client.util.randInt(0, 100);
       if (!member.guild.premium && randInt == 69)
-        embed.addField(
-          language.get("MEMBERJOIN_LOG_PREMIUM_UPSELL_TITLE"),
-          language.get("MEMBERJOIN_LOG_PREMIUM_UPSELL_VALUE")
-        );
+        embed.addFields({
+          name: language.get("MEMBERJOIN_LOG_PREMIUM_UPSELL_TITLE"),
+          value: language.get("MEMBERJOIN_LOG_PREMIUM_UPSELL_VALUE"),
+        });
       if (
         member.user.bot &&
         member.guild.members.me.permissions.has(
@@ -255,24 +255,31 @@ export default class GuildMemberAdd extends Listener {
               entry.target && entry.target?.id == member.id
           );
           if (action)
-            embed.addField(
-              language.get("INVITED_BY"),
-              `${action.executor} (${action.executor.id})`
-            );
+            embed.addFields({
+              name: language.get("INVITED_BY"),
+              value: `${action.executor} (${action.executor.id})`,
+            });
         }
       }
-      if (usedInvite) embed.addField(language.get("INVITE_USED"), usedInvite);
+      if (usedInvite)
+        embed.addFields({
+          name: language.get("INVITE_USED"),
+          value: usedInvite,
+        });
       const roles = member.roles.cache
         .filter((role) => role.id != member.guild.roles.everyone.id)
         .map((role) => role.toString())
         .join(", ");
       if (roles && roles.length <= 1024)
-        embed.addField(language.get("ROLES"), roles);
+        embed.addFields({ name: language.get("ROLES"), value: roles });
       if (member.guild.mutes.has(member.id))
-        embed.addField(
-          member.guild.language.get("MUTE_WILL_BE_UNMUTED"),
-          Formatters.time(new Date(member.guild.mutes.get(member.id)), "R")
-        );
+        embed.addFields({
+          name: member.guild.language.get("MUTE_WILL_BE_UNMUTED"),
+          value: Formatters.time(
+            new Date(member.guild.mutes.get(member.id)),
+            "R"
+          ),
+        });
       await member.guild.memberLog(embed, MemberLogTypes.JOIN);
     }
   }

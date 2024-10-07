@@ -42,10 +42,12 @@ export default class ThreadMembersUpdate extends Listener {
           .fetch({ user: ids })
           .catch(() => {});
         if (members && members.size)
-          embed.addField(
-            language.get("NEW_MEMBERS"),
-            members.map((member: FireMember) => member.toMention()).join(" - ")
-          );
+          embed.addFields({
+            name: language.get("NEW_MEMBERS"),
+            value: members
+              .map((member: FireMember) => member.toMention())
+              .join(" - "),
+          });
       }
       if (removed.size) {
         const ids = removed.map((member) => member.id);
@@ -53,10 +55,12 @@ export default class ThreadMembersUpdate extends Listener {
           .fetch({ user: ids })
           .catch(() => {});
         if (members && members.size)
-          embed.addField(
-            language.get("OLD_MEMBERS"),
-            members.map((member: FireMember) => member.toMention()).join(" - ")
-          );
+          embed.addFields({
+            name: language.get("OLD_MEMBERS"),
+            value: members
+              .map((member: FireMember) => member.toMention())
+              .join(" - "),
+          });
       }
 
       if (embed.fields.length)

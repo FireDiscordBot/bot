@@ -115,6 +115,7 @@ export default class Eval extends Command {
   ) {
     if (message.author.id != process.env.OWNER) return;
     if (!args.code?.content) return await message.error("EVAL_NO_CONTENT");
+    await message.reactions.removeAll().catch(() => {});
     if (args.broadcast) {
       return this.client.manager.ws.send(
         MessageUtil.encode(
@@ -176,7 +177,8 @@ export default class Eval extends Command {
       .setDescription(
         type.toString() != "any" ? `Output Type: ${type}` : "fuck"
       );
-    if (input.length <= 1024) embed.addField(":inbox_tray: Input", input);
+    if (input.length <= 1024)
+      embed.addFields({ name: ":inbox_tray: Input", value: input });
     embed.setFooter({ text: `Cluster ID: ${this.client.manager.id}` });
     if (embed.description == "fuck") embed.description = null;
     if (result.length > 1014) {
@@ -198,7 +200,7 @@ export default class Eval extends Command {
     }
     const output = codeBlock("js", result);
     if (output && output != "undefined")
-      embed.addField(":outbox_tray: Output", output);
+      embed.addFields({ name: ":outbox_tray: Output", value: output });
     return await this.send(message, embed);
   }
 

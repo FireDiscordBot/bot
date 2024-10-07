@@ -391,40 +391,51 @@ export default class GuildCommand extends Command {
         }),
       })
       .setFooter({ text: guild.id })
-      .setTimestamp();
-    if (info.length)
-      embed.addField(command.language.get("GUILD_ABOUT"), info.join("\n"));
-    if (inviteInfo.length)
-      embed.addField(
-        command.language.get("GUILD_INVITE"),
-        inviteInfo.join("\n")
-      );
-    if (security.length)
-      embed.addField(
-        command.language.get("GUILD_SECURITY"),
-        security.join("\n")
-      );
-    if (channels)
-      embed.addField(
-        command.language.get("GUILD_CHANNELS"),
-        Object.entries(channels)
-          .filter(([, value]) => value > 0)
-          .map(([k, v]) => `${k} ${v}`)
-          .join(" | ")
-      );
-
-    if (features.length > 0) {
-      embed.addField(
-        command.language.get("GUILD_FEATURES"),
-        features.join(", ")
-      );
-    }
-
-    if (guild instanceof FireGuild && roles?.length)
-      embed.addField(
-        command.language.get("GUILD_ROLES") +
-          ` [${guild.roles.cache.size - 1}]`,
-        this.client.util.shorten(roles, 1000, " - ")
+      .setTimestamp()
+      .addFields(
+        [
+          info.length
+            ? {
+                name: command.language.get("GUILD_ABOUT"),
+                value: info.join("\n"),
+              }
+            : null,
+          inviteInfo.length
+            ? {
+                name: command.language.get("GUILD_INVITE"),
+                value: inviteInfo.join("\n"),
+              }
+            : null,
+          security.length
+            ? {
+                name: command.language.get("GUILD_SECURITY"),
+                value: security.join("\n"),
+              }
+            : null,
+          Object.values(channels).some((v) => v > 0)
+            ? {
+                name: command.language.get("GUILD_CHANNELS"),
+                value: Object.entries(channels)
+                  .filter(([, value]) => value > 0)
+                  .map(([k, v]) => `${k} ${v}`)
+                  .join(" | "),
+              }
+            : null,
+          features.length > 0
+            ? {
+                name: command.language.get("GUILD_FEATURES"),
+                value: features.join(", "),
+              }
+            : null,
+          guild instanceof FireGuild && roles?.length
+            ? {
+                name:
+                  command.language.get("GUILD_ROLES") +
+                  ` [${guild.roles.cache.size - 1}]`,
+                value: this.client.util.shorten(roles, 1000, " - "),
+              }
+            : null,
+        ].filter((field) => !!field)
       );
 
     if (command.author.isSuperuser() && this.client.manager.REST_HOST) {
@@ -439,17 +450,15 @@ export default class GuildCommand extends Command {
         .json()
         .catch(() => ({ shardId: -1, clusterId: -1 }));
       if (shardReq.shardId != -1)
-        embed.addField(
-          command.language.get("SHARD"),
-          shardReq.shardId.toString(),
-          true
-        );
+        embed.addFields({
+          name: command.language.get("SHARD"),
+          value: shardReq.shardId.toString(),
+        });
       if (shardReq.clusterId != -1)
-        embed.addField(
-          command.language.get("CLUSTER"),
-          shardReq.clusterId.toString(),
-          true
-        );
+        embed.addFields({
+          name: command.language.get("CLUSTER"),
+          value: shardReq.clusterId.toString(),
+        });
     }
 
     await command.channel.send({ embeds: [embed] });

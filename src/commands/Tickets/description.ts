@@ -52,10 +52,12 @@ export default class TicketDescription extends Command {
         .setDescription(args.description)
         .setTimestamp()
         .setColor(message.member?.displayColor || "#FFFFFF")
-        .addField(
-          message.guild.language.get("SUBJECT"),
-          message.guild.language.get("TICKET_DESCRIPTION_EXAMPLE_SUBJECT")
-        );
+        .addFields({
+          name: message.guild.language.get("SUBJECT"),
+          value: message.guild.language.get(
+            "TICKET_DESCRIPTION_EXAMPLE_SUBJECT"
+          ),
+        });
       return await message.channel.send({ embeds: [embed] });
     }
   }

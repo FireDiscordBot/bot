@@ -120,21 +120,24 @@ export default class Help extends Command {
     ];
     const embed = new MessageEmbed()
       .setColor(message.member?.displayColor || "#FFFFFF")
-      .addField(
-        message.language.get("HELP_SOFTWARE_CREDITS_NAME"),
-        message.language.get("HELP_SOFTWARE_CREDITS_VALUE", {
-          links:
-            "[Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/)",
-        }) +
-          "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n[Aether](https://ravy.dev/aero/aether)\n"
-      )
-      .addField(
-        message.language.get("HELP_EMOJI_CREDITS_NAME"),
-        message.language.get("HELP_EMOJI_CREDITS_VALUE", {
-          links:
-            "[Blob Hub Studios](https://inv.wtf/blobhub) & [Icons](https://inv.wtf/icons)",
-        })
-      )
+      .addFields([
+        {
+          name: message.language.get("HELP_SOFTWARE_CREDITS_NAME"),
+          value:
+            message.language.get("HELP_SOFTWARE_CREDITS_VALUE", {
+              links:
+                "[Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/)",
+            }) +
+            "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n[Aether](https://ravy.dev/aero/aether)\n",
+        },
+        {
+          name: message.language.get("HELP_EMOJI_CREDITS_NAME"),
+          value: message.language.get("HELP_EMOJI_CREDITS_VALUE", {
+            links:
+              "[Blob Hub Studios](https://inv.wtf/blobhub) & [Icons](https://inv.wtf/icons)",
+          }),
+        },
+      ])
       .setFooter({
         text: message.language.get("HELP_FOOTER", {
           shard: message.shard.id,

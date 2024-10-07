@@ -83,83 +83,111 @@ export default class GuildUpdate extends Listener {
           name: language.get("GUILDUPDATELOG_AUTHOR", { name: after.name }),
           iconURL: after.iconURL({ size: 2048, format: "png", dynamic: true }),
         })
+        .addFields(
+          [
+            before.name != after.name
+              ? {
+                  name: language.get("NAME"),
+                  value: `${before.name} ➜ ${after.name}`,
+                }
+              : null,
+            before.systemChannelId != after.systemChannelId
+              ? {
+                  name: language.get("SYSTEM_CHANNEL"),
+                  value: `${
+                    before.systemChannel?.name || constants.escapedShruggie
+                  } ➜ ${
+                    after.systemChannel?.name || constants.escapedShruggie
+                  }`,
+                }
+              : null,
+            before.ownerId != after.ownerId
+              ? {
+                  name: language.get("OWNER"),
+                  value: `${beforeOwner || before.ownerId} ➜ ${
+                    afterOwner || after.ownerId
+                  }`,
+                }
+              : null,
+            before.icon != after.icon
+              ? {
+                  name: language.get("ICON"),
+                  value: `${
+                    before.iconURL({
+                      size: 128,
+                      format: "png",
+                      dynamic: true,
+                    }) || constants.escapedShruggie
+                  } ➜ ${
+                    after.iconURL({
+                      size: 128,
+                      format: "png",
+                      dynamic: true,
+                    }) || constants.escapedShruggie
+                  }`,
+                }
+              : null,
+            before.splash != after.splash
+              ? {
+                  name: language.get("GUILDUPDATELOG_SPLASH_CHANGED"),
+                  value: `${
+                    before.splashURL({
+                      size: 2048,
+                      format: "png",
+                    }) || constants.escapedShruggie
+                  } ➜ ${
+                    after.splashURL({ size: 2048, format: "png" }) ||
+                    constants.escapedShruggie
+                  }`,
+                }
+              : null,
+            before.banner != after.banner
+              ? {
+                  name: language.get("GUILDUPDATELOG_BANNER_CHANGED"),
+                  value: `${
+                    before.bannerURL({
+                      size: 2048,
+                      format: "png",
+                    }) || constants.escapedShruggie
+                  } ➜ ${
+                    after.bannerURL({ size: 2048, format: "png" }) ||
+                    constants.escapedShruggie
+                  }`,
+                }
+              : null,
+            before.verificationLevel != after.verificationLevel
+              ? {
+                  name: language.get("VERIFICATION_LEVEL"),
+                  value: `${language.get(
+                    ("GUILD_VERIF_" +
+                      before.verificationLevel.toString()) as LanguageKeys
+                  )} ➜ ${language.get(
+                    ("GUILD_VERIF_" +
+                      after.verificationLevel.toString()) as LanguageKeys
+                  )}`.replace(/\*/gim, ""),
+                }
+              : null,
+            before.explicitContentFilter != after.explicitContentFilter
+              ? {
+                  name: language.get("EXPLICIT_CONTENT_FILTER"),
+                  value: `${language.get(
+                    ("EXPLICIT_CONTENT_FILTER_" +
+                      before.explicitContentFilter.toString()) as LanguageKeys
+                  )} ➜ ${language.get(
+                    ("EXPLICIT_CONTENT_FILTER_" +
+                      after.explicitContentFilter.toString()) as LanguageKeys
+                  )}`,
+                }
+              : null,
+            before.description != after.description
+              ? {
+                  name: language.get("DESCRIPTION"),
+                  value: `${before.description} ➜ ${after.description}`,
+                }
+              : null,
+          ].filter((field) => !!field)
+        )
         .setFooter({ text: after.id });
-      if (before.name != after.name)
-        embed.addField(language.get("NAME"), `${before.name} ➜ ${after.name}`);
-      if (before.systemChannelId != after.systemChannelId)
-        embed.addField(
-          language.get("SYSTEM_CHANNEL"),
-          `${before.systemChannel?.name || constants.escapedShruggie} ➜ ${
-            after.systemChannel?.name || constants.escapedShruggie
-          }`
-        );
-      if (before.ownerId != after.ownerId)
-        embed.addField(
-          language.get("OWNER"),
-          `${beforeOwner || before.ownerId} ➜ ${afterOwner || after.ownerId}`
-        );
-      if (before.icon != after.icon)
-        embed.addField(
-          language.get("GUILDUPDATELOG_ICON_CHANGED"),
-          `${
-            before.iconURL({
-              size: 128,
-              format: "png",
-              dynamic: true,
-            }) || constants.escapedShruggie
-          } ➜ ${
-            after.iconURL({ size: 128, format: "png", dynamic: true }) ||
-            constants.escapedShruggie
-          }`
-        );
-      if (before.splash != after.splash)
-        embed.addField(
-          language.get("GUILDUPDATELOG_SPLASH_CHANGED"),
-          `${
-            before.splashURL({
-              size: 2048,
-              format: "png",
-            }) || constants.escapedShruggie
-          } ➜ ${
-            after.splashURL({ size: 2048, format: "png" }) ||
-            constants.escapedShruggie
-          }`
-        );
-      if (before.banner != after.banner)
-        embed.addField(
-          language.get("GUILDUPDATELOG_BANNER_CHANGED"),
-          `${
-            before.bannerURL({
-              size: 2048,
-              format: "png",
-            }) || constants.escapedShruggie
-          } ➜ ${
-            after.bannerURL({ size: 2048, format: "png" }) ||
-            constants.escapedShruggie
-          }`
-        );
-      if (before.verificationLevel != after.verificationLevel)
-        embed.addField(
-          language.get("VERIFICATION_LEVEL"),
-          `${language.get(
-            ("GUILD_VERIF_" +
-              before.verificationLevel.toString()) as LanguageKeys
-          )} ➜ ${language.get(
-            ("GUILD_VERIF_" +
-              after.verificationLevel.toString()) as LanguageKeys
-          )}`.replace(/\*/gim, "")
-        );
-      if (before.explicitContentFilter != after.explicitContentFilter)
-        embed.addField(
-          language.get("EXPLICIT_CONTENT_FILTER"),
-          `${language.get(
-            ("EXPLICIT_CONTENT_FILTER_" +
-              before.explicitContentFilter.toString()) as LanguageKeys
-          )} ➜ ${language.get(
-            ("EXPLICIT_CONTENT_FILTER_" +
-              after.explicitContentFilter.toString()) as LanguageKeys
-          )}`
-        );
       if (before.features.length != after.features.length) {
         const added = after.features.filter(
           (feature) => !before.features.includes(feature)
@@ -167,47 +195,31 @@ export default class GuildUpdate extends Listener {
         const removed = before.features.filter(
           (feature) => !after.features.includes(feature)
         );
-        if (after.id == "411619823445999637" && added.length)
-          await this.client.req
-            .channels("624304772333436928")
-            .messages.post({
-              data: {
-                content: `<@287698408855044097> new feature(s) in sk1er discord, ${added.join(
-                  ", "
-                )}`,
-                allowed_mentions: {
-                  users: ["287698408855044097"],
-                },
-              },
-            })
-            .catch(() => {});
-        if (added.length)
-          embed.addField(
-            language.get("ADDED_FEATURES"),
-            added
-              .map((feature) =>
-                this.client.util.cleanFeatureName(feature, after.language)
-              )
-              .join("\n")
-          );
-        if (removed.length)
-          embed.addField(
-            language.get("REMOVED_FEATURES"),
-            removed
-              .map((feature) =>
-                this.client.util.cleanFeatureName(feature, after.language)
-              )
-              .join("\n")
-          );
-      }
-      if (
-        before.description != after.description ||
-        (before.description != after.description && embed.fields.length != 0)
-      )
-        embed.addField(
-          language.get("DESCRIPTION"),
-          `${before.description} ➜ ${after.description}`
+        embed.addFields(
+          [
+            added.length
+              ? {
+                  name: language.get("ADDED_FEATURES"),
+                  value: added
+                    .map((feature) =>
+                      this.client.util.cleanFeatureName(feature, after.language)
+                    )
+                    .join("\n"),
+                }
+              : null,
+            removed.length
+              ? {
+                  name: language.get("REMOVED_FEATURES"),
+                  value: removed
+                    .map((feature) =>
+                      this.client.util.cleanFeatureName(feature, after.language)
+                    )
+                    .join("\n"),
+                }
+              : null,
+          ].filter((field) => !!field)
         );
+      }
       if (embed.fields.length)
         await after
           .actionLog(embed, ActionLogTypes.GUILD_UPDATE)

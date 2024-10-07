@@ -155,7 +155,10 @@ export default class User extends Command {
           dynamic: true,
         }),
       })
-      .addField(`» ${command.language.get("ABOUT")}`, info.join("\n"));
+      .addFields({
+        name: `» ${command.language.get("ABOUT")}`,
+        value: info.join("\n"),
+      });
     if (badges.length)
       embed.setDescription(
         application
@@ -173,11 +176,12 @@ export default class User extends Command {
         .sorted((roleA, roleB) => roleB.position - roleA.position)
         .map((role) => role.toString());
       if (roles.length)
-        embed.addField(
-          `» ${command.language.get("ROLES")} [${member.roles.cache.size - 1}]`,
-          this.client.util.shorten(roles, 1000, " - "),
-          false
-        );
+        embed.addFields({
+          name: `» ${command.language.get("ROLES")} [${
+            member.roles.cache.size - 1
+          }]`,
+          value: this.client.util.shorten(roles, 1000, " - "),
+        });
       if (!member.permissions.has(PermissionFlagsBits.Administrator)) {
         let perms = [];
         const keyPerms = [
@@ -204,20 +208,18 @@ export default class User extends Command {
               this.client.util.cleanPermissionName(permission, command.language)
             );
         if (perms.length)
-          embed.addField(
-            `» ${command.language.get("KEY_PERMISSIONS")}`,
-            perms.join(", "),
-            false
-          );
+          embed.addFields({
+            name: `» ${command.language.get("KEY_PERMISSIONS")}`,
+            value: perms.join(", "),
+          });
       } else
-        embed.addField(
-          `» ${command.language.get("PERMISSIONS_TEXT")}`,
-          this.client.util.cleanPermissionName(
+        embed.addFields({
+          name: `» ${command.language.get("PERMISSIONS_TEXT")}`,
+          value: this.client.util.cleanPermissionName(
             PermissionFlagsBits.Administrator,
             command.language
           ),
-          false
-        );
+        });
     }
     if (application) {
       components.push(new MessageActionRow());
@@ -317,7 +319,10 @@ export default class User extends Command {
             .setURL(application.custom_install_url)
         );
 
-      embed.addField(`» ${command.language.get("BOT")}`, appInfo.join("\n"));
+      embed.addFields({
+        name: `» ${command.language.get("BOT")}`,
+        value: appInfo.join("\n"),
+      });
       if (components.every((row) => !row.components.length))
         while (components.length) components.pop();
     }
@@ -708,7 +713,10 @@ export default class User extends Command {
           snowflakeEmoji: this.client.util.useEmoji("snowflake"),
         })
       )
-      .addField(`» ${command.language.get("ABOUT")}`, info.join("\n"));
+      .addFields({
+        name: `» ${command.language.get("ABOUT")}`,
+        value: info.join("\n"),
+      });
 
     if (user || command.util?.parsed?.command?.id == "snowflake")
       embed.description = embed.description.split("\n").slice(2).join("\n");

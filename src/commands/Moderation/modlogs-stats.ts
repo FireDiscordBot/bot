@@ -5,6 +5,7 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { ModLogTypesEnumToString, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
+import { count } from "console";
 import { MessageEmbed } from "discord.js";
 
 export default class ModlogsStats extends Command {
@@ -60,14 +61,15 @@ export default class ModlogsStats extends Command {
       )
       .setTimestamp()
       .setFooter({ text: args.user.id });
-    for (const [type, count] of Object.entries(types)) {
-      if (count)
-        countsEmbed.addField(
-          titleCase(type, "_"),
-          count.toLocaleString(command.language.id),
-          true
-        );
-    }
+    countsEmbed.addFields(
+      Object.entries(types)
+        .filter(([, count]) => !!count)
+        .map(([type, count]) => ({
+          name: titleCase(type, "_"),
+          value: count.toLocaleString(command.language.id),
+          inline: true,
+        }))
+    );
     return await command.channel.send({ embeds: [countsEmbed] });
   }
 }

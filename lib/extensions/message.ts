@@ -917,10 +917,10 @@ export class FireMessage extends Message {
       content = await filters.runReplace(content, quoter);
       embed.setDescription(content);
     }
-    embed.addField(
-      language.get("JUMP_URL"),
-      `[${language.get("CLICK_TO_VIEW")}](${this.url})`
-    );
+    embed.addFields({
+      name: language.get("JUMP_URL"),
+      value: `[${language.get("CLICK_TO_VIEW")}](${this.url})`,
+    });
     const ATTACH_FILES = PermissionFlagsBits.AttachFiles;
     if (
       this.attachments?.size &&
@@ -946,14 +946,13 @@ export class FireMessage extends Message {
         !embed.image?.url
       )
         embed.setImage(this.attachments.first().url);
-      else {
-        for (const attachment of this.attachments.values()) {
-          embed.addField(
-            language.get("ATTACHMENT"),
-            `[${attachment.name}](${attachment.url})`
-          );
-        }
-      }
+      else
+        embed.addFields(
+          this.attachments.map((attachment) => ({
+            name: language.get("ATTACHMENT"),
+            value: `[${attachment.name}](${attachment.url})`,
+          }))
+        );
     }
     if (this.channel != destination) {
       if (this.guild && this.guild.id != destination.guild?.id)
@@ -1166,10 +1165,10 @@ export class FireMessage extends Message {
           )
             continue;
           else if (embed.length < 6000 && embed.fields.length < 25)
-            embed.addField(
-              "\u200b",
-              this.guild.language.get("STARBOARD_CONTAINS_VIDEO")
-            );
+            embed.addFields({
+              name: "\u200b",
+              value: this.guild.language.get("STARBOARD_CONTAINS_VIDEO"),
+            });
         }
 
         if (audioExts.some((ext) => attachment.name.endsWith(ext))) {
@@ -1183,10 +1182,10 @@ export class FireMessage extends Message {
           )
             continue;
           else if (embed.length < 6000 && embed.fields.length < 25)
-            embed.addField(
-              "\u200b",
-              this.guild.language.get("STARBOARD_CONTAINS_AUDIO")
-            );
+            embed.addFields({
+              name: "\u200b",
+              value: this.guild.language.get("STARBOARD_CONTAINS_AUDIO"),
+            });
         }
       }
     }
@@ -1205,10 +1204,10 @@ export class FireMessage extends Message {
         `[${this.guild.language.get("STARBOARD_JUMP_TO")}](${this.url})`
       );
     else if (embed.length < 6000 && embed.fields.length < 25)
-      embed.addField(
-        "\u200b",
-        `[${this.guild.language.get("STARBOARD_JUMP_TO")}](${this.url})`
-      );
+      embed.addFields({
+        name: "\u200b",
+        value: `[${this.guild.language.get("STARBOARD_JUMP_TO")}](${this.url})`,
+      });
     return [`${emoji} **${stars}** | ${this.channel}`, embed];
   }
 
@@ -1340,11 +1339,11 @@ export class FireMessage extends Message {
         .setTitle("Suspicious Message")
         .setURL(this.url)
         .setDescription(this.content)
-        .addField(
-          "Why?",
-          `This message was sent with no "nonce" which is used for message deduplication by Discord's official clients.
-The lack of this is a sign that this message may have been sent automatically by a poorly made script.`
-        )
+        .addFields({
+          name: "Why?",
+          value: `This message was sent with no "nonce" which is used for message deduplication by Discord's official clients.
+The lack of this is a sign that this message may have been sent automatically by a poorly made script.`,
+        })
         .setFooter({ text: this.author.id });
       return await updatesChannel.send({ embeds: [embed] }).catch(() => {});
     };

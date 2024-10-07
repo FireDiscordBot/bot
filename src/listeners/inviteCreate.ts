@@ -26,11 +26,23 @@ export default class InviteCreate extends Listener {
           name: language.get("INVCREATE_LOG_AUTHOR", { guild: guild.name }),
           iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
         })
-        .addField(language.get("FILTER_INVITE_LOG_CODE"), invite.code)
-        .addField(language.get("CHANNEL"), invite.channel.name)
-        .addField(
-          language.get("CREATED_BY"),
-          invite.inviter?.toString() || constants.escapedShruggie
+        .addFields(
+          [
+            {
+              name: language.get("FILTER_INVITE_LOG_CODE"),
+              value: invite.code,
+            },
+            {
+              name: language.get("CHANNEL"),
+              value: invite.channel.name,
+            },
+            invite.inviter
+              ? {
+                  name: language.get("CREATED_BY"),
+                  value: invite.inviter.toString(),
+                }
+              : null,
+          ].filter((f) => !!f)
         )
         .setFooter({
           text: `${invite.channel.id} | ${invite.inviter?.id || ""}`,

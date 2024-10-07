@@ -70,12 +70,20 @@ export default class InviteRole extends Command {
               dynamic: true,
             }),
           })
-          .addField(message.guild.language.get("INVITE"), invite)
-          .addField(message.guild.language.get("ROLE"), role.name)
-          .addField(
-            message.guild.language.get("MODERATOR"),
-            message.author.toString()
-          )
+          .addFields([
+            {
+              name: message.guild.language.get("INVITE"),
+              value: invite,
+            },
+            {
+              name: message.guild.language.get("ROLE"),
+              value: role.name,
+            },
+            {
+              name: message.guild.language.get("MODERATOR"),
+              value: message.author.toString(),
+            },
+          ])
           .setFooter({ text: `${role.id} | ${message.author.id}` });
         await message.guild
           .actionLog(embed, ActionLogTypes.INVITE_ROLE_DELETE)
@@ -110,12 +118,20 @@ export default class InviteRole extends Command {
             dynamic: true,
           }),
         })
-        .addField(message.guild.language.get("INVITE"), invite)
-        .addField(message.guild.language.get("ROLE"), role.name)
-        .addField(
-          message.guild.language.get("MODERATOR"),
-          message.author.toString()
-        )
+        .addFields([
+          {
+            name: message.guild.language.get("INVITE"),
+            value: invite,
+          },
+          {
+            name: message.guild.language.get("ROLE"),
+            value: role.name,
+          },
+          {
+            name: message.guild.language.get("MODERATOR"),
+            value: message.author.toString(),
+          },
+        ])
         .setFooter({ text: `${role.id} | ${message.author.id}` });
       await message.guild
         .actionLog(embed, ActionLogTypes.INVITE_ROLE_CREATE)

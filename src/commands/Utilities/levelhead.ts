@@ -89,9 +89,11 @@ export default class Levelhead extends Command {
       .setTitle(language.get("LEVELHEAD_EMBED_TITLE", { player: args.player }))
       .setColor(command.member?.displayColor || "#FFFFFF")
       .setURL("https://purchase.sk1er.club/category/1050972")
-      .setTimestamp();
-    embed.addField("IGN", args.player);
-    embed.addField("Levelhead", `${header}:${footer}`);
+      .setTimestamp()
+      .addFields([
+        { name: "IGN", value: args.player },
+        { name: "Levelhead", value: `${header}:${footer}` },
+      ]);
     if (proposal && proposal.hasOwnProperty("denied")) {
       const nheader = ((proposal.header as string) || "Level").replace(
         this.removeColor,
@@ -101,19 +103,23 @@ export default class Levelhead extends Command {
         this.removeColor,
         ""
       );
-      embed.addField(
-        language.get("LEVELHEAD_PROPOSED"),
-        `${nheader}:${nfooter}`
-      );
-      embed.addField(language.get("LEVELHEAD_DENIED"), proposal.denied);
+      embed.addFields([
+        {
+          name: language.get("LEVELHEAD_PROPOSED"),
+          value: `${nheader}:${nfooter}`,
+        },
+        {
+          name: language.get("LEVELHEAD_DENIED"),
+          value: proposal.denied,
+        },
+      ]);
     }
-    embed.addField(
-      language.get("LEVELHEAD_OTHER"),
-      `${language.get("LEVELHEAD_TAB")}: ${tab}\n${language.get(
+    embed.addFields({
+      name: language.get("LEVELHEAD_OTHER"),
+      value: `${language.get("LEVELHEAD_TAB")}: ${tab}\n${language.get(
         "LEVELHEAD_CHAT"
       )}: ${chat}\n${language.get("LEVELHEAD_ADDON_LAYERS")}: ${head}`,
-      false
-    );
+    });
     return await command.channel.send({ embeds: [embed] });
   }
 }

@@ -83,41 +83,56 @@ export default class Stats extends Command {
           shard: message.shard.id,
         }),
       })
-      .addField(
-        message.language.get("GUILDS"),
-        `${clusterStats.guilds.toLocaleString(message.language.id)}/${stats
-          .map((c) => c.guilds)
-          .reduce((a, b) => a + b, 0)
-          .toLocaleString(message.language.id)}`,
-        true
-      )
-      .addField(
-        message.language.get("USERS"),
-        `${clusterStats.users.toLocaleString(message.language.id)}/${stats
-          .map((c) => c.users)
-          .reduce((a, b) => a + b, 0)
-          .toLocaleString(message.language.id)}`,
-        true
-      )
-      .addField(
-        message.language.get("STATS_MEMORY_USAGE"),
-        `${clusterStats.ram}/${humanFileSize(
-          stats.map((c) => c.ramBytes).reduce((a, b) => a + b, 0)
-        )}`,
-        true
-      )
-      .addField(message.language.get("STATS_DJS_VER"), djsver, true)
-      .addField(
-        message.language.get("STATS_NODE_VER"),
-        process.version.slice(1),
-        true
-      )
-      .addField(message.language.get("STATS_UPTIME"), clusterStats.uptime, true)
-      .addField(
-        message.language.get("STATS_COMMANDS"),
-        clusterStats.commands.toLocaleString(message.language.id),
-        true
-      );
+      .addFields([
+        {
+          name: message.language.get("GUILDS"),
+          value: `${clusterStats.guilds.toLocaleString(
+            message.language.id
+          )}/${stats
+            .map((c) => c.guilds)
+            .reduce((a, b) => a + b, 0)
+            .toLocaleString(message.language.id)}`,
+          inline: true,
+        },
+        {
+          name: message.language.get("USERS"),
+          value: `${clusterStats.users.toLocaleString(
+            message.language.id
+          )}/${stats
+            .map((c) => c.users)
+            .reduce((a, b) => a + b, 0)
+            .toLocaleString(message.language.id)}`,
+          inline: true,
+        },
+        {
+          name: message.language.get("STATS_MEMORY_USAGE"),
+          value: `${clusterStats.ram}/${humanFileSize(
+            stats.map((c) => c.ramBytes).reduce((a, b) => a + b, 0)
+          )}`,
+          inline: true,
+        },
+        {
+          name: message.language.get("STATS_DJS_VER"),
+          value: djsver,
+          inline: true,
+        },
+
+        {
+          name: message.language.get("STATS_NODE_VER"),
+          value: process.version.slice(1),
+          inline: true,
+        },
+        {
+          name: message.language.get("STATS_UPTIME"),
+          value: clusterStats.uptime,
+          inline: true,
+        },
+        {
+          name: message.language.get("STATS_COMMANDS"),
+          value: clusterStats.commands.toLocaleString(message.language.id),
+          inline: true,
+        },
+      ]);
     return await message.channel.send({ embeds: [embed] });
   }
 
@@ -146,35 +161,45 @@ export default class Stats extends Command {
           shard: message.shard.id,
         }),
       })
-      .addField(
-        message.language.get("GUILDS"),
-        `${stats.guilds.toLocaleString(message.language.id)}`,
-        true
-      )
-      .addField(
-        message.language.get("USERS"),
-        `${stats.users.toLocaleString(message.language.id)}`,
-        true
-      )
-      .addField(
-        message.language.get("STATS_MEMORY_USAGE"),
-        `${humanFileSize(process.memoryUsage().heapUsed)}/${humanFileSize(
-          totalmem()
-        )}`,
-        true
-      )
-      .addField(message.language.get("STATS_DJS_VER"), djsver, true)
-      .addField(
-        message.language.get("STATS_NODE_VER"),
-        process.version.slice(1),
-        true
-      )
-      .addField(message.language.get("STATS_UPTIME"), stats.uptime, true)
-      .addField(
-        message.language.get("STATS_COMMANDS"),
-        stats.commands.toLocaleString(message.language.id),
-        true
-      );
+      .addFields([
+        {
+          name: message.language.get("GUILDS"),
+          value: `${stats.guilds.toLocaleString(message.language.id)}`,
+          inline: true,
+        },
+        {
+          name: message.language.get("USERS"),
+          value: `${stats.users.toLocaleString(message.language.id)}`,
+          inline: true,
+        },
+        {
+          name: message.language.get("STATS_MEMORY_USAGE"),
+          value: `${humanFileSize(
+            process.memoryUsage().heapUsed
+          )}/${humanFileSize(totalmem())}`,
+          inline: true,
+        },
+        {
+          name: message.language.get("STATS_DJS_VER"),
+          value: djsver,
+          inline: true,
+        },
+        {
+          name: message.language.get("STATS_NODE_VER"),
+          value: process.version.slice(1),
+          inline: true,
+        },
+        {
+          name: message.language.get("STATS_UPTIME"),
+          value: stats.uptime,
+          inline: true,
+        },
+        {
+          name: message.language.get("STATS_COMMANDS"),
+          value: stats.commands.toLocaleString(message.language.id),
+          inline: true,
+        },
+      ]);
     return await message.channel.send({ embeds: [embed] });
   }
 }

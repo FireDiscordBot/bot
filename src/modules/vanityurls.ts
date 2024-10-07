@@ -170,17 +170,19 @@ export default class VanityURLs extends Module {
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
       })
       .setColor("#2ECC71")
-      .addField("URL", `https://inv.wtf/${code}`)
+      .addFields({ name: "URL", value: `https://inv.wtf/${code}` })
       .setTimestamp();
     if (guild.premium) {
-      embed.addField(
-        language.get("CLICKS"),
-        data.clicks.toLocaleString(language.id)
-      );
-      embed.addField(
-        language.get("LINKS"),
-        data.links.toLocaleString(language.id)
-      );
+      embed.addFields([
+        {
+          name: language.get("CLICKS"),
+          value: data.clicks.toLocaleString(language.id),
+        },
+        {
+          name: language.get("LINKS"),
+          value: data.links.toLocaleString(language.id),
+        },
+      ]);
     }
     if (splash) embed.setImage(splash);
     return embed;

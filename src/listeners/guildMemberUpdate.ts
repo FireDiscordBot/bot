@@ -198,15 +198,28 @@ export default class GuildMemberUpdate extends Listener {
         roles.filter((r) => !!r.color).random()?.hexColor ??
           roles.first()?.hexColor
       )
-      .addField(
-        guild.language.get("ROLEADDLOG_FIELD_TITLE"),
-        roles.map((role) => role.toString()).join(" - ")
+      .addFields(
+        [
+          {
+            name: guild.language.get("ROLEADDLOG_FIELD_TITLE"),
+            value: roles.map((role) => role.toString()).join(" - "),
+          },
+          executor && executor.id != action.targetId
+            ? {
+                name: guild.language.get("MODERATOR"),
+                value: executor.toString(),
+              }
+            : null,
+          action.reason
+            ? {
+                name: guild.language.get("REASON"),
+                value: action.reason,
+              }
+            : null,
+        ].filter((field) => !!field)
       )
+
       .setFooter({ text: action.targetId });
-    if (executor && executor.id != action.targetId)
-      embed.addField(guild.language.get("MODERATOR"), executor.toString());
-    if (action.reason)
-      embed.addField(guild.language.get("REASON"), action.reason);
     await guild.memberLog(embed, MemberLogTypes.ROLES_ADD).catch(() => {});
   }
 
@@ -243,15 +256,27 @@ export default class GuildMemberUpdate extends Listener {
         roles.filter((r) => !!r.color).random()?.hexColor ??
           roles.first()?.hexColor
       )
-      .addField(
-        guild.language.get("ROLEREMOVELOG_FIELD_TITLE"),
-        roles.map((role) => role.toString()).join(" - ")
+      .addFields(
+        [
+          {
+            name: guild.language.get("ROLEREMOVELOG_FIELD_TITLE"),
+            value: roles.map((role) => role.toString()).join(" - "),
+          },
+          executor && executor.id != action.targetId
+            ? {
+                name: guild.language.get("MODERATOR"),
+                value: executor.toString(),
+              }
+            : null,
+          action.reason
+            ? {
+                name: guild.language.get("REASON"),
+                value: action.reason,
+              }
+            : null,
+        ].filter((field) => !!field)
       )
       .setFooter({ text: action.targetId });
-    if (executor && executor.id != action.targetId)
-      embed.addField(guild.language.get("MODERATOR"), executor.toString());
-    if (action.reason)
-      embed.addField(guild.language.get("REASON"), action.reason);
     await guild.memberLog(embed, MemberLogTypes.ROLES_REMOVE).catch(() => {});
   }
 
@@ -284,15 +309,26 @@ export default class GuildMemberUpdate extends Listener {
           : executor.displayColor ?? "#FFFFFF"
       )
       .setFooter({ text: action.targetId })
-      .addField(
-        guild.language.get("TIMEOUTLOG_GIVEN"),
-        Formatters.time(new Date(change.new as string), "R")
+      .addFields(
+        [
+          {
+            name: guild.language.get("TIMEOUTLOG_GIVEN"),
+            value: Formatters.time(new Date(change.new as string), "R"),
+          },
+          executor && executor.id != action.targetId
+            ? {
+                name: guild.language.get("MODERATOR"),
+                value: executor.toString(),
+              }
+            : null,
+          action.reason
+            ? {
+                name: guild.language.get("REASON"),
+                value: action.reason,
+              }
+            : null,
+        ].filter((field) => !!field)
       );
-    if (embed.fields.length <= 1) return;
-    if (executor && executor.id != action.targetId)
-      embed.addField(guild.language.get("MODERATOR"), executor.toString());
-    if (action.reason)
-      embed.addField(guild.language.get("REASON"), action.reason);
     await guild.memberLog(embed, MemberLogTypes.MEMBER_UPDATE).catch(() => {});
   }
 
@@ -326,23 +362,39 @@ export default class GuildMemberUpdate extends Listener {
           ? target?.displayColor
           : executor.displayColor ?? "#FFFFFF"
       )
+      .addFields(
+        [
+          executor && executor.id != action.targetId
+            ? {
+                name: guild.language.get("MODERATOR"),
+                value: executor.toString(),
+              }
+            : null,
+          change.old
+            ? {
+                name: guild.language.get("NICKCHANGELOG_OLD_NICK"),
+                value: change.old.toString() || constants.escapedShruggie,
+              }
+            : null,
+          change.new
+            ? {
+                name: guild.language.get("NICKCHANGELOG_NEW_NICK"),
+                value: change.new.toString() || constants.escapedShruggie,
+              }
+            : null,
+          action.reason
+            ? {
+                name: guild.language.get("REASON"),
+                value: action.reason,
+              }
+            : null,
+        ].filter((field) => !!field)
+      )
       .setFooter({ text: action.targetId });
-    if (executor && executor.id != action.targetId)
-      embed.addField(guild.language.get("MODERATOR"), executor.toString());
-    if (change.old)
-      embed.addField(
-        guild.language.get("NICKCHANGELOG_OLD_NICK"),
-        change.old.toString() || constants.escapedShruggie
-      );
-    if (change.new)
-      embed.addField(
-        guild.language.get("NICKCHANGELOG_NEW_NICK"),
-        change.new.toString() || constants.escapedShruggie
-      );
-    if (embed.fields.length <= 1) return;
-    if (action.reason)
-      embed.addField(guild.language.get("REASON"), action.reason);
-    await guild.memberLog(embed, MemberLogTypes.MEMBER_UPDATE).catch(() => {});
+    if (embed.fields.length)
+      await guild
+        .memberLog(embed, MemberLogTypes.MEMBER_UPDATE)
+        .catch(() => {});
   }
 
   async logVerificationBypass(

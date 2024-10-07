@@ -422,8 +422,13 @@ export class FireMember extends GuildMember {
           dynamic: true,
         }),
       })
-      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
-      .addField(this.guild.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: this.guild.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: this.guild.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.WARN, reason)
@@ -439,10 +444,10 @@ export class FireMember extends GuildMember {
       noDM = true;
     });
     if (noDM)
-      embed.addField(
-        this.guild.language.get("ERROR"),
-        this.guild.language.get("WARN_LOG_DM_FAIL")
-      );
+      embed.addFields({
+        name: this.guild.language.get("ERROR"),
+        value: this.guild.language.get("WARN_LOG_DM_FAIL"),
+      });
     await this.guild.modLog(embed, ModLogTypes.WARN).catch(() => {});
     const count = await this.client.db
       .query("SELECT * FROM modlogs WHERE gid=$1 AND type=$2 AND uid=$3;", [
@@ -487,8 +492,13 @@ export class FireMember extends GuildMember {
         this.guild.language.get("NOTE_LOG_AUTHOR", { user: this.display }),
         this.displayAvatarURL({ size: 2048, format: "png", dynamic: true })
       )
-      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
-      .addField(this.guild.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: this.guild.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: this.guild.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.NOTE, reason)
@@ -568,14 +578,19 @@ export class FireMember extends GuildMember {
           dynamic: true,
         }),
       })
-      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
-      .addField(this.guild.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: this.guild.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: this.guild.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     if (until) {
-      embed.addField(
-        this.guild.language.get("BAN_WILL_BE_UNBANNED"),
-        Formatters.time(new Date(until), "R")
-      );
+      embed.addFields({
+        name: this.guild.language.get("BAN_WILL_BE_UNBANNED"),
+        value: Formatters.time(new Date(until), "R"),
+      });
     }
     let noDM: boolean = false;
     if (sendDM) {
@@ -588,10 +603,10 @@ export class FireMember extends GuildMember {
         noDM = true;
       });
       if (noDM)
-        embed.addField(
-          this.guild.language.get("ERROR"),
-          this.guild.language.get("DM_FAIL")
-        );
+        embed.addFields({
+          name: this.guild.language.get("ERROR"),
+          value: this.guild.language.get("DM_FAIL"),
+        });
     }
     await this.guild.modLog(embed, ModLogTypes.BAN).catch(() => {});
     if (channel)
@@ -646,8 +661,13 @@ export class FireMember extends GuildMember {
           dynamic: true,
         }),
       })
-      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
-      .addField(this.guild.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: this.guild.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: this.guild.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     let noDM: boolean = false;
     if (sendDM) {
@@ -660,10 +680,10 @@ export class FireMember extends GuildMember {
         noDM = true;
       });
       if (noDM)
-        embed.addField(
-          this.guild.language.get("ERROR"),
-          this.guild.language.get("DM_FAIL")
-        );
+        embed.addFields({
+          name: this.guild.language.get("ERROR"),
+          value: this.guild.language.get("DM_FAIL"),
+        });
     }
     await this.guild.modLog(embed, ModLogTypes.KICK).catch(() => {});
     if (channel)
@@ -722,17 +742,22 @@ export class FireMember extends GuildMember {
           dynamic: true,
         }),
       })
-      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
-      .addField(this.guild.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: this.guild.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: this.guild.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     if (failed)
-      embed.addField(
-        this.guild.language.get("DERANK_FAILED_TO_REMOVE"),
-        this.guild.roles.cache
+      embed.addFields({
+        name: this.guild.language.get("DERANK_FAILED_TO_REMOVE"),
+        value: this.guild.roles.cache
           .filter((role) => afterIds.includes(role.id))
           .map((role) => role.toString())
-          .join(", ")
-      );
+          .join(", "),
+      });
     await this.guild.modLog(embed, ModLogTypes.DERANK).catch(() => {});
     if (channel)
       return await channel
@@ -827,14 +852,19 @@ export class FireMember extends GuildMember {
           dynamic: true,
         }),
       })
-      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
-      .addField(this.guild.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: this.guild.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: this.guild.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     if (until) {
-      embed.addField(
-        this.guild.language.get("MUTE_WILL_BE_UNMUTED"),
-        Formatters.time(new Date(until), "R")
-      );
+      embed.addFields({
+        name: this.guild.language.get("MUTE_WILL_BE_UNMUTED"),
+        value: Formatters.time(new Date(until), "R"),
+      });
     }
     let noDM: boolean = false;
     if (sendDM) {
@@ -850,10 +880,10 @@ export class FireMember extends GuildMember {
         noDM = true;
       });
       if (noDM)
-        embed.addField(
-          this.guild.language.get("ERROR"),
-          this.guild.language.get("DM_FAIL")
-        );
+        embed.addFields({
+          name: this.guild.language.get("ERROR"),
+          value: this.guild.language.get("DM_FAIL"),
+        });
     }
     await this.guild.modLog(embed, ModLogTypes.MUTE).catch(() => {});
     if (channel)
@@ -958,14 +988,19 @@ export class FireMember extends GuildMember {
           dynamic: true,
         }),
       })
-      .addField(this.guild.language.get("MODERATOR"), moderator.toString())
-      .addField(this.guild.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: this.guild.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: this.guild.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     if (!dbremove)
-      embed.addField(
-        this.guild.language.get("ERROR"),
-        this.guild.language.get("UNMUTE_FAILED_DB_REMOVE")
-      );
+      embed.addFields({
+        name: this.guild.language.get("ERROR"),
+        value: this.guild.language.get("UNMUTE_FAILED_DB_REMOVE"),
+      });
     await this.guild.modLog(embed, ModLogTypes.UNMUTE).catch(() => {});
     if (channel)
       return await channel

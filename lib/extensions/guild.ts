@@ -429,13 +429,16 @@ export class FireGuild extends Guild {
             name: this.language.get("UNMUTE_LOG_AUTHOR", { user: id }),
             iconURL: this.iconURL({ size: 2048, format: "png", dynamic: true }),
           })
-          .addField(this.language.get("MODERATOR"), me.toString())
+          .addFields({
+            name: this.language.get("MODERATOR"),
+            value: me.toString(),
+          })
           .setFooter({ text: id.toString() });
         if (!dbremove)
-          embed.addField(
-            this.language.get("ERROR"),
-            this.language.get("UNMUTE_FAILED_DB_REMOVE")
-          );
+          embed.addFields({
+            name: this.language.get("ERROR"),
+            value: this.language.get("UNMUTE_FAILED_DB_REMOVE"),
+          });
         await this.modLog(embed, ModLogTypes.UNMUTE).catch(() => {});
       }
     }
@@ -1271,8 +1274,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .addFields([
         { name: this.language.get("SUBJECT"), value: subject },
         { name: this.language.get("USER"), value: authorInfo },
+        ...additionalFields,
       ]);
-    embed.addFields(additionalFields);
     const description =
       descriptionOverride ?? this.settings.get<string>("tickets.description");
     if (description) embed.setDescription(description);
@@ -1393,11 +1396,13 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         )
         .setTimestamp()
         .setColor(author.displayColor || "#FFFFFF")
-        .addField(
-          this.language.get("TICKET_CLOSER_CLOSED_BY"),
-          `${author} (${author.id})`
-        )
-        .addField(this.language.get("REASON"), reason);
+        .addFields([
+          {
+            name: this.language.get("TICKET_CLOSER_CLOSED_BY"),
+            value: `${author} (${author.id})`,
+          },
+          { name: this.language.get("REASON"), value: reason },
+        ]);
       await log
         ?.send({
           embeds: [embed],
@@ -1596,8 +1601,13 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
           dynamic: true,
         }),
       })
-      .addField(this.language.get("MODERATOR"), moderator.toString())
-      .addField(this.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: this.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: this.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${user.id} | ${moderator.id}` });
     await this.modLog(embed, ModLogTypes.UNBAN).catch(() => {});
     if (channel)
@@ -1666,8 +1676,13 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
             : this.iconURL({ size: 2048, format: "png", dynamic: true }),
         url: "https://static.inv.wtf/blocked.gif", // hehe
       })
-      .addField(this.language.get("MODERATOR"), moderator.toString())
-      .addField(this.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: this.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: this.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     await this.modLog(embed, ModLogTypes.BLOCK).catch(() => {});
     return await channel
@@ -1749,8 +1764,13 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
               })
             : this.iconURL({ size: 2048, format: "png", dynamic: true }),
       })
-      .addField(this.language.get("MODERATOR"), moderator.toString())
-      .addField(this.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: this.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: this.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     await this.modLog(embed, ModLogTypes.UNBLOCK).catch(() => {});
     return await channel

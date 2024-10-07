@@ -235,8 +235,13 @@ export class FireUser extends User {
           dynamic: true,
         }),
       })
-      .addField(guild.language.get("MODERATOR"), moderator.toString())
-      .addField(guild.language.get("REASON"), reason)
+      .addFields([
+        {
+          name: guild.language.get("MODERATOR"),
+          value: moderator.toString(),
+        },
+        { name: guild.language.get("REASON"), value: reason },
+      ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     await guild.modLog(embed, ModLogTypes.BAN).catch(() => {});
     if (channel)

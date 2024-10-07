@@ -173,17 +173,21 @@ export default class Blacklist extends Command {
           dynamic: true,
         }),
       })
-      .addField(
-        command.guild.language.get("MODERATOR"),
-        command.author.toString()
-      )
-      .addField(
-        command.guild.language.get("REASON"),
-        args.reason ||
-          (command.guild.language.get(
-            "MODERATOR_ACTION_DEFAULT_REASON"
-          ) as string)
-      )
+      .addFields([
+        {
+          name: command.guild.language.get("MODERATOR"),
+          value: command.author.toString(),
+        },
+
+        {
+          name: command.guild.language.get("REASON"),
+          value:
+            args.reason ||
+            (command.guild.language.get(
+              "MODERATOR_ACTION_DEFAULT_REASON"
+            ) as string),
+        },
+      ])
       .setFooter({ text: `${args.user.id} | ${command.author.id}` });
     await command.guild.modLog(
       embed,

@@ -26,8 +26,16 @@ export default class InviteDelete extends Listener {
           name: language.get("INVDELETE_LOG_AUTHOR", { guild: guild.name }),
           iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
         })
-        .addField(language.get("FILTER_INVITE_LOG_CODE"), invite.code)
-        .addField(language.get("CHANNEL"), invite.channel.name)
+        .addFields([
+          {
+            name: language.get("FILTER_INVITE_LOG_CODE"),
+            value: invite.code,
+          },
+          {
+            name: language.get("CHANNEL"),
+            value: invite.channel.name,
+          },
+        ])
         .setFooter({ text: invite.channel.id });
       await guild
         .actionLog(embed, ActionLogTypes.INVITE_DELETE)

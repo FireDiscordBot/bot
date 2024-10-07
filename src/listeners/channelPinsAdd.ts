@@ -39,7 +39,10 @@ export default class ChannelPinsAdd extends Listener {
           iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
           url: message.url,
         })
-        .addField(language.get("PINNED_BY"), member.toString())
+        .addFields({
+          name: language.get("PINNED_BY"),
+          value: member.toString(),
+        })
         .setFooter({ text: `${message.id} | ${member.id} | ${channel.id}` });
       await guild.actionLog(embed, ActionLogTypes.PINS_ADD);
     }
