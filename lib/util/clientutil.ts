@@ -842,6 +842,12 @@ export class Util extends ClientUtil {
       thread = this.client.channels.cache.get(destination.id) as ThreadChannel;
       destination = destination.parent as GuildTextChannel;
     } else if (typeof destination.fetchWebhooks != "function") return;
+    if (
+      !destination
+        .permissionsFor(destination.guild.members.me)
+        .has(PermissionFlagsBits.ManageWebhooks)
+    )
+      return;
     const hooks = await destination.fetchWebhooks().catch(() => {});
     let hook: Webhook;
     if (hooks) hook = hooks.filter((hook) => !!hook.token).first();
