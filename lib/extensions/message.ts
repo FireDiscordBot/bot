@@ -23,6 +23,7 @@ import {
   MessageReaction,
   MessageSelectMenu,
   NewsChannel,
+  Permissions,
   ReplyMessageOptions,
   Snowflake,
   Structures,
@@ -433,11 +434,17 @@ export class FireMessage extends Message {
             attachment.size > (quoter.premium ? 26214400 : 10485760)
         ).size == 0 ||
         !this.content;
-      const useWebhooks =
-        (!!webhook ||
-          (typeof destination.fetchWebhooks == "function" &&
-            typeof destination.createWebhook == "function")) &&
-        canUseAttachmentsInWebhook;
+      const useWebhooks = webhook
+        ? true
+        : (typeof destination.fetchWebhooks == "function" &&
+          typeof destination.createWebhook == "function" &&
+          destination.guild
+            ? "permissions" in destination
+              ? true // PartialQuoteDestination will always allow webhooks currently
+              : destination
+                  .permissionsFor(destination.guild.members.me)
+                  .has(PermissionFlagsBits.ManageWebhooks)
+            : false) && canUseAttachmentsInWebhook;
 
       return useWebhooks
         ? await this.webhookQuote(destination, quoter, webhook, thread, debug)
@@ -529,17 +536,17 @@ export class FireMessage extends Message {
         (attachment) => attachment.size > (quoter.premium ? 26214400 : 10485760)
       ).size == 0 ||
       !this.content;
-    const useWebhooks =
-      destination.guild &&
-      (destination.guild as FireGuild).hasExperiment(3959319643, 1) &&
-      (!!webhook ||
-        ((destination.guild as FireGuild).settings.get<boolean>(
-          "utils.quotehooks",
-          true
-        ) &&
-          typeof destination.fetchWebhooks == "function" &&
-          typeof destination.createWebhook == "function")) &&
-      canUseAttachmentsInWebhook;
+    const useWebhooks = webhook
+      ? true
+      : (typeof destination.fetchWebhooks == "function" &&
+        typeof destination.createWebhook == "function" &&
+        destination.guild
+          ? "permissions" in destination
+            ? true // PartialQuoteDestination will always allow webhooks currently
+            : destination
+                .permissionsFor(destination.guild.members.me)
+                .has(PermissionFlagsBits.ManageWebhooks)
+          : false) && canUseAttachmentsInWebhook;
 
     return useWebhooks
       ? await this.webhookQuote(destination, quoter, webhook, thread, debug)
