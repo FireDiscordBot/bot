@@ -453,11 +453,13 @@ export default class GuildCommand extends Command {
         embed.addFields({
           name: command.language.get("SHARD"),
           value: shardReq.shardId.toString(),
+          inline: true,
         });
       if (shardReq.clusterId != -1)
         embed.addFields({
           name: command.language.get("CLUSTER"),
           value: shardReq.clusterId.toString(),
+          inline: true,
         });
     }
 
