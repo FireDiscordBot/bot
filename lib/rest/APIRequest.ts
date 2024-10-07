@@ -23,23 +23,16 @@ export class APIRequest {
     this.client = rest.client;
     this.method = method;
     this.route = options.route;
+    this.path = path;
     this.options = options;
     this.retries = 0;
 
-    let queryString = "";
-    if (options.query) {
-      const query = Object.entries(options.query)
-        .filter(([, value]) => value !== null && typeof value !== "undefined")
-        .flatMap(([key, value]) =>
-          Array.isArray(value) ? value.map((v) => [key, v]) : [[key, value]]
-        );
-      queryString = new URLSearchParams(query).toString();
-    }
-    let decoded: string;
-    while ((decoded = decodeURIComponent(path)) != path) path = decoded;
-    this.path = `${path.replaceAll("../", "")}${
-      queryString && `?${queryString}`
-    }`;
+    // Remove invalid/unset query parameters
+    this.options.query = Object.fromEntries(
+      Object.entries(this.options.query ?? {}).filter(
+        ([, value]) => typeof value != "undefined"
+      )
+    );
   }
 
   async make() {
@@ -51,7 +44,12 @@ export class APIRequest {
       this.options.versioned === false
         ? this.client.options.http.api
         : `${this.client.options.http.api}/v${this.client.options.http.version}`;
-    const url = API + this.path;
+    const url = new URL(API + this.path);
+    if (
+      this.path.split("?")[0].length !=
+      url.pathname.split(`/api/v${this.client.options.http.version}`)[1].length
+    )
+      throw new Error("Invalid path");
     let headers: {
       [key: string]: any;
     } = this.client.useCanary
@@ -81,22 +79,27 @@ export class APIRequest {
         }
       }
       headers = Object.assign(headers, body.getHeaders());
-    } else if (this.options.data != null) body = this.options.data;
+    } else if (this.options.data !== null) body = this.options.data;
 
     const controller = new AbortController();
     const timeout = setTimeout(
       () => controller.abort(),
       this.client.options.restRequestTimeout
     );
-    const request = centra(url, this.method).body(
-      body instanceof FormData ? body.getBuffer() : body,
-      body instanceof FormData ? "buffer" : "json"
-    );
+    const request = centra(url, this.method);
+    if (body)
+      request.body(
+        body instanceof FormData ? body.getBuffer() : body,
+        body instanceof FormData ? "buffer" : "json"
+      );
+    if (this.options.query) request.query(this.options.query);
     for (const [name, value] of Object.entries(headers))
       if (value) request.header(name, value);
     if (this.options.debug)
       this.client.console.warn(
-        `[Rest] Sending request to ${this.method.toUpperCase()} ${this.path}`
+        `[Rest] Sending request to ${request.method.toUpperCase()} ${
+          request.url.pathname
+        }`
       );
     const start = +new Date();
     try {

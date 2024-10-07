@@ -13,11 +13,7 @@ const reflectors = [
 
 export interface RequestOptions {
   dontUsePayloadJSON?: boolean;
-  query?:
-    | string[][]
-    | Record<string, string | number | boolean>
-    | string
-    | URLSearchParams;
+  query?: Record<string, string | number | boolean>;
   files?: { name: string; key?: string; file: any }[];
   headers?: Record<string, any>;
   versioned?: boolean;
