@@ -31,6 +31,9 @@ export default class ChannelUpdate extends Listener {
       !guild.members.me
         .permissionsIn(after)
         .missing(muteCommand.clientPermissions).length &&
+      guild.members.me
+        .permissionsIn(after)
+        .has(PermissionFlagsBits.ManageRoles) &&
       !after.permissionOverwrites.cache
         .get(muteRole.id)
         ?.deny.has(
