@@ -625,7 +625,9 @@ export class FireGuild extends Guild {
       (channel) =>
         channel
           .permissionsFor(this.members.me)
-          .has(PermissionFlagsBits.ManageRoles) &&
+          .has(
+            PermissionFlagsBits.ViewChannel | PermissionFlagsBits.ManageRoles
+          ) &&
         this.permRoles
           .filter((_, rid) => this.roles.cache.has(rid))
           .some(
