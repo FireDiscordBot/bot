@@ -67,6 +67,11 @@ const KEY_PERMISSIONS = [
 ];
 const TEXT_AND_NEWS_TYPES = [0, 5];
 
+type AuditLogActionMethod = (
+  auditLogEntry: GuildAuditLogsEntry,
+  guild: FireGuild
+) => Promise<any>;
+
 export default class GuildAuditLogEntryCreate extends Listener {
   guildMemberUpdate: GuildMemberUpdate;
 
@@ -78,8 +83,19 @@ export default class GuildAuditLogEntryCreate extends Listener {
   }
 
   async exec(auditLogEntry: GuildAuditLogsEntry, guild: FireGuild) {
-    if (this[auditLogEntry.action])
-      this[auditLogEntry.action](auditLogEntry, guild);
+    if (typeof this[auditLogEntry.action] == "function")
+      (this[auditLogEntry.action] as AuditLogActionMethod)(
+        auditLogEntry,
+        guild
+      ).catch((e) => {
+        this.client.sentry.captureException(e, {
+          tags: {
+            action: auditLogEntry.action,
+            guild: guild.id,
+            id: auditLogEntry.id,
+          },
+        });
+      });
   }
 
   async ["MEMBER_UPDATE"](

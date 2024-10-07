@@ -35,11 +35,11 @@ export class APIRequest {
         );
       queryString = new URLSearchParams(query).toString();
     }
-    this.path = `${decodeURIComponent(
-      encodeURIComponent(path)
-        .replaceAll("%2E%2E%2F", "")
-        .replaceAll("..%2F", "")
-    )}${queryString && `?${queryString}`}`;
+    let decoded: string;
+    while ((decoded = decodeURIComponent(path)) != path) path = decoded;
+    this.path = `${path.replaceAll("../", "")}${
+      queryString && `?${queryString}`
+    }`;
   }
 
   async make() {
