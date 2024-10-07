@@ -63,7 +63,11 @@ export class RequestHandler {
       // The original stack is usually quite shallow
       // so we make a new error and replace it
       // which results in Sentry showing more useful information
-      error.stack = new Error(error.message).stack;
+      error.stack = new Error(error.message).stack
+        .split("\n")
+        // the first two source lines are irrelevant
+        .filter((_, i) => i != 1 && i != 2)
+        .join("\n");
       // We don't want to capture all status codes so
       // we check both DiscordAPIError and HTTPError
       // to find the status code
@@ -71,13 +75,19 @@ export class RequestHandler {
         !(
           error instanceof DiscordAPIError &&
           (error.httpStatus < 400 ||
+            error.httpStatus == 403 ||
             error.httpStatus == 404 ||
             error.httpStatus == 429)
         ) &&
         !(
           error instanceof HTTPError &&
-          (error.code < 400 || error.code == 404 || error.code == 429)
-        )
+          (error.code < 400 ||
+            error.code == 403 ||
+            error.code == 404 ||
+            error.code == 429)
+        ) &&
+        // ignore eval cmd
+        !error.stack?.includes("at Eval.eval (")
       )
         this.manager.client.sentry.captureException(error);
 
