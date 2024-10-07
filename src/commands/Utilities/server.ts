@@ -412,7 +412,7 @@ export default class GuildCommand extends Command {
                 value: security.join("\n"),
               }
             : null,
-          Object.values(channels).some((v) => v > 0)
+          channels && Object.values(channels).some((v) => v > 0)
             ? {
                 name: command.language.get("GUILD_CHANNELS"),
                 value: Object.entries(channels)
