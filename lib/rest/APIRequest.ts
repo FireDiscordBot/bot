@@ -35,10 +35,14 @@ export class APIRequest {
         );
       queryString = new URLSearchParams(query).toString();
     }
-    this.path = `${path}${queryString && `?${queryString}`}`;
+    this.path = `${decodeURIComponent(
+      encodeURIComponent(path)
+        .replaceAll("%2E%2E%2F", "")
+        .replaceAll("..%2F", "")
+    )}${queryString && `?${queryString}`}`;
   }
 
-  make() {
+  async make() {
     if (this.options.debug)
       this.client.console.warn(
         `[Rest] Creating request for ${this.method.toUpperCase()} ${this.path}`
@@ -47,7 +51,7 @@ export class APIRequest {
       this.options.versioned === false
         ? this.client.options.http.api
         : `${this.client.options.http.api}/v${this.client.options.http.version}`;
-    const url = API + this.path.replaceAll("../", "");
+    const url = API + this.path;
     let headers: {
       [key: string]: any;
     } = this.client.useCanary
@@ -95,7 +99,9 @@ export class APIRequest {
         `[Rest] Sending request to ${this.method.toUpperCase()} ${this.path}`
       );
     const start = +new Date();
-    return request.send().finally(() => {
+    try {
+      return await request.send();
+    } finally {
       clearTimeout(timeout);
       this.client.restPing = +new Date() - start;
       if (this.options.debug)
@@ -104,6 +110,6 @@ export class APIRequest {
             this.path
           } in ${this.client.restPing}ms`
         );
-    });
+    }
   }
 }
