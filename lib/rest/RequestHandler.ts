@@ -59,6 +59,31 @@ export class RequestHandler {
     await this.queue.wait();
     try {
       return await this.execute(request);
+    } catch (error) {
+      // The original stack is usually quite shallow
+      // so we make a new error and replace it
+      // which results in Sentry showing more useful information
+      error.stack = new Error(error.message).stack;
+      // We don't want to capture all status codes so
+      // we check both DiscordAPIError and HTTPError
+      // to find the status code
+      if (
+        !(
+          error instanceof DiscordAPIError &&
+          (error.httpStatus < 400 ||
+            error.httpStatus == 404 ||
+            error.httpStatus == 429)
+        ) &&
+        !(
+          error instanceof HTTPError &&
+          (error.code < 400 || error.code == 404 || error.code == 429)
+        )
+      )
+        this.manager.client.sentry.captureException(error);
+
+      // We still want to throw the error so it can be
+      // handled by whatever made the request initially
+      throw error;
     } finally {
       this.queue.shift();
     }
