@@ -71,24 +71,23 @@ export default class CommandFinished extends Listener {
     } catch {}
     this.client.writeToInflux([point]);
 
-    if (message instanceof ApplicationCommandMessage || !message.channel)
-      return;
-
-    const chance = this.client.util.randInt(0, 100);
-    if (
-      chance > 30 &&
-      chance < 50 &&
-      message.util?.parsed?.command?.id != "help" &&
-      !message.util?.parsed?.command?.ownerOnly
-    ) {
-      const upsellEmbed = await this.client.util.getSlashUpsellEmbed(message);
-      if (upsellEmbed)
-        return await message
-          .reply({
-            embeds: [upsellEmbed],
-            allowedMentions: { repliedUser: true },
-          })
-          .catch(() => {});
+    if (!(message instanceof ApplicationCommandMessage) && message.channel) {
+      const chance = this.client.util.randInt(0, 100);
+      if (
+        chance > 30 &&
+        chance < 50 &&
+        message.util?.parsed?.command?.id != "help" &&
+        !message.util?.parsed?.command?.ownerOnly
+      ) {
+        const upsellEmbed = await this.client.util.getSlashUpsellEmbed(message);
+        if (upsellEmbed)
+          await message
+            .reply({
+              embeds: [upsellEmbed],
+              allowedMentions: { repliedUser: true },
+            })
+            .catch(() => {});
+      }
     }
 
     // member cache sweep ignores members with
