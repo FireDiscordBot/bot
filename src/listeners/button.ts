@@ -1286,7 +1286,9 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         components: [new MessageActionRow().addComponents(dropdown)],
       });
     } else if (button.customId == "complete_reminder") {
-      let content = button.message.content.split("\n");
+      let content = (
+        button.message.content || button.message.embeds[0].description
+      ).split("\n");
       content = content.map((line, index) => {
         // Don't strikethrough the last line (which is the link to where the reminder was set)
         if (index == content.length - 1) return line;
@@ -1294,17 +1296,33 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         line = line.replace(regexes.basicURL, (url) => `<${url}>`);
         if (line.length) return `~~${line}~~`;
       });
-      return await button.channel.update({
-        content: content.join("\n"),
-        components: button.message.components
-          .filter((c) => c instanceof MessageActionRow)
-          .map((row) => {
-            row.components = row.components.map((component) =>
-              component.setDisabled(true)
-            );
-            return row;
-          }),
-      });
+      return await button.channel.update(
+        button.message.content
+          ? {
+              content: content.join("\n"),
+              components: button.message.components
+                .filter((c) => c instanceof MessageActionRow)
+                .map((row) => {
+                  row.components = row.components.map((component) =>
+                    component.setDisabled(true)
+                  );
+                  return row;
+                }),
+            }
+          : {
+              embeds: [
+                button.message.embeds[0].setDescription(content.join("\n")),
+              ],
+              components: button.message.components
+                .filter((c) => c instanceof MessageActionRow)
+                .map((row) => {
+                  row.components = row.components.map((component) =>
+                    component.setDisabled(true)
+                  );
+                  return row;
+                }),
+            }
+      );
     }
 
     if (
