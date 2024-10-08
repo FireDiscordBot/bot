@@ -40,6 +40,9 @@ const calculateReset = (reset: any, resetAfter: string, serverDate: string) => {
 let invalidCount = 0;
 let invalidCountResetTime = null;
 
+const ignoreStatusCode = (code: number) =>
+  code < 400 || code == 401 || code == 403 || code == 404 || code == 429;
+
 export class RequestHandler {
   manager: RESTManager;
   remaining: number;
@@ -72,24 +75,14 @@ export class RequestHandler {
       // we check both DiscordAPIError and HTTPError
       // to find the status code
       if (
-        !(
-          error instanceof DiscordAPIError &&
-          (error.httpStatus < 400 ||
-            error.httpStatus == 403 ||
-            error.httpStatus == 404 ||
-            error.httpStatus == 429)
-        ) &&
-        !(
-          error instanceof HTTPError &&
-          (error.code < 400 ||
-            error.code == 403 ||
-            error.code == 404 ||
-            error.code == 429)
-        ) &&
-        // ignore eval cmd
-        !error.stack?.includes("at Eval.eval (")
+        error instanceof DiscordAPIError &&
+        ignoreStatusCode(error.httpStatus)
       )
-        this.manager.client.sentry.captureException(error);
+        throw error;
+      else if (error instanceof HTTPError && ignoreStatusCode(error.code))
+        throw error;
+      else if (error.stack.includes("at Eval.eval (")) throw error;
+      else this.manager.client.sentry.captureException(error);
 
       // We still want to throw the error so it can be
       // handled by whatever made the request initially
