@@ -12,6 +12,7 @@ import {
   Formatters,
   MessageActionRow,
   MessageButton,
+  MessageEmbed,
   Snowflake,
   SnowflakeUtil,
 } from "discord.js";
@@ -73,24 +74,36 @@ export default class ReminderSendEvent extends Event {
       data.text?.includes("\n") || data.text?.length >= 100
         ? "_LONG"
         : "_SHORT";
+    const reminderContent = user.language.get(
+      data.link
+        ? (`REMINDER_MESSAGE_LINKED${textLengthType}` as LanguageKeys)
+        : (`REMINDER_MESSAGE_UNKNOWN${textLengthType}` as LanguageKeys),
+      {
+        time:
+          deconstructed && deconstructed.timestamp != 0
+            ? Formatters.time(deconstructed.date, "R")
+            : user.language.get("REMINDER_TIME_UNKNOWN"),
+        text: data.text,
+        link: data.link,
+      }
+    );
 
     const message = await user
-      .send({
-        content: user.language.get(
-          data.link
-            ? (`REMINDER_MESSAGE_LINKED${textLengthType}` as LanguageKeys)
-            : (`REMINDER_MESSAGE_UNKNOWN${textLengthType}` as LanguageKeys),
-          {
-            time:
-              deconstructed && deconstructed.timestamp != 0
-                ? Formatters.time(deconstructed.date, "R")
-                : user.language.get("REMINDER_TIME_UNKNOWN"),
-            text: data.text,
-            link: data.link,
-          }
-        ),
-        components,
-      })
+      .send(
+        reminderContent.length <= 2000
+          ? {
+              content: reminderContent,
+              components,
+            }
+          : {
+              embeds: [
+                new MessageEmbed()
+                  .setDescription(reminderContent)
+                  .setColor("#2ECC71"),
+              ],
+              components,
+            }
+      )
       .catch((e: Error) => {
         this.manager.client.console.error(
           `[Aether] Failed to send reminder to ${user} (${data.user}) due to ${e.message}`
