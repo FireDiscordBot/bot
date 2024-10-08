@@ -33,6 +33,7 @@ export default class MessageDelete extends Listener {
       message.guild.starboard &&
       (message.guild.starboardReactions.has(message.id) ||
         message.guild.starboardMessages.has(message.id) ||
+        // idk what this is but I'm scared to remove it so it shall stay for now
         message.guild.starboardMessages.find((board) => board == message.id))
     ) {
       await this.client.db
@@ -47,13 +48,14 @@ export default class MessageDelete extends Listener {
           message.id,
         ])
         .catch(() => {});
-      // Attempt to delete starboard message before we remove the data
-      await this.client.req
-        .channels(message.guild.starboard.id)
-        .messages(message.guild.starboardMessages.get(message.id))
-        .delete()
-        .catch(() => {});
-      message.guild.starboardMessages.delete(message.id);
+      if (message.guild.starboardMessages.has(message.id))
+        // Attempt to delete starboard message before we remove the data
+        await this.client.req
+          .channels(message.guild.starboard.id)
+          .messages(message.guild.starboardMessages.get(message.id))
+          .delete()
+          .then(() => message.guild.starboardMessages.delete(message.id))
+          .catch(() => {});
       message.guild.starboardReactions.delete(message.id);
     }
 
