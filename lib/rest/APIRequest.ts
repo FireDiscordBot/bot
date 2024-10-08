@@ -30,7 +30,7 @@ export class APIRequest {
     // Remove invalid/unset query parameters
     this.options.query = Object.fromEntries(
       Object.entries(this.options.query ?? {}).filter(
-        ([, value]) => typeof value != "undefined"
+        ([, value]) => typeof value != "undefined" && value != null
       )
     );
   }
