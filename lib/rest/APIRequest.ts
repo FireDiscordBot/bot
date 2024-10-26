@@ -1,6 +1,5 @@
 import * as FormData from "@discordjs/form-data";
 import { Fire } from "@fire/lib/Fire";
-import { AbortController } from "abort-controller";
 import * as centra from "centra";
 import { RequestOptions } from "./APIRouter";
 import { RESTManager } from "./RESTManager";
@@ -81,12 +80,9 @@ export class APIRequest {
       headers = Object.assign(headers, body.getHeaders());
     } else if (this.options.data !== null) body = this.options.data;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(
-      () => controller.abort(),
+    const request = centra(url, this.method).timeout(
       this.client.options.restRequestTimeout
     );
-    const request = centra(url, this.method);
     if (body)
       request.body(
         body instanceof FormData ? body.getBuffer() : body,
@@ -105,7 +101,6 @@ export class APIRequest {
     try {
       return await request.send();
     } finally {
-      clearTimeout(timeout);
       this.client.restPing = +new Date() - start;
       if (this.options.debug)
         this.client.console.warn(
