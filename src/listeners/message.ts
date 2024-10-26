@@ -63,29 +63,6 @@ export default class Message extends Listener {
   async exec(message: FireMessage) {
     if (this.client.manager.id != 0 && !message.guild) return;
 
-    // temp to get rid of a fool
-    if (
-      message.content.toLowerCase().includes("mathouil") &&
-      message.guildId == "864592657572560958" &&
-      message.channel.isText() &&
-      (message.channel as GuildTextChannel).parentId == "880140915119915039"
-    )
-      message.member // should always be true but just in case
-        ? await message.member.bean(
-            "Likely ban evasion in ticket",
-            message.guild.members.me as FireMember,
-            undefined,
-            7,
-            undefined,
-            false
-          )
-        : await message.author.bean(
-            message.guild,
-            "Likely ban evasion in ticket",
-            message.guild.members.me as FireMember,
-            7
-          );
-
     if (message.type == "CHANNEL_PINNED_MESSAGE")
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
