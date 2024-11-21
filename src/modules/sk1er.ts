@@ -4,7 +4,8 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Module } from "@fire/lib/util/module";
-import { CategoryChannel, MessageActionRow, Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
+import { CategoryChannel, MessageActionRow } from "discord.js";
 
 const categories = {
   "🖥️": "958837673651478529",

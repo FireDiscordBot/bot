@@ -7,6 +7,7 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Fire } from "@fire/lib/Fire";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Module } from "@fire/lib/util/module";
+import { Snowflake } from "discord-api-types/globals";
 import {
   CategoryChannel,
   Channel,
@@ -16,7 +17,6 @@ import {
   MessageSelectMenu,
   Modal,
   ModalActionRowComponent,
-  Snowflake,
   TextInputComponent,
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";

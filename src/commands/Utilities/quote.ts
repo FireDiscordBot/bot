@@ -16,6 +16,7 @@ import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
 import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Collection,
@@ -24,7 +25,6 @@ import {
   MessageActionRow,
   MessageButton,
   MessageEmbed,
-  Snowflake,
 } from "discord.js";
 
 const { regexes } = constants;

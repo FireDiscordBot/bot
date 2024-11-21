@@ -1,3 +1,4 @@
+import { Snowflake } from "discord-api-types/globals";
 import { APIMessage } from "discord-api-types/v9";
 import {
   AwaitMessagesOptions,
@@ -15,7 +16,6 @@ import {
   PartialModalActionRow,
   Permissions,
   RoleResolvable,
-  Snowflake,
   SnowflakeUtil,
   ThreadChannel,
   WebhookMessageOptions,

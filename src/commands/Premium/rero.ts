@@ -3,6 +3,7 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { ActionLogTypes, constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   MessageActionRow,
@@ -10,7 +11,6 @@ import {
   MessageEmbed,
   MessageReaction,
   Role,
-  Snowflake,
   SnowflakeUtil,
 } from "discord.js";
 import * as pEvent from "p-event";

@@ -7,7 +7,8 @@ import {
   snowflakeConverter,
   userConverter,
 } from "@fire/lib/util/converters";
-import { DeconstructedSnowflake, Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
+import { DeconstructedSnowflake } from "discord.js";
 
 export const userMemberSnowflakeTypeCaster = async (
   message: FireMessage | ApplicationCommandMessage,

@@ -4,6 +4,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import Quote from "@fire/src/commands/Utilities/quote";
 import * as centra from "centra";
+import { Snowflake } from "discord-api-types/globals";
 import {
   CategoryChannel,
   Collection,
@@ -14,7 +15,6 @@ import {
   GuildEmoji,
   GuildPreview,
   Role,
-  Snowflake,
   SnowflakeUtil,
   StageChannel,
   ThreadChannel,

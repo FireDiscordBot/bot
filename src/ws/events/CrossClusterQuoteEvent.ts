@@ -12,7 +12,8 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import Quote from "@fire/src/commands/Utilities/quote";
 import { Constants } from "discord-akairo";
-import { NewsChannel, Snowflake, ThreadChannel } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
+import { NewsChannel, ThreadChannel } from "discord.js";
 
 const { CommandHandlerEvents } = Constants;
 

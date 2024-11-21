@@ -3,6 +3,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
+import { Snowflake } from "discord-api-types/globals";
 import {
   CachedManager,
   Constants,
@@ -10,7 +11,6 @@ import {
   MessageReactionResolvable,
   NewsChannel,
   PartialTypes,
-  Snowflake,
 } from "discord.js";
 import { FireTextChannel } from "../extensions/textchannel";
 

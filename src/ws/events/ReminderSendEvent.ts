@@ -7,13 +7,13 @@ import { Message } from "@fire/lib/ws/Message";
 import { Event } from "@fire/lib/ws/event/Event";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { Snowflake } from "discord-api-types/globals";
 import {
   DeconstructedSnowflake,
   Formatters,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
-  Snowflake,
   SnowflakeUtil,
 } from "discord.js";
 

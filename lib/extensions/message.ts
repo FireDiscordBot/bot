@@ -5,6 +5,7 @@ import { CommandUtil } from "@fire/lib/util/commandutil";
 import { constants, i18nOptions } from "@fire/lib/util/constants";
 import Filters from "@fire/src/modules/filters";
 import * as centra from "centra";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Channel,
@@ -23,9 +24,7 @@ import {
   MessageReaction,
   MessageSelectMenu,
   NewsChannel,
-  Permissions,
   ReplyMessageOptions,
-  Snowflake,
   Structures,
   ThreadChannel,
   Webhook,

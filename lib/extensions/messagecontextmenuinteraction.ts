@@ -1,9 +1,9 @@
 import { Fire } from "@fire/lib/Fire";
+import { Snowflake } from "discord-api-types/globals";
 import { APIChannel } from "discord-api-types/v9";
 import {
   GuildFeatures,
   MessageContextMenuInteraction as MessageContextMenuInteractionBase,
-  Snowflake,
   Structures,
 } from "discord.js";
 import { RawInteractionData } from "discord.js/typings/rawDataTypes";

@@ -1,8 +1,8 @@
+import { Snowflake } from "discord-api-types/globals";
 import {
   DMChannel,
   GuildChannel,
   NewsChannel,
-  Snowflake,
   ThreadChannel,
 } from "discord.js";
 import { Fire } from "../Fire";

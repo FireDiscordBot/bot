@@ -4,8 +4,9 @@ import { MinecraftLogInfo } from "@fire/lib/interfaces/mclogs";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
 import * as centra from "centra";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { Channel, MessageEmbed, Snowflake, ThreadChannel } from "discord.js";
+import { Channel, MessageEmbed, ThreadChannel } from "discord.js";
 
 export default class Modal extends Listener {
   constructor() {

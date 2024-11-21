@@ -1,7 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
-import { GuildChannel, Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
+import { GuildChannel } from "discord.js";
 
 export default class AdminOnlyInhibitor extends Inhibitor {
   constructor() {

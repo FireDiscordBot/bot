@@ -2,7 +2,8 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
-import { GuildChannel, Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
+import { GuildChannel } from "discord.js";
 
 export default class ModOnlyInhibitor extends Inhibitor {
   constructor() {

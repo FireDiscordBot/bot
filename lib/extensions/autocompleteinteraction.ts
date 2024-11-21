@@ -1,7 +1,7 @@
 import { Fire } from "@fire/lib/Fire";
+import { Snowflake } from "discord-api-types/globals";
 import {
   AutocompleteInteraction as AutocompleteInteractionBase,
-  Snowflake,
   Structures,
 } from "discord.js";
 

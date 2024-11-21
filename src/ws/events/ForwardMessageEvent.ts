@@ -2,12 +2,12 @@ import { Manager } from "@fire/lib/Manager";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { Snowflake } from "discord-api-types/globals";
 import {
   BaseMessageComponentOptions,
   MessageActionRowOptions,
   MessageEmbed,
   MessageEmbedOptions,
-  Snowflake,
 } from "discord.js";
 
 export default class ForwardMessageEvent extends Event {

@@ -2,7 +2,8 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { ActionLogTypes } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import { Collection, MessageEmbed, Snowflake, ThreadMember } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
+import { Collection, MessageEmbed, ThreadMember } from "discord.js";
 
 export default class ThreadMembersUpdate extends Listener {
   constructor() {

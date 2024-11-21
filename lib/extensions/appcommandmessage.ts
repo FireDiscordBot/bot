@@ -3,6 +3,7 @@ import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { i18nOptions } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   AwaitMessagesOptions,
@@ -24,7 +25,6 @@ import {
   Permissions,
   ReactionManager,
   RoleResolvable,
-  Snowflake,
   SnowflakeUtil,
   StartThreadOptions,
   ThreadChannel,

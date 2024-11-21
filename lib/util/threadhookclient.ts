@@ -1,6 +1,6 @@
+import { Snowflake } from "discord-api-types/globals";
 import {
   MessagePayload,
-  Snowflake,
   WebhookClient,
   WebhookClientData,
   WebhookClientOptions,

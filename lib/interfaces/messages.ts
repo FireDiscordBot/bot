@@ -1,5 +1,5 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
 
 export interface MessageLinkMatch {
   message_id: Snowflake;

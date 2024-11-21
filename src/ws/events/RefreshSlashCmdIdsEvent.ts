@@ -1,7 +1,7 @@
 import { Manager } from "@fire/lib/Manager";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
 
 export default class RefreshSlashCmdIdsEvent extends Event {
   constructor(manager: Manager) {

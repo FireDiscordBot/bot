@@ -1,5 +1,5 @@
 import { MinecraftVersion, ModInfo } from "@fire/src/modules/mclogs";
-import { Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
 
 export interface MinecraftLogInfo {
   scannedAt: string; // date string

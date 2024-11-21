@@ -1,9 +1,5 @@
-import {
-  Collection,
-  MessageManager,
-  Snowflake,
-  SnowflakeUtil,
-} from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
+import { Collection, MessageManager, SnowflakeUtil } from "discord.js";
 import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
 

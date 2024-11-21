@@ -1,3 +1,4 @@
+import { Snowflake } from "discord-api-types/globals";
 import { APIAttachment } from "discord-api-types/v9";
 import {
   ApplicationCommandOptionType,
@@ -7,7 +8,6 @@ import {
   CommandInteractionOptionResolver as CommandInteractionOptionResolverBase,
   CommandInteractionResolvedData,
   MessageAttachment,
-  Snowflake,
   Structures,
 } from "discord.js";
 import { Fire } from "../Fire";

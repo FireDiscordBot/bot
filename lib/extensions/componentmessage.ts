@@ -1,3 +1,4 @@
+import { Snowflake } from "discord-api-types/globals";
 import {
   AwaitMessagesOptions,
   Collection,
@@ -15,7 +16,6 @@ import {
   NewsChannel,
   Permissions,
   RoleResolvable,
-  Snowflake,
   SnowflakeUtil,
   ThreadChannel,
   WebhookMessageOptions,

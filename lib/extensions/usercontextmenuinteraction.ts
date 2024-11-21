@@ -1,6 +1,6 @@
 import { Fire } from "@fire/lib/Fire";
+import { Snowflake } from "discord-api-types/globals";
 import {
-  Snowflake,
   Structures,
   UserContextMenuInteraction as UserContextMenuInteractionBase,
 } from "discord.js";

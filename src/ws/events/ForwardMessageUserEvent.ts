@@ -3,10 +3,10 @@ import { Manager } from "@fire/lib/Manager";
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { Snowflake } from "discord-api-types/globals";
 import {
   BaseMessageComponentOptions,
   MessageActionRowOptions,
-  Snowflake,
 } from "discord.js";
 import { StringMap, TOptions } from "i18next";
 

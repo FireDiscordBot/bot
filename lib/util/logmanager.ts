@@ -1,9 +1,9 @@
 import RateLimit from "@fire/src/listeners/rateLimit";
+import { Snowflake } from "discord-api-types/globals";
 import {
   DiscordAPIError,
   MessageEmbed,
   MessageEmbedOptions,
-  Snowflake,
   Webhook,
 } from "discord.js";
 import Semaphore from "semaphore-async-await";

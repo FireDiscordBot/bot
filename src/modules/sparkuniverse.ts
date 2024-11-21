@@ -9,8 +9,8 @@ import {
   Channel,
   MessageActionRow,
   MessageButton,
-  Snowflake,
 } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
 
 const supportMarketplaceBugMessage =
   "Please select the product you require support with below.";

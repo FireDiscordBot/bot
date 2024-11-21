@@ -1,5 +1,5 @@
 import { Fire } from "@fire/lib/Fire";
-import { Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
 
 export const fire = {
   dev:

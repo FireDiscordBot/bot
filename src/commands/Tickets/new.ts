@@ -3,8 +3,9 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { GuildBasedChannel, Snowflake, ThreadChannel } from "discord.js";
+import { ThreadChannel } from "discord.js";
 
 export default class NewTicket extends Command {
   constructor() {

@@ -5,6 +5,7 @@ import {
   CommandOptions as AkairoCommandOptions,
   AkairoModule,
 } from "discord-akairo";
+import { Snowflake } from "discord-api-types/globals";
 import {
   APIApplicationCommandBasicOption,
   APIApplicationCommandOption,
@@ -24,7 +25,6 @@ import {
   Invite,
   MessageAttachment,
   Role,
-  Snowflake,
 } from "discord.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { CommandInteraction } from "../extensions/commandinteraction";
