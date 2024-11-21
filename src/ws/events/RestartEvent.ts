@@ -27,12 +27,7 @@ export default class RestartEvent extends Event {
     if (data.id != this.manager.id)
       return this.manager.kill("cluster_id_mismatch");
     const currentOptions = this.manager.client.options;
-    if (
-      currentOptions.shardCount != data.shardCount &&
-      !(currentOptions.shards as number[]).every((shard) =>
-        data.shards.includes(shard)
-      )
-    )
+    if (currentOptions.shardCount != data.shardCount)
       this.manager.kill("resharding");
     for (const [id, guild] of this.manager.client.guilds.cache)
       this.manager.ws.send(
