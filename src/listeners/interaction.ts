@@ -15,6 +15,7 @@ import { Listener } from "@fire/lib/util/listener";
 import {
   ApplicationCommandOptionChoiceData,
   ContextMenuInteraction,
+  DiscordAPIError,
   DMChannel,
   Interaction,
   MessageComponentInteraction,
@@ -174,11 +175,12 @@ export default class InteractionListener extends Listener {
         if (message.guild)
           return await message.guild.commands
             .delete(message.slashCommand.id)
-            .catch((e: Error) =>
-              this.client.console.error(
-                `[Commands] Failed to delete locked slash command "${message.command.id}" in ${message.guild.name} (${message.guild.id})\n${e.stack}`
-              )
-            );
+            .catch((e: Error) => {
+              if (!(e instanceof DiscordAPIError && e.code == 10063))
+                this.client.console.error(
+                  `[Commands] Failed to delete locked slash command "${message.command.id}" in ${message.guild.name} (${message.guild.id})\n${e.stack}`
+                );
+            });
         else return;
       }
 
