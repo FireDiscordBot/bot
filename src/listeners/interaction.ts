@@ -172,7 +172,8 @@ export default class InteractionListener extends Listener {
         )
       ) {
         await message.error("COMMAND_EXPERIMENT_REQUIRED");
-        if (message.guild)
+        // subcommands will always be global so we ignore if parent is set
+        if (message.guild && !message.command.parent)
           return await message.guild.commands
             .delete(message.slashCommand.id)
             .catch((e: Error) => {
