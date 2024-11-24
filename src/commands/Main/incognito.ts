@@ -19,7 +19,14 @@ export default class Incognito extends Command {
       "utils.incognito",
       false
     );
-    await command.author.settings.set("utils.incognito", newValue);
+    const updatedIncognito = await command.author.settings.set(
+      "utils.incognito",
+      newValue
+    );
+    if (!updatedIncognito)
+      return await command.error(
+        newValue ? "INCOGNITO_COMPROMISED" : "INCOGNITO_STUCK"
+      );
     await command.success(
       newValue ? "INCOGNITO_ENABLED" : "INCOGNITO_DISABLED"
     );

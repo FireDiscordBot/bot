@@ -11,10 +11,14 @@ export default class Redirects extends Module {
     super("redirects");
   }
 
+  async init() {
+    if (process.env.NODE_ENV == "staging") return this.unload();
+  }
+
   async requestFetch(reason = "No Reason Provided") {
     const fetchReq = await centra(
       this.client.config.dev
-        ? "https://test.inv.wtf/fetch"
+        ? "https://vanity-local.inv.wtf/fetch"
         : "https://inv.wtf/fetch",
       "PUT"
     )
@@ -31,7 +35,7 @@ export default class Redirects extends Module {
   async getRedirect(code: string) {
     const redirectReq = await centra(
       this.client.config.dev
-        ? `https://test.inv.wtf/api/${code}`
+        ? `https://vanity-local.inv.wtf/api/${code}`
         : `https://inv.wtf/api/${code}`
     )
       .header("User-Agent", this.client.manager.ua)

@@ -77,10 +77,6 @@ export default class Ready extends Listener {
     } catch {}
     this.client.manager.ready = true;
     this.client.setReadyPresence();
-    this.client.guildSettings.items = this.client.guildSettings.items.filter(
-      (value, key) => this.client.guilds.cache.has(key) || key == "0"
-    ); // Remove settings for guilds that aren't cached a.k.a guilds that aren't on this cluster
-    // or "0" which may be used for something later
 
     if (process.env.USE_LITECORD != "true")
       for (const [, command] of this.client.commandHandler

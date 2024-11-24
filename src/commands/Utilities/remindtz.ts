@@ -182,7 +182,12 @@ export default class RemindersTimezone extends Command {
       )
     )
       return await command.error("REMINDERS_TIMEZONE_IANA_UNKNOWN");
-    await command.author.settings.set("reminders.timezone.iana", args.timezone);
+    const updatedTz = await command.author.settings.set(
+      "reminders.timezone.iana",
+      args.timezone
+    );
+    if (!updatedTz)
+      return await command.error("REMINDERS_TIMEZONE_UPDATE_FAILED");
     const timezone = dayjs.tz(dayjs(), args.timezone);
     const time = (timezone["$d"] as Date).toLocaleTimeString(timezone.locale());
     const date = (timezone["$d"] as Date).toLocaleDateString(timezone.locale());

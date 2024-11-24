@@ -36,10 +36,14 @@ export default class TicketToggle extends Command {
     if (!args.message && !current)
       return await message.error("TICKET_TOGGLE_NO_MESSAGE");
     else if (!args.message) {
-      await message.guild.settings.delete("tickets.togglemsg");
+      await message.guild.settings.delete("tickets.togglemsg", message.author);
       return await message.success("TICKET_TOGGLE_ON");
     } else {
-      await message.guild.settings.set("tickets.togglemsg", args.message);
+      await message.guild.settings.set(
+        "tickets.togglemsg",
+        args.message,
+        message.author
+      );
       return await message.success("TICKET_TOGGLE_OFF", {
         message: args.message,
       });

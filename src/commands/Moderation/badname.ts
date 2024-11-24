@@ -28,17 +28,21 @@ export default class BadName extends Command {
     });
   }
 
-  exec(message: FireMessage, args: { name: string }) {
+  async exec(message: FireMessage, args: { name: string }) {
     const current = message.guild.settings.get<string>("utils.badname", null);
 
     if (current == args.name) return message.success("BADNAME_NO_CHANGES");
 
     if (args.name)
-      message.guild.settings.set<string>("utils.badname", args.name);
-    else message.guild.settings.delete("utils.badname");
+      await message.guild.settings.set<string>(
+        "utils.badname",
+        args.name,
+        message.author
+      );
+    else await message.guild.settings.delete("utils.badname", message.author);
 
     return args.name
-      ? message.success("BADNAME_SET", { name: args.name })
-      : message.success("BADNAME_RESET");
+      ? await message.success("BADNAME_SET", { name: args.name })
+      : await message.success("BADNAME_RESET");
   }
 }

@@ -50,7 +50,11 @@ export default class AddRank extends Command {
       return await message.error("RANKS_LIMIT");
     else {
       current.push(args.role.id);
-      message.guild.settings.set<string[]>("utils.ranks", current);
+      message.guild.settings.set<string[]>(
+        "utils.ranks",
+        current,
+        message.author
+      );
       return await message.success("ADDRANK_SUCCESS", {
         role: args.role.toString(),
       });

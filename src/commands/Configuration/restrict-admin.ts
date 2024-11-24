@@ -1,8 +1,9 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { CategoryChannel, Snowflake } from "discord.js";
+import { CategoryChannel } from "discord.js";
 
 export default class RestrictAdmin extends Command {
   constructor() {
@@ -40,7 +41,11 @@ export default class RestrictAdmin extends Command {
     const suffix = args.category ? "_CATEGORY" : "_SINGLE";
     if (current.includes(channelId)) {
       current = current.filter((id) => id !== channelId);
-      await command.guild.settings.set("commands.adminonly", current);
+      await command.guild.settings.set(
+        "commands.adminonly",
+        current,
+        command.author
+      );
       return await command.success(
         `RESTRICT_ADMIN_REMOVED${suffix}` as LanguageKeys,
         {
@@ -59,7 +64,11 @@ export default class RestrictAdmin extends Command {
           "RESTRICT_MODERATOR_ALREADY_COVERED" as LanguageKeys
         );
       current.push(channelId);
-      await command.guild.settings.set("commands.adminonly", current);
+      await command.guild.settings.set(
+        "commands.adminonly",
+        current,
+        command.author
+      );
       return await command.success(
         `RESTRICT_ADMIN_ADDED${suffix}` as LanguageKeys,
         {

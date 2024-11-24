@@ -133,9 +133,10 @@ export default class LinkfilterExclude extends Command {
       }
     }
     if (current.length != beforeLength)
-      command.guild.settings.set<LinkfilterExcluded>(
+      await command.guild.settings.set<LinkfilterExcluded>(
         "linkfilter.exclude",
-        current
+        current,
+        command.author
       );
     else return await command.error("LINKFILTER_EXCLUDE_NO_CHANGE");
     const excludedString = excluded.map((e) => e.toString()).join(", ");
@@ -175,9 +176,10 @@ export default class LinkfilterExclude extends Command {
       direction = "unexclude";
       current = current.filter((e) => e != id);
     }
-    command.guild.settings.set<LinkfilterExcluded>(
+    await command.guild.settings.set<LinkfilterExcluded>(
       "linkfilter.exclude",
-      current
+      current,
+      command.author
     );
     if (direction == "exclude")
       return await command.success("LINKFILTER_EXCLUDE_SUCCESS", {
@@ -296,7 +298,8 @@ export default class LinkfilterExclude extends Command {
     const language = command.language;
     await command.guild.settings.set<LinkfilterExcluded>(
       "linkfilter.exclude",
-      current
+      current,
+      command.author
     );
     const embed = new MessageEmbed().setColor(
       command.member?.displayColor || "#FFFFFF"

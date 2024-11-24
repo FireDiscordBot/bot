@@ -16,6 +16,7 @@ import {
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Formatters,
@@ -24,7 +25,6 @@ import {
   MessageSelectMenu,
   Modal,
   ModalActionRowComponent,
-  Snowflake,
   TextInputComponent,
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
@@ -418,7 +418,7 @@ export default class Select extends Listener {
 
       // handle disable first
       if (select.values.includes("disable")) {
-        select.guild.settings.delete("mod.linkfilter");
+        await select.guild.settings.delete("mod.linkfilter", select.author);
         await select.channel.update({
           content: select.language.get("LINKFILTER_TOGGLE_FILTER_LIST"),
           components: linkfilter.getMenuComponents(select),
@@ -434,7 +434,7 @@ export default class Select extends Listener {
       const values = select.values.filter((f) =>
         linkfilter.valid.names.includes(f)
       );
-      select.guild.settings.set("mod.linkfilter", values);
+      await select.guild.settings.set("mod.linkfilter", values, select.author);
       await select.channel.update({
         content: select.language.get("LINKFILTER_TOGGLE_FILTER_LIST"),
         components: linkfilter.getMenuComponents(select),
@@ -464,12 +464,12 @@ export default class Select extends Listener {
 
       const logScan = this.client.getCommand("minecraft-log-scan") as LogScan;
       const options = logScan.valid.names;
-      for (const option of options) {
-        if (select.values.includes(option))
-          await select.guild.settings.set(`minecraft.logscan.${option}`, true);
-        else
-          await select.guild.settings.set(`minecraft.logscan.${option}`, false);
-      }
+      for (const option of options)
+        await select.guild.settings.set(
+          `minecraft.logscan.${option}`,
+          select.values.includes(option),
+          select.author
+        );
       await select.channel.update({
         components: logScan.getMenuComponents(select),
       });
@@ -519,7 +519,7 @@ export default class Select extends Listener {
           break;
       }
       for (const action of select.values) flags |= typeEnum[action];
-      guild.settings.set(`logging.${type}.flags`, flags);
+      await guild.settings.set(`logging.${type}.flags`, flags, select.author);
       const components = [
         loggingConfigure.getModLogsSelect(select),
         loggingConfigure.getActionLogsSelect(select),

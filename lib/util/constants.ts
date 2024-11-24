@@ -17,6 +17,12 @@ import { Language } from "./language";
 const emojiRegex = require("emoji-regex")() as RegExp;
 const emojiRegexStr = emojiRegex.toString();
 
+export type GuildOrUserConfig = Record<string, SettingsValueTypes>;
+type SettingsValueTypesBase = string | number | boolean | null;
+export type SettingsValueTypes =
+  | SettingsValueTypesBase
+  | SettingsValueTypesBase[];
+
 export enum CouponType {
   BOOSTER = "BOOSTER",
   TWITCHSUB = "TWITCHSUB",
@@ -312,6 +318,13 @@ export const constants = {
       major: "#e67e22",
       critical: "#e74c3c",
       maintenance: "#3498db",
+    },
+  },
+  instatus: {
+    colors: {
+      UP: null,
+      HASISSUES: "#e67e22",
+      UNDERMAINTENANCE: "#3498db",
     },
   },
   mcLogFilters: [

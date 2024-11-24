@@ -1,9 +1,7 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { ActionLogTypes, titleCase } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import { PermissionFlagsBits } from "discord-api-types/v9";
-import { DMChannel, GuildChannel, MessageEmbed, Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
+import { DMChannel, GuildChannel } from "discord.js";
 
 export default class ChannelDelete extends Listener {
   constructor() {
@@ -15,13 +13,17 @@ export default class ChannelDelete extends Listener {
 
   async exec(channel: GuildChannel | DMChannel) {
     if (channel instanceof DMChannel) return;
-    const guild = channel.guild as FireGuild,
-      language = guild.language;
+    const guild = channel.guild as FireGuild;
 
     if (guild.ticketIds.includes(channel.id)) {
       const newTickets = guild.ticketIds.filter((c) => c != channel.id);
-      if (newTickets.length) guild.settings.set("tickets.channels", newTickets);
-      else guild.settings.delete("tickets.channels");
+      if (newTickets.length)
+        await guild.settings.set(
+          "tickets.channels",
+          newTickets,
+          this.client.user
+        );
+      else await guild.settings.delete("tickets.channels", this.client.user);
 
       if (!channel.parent?.children.size) {
         const category = channel.parent;
@@ -32,14 +34,15 @@ export default class ChannelDelete extends Listener {
         if (!isOriginal)
           await channel.parent
             .delete(guild.language.get("TICKET_OVERFLOW_DELETE_REASON"))
-            .then(() => {
+            .then(async () => {
               const oldParents = guild.settings.get<Snowflake[]>(
                 "tickets.parent",
                 []
               );
-              guild.settings.set(
+              await guild.settings.set(
                 "tickets.parent",
-                oldParents.filter((id) => id != category.id)
+                oldParents.filter((id) => id != category.id),
+                this.client.user
               );
             })
             .catch(() => {});
@@ -51,8 +54,9 @@ export default class ChannelDelete extends Listener {
     ) {
       let parents = guild.settings.get<Snowflake[]>("tickets.parent", []);
       parents = parents.filter((c) => c != channel.id);
-      if (parents.length) guild.settings.set("tickets.parent", parents);
-      else guild.settings.delete("tickets.parent");
+      if (parents.length)
+        await guild.settings.set("tickets.parent", parents, this.client.user);
+      else await guild.settings.delete("tickets.parent", this.client.user);
     }
   }
 }

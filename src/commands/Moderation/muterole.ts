@@ -49,7 +49,7 @@ export default class MuteRole extends Command {
       return await message.error("ERROR_ROLE_UNUSABLE");
     const settingUp = await message.send("MUTE_ROLE_CREATE_REASON");
     const changed = await message.guild
-      .changeMuteRole(args.role)
+      .changeMuteRole(args.role, message.member)
       .catch((e) => e);
     if (changed instanceof Error)
       return this.client.commandHandler.emit(

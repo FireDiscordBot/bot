@@ -23,7 +23,9 @@ export class Manager {
     // they'll just get empty data rather than needing
     // to check if the property exists
     guildExperiments: [],
+    guildConfigs: {},
     userExperiments: [],
+    userConfigs: {},
     modVersions: {},
     optifineVersions: {},
     appEmojis: [],

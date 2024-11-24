@@ -3,7 +3,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { PremiumData, SubscriptionStatus } from "@fire/lib/interfaces/premium";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
 
 const paidStatuses = ["trialing", "active", "past_due"];
 const dataKeys = ["user", "limit", "status", "periodEnd", "action"];
@@ -27,7 +27,11 @@ export default class PremiumSyncEvent extends Event {
         client.console.warn(
           `[Premium] Setting trial eligibility for ${instance} due to subscription from ${premium.user} in trial period`
         );
-        instance.settings.set<boolean>("premium.trialeligible", false);
+        await instance.settings.set<boolean>(
+          "premium.trialeligible",
+          false,
+          this.manager.client.user
+        );
       }
       if (premium.action == "remove") client.util.premium.delete(guild);
       else if (dataKeys.every((key) => premium.hasOwnProperty(key)))

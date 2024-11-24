@@ -136,8 +136,12 @@ export default class Blacklist extends Command {
     else current.push(args.user.id);
 
     if (current.length)
-      command.guild.settings.set<string[]>("utils.plonked", current);
-    else command.guild.settings.delete("utils.plonked");
+      await command.guild.settings.set<string[]>(
+        "utils.plonked",
+        current,
+        command.author
+      );
+    else await command.guild.settings.delete("utils.plonked", command.author);
     await command.guild.createModLogEntry(
       args.user,
       command.member,

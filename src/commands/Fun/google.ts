@@ -110,7 +110,7 @@ export default class Google extends Command {
     }
 
     if (command.author.settings.has("assistant.authstate"))
-      command.author.settings.delete("assistant.authstate");
+      await command.author.settings.delete("assistant.authstate");
 
     // context menu shenanigans
     if (command instanceof ContextCommandMessage)
@@ -120,7 +120,7 @@ export default class Google extends Command {
     // Adding a way to undo never showing the auth prompt again
     if (args.query == "SUPER_SECRET_SETTING_RESET") {
       args.query = "Hello!";
-      command.author.settings.delete("assistant.noauthprompt");
+      await command.author.settings.delete("assistant.noauthprompt");
     }
 
     const assist = await this.sendAssistantQuery(
@@ -262,10 +262,6 @@ export default class Google extends Command {
     return new Promise((resolve, reject) => {
       const nonce = SnowflakeUtil.generate();
       this.client.manager.ws.handlers.set(nonce, resolve);
-      button.author.settings.set(
-        "assistant.authstate",
-        `${button.author.id}:${nonce}`
-      );
       this.client.manager.ws.send(
         MessageUtil.encode(
           new Message(

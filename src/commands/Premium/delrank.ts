@@ -48,7 +48,13 @@ export default class DelRank extends Command {
       return await message.error("RANKS_INVALID_ROLE_DEL");
     else {
       current = current.filter((id) => id != args.role?.id);
-      await message.guild.settings.set<string[]>("utils.ranks", current);
+      if (current.length)
+        await message.guild.settings.set<string[]>(
+          "utils.ranks",
+          current,
+          message.author
+        );
+      else await message.guild.settings.delete("utils.ranks", message.author);
       return await message.success("DELRANK_DELETED");
     }
   }

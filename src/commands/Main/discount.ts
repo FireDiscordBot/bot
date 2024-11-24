@@ -26,10 +26,11 @@ export default class Discount extends Command {
     else if (roles.has("745392985151111338")) coupon = CouponType.TWITCHSUB;
 
     if (!coupon) return await message.error("DISCOUNT_INELIGIBLE");
-    await message.author.settings.set("premium.coupon", coupon);
-    if (
-      message.author.settings.get<CouponType>("premium.coupon", null) != coupon
-    )
+    const storedCoupon = await message.author.settings.set(
+      "premium.coupon",
+      coupon
+    );
+    if (!storedCoupon)
       return await message.error("COMMAND_ERROR_500", {
         status: constants.url.fireStatus,
       });
@@ -38,9 +39,11 @@ export default class Discount extends Command {
       .createSpecialCoupon(message.member, coupon)
       .catch(() => {});
     if (!created || !created.success) {
-      message.author.settings.delete("premium.coupon");
+      const removedStoredCoupon = await message.author.settings.delete(
+        "premium.coupon"
+      );
       return await message.error(
-        created && created.success == false
+        created && created.success == false && removedStoredCoupon
           ? created.reason
           : "COMMAND_ERROR_500",
         {

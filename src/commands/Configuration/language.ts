@@ -36,19 +36,36 @@ export default class LanguageCommand extends Command {
       message.guild &&
       message.member.permissions.has(PermissionFlagsBits.ManageGuild)
     ) {
-      message.guild.settings.set<string>("utils.language", args.language.id);
-      return await message.channel.send(
-        // message.success will use message.language which will use author's language if not default
-        `${this.client.util.useEmoji("success")} ${args.language.get(
-          "LANGUAGE_COMMAND_HELLO_GUILD"
-        )}`
+      const updatedLang = await message.guild.settings.set<string>(
+        "utils.language",
+        args.language.id,
+        message.author
       );
+      if (updatedLang)
+        return await message.channel.send(
+          // message.success will use message.language which will use author's language if not default
+          `${this.client.util.useEmoji("success")} ${args.language.get(
+            "LANGUAGE_COMMAND_HELLO_GUILD"
+          )}`
+        );
+      else
+        return await message.channel.send(
+          // message.error will also use message.language
+          `${this.client.util.useEmoji("error")} ${args.language.get(
+            "LANGUAGE_COMMAND_UPDATE_FAILED"
+          )}`
+        );
     } else {
-      message.author.settings.set<string>("utils.language", args.language.id);
+      const updatedLang = await message.author.settings.set<string>(
+        "utils.language",
+        args.language.id
+      );
       if (message instanceof ApplicationCommandMessage)
         // ts server gets angry without the "as" even though I have the instance check
         (message as ApplicationCommandMessage).flags = 64;
-      return await message.success("LANGUAGE_COMMAND_HELLO_USER");
+      if (updatedLang)
+        return await message.success("LANGUAGE_COMMAND_HELLO_USER");
+      else return await message.error("LANGUAGE_COMMAND_UPDATE_FAILED");
     }
   }
 }

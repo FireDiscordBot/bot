@@ -35,12 +35,16 @@ export default class TicketDescription extends Command {
       return await message.error("TICKETS_DISABLED_ACTION_BLOCKED");
 
     if (!args.description) {
-      message.guild.settings.delete("tickets.description");
+      await message.guild.settings.delete(
+        "tickets.description",
+        message.author
+      );
       return await message.success("TICKET_DESCRIPTION_RESET");
     } else {
-      message.guild.settings.set<string>(
+      await message.guild.settings.set<string>(
         "tickets.description",
-        args.description
+        args.description,
+        message.author
       );
       await message.success("TICKET_DESCRIPTION_SET");
       const embed = new MessageEmbed()

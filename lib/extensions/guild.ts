@@ -15,6 +15,7 @@ import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { GuildSettings } from "@fire/lib/util/settings";
 import TicketName from "@fire/src/commands/Tickets/name";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   BaseFetchOptions,
@@ -38,7 +39,6 @@ import {
   OverwriteType,
   PermissionOverwriteOptions,
   Role,
-  Snowflake,
   StageChannel,
   Structures,
   ThreadChannel,
@@ -244,7 +244,12 @@ export class FireGuild extends Guild {
         );
       });
     if (!role) return false;
-    this.settings.set<string>("mod.mutedrole", role.id);
+    const updatedConfig = await this.settings.set<string>(
+      "mod.mutedrole",
+      role.id,
+      this.client.user
+    );
+    if (!updatedConfig) return false;
     for (const [, channel] of this.guildChannels.cache) {
       if (
         !this.members.me
@@ -267,7 +272,7 @@ export class FireGuild extends Guild {
     return role;
   }
 
-  async changeMuteRole(role: Role) {
+  async changeMuteRole(role: Role, changedBy: FireMember) {
     if (!this.available) return;
     let changed: Role | void = role;
     const muteCommand = this.client.getCommand("mute");
@@ -290,7 +295,12 @@ export class FireGuild extends Guild {
         .catch(() => {});
       if (!changed) return false;
     }
-    this.settings.set<string>("mod.mutedrole", role.id);
+    const updatedConfig = await this.settings.set<string>(
+      "mod.mutedrole",
+      role.id,
+      changedBy
+    );
+    if (!updatedConfig) return false;
     for (const [, channel] of this.guildChannels.cache) {
       if (
         !this.members.me
@@ -1095,7 +1105,11 @@ export class FireGuild extends Guild {
       if (!overflowCategory) return "overflow";
       else {
         parents.push(overflowCategory.id);
-        this.settings.set<Snowflake[]>("tickets.parent", parents);
+        await this.settings.set<Snowflake[]>(
+          "tickets.parent",
+          parents,
+          this.client.user
+        );
         category = overflowCategory;
       }
     }
@@ -1129,7 +1143,10 @@ export class FireGuild extends Guild {
       name = name.replace(key, value);
     }
     name = name.replace(/crab/gim, "🦀");
-    this.settings.set<number>("tickets.increment", ++increment);
+    // this isn't super important so we won't await it and will catch the error
+    this.settings
+      .set<number>("tickets.increment", ++increment, this.client.user)
+      .catch(() => {});
     const overwriteTheOverwrites = [
       author.id,
       this.members.me.id,
@@ -1300,9 +1317,10 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       })
       .catch(() => {});
     channels.push(ticket);
-    this.settings.set<string[]>(
+    await this.settings.set<string[]>(
       "tickets.channels",
-      channels.filter((chan) => !!chan).map((chan) => chan.id)
+      channels.filter((chan) => !!chan).map((chan) => chan.id),
+      this.client.user
     );
     locked = false;
     this.ticketLock.lock.release();
@@ -1343,12 +1361,13 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     let channels = this.tickets.filter((c) => c && c.id != channel.id);
     // threads don't get closed, they get archived and can be reopened so we don't remove it
     if (channels.length && channel.type == "GUILD_TEXT")
-      this.settings.set<string[]>(
+      await this.settings.set<string[]>(
         "tickets.channels",
-        channels.map((c) => c.id)
+        channels.map((c) => c.id),
+        this.client.user
       );
     else if (channel.type == "GUILD_TEXT")
-      this.settings.delete("tickets.channels");
+      await this.settings.delete("tickets.channels", this.client.user);
     const id = getIDMatch(
       channel instanceof FireTextChannel ? channel.topic : channel.name,
       true

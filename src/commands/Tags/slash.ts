@@ -35,7 +35,11 @@ export default class TagSlash extends Command {
         "tags.ephemeral",
         true
       );
-      message.guild.settings.set<boolean>("tags.ephemeral", !current);
+      await message.guild.settings.set<boolean>(
+        "tags.ephemeral",
+        !current,
+        message.author
+      );
       return !current
         ? await message.success("TAG_SLASH_EPHEMERAL_ENABLED")
         : await message.success("TAG_SLASH_EPHEMERAL_DISABLED");
@@ -46,7 +50,11 @@ export default class TagSlash extends Command {
       false
     );
     if (current == null) return await message.error("ERROR_CONTACT_SUPPORT");
-    message.guild.settings.set<boolean>("tags.slashcommands", !current);
+    await message.guild.settings.set<boolean>(
+      "tags.slashcommands",
+      !current,
+      message.author
+    );
     if (!message.guild.tags) {
       message.guild.tags = new GuildTagManager(this.client, message.guild);
       await message.guild.tags.init();
@@ -62,7 +70,11 @@ export default class TagSlash extends Command {
     if (!current) {
       const prepared = await message.guild.tags?.prepareSlashCommands();
       if (prepared == null) {
-        message.guild.settings.set<boolean>("tags.slashcommands", false);
+        await message.guild.settings.set<boolean>(
+          "tags.slashcommands",
+          false,
+          this.client.user
+        );
         return await message.error("TAG_SLASH_MISSING_ACCESS");
       } else if (!prepared) return await message.error("ERROR_CONTACT_SUPPORT");
       else return await message.success("TAG_SLASH_ENABLED");

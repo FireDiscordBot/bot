@@ -4,8 +4,9 @@ import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Argument } from "discord-akairo";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { MessageEmbed, MessageMentionOptions, Snowflake } from "discord.js";
+import { MessageEmbed, MessageMentionOptions } from "discord.js";
 
 const disableArgs = ["off", "disable", "false"];
 
@@ -118,9 +119,13 @@ export default class LeaveMSG extends Command {
       disableArgs.includes(args.channel)
     ) {
       if (!msg) return await message.error("LEAVEMSG_DISABLE_ALREADY");
-      const msgDelete = await message.guild.settings.delete("greet.leavemsg");
+      const msgDelete = await message.guild.settings.delete(
+        "greet.leavemsg",
+        message.author
+      );
       const channelDelete = await message.guild.settings.delete(
-        "greet.leavechannel"
+        "greet.leavechannel",
+        message.author
       );
       return !!msgDelete && !!channelDelete
         ? await message.success("LEAVEMSG_DISABLED")
@@ -131,10 +136,18 @@ export default class LeaveMSG extends Command {
       users: [message.author.id],
     };
     if (args.message) {
-      message.guild.settings.set<string>("greet.leavemsg", args.message);
+      await message.guild.settings.set<string>(
+        "greet.leavemsg",
+        args.message,
+        message.author
+      );
       msg = args.message;
     }
-    message.guild.settings.set<string>("greet.leavechannel", channel.id);
+    await message.guild.settings.set<string>(
+      "greet.leavechannel",
+      channel.id,
+      message.author
+    );
     const regexes = [
       [joinleavemsgs.user, message.author.toString()],
       [joinleavemsgs.mention, message.author.toMention()],

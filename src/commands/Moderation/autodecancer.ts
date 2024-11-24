@@ -18,16 +18,20 @@ export default class AutoDecancer extends Command {
     });
   }
 
-  exec(message: FireMessage) {
+  async exec(message: FireMessage) {
     const current = message.guild.settings.get<boolean>(
       "mod.autodecancer",
       false
     );
 
-    message.guild.settings.set<boolean>("mod.autodecancer", !current);
+    await message.guild.settings.set<boolean>(
+      "mod.autodecancer",
+      !current,
+      message.author
+    );
 
     return !current
-      ? message.success("AUTODECANCER_ENABLED")
-      : message.success("AUTODECANCER_DISABLED");
+      ? await message.success("AUTODECANCER_ENABLED")
+      : await message.success("AUTODECANCER_DISABLED");
   }
 }

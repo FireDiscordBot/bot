@@ -2,8 +2,9 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { CategoryChannel, Snowflake } from "discord.js";
+import { CategoryChannel } from "discord.js";
 
 export default class TicketEnable extends Command {
   constructor() {
@@ -46,17 +47,19 @@ export default class TicketEnable extends Command {
     message: FireMessage,
     args: { category?: CategoryChannel; channel?: FireTextChannel }
   ) {
+    if (
+      message.guild.settings.get<Snowflake[]>("tickets.parent", []).length > 1
+    )
+      return await message.error("TICKET_ENABLE_OVERFLOW_EXISTS");
     if (!args.category && !args.channel) {
-      message.guild.settings.delete("tickets.parent");
+      await message.guild.settings.delete("tickets.parent", message.author);
       return await message.success("TICKETS_DISABLED");
     } else if (args.category && !args.channel) {
-      if (
-        message.guild.settings.get<Snowflake[]>("tickets.parent", []).length > 1
-      )
-        return await message.error("TICKET_ENABLE_OVERFLOW_EXISTS");
-      message.guild.settings.set<Snowflake[]>("tickets.parent", [
-        args.category.id,
-      ]);
+      await message.guild.settings.set<Snowflake[]>(
+        "tickets.parent",
+        [args.category.id],
+        message.author
+      );
       return await message.success("TICKETS_ENABLED_CATEGORY", {
         category: args.category.name.toUpperCase(),
       });
@@ -66,9 +69,11 @@ export default class TicketEnable extends Command {
       else if (args.channel.type != "GUILD_TEXT")
         return await message.error("TICKET_ENABLE_CHANNEL_INVALID");
 
-      message.guild.settings.set<Snowflake[]>("tickets.parent", [
-        args.channel.id,
-      ]);
+      await message.guild.settings.set<Snowflake[]>(
+        "tickets.parent",
+        [args.channel.id],
+        message.author
+      );
       return await message.success("TICKETS_ENABLED_CHANNEL", {
         channel: args.channel.toString(),
       });

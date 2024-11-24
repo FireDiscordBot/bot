@@ -2,7 +2,8 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
-import { MessageEmbed, Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
+import { MessageEmbed } from "discord.js";
 
 export default class Moderators extends Command {
   constructor() {
@@ -41,9 +42,10 @@ export default class Moderators extends Command {
     ];
     let filteredModerators = moderators.filter((id) => !invalid.includes(id));
     if (moderators != filteredModerators)
-      command.guild.settings.set<string[]>(
+      await command.guild.settings.set<string[]>(
         "utils.moderators",
-        filteredModerators
+        filteredModerators,
+        command.author
       );
     const embed = new MessageEmbed()
       .setColor(command.member?.displayColor || "#FFFFFF")

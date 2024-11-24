@@ -40,6 +40,9 @@ export default class Redirect extends Command {
     command: ApplicationCommandMessage,
     args: { code?: string; url?: string }
   ) {
+    if (process.env.NODE_ENV == "staging")
+      return await command.error("COMMAND_ERROR_UNAVAILABLE_ON_STAGING");
+
     if (!this.module)
       this.module = this.client.getModule("redirects") as Redirects;
 

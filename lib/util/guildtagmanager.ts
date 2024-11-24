@@ -2,8 +2,9 @@ import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
+import { Snowflake } from "discord-api-types/globals";
 import { APIApplicationCommand } from "discord-api-types/v9";
-import { DiscordAPIError, LimitedCollection, Snowflake } from "discord.js";
+import { DiscordAPIError, LimitedCollection } from "discord.js";
 import * as fuzz from "fuzzball";
 
 const slashCommandNameRegex =
@@ -255,7 +256,7 @@ export class GuildTagManager {
           if (this.slashCommands[tag.id] != tag.name)
             this.slashCommands[tag.id] = tag.name;
       })
-      .catch((e: DiscordAPIError) => {
+      .catch(async (e: DiscordAPIError) => {
         this.client.console.error(
           `[Commands] Failed to update slash command tags for guild ${
             this.guild.name
@@ -264,7 +265,11 @@ export class GuildTagManager {
         if (
           e.message.includes("Maximum number of application commands reached")
         )
-          this.guild.settings.set<boolean>("tags.slashcommands", null);
+          await this.guild.settings.set<boolean>(
+            "tags.slashcommands",
+            null,
+            this.client.user
+          );
       });
     return (
       (this.preparedSlashCommands = true) &&

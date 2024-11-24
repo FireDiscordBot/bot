@@ -33,7 +33,11 @@ export default class TicketInvitable extends Command {
       "tickets.invitable",
       true
     );
-    await command.guild.settings.set("tickets.invitable", !current);
+    await command.guild.settings.set(
+      "tickets.invitable",
+      !current,
+      command.author
+    );
     return await command.success(
       current ? "TICKET_INVITABLE_DISABLED" : "TICKET_INVITABLE_ENABLED"
     );

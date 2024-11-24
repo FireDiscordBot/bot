@@ -18,6 +18,8 @@ export default class VanityURLs extends Module {
   }
 
   async init() {
+    if (process.env.NODE_ENV == "staging") return this.unload();
+
     this.blacklisted = [];
     const blacklistResult = await this.client.db.query(
       "SELECT * FROM vanitybl;"
@@ -30,7 +32,7 @@ export default class VanityURLs extends Module {
   async requestFetch(reason = "No Reason Provided") {
     const fetchReq = await centra(
       this.client.config.dev
-        ? "https://test.inv.wtf/fetch"
+        ? "https://vanity-local.inv.wtf/fetch"
         : "https://inv.wtf/fetch",
       "PUT"
     )
@@ -47,7 +49,7 @@ export default class VanityURLs extends Module {
   async getVanity(code: string) {
     const vanityReq = await centra(
       this.client.config.dev
-        ? `https://test.inv.wtf/api/${code}`
+        ? `https://vanity-local.inv.wtf/api/${code}`
         : `https://inv.wtf/api/${code}`
     )
       .header("User-Agent", this.client.manager.ua)
@@ -97,7 +99,7 @@ export default class VanityURLs extends Module {
   async delete(code: FireGuild | string) {
     const original = code;
     if (code instanceof FireGuild) {
-      code.settings.set<boolean>("utils.public", false);
+      await code.settings.set<boolean>("utils.public", false, this.client.user);
       if (this.client.manager.ws?.open)
         this.client.manager.ws?.send(
           MessageUtil.encode(
@@ -126,7 +128,11 @@ export default class VanityURLs extends Module {
         guild instanceof FireGuild &&
         guild.settings.get<boolean>("utils.public")
       ) {
-        guild.settings.set<boolean>("utils.public", false);
+        await guild.settings.set<boolean>(
+          "utils.public",
+          false,
+          this.client.user
+        );
         if (this.client.manager.ws?.open)
           this.client.manager.ws?.send(
             MessageUtil.encode(

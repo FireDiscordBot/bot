@@ -2,6 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { BaseFakeChannel } from "@fire/lib/interfaces/misc";
 import { Command, InvalidArgumentContextError } from "@fire/lib/util/command";
 import { Listener } from "@fire/lib/util/listener";
+import { ConfigError } from "@fire/lib/util/settings";
 import { DMChannel, GuildChannel, ThreadChannel } from "discord.js";
 
 export default class CommandError extends Listener {
@@ -22,6 +23,21 @@ export default class CommandError extends Listener {
       return await message.error("COMMAND_ERROR_INVALID_ARGUMENT", {
         arg: error.argument,
       });
+    else if (error instanceof ConfigError) {
+      switch (error.message) {
+        case "SERVICE_UNAVAILABLE": {
+          return await message.error(
+            "COMMAND_ERROR_CONFIG_UPDATE_SERVICE_UNAVAILABLE"
+          );
+        }
+        case "UPDATE_SETTINGS_TIMEOUT": {
+          return await message.error("COMMAND_ERROR_CONFIG_UPDATE_TIMEOUT");
+        }
+        case "RETRIEVE_SETTINGS_TIMEOUT": {
+          return await message.error("COMMAND_ERROR_CONFIG_RETRIEVE_TIMEOUT");
+        }
+      }
+    }
 
     const point = {
       measurement: "commands",

@@ -15,8 +15,13 @@ export default class ThreadDelete extends Listener {
 
     if (guild.ticketIds.includes(thread.id)) {
       const newTickets = guild.ticketIds.filter((c) => c != thread.id);
-      if (newTickets.length) guild.settings.set("tickets.channels", newTickets);
-      else guild.settings.delete("tickets.channels");
+      if (newTickets.length)
+        await guild.settings.set(
+          "tickets.channels",
+          newTickets,
+          this.client.user
+        );
+      else await guild.settings.delete("tickets.channels", this.client.user);
     }
   }
 }

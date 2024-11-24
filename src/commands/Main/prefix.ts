@@ -85,8 +85,13 @@ export default class Prefix extends Command {
         );
         if (!current.length) current.push("$");
         if (current.length == 1 && current[0] == "$")
-          message.guild.settings.delete("config.prefix");
-        else message.guild.settings.set<string[]>("config.prefix", current);
+          await message.guild.settings.delete("config.prefix", message.author);
+        else
+          await message.guild.settings.set<string[]>(
+            "config.prefix",
+            current,
+            message.author
+          );
         return await message.success(
           current.length == 1 && current[0] == "$"
             ? "PREFIX_REMOVED_RESET"
@@ -113,11 +118,12 @@ export default class Prefix extends Command {
           });
         current.push(args.action);
         if (current.length == 1 && current[0] == "$")
-          message.guild.settings.delete("config.prefix");
+          await message.guild.settings.delete("config.prefix", message.author);
         else
-          message.guild.settings.set<string[]>(
+          await message.guild.settings.set<string[]>(
             "config.prefix",
-            current.filter((prefix) => !!prefix)
+            current.filter((prefix) => !!prefix),
+            message.author
           );
         return await message.success(
           current.length == 1 ? "PREFIX_ADDED_SINGLE" : "PREFIX_ADDED_MULTI",
@@ -143,11 +149,12 @@ export default class Prefix extends Command {
         });
       current.push(args.prefix);
       if (current.length == 1 && current[0] == "$")
-        message.guild.settings.delete("config.prefix");
+        await message.guild.settings.delete("config.prefix", message.author);
       else
-        message.guild.settings.set<string[]>(
+        await message.guild.settings.set<string[]>(
           "config.prefix",
-          current.filter((prefix) => !!prefix)
+          current.filter((prefix) => !!prefix),
+          message.author
         );
       return await message.success(
         current.length == 1 ? "PREFIX_ADDED_SINGLE" : "PREFIX_ADDED_MULTI",
@@ -168,8 +175,13 @@ export default class Prefix extends Command {
         current = current.filter((prefix) => !!prefix);
         if (!current.length) current.push("$");
         if (current.length == 1 && current[0] == "$")
-          message.guild.settings.delete("config.prefix");
-        else message.guild.settings.set<string[]>("config.prefix", current);
+          await message.guild.settings.delete("config.prefix", message.author);
+        else
+          await message.guild.settings.set<string[]>(
+            "config.prefix",
+            current,
+            message.author
+          );
         return await message.success(
           current.length == 1 && current[0] == "$"
             ? "PREFIX_REMOVED_RESET"

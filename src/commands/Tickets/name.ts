@@ -66,9 +66,10 @@ export default class TicketName extends Command {
     } else {
       if (args.name.length > 50)
         return await message.error("TICKET_NAME_LENGTH");
-      message.guild.settings.set<string>(
+      await message.guild.settings.set<string>(
         "tickets.name",
-        args.name.replace(/\s/gim, "-")
+        args.name.replace(/\s/gim, "-"),
+        message.author
       );
       let name = args.name;
       for (const [key, value] of Object.entries(variables))

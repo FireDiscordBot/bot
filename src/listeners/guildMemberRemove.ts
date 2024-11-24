@@ -1,14 +1,18 @@
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
-import { constants, MemberLogTypes } from "@fire/lib/util/constants";
-import { LanguageKeys } from "@fire/lib/util/language";
+import {
+  constants,
+  CouponType,
+  MemberLogTypes,
+} from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { PermissionFlagsBits } from "discord-api-types/v9";
-import { Formatters, MessageEmbed, Snowflake, ThreadChannel } from "discord.js";
+import { Severity } from "@sentry/node";
+import { Snowflake } from "discord-api-types/globals";
+import { Formatters, MessageEmbed, ThreadChannel } from "discord.js";
 
 const {
   regexes: { joinleavemsgs },
@@ -36,8 +40,23 @@ export default class GuildMemberRemove extends Listener {
     if (
       member.guild?.id == this.client.config.fireguildId &&
       member.settings.has("premium.coupon")
-    )
-      this.client.util.deleteSpecialCoupon(member);
+    ) {
+      const deleted = await this.client.util
+        .deleteSpecialCoupon(member)
+        .catch(() => false);
+      if (!deleted)
+        this.client.sentry.captureEvent({
+          level: Severity.Error,
+          message: "Failed to delete premium special coupon",
+          user: {
+            id: member.id,
+            username: member.user.toString(),
+          },
+          tags: {
+            couponType: member.settings.get<CouponType>("premium.coupon"),
+          },
+        });
+    }
 
     const tickets = member.guild.tickets;
     for (const channel of tickets) {

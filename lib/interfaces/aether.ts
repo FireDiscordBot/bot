@@ -3,7 +3,9 @@ import {
   ModVersionData,
   OptifineVersion,
 } from "@fire/src/modules/mclogs";
+import { Snowflake } from "discord-api-types/globals";
 import { APIEmoji } from "discord-api-types/v9";
+import { GuildOrUserConfig } from "../util/constants";
 
 export type Payload = {
   op: number; // opcode
@@ -47,12 +49,13 @@ export interface Caches {
   permissionOverwrites: number;
   messages: number;
   voiceStates: number;
-  userConfigs: number;
 }
 
 export interface ManagerState {
   guildExperiments: GuildExperimentConfig[];
+  guildConfigs: Record<Snowflake, GuildOrUserConfig>;
   userExperiments: UserExperimentConfig[];
+  userConfigs: Record<Snowflake, GuildOrUserConfig>;
   modVersions: Record<string, ModVersionData>;
   optifineVersions: Record<MinecraftVersion, OptifineVersion[]>;
   appEmojis: APIEmoji[];

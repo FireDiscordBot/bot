@@ -14,6 +14,7 @@ import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import * as centra from "centra";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   CategoryChannel,
@@ -26,7 +27,6 @@ import {
   Modal,
   ModalActionRowComponent,
   NewsChannel,
-  Snowflake,
   SnowflakeUtil,
   TextInputComponent,
   ThreadChannel,
@@ -343,7 +343,7 @@ export default class Button extends Listener {
           .add(role, button.guild.language.get("RANKS_JOIN_REASON"))
           .catch(() => button.member)) as FireMember;
 
-      const components = Rank.getRankButtons(button.guild, button.member);
+      const components = await Rank.getRankButtons(button.guild, button.member);
       const embed = new MessageEmbed()
         .setColor(button.member?.displayColor || "#FFFFFF")
         .setTimestamp()
@@ -420,7 +420,11 @@ export default class Button extends Listener {
             "mod.antieveryone",
             false
           );
-          button.guild.settings.set<boolean>("mod.antieveryone", !current);
+          await button.guild.settings.set<boolean>(
+            "mod.antieveryone",
+            !current,
+            button.author
+          );
           await update();
           return current
             ? await button.success("ANTI_EVERYONE_DISABLED")
@@ -431,7 +435,11 @@ export default class Button extends Listener {
             "mod.antizws",
             false
           );
-          button.guild.settings.set<boolean>("mod.antizws", !current);
+          await button.guild.settings.set<boolean>(
+            "mod.antizws",
+            !current,
+            button.author
+          );
           await update();
           return current
             ? await button.success("ANTI_ZWS_DISABLED")
@@ -442,7 +450,11 @@ export default class Button extends Listener {
             "mod.antispoilers",
             false
           );
-          button.guild.settings.set<boolean>("mod.antispoilers", !current);
+          await button.guild.settings.set<boolean>(
+            "mod.antispoilers",
+            !current,
+            button.author
+          );
           await update();
           return current
             ? await button.success("ANTI_SPOILER_DISABLED")
@@ -1170,7 +1182,11 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           "minecraft.logscan",
           false
         );
-        await button.guild.settings.set("minecraft.logscan", !current);
+        await button.guild.settings.set(
+          "minecraft.logscan",
+          !current,
+          button.author
+        );
         if (button.guild.settings.get("minecraft.logscan", current) == current)
           return await button.success("MINECRAFT_LOGSCAN_TOGGLE_FAIL");
         const components = logScan.getMenuComponents(button);
@@ -1353,8 +1369,15 @@ Please choose accurately as it will allow us to help you as quick as possible! â
     } else if (button.customId == "googleauthn't") {
       button.flags = 64;
       await button.channel.ack();
-      await button.author.settings.set("assistant.noauthprompt", false);
-      await button.success("GOOGLE_AUTHNOT");
+      const authnot = await button.author.settings.set(
+        "assistant.noauthprompt",
+        false
+      );
+      if (authnot) await button.success("GOOGLE_AUTHNOT");
+      else
+        return await button.error("COMMAND_ERROR_500", {
+          status: constants.url.fireStatus,
+        });
     }
 
     if (button.customId.startsWith("deploy:") && button.author.isSuperuser()) {

@@ -4,6 +4,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   MessageActionRow,
@@ -12,7 +13,6 @@ import {
   MessageSelectMenu,
   MessageSelectOptionData,
   Role,
-  Snowflake,
 } from "discord.js";
 
 const {
@@ -60,7 +60,11 @@ export default class Rank extends Command {
       message.guild.settings.get<string[]>("utils.ranks", [])?.length !=
       ranks.length
     )
-      message.guild.settings.set<string[]>("utils.ranks", ranks);
+      await message.guild.settings.set<string[]>(
+        "utils.ranks",
+        ranks,
+        this.client.user
+      );
     if (!ranks.length) return await message.error("RANKS_NONE_FOUND");
     let roles = ranks.map((id: Snowflake) => message.guild.roles.cache.get(id));
 
@@ -92,13 +96,13 @@ export default class Rank extends Command {
         });
       let components: MessageActionRow[];
       if (roles.length <= 5)
-        components = Rank.getRankButtons(
+        components = await Rank.getRankButtons(
           message.guild,
           message.member
           // message instanceof FireMessage
         );
       else if (roles.length <= 25)
-        components = Rank.getRankDropdown(message.guild);
+        components = await Rank.getRankDropdown(message.guild);
       if (components.length)
         return message.channel.send({ embeds: [embed], components });
       else return message.error("ERROR_CONTACT_SUPPORT");
@@ -130,7 +134,7 @@ export default class Rank extends Command {
     else return await message.error("RANKS_INVALID_ROLE");
   }
 
-  static getRankButtons(
+  static async getRankButtons(
     guild: FireGuild,
     member: FireMember,
     useState: boolean = true
@@ -138,8 +142,16 @@ export default class Rank extends Command {
     let roles: Snowflake[] | Role[] = guild.settings
       .get<Snowflake[]>("utils.ranks", [])
       .filter((id) => guild.roles.cache.has(id));
-    if (guild.settings.get<Snowflake[]>("utils.ranks", []) != roles)
-      guild.settings.set<Snowflake[]>("utils.ranks", roles);
+    if (
+      guild.settings.get<Snowflake[]>("utils.ranks", []).length !=
+        roles.length &&
+      roles.length
+    )
+      await guild.settings.set<Snowflake[]>(
+        "utils.ranks",
+        roles,
+        guild.client.user
+      );
     if (!roles.length) return [];
     roles = roles.map((id) => guild.roles.cache.get(id) as Role);
     const components = [new MessageActionRow()];
@@ -179,12 +191,19 @@ export default class Rank extends Command {
     return components;
   }
 
-  static getRankDropdown(guild: FireGuild) {
+  static async getRankDropdown(guild: FireGuild) {
     let roles: Snowflake[] | Role[] = guild.settings
       .get<Snowflake[]>("utils.ranks", [])
       .filter((id) => guild.roles.cache.has(id));
-    if (guild.settings.get<string[]>("utils.ranks", []) != roles)
-      guild.settings.set<string[]>("utils.ranks", roles);
+    if (
+      guild.settings.get<string[]>("utils.ranks", []).length != roles.length &&
+      roles.length
+    )
+      await guild.settings.set<string[]>(
+        "utils.ranks",
+        roles,
+        guild.client.user
+      );
     if (!roles.length) return [];
     roles = roles.map((id) => guild.roles.cache.get(id) as Role);
     const dropdown = new MessageSelectMenu()

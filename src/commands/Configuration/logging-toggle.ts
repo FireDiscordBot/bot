@@ -67,7 +67,10 @@ export default class LoggingToggle extends Command {
     if (!args.channel) {
       let deleted: any;
       try {
-        deleted = await command.guild.settings.delete(`log.${type}`);
+        deleted = await command.guild.settings.delete(
+          `log.${type}`,
+          command.author
+        );
         if (!command.guild.logger)
           command.guild.logger = new GuildLogManager(
             this.client,
@@ -85,7 +88,8 @@ export default class LoggingToggle extends Command {
       try {
         set = await command.guild.settings.set<string>(
           `log.${type}`,
-          args.channel.id
+          args.channel.id,
+          command.author
         );
         if (set) {
           if (!command.guild.logger)

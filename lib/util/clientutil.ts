@@ -17,6 +17,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import * as centra from "centra";
 import { ClientUtil } from "discord-akairo";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Collection,
@@ -28,7 +29,6 @@ import {
   MessageEmbed,
   PermissionString,
   Permissions,
-  Snowflake,
   SnowflakeUtil,
   ThreadChannel,
   Webhook,
@@ -44,6 +44,7 @@ import { Command } from "./command";
 import { CouponType, GuildTextChannel, titleCase } from "./constants";
 import { Language, LanguageKeys } from "./language";
 import { PaginatorInterface } from "./paginators";
+import { UserSettings } from "./settings";
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -467,7 +468,6 @@ export class Util extends ClientUtil {
           (a, b) => a + b.voiceStates.cache.size,
           0
         ),
-        userConfigs: this.client.userSettings.items.size,
       },
       commands: this.client.commandHandler.modules.size,
       restPing: this.client.restPing,
@@ -531,11 +531,16 @@ export class Util extends ClientUtil {
 
   shorten(items: any[], max = 1000, sep = ", ") {
     let text = "";
+    const ending = () => ` and ${items.length} more...`;
 
     while (items.length > 0) {
       const item = items.shift();
       const addition = `${item}${sep}`;
-      if (text.length + addition.length > max) {
+      if (
+        text.length + addition.length >
+        // account for ending or the trailing separator that will be removed
+        (items.length ? max - ending().length : max + sep.length)
+      ) {
         items.unshift(item); // return the item to the array
         break;
       }
@@ -544,7 +549,7 @@ export class Util extends ClientUtil {
 
     if (text.endsWith(sep)) text = text.slice(0, text.length - sep.length);
 
-    return items.length > 0 ? `${text} and ${items.length} more...` : text;
+    return items.length > 0 ? `${text}${ending()}` : text;
   }
 
   numberWithSuffix(num: number, toLocale: boolean = true) {
@@ -599,11 +604,11 @@ export class Util extends ClientUtil {
   }
 
   isSuperuser(user: Snowflake) {
-    return this.client.userSettings.get<boolean>(
-      user,
-      "utils.superuser",
-      false
-    );
+    return (
+      this.client.users.cache.has(user)
+        ? (this.client.users.cache.get(user) as FireUser).settings
+        : new UserSettings(this.client, user)
+    ).get<boolean>("utils.superuser", false);
   }
 
   userHasExperiment(
@@ -989,7 +994,7 @@ export class Util extends ClientUtil {
         })
       )
     );
-    user.settings.delete("premium.coupon");
+    return await user.settings.delete("premium.coupon");
   }
 
   isValidPasteURL(url: PasteURL) {

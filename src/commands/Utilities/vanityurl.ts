@@ -44,8 +44,12 @@ export default class VanityURL extends Command {
     command: ApplicationCommandMessage,
     args: { code?: string; invite?: Invite }
   ) {
+    if (process.env.NODE_ENV == "staging")
+      return await command.error("COMMAND_ERROR_UNAVAILABLE_ON_STAGING");
+
     if (!this.module)
       this.module = this.client.getModule("vanityurls") as VanityURLs;
+
     if (!args.code) {
       const current = await this.client.db
         .query("SELECT * FROM vanity WHERE gid=$1 LIMIT 1;", [command.guild.id])

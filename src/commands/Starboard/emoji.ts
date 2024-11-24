@@ -50,11 +50,13 @@ export default class StarboardEmoji extends Command {
 
     if (!emoji) return await command.error("STARBOARD_EMOJI_INVALID");
 
-    if (emoji == defaultEmoji) command.guild.settings.delete("starboard.emoji");
+    if (emoji == defaultEmoji)
+      await command.guild.settings.delete("starboard.emoji", command.author);
     else
-      command.guild.settings.set<string>(
+      await command.guild.settings.set<string>(
         "starboard.emoji",
-        emoji instanceof GuildEmoji ? emoji.id : emoji
+        emoji instanceof GuildEmoji ? emoji.id : emoji,
+        command.author
       );
     return await command.success("STARBOARD_EMOJI_SET", {
       emoji: emoji.toString(),

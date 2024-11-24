@@ -76,7 +76,6 @@ import { ModalMessage } from "./extensions/modalmessage";
 import { FireUser } from "./extensions/user";
 import { IPoint, IQueryOptions, IWriteOptions } from "./interfaces/aether";
 import { Experiment } from "./interfaces/experiments";
-import { PostgresProvider } from "./providers/postgres";
 import { RESTManager } from "./rest/RESTManager";
 import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
 import { Util } from "./util/clientutil";
@@ -116,8 +115,6 @@ export class Fire extends AkairoClient {
   sentry: typeof Sentry | undefined;
 
   // Handlers
-  guildSettings: PostgresProvider;
-  userSettings: PostgresProvider;
   commandHandler: CommandHandler;
   inhibitorHandler: InhibitorHandler;
   listenerHandler: ListenerHandler;
@@ -272,16 +269,6 @@ export class Fire extends AkairoClient {
     }
 
     this.config = config.fire;
-
-    this.guildSettings = new PostgresProvider(this.db, this, "guildconfig", {
-      idColumn: "gid",
-      dataColumn: "data",
-    });
-
-    this.userSettings = new PostgresProvider(this.db, this, "userconfig", {
-      idColumn: "uid",
-      dataColumn: "data",
-    });
 
     this.commandHandler = new CommandHandler(this, {
       directory: this.isDist ? "./dist/src/commands/" : "./src/commands/",
@@ -489,12 +476,7 @@ export class Fire extends AkairoClient {
         this.options.shardCount
       }).`
     );
-    await Promise.all([
-      this.loadExperiments(),
-      this.loadAliases(),
-      this.guildSettings.init(),
-      this.userSettings.init(),
-    ]);
+    await Promise.all([this.loadExperiments(), this.loadAliases()]);
     this.commandHandler.modules.forEach((command: Command) => {
       if (
         command.guilds.length &&

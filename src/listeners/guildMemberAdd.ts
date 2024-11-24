@@ -12,8 +12,9 @@ import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { Formatters, MessageEmbed, Snowflake } from "discord.js";
+import { Formatters, MessageEmbed } from "discord.js";
 
 const {
   regexes: { joinleavemsgs },
@@ -153,7 +154,7 @@ export default class GuildMemberAdd extends Listener {
       const logChannelIds = logTypes.map((type) =>
         member.guild.settings.get<string>(`log.${type}`)
       );
-      logTypes.forEach((type, index) => {
+      logTypes.forEach(async (type, index) => {
         const id = logChannelIds[index];
         if (!id) return;
         const isMulti = logChannelIds.filter((lid) => lid == id).length > 1;
@@ -171,7 +172,7 @@ export default class GuildMemberAdd extends Listener {
             member.guild
               .memberLog(message, MemberLogTypes.SYSTEM)
               .catch(() => {});
-          member.guild.settings.delete(`log.${type}`);
+          await member.guild.settings.delete(`log.${type}`, this.client.user);
         }
       });
     }

@@ -3,7 +3,8 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { SubscriptionStatus } from "@fire/lib/interfaces/premium";
 import { Command } from "@fire/lib/util/command";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
-import { Collection, Snowflake } from "discord.js";
+import { Snowflake } from "discord-api-types/globals";
+import { Collection } from "discord.js";
 
 const paidStatuses = ["trialing", "active", "past_due"];
 const hasPaid = (status: SubscriptionStatus) => paidStatuses.includes(status);
@@ -45,7 +46,11 @@ export default class PremiumInhibitor extends Inhibitor {
                 "uid"
               )} in trial period`
             );
-            instance.settings.set<boolean>("premium.trialeligible", false);
+            await instance.settings.set<boolean>(
+              "premium.trialeligible",
+              false,
+              this.client.user
+            );
           }
           this.client.util.premium.set(guild, {
             status: row.get("status") as SubscriptionStatus,

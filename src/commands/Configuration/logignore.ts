@@ -2,8 +2,9 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { NewsChannel, Snowflake } from "discord.js";
+import { NewsChannel } from "discord.js";
 
 export default class LogIgnore extends Command {
   constructor() {
@@ -38,9 +39,13 @@ export default class LogIgnore extends Command {
     );
     // remove deleted channels
     if (current.length != beforeSize && current.length)
-      command.guild.settings.set<string[]>("utils.logignore", current);
+      await command.guild.settings.set<string[]>(
+        "utils.logignore",
+        current,
+        command.author
+      );
     else if (current.length != beforeSize)
-      command.guild.settings.delete("utils.logignore");
+      await command.guild.settings.delete("utils.logignore", command.author);
 
     if (!args.channel) {
       current = current
@@ -58,9 +63,10 @@ export default class LogIgnore extends Command {
       current = current.filter((id) => id != args.channel.id);
     else current.push(args.channel.id);
 
-    command.guild.settings.set<Snowflake[]>(
+    await command.guild.settings.set<Snowflake[]>(
       "utils.logignore",
-      current as Snowflake[]
+      current as Snowflake[],
+      command.author
     );
     current = current
       .map((id) =>

@@ -7,13 +7,14 @@ import {
 } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
+import { Severity } from "@sentry/node";
+import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   AuditLogChange,
   Formatters,
   GuildAuditLogsEntry,
   MessageEmbed,
-  Snowflake,
 } from "discord.js";
 
 export default class GuildMemberUpdate extends Listener {
@@ -31,24 +32,38 @@ export default class GuildMemberUpdate extends Listener {
 
     if (newMember.guild?.id == this.client.config.fireguildId) {
       if (newMember.settings?.has("premium.coupon")) {
+        let deleted: boolean;
         const coupon: CouponType =
           newMember.settings.get<CouponType>("premium.coupon");
         if (
           coupon == CouponType.BOOSTER &&
           !newMember.roles.cache.has("620512846232551427")
         )
-          this.client.util.deleteSpecialCoupon(newMember);
+          deleted = await this.client.util.deleteSpecialCoupon(newMember);
         else if (
           coupon == CouponType.TWITCHSUB &&
           !newMember.roles.cache.has("745392985151111338")
         )
-          this.client.util.deleteSpecialCoupon(newMember);
+          deleted = await this.client.util.deleteSpecialCoupon(newMember);
         else if (
           coupon == CouponType.BOOSTER_AND_SUB &&
           (!newMember.roles.cache.has("620512846232551427") ||
             !newMember.roles.cache.has("745392985151111338"))
         )
-          this.client.util.deleteSpecialCoupon(newMember);
+          deleted = await this.client.util.deleteSpecialCoupon(newMember);
+
+        if (!deleted)
+          this.client.sentry.captureEvent({
+            level: Severity.Error,
+            message: "Failed to delete premium special coupon",
+            user: {
+              id: newMember.id,
+              username: newMember.user.toString(),
+            },
+            tags: {
+              couponType: newMember.settings.get<CouponType>("premium.coupon"),
+            },
+          });
       }
     }
 

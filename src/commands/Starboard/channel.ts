@@ -37,7 +37,7 @@ export default class StarboardChannel extends Command {
           command.guild.id,
         ])
         .catch(() => {});
-      await command.guild.settings.delete("starboard.channel");
+      await command.guild.settings.delete("starboard.channel", command.author);
       return command.guild.settings.has("starboard.channel")
         ? await command.error("ERROR_CONTACT_SUPPORT")
         : await command.success("STARBOARD_CHANNEL_RESET");
@@ -73,7 +73,11 @@ export default class StarboardChannel extends Command {
         .catch(() => {});
     }
 
-    command.guild.settings.set<string>("starboard.channel", args.channel.id);
+    await command.guild.settings.set<string>(
+      "starboard.channel",
+      args.channel.id,
+      command.author
+    );
     return await command.success("STARBOARD_CHANNEL_SET", {
       channel: args.channel.toString(),
     });

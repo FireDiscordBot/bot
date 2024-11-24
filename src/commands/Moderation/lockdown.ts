@@ -81,7 +81,11 @@ export default class Lockdown extends Command {
       const category = await categoryChannelConverter(message, args.reason);
       if (!category) return;
       if (!excluded.includes(category.id)) excluded.push(category.id);
-      message.guild.settings.set<string[]>("mod.lockdownexcl", excluded);
+      await message.guild.settings.set<string[]>(
+        "mod.lockdownexcl",
+        excluded,
+        message.author
+      );
       return await message.success("LOCKDOWN_EXCLUDE_SUCCESS");
     } else if (args.action == "start")
       return await this.start(message, args.reason);
@@ -150,10 +154,15 @@ export default class Lockdown extends Command {
           );
           failed.push(channel.toString());
         });
-    message.guild.settings.set<string[]>("mod.locked", locked);
-    message.guild.settings.set<string[]>(
+    await message.guild.settings.set<string[]>(
+      "mod.locked",
+      locked,
+      message.author
+    );
+    await message.guild.settings.set<string[]>(
       "mod.lockdownmessages",
-      lockdownMessages
+      lockdownMessages,
+      message.author
     );
     if (failed.length == channels.size)
       await message.error("ERROR_CONTACT_SUPPORT");
@@ -164,12 +173,13 @@ export default class Lockdown extends Command {
           .success("LOCKDOWN_FINISH", {
             lockcount: locked.length,
           })
-          .then((m) => {
+          .then(async (m) => {
             if (m instanceof FireMessage) {
               lockdownMessages.push(`${message.channelId}-${m.id}`);
-              message.guild.settings.set<string[]>(
+              await message.guild.settings.set<string[]>(
                 "mod.lockdownmessages",
-                lockdownMessages
+                lockdownMessages,
+                message.author
               );
             }
           });
@@ -179,12 +189,13 @@ export default class Lockdown extends Command {
             failcount: failed.length,
             failed: failed.join(", "),
           })
-          .then((m) => {
+          .then(async (m) => {
             if (m instanceof FireMessage) {
               lockdownMessages.push(`${message.channelId}-${m.id}`);
-              message.guild.settings.set<string[]>(
+              await message.guild.settings.set<string[]>(
                 "mod.lockdownmessages",
-                lockdownMessages
+                lockdownMessages,
+                message.author
               );
             }
           });
@@ -254,13 +265,17 @@ export default class Lockdown extends Command {
         )
         .catch(() => failed.push(channel.toString()));
     }
-    message.guild.settings.delete("mod.locked");
+    await message.guild.settings.delete("mod.locked", message.author);
     lockdownMessages.length
-      ? message.guild.settings.set<string[]>(
+      ? await message.guild.settings.set<string[]>(
           "mod.lockdownmessages",
-          lockdownMessages
+          lockdownMessages,
+          message.author
         )
-      : message.guild.settings.delete("mod.lockdownmessages");
+      : await message.guild.settings.delete(
+          "mod.lockdownmessages",
+          message.author
+        );
     failed.length
       ? await message.error("LOCKDOWN_END_FAIL", {
           failcount: failed.length,

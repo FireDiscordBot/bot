@@ -19,7 +19,7 @@ export default class SlowmodeSync extends Command {
 
   async run(command: ApplicationCommandMessage) {
     const current = command.guild.settings.get("slowmode.sync", false);
-    await command.guild.settings.set("slowmode.sync", !current);
+    await command.guild.settings.set("slowmode.sync", !current, command.author);
     if (command.guild.settings.get("slowmode.sync", current) == current)
       return await command.error("SLOWMODE_SYNC_TOGGLE_FAIL");
     return await command.success(

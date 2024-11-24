@@ -42,8 +42,13 @@ export default class AddModerator extends Command {
             : command.language.get("ROLE"),
       });
     if (current.length)
-      command.guild.settings.set<string[]>("utils.moderators", current);
-    else command.guild.settings.delete("utils.moderators");
+      await command.guild.settings.set<string[]>(
+        "utils.moderators",
+        current,
+        command.author
+      );
+    else
+      await command.guild.settings.delete("utils.moderators", command.author);
     return await (this.parentCommand as Moderators).getModeratorEmbed(command);
   }
 }

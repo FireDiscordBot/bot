@@ -53,14 +53,26 @@ export default class CommandCommand extends Command {
           this.client.commandHandler.modules.has(command)
       );
       if (current.length)
-        command.guild.settings.set<string[]>("disabled.commands", current);
-      else command.guild.settings.delete("disabled.commands");
+        await command.guild.settings.set<string[]>(
+          "disabled.commands",
+          current,
+          command.author
+        );
+      else
+        await command.guild.settings.delete(
+          "disabled.commands",
+          command.author
+        );
       return await command.success("COMMAND_ENABLE", {
         command: args.command.id,
       });
     } else {
       current.push(args.command.id);
-      command.guild.settings.set<string[]>("disabled.commands", current);
+      await command.guild.settings.set<string[]>(
+        "disabled.commands",
+        current,
+        command.author
+      );
       return await command.success("COMMAND_DISABLE", {
         command: args.command.id,
       });

@@ -49,8 +49,15 @@ export default class Autorole extends Command {
     let { role, delay, bot } = args;
 
     if (!role) {
-      message.guild.settings.delete(bot ? "mod.autobotrole" : "mod.autorole");
-      !bot && message.guild.settings.delete("mod.autorole.waitformsg");
+      await message.guild.settings.delete(
+        bot ? "mod.autobotrole" : "mod.autorole",
+        message.author
+      );
+      !bot &&
+        (await message.guild.settings.delete(
+          "mod.autorole.waitformsg",
+          message.author
+        ));
       return await message.success(
         bot ? "AUTOROLE_DISABLED_BOT" : "AUTOROLE_DISABLED"
       );
@@ -69,11 +76,19 @@ export default class Autorole extends Command {
     if (bot && delay) return await message.error("AUTOROLE_INVALID_FLAGS");
 
     delay
-      ? message.guild.settings.set<boolean>("mod.autorole.waitformsg", true)
-      : message.guild.settings.delete("mod.autorole.waitformsg");
-    message.guild.settings.set<string>(
+      ? await message.guild.settings.set<boolean>(
+          "mod.autorole.waitformsg",
+          true,
+          message.author
+        )
+      : await message.guild.settings.delete(
+          "mod.autorole.waitformsg",
+          message.author
+        );
+    await message.guild.settings.set<string>(
       bot ? "mod.autobotrole" : "mod.autorole",
-      role.id
+      role.id,
+      message.author
     );
 
     await message.success(bot ? "AUTOROLE_ENABLED_BOT" : "AUTOROLE_ENABLED", {

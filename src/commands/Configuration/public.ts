@@ -45,7 +45,11 @@ export default class Public extends Command {
       return await command.error("PUBLIC_VANITY_REQUIRED", {
         prefix: command.util?.parsed?.prefix,
       });
-    await command.guild.settings.set<boolean>("utils.public", !current);
+    await command.guild.settings.set<boolean>(
+      "utils.public",
+      !current,
+      command.author
+    );
     if (!current) {
       await command.success("PUBLIC_ENABLED", { vanity: vanitys.get("code") });
       await command.guild.actionLog(

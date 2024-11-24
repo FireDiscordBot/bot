@@ -18,16 +18,20 @@ export default class AutoDehoist extends Command {
     });
   }
 
-  exec(message: FireMessage) {
+  async exec(message: FireMessage) {
     const current = message.guild.settings.get<boolean>(
       "mod.autodehoist",
       false
     );
 
-    message.guild.settings.set<boolean>("mod.autodehoist", !current);
+    await message.guild.settings.set<boolean>(
+      "mod.autodehoist",
+      !current,
+      message.author
+    );
 
     return !current
-      ? message.success("AUTODEHOIST_ENABLED")
-      : message.success("AUTODEHOIST_DISABLED");
+      ? await message.success("AUTODEHOIST_ENABLED")
+      : await message.success("AUTODEHOIST_DISABLED");
   }
 }

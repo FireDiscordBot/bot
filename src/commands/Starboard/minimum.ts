@@ -27,14 +27,18 @@ export default class StarboardMinimum extends Command {
     if (args.minimum && args.minimum < 2)
       return await command.error("STARBOARD_MINIMUM_TOO_LOW");
     if (!args.minimum || args.minimum == 5) {
-      await command.guild.settings.delete("starboard.minimum");
+      await command.guild.settings.delete("starboard.minimum", command.author);
       this.check(command, 5);
       return command.guild.settings.has("starboard.minimum")
         ? await command.error("ERROR_CONTACT_SUPPORT")
         : await command.success("STARBOARD_MINIMUM_RESET");
     }
 
-    command.guild.settings.set<number>("starboard.minimum", args.minimum);
+    await command.guild.settings.set<number>(
+      "starboard.minimum",
+      args.minimum,
+      command.author
+    );
     this.check(command, args.minimum);
     return await command.success("STARBOARD_MINIMUM_SET", {
       min: args.minimum,
