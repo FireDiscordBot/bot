@@ -189,7 +189,7 @@ export default class FireStatus extends Command {
       // })
       .setTimestamp();
 
-    if (summary.activeIncidents.length)
+    if (summary.activeIncidents?.length)
       embed.addFields(
         summary.activeIncidents.map((incident) => ({
           name: `${message.language.get("STATUS_ACTIVE_INCIDENT")} - [${
@@ -202,7 +202,7 @@ export default class FireStatus extends Command {
         }))
       );
 
-    if (summary.activeMaintenances.length)
+    if (summary.activeMaintenances?.length)
       embed.addFields(
         summary.activeMaintenances.map((maintenance) => ({
           name: `${message.language.get("STATUS_ACTIVE_MAINTENANCE")} - [${
