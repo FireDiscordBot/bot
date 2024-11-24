@@ -337,23 +337,6 @@ CREATE TABLE public.starboard_reactions (
 ALTER TABLE public.starboard_reactions OWNER TO postgres;
 
 --
--- Name: statushooks; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.statushooks (
-    url text NOT NULL,
-    page text NOT NULL,
-    gid text NOT NULL,
-    cid text NOT NULL,
-    uid text NOT NULL,
-    rid text,
-    pingonupdate boolean DEFAULT false
-);
-
-
-ALTER TABLE public.statushooks OWNER TO postgres;
-
---
 -- Name: subscriptions; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -449,13 +432,6 @@ CREATE TABLE public.vcroles (
 
 
 ALTER TABLE public.vcroles OWNER TO postgres;
-
---
--- Name: statushooks statushooks_url_key; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.statushooks
-    ADD CONSTRAINT statushooks_url_key UNIQUE (url);
 
 
 --
