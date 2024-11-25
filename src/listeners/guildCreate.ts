@@ -29,7 +29,7 @@ export default class GuildCreate extends Listener {
     // if we have any config keys, it's not a new guild we've joined
     // but if we have none, it may not be a new guild but is more likely to be
     const hasKeys = Object.keys(
-      this.client.manager.state.guildConfigs[guild.id]
+      this.client.manager.state.guildConfigs[guild.id] ?? {}
     ).length;
 
     this.client.console.log(
