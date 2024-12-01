@@ -32,9 +32,13 @@ export default class Snowflake extends Command {
 
   async run(command: ApplicationCommandMessage, args: { snowflake: string }) {
     if (!args.snowflake) return;
-    const theIntDoBeKindaBigDoe = BigInt(args.snowflake);
-    if (theIntDoBeKindaBigDoe > MAX_ACCEPTED_SNOWFLAKE)
-      return await command.error("SNOWFLAKE_TOO_BIG");
+    try {
+      const theIntDoBeKindaBigDoe = BigInt(args.snowflake);
+      if (theIntDoBeKindaBigDoe > MAX_ACCEPTED_SNOWFLAKE)
+        return await command.error("SNOWFLAKE_TOO_BIG");
+    } catch {
+      return await command.error("SNOWFLAKE_INVALID_INPUT");
+    }
     const snowflake = await snowflakeConverter(command, args.snowflake);
     if (!this.userCommand)
       this.userCommand = this.client.getCommand("user") as User;

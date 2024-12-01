@@ -1296,6 +1296,7 @@
   "SNOWFLAKE_COMMAND_DESCRIPTION": "Get information about a Discord snowflake",
   "SNOWFLAKE_ARGUMENT_DESCRIPTION": "Any valid snowflake",
   "SNOWFLAKE_TOO_BIG": "That value is larger than Discord's maximum accepted snowflake (9223372036854775807)",
+  "SNOWFLAKE_INVALID_INPUT": "That doesn't appear to be a valid snowflake",
   "USER_SNOWFLAKE_DESCRIPTION": "It looks like that isn't a valid user, but it is a valid snowflake! {{snowflakeemoji}}\n\nA [Snowflake](https://discord.com/developers/docs/reference#snowflakes) is essentially a unique ID for a resource (message, user, channel, etc) which contains a timestamp.\n\nYou can copy the snowflakes from messages in Discord by right clicking on them.\nYou must have Developer Mode enabled, which is found in User Settings > Advanced",
   "USER_SNOWFLAKE_BELONGS_TO": "**Belongs To**: {{type}}",
   "USER_SNOWFLAKE_BELONGS_TO_EXTRA": "**Belongs To**: {{type}} ({{extra}})",
