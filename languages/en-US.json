@@ -1289,8 +1289,6 @@
   "STATS_UPTIME": "Uptime",
   "STATS_COMMANDS": "Commands",
   "STATS_FOOTER": "PID: {{pid}} | Cluster: {{cluster}} | Shard: {{shard}}",
-  "SUGGEST_COMMAND_DESCRIPTION": "Suggest a feature for Fire.",
-  "SUGGEST_COMMAND_DEPRECATED": "This command has been deprecated in favor of <https://inv.wtf/firesuggest> and will eventually be removed",
   "SUPPORT_COMMAND_DESCRIPTION": "Get a link to Fire's support server",
   "USER_COMMAND_DESCRIPTION": "Get a general overview of a user.",
   "SNOWFLAKE_COMMAND_DESCRIPTION": "Get information about a Discord snowflake",
