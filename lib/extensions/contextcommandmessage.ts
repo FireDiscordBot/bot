@@ -646,11 +646,17 @@ export class FakeChannel extends BaseFakeChannel {
   // Defer interaction unless ephemeral (excl. incognito)
   async ack(ephemeral = false) {
     await this.ackLock.acquire();
+    if (
+      (ephemeral || (this.flags & 64) != 0) &&
+      !this.message.command?.deferAnyways
+    )
+      return this.ackLock.release();
     if (this.message.sent) return this.ackLock.release();
-    if (ephemeral || (this.flags & 64) != 0) return this.ackLock.release();
+    if (this.message.author.settings.get<boolean>("utils.incognito", false))
+      ephemeral = true;
     await this.message.contextCommand
       .deferReply({
-        ephemeral: this.message.author.settings.get("utils.incognito", false),
+        ephemeral: ephemeral || !!((this.flags & 64) == 64),
         fetchReply: true,
       })
       .then((real) => {

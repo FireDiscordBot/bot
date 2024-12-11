@@ -725,7 +725,6 @@ export class FakeChannel extends BaseFakeChannel {
   // Defer interaction unless ephemeral & not set to defer anyways
   async ack(ephemeral = false) {
     await this.ackLock.acquire();
-    if (this.message.sent) return this.ackLock.release();
     if (
       ((ephemeral || (this.flags & 64) != 0) &&
         !this.message.command?.deferAnyways) ||
