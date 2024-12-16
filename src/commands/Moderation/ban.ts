@@ -58,6 +58,15 @@ export default class Ban extends Command {
       deferAnyways: true,
       slashOnly: true,
       ephemeral: true,
+      lock: (
+        _,
+        args: {
+          user: FireMember | FireUser;
+          reason?: string;
+          time?: string;
+          days?: number;
+        }
+      ) => args.user.id,
     });
   }
 
