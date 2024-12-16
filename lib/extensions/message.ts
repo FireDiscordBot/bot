@@ -1510,6 +1510,12 @@ The lack of this is a sign that this message may have been sent automatically by
       lowerContent.includes("http")
     )
       return await triggerFilter("Fake steam gift link");
+    else if (
+      lowerContent.includes("50$fromsteam") &&
+      lowerContent.includes("[steam") &&
+      lowerContent.includes("http")
+    )
+      return await triggerFilter("Fake steam gift link");
     // else if (
     //   lowerContent.includes("test") &&
     //   lowerContent.includes("game") &&
