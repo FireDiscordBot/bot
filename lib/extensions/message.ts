@@ -686,13 +686,13 @@ export class FireMessage extends Message {
         .catch(() => null)) as FireMember);
     let components = this.components;
     if (components.length && this.author.id != this.client?.user?.id)
-      for (const component of components.values()) {
+      for (const [rowIndex, component] of components.entries()) {
         if (component instanceof MessageActionRow)
-          for (const [index, c] of component.components.entries()) {
+          for (const [componentIndex, c] of component.components.entries()) {
             if (c instanceof MessageButton && c.style != "LINK")
-              c.setCustomId(`quote_copy${index}`);
+              c.setCustomId(`quote_copy${rowIndex}${componentIndex}`);
             else if (c instanceof MessageSelectMenu)
-              c.setCustomId(`quote_copy${index}`);
+              c.setCustomId(`quote_copy${rowIndex}${componentIndex}`);
             if (c instanceof MessageButton && c.style == "LINK")
               if (await filters.isFiltered(c.url, quoter)) c.setURL("");
             component.components = component.components.filter((c) => {
