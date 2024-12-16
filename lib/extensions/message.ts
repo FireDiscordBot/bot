@@ -1472,14 +1472,14 @@ The lack of this is a sign that this message may have been sent automatically by
     else if (
       lowerContent.includes("gift") &&
       lowerContent.includes("http") &&
-      (lowerContent.includes("bro ") || lowerContent.includes(" bro"))
+      lowerContent.includes("bro")
     )
       // copilot generated this and I can't stop laughing at it
       return await triggerFilter("Bro Mention w/Gift Link");
     else if (
       lowerContent.includes("gift") &&
       lowerContent.includes("http") &&
-      lowerContent.includes("for you")
+      lowerContent.includes("foryou")
     )
       return await triggerFilter("gift 4 you bro");
     else if (lowerContent.includes("airdrop") && lowerContent.includes("nitro"))
@@ -1505,7 +1505,7 @@ The lack of this is a sign that this message may have been sent automatically by
     )
       return await triggerFilter("Fake gift link");
     else if (
-      lowerContent.includes("steam gift 50$") &&
+      lowerContent.includes("steamgift50$") &&
       lowerContent.includes("[steam") &&
       lowerContent.includes("http")
     )
@@ -1536,7 +1536,11 @@ The lack of this is a sign that this message may have been sent automatically by
     // )
     //   return await triggerFilter("Try my game scam");
     // always keep this last
-    else if (lowerContent.includes("http") && !this.nonce)
+    else if (
+      lowerContent.includes("http") &&
+      !this.nonce &&
+      this.type != "AUTO_MODERATION_ACTION"
+    )
       return await triggerWarning();
   }
 }
