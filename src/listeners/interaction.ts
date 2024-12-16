@@ -407,7 +407,7 @@ export default class InteractionListener extends Listener {
         const sentry = this.client.sentry;
         sentry.captureException(error, {
           extra: {
-            contextCommand: JSON.stringify(context),
+            // contextCommand: JSON.stringify(context),
             member: context.member
               ? context.member.toString()
               : context.user.toString(),

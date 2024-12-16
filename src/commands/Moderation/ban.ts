@@ -5,6 +5,7 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { parseTime } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { KeySupplier } from "discord-akairo";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Ban extends Command {
@@ -58,15 +59,24 @@ export default class Ban extends Command {
       deferAnyways: true,
       slashOnly: true,
       ephemeral: true,
-      lock: (
-        _,
+      lock: ((
+        command: ApplicationCommandMessage | ContextCommandMessage,
         args: {
           user: FireMember | FireUser;
           reason?: string;
           time?: string;
           days?: number;
         }
-      ) => args.user.id,
+      ) => {
+        if (command instanceof ApplicationCommandMessage && args.user)
+          return args.user.id;
+        else if (
+          command instanceof ContextCommandMessage &&
+          command.getMessage()
+        )
+          return command.getMessage(true).author.id;
+        else return command.author.id;
+      }) as unknown as KeySupplier,
     });
   }
 
