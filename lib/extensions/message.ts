@@ -1275,8 +1275,7 @@ export class FireMessage extends Message {
       !this.guild ||
       this.author?.bot ||
       this.webhookId ||
-      this.type == "AUTO_MODERATION_ACTION" ||
-      this.system ||
+      this.author.system ||
       !this.guild?.hasExperiment(936071411, [1, 2])
     )
       return;
@@ -1504,6 +1503,12 @@ The lack of this is a sign that this message may have been sent automatically by
       lowerContent.includes("who is")
     )
       return await triggerFilter("Fake gift link");
+    else if (
+      lowerContent.includes("steam gift 50$") &&
+      lowerContent.includes("[steam") &&
+      lowerContent.includes("http")
+    )
+      return await triggerFilter("Fake steam gift link");
     // else if (
     //   lowerContent.includes("test") &&
     //   lowerContent.includes("game") &&
