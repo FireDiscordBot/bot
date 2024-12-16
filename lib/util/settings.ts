@@ -74,7 +74,11 @@ export class GuildSettings {
   // will check if migration is needed for the current migration script
   // must be synchronous so it can be used in the constructor and the getter below
   shouldMigrate() {
-    return this.has("logging.action.flags");
+    return (
+      this.has("utils.badname") &&
+      (this.get<string>("utils.badname", "").length > 32 ||
+        this.get<string>("utils.badname", "").length < 2)
+    );
   }
 
   // boolean to determine whether the migration has been run (based on the migrationId)
@@ -88,19 +92,12 @@ export class GuildSettings {
 
   // unique identifier for the migration script
   get migrationId() {
-    return "June24-new-action-log-flags";
+    return "December24-badname-length";
   }
 
   // will be empty unless there's a migration to run
   async runMigration(): Promise<boolean> {
-    let currentFlags = this.get<number>("logging.action.flags");
-    if ((currentFlags & (1 << 15)) != 1 << 15) currentFlags |= 1 << 15;
-    if ((currentFlags & (1 << 16)) != 1 << 16) currentFlags |= 1 << 16;
-    return await this.set(
-      "logging.action.flags",
-      currentFlags,
-      this.client.user
-    );
+    return await this.delete("utils.badname", this.client.user);
   }
 
   has(key: string) {
