@@ -28,6 +28,7 @@ import {
 } from "discord.js";
 
 const { regexes } = constants;
+const QUOTE_PREMIUM_INCREASED_LENGTH = "QUOTE_PREMIUM_INCREASED_LENGTH";
 
 export default class Quote extends Command {
   savedQuotes: Collection<string, FireMessage>;
@@ -161,7 +162,7 @@ export default class Quote extends Command {
     }
     if (!message) return; // we shouldn't get here without one
     if (args.quote.content.length > 2000)
-      return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
+      return await message.error(QUOTE_PREMIUM_INCREASED_LENGTH);
     const quoted = await args.quote
       .quote(
         message instanceof ApplicationCommandMessage
@@ -174,9 +175,11 @@ export default class Quote extends Command {
       .catch((e: Error) =>
         (args.quoter ?? message.author).isSuperuser() ? e.stack : e.message
       );
-    if (quoted == "QUOTE_PREMIUM_INCREASED_LENGTH")
-      return await message.error("QUOTE_PREMIUM_INCREASED_LENGTH");
+    if (quoted == QUOTE_PREMIUM_INCREASED_LENGTH)
+      return await message.error(quoted);
     else if (quoted == "nsfw") return await message.error("QUOTE_NSFW_TO_SFW");
+    else if (quoted == "empty")
+      return await message.error("QUOTE_MISSING_CONTENT");
     if (typeof quoted == "string" && debugMessages) debugMessages.push(quoted);
     if (args.debug) {
       if (!debugMessages.length) return;

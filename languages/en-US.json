@@ -1029,6 +1029,7 @@
   "QUOTE_SAVED_SUCCESS": "Message saved successfully! You can now send the message link in any channel Fire can see to quote it",
   "QUOTE_PREMIUM_INCREASED_LENGTH": "This message is using the new 4,000 character limit for nitro users or has been altered due to filters and is now greater than 2,000 characters. Because of this, I am unable to quote it.",
   "QUOTE_NSFW_TO_SFW": "You cannot quote messages from an NSFW channel here!",
+  "QUOTE_MISSING_CONTENT": "This message does not have any content I can quote. A message must have text, embeds, attachments or components (buttons & dropdowns) to be quoted",
   "QUOTE_COPIED_BUTTON": "This button was copied from the quoted message. To interact with it, you'll need to do so on the original!",
   "QUOTE_COPIED_SELECT": "This dropdown was copied from the quoted message. To interact with it, you'll need to do so on the original!",
   "QUOTE_WEBHOOK_CREATE_REASON": "This webhook will be used for quoting messages in this channel",

@@ -409,6 +409,15 @@ export class FireMessage extends Message {
     webhook?: WebhookClient,
     debug?: string[]
   ) {
+    // check for quoteable content first
+    if (
+      !this.content &&
+      !this.embeds.length &&
+      !this.attachments.size &&
+      !this.components.filter((c) => c instanceof MessageActionRow).length
+    )
+      return "empty";
+
     let thread: ThreadChannel;
     if (destination instanceof ThreadChannel) {
       // we can't assign thread to destination since we're reassigning it
