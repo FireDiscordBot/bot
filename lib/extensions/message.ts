@@ -1393,7 +1393,8 @@ The lack of this is a sign that this message may have been sent automatically by
             this.guild.members.me as FireMember,
             this.guild?.hasExperiment(936071411, 1)
               ? (this.channel as FireTextChannel)
-              : undefined
+              : undefined,
+            false
           )
           .then((result) => {
             this.delete({
@@ -1438,12 +1439,12 @@ The lack of this is a sign that this message may have been sent automatically by
       lowerContent.includes("free")
     )
       return await triggerFilter("Free Nitro Link");
-    else if (
-      lowerContent.includes("discord") &&
-      lowerContent.includes("steam") &&
-      lowerContent.includes("http")
-    )
-      return await triggerFilter("Discord/Steam Link");
+    // else if (
+    //   lowerContent.includes("discord") &&
+    //   lowerContent.includes("steam") &&
+    //   lowerContent.includes("http")
+    // )
+    //   return await triggerFilter("Discord/Steam Link");
     else if (
       (lowerContent.includes("csgo") || lowerContent.includes("cs:go")) &&
       lowerContent.includes("skin") &&
@@ -1456,18 +1457,18 @@ The lack of this is a sign that this message may have been sent automatically by
       lowerContent.includes(".ru")
     )
       return await triggerFilter(".ru Nitro Gift Link");
-    else if (
-      lowerContent.includes("leaving") &&
-      lowerContent.includes("fucking") &&
-      lowerContent.includes("game")
-    )
-      return await triggerFilter('"Rage Quit"');
-    else if (
-      lowerContent.includes("gift") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes("@everyone")
-    )
-      return await triggerFilter("@everyone Mention w/Gift Link");
+    // else if (
+    //   lowerContent.includes("leaving") &&
+    //   lowerContent.includes("fucking") &&
+    //   lowerContent.includes("game")
+    // )
+    //   return await triggerFilter('"Rage Quit"');
+    // else if (
+    //   lowerContent.includes("gift") &&
+    //   lowerContent.includes("http") &&
+    //   lowerContent.includes("@everyone")
+    // )
+    //   return await triggerFilter("@everyone Mention w/Gift Link");
     else if (
       lowerContent.includes("gift") &&
       lowerContent.includes("http") &&
