@@ -1,10 +1,11 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
-import { snowflakeConverter } from "@fire/lib/util/converters";
+import {
+  isAcceptableSnowflake,
+  snowflakeConverter,
+} from "@fire/lib/util/converters";
 import { Language } from "@fire/lib/util/language";
 import User from "./user";
-
-const MAX_ACCEPTED_SNOWFLAKE = 9223372036854775807n;
 
 export default class Snowflake extends Command {
   userCommand: User;
@@ -32,13 +33,10 @@ export default class Snowflake extends Command {
 
   async run(command: ApplicationCommandMessage, args: { snowflake: string }) {
     if (!args.snowflake) return;
-    try {
-      const theIntDoBeKindaBigDoe = BigInt(args.snowflake);
-      if (theIntDoBeKindaBigDoe > MAX_ACCEPTED_SNOWFLAKE)
-        return await command.error("SNOWFLAKE_TOO_BIG");
-    } catch {
+    const isAcceptable = isAcceptableSnowflake(args.snowflake);
+    if (isAcceptable == null)
       return await command.error("SNOWFLAKE_INVALID_INPUT");
-    }
+    else if (!isAcceptable) return await command.error("SNOWFLAKE_TOO_BIG");
     const snowflake = await snowflakeConverter(command, args.snowflake);
     if (!this.userCommand)
       this.userCommand = this.client.getCommand("user") as User;

@@ -25,6 +25,17 @@ import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { FireTextChannel } from "../extensions/textchannel";
 import { constants } from "./constants";
 
+export const MAX_ACCEPTED_SNOWFLAKE = 9223372036854775807n;
+export const isAcceptableSnowflake = (snowflake: string) => {
+  try {
+    const theIntDoBeKindaBigDoe = BigInt(snowflake);
+    if (theIntDoBeKindaBigDoe > MAX_ACCEPTED_SNOWFLAKE) return false;
+  } catch {
+    return null;
+  }
+  return true;
+};
+
 const messageIdRegex =
   /^(?:(?<channel_id>\d{15,21})-)?(?<message_id>\d{15,21})$/im;
 const userMentionRegex = /<@!?(\d{15,21})>$/im;
@@ -35,13 +46,15 @@ const idRegex = /(\d{15,21})/im;
 const { regexes } = constants;
 
 export const getIDMatch = (argument: string, extra = false) => {
+  if (!isAcceptableSnowflake(argument)) return null;
   const match = extra ? idRegex.exec(argument) : idOnlyRegex.exec(argument);
   return match ? (match[1] as Snowflake) : null;
 };
 
 export const getUserMentionMatch = (argument: string) => {
   const match = userMentionRegex.exec(argument);
-  return match ? (match[1] as Snowflake) : null;
+  if (!match || (match && !isAcceptableSnowflake(match[1]))) return null;
+  else return match[1] as Snowflake;
 };
 
 const getMessageIDMatch = (argument: string) => argument.match(messageIdRegex);
@@ -396,6 +409,12 @@ export const messageConverter = async (
     messageId = idMatch[0] as Snowflake;
     channelId = message.channelId;
   }
+
+  if (!isAcceptableSnowflake(messageId) || !isAcceptableSnowflake(channelId)) {
+    if (!silent) await message.error("INVALID_MESSAGE");
+    return null;
+  }
+
   // this should only actually make a request for closed threads
   const channel = (await message.client.channels
     .fetch(channelId)
