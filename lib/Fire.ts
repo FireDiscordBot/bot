@@ -275,7 +275,7 @@ export class Fire extends AkairoClient {
       commandUtil: true,
       handleEdits: true,
       fetchMembers: true,
-      defaultCooldown: 5000,
+      defaultCooldown: 2500,
       aliasReplacement: /-/im,
       automateCategories: true,
       commandUtilLifetime: 30000,
@@ -300,7 +300,10 @@ export class Fire extends AkairoClient {
             ]
           : ["$", "fire "];
       },
-      ignoreCooldown: (message: FireMessage) => message.author?.isSuperuser(),
+      ignoreCooldown: (message: FireMessage) =>
+        message.author?.isSuperuser() ||
+        (message.member?.isModerator() &&
+          message.util?.parsed?.command?.categoryID == "Moderation"),
     });
 
     this.commandHandler.on(
