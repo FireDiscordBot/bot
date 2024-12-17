@@ -437,11 +437,8 @@ export class FireMessage extends Message {
 
       const canUseAttachmentsInWebhook =
         !this.attachments.size ||
-        // limit attachment size to 25mb for premium, 10mb for regular
-        this.attachments.filter(
-          (attachment) =>
-            attachment.size > (quoter.premium ? 26214400 : 10485760)
-        ).size == 0 ||
+        this.attachments.filter((attachment) => attachment.size > 10485760)
+          .size == 0 ||
         !this.content;
       const useWebhooks = webhook
         ? true
