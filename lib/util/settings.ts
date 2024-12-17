@@ -16,6 +16,7 @@ export class ConfigError extends Error {
     | "UPDATE_SETTINGS_TIMEOUT"
     | "RETRIEVE_SETTINGS_TIMEOUT"; // more can be added in the future
 }
+class MissingUpdatedByError extends Error {}
 type ResolveBoolean = (value: boolean) => void;
 
 enum UpdateSettingsAction {
@@ -115,6 +116,7 @@ export class GuildSettings {
   ) {
     if (!this.client.manager.ws?.open)
       throw new ConfigError("SERVICE_UNAVAILABLE");
+    if (!updatedBy) throw new MissingUpdatedByError();
 
     const updated = await new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
@@ -179,6 +181,7 @@ export class GuildSettings {
     if (!this.has(key)) return true;
     else if (!this.client.manager.ws?.open)
       throw new ConfigError("SERVICE_UNAVAILABLE");
+    if (!updatedBy) throw new MissingUpdatedByError();
 
     return new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
