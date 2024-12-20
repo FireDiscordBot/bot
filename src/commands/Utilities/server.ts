@@ -435,7 +435,9 @@ export default class GuildCommand extends Command {
                 value: this.client.util.shorten(roles, 1000, " - "),
               }
             : null,
-        ].filter((field) => !!field)
+        ].filter((field) => !!field && field.value.length <= 1024)
+        // we need to filter by length because the features field can get a bit long sometimes
+        // sentry ref: FIRE-CJ4
       );
 
     if (command.author.isSuperuser() && this.client.manager.REST_HOST) {
