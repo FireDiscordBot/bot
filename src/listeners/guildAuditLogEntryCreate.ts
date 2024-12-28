@@ -1119,10 +1119,11 @@ export default class GuildAuditLogEntryCreate extends Listener {
             ? `${tag.emoji.name} ${tag.name}`
             : tag.name
         );
-      embed.addFields({
-        name: guild.language.get("TAGS"),
-        value: this.client.util.shorten(tags, 1024, " - "),
-      });
+      if (tags.length)
+        embed.addFields({
+          name: guild.language.get("TAGS"),
+          value: this.client.util.shorten(tags, 1024, " - "),
+        });
     }
     embed.addFields({
       name: guild.language.get("DELETED_BY"),
