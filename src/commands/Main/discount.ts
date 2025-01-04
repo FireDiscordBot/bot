@@ -1,6 +1,6 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
-import { constants, CouponType } from "@fire/lib/util/constants";
+import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 
 export default class Discount extends Command {
@@ -18,32 +18,15 @@ export default class Discount extends Command {
   async exec(message: FireMessage) {
     if (message.author.settings.has("premium.coupon"))
       return await message.error("DISCOUNT_ALREADY_CLAIMED");
-    let coupon: CouponType;
-    const roles = message.member.roles.cache;
-    if (roles.has("620512846232551427") && roles.has("745392985151111338"))
-      coupon = CouponType.BOOSTER_AND_SUB;
-    else if (roles.has("620512846232551427")) coupon = CouponType.BOOSTER;
-    else if (roles.has("745392985151111338")) coupon = CouponType.TWITCHSUB;
-
+    const coupon = this.client.util.getSpecialCouponEligibility(message.member);
     if (!coupon) return await message.error("DISCOUNT_INELIGIBLE");
-    const storedCoupon = await message.author.settings.set(
-      "premium.coupon",
-      coupon
-    );
-    if (!storedCoupon)
-      return await message.error("COMMAND_ERROR_500", {
-        status: constants.url.fireStatus,
-      });
 
     const created = await this.client.util
-      .createSpecialCoupon(message.member, coupon)
+      .createSpecialCoupon(message.member)
       .catch(() => {});
     if (!created || !created.success) {
-      const removedStoredCoupon = await message.author.settings.delete(
-        "premium.coupon"
-      );
       return await message.error(
-        created && created.success == false && removedStoredCoupon
+        created && created.success == false && created.reason
           ? created.reason
           : "COMMAND_ERROR_500",
         {

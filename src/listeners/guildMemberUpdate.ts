@@ -30,29 +30,53 @@ export default class GuildMemberUpdate extends Listener {
     // dehoist/decancer is enabled so no need for checks here
     newMember.dehoistAndDecancer();
 
-    if (newMember.guild?.id == this.client.config.fireguildId) {
+    if (newMember.guild?.id == this.client.config.fireGuildId) {
       if (newMember.settings?.has("premium.coupon")) {
-        let deleted: boolean;
-        const coupon: CouponType =
+        let deleted: Awaited<
+            ReturnType<typeof this.client.util.deleteSpecialCoupon>
+          >,
+          updated: Awaited<
+            ReturnType<typeof this.client.util.updateSpecialCoupon>
+          >;
+        const currentCoupon =
           newMember.settings.get<CouponType>("premium.coupon");
-        if (
-          coupon == CouponType.BOOSTER &&
-          !newMember.roles.cache.has("620512846232551427")
-        )
+        const newCoupon =
+          this.client.util.getSpecialCouponEligibility(newMember);
+        if (!newCoupon)
           deleted = await this.client.util.deleteSpecialCoupon(newMember);
-        else if (
-          coupon == CouponType.TWITCHSUB &&
-          !newMember.roles.cache.has("745392985151111338")
-        )
-          deleted = await this.client.util.deleteSpecialCoupon(newMember);
-        else if (
-          coupon == CouponType.BOOSTER_AND_SUB &&
-          (!newMember.roles.cache.has("620512846232551427") ||
-            !newMember.roles.cache.has("745392985151111338"))
-        )
-          deleted = await this.client.util.deleteSpecialCoupon(newMember);
+        // we only want to update if there's an existing coupon
+        else if (currentCoupon && currentCoupon != newCoupon) {
+          updated = await this.client.util.updateSpecialCoupon(newMember);
+          if (updated && updated.success)
+            await newMember
+              .send({
+                content: newMember.language.get(
+                  "reused" in updated
+                    ? "DISCOUNT_UPDATED_REUSED"
+                    : "DISCOUNT_UPDATED",
+                  updated
+                ),
+              })
+              .catch(() => {});
+          // need to explicitly check for false due so the types are correct
+          else if (updated && updated.success == false)
+            this.client.sentry.captureEvent({
+              level: Severity.Error,
+              message: "Failed to update premium special coupon",
+              user: {
+                id: newMember.id,
+                username: newMember.user.toString(),
+              },
+              tags: {
+                currentCouponType:
+                  newMember.settings.get<CouponType>("premium.coupon"),
+                newCouponType: newCoupon,
+                reason: updated.reason,
+              },
+            });
+        }
 
-        if (!deleted)
+        if (!newCoupon && deleted && deleted.success == false)
           this.client.sentry.captureEvent({
             level: Severity.Error,
             message: "Failed to delete premium special coupon",
@@ -62,6 +86,25 @@ export default class GuildMemberUpdate extends Listener {
             },
             tags: {
               couponType: newMember.settings.get<CouponType>("premium.coupon"),
+              reason: deleted.reason,
+            },
+          });
+        else if (
+          currentCoupon != newCoupon &&
+          updated &&
+          updated.success == false
+        )
+          this.client.sentry.captureEvent({
+            level: Severity.Error,
+            message: "Failed to update premium special coupon",
+            user: {
+              id: newMember.id,
+              username: newMember.user.toString(),
+            },
+            tags: {
+              currentCouponType:
+                newMember.settings.get<CouponType>("premium.coupon"),
+              newCouponType: newCoupon,
             },
           });
       }

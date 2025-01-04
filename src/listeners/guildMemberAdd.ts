@@ -147,7 +147,7 @@ export default class GuildMemberAdd extends Listener {
       }
     }
 
-    if (member.premium && member.guild.id == this.client.config.fireguildId)
+    if (member.premium && member.guild.id == this.client.config.fireGuildId)
       await member.roles.add("564060922688176139").catch(() => {});
 
     if (member.guild.memberCount >= 1000) {

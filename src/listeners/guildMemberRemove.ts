@@ -38,7 +38,7 @@ export default class GuildMemberRemove extends Listener {
       );
 
     if (
-      member.guild?.id == this.client.config.fireguildId &&
+      member.guild?.id == this.client.config.fireGuildId &&
       member.settings.has("premium.coupon")
     ) {
       const deleted = await this.client.util

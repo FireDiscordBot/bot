@@ -24,6 +24,7 @@ export type SettingsValueTypes =
   | SettingsValueTypesBase[];
 
 export enum CouponType {
+  MEMBER = "MEMBER",
   BOOSTER = "BOOSTER",
   TWITCHSUB = "TWITCHSUB",
   BOOSTER_AND_SUB = "TWITCHBOOST",

@@ -136,6 +136,26 @@ type SpecialCouponCreateResponse =
       success: true;
       code: string;
       expires: number;
+      amount: number;
+      products: string;
+    };
+
+type SpecialCouponDeleteResponse =
+  | { success: true }
+  | { success: false; reason: string };
+
+type SpecialCouponUpdateResponse =
+  | {
+      success: false;
+      reason: string;
+    }
+  | {
+      success: true;
+      code: string;
+      expires: number;
+      amount: number;
+      products: string;
+      reused?: true;
     };
 
 export class Util extends ClientUtil {
@@ -959,17 +979,18 @@ export class Util extends ClientUtil {
   }
 
   async createSpecialCoupon(
-    user: FireUser | FireMember,
-    code: CouponType
+    member: FireMember
   ): Promise<SpecialCouponCreateResponse> {
-    return new Promise((resolve, reject) => {
+    const code = this.getSpecialCouponEligibility(member);
+    if (!code) return { success: false, reason: "DISCOUNT_INELIGIBLE" };
+    return new Promise((resolve) => {
       const nonce = SnowflakeUtil.generate();
       this.client.manager.ws.handlers.set(nonce, resolve);
       this.client.manager.ws.send(
         MessageUtil.encode(
           new Message(
             EventType.SPECIAL_COUPON,
-            { action: "create", user: user.id, code },
+            { action: "create", user: member.id, code },
             nonce
           )
         )
@@ -979,22 +1000,77 @@ export class Util extends ClientUtil {
         // if still there, a response has not been received
         if (this.client.manager.ws.handlers.has(nonce)) {
           this.client.manager.ws.handlers.delete(nonce);
-          reject();
+          resolve({ success: false, reason: "COMMAND_ERROR_500" });
         }
       }, 30000);
     });
   }
 
-  async deleteSpecialCoupon(user: FireUser | FireMember) {
-    this.client.manager.ws.send(
-      MessageUtil.encode(
-        new Message(EventType.SPECIAL_COUPON, {
-          action: "remove",
-          user: user.id,
-        })
-      )
-    );
-    return await user.settings.delete("premium.coupon");
+  async deleteSpecialCoupon(
+    user: FireUser | FireMember
+  ): Promise<SpecialCouponDeleteResponse> {
+    return new Promise((resolve) => {
+      const nonce = SnowflakeUtil.generate();
+      this.client.manager.ws.handlers.set(nonce, resolve);
+      this.client.manager.ws.send(
+        MessageUtil.encode(
+          new Message(
+            EventType.SPECIAL_COUPON,
+            { action: "remove", user: user.id },
+            nonce
+          )
+        )
+      );
+
+      setTimeout(() => {
+        // if still there, a response has not been received
+        if (this.client.manager.ws.handlers.has(nonce)) {
+          this.client.manager.ws.handlers.delete(nonce);
+          resolve({ success: false, reason: "internal_server_error" });
+        }
+      }, 30000);
+    });
+  }
+
+  async updateSpecialCoupon(
+    member: FireMember
+  ): Promise<SpecialCouponUpdateResponse> {
+    const code = this.getSpecialCouponEligibility(member);
+    if (!code) return { success: false, reason: "DISCOUNT_INELIGIBLE" };
+    const current = member.settings.get<CouponType>("premium.coupon");
+    if (current == code)
+      return { success: false, reason: "DISCOUNT_UNCHANGED" };
+    return new Promise((resolve) => {
+      const nonce = SnowflakeUtil.generate();
+      this.client.manager.ws.handlers.set(nonce, resolve);
+      this.client.manager.ws.send(
+        MessageUtil.encode(
+          new Message(
+            EventType.SPECIAL_COUPON,
+            { action: "update", user: member.id, code },
+            nonce
+          )
+        )
+      );
+
+      setTimeout(() => {
+        // if still there, a response has not been received
+        if (this.client.manager.ws.handlers.has(nonce)) {
+          this.client.manager.ws.handlers.delete(nonce);
+          resolve({ success: false, reason: "internal_server_error" });
+        }
+      }, 30000);
+    });
+  }
+
+  getSpecialCouponEligibility(member: FireMember) {
+    if (member.guild?.id != this.client.config.fireGuildId) return null;
+    const roles = member.roles.cache;
+    if (roles.has("620512846232551427") && roles.has("745392985151111338"))
+      return CouponType.BOOSTER_AND_SUB;
+    else if (roles.has("620512846232551427")) return CouponType.BOOSTER;
+    else if (roles.has("745392985151111338")) return CouponType.TWITCHSUB;
+    else if (roles.has("564061443448766464")) return CouponType.MEMBER;
   }
 
   isValidPasteURL(url: PasteURL) {
