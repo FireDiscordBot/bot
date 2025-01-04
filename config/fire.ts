@@ -24,7 +24,7 @@ export const fire = {
     client.console.log("-------------------------");
   },
   aetherPingTimeout: 10000,
-  fireguildId: "564052798044504084" as Snowflake,
+  fireGuildId: "564052798044504084" as Snowflake,
   githubChannelId: "600070909365059584" as Snowflake,
   inviteLink: process.env.INVITE_SUFFIX
     ? `https://inv.wtf/${process.env.INVITE_SUFFIX}`

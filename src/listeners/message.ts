@@ -124,7 +124,7 @@ export default class Message extends Listener {
     if (!message.member || message.author.bot) return;
 
     if (
-      message.guildId == this.client.config.fireguildId &&
+      message.guildId == this.client.config.fireGuildId &&
       message.channelId == "1051050542572511274"
     )
       if (!message.member.roles.cache.has("1051050567159525407"))
