@@ -414,7 +414,8 @@ export class FireMessage extends Message {
       !this.content &&
       !this.embeds.length &&
       !this.attachments.size &&
-      !this.components.filter((c) => c instanceof MessageActionRow).length
+      !this.components.filter((c) => c instanceof MessageActionRow).length &&
+      !(await this.getSystemContent())
     )
       return "empty";
 
