@@ -541,6 +541,13 @@ export default class MCLogs extends Module {
           ],
         },
         {
+          loader: Loaders.FEATHER_FORGE,
+          regexes: [
+            /Found mod file forge- (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-client.jar of type MOD with provider net.minecraftforge/gim,
+            /Started Feather \((?<featherver>\w*)\)/gim,
+          ],
+        },
+        {
           loader: Loaders.FORGE,
           regexes: [
             /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) loading/gim,
@@ -593,6 +600,12 @@ export default class MCLogs extends Module {
           regexes: [
             /FML: MCP (?:\d{1,5}\.\d{1,5}) Powered by Forge (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
             /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+          ],
+        },
+        {
+          loader: Loaders.FORGE,
+          regexes: [
+            /Found mod file forge- (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-client.jar of type MOD with provider net.minecraftforge/gim,
           ],
         },
         {
