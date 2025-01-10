@@ -1504,16 +1504,20 @@ The lack of this is a sign that this message may have been sent automatically by
       return await triggerFilter("Fake gift link");
     else if (
       lowerContent.includes("steamgift50$") &&
-      (lowerContent.includes("[steam") ||
-        (lowerContent.includes("[http") && lowerContent.includes("steam"))) &&
-      lowerContent.includes("http")
+      ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
+        (lowerContent.includes("[http") && lowerContent.includes("steam")))
     )
       return await triggerFilter("Fake steam gift link");
     else if (
       lowerContent.includes("50$fromsteam") &&
-      (lowerContent.includes("[steam") ||
-        (lowerContent.includes("[http") && lowerContent.includes("steam"))) &&
-      lowerContent.includes("http")
+      ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
+        (lowerContent.includes("[http") && lowerContent.includes("steam")))
+    )
+      return await triggerFilter("Fake steam gift link");
+    else if (
+      lowerContent.includes("20$gift") &&
+      ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
+        (lowerContent.includes("[http") && lowerContent.includes("steam")))
     )
       return await triggerFilter("Fake steam gift link");
     else if (
