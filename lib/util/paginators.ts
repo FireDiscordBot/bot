@@ -60,6 +60,10 @@ export class Paginator {
     this.clear();
   }
 
+  get pageCount() {
+    return this._pages.length + (this.currentPage ? 1 : 0);
+  }
+
   clear(clearPages = true) {
     if (this.prefix) {
       this.currentPage = this.prefix;
