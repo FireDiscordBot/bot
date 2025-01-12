@@ -190,7 +190,7 @@ export class ApplicationCommandMessage {
         this.client,
         this.slashCommand.id,
         this.slashCommand.token,
-        this.slashCommand.guildId ? null : this.author.dmChannel
+        this.slashCommand.guildId ? undefined : this.author.dmChannel
       );
       return this;
     } else if (!this.channel)
