@@ -48,7 +48,7 @@ export default class CommandFinished extends Listener {
         point.fields.return = `ApplicationCommandMessage { guildId: '${
           ret.guildId
         }', channelId: '${ret.channelId}', id: '${
-          ret.sourceMessage?.id || ret.id
+          ret.latestResponse?.id || ret.id
         }' }`;
       else if (ret instanceof FireMember || ret instanceof FireUser)
         point.fields.return = `${ret.constructor.name} { id: '${ret.id}' }`;

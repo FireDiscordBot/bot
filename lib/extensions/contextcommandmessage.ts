@@ -50,12 +50,12 @@ export class ContextCommandMessage {
   attachments: Collection<string, MessageAttachment>;
   private snowflake: DeconstructedSnowflake;
   contextCommand: MessageContextMenuInteraction | UserContextMenuInteraction;
+  getLatestResponseLock: Semaphore;
   sent: false | "ack" | "message";
-  getRealMessageLock: Semaphore;
   type: MessageType = "DEFAULT";
-  sourceMessage: FireMessage;
+  latestResponseId: Snowflake;
+  latestResponse: FireMessage;
   mentions: MessageMentions;
-  latestResponse: Snowflake;
   private _flags: number;
   content: string = "";
   channel: FakeChannel;
@@ -77,7 +77,7 @@ export class ContextCommandMessage {
     this.client = client;
     this.id = command.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
-    this.getRealMessageLock = new Semaphore(1);
+    this.getLatestResponseLock = new Semaphore(1);
     this.contextCommand = command;
     this.guild = client.guilds.cache.get(command.guildId) as FireGuild;
     this.command = this.client.getContextCommand(command);
@@ -106,7 +106,7 @@ export class ContextCommandMessage {
     this.realChannel = this.client.channels.cache.get(
       this.contextCommand.channelId
     ) as FireTextChannel | NewsChannel | DMChannel;
-    this.latestResponse = "@original" as Snowflake;
+    this.latestResponseId = "@original" as Snowflake;
     this.sent = false;
     this.util = new CommandUtil(this.client.commandHandler, this);
     if (!this.guild) {
@@ -166,34 +166,34 @@ export class ContextCommandMessage {
   }
 
   get editedAt() {
-    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
-      return this.sourceMessage.editedAt;
+    if (this.latestResponse && this.latestResponse instanceof FireMessage)
+      return this.latestResponse.editedAt;
     return null;
   }
 
   get editedTimestamp() {
-    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
-      return this.sourceMessage.editedTimestamp;
+    if (this.latestResponse && this.latestResponse instanceof FireMessage)
+      return this.latestResponse.editedTimestamp;
     return 0;
   }
 
   get createdAt() {
-    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
-      return this.sourceMessage.createdAt;
+    if (this.latestResponse && this.latestResponse instanceof FireMessage)
+      return this.latestResponse.createdAt;
     return this.snowflake.date;
   }
 
   get createdTimestamp() {
-    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
-      return this.sourceMessage.createdTimestamp;
+    if (this.latestResponse && this.latestResponse instanceof FireMessage)
+      return this.latestResponse.createdTimestamp;
     return this.snowflake.timestamp;
   }
 
   get url() {
-    if (this.sourceMessage)
+    if (this.latestResponse)
       return `https://discord.com/channels/${
         this.guild ? this.guild.id : "@me"
-      }/${this.realChannel?.id || PLACEHOLDER_ID}/${this.sourceMessage.id}`;
+      }/${this.realChannel?.id || PLACEHOLDER_ID}/${this.latestResponse.id}`;
     else
       return `https://discord.com/channels/${
         this.guild ? this.guild.id : "@me"
@@ -279,13 +279,13 @@ export class ContextCommandMessage {
   }
 
   get hasThread() {
-    return this.sourceMessage?.hasThread ?? false;
+    return this.latestResponse?.hasThread ?? false;
   }
 
   get thread() {
     return this.realChannel instanceof NewsChannel ||
       this.realChannel instanceof FireTextChannel
-      ? this.realChannel.threads.cache.get(this.sourceMessage.id)
+      ? this.realChannel.threads.cache.get(this.latestResponse.id)
       : null;
   }
 
@@ -299,7 +299,7 @@ export class ContextCommandMessage {
   }
 
   get partial() {
-    return this.sourceMessage?.partial ?? true;
+    return this.latestResponse?.partial ?? true;
   }
 
   get pinnable() {
@@ -307,7 +307,7 @@ export class ContextCommandMessage {
   }
 
   get pinned() {
-    return this.sourceMessage?.pinned ?? false;
+    return this.latestResponse?.pinned ?? false;
   }
 
   get system() {
@@ -316,13 +316,13 @@ export class ContextCommandMessage {
 
   get reactions() {
     return (
-      this.sourceMessage?.reactions ??
+      this.latestResponse?.reactions ??
       new ReactionManager(this as unknown as FireMessage)
     );
   }
 
   get stickers() {
-    return this.sourceMessage?.stickers ?? new Collection();
+    return this.latestResponse?.stickers ?? new Collection();
   }
 
   get tts() {
@@ -338,7 +338,7 @@ export class ContextCommandMessage {
   }
 
   get embeds() {
-    return this.sourceMessage?.embeds ?? [];
+    return this.latestResponse?.embeds ?? [];
   }
 
   get nonce() {
@@ -395,12 +395,12 @@ export class ContextCommandMessage {
     args?: i18nOptions
   ): Promise<ContextCommandMessage | MessageReaction | void> {
     if (!key) {
-      if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage
+      if (this.latestResponse instanceof FireMessage)
+        return this.latestResponse
           .react(this.client.util.useEmoji("success"))
           .catch(() => {});
       else
-        return this.getRealMessage().then((message) => {
+        return this.getLatestResponse().then((message) => {
           if (!message || !(message instanceof FireMessage))
             return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
           message.react(this.client.util.useEmoji("success")).catch(() => {
@@ -423,12 +423,12 @@ export class ContextCommandMessage {
     args?: i18nOptions
   ): Promise<ContextCommandMessage | MessageReaction | void> {
     if (!key) {
-      if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage
+      if (this.latestResponse instanceof FireMessage)
+        return this.latestResponse
           .react(this.client.util.useEmoji("warning"))
           .catch(() => {});
       else
-        return this.getRealMessage().then((message) => {
+        return this.getLatestResponse().then((message) => {
           if (!message || !(message instanceof FireMessage))
             return this.warn("SLASH_COMMAND_HANDLE_FAIL");
           message.react(this.client.util.useEmoji("warning")).catch(() => {
@@ -451,12 +451,12 @@ export class ContextCommandMessage {
     args?: i18nOptions
   ): Promise<ContextCommandMessage | MessageReaction | void> {
     if (!key) {
-      if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage
+      if (this.latestResponse instanceof FireMessage)
+        return this.latestResponse
           .react(this.client.util.useEmoji("error"))
           .catch(() => {});
       else
-        return this.getRealMessage().then((message) => {
+        return this.getLatestResponse().then((message) => {
           if (!message || !(message instanceof FireMessage))
             return this.error("SLASH_COMMAND_HANDLE_FAIL");
           message.react(this.client.util.useEmoji("error")).catch(() => {
@@ -474,11 +474,11 @@ export class ContextCommandMessage {
     );
   }
 
-  async getRealMessage() {
-    await this.getRealMessageLock.acquire();
-    if (this.sourceMessage instanceof FireMessage) {
-      this.getRealMessageLock.release();
-      return this.sourceMessage;
+  async getLatestResponse() {
+    await this.getLatestResponseLock.acquire();
+    if (this.latestResponse instanceof FireMessage) {
+      this.getLatestResponseLock.release();
+      return this.latestResponse;
     }
 
     const message = (await this.client.req
@@ -486,9 +486,17 @@ export class ContextCommandMessage {
       .messages(this.latestResponse)
       .get()) as RawMessageData;
     if (message && message.id)
-      this.sourceMessage = new FireMessage(this.client, message);
-    this.getRealMessageLock.release();
-    return this.sourceMessage;
+      this.latestResponse = new FireMessage(this.client, message);
+    this.getLatestResponseLock.release();
+    return this.latestResponse;
+  }
+
+  async getResponse(messageId: Snowflake) {
+    const message = (await this.client.req
+      .webhooks(this.client.user.id, this.contextCommand.token)
+      .messages(messageId)
+      .get()) as RawMessageData;
+    if (message && message.id) return new FireMessage(this.client, message);
   }
 
   async edit(
@@ -514,7 +522,7 @@ export class ContextCommandMessage {
 
     await this.client.req
       .webhooks(this.client.user.id, this.contextCommand.token)
-      .messages(this.latestResponse)
+      .messages(this.latestResponseId)
       .patch({
         data,
         files,
@@ -532,7 +540,7 @@ export class ContextCommandMessage {
     if (this.deleted) return this;
     return await this.client.req
       .webhooks(this.client.user.id, this.contextCommand.token)
-      .messages(this.latestResponse)
+      .messages(this.latestResponseId)
       .delete()
       .then((m: ContextCommandMessage) => {
         if (options?.reason) m.deleteReason = options.reason;
@@ -542,11 +550,11 @@ export class ContextCommandMessage {
   }
 
   async react(emoji: EmojiIdentifierResolvable) {
-    await this.getRealMessage();
-    if (!this.sourceMessage || typeof this.sourceMessage.react != "function")
+    await this.getLatestResponse();
+    if (!this.latestResponse || typeof this.latestResponse.react != "function")
       return;
 
-    return await this.sourceMessage.react(emoji);
+    return await this.latestResponse.react(emoji);
   }
 
   hasExperiment(id: number, bucket: number | number[]) {
@@ -661,7 +669,7 @@ export class FakeChannel extends BaseFakeChannel {
       })
       .then((real) => {
         this.message.sent = "ack";
-        if (real) this.message.sourceMessage = real as FireMessage; // literally (real)
+        if (real) this.message.latestResponse = real as FireMessage; // literally (real)
       })
       .catch(() => (this.message.sent = "ack"));
     this.ackLock.release();
@@ -729,7 +737,10 @@ export class FakeChannel extends BaseFakeChannel {
         .then((original) => {
           this.message.sent = "message";
           if (original && original.id)
-            this.message.sourceMessage = new FireMessage(this.client, original);
+            this.message.latestResponse = new FireMessage(
+              this.client,
+              original
+            );
         });
     else
       await this.client.req
@@ -742,11 +753,11 @@ export class FakeChannel extends BaseFakeChannel {
         .then((message) => {
           this.message.sent = "message";
           if (message && message.id) {
-            this.message.sourceMessage = new FireMessage(this.client, message);
-            this.message.latestResponse = message.id;
+            this.message.latestResponse = new FireMessage(this.client, message);
+            this.message.latestResponseId = message.id;
           }
         });
-    this.message.getRealMessage().catch(() => {});
+    this.message.getLatestResponse().catch(() => {});
     return this.message;
   }
 }

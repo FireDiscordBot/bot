@@ -279,7 +279,7 @@ export default class InteractionListener extends Listener {
       else if (!message.customId.startsWith("ticket_close"))
         message.customId = message.customId.slice(1);
       this.client.emit("button", message);
-      if (!message.message) await message.getRealMessage().catch(() => {});
+      if (!message.message) await message.getLatestResponse().catch(() => {});
     } catch (error) {
       await this.error(button, error).catch(() => {
         button.reply(

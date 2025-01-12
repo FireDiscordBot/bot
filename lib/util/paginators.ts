@@ -19,7 +19,11 @@ import {
 } from "discord.js";
 import Semaphore from "semaphore-async-await";
 import { ComponentMessage } from "../extensions/componentmessage";
-import { FakeChannel as ContextFakeChannel } from "../extensions/contextcommandmessage";
+import {
+  ContextCommandMessage,
+  FakeChannel as ContextFakeChannel,
+  FakeChannel,
+} from "../extensions/contextcommandmessage";
 import { BaseFakeChannel } from "../interfaces/misc";
 
 export interface PaginatorEmojiSettings {
@@ -162,9 +166,8 @@ export class PaginatorInterface {
   timeout: number;
   deleteMessage: boolean;
 
-  slashMessage?: ApplicationCommandMessage;
-  #channel: TextBasedChannel;
-  #messageId: string;
+  interactionMessage?: ApplicationCommandMessage | ContextCommandMessage;
+  message?: FireMessage;
   _displayPage: number;
   maxPageSize: number;
 
@@ -221,7 +224,9 @@ export class PaginatorInterface {
       if (button.customId == "close") {
         this.closed = true;
         return (
-          this.deleteMessage && (await this.message.delete().catch(() => {}))
+          this.deleteMessage &&
+          this.message &&
+          (await this.message.delete().catch(() => {}))
         );
       } else if (button.customId == "start") this._displayPage = 0;
       else if (button.customId == "end") this._displayPage = this.pageCount;
@@ -275,15 +280,6 @@ export class PaginatorInterface {
     return this.pages[displayPage] + pageNum;
   }
 
-  get message() {
-    return this.#channel.messages.cache.get(this.#messageId) as FireMessage;
-  }
-
-  set message(message: FireMessage) {
-    this.#channel = message.channel;
-    this.#messageId = message.id;
-  }
-
   addLine(line = "", empty = false) {
     if (this.closed) return;
     const displayPage = this.displayPage;
@@ -330,14 +326,17 @@ export class PaginatorInterface {
           ? false
           : true
       ),
-    })) as FireMessage | ApplicationCommandMessage;
-    if (message instanceof ApplicationCommandMessage) {
-      this.slashMessage = message;
-      this.message = await message.getRealMessage();
+    })) as FireMessage | ApplicationCommandMessage | ContextCommandMessage;
+    if (
+      message instanceof ApplicationCommandMessage ||
+      message instanceof ContextCommandMessage
+    ) {
+      this.interactionMessage = message;
+      this.message = await message.getLatestResponse();
     } else this.message = message as FireMessage;
     if (!this.message) return;
     this.lastInteraction = +new Date();
-    this.bot.util.paginators.set(this.#messageId, this);
+    this.bot.util.paginators.set(this.message.id, this);
 
     if (!this.ready) this.ready = true;
 
@@ -396,8 +395,6 @@ export class PaginatorInterface {
     await this.updateLock.acquire();
 
     try {
-      if (!this.message) await this.bot.util.sleep(1000);
-
       const embeds = [];
       let content: string;
       const args = this.sendArgs;
@@ -412,12 +409,14 @@ export class PaginatorInterface {
         content,
         embeds,
         components: this.getButtons(
-          this.slashMessage && this.slashMessage.flags & 64 ? false : true
+          this.interactionMessage && this.interactionMessage.flags & 64
+            ? false
+            : true
         ),
       };
 
-      this.slashMessage
-        ? await this.slashMessage.edit(options)
+      this.interactionMessage
+        ? await this.interactionMessage.edit(options)
         : await this.message.edit(options);
     } catch {}
     this.updateLock.release();

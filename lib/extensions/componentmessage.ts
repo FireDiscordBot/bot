@@ -37,10 +37,10 @@ export class ComponentMessage {
   private snowflake: DeconstructedSnowflake;
   component: MessageComponentInteraction;
   sent: false | "ack" | "message";
-  getRealMessageLock: Semaphore;
-  sourceMessage: FireMessage;
+  getLatestResponseLock: Semaphore;
+  latestResponseId: Snowflake;
+  latestResponse: FireMessage;
   type: MessageComponentType;
-  latestResponse: Snowflake;
   ephemeralSource: boolean;
   private _flags: number;
   message: FireMessage;
@@ -58,7 +58,7 @@ export class ComponentMessage {
     this.client = client;
     this.id = component.id;
     this.snowflake = SnowflakeUtil.deconstruct(this.id);
-    this.getRealMessageLock = new Semaphore(1);
+    this.getLatestResponseLock = new Semaphore(1);
     this.customId = component.customId;
     this.type = component.componentType;
     this.values = [];
@@ -155,26 +155,26 @@ export class ComponentMessage {
   }
 
   get editedAt() {
-    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
-      return this.sourceMessage.editedAt;
+    if (this.latestResponse && this.latestResponse instanceof FireMessage)
+      return this.latestResponse.editedAt;
     return null;
   }
 
   get editedTimestamp() {
-    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
-      return this.sourceMessage.editedTimestamp;
+    if (this.latestResponse && this.latestResponse instanceof FireMessage)
+      return this.latestResponse.editedTimestamp;
     return 0;
   }
 
   get createdAt() {
-    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
-      return this.sourceMessage.createdAt;
+    if (this.latestResponse && this.latestResponse instanceof FireMessage)
+      return this.latestResponse.createdAt;
     return this.snowflake.date;
   }
 
   get createdTimestamp() {
-    if (this.sourceMessage && this.sourceMessage instanceof FireMessage)
-      return this.sourceMessage.createdTimestamp;
+    if (this.latestResponse && this.latestResponse instanceof FireMessage)
+      return this.latestResponse.createdTimestamp;
     return this.snowflake.timestamp;
   }
 
@@ -202,12 +202,12 @@ export class ComponentMessage {
     args?: i18nOptions
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
-      if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage
+      if (this.latestResponse instanceof FireMessage)
+        return this.latestResponse
           .react(this.client.util.useEmoji("success"))
           .catch(() => {});
       else
-        return this.getRealMessage().then((message) => {
+        return this.getLatestResponse().then((message) => {
           if (!message || !(message instanceof FireMessage))
             return this.success("SLASH_COMMAND_HANDLE_SUCCESS");
           message.react(this.client.util.useEmoji("success")).catch(() => {
@@ -230,12 +230,12 @@ export class ComponentMessage {
     args?: i18nOptions
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
-      if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage
+      if (this.latestResponse instanceof FireMessage)
+        return this.latestResponse
           .react(this.client.util.useEmoji("warning"))
           .catch(() => {});
       else
-        return this.getRealMessage().then((message) => {
+        return this.getLatestResponse().then((message) => {
           if (!message || !(message instanceof FireMessage))
             return this.warn("SLASH_COMMAND_HANDLE_FAIL");
           message.react(this.client.util.useEmoji("warning")).catch(() => {
@@ -258,12 +258,12 @@ export class ComponentMessage {
     args?: i18nOptions
   ): Promise<ComponentMessage | MessageReaction | void> {
     if (!key) {
-      if (this.sourceMessage instanceof FireMessage)
-        return this.sourceMessage
+      if (this.latestResponse instanceof FireMessage)
+        return this.latestResponse
           .react(this.client.util.useEmoji("error"))
           .catch(() => {});
       else
-        return this.getRealMessage().then((message) => {
+        return this.getLatestResponse().then((message) => {
           if (!message || !(message instanceof FireMessage))
             return this.error("SLASH_COMMAND_HANDLE_FAIL");
           message.react(this.client.util.useEmoji("error")).catch(() => {
@@ -281,25 +281,33 @@ export class ComponentMessage {
     );
   }
 
-  async getRealMessage() {
-    await this.getRealMessageLock.acquire();
+  async getLatestResponse() {
+    await this.getLatestResponseLock.acquire();
     if (this.ephemeralSource || this.ephemeral) {
-      this.getRealMessageLock.release();
+      this.getLatestResponseLock.release();
       return;
     }
-    if (this.sourceMessage instanceof FireMessage) {
-      this.getRealMessageLock.release();
-      return this.sourceMessage;
+    if (this.latestResponse instanceof FireMessage) {
+      this.getLatestResponseLock.release();
+      return this.latestResponse;
     }
 
     const message = (await this.client.req
       .webhooks(this.client.user.id, this.component.token)
-      .messages(this.latestResponse)
+      .messages(this.latestResponseId)
       .get()) as RawMessageData;
     if (message && message.id)
-      this.sourceMessage = new FireMessage(this.client, message);
-    this.getRealMessageLock.release();
-    return this.sourceMessage;
+      this.latestResponse = new FireMessage(this.client, message);
+    this.getLatestResponseLock.release();
+    return this.latestResponse;
+  }
+
+  async getResponse(messageId: Snowflake) {
+    const message = (await this.client.req
+      .webhooks(this.client.user.id, this.component.token)
+      .messages(messageId)
+      .get()) as RawMessageData;
+    if (message && message.id) return new FireMessage(this.client, message);
   }
 
   async edit(
@@ -324,7 +332,7 @@ export class ComponentMessage {
 
     await this.client.req
       .webhooks(this.client.user.id, this.component.token)
-      .messages(this.latestResponse ?? "@original")
+      .messages(this.latestResponseId ?? "@original")
       .patch({
         data,
         files,
@@ -336,17 +344,17 @@ export class ComponentMessage {
     if (this.ephemeralSource) return;
     await this.client.req
       .webhooks(this.client.user.id, this.component.token)
-      .messages(id ?? this.latestResponse ?? "@original")
+      .messages(id ?? this.latestResponseId ?? "@original")
       .delete()
       .catch(() => {});
   }
 
   async react(emoji: EmojiIdentifierResolvable) {
-    await this.getRealMessage();
-    if (!this.sourceMessage || typeof this.sourceMessage.react != "function")
+    await this.getLatestResponse();
+    if (!this.latestResponse || typeof this.latestResponse.react != "function")
       return;
 
-    return await this.sourceMessage.react(emoji);
+    return await this.latestResponse.react(emoji);
   }
 
   hasExperiment(id: number, bucket: number | number[]) {
@@ -466,7 +474,7 @@ export class FakeChannel extends BaseFakeChannel {
       // @ts-ignore
       .then((real: FireMessage) => {
         this.message.sent = "ack";
-        if (real) this.message.sourceMessage = real; // literally (real)
+        if (real) this.message.latestResponse = real; // literally (real)
       })
       .catch(() => (this.message.sent = "ack"));
   }
@@ -523,7 +531,7 @@ export class FakeChannel extends BaseFakeChannel {
         })
         .then(() => {
           this.message.sent = "message";
-          this.message.latestResponse = "@original" as Snowflake;
+          this.message.latestResponseId = "@original" as Snowflake;
         });
     else
       await this.client.req
@@ -536,15 +544,15 @@ export class FakeChannel extends BaseFakeChannel {
         .then((message) => {
           this.message.sent = "message";
           if (message && message.id) {
-            this.message.sourceMessage = new FireMessage(this.client, message);
-            this.message.latestResponse =
-              this.message.latestResponse == "@original"
+            this.message.latestResponse = new FireMessage(this.client, message);
+            this.message.latestResponseId =
+              this.message.latestResponseId == "@original"
                 ? message.id
                 : "@original";
           }
         });
 
-    this.message.getRealMessage().catch(() => {});
+    this.message.getLatestResponse().catch(() => {});
     return this.message;
   }
 
@@ -592,9 +600,9 @@ export class FakeChannel extends BaseFakeChannel {
       })
       .then(() => {
         this.message.sent = "message";
-        this.message.latestResponse = "@original" as Snowflake;
+        this.message.latestResponseId = "@original" as Snowflake;
       });
-    this.message.getRealMessage().catch(() => {});
+    this.message.getLatestResponse().catch(() => {});
     return this.message;
   }
 }

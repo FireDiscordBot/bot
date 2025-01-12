@@ -74,7 +74,7 @@ export default class TicTacToe extends Command {
             .getSlashCommandMention(command.guild),
         });
 
-      const message = await command.getRealMessage();
+      const message = await command.getLatestResponse();
       if (message.flags.has("EPHEMERAL"))
         return await command.error("TICTACTOE_UNABLE_TO_PLAY_HERE");
     }
@@ -293,7 +293,7 @@ export default class TicTacToe extends Command {
     gameData.message =
       game?.id ??
       command.channel.messages.cache.find((m) => m.nonce == messageNonce)?.id ??
-      (accepted instanceof ComponentMessage ? accepted.sourceMessage?.id : "");
+      (accepted instanceof ComponentMessage ? accepted.latestResponse?.id : "");
     this.games.set(gameId, gameData);
   }
 
