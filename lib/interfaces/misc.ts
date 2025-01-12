@@ -18,7 +18,9 @@ import { FireTextChannel } from "../extensions/textchannel";
 export class BaseFakeChannel {
   get name(): string {
     return this.real && !(this.real instanceof DMChannel)
-      ? this.real?.name || ""
+      ? this.real.name || ""
+      : this.real instanceof DMChannel
+      ? this.real.recipient?.toString() || "fake"
       : "fake";
   }
   get topic() {
@@ -28,7 +30,7 @@ export class BaseFakeChannel {
     return this.real?.type ?? "GUILD_TEXT";
   }
   get guildId(): Snowflake {
-    return this.real?.type == "DM" ? null : this.real?.guildId;
+    return this.real?.type == "DM" ? undefined : this.real?.guildId;
   }
   get position() {
     return 0;

@@ -117,7 +117,7 @@ export class ContextCommandMessage {
         client,
         command.id,
         command.token,
-        command.guildId ? null : this.author.dmChannel
+        command.guildId ? undefined : this.author.dmChannel
       );
       return this;
     }

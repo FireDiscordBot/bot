@@ -200,6 +200,7 @@ export default class Quote extends Command {
 
     if (
       command.guild &&
+      command.channel.real &&
       command.guild.members.me
         .permissionsIn(command.channel.real as GuildChannelResolvable)
         .has(PermissionFlagsBits.ViewChannel)

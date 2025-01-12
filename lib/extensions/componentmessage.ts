@@ -102,7 +102,7 @@ export class ComponentMessage {
         client,
         component.id,
         component.token,
-        component.guildId ? null : this.author.dmChannel
+        component.guildId ? undefined : this.author.dmChannel
       );
       return this;
     }

@@ -90,7 +90,7 @@ export class ModalMessage {
         client,
         modal.id,
         modal.token,
-        modal.guildId ? null : this.author.dmChannel
+        modal.guildId ? undefined : this.author.dmChannel
       );
       return this;
     }
