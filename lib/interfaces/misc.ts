@@ -121,7 +121,7 @@ export class BaseFakeChannel {
     | ContextCommandMessage
     | ComponentMessage
     | ModalMessage;
-  real: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
+  real?: FireTextChannel | NewsChannel | ThreadChannel | DMChannel;
   interactionId: Snowflake;
   guild?: FireGuild;
   token: string;
