@@ -293,12 +293,28 @@ export default class RemindersCreate extends Command {
               video.liveStreamingDetails.scheduledStartTime
             );
             if (scheduledStartTime > now) {
-              const titleShort =
-                video.snippet.title.slice(0, 37) +
-                (video.snippet.title.length > 37 ? "..." : "");
-              const titleShorter =
-                video.snippet.title.slice(0, 24) +
-                (video.snippet.title.length > 24 ? "..." : "");
+              const blankShortLabel = command.language.get(
+                "REMINDER_YOUTUBE_PREMIERE",
+                {
+                  title: "",
+                }
+              );
+              const titleShort = this.client.util.shortenText(
+                video.snippet.title,
+                100 - blankShortLabel.length
+              );
+              const blankLongLabel = command.language.get(
+                // 5 mins loses 1 character but effort of special casing it
+                // so we use the 30 mins label since that'll also work for 15
+                "REMINDER_YOUTUBE_PREMIERE_30_MINS",
+                {
+                  title: "",
+                }
+              );
+              const titleShorter = this.client.util.shortenText(
+                video.snippet.title,
+                100 - blankLongLabel.length
+              );
               const ytOptions = [
                 {
                   label: command.language.get("REMINDER_YOUTUBE_PREMIERE", {
@@ -482,7 +498,7 @@ export default class RemindersCreate extends Command {
             includeSlashUpsell: true,
           }
         )
-      : await command.error("ERROR_CONTACT_SUPPORT", {
+      : await command.error("REMINDER_CREATION_FAILED", {
           includeSlashUpsell: true,
         });
   }

@@ -153,6 +153,18 @@ export class FireUser extends User {
       (timestamp < reference + 120_000 && !this.isSuperuser())
     )
       return false;
+
+    // we can only have one reminder per user per time
+    // so we need to check if the user already has a reminder at that time
+    const existing = await this.client.db
+      .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2;", [
+        this.id,
+        when,
+      ])
+      .first()
+      .catch(() => {});
+    if (existing && existing.get("uid") == this.id) return false;
+
     const reminder = await this.client.db
       .query(
         "INSERT INTO remind (uid, forwhen, reminder, link) VALUES ($1, $2, $3, $4);",
@@ -173,15 +185,14 @@ export class FireUser extends User {
     return true;
   }
 
-  async deleteReminder(timestamp: number, link: string) {
+  async deleteReminder(timestamp: number) {
     this.client.console.warn(
       `[Reminders] Deleting reminder for user ${this} with timestamp ${timestamp}`
     );
     const deleted = await this.client.db
-      .query("DELETE FROM remind WHERE uid=$1 AND forwhen=$2 AND link=$3;", [
+      .query("DELETE FROM remind WHERE uid=$1 AND forwhen=$2;", [
         this.id,
         new Date(timestamp),
-        link,
       ])
       .catch(() => false);
     if (typeof deleted == "boolean" && !deleted) return false;
@@ -190,7 +201,6 @@ export class FireUser extends User {
         new Message(EventType.REMINDER_DELETE, {
           user: this.id,
           timestamp,
-          link,
         })
       )
     );

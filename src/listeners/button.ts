@@ -41,6 +41,8 @@ import Essential from "../modules/essential";
 import Sk1er from "../modules/sk1er";
 import SparkUniverse from "../modules/sparkuniverse";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
+import RemindersList from "../commands/Utilities/listremind";
+import RemindersDelete from "../commands/Utilities/deleteremind";
 
 const { url, regexes } = constants;
 
@@ -202,7 +204,11 @@ export default class Button extends Listener {
     else if (button.customId.startsWith("quote_copy")) {
       button.flags = 64;
       return await button.error("QUOTE_COPIED_BUTTON");
-    }
+    } else if (button.customId == "reminders_delete_cancel")
+      return await button.channel.update({
+        content: button.language.get("REMINDERS_DELETE_NO"),
+        components: [],
+      });
 
     const message = button.message as FireMessage;
 
@@ -1427,6 +1433,118 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           })
         )
       );
+    }
+
+    if (button.customId.startsWith("reminders-list-page:")) {
+      const [, userId, page] = button.customId.split(":") as [
+        string,
+        Snowflake,
+        `${number}`
+      ];
+      if (button.author.id != userId) return;
+
+      const remindersList = this.client.getCommand(
+        "reminders-list"
+      ) as RemindersList;
+      const components = await remindersList.getReminderListComponents(
+        button,
+        +page
+      );
+      if (!components || !("dropdown" in components)) return;
+
+      const { dropdown, previousPageButton, nextPageButton } = components;
+      return await button.edit({
+        components: [
+          new MessageActionRow().addComponents([dropdown]),
+          previousPageButton && nextPageButton
+            ? new MessageActionRow().addComponents([
+                previousPageButton,
+                nextPageButton,
+              ])
+            : undefined,
+        ].filter((c) => !!c),
+      });
+    }
+
+    if (button.customId.startsWith("reminders-edit:")) {
+      const [, userId, timestamp] = button.customId.split(":") as [
+        string,
+        Snowflake,
+        `${number}`
+      ];
+      if (button.author.id != userId) return;
+
+      const date = new Date(+timestamp);
+      if (date <= new Date()) {
+        const dropdown = button.message.components[0]
+          .components[0] as MessageSelectMenu;
+        dropdown.options = dropdown.options.filter(
+          (option) => +option.value > +new Date()
+        );
+        dropdown.options.forEach((option) => (option.default = false));
+        await button.message.edit({
+          components: button.message.components,
+        });
+        return await button.error("REMINDERS_EDIT_PAST_DATE");
+      }
+
+      const reminder = await this.client.db
+        .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2", [
+          userId,
+          date,
+        ])
+        .first();
+      if (!reminder)
+        return await button.error("REMINDERS_EDIT_INVALID_SELECTION");
+
+      const text = reminder.get("reminder") as string;
+      return await button.component.showModal(
+        new Modal()
+          .setCustomId(button.customId)
+          .setTitle(button.language.get("REMINDERS_EDIT_TITLE"))
+          .addComponents(
+            new MessageActionRow<ModalActionRowComponent>().addComponents(
+              new TextInputComponent()
+                .setCustomId("reminder")
+                .setLabel(button.language.get("REMINDERS_EDIT_CONTENT_LABEL"))
+                .setValue(text)
+                .setMinLength(1)
+                .setStyle(TextInputStyles.PARAGRAPH)
+            ),
+            new MessageActionRow<ModalActionRowComponent>().addComponents(
+              new TextInputComponent()
+                .setCustomId("time")
+                .setLabel(button.language.get("REMINDERS_EDIT_TIME_LABEL"))
+                .setPlaceholder(
+                  button.language.get("REMINDERS_EDIT_TIME_PLACEHOLDER")
+                )
+                .setStyle(TextInputStyles.SHORT)
+            )
+          )
+      );
+    }
+
+    if (button.customId.startsWith("reminders-delete:")) {
+      const [, userId, timestamp] = button.customId.split(":") as [
+        string,
+        Snowflake,
+        `${number}`
+      ];
+      if (button.author.id != userId) return;
+
+      // all reminder related responses are ephemeral
+      // sp we update the flags here so the responses
+      // from RemindersDelete#actuallyRun are also ephemeral
+      button.flags = 64;
+
+      const remindersDelete = this.client.getCommand(
+        "reminders-delete"
+      ) as RemindersDelete;
+      // we unfortunately don't have the ability to update the components
+      // to remove the deleted reminder when we do it this way
+      // but that'd also require updating the embed if it was selected
+      // which I cba to do anyways so this is good enough
+      return await remindersDelete.actuallyRun(button, { reminder: timestamp });
     }
 
     if (

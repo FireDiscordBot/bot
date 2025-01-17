@@ -6,7 +6,14 @@ import { Listener } from "@fire/lib/util/listener";
 import * as centra from "centra";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { Channel, MessageEmbed, ThreadChannel } from "discord.js";
+import {
+  Channel,
+  Formatters,
+  MessageEmbed,
+  MessageSelectMenu,
+  ThreadChannel,
+} from "discord.js";
+import { parseWithUserTimezone } from "../arguments/time";
 
 export default class Modal extends Listener {
   constructor() {
@@ -102,6 +109,122 @@ export default class Modal extends Listener {
       }
 
       return await modal.success("TAG_EDIT_SUCCESS");
+    }
+
+    if (modal.customId.startsWith("reminders-edit:")) {
+      await modal.channel.ack();
+      modal.flags = 64; // make messages ephemeral
+
+      const [, userId, timestamp] = modal.customId.split(":") as [
+        string,
+        Snowflake,
+        `${number}`
+      ];
+      if (userId != modal.author.id) return;
+
+      const date = new Date(+timestamp);
+      if (date <= new Date())
+        return await modal.error("REMINDERS_EDIT_PAST_DATE");
+
+      const reminderResult = await this.client.db
+        .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2", [
+          userId,
+          date,
+        ])
+        .first();
+      if (!reminderResult)
+        return await modal.error("REMINDERS_EDIT_INVALID_SELECTION");
+
+      const reminder = {
+        text: reminderResult.get("reminder") as string,
+        link: reminderResult.get("link") as string,
+        date,
+      };
+      const modalValues = {
+        text:
+          modal.interaction.fields.getTextInputValue("reminder") ||
+          reminder.text,
+        time: modal.interaction.fields.getTextInputValue("time")
+          ? parseWithUserTimezone(
+              modal.interaction.fields.getTextInputValue("time"),
+              modal.createdAt,
+              modal.author.settings.get<string>(
+                "reminders.timezone.iana",
+                "Etc/UTC"
+              )
+            ).parsed[0]?.start.date() ?? reminder.date
+          : reminder.date,
+      };
+
+      const isContentChanged = modalValues.text.trim() != reminder.text.trim();
+      const isTimeChanged = modalValues.time != reminder.date;
+
+      if (!isContentChanged && !isTimeChanged)
+        return await modal.channel.send(
+          modal.language.get("REMINDERS_EDIT_NO_CHANGES")
+        );
+
+      let query: string,
+        values:
+          | [string, Date, Snowflake, Date]
+          | [string, Snowflake, Date]
+          | [Date, Snowflake, Date];
+      if (isContentChanged && isTimeChanged)
+        (query =
+          "UPDATE remind SET reminder=$1, forwhen=$2 WHERE uid=$3 AND forwhen=$4"),
+          (values = [modalValues.text, modalValues.time, userId, date]);
+      else if (isContentChanged)
+        (query = "UPDATE remind SET reminder=$1 WHERE uid=$2 AND forwhen=$3"),
+          (values = [modalValues.text, userId, date]);
+      else if (isTimeChanged)
+        (query = "UPDATE remind SET forwhen=$1 WHERE uid=$2 AND forwhen=$3"),
+          (values = [modalValues.time, userId, date]);
+
+      const updated = await this.client.db.query(query, values).catch(() => {});
+      if (!updated) return await modal.error("REMINDERS_EDIT_FAILED");
+      else if (updated.status.startsWith("UPDATE ")) {
+        // we need to update the components in the og message
+        // so they can be reused, rather than needing to run list again
+        const dropdown = modal.message.components[0]
+          .components[0] as MessageSelectMenu;
+        const buttonRow = modal.message.components[1];
+        for (const button of buttonRow.components)
+          button.setCustomId(
+            button.customId.replaceAll(
+              timestamp,
+              (+modalValues.time).toString()
+            )
+          );
+        dropdown.options.forEach((option) => {
+          if (option.value == timestamp) {
+            if (isContentChanged)
+              option.label = this.client.util.shortenText(
+                modalValues.text,
+                100
+              );
+            if (isTimeChanged) option.value = (+modalValues.time).toString();
+          }
+        });
+
+        // and we may as well update the embed too
+        const embed = modal.message.embeds[0];
+        if (isContentChanged) embed.setDescription(modalValues.text);
+        if (isTimeChanged) {
+          embed.fields[0].value = Formatters.time(modalValues.time, "R");
+          embed.setTimestamp(modalValues.time);
+        }
+        await modal.edit({
+          embeds: [embed],
+          components: modal.message.components,
+        });
+
+        return await modal.success("REMINDERS_EDIT_SUCCESS", {
+          time: Formatters.time(modalValues.time, "R"),
+          // 1850 chars should be enough to not clash with the rest of the content
+          // while remaining under the 2000 char limit
+          text: this.client.util.shortenText(modalValues.text, 1850),
+        });
+      }
     }
 
     if (modal.customId.startsWith("mclogscan:solution:")) {

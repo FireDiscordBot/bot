@@ -1020,8 +1020,8 @@ export class FireMember extends GuildMember {
     this.user.createReminder(when, reference, why, link);
   }
 
-  deleteReminder(timestamp: number, link: string) {
-    this.user.deleteReminder(timestamp, link);
+  deleteReminder(timestamp: number) {
+    this.user.deleteReminder(timestamp);
   }
 }
 

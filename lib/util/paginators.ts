@@ -363,12 +363,12 @@ export class PaginatorInterface {
         new MessageActionRow().addComponents(
           [
             new MessageButton()
-              .setEmoji("835140711606124574")
+              .setEmoji(this.bot.util.useEmoji("PAGINATOR_START"))
               .setDisabled(this.displayPage == 0)
               .setStyle("PRIMARY")
               .setCustomId("start"),
             new MessageButton()
-              .setEmoji("835140710982352907")
+              .setEmoji(this.bot.util.useEmoji("PAGINATOR_BACK"))
               .setDisabled(this.displayPage == 0)
               .setStyle("PRIMARY")
               .setCustomId("back"),
@@ -376,15 +376,15 @@ export class PaginatorInterface {
               ? new MessageButton()
                   .setStyle("DANGER")
                   .setCustomId("close")
-                  .setEmoji("835140711489863701")
+                  .setEmoji(this.bot.util.useEmoji("PAGINATOR_CLOSE"))
               : undefined,
             new MessageButton()
-              .setEmoji("835140711476494346")
+              .setEmoji(this.bot.util.useEmoji("PAGINATOR_FORWARD"))
               .setDisabled(this.displayPage == this.pageCount - 1)
               .setStyle("PRIMARY")
               .setCustomId("forward"),
             new MessageButton()
-              .setEmoji("835140711388676116")
+              .setEmoji(this.bot.util.useEmoji("PAGINATOR_END"))
               .setDisabled(this.displayPage == this.pageCount - 1)
               .setStyle("PRIMARY")
               .setCustomId("end"),
@@ -457,28 +457,28 @@ export class PaginatorEmbedInterface extends PaginatorInterface {
     super(bot, paginator, options);
     this.embed = options.embed;
     this.embeds = options.embeds ?? [];
-    this.footer = options.footer ?? { text: "" };
+    this.footer = options.footer ?? { text: "", iconURL: undefined };
   }
 
   get sendArgs() {
     const displayPage = this.displayPage;
     this.embed.setDescription(this.pages[displayPage].toString());
     if (this.footer.text)
-      this.footer.iconURL
-        ? this.embed.setFooter({
-            text: `Page ${displayPage + 1}/${this.pageCount} | ${
-              this.footer.text
-            }`,
-            iconURL: this.footer.iconURL,
-          })
-        : this.embed.setFooter({
-            text: `Page ${displayPage + 1}/${this.pageCount} | ${
-              this.footer.text
-            }`,
-          });
+      this.embed.setFooter({
+        text: this.owner.language.get("PAGINATOR_EMBED_FOOTER_EXTRA", {
+          current: displayPage + 1,
+          total: this.pageCount,
+          extra: this.footer.text,
+        }),
+        iconURL: this.footer.iconURL,
+      });
     else
       this.embed.setFooter({
-        text: `Page ${displayPage + 1}/${this.pageCount}`,
+        text: this.owner.language.get("PAGINATOR_EMBED_FOOTER", {
+          current: displayPage + 1,
+          total: this.pageCount,
+        }),
+        iconURL: this.footer.iconURL,
       });
     return this.embeds.length ? [this.embed, ...this.embeds] : this.embed;
   }

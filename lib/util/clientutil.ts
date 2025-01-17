@@ -220,6 +220,58 @@ export class Util extends ClientUtil {
     return Math.floor(Math.random() * max) + min;
   }
 
+  // may or may not be stolen
+  // you may or may not find this exact code at the link below
+  // https://www.builder.io/blog/relative-time
+  getRelativeTimeString(
+    date: Date | number,
+    lang: Language | Intl.Locale
+  ): string {
+    // Allow dates or times to be passed
+    const timeMs = typeof date === "number" ? date : date.getTime();
+
+    // Get the amount of seconds between the given date and now
+    const deltaSeconds = Math.round((timeMs - Date.now()) / 1000);
+
+    // Array reprsenting one minute, hour, day, week, month, etc in seconds
+    const cutoffs = [
+      60,
+      3600,
+      86400,
+      86400 * 7,
+      86400 * 30,
+      86400 * 365,
+      Infinity,
+    ];
+
+    // Array equivalent to the above but in the string representation of the units
+    const units: Intl.RelativeTimeFormatUnit[] = [
+      "second",
+      "minute",
+      "hour",
+      "day",
+      "week",
+      "month",
+      "year",
+    ];
+
+    // Grab the ideal cutoff unit
+    const unitIndex = cutoffs.findIndex(
+      (cutoff) => cutoff > Math.abs(deltaSeconds)
+    );
+
+    // Get the divisor to divide from the seconds. E.g. if our unit is "day" our divisor
+    // is one day in seconds, so we can divide our seconds by this to get the # of days
+    const divisor = unitIndex ? cutoffs[unitIndex - 1] : 1;
+
+    // Intl.RelativeTimeFormat do its magic
+    const rtf = new Intl.RelativeTimeFormat(
+      lang instanceof Language ? lang.id : lang,
+      { numeric: "auto" }
+    );
+    return rtf.format(Math.floor(deltaSeconds / divisor), units[unitIndex]);
+  }
+
   getShard(guild: string | FireGuild) {
     if (guild == "@me") return 0; // DMs are always on shard 0
     const id = guild instanceof FireGuild ? guild.id : guild;
@@ -570,6 +622,11 @@ export class Util extends ClientUtil {
     if (text.endsWith(sep)) text = text.slice(0, text.length - sep.length);
 
     return items.length > 0 ? `${text}${ending()}` : text;
+  }
+
+  shortenText(text: string, limit: number) {
+    if (text.length <= limit) return text;
+    return text.slice(0, limit - 3) + "...";
   }
 
   numberWithSuffix(num: number, toLocale: boolean = true) {

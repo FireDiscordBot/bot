@@ -364,7 +364,7 @@ export default class GuildMemberUpdate extends Listener {
       .setColor(
         target && target.displayColor
           ? target?.displayColor
-          : executor.displayColor ?? "#FFFFFF"
+          : executor.displayColor || "#FFFFFF"
       )
       .setFooter({ text: action.targetId })
       .addFields(
@@ -418,7 +418,7 @@ export default class GuildMemberUpdate extends Listener {
       .setColor(
         target && target.displayColor
           ? target?.displayColor
-          : executor.displayColor ?? "#FFFFFF"
+          : executor.displayColor || "#FFFFFF"
       )
       .addFields(
         [
@@ -483,7 +483,7 @@ export default class GuildMemberUpdate extends Listener {
       .setColor(
         target && target.displayColor
           ? target?.displayColor
-          : executor.displayColor ?? "#FFFFFF"
+          : executor.displayColor || "#FFFFFF"
       )
       .setFooter({ text: action.targetId })
       .addFields({

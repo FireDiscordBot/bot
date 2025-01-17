@@ -6,6 +6,7 @@ import { Snowflake } from "discord-api-types/globals";
 import {
   ApplicationCommandOptionChoiceData,
   CommandInteractionOption,
+  Formatters,
   MessageActionRow,
   MessageButton,
   SnowflakeUtil,
@@ -38,35 +39,47 @@ export default class RemindersDelete extends Command {
     interaction: ApplicationCommandMessage,
     focused: CommandInteractionOption
   ) {
+    const focusedValue = focused.value?.toString();
     const remindersResult = await this.client.db.query(
-      "SELECT * FROM remind WHERE uid=$1 LIMIT 25;",
-      [interaction.author.id]
+      focusedValue
+        ? "SELECT * FROM remind WHERE uid=$1 AND reminder ILIKE $2 ORDER BY forwhen LIMIT 25;"
+        : "SELECT * FROM remind WHERE uid=$1 ORDER BY forwhen LIMIT 25;",
+      focusedValue
+        ? [interaction.author.id, `%${focusedValue}%`]
+        : [interaction.author.id]
     );
     if (!remindersResult.rows.length) return [];
     const reminders: ApplicationCommandOptionChoiceData[] = [];
-    let timestamps = [];
     for await (const reminder of remindersResult) {
-      const ts = +(reminder.get("forwhen") as Date);
-      let reminderText = reminder.get("reminder") as string;
-      if (reminderText.length > 97)
-        reminderText = reminderText.substring(0, 97) + "...";
-      timestamps.push(ts);
+      const forWhen = reminder.get("forwhen") as Date;
+      const timestamp = +forWhen;
+      const relativeTime = this.client.util.getRelativeTimeString(
+        forWhen,
+        interaction.language
+      );
+      let text = this.client.util.shortenText(
+        reminder.get("reminder") as string,
+        100 - 3 - relativeTime.length
+      );
+      text += ` - ${relativeTime}`;
       reminders.push({
-        name: `${reminderText}`,
-        value: ts.toString(),
+        name: `${text}`,
+        value: timestamp.toString(),
       });
     }
-    timestamps = timestamps.sort().map((ts) => ts.toString());
-    return reminders
-      .sort((a, b) => timestamps.indexOf(a.value) - timestamps.indexOf(b.value))
-      .filter((reminder) =>
-        reminder.name
-          .toLowerCase()
-          .includes(focused.value?.toString().toLowerCase())
-      );
+    return reminders;
   }
 
+  // we can't change the type for the command arg to include ComponentMessage
+  // without errors so this dummy method is needed
   async run(command: ApplicationCommandMessage, args: { reminder?: string }) {
+    return await this.actuallyRun(command, args);
+  }
+
+  async actuallyRun(
+    command: ApplicationCommandMessage | ComponentMessage,
+    args: { reminder?: string }
+  ) {
     const timestamp = +args.reminder;
     if (!args.reminder)
       return await command.error("REMINDERS_DELETE_MISSING_ARG");
@@ -90,13 +103,21 @@ export default class RemindersDelete extends Command {
     const yesSnowflake = SnowflakeUtil.generate();
     this.client.buttonHandlersOnce.set(
       yesSnowflake,
-      this.yesButton(reminder.timestamp, reminder.link)
+      this.yesButton(reminder.timestamp)
     );
-    const noSnowflake = SnowflakeUtil.generate();
-    this.client.buttonHandlersOnce.set(noSnowflake, this.noButton);
+    const emptyConfirmMessage = command.language.get(
+      "REMINDERS_DELETE_CONFIRM",
+      {
+        text: "",
+        date: Formatters.time(reminder.date, "R"),
+      }
+    );
     return await command.send("REMINDERS_DELETE_CONFIRM", {
-      text: reminder.text,
-      date: reminder.date.toLocaleString(command.language.id),
+      text: this.client.util.shortenText(
+        reminder.text,
+        2000 - emptyConfirmMessage.length
+      ),
+      date: Formatters.time(reminder.date, "R"),
       components: [
         new MessageActionRow().addComponents([
           new MessageButton()
@@ -105,16 +126,16 @@ export default class RemindersDelete extends Command {
             .setLabel(command.language.get("REMINDERS_DELETE_DELETE_IT")),
           new MessageButton()
             .setStyle("DANGER")
-            .setCustomId(`!${noSnowflake}`)
+            .setCustomId("!reminders_delete_cancel")
             .setLabel(command.language.get("REMINDERS_DELETE_CANCEL")),
         ]),
       ],
     });
   }
 
-  private yesButton(timestamp: number, link: string) {
+  private yesButton(timestamp: number) {
     return async (button: ComponentMessage) => {
-      const deleted = await button.author.deleteReminder(timestamp, link);
+      const deleted = await button.author.deleteReminder(timestamp);
       return deleted
         ? await button.channel.update({
             content: button.language.getSuccess("REMINDERS_DELETE_YES"),
@@ -125,12 +146,5 @@ export default class RemindersDelete extends Command {
             components: [],
           });
     };
-  }
-
-  private async noButton(button: ComponentMessage) {
-    return await button.channel.update({
-      content: button.language.get("REMINDERS_DELETE_NO"),
-      components: [],
-    });
   }
 }

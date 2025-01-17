@@ -9,6 +9,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import {
   ActionLogTypes,
+  constants,
   MemberLogTypes,
   ModLogTypes,
   titleCase,
@@ -19,12 +20,15 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
+  DeconstructedSnowflake,
   Formatters,
   MessageActionRow,
   MessageButton,
+  MessageEmbed,
   MessageSelectMenu,
   Modal,
   ModalActionRowComponent,
+  SnowflakeUtil,
   TextInputComponent,
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
@@ -35,6 +39,8 @@ import LoggingConfig from "../commands/Configuration/logging-configure";
 import Google from "../commands/Fun/google";
 import LogScan from "../commands/Utilities/log-scan";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
+
+const { regexes } = constants;
 
 export default class Select extends Listener {
   constructor() {
@@ -533,6 +539,93 @@ export default class Select extends Listener {
         logs: select.values
           .map((v) => titleCase(v, v.includes("_") ? "_" : " "))
           .join(", "),
+      });
+    }
+
+    if (select.customId.startsWith("reminders-list:")) {
+      const [, userId] = select.customId.split(":");
+      if (select.author.id != userId) return;
+
+      const timestamp = +select.values[0];
+      if (isNaN(timestamp))
+        return await select.error("REMINDERS_LIST_SELECTED_INVALID");
+      const date = new Date(timestamp);
+
+      const reminderResult = await this.client.db
+        .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2", [
+          userId,
+          date,
+        ])
+        .first()
+        .catch(() => {});
+      if (!reminderResult)
+        return await select.error("REMINDERS_LIST_SELECTED_UNKNOWN");
+
+      const reminder = {
+        text: reminderResult.get("reminder") as string,
+        link: reminderResult.get("link") as string,
+        date,
+      };
+
+      const snowflake = regexes.discord.message.exec(reminder.link)?.groups
+        ?.message_id as Snowflake;
+      let deconstructed: DeconstructedSnowflake;
+      if (snowflake) deconstructed = SnowflakeUtil.deconstruct(snowflake);
+
+      const embed = new MessageEmbed()
+        .setColor(select.member?.displayColor || "#FFFFFF")
+        .setAuthor({
+          name: select.language.get("REMINDERS_LIST_SELECTED_AUTHOR_NAME", {
+            author: select.author.toString(),
+          }),
+          iconURL: select.author.displayAvatarURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          }),
+        })
+        .setDescription(reminder.text)
+        .setTimestamp(date)
+        .addFields([
+          {
+            name: select.language.get(
+              "REMINDERS_LIST_SELECTED_RELATIVE_TIME_FIELD_NAME"
+            ),
+            value: Formatters.time(date, "R"),
+          },
+          {
+            name: select.language.get(
+              "REMINDERS_LIST_SELECTED_CREATED_AT_FIELD_NAME"
+            ),
+            value: Formatters.time(deconstructed.date, "F"),
+          },
+        ]);
+
+      (
+        select.message.components[0].components[0] as MessageSelectMenu
+      ).options.forEach(
+        (option) => (option.default = option.value == timestamp.toString())
+      );
+
+      const editButton = new MessageButton()
+          .setCustomId(`!reminders-edit:${select.author.id}:${timestamp}`)
+          .setLabel(
+            select.language.get("REMINDERS_LIST_SELECTED_EDIT_BUTTON_LABEL")
+          )
+          .setStyle("PRIMARY"),
+        deleteButton = new MessageButton()
+          .setCustomId(`reminders-delete:${select.author.id}:${timestamp}`)
+          .setLabel(
+            select.language.get("REMINDERS_LIST_SELECTED_DELETE_BUTTON_LABEL")
+          )
+          .setStyle("DANGER");
+
+      return await select.edit({
+        embeds: [embed],
+        components: [
+          select.message.components[0],
+          new MessageActionRow().addComponents(editButton, deleteButton),
+        ],
       });
     }
   }
