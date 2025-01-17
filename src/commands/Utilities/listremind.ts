@@ -89,10 +89,13 @@ export default class RemindersList extends Command {
       [context.author.id, page * 10]
     );
     for await (const reminder of remindersResult) {
-      const forwhen = reminder.get("forwhen") as Date;
+      const forwhen = reminder.get("forwhen") as Date,
+        text = reminder.get("reminder") as string;
       dropdown.addOptions({
         label: this.client.util.shortenText(
-          reminder.get("reminder") as string,
+          text.includes("http")
+            ? this.client.util.stripMaskedLinks(text)
+            : text,
           100
         ),
         description: this.client.util.getRelativeTimeString(

@@ -243,15 +243,67 @@ export default class Select extends Listener {
     }
 
     if (select.customId.startsWith(`snooze:${select.author.id}:`)) {
-      const event = this.client.manager.eventHandler?.store?.get(
-        EventType.REMINDER_SEND
-      ) as ReminderSendEvent;
-      if (!event) return await select.error("REMINDER_SNOOZE_ERROR");
-      const currentRemind = event.sent.find((r) =>
-        select.customId.endsWith(`${r.user}:${r.timestamp}`)
-      );
-      if (!currentRemind || !currentRemind.link)
+      const isContext = select.customId.endsWith(":context");
+      const originalMessage = (await select.message
+        .fetchReference()
+        .catch(() => {})) as FireMessage;
+      if (
+        // these conditions should all be true for the reminder message
+        // so if any aren't, it's not usable
+        !originalMessage ||
+        !originalMessage.content ||
+        (isContext
+          ? false
+          : !originalMessage.components.length ||
+            originalMessage.author?.id != this.client.user.id)
+      )
         return await select.error("REMINDER_SNOOZE_UNKNOWN");
+
+      let hasYouTubeLink = false,
+        contextText: string;
+      if (isContext) {
+        // currently we only have a single case for useEmbedDescription
+        // in createremind.ts so we can just use that condition as the value
+        const useEmbedDescription =
+          originalMessage.embeds.length &&
+          originalMessage.content
+            .replaceAll("x.com", "twitter.com")
+            .includes(originalMessage.embeds[0].url) &&
+          originalMessage.embeds[0].description;
+
+        const hasYouTubeLink = regexes.youtube.video.exec(
+            originalMessage.content
+          ),
+          hasYouTubeEmbed = originalMessage.embeds.find((e) =>
+            e.url.includes(`/watch?v=${hasYouTubeLink?.groups?.video}`)
+          );
+        regexes.youtube.video.lastIndex = 0;
+
+        contextText = useEmbedDescription
+          ? originalMessage.embeds[0].description
+          : hasYouTubeLink
+          ? hasYouTubeEmbed
+            ? `[${hasYouTubeEmbed.title}](${hasYouTubeEmbed.url})`
+            : originalMessage.content
+          : originalMessage.content;
+      }
+
+      const currentRemind = {
+        text: isContext
+          ? contextText
+          : originalMessage.embeds.length
+          ? originalMessage.embeds[0].description
+          : originalMessage.content.split("\n\n").at(1) ?? undefined,
+        link: originalMessage.components.length
+          ? (originalMessage.components[0].components as MessageButton[]).find(
+              (button) => button.style == "LINK"
+            )?.url ?? originalMessage.url
+          : originalMessage.url,
+      };
+      // if we don't have the text, we can't snooze it so we return an error
+      if (!currentRemind.text)
+        return await select.error("REMINDER_SNOOZE_UNKNOWN");
+
       const hasSelectedOther = select.values.find((v) => v == "other");
       let specifyTimeModal: ModalMessage;
       if (hasSelectedOther) {
@@ -321,23 +373,46 @@ export default class Select extends Listener {
       const failed = Object.entries(created)
         .filter(([, success]) => !success)
         .map(([duration]) => duration);
-      return failed.length != select.values.length
-        ? await (specifyTimeModal
-            ? specifyTimeModal.channel.update.bind(specifyTimeModal.channel)
-            : select.channel.update.bind(select.channel))({
-            components: [],
+      if (failed.length != select.values.length) {
+        await originalMessage
+          .edit({
             content: select.author.language.getSuccess(
-              success.length == 1
-                ? "REMINDER_CREATED_SINGLE"
-                : "REMINDER_CREATED_MULTI",
-              {
-                time: success[0],
-                times: success.map((s) => "- " + s).join("\n"),
-                includeSlashUpsell: true,
-              }
+              "REMINDER_SNOOZE_SNOOZED",
+              { time: success[0] }
             ),
+            components: originalMessage.components
+              .filter((c) => c instanceof MessageActionRow)
+              .map((row) => {
+                row.components = row.components.map((component) =>
+                  component.setDisabled(
+                    component.type == "BUTTON"
+                      ? component.style != "LINK"
+                      : true
+                  )
+                );
+                return row;
+              }),
           })
-        : await (specifyTimeModal ?? select).error("ERROR_CONTACT_SUPPORT");
+          .catch(() => {});
+        await (specifyTimeModal
+          ? specifyTimeModal.channel.update.bind(specifyTimeModal.channel)
+          : select.channel.update.bind(select.channel))({
+          components: [],
+          content: select.author.language.getSuccess(
+            success.length == 1
+              ? "REMINDER_CREATED_SINGLE"
+              : "REMINDER_CREATED_MULTI",
+            {
+              time: success[0],
+              times: success.map((s) => "- " + s).join("\n"),
+              includeSlashUpsell: true,
+            }
+          ),
+        });
+      } else
+        return await (specifyTimeModal ?? select).error(
+          "ERROR_CONTACT_SUPPORT"
+        );
     }
 
     if (select.customId == "help_category") {
@@ -378,10 +453,12 @@ export default class Select extends Listener {
                 .map((command) =>
                   command.parent
                     ? command.slashOnly && !message.interaction && shouldUpsell
-                      ? `~~\`${command.id.replace("-", " ")}\`~~`
+                      ? Formatters.strikethrough(
+                          `\`${command.id.replace("-", " ")}\``
+                        )
                       : `\`${command.id.replace("-", " ")}\``
                     : command.slashOnly && !message.interaction && shouldUpsell
-                    ? `~~\`${command.id}\`~~`
+                    ? Formatters.strikethrough(`\`${command.id}\``)
                     : `\`${command.id}\``
                 )
                 .join(", "),
@@ -618,13 +695,23 @@ export default class Select extends Listener {
           .setLabel(
             select.language.get("REMINDERS_LIST_SELECTED_DELETE_BUTTON_LABEL")
           )
-          .setStyle("DANGER");
+          .setStyle("DANGER"),
+        linkButton = reminder.link
+          ? new MessageButton()
+              .setStyle("LINK")
+              .setURL(reminder.link)
+              .setLabel(select.language.get("REMINDER_LINK_BUTTON"))
+          : undefined;
 
       return await select.edit({
         embeds: [embed],
         components: [
           select.message.components[0],
-          new MessageActionRow().addComponents(editButton, deleteButton),
+          new MessageActionRow().addComponents(
+            editButton,
+            deleteButton,
+            linkButton
+          ),
         ],
       });
     }

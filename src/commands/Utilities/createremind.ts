@@ -4,9 +4,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { classicRemind, constants } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { ParsedTime, parseWithUserTimezone } from "@fire/src/arguments/time";
-import ReminderSendEvent from "@fire/src/ws/events/ReminderSendEvent";
 import { ParsedResult, strict } from "chrono-node";
 import * as dayjs from "dayjs";
 import {
@@ -14,7 +12,6 @@ import {
   MessageActionRow,
   MessageButton,
   MessageSelectMenu,
-  SnowflakeUtil,
 } from "discord.js";
 
 const { regexes } = constants;
@@ -131,6 +128,26 @@ export default class RemindersCreate extends Command {
         ],
       });
 
+    if (
+      command.author.settings.has("reminders.dms_closed_fail") &&
+      command.author.settings.get("reminders.dms_closed_fail") == true
+    ) {
+      // we delete the key so that the next invocation will work
+      await command.author.settings.delete("reminders.dms_closed_fail");
+      return await command.error("REMINDER_FAILURE_DM_CLOSED", {
+        components: [
+          new MessageActionRow().addComponents(
+            new MessageButton()
+              .setStyle("LINK")
+              .setLabel(command.language.get("ADD_USER_APP"))
+              .setURL(
+                `https://discord.com/oauth2/authorize?client_id=${this.client.user.id}&integration_type=1&scope=applications.commands`
+              )
+          ),
+        ],
+      });
+    }
+
     // handle context menu before actual command
     if (command instanceof ContextCommandMessage) {
       const clickedMessage = (
@@ -138,10 +155,7 @@ export default class RemindersCreate extends Command {
       ).getMessage() as FireMessage;
       if (!clickedMessage?.content)
         return await command.error("REMINDER_MISSING_CONTEXT");
-      const event = this.client.manager.eventHandler?.store?.get(
-        EventType.REMINDER_SEND
-      ) as ReminderSendEvent;
-      if (!event) return await command.error("ERROR_CONTACT_SUPPORT");
+
       const now = +new Date();
 
       // Parse with chrono-node early so we can get the content without the time
@@ -161,7 +175,7 @@ export default class RemindersCreate extends Command {
         !parsed.length &&
         clickedMessage.embeds.length &&
         clickedMessage.content
-          .replace("x.com", "twitter.com")
+          .replaceAll("x.com", "twitter.com")
           .includes(clickedMessage.embeds[0].url) &&
         clickedMessage.embeds[0].description
       )
@@ -190,57 +204,6 @@ export default class RemindersCreate extends Command {
           }
         )),
           (useEmbedDescription = true);
-      if (
-        !parsed.length &&
-        clickedMessage.embeds.length &&
-        clickedMessage.applicationId == "711035674723221574" &&
-        clickedMessage.embeds[0].timestamp > now &&
-        clickedMessage.embeds[0].fields[0]?.name == "Scheduled"
-      ) {
-        // i cba to make another variable for first field value so we'll just copy it to the description
-        clickedMessage.embeds[0].description =
-          clickedMessage.embeds[0].fields[0].value;
-        const timestamp = dayjs.tz(
-          clickedMessage.embeds[0].timestamp,
-          clickedMessage.author.settings.get<string>(
-            "reminders.timezone.iana",
-            command.author.settings.get<string>(
-              "reminders.timezone.iana",
-              "Etc/UTC"
-            )
-          )
-        );
-        // TODO: figure out if we can detect 12/24 hour time so we can only display one
-        const relativeTimeString = timestamp.calendar(
-          now,
-          constants.dayjsCalendarFormats
-        );
-        parsed = strict.parse(
-          relativeTimeString,
-          {
-            instant: clickedMessage.createdAt,
-            timezone: dayjs
-              .tz(
-                date,
-                clickedMessage.author.settings.get<string>(
-                  "reminders.timezone.iana",
-                  command.author.settings.get<string>(
-                    "reminders.timezone.iana",
-                    "Etc/UTC"
-                  )
-                )
-              )
-              .utcOffset(),
-          },
-          {
-            forwardDate: true,
-          }
-        );
-
-        // @ts-ignore
-        parsed[0].text = relativeTimeString;
-        useEmbedDescription = true;
-      }
       parsed = parsed
         // Remove timex in the past, based on command reaction (probably not too far off current time)
         .filter((res) => res.start.date() > command.createdAt)
@@ -257,12 +220,12 @@ export default class RemindersCreate extends Command {
       // reminderText = reminderText.replace(doubledUpWhitespace, " ").trim();
 
       // we push a dummy reminder that we use for "snoozing"
-      event.sent.push({
-        user: command.author.id,
-        text: reminderText,
-        link: clickedMessage.url,
-        timestamp: now,
-      });
+      // event.sent.push({
+      //   user: command.author.id,
+      //   text: reminderText,
+      //   link: clickedMessage.url,
+      //   timestamp: now,
+      // });
 
       let droptions = getContextOptions(parsed, command);
 
@@ -283,7 +246,7 @@ export default class RemindersCreate extends Command {
           // whether or not it is upcoming since we have the data anyways
           reminderText = clickedMessage.content.replace(
             ytVideos[0],
-            video.snippet.title
+            `[${video.snippet.title}](<https://youtu.be/${video.id}>)`
           );
           if (
             video.snippet?.liveBroadcastContent == "upcoming" &&
@@ -362,26 +325,18 @@ export default class RemindersCreate extends Command {
         .setPlaceholder(
           command.author.language.get("REMINDER_CONTEXT_PLACEHOLDER")
         )
-        .setCustomId(`!snooze:${command.author.id}:${now}`)
+        // context snooze bypasses component & author checks
+        // since those only apply to normal snoozing
+        .setCustomId(`!snooze:${command.author.id}:${now}:context`)
         .setMinValues(1)
         .addOptions(
           droptions.filter((o) => o.value == "other" || +o.value > now)
         );
       if (!parsed.length) dropdown.setMaxValues(1);
-      const cancelSnowflake = SnowflakeUtil.generate();
       const cancelButton = new MessageButton()
         .setEmoji("534174796938870792")
         .setStyle("DANGER")
-        .setCustomId(`!${cancelSnowflake}`);
-      this.client.buttonHandlersOnce.set(cancelSnowflake, (b) => {
-        event.sent = event.sent.filter(
-          (r) => r.timestamp != now && r.user != command.author.id
-        );
-        b.channel.update({
-          content: command.language.get("REMINDER_CONTEXT_CANCELLED"),
-          components: [],
-        });
-      });
+        .setCustomId("!reminders_context_cancel");
 
       return await command.channel.send({
         content: command.author.language.get(

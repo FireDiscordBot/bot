@@ -19,6 +19,7 @@ import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   CategoryChannel,
   EmbedFieldData,
+  Formatters,
   MessageActionRow,
   MessageButton,
   MessageComponentInteraction,
@@ -207,6 +208,11 @@ export default class Button extends Listener {
     } else if (button.customId == "reminders_delete_cancel")
       return await button.channel.update({
         content: button.language.get("REMINDERS_DELETE_NO"),
+        components: [],
+      });
+    else if (button.customId == "reminders_context_cancel")
+      return await button.channel.update({
+        content: button.language.get("REMINDER_CONTEXT_CANCELLED"),
         components: [],
       });
 
@@ -1275,16 +1281,6 @@ Please choose accurately as it will allow us to help you as quick as possible! â
     }
 
     if (button.customId.startsWith("snooze:")) {
-      const event = this.client.manager.eventHandler?.store?.get(
-        EventType.REMINDER_SEND
-      ) as ReminderSendEvent;
-      if (!event) return await button.error("REMINDER_SNOOZE_ERROR");
-      else if (
-        !event.sent.find((r) =>
-          button.customId.endsWith(`${r.user}:${r.timestamp}`)
-        )
-      )
-        return await button.error("REMINDER_SNOOZE_UNKNOWN");
       const dropdown = new MessageSelectMenu()
         .setPlaceholder(
           button.author.language.get("REMINDER_SNOOZE_PLACEHOLDER")
@@ -1303,25 +1299,25 @@ Please choose accurately as it will allow us to help you as quick as possible! â
             };
           })
         );
-      return await button.channel.update({
-        content: "\u200b",
+      return await button.channel.send({
         components: [new MessageActionRow().addComponents(dropdown)],
       });
     } else if (button.customId == "complete_reminder") {
       let content = (
         button.message.content || button.message.embeds[0].description
       ).split("\n");
-      content = content.map((line, index) => {
-        // Don't strikethrough the last line (which is the link to where the reminder was set)
-        if (index == content.length - 1) return line;
+      content = content.map((line) => {
         // suppress any embeds
         line = line.replace(regexes.basicURL, (url) => `<${url}>`);
-        if (line.length) return `~~${line}~~`;
+        if (line.length) return Formatters.strikethrough(line);
       });
       return await button.channel.update(
-        button.message.content
+        button.message.embeds.length
           ? {
-              content: content.join("\n"),
+              content: Formatters.strikethrough(button.message.content),
+              embeds: [
+                button.message.embeds[0].setDescription(content.join("\n")),
+              ],
               components: button.message.components
                 .filter((c) => c instanceof MessageActionRow)
                 .map((row) => {
@@ -1332,14 +1328,16 @@ Please choose accurately as it will allow us to help you as quick as possible! â
                 }),
             }
           : {
-              embeds: [
-                button.message.embeds[0].setDescription(content.join("\n")),
-              ],
+              content: content.join("\n"),
               components: button.message.components
                 .filter((c) => c instanceof MessageActionRow)
                 .map((row) => {
                   row.components = row.components.map((component) =>
-                    component.setDisabled(true)
+                    component.setDisabled(
+                      component.type == "BUTTON"
+                        ? component.style != "LINK"
+                        : true
+                    )
                   );
                   return row;
                 }),

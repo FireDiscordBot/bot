@@ -6,7 +6,7 @@ import { MessageUtil } from "./util/MessageUtil";
 import { EventType } from "./util/constants";
 
 export class Websocket extends Client {
-  handlers: Collection<string, (value: unknown) => void>;
+  handlers: Collection<string, (value: unknown, nonce: string) => void>;
   clientSideClose: boolean;
   heartbeatInterval: number;
   keepAlive: NodeJS.Timeout;
@@ -64,7 +64,7 @@ export class Websocket extends Client {
       this.seq = decoded.s;
 
       if (decoded.n && this.handlers.has(decoded.n)) {
-        this.handlers.get(decoded.n)(decoded.d);
+        this.handlers.get(decoded.n)(decoded.d, decoded.n);
         this.handlers.delete(decoded.n);
       }
 

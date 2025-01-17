@@ -171,7 +171,7 @@ export const constants = {
     sameElse: "DD/MM/YYYY [at] HH:mm (h:mm A)",
   },
   regexes: {
-    maskedLink: /\[(?<name>.+)\]\((?<link><?https?:\/\/.+>?)\)/gim,
+    maskedLink: /\[(?<name>[^\]]+)\]\((?<link><?https?:\/\/[^\)]+>?)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
     spoilerAbuse:
       /(?:\|\|?[\u180E\u2000-\u2009\u200A-\u200F\u202F\u2028\u2060\uFEFF]?){20,}/gim,

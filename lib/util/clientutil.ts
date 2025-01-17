@@ -41,10 +41,17 @@ import { Readable } from "stream";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ClusterStats } from "../interfaces/stats";
 import { Command } from "./command";
-import { CouponType, GuildTextChannel, titleCase } from "./constants";
+import {
+  CouponType,
+  GuildTextChannel,
+  titleCase,
+  constants,
+} from "./constants";
 import { Language, LanguageKeys } from "./language";
 import { PaginatorInterface } from "./paginators";
 import { UserSettings } from "./settings";
+
+const { regexes } = constants;
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -411,6 +418,10 @@ export class Util extends ClientUtil {
     uuid.slice(16, 20) +
     "-" +
     uuid.slice(20);
+
+  stripMaskedLinks(text: string) {
+    return text.replace(regexes.maskedLink, "$<name>");
+  }
 
   getUserStatuses(shard?: number) {
     try {
