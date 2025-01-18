@@ -340,7 +340,7 @@ export default class Select extends Listener {
           return await specifyTimeModal.error("REMINDER_SNOOZE_TIME_INVALID");
         const { parsed } = parseWithUserTimezone(
           input,
-          select.createdAt,
+          specifyTimeModal.createdAt,
           select.author.settings.get<string>(
             "reminders.timezone.iana",
             "Etc/UTC"
