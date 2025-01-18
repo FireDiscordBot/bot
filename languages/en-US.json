@@ -1461,7 +1461,7 @@
   "TICTACTOE_COMMAND_DESCRIPTION": "Play tic-tac-toe against server members",
   "TICTACTOE_ARGUMENT_OPPONENT_DESCRIPTION": "The user you wish to play against. It must not be a bot or yourself",
   "TICTACTOE_INCOGNITO": "You cannot play tic-tac-toe and stay incognito! Use {{command}} to disable incognito mode before trying again",
-  "TICTACTOE_UNABLE_TO_PLAY_HERE": "You cannot currently play here! This is likely due to slowmode forcing the command to be ephemeral",
+  "TICTACTOE_UNABLE_TO_PLAY_HERE": "You cannot currently play here! This is likely due to lack of permissions or slowmode forcing the command to be ephemeral (i.e. only you can see it)",
   "TICTACTOE_OPPONENT_REQUIRED": "You need to choose an opponent to play against and it cannot be yourself",
   "TICTACTOE_OPPONENT_BUSY": "Your opponent is currently in a fierce tic-tac-toe battle and cannot play with you. Please try again later...",
   "TICTACTOE_GAME_REQUEST": "{{opponent}}, {{challenger}} has challenged you to a game of tic-tac-toe, click the button below to accept. This request will expire {{timer}}",
