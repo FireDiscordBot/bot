@@ -26,6 +26,14 @@ enum REMINDER_FAILURE_CAUSES {
   DMS_CLOSED,
 }
 
+// Aether keeps track of the amount of times it tried to send a reminder
+// and whether or not it is currently trying to send it
+// so we create a new type specifically for use in this event
+type SendingReminder = Reminder & {
+  sending: true; // always true when we receive it
+  sendAttempts: number;
+};
+
 // This will always get sent to shard 0 so we can handle
 // interactions here too
 export default class ReminderSendEvent extends Event {
@@ -33,12 +41,16 @@ export default class ReminderSendEvent extends Event {
     super(manager, EventType.REMINDER_SEND);
   }
 
-  async run(data: Reminder, nonce: string) {
+  async run(data: SendingReminder, nonce: string) {
     const user = (await this.manager.client.users
       .fetch(data.user, { cache: false })
       .catch(() => {})) as FireUser;
     this.manager.client.console.log(
-      `[Aether] Got request to send reminder to ${user} (${data.user})`
+      `[Aether] Got request to ${
+        data.sendAttempts == 0 ? "send" : "retry"
+      } reminder to ${user} (${data.user})${
+        data.sendAttempts > 0 ? ` (attempt ${data.sendAttempts + 1})` : ""
+      }`
     );
     if (!user) return; // how?
 
