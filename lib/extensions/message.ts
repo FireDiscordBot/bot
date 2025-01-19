@@ -1509,13 +1509,13 @@ The lack of this is a sign that this message may have been sent automatically by
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("50$fromsteam") &&
+      lowerContent.includes("$fromsteam") &&
       ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
         (lowerContent.includes("[http") && lowerContent.includes("steam")))
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("20$gift") &&
+      lowerContent.includes("$gift") &&
       ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
         (lowerContent.includes("[http") && lowerContent.includes("steam")))
     )
@@ -1530,6 +1530,13 @@ The lack of this is a sign that this message may have been sent automatically by
       lowerContent.includes("steamwintergiveaway") &&
       ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
         (lowerContent.includes("[http") && lowerContent.includes("steam")))
+    )
+      return await triggerFilter("Fake steam gift link");
+    else if (
+      lowerContent.includes("$gift") &&
+      lowerContent.includes("http") &&
+      lowerContent.includes("ste") &&
+      lowerContent.includes("munity.com")
     )
       return await triggerFilter("Fake steam gift link");
     // else if (
