@@ -1539,6 +1539,17 @@ The lack of this is a sign that this message may have been sent automatically by
       lowerContent.includes("munity.com")
     )
       return await triggerFilter("Fake steam gift link");
+    else if (
+      lowerContent.includes("steamgift") &&
+      lowerContent.includes("$-steamcommunity.com")
+    )
+      // this isn't even phishing
+      // idk what the point is
+      // but it's spam & almost certainly a compromised account
+      // so we yeet 'em anyways so they can't try any actual phishing
+      return await triggerFilter(
+        "Real steam link that just redirects to the homepage for some reason ?????????"
+      );
     // else if (
     //   lowerContent.includes("test") &&
     //   lowerContent.includes("game") &&
