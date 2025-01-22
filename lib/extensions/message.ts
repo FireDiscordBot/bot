@@ -1535,8 +1535,7 @@ The lack of this is a sign that this message may have been sent automatically by
     else if (
       lowerContent.includes("$gift") &&
       lowerContent.includes("http") &&
-      lowerContent.includes("ste") &&
-      lowerContent.includes("munity.com")
+      lowerContent.includes("ste")
     )
       return await triggerFilter("Fake steam gift link");
     else if (
@@ -1551,6 +1550,12 @@ The lack of this is a sign that this message may have been sent automatically by
       lowerContent.includes("http") &&
       lowerContent.includes("steam") &&
       lowerContent.includes("ticket")
+    )
+      return await triggerFilter("Fake steam gift link");
+    else if (
+      lowerContent.includes("steamgivesapersonalgift-") &&
+      lowerContent.includes("http") &&
+      lowerContent.includes("steam")
     )
       return await triggerFilter("Fake steam gift link");
     else if (
