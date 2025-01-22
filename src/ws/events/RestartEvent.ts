@@ -70,6 +70,13 @@ export default class RestartEvent extends Event {
         )
       )
     );
+
+    let item: ReturnType<Manager["influxQueue"]["shift"]>;
+    if (this.manager.influxQueue.length) {
+      while ((item = this.manager.influxQueue.shift()))
+        this.manager.writeToInflux(item.points, item.options);
+    }
+
     return (this.manager.ready = true);
   }
 }

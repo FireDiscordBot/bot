@@ -60,7 +60,6 @@ import {
   ContextMenuInteraction,
   GuildFeatures,
   PresenceStatusData,
-  SnowflakeUtil,
   version as djsver,
 } from "discord.js";
 import * as fuzz from "fuzzball";
@@ -74,7 +73,6 @@ import { FireMember } from "./extensions/guildmember";
 import { FireMessage } from "./extensions/message";
 import { ModalMessage } from "./extensions/modalmessage";
 import { FireUser } from "./extensions/user";
-import { IPoint, IQueryOptions, IWriteOptions } from "./interfaces/aether";
 import { Experiment } from "./interfaces/experiments";
 import { RESTManager } from "./rest/RESTManager";
 import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
@@ -583,48 +581,6 @@ export class Fire extends AkairoClient {
         (alias.get("aliases") as string[]).map((a) => a.toLowerCase())
       );
     }
-  }
-
-  writeToInflux(points: IPoint[], options?: IWriteOptions) {
-    if (!this.manager.ws?.open) return;
-    this.manager.ws?.send(
-      MessageUtil.encode(
-        new Message(
-          EventType.WRITE_INFLUX_POINTS,
-          { points, options },
-          // nonce is used to allow returning errors, but we don't currently care about them
-          (+new Date()).toString()
-        )
-      )
-    );
-  }
-
-  queryInflux(query: string, options?: IQueryOptions) {
-    return new Promise<any[]>((resolve, reject) => {
-      const nonce = SnowflakeUtil.generate();
-      const handle = (
-        data:
-          | { success: true; results: any[] }
-          | { success: false; error: string }
-      ) => {
-        if (data.success == false) return reject(data.error);
-        else resolve(data.results);
-      };
-      this.manager.ws.handlers.set(nonce, handle);
-      this.manager.ws.send(
-        MessageUtil.encode(
-          new Message(EventType.INFLUX_QUERY, { query, options }, nonce)
-        )
-      );
-
-      setTimeout(() => {
-        // if still there, a response has not been received
-        if (this.manager.ws.handlers.has(nonce)) {
-          this.manager.ws.handlers.delete(nonce);
-          reject();
-        }
-      }, 30000);
-    });
   }
 
   setReadyPresence() {

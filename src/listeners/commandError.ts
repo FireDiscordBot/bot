@@ -85,7 +85,7 @@ export default class CommandError extends Listener {
       });
       if (eventId) point.fields.sentry = eventId;
     }
-    this.client.writeToInflux([point]);
+    this.client.manager.writeToInflux([point]);
 
     if (message.channel instanceof ThreadChannel) {
       const checks = await this.client.commandHandler

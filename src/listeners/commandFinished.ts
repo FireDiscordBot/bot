@@ -69,7 +69,7 @@ export default class CommandFinished extends Listener {
           depth: 0,
         });
     } catch {}
-    this.client.writeToInflux([point]);
+    this.client.manager.writeToInflux([point]);
 
     if (!(message instanceof ApplicationCommandMessage) && message.channel) {
       const chance = this.client.util.randInt(0, 100);

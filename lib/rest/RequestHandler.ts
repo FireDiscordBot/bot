@@ -427,7 +427,7 @@ export class RequestHandler {
       fields.remaining = this.remaining;
     if (typeof request.options?.reason == "string")
       fields.reason = request.options.reason;
-    this.manager.client.writeToInflux([
+    this.manager.client.manager.writeToInflux([
       {
         measurement: "requests",
         tags: {
@@ -442,7 +442,7 @@ export class RequestHandler {
 
   checkLatency(request: APIRequest, response?: centra.Response) {
     const latency = request.client.restPing;
-    this.manager.client.writeToInflux([
+    this.manager.client.manager.writeToInflux([
       {
         measurement: "restLatency",
         tags: {

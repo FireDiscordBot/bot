@@ -1,13 +1,24 @@
 import * as Sentry from "@sentry/node";
-import { version as djsver } from "discord.js";
+import { version as djsver, SnowflakeUtil } from "discord.js";
 import { Fire } from "./Fire";
-import { ManagerState } from "./interfaces/aether";
+import {
+  IPoint,
+  IQueryOptions,
+  IWriteOptions,
+  ManagerState,
+} from "./interfaces/aether";
 import { Command } from "./util/command";
 import { getCommitHash } from "./util/gitUtils";
 import { Module } from "./util/module";
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
 import { EventHandler } from "./ws/event/EventHandler";
+import { isDeepStrictEqual } from "util";
+import { MessageUtil } from "./ws/util/MessageUtil";
+import { Message } from "./ws/Message";
+import { EventType } from "./ws/util/constants";
+
+type InfluxPoints = { points: IPoint[]; options?: IWriteOptions }[];
 
 export class Manager {
   readonly REST_HOST = process.env.REST_HOST
@@ -31,6 +42,7 @@ export class Manager {
     appEmojis: [],
   };
   private _ready: boolean = false;
+  influxQueue: InfluxPoints = [];
   eventHandler: EventHandler;
   reconnector: Reconnector;
   killing: boolean = false;
@@ -55,9 +67,14 @@ export class Manager {
       this.reconnector = new Reconnector(this);
       this.eventHandler.store.init();
       this.ws = new Websocket(this);
-    } else this.id = 0; // default to shard 0
-
-    this.listen();
+    } else {
+      this.id = 0; // default to shard 0
+      this.client.options.shardCount = 1;
+      this.client.options.presence.shardId = this.client.options.shards = [
+        this.id,
+      ];
+      this.client.login();
+    }
   }
 
   get ua() {
@@ -102,27 +119,31 @@ export class Manager {
       this.reconnector.handleOpen();
     });
 
-    this.ws.once("close", (code: number, reason: string) => {
+    this.ws.once("close", (code: number, reason: Buffer | string) => {
       this.client.console.warn("[Sharder] WS closed");
+      // this will be sent when we next connect, assuming we don't restart before then
+      this.writeToInflux([
+        {
+          measurement: "cluster_ws_closures",
+          tags: { id: this.id?.toString() ?? "No ID", session: this.session },
+          fields: {
+            code,
+            reason: reason.toString(),
+            session: this.session,
+            lastPing: this.ws.lastPing?.toLocaleTimeString() ?? "Never",
+            clientSideClose: this.ws.clientSideClose.toString(),
+          },
+        },
+      ]);
       if (this.client.readyAt) this.client.setPartialOutageStatus();
       this.ws.subscribed = [];
-      this.reconnector.handleClose(code, reason);
+      this.reconnector.handleClose(code, reason.toString());
     });
 
     this.ws.once("error", (error: any) => {
       this.client.console.error("[Sharder] WS errored.");
       this.reconnector.handleError(error);
     });
-  }
-
-  listen() {
-    if (process.env.BOOT_SINGLE != "false") {
-      this.client.options.shardCount = 1;
-      this.client.options.presence.shardId = this.client.options.shards = [
-        this.id,
-      ];
-      return this.client.login();
-    }
   }
 
   launch(data: {
@@ -158,5 +179,55 @@ export class Manager {
     ]);
     this.client?.destroy();
     process.exit();
+  }
+
+  writeToInflux(points: IPoint[], options?: IWriteOptions) {
+    if (!this.ws?.open) {
+      const hasMatchingOptions = this.influxQueue.findIndex((queue) => {
+        return isDeepStrictEqual(queue.options, options);
+      });
+      if (hasMatchingOptions != -1)
+        return this.influxQueue[hasMatchingOptions].points.push(...points);
+      else return this.influxQueue.push({ points, options });
+    }
+    this.ws?.send(
+      MessageUtil.encode(
+        new Message(
+          EventType.WRITE_INFLUX_POINTS,
+          { points, options },
+          // nonce is used to allow returning errors, but we don't currently care about them
+          (+new Date()).toString()
+        )
+      )
+    );
+  }
+
+  queryInflux(query: string, options?: IQueryOptions) {
+    return new Promise<any[]>((resolve, reject) => {
+      if (!this.ws?.open) return reject();
+      const nonce = SnowflakeUtil.generate();
+      const handle = (
+        data:
+          | { success: true; results: any[] }
+          | { success: false; error: string }
+      ) => {
+        if (data.success == false) return reject(data.error);
+        else resolve(data.results);
+      };
+      this.ws.handlers.set(nonce, handle);
+      this.ws.send(
+        MessageUtil.encode(
+          new Message(EventType.INFLUX_QUERY, { query, options }, nonce)
+        )
+      );
+
+      setTimeout(() => {
+        // if still there, a response has not been received
+        if (this.ws.handlers.has(nonce)) {
+          this.ws.handlers.delete(nonce);
+          reject();
+        }
+      }, 30000);
+    });
   }
 }

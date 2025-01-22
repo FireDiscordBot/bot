@@ -15,7 +15,7 @@ export default class CommandBlocked extends Listener {
   }
 
   async exec(message: FireMessage, command: Command, reason: string) {
-    this.client.writeToInflux([
+    this.client.manager.writeToInflux([
       {
         measurement: "commands",
         tags: {

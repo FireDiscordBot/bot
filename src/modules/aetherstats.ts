@@ -37,9 +37,8 @@ export default class AetherStats extends Module {
     );
   }
 
-  async writeEvents() {
-    if (!this.client.manager.ws?.open) return;
-    this.client.writeToInflux([
+  writeEvents() {
+    this.client.manager.writeToInflux([
       ...Object.entries(this.events)
         .map(([shard, events]) => {
           return Object.entries(events).map(([eventType, count]) => ({

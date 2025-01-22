@@ -34,6 +34,6 @@ export default class CommandStarted extends Listener {
         args: message.util?.parsed?.content ?? "Content not available",
       },
     };
-    this.client.writeToInflux([point]);
+    this.client.manager.writeToInflux([point]);
   }
 }

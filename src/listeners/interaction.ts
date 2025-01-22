@@ -73,7 +73,7 @@ export default class InteractionListener extends Listener {
         interaction.isAutocomplete();
       const useCustomId =
         interaction.isMessageComponent() || interaction.isModalSubmit();
-      this.client.writeToInflux([
+      this.client.manager.writeToInflux([
         {
           measurement: "commands",
           tags: {
@@ -135,7 +135,7 @@ export default class InteractionListener extends Listener {
       point.fields.context = interaction.targetType;
       point.fields.target_id = interaction.targetId;
     }
-    this.client.writeToInflux([point]);
+    this.client.manager.writeToInflux([point]);
     if (interaction.isCommand())
       return await this.handleApplicationCommand(
         interaction as CommandInteraction

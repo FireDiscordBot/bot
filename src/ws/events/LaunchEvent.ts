@@ -33,5 +33,11 @@ export default class LaunchEvent extends Event {
     this.manager.launch(
       data || { id: 0, session: "", shardCount: 1, shards: [0] }
     );
+
+    let item: ReturnType<Manager["influxQueue"]["shift"]>;
+    if (this.manager.influxQueue.length) {
+      while ((item = this.manager.influxQueue.shift()))
+        this.manager.writeToInflux(item.points, item.options);
+    }
   }
 }

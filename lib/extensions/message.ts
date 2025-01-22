@@ -1312,7 +1312,7 @@ export class FireMessage extends Message {
           "json",
           true
         );
-      this.client.writeToInflux([
+      this.client.manager.writeToInflux([
         {
           measurement: "phishing",
           tags: {
