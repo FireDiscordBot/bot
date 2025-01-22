@@ -3,6 +3,9 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { MinecraftLogInfo } from "@fire/lib/interfaces/mclogs";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
@@ -14,7 +17,6 @@ import {
   ThreadChannel,
 } from "discord.js";
 import { parseWithUserTimezone } from "../arguments/time";
-import { FireMessage } from "@fire/lib/extensions/message";
 
 export default class Modal extends Listener {
   constructor() {
@@ -220,6 +222,28 @@ export default class Modal extends Listener {
           embeds: [embed],
           components: modal.message.components,
         });
+
+        // We first send a delete with the original timestamp (or same if unchanged)
+        this.client.manager?.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.REMINDER_DELETE, {
+              user: userId,
+              timestamp,
+            })
+          )
+        );
+
+        // and then we send a create with the new data
+        this.client.manager?.ws.send(
+          MessageUtil.encode(
+            new Message(EventType.REMINDER_CREATE, {
+              user: userId,
+              text: modalValues.text,
+              link: reminder.link,
+              timestamp: +modalValues.time,
+            })
+          )
+        );
 
         return await modal.success("REMINDERS_EDIT_SUCCESS", {
           time: Formatters.time(modalValues.time, "R"),
