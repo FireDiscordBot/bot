@@ -14,6 +14,7 @@ import {
   ThreadChannel,
 } from "discord.js";
 import { parseWithUserTimezone } from "../arguments/time";
+import { FireMessage } from "@fire/lib/extensions/message";
 
 export default class Modal extends Listener {
   constructor() {
@@ -188,13 +189,15 @@ export default class Modal extends Listener {
         const dropdown = modal.message.components[0]
           .components[0] as MessageSelectMenu;
         const buttonRow = modal.message.components[1];
-        for (const button of buttonRow.components)
+        for (const button of buttonRow.components) {
+          if (!button.customId) continue;
           button.setCustomId(
             button.customId.replaceAll(
               timestamp,
               (+modalValues.time).toString()
             )
           );
+        }
         dropdown.options.forEach((option) => {
           if (option.value == timestamp) {
             if (isContentChanged)
