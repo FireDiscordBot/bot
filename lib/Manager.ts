@@ -131,7 +131,7 @@ export class Manager {
             reason: reason.toString(),
             session: this.session,
             lastPing: this.ws.lastPing?.toLocaleTimeString() ?? "Never",
-            clientSideClose: this.ws.clientSideClose.toString(),
+            clientSideClose: this.ws.clientSideClose?.toString() ?? "unknown",
           },
         },
       ]);
