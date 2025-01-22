@@ -228,7 +228,7 @@ export default class Modal extends Listener {
           MessageUtil.encode(
             new Message(EventType.REMINDER_DELETE, {
               user: userId,
-              timestamp,
+              timestamp: +timestamp,
             })
           )
         );
