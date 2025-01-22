@@ -36,7 +36,7 @@ export class Reconnector {
     if (this.state != WebsocketStates.CLOSED) {
       this.state = WebsocketStates.CLOSED;
       this.manager.client.console.warn(
-        `[Aether] Disconnected from Websocket (${
+        `[Aether] Disconnected from websocket (${
           this.manager.ws?.clientSideClose ? "client" : "server"
         }) with code ${code} and reason ${reason}.`
       );
@@ -48,7 +48,7 @@ export class Reconnector {
       delete this.manager.session;
       delete this.manager.seq;
       return this.activate(
-        process.env.NODE_ENV == "development" ? 15000 : 2500
+        process.env.NODE_ENV == "development" ? 10000 : 2500
       ); // takes longer to reboot in dev
     }
     if (code == 4000) {

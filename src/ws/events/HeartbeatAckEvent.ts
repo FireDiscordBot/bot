@@ -7,7 +7,8 @@ export default class HeartbeatAckEvent extends Event {
     super(manager, EventType.HEARTBEAT_ACK);
   }
 
-  async run(data: null, nonce: "HEARTBEAT_TASK") {
+  async run(_: null, __: "HEARTBEAT_TASK") {
     clearTimeout(this.manager.ws.keepAlive);
+    this.manager.ws.lastPing = new Date();
   }
 }

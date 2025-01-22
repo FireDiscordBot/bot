@@ -7,11 +7,13 @@ import { EventType } from "./util/constants";
 
 export class Websocket extends Client {
   handlers: Collection<string, (value: unknown, nonce: string) => void>;
-  clientSideClose: boolean;
-  heartbeatInterval: number;
+  heartbeatTask: NodeJS.Timeout;
   keepAlive: NodeJS.Timeout;
+  heartbeatInterval: number;
+  clientSideClose: boolean;
   subscribed: string[];
   manager: Manager;
+  lastPing: Date;
   seq: number;
 
   constructor(manager: Manager) {
@@ -81,39 +83,53 @@ export class Websocket extends Client {
     this.manager.client?.console?.log(
       `[Aether] Starting heartbeat with interval ${this.heartbeatInterval}ms`
     );
-    if (this.keepAlive) {
-      clearTimeout(this.keepAlive);
-      delete this.keepAlive;
-    }
+    if (this.keepAlive) clearTimeout(this.keepAlive);
+    if (this.heartbeatTask) clearInterval(this.heartbeatTask);
+    const firstHeartbeat = this.heartbeatInterval + 10000;
+    // we give some extra breathing room for the first heartbeat
     this.keepAlive = setTimeout(() => {
       this.close(4004, "Did not receive heartbeat ack");
-    }, this.heartbeatInterval + 10000);
+    }, firstHeartbeat);
     setTimeout(() => {
-      clearTimeout(this.keepAlive);
-      this.keepAlive = setTimeout(() => {
-        this.close(4004, "Did not receive heartbeat ack");
-      }, this.heartbeatInterval / 2);
-      this.send(
-        MessageUtil.encode(
-          new Message(EventType.HEARTBEAT, this.seq || null, "HEARTBEAT_TASK")
-        )
-      );
-      setInterval(() => {
+      // this will stay set as long as the connection does not close
+      if (this.keepAlive) {
+        // clear the initial heartbeat timeout
         clearTimeout(this.keepAlive);
-        this.keepAlive = setTimeout(() => {
-          this.close(4004, "Did not receive heartbeat ack");
-        }, this.heartbeatInterval / 2);
-        this.send(
-          MessageUtil.encode(
-            new Message(EventType.HEARTBEAT, this.seq || null, "HEARTBEAT_TASK")
-          )
-        );
-      }, this.heartbeatInterval);
-    }, this.heartbeatInterval * Math.random());
+
+        // set the interval for the rest of the heartbeats
+        this.heartbeatTask = setInterval(() => {
+          clearTimeout(this.keepAlive);
+          this.keepAlive = setTimeout(() => {
+            this.close(4004, "Did not receive heartbeat ack within interval");
+          }, this.heartbeatInterval);
+          this.send(
+            MessageUtil.encode(
+              new Message(
+                EventType.HEARTBEAT,
+                this.seq || null,
+                "HEARTBEAT_TASK"
+              )
+            )
+          );
+        }, this.heartbeatInterval);
+      }
+    });
   }
 
   close(code?: number, data?: string | Buffer) {
-    this.clientSideClose = true;
+    // Stop heartbeat keep alive timeout and task interval
+    clearTimeout(this.keepAlive), clearInterval(this.heartbeatTask);
+    delete this.keepAlive, delete this.heartbeatTask;
+
+    // This can be called multiple times per closure
+    // so we only want to set it based on the first call
+    // as it will be undefined at first
+    if (typeof this.clientSideClose == "undefined")
+      this.clientSideClose = !new Error().stack.includes(
+        "Receiver.receiverOnConclude"
+      );
+
+    // We can then run the normal close method
     super.close(code, data);
   }
 
