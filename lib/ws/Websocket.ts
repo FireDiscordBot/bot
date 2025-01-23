@@ -85,35 +85,17 @@ export class Websocket extends Client {
     );
     if (this.keepAlive) clearTimeout(this.keepAlive);
     if (this.heartbeatTask) clearInterval(this.heartbeatTask);
-    const firstHeartbeat = this.heartbeatInterval + 10000;
-    // we give some extra breathing room for the first heartbeat
-    this.keepAlive = setTimeout(() => {
-      this.close(4004, "Did not receive heartbeat ack");
-    }, firstHeartbeat);
-    setTimeout(() => {
-      // this will stay set as long as the connection does not close
-      if (this.keepAlive) {
-        // clear the initial heartbeat timeout
-        clearTimeout(this.keepAlive);
-
-        // set the interval for the rest of the heartbeats
-        this.heartbeatTask = setInterval(() => {
-          clearTimeout(this.keepAlive);
-          this.keepAlive = setTimeout(() => {
-            this.close(4004, "Did not receive heartbeat ack within interval");
-          }, this.heartbeatInterval);
-          this.send(
-            MessageUtil.encode(
-              new Message(
-                EventType.HEARTBEAT,
-                this.seq || null,
-                "HEARTBEAT_TASK"
-              )
-            )
-          );
-        }, this.heartbeatInterval);
-      }
-    });
+    this.heartbeatTask = setInterval(() => {
+      clearTimeout(this.keepAlive);
+      this.keepAlive = setTimeout(() => {
+        this.close(4004, "Did not receive heartbeat ack within interval");
+      }, this.heartbeatInterval);
+      this.send(
+        MessageUtil.encode(
+          new Message(EventType.HEARTBEAT, this.seq || null, "HEARTBEAT_TASK")
+        )
+      );
+    }, this.heartbeatInterval);
   }
 
   close(code?: number, data?: string | Buffer) {
