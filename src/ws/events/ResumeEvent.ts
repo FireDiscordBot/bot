@@ -1,4 +1,3 @@
-import { IPoint, IWriteOptions } from "@fire/lib/interfaces/aether";
 import { Manager } from "@fire/lib/Manager";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
