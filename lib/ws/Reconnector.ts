@@ -32,6 +32,7 @@ export class Reconnector {
 
   handleClose(code: number, reason: string) {
     clearTimeout(this.manager.ws?.keepAlive);
+    clearInterval(this.manager.ws?.heartbeatTask);
     this.manager.ready = false;
     if (this.state != WebsocketStates.CLOSED) {
       this.state = WebsocketStates.CLOSED;
