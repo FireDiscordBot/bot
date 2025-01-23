@@ -7,13 +7,15 @@ export default class ResumeEvent extends Event {
     super(manager, EventType.RESUME_CLIENT);
   }
 
-  async run(data: { replayed: number }) {
+  async run(data: { replayed: number; interval: number }) {
     this.manager.ready = true;
     this.manager.client.console.log(
       data.replayed
         ? `[Aether] Sucessfully resumed session ${this.manager.session} with ${data.replayed} replayed events.`
         : `[Aether] Sucessfully resumed session ${this.manager.session}.`
     );
+    this.manager.ws.heartbeatInterval = data.interval;
+    this.manager.ws.startHeartbeat();
 
     let item: ReturnType<Manager["influxQueue"]["shift"]>;
     if (this.manager.influxQueue.length) {
