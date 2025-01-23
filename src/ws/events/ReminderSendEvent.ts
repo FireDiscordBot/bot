@@ -66,22 +66,24 @@ export default class ReminderSendEvent extends Event {
     if (data.link?.includes(PLACEHOLDER_ID)) delete data.link;
 
     const components = [
-      new MessageActionRow().addComponents([
-        new MessageButton()
-          .setCustomId("!complete_reminder")
-          .setStyle("SUCCESS")
-          .setLabel(user.language.get("REMINDER_COMPLETE_BUTTON")),
-        new MessageButton()
-          .setCustomId(`!snooze:${user.id}:${data.timestamp}`)
-          .setStyle("SECONDARY")
-          .setLabel(user.language.get("REMINDER_SNOOZE_BUTTON")),
-        data.link
-          ? new MessageButton()
-              .setStyle("LINK")
-              .setURL(data.link)
-              .setLabel(user.language.get("REMINDER_LINK_BUTTON"))
-          : undefined,
-      ]),
+      new MessageActionRow().addComponents(
+        [
+          new MessageButton()
+            .setCustomId("!complete_reminder")
+            .setStyle("SUCCESS")
+            .setLabel(user.language.get("REMINDER_COMPLETE_BUTTON")),
+          new MessageButton()
+            .setCustomId(`!snooze:${user.id}:${data.timestamp}`)
+            .setStyle("SECONDARY")
+            .setLabel(user.language.get("REMINDER_SNOOZE_BUTTON")),
+          data.link
+            ? new MessageButton()
+                .setStyle("LINK")
+                .setURL(data.link)
+                .setLabel(user.language.get("REMINDER_LINK_BUTTON"))
+            : undefined,
+        ].filter((component) => !!component)
+      ),
     ];
 
     const emptyReminderContent = user.language.get(
