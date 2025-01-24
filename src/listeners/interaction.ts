@@ -24,6 +24,11 @@ import {
   ThreadChannel,
 } from "discord.js";
 
+const JSONStringifyBigint = (item: any) =>
+  JSON.stringify(item, (_, value) =>
+    typeof value === "bigint" ? `${value}n` : value
+  );
+
 const getShard = (interaction: Interaction) => {
   if (interaction.guild) return interaction.guild.shard;
   else if (interaction.guildId) {
@@ -121,7 +126,7 @@ export default class InteractionListener extends Listener {
     };
     if (interaction.isCommand()) {
       point.fields.command = interaction.commandName;
-      point.fields.args = JSON.stringify(interaction.options.data);
+      point.fields.args = JSONStringifyBigint(interaction.options.data);
     } else if (
       interaction.isMessageComponent() ||
       interaction.isModalSubmit()
@@ -215,9 +220,7 @@ export default class InteractionListener extends Listener {
         const sentry = this.client.sentry;
         sentry.captureException(error, {
           extra: {
-            slashCommand: JSON.stringify(command, (_, value) =>
-              typeof value === "bigint" ? `${value}n` : value
-            ),
+            slashCommand: JSONStringifyBigint(command),
             member: command.member
               ? command.member.toString()
               : command.user.toString(),
@@ -290,7 +293,7 @@ export default class InteractionListener extends Listener {
         const sentry = this.client.sentry;
         sentry.captureException(error, {
           extra: {
-            button: JSON.stringify(button),
+            button: JSONStringifyBigint(button),
             member: button.member
               ? button.member.toString()
               : button.user.toString(),
@@ -325,7 +328,7 @@ export default class InteractionListener extends Listener {
         const sentry = this.client.sentry;
         sentry.captureException(error, {
           extra: {
-            button: JSON.stringify(select),
+            button: JSONStringifyBigint(select),
             member: select.member
               ? select.member.toString()
               : select.user.toString(),
@@ -360,7 +363,7 @@ export default class InteractionListener extends Listener {
         const sentry = this.client.sentry;
         sentry.captureException(error, {
           extra: {
-            modal: JSON.stringify(modal),
+            modal: JSONStringifyBigint(modal),
             member: modal.member
               ? modal.member.toString()
               : modal.user.toString(),
@@ -407,7 +410,7 @@ export default class InteractionListener extends Listener {
         const sentry = this.client.sentry;
         sentry.captureException(error, {
           extra: {
-            // contextCommand: JSON.stringify(context),
+            contextCommand: JSONStringifyBigint(context),
             member: context.member
               ? context.member.toString()
               : context.user.toString(),
