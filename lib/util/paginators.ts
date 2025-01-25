@@ -355,7 +355,7 @@ export class PaginatorInterface {
           new MessageButton()
             .setStyle("DANGER")
             .setCustomId("close")
-            .setEmoji("835140711489863701")
+            .setEmoji(this.bot.util.useEmoji("PAGINATOR_STOP"))
         ),
       ];
     else
@@ -376,7 +376,7 @@ export class PaginatorInterface {
               ? new MessageButton()
                   .setStyle("DANGER")
                   .setCustomId("close")
-                  .setEmoji(this.bot.util.useEmoji("PAGINATOR_CLOSE"))
+                  .setEmoji(this.bot.util.useEmoji("PAGINATOR_STOP"))
               : undefined,
             new MessageButton()
               .setEmoji(this.bot.util.useEmoji("PAGINATOR_FORWARD"))
