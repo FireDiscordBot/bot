@@ -710,7 +710,7 @@ export default class User extends Command {
       })
       .setDescription(
         command.language.get("USER_SNOWFLAKE_DESCRIPTION", {
-          snowflakeEmoji: this.client.util.useEmoji("snowflake"),
+          snowflakeemoji: this.client.util.useEmoji("snowflake"),
         })
       )
       .addFields({
