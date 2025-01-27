@@ -1221,7 +1221,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
 
     const embed = new MessageEmbed()
       .setColor(target.color || "#2ECC71")
-      .setTimestamp(target.createdAt)
+      .setTimestamp(auditLogEntry.createdAt)
       .setAuthor({
         name: guild.language.get("ROLEUPDATELOG_AUTHOR", {
           guild: guild.name,
