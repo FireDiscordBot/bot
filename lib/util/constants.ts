@@ -49,6 +49,7 @@ export enum ActionLogTypes {
   REACTION_ROLE = 1 << 14,
   ROLE_CREATE = 1 << 15,
   ROLE_DELETE = 1 << 16,
+  ROLE_UPDATE = 1 << 17,
 }
 export const DEFAULT_ACTION_LOG_FLAGS = Object.values(ActionLogTypes)
   .filter((v) => typeof v == "number")

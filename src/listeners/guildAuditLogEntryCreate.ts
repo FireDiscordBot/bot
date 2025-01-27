@@ -1207,6 +1207,119 @@ export default class GuildAuditLogEntryCreate extends Listener {
     await guild.actionLog(embed, ActionLogTypes.ROLE_CREATE).catch(() => {});
   }
 
+  async ["ROLE_UPDATE"](
+    auditLogEntry: GuildAuditLogsEntry<"ROLE_UPDATE">,
+    guild: FireGuild
+  ) {
+    if (!guild.logger) guild.logger = new GuildLogManager(this.client, guild);
+    if (!guild.logger.isActionEnabled()) return;
+
+    const executor = (await guild.members.fetch(
+      auditLogEntry.executorId
+    )) as FireMember;
+    const target = guild.roles.cache.get(auditLogEntry.targetId);
+
+    const embed = new MessageEmbed()
+      .setColor(target.color || "#2ECC71")
+      .setTimestamp(target.createdAt)
+      .setAuthor({
+        name: guild.language.get("ROLEUPDATELOG_AUTHOR", {
+          guild: guild.name,
+        }),
+        iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
+      });
+
+    for (const change of auditLogEntry.changes) {
+      switch (change.key) {
+        case "name": {
+          embed.addFields({
+            name: guild.language.get("NAME"),
+            value: `${change.old} ➜ ${change.new}`,
+          });
+          break;
+        }
+        case "color": {
+          embed.addFields({
+            name: guild.language.get("COLOR"),
+            value: `#${(change.old ?? 0).toString(16).padStart(6, "0")} ➜ #${(
+              change.new ?? 0
+            )
+              .toString(16)
+              .padStart(6, "0")}`,
+          });
+          break;
+        }
+        case "hoist": {
+          embed.addFields({
+            name: guild.language.get("HOISTED"),
+            value: `${
+              change.old
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
+            } ➜ ${
+              change.new
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
+            }`,
+          });
+          break;
+        }
+        case "mentionable": {
+          embed.addFields({
+            name: guild.language.get("MENTIONABLE"),
+            value: `${
+              change.old
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
+            } ➜ ${
+              change.new
+                ? this.client.util.useEmoji("success")
+                : this.client.util.useEmoji("error")
+            }`,
+          });
+          break;
+        }
+        case "permissions": {
+          const oldPerms = new Permissions(BigInt(change.old as string));
+          const newPerms = new Permissions(BigInt(change.new as string));
+          const added = oldPerms.missing(newPerms),
+            removed = newPerms.missing(oldPerms);
+
+          if (added.length)
+            embed.addFields({
+              name: guild.language.get("ADDED_OVERWRITES"),
+              value: added
+                .map((p) =>
+                  this.client.util.cleanPermissionName(p, guild.language)
+                )
+                .join(", "),
+            });
+          if (removed.length)
+            embed.addFields({
+              name: guild.language.get("REMOVED_OVERWRITES"),
+              value: removed
+                .map((p) =>
+                  this.client.util.cleanPermissionName(p, guild.language)
+                )
+                .join(", "),
+            });
+          break;
+        }
+      }
+    }
+
+    embed.addFields({
+      name: guild.language.get("UPDATED_BY"),
+      value: `${executor} (${executor.id})`,
+    });
+    if (auditLogEntry.reason)
+      embed.addFields({
+        name: guild.language.get("REASON"),
+        value: auditLogEntry.reason,
+      });
+    await guild.actionLog(embed, ActionLogTypes.ROLE_UPDATE).catch(() => {});
+  }
+
   async ["ROLE_DELETE"](
     auditLogEntry: GuildAuditLogsEntry<"ROLE_DELETE">,
     guild: FireGuild
