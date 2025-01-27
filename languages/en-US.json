@@ -1252,7 +1252,7 @@
   "ROLEPERSIST_REMOVED": "{{member}} no longer has any roles persisted to them.",
   "ROLEPERSIST_FAILED": "I was unable to persist that role to that user",
   "ROLECREATELOG_AUTHOR": "Role Created | {{guild}}",
-  "ROLEUPDATELOG_AUTHOR": "Role Updated | {{guild}}",
+  "ROLEUPDATELOG_AUTHOR": "Role Updated | {{name}} | {{guild}}",
   "ROLEDELETELOG_AUTHOR": "Role Deleted | {{guild}}",
   "REASON_COMMAND_DESCRIPTION": "View or modify the reason of a moderation case log",
   "REASON_COMMAND_CASE_ARGUMENT_DESCRIPTION": "The case id you want to view or modify the reason of, found in /modlogs & /warnings",

@@ -1225,9 +1225,11 @@ export default class GuildAuditLogEntryCreate extends Listener {
       .setAuthor({
         name: guild.language.get("ROLEUPDATELOG_AUTHOR", {
           guild: guild.name,
+          name: target.name,
         }),
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
-      });
+      })
+      .setFooter({ text: auditLogEntry.targetId });
 
     for (const change of auditLogEntry.changes) {
       switch (change.key) {
