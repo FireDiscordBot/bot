@@ -519,8 +519,11 @@ export class GuildLogManager {
           .map((log) => log.content) as (MessageEmbed | MessageEmbedOptions)[],
       })
       .catch((e) => {
+        // 10015: Unknown Webhook
         if (e instanceof DiscordAPIError && e.code == 10015)
           data.webhook = null;
+        // 240000: Message blocked by harmful links filter (AutoMod)
+        else if (e instanceof DiscordAPIError && e.code == 240000) return;
         else this.client.sentry.captureException(e);
         data.queue.push(
           ...sending
