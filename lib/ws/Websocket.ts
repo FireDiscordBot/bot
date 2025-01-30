@@ -63,7 +63,7 @@ export class Websocket extends Client {
       const decoded = MessageUtil.decode(message.toString());
       if (!decoded) return;
 
-      this.seq = decoded.s;
+      if (typeof decoded.s == "number") this.seq = decoded.s;
 
       if (decoded.n && this.handlers.has(decoded.n)) {
         this.handlers.get(decoded.n)(decoded.d, decoded.n);
@@ -92,7 +92,7 @@ export class Websocket extends Client {
       }, this.heartbeatInterval);
       this.send(
         MessageUtil.encode(
-          new Message(EventType.HEARTBEAT, this.seq || null, "HEARTBEAT_TASK")
+          new Message(EventType.HEARTBEAT, this.seq ?? null, "HEARTBEAT_TASK")
         )
       );
     }, this.heartbeatInterval);
