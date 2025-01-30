@@ -141,8 +141,13 @@ export default class ReminderSendEvent extends Event {
           opcode: number = e instanceof DiscordAPIError ? e.code : 0;
         if (e instanceof DiscordAPIError && e.code == 50007)
           cause = REMINDER_FAILURE_CAUSES.DMS_CLOSED;
-        else if (e instanceof DiscordAPIError)
+        else if (e instanceof DiscordAPIError) {
           cause = REMINDER_FAILURE_CAUSES.DISCORD_API_ERROR_UNKNOWN;
+          if (e.code == 50001)
+            // sometimes discord.js has some random ass channel from nowhere cached as their dm
+            // so we'll delete it from the cache so hopefully it can succeed next time
+            this.manager.client.channels.cache.delete(user.dmChannel?.id);
+        }
 
         this.manager?.ws.send(
           MessageUtil.encode(
