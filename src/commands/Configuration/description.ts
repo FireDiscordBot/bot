@@ -35,9 +35,7 @@ export default class Description extends Command {
       "UPDATE vanity SET description=$2 WHERE gid=$1;",
       [guild.id, desc]
     );
-    await this.module
-      ?.requestFetch(`Guild ${guild.name} updated it's description`)
-      .catch(() => {});
+    this.module.requestFetch(guild.id);
   }
 
   async run(command: ApplicationCommandMessage, args: { desc: string }) {

@@ -3,10 +3,12 @@ import { VanityURL } from "@fire/lib/interfaces/invwtf";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { Language } from "@fire/lib/util/language";
 import { Module } from "@fire/lib/util/module";
+import { GuildSettings } from "@fire/lib/util/settings";
 import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import * as centra from "centra";
+import { Snowflake } from "discord-api-types/globals";
 import { Invite, MessageEmbed } from "discord.js";
 
 export default class VanityURLs extends Module {
@@ -18,42 +20,30 @@ export default class VanityURLs extends Module {
   }
 
   async init() {
-    if (process.env.NODE_ENV == "staging") return this.unload();
-
     this.blacklisted = [];
     const blacklistResult = await this.client.db.query(
       "SELECT * FROM vanitybl;"
     );
-    for await (const blacklist of blacklistResult) {
+    for await (const blacklist of blacklistResult)
       this.blacklisted.push(blacklist.get("gid") as string);
-    }
   }
 
-  async requestFetch(reason = "No Reason Provided") {
-    const fetchReq = await centra(
-      this.client.config.dev
-        ? "https://vanity-local.inv.wtf/fetch"
-        : "https://inv.wtf/fetch",
-      "PUT"
-    )
-      .header("User-Agent", this.client.manager.ua)
-      .header("Authorization", process.env.VANITY_KEY)
-      .body({ reason }, "json")
-      .send();
-    if (fetchReq.statusCode != 204)
-      this.client.console.warn(
-        `Failed to request Vanity URL Fetch with reason: "${reason}"`
-      );
+  requestFetch(guild: Snowflake) {
+    this.client.manager.ws?.send(
+      new Message(EventType.VANITY_REFRESH, {
+        guild,
+      })
+    );
   }
 
   async getVanity(code: string) {
     const vanityReq = await centra(
       this.client.config.dev
-        ? `https://vanity-local.inv.wtf/api/${code}`
+        ? `${this.client.manager.REST_HOST}/inv.wtf/api/${code}`
         : `https://inv.wtf/api/${code}`
     )
       .header("User-Agent", this.client.manager.ua)
-      .header("Authorization", process.env.VANITY_KEY)
+      .header("Authorization", process.env.WS_AUTH)
       .send();
     if (vanityReq.statusCode != 200) return false;
     const vanity = await vanityReq.json();
@@ -75,10 +65,7 @@ export default class VanityURLs extends Module {
         )
         .first()
         .catch(() => {});
-      if (created)
-        await this.requestFetch(
-          `Created vanity for guild ${guild.name} with code ${code}`
-        );
+      if (created) this.requestFetch(guild.id);
       return created;
     } else {
       const updated = await this.client.db
@@ -88,66 +75,85 @@ export default class VanityURLs extends Module {
         )
         .first()
         .catch(() => {});
-      if (updated)
-        await this.requestFetch(
-          `Updated vanity for guild ${guild.name} with code ${code}`
-        );
+      if (updated) this.requestFetch(guild.id);
       return updated;
     }
   }
 
-  async delete(code: FireGuild | string) {
-    const original = code;
-    if (code instanceof FireGuild) {
-      await code.settings.set<boolean>("utils.public", false, this.client.user);
+  async delete(source: FireGuild | string) {
+    if (source instanceof FireGuild) {
+      // You can't have public set to true without a vanity
+      // (though that does not necessarily mean you need a vanity to be public)
+      await source.settings.set<boolean>(
+        "utils.public",
+        false,
+        this.client.user
+      );
+      // We will however always remove the guild from discovery
       if (this.client.manager.ws?.open)
         this.client.manager.ws?.send(
           MessageUtil.encode(
             new Message(EventType.DISCOVERY_UPDATE, {
               op: DiscoveryUpdateOp.REMOVE,
-              guilds: [{ id: code.id }],
+              guilds: [{ id: source.id }],
             })
           )
         );
-      code = code.id;
-    }
-    const deleteResult = await this.client.db
-      .query(
-        "DELETE FROM vanity WHERE code=$1 OR code=$2 OR invite=$1 OR invite=$2 OR gid=$1 RETURNING *;",
-        [code, code.toLowerCase()]
-      )
-      .first()
-      .catch(() => {});
-    if (deleteResult) {
-      await this.requestFetch(`Deleted vanity ${deleteResult.get("code")}`);
-      const guild = this.client.guilds.cache.get(
-        deleteResult.get("gid") as `${bigint}`
-      );
-      if (
-        guild &&
-        guild instanceof FireGuild &&
-        guild.settings.get<boolean>("utils.public")
-      ) {
-        await guild.settings.set<boolean>(
-          "utils.public",
-          false,
-          this.client.user
-        );
-        if (this.client.manager.ws?.open)
-          this.client.manager.ws?.send(
-            MessageUtil.encode(
-              new Message(EventType.DISCOVERY_UPDATE, {
-                op: DiscoveryUpdateOp.REMOVE,
-                guilds: [{ id: guild.id }],
-              })
-            )
-          );
-      }
-      const invite = await this.client
-        .fetchInvite(deleteResult.get("invite") as string)
+
+      // and now we actually delete the guild's vanities
+      const deleted = await this.client.db
+        .query("DELETE FROM vanity WHERE gid=$1 RETURNING *;")
         .catch(() => {});
-      if (invite) await invite.delete().catch(() => {});
-      this.client.emit("vanityDelete", original, deleteResult);
+      if (deleted && deleted.status.startsWith("DELETE ")) {
+        this.requestFetch(source.id);
+        for await (const vanity of deleted)
+          await this.client
+            .fetchInvite(vanity.get("invite") as string)
+            // we only want to delete invites *we* created
+            .then((i) => i.inviterId == this.client.user.id && i.delete())
+            .catch(() => {});
+      }
+    } else {
+      // If we have a code, we delete first and ask questions later
+      const deleted = await this.client.db
+        .query(
+          "DELETE FROM vanity WHERE (code ILIKE $1 OR invite ILIKE $1) AND gid IS NOT NULL RETURNING *;",
+          [source]
+        )
+        .first()
+        .catch(() => {});
+      if (deleted && deleted.get("gid")) {
+        const guildId = deleted.get("gid") as Snowflake;
+        this.requestFetch(guildId);
+
+        // might not be a guild on this cluster so we need to use
+        // GuildSettings#retrieve instead of getting from cache
+        const settings = await GuildSettings.retrieve(
+          guildId,
+          this.client
+        ).catch(() => {});
+        if (settings && settings.get<boolean>("utils.public")) {
+          await settings.set<boolean>("utils.public", false, this.client.user);
+          if (this.client.manager.ws?.open)
+            this.client.manager.ws?.send(
+              MessageUtil.encode(
+                new Message(EventType.DISCOVERY_UPDATE, {
+                  op: DiscoveryUpdateOp.REMOVE,
+                  guilds: [{ id: guildId }],
+                })
+              )
+            );
+        }
+
+        // this should always be true but just in case
+        if (deleted.get("invite")) {
+          const invite = await this.client
+            .fetchInvite(deleted.get("invite") as string)
+            .catch(() => {});
+          if (invite && invite.inviterId == this.client.user.id)
+            await invite.delete().catch(() => {});
+        }
+      }
     }
   }
 

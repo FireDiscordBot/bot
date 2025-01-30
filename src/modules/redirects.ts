@@ -3,6 +3,8 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Redirect } from "@fire/lib/interfaces/invwtf";
 import { Language } from "@fire/lib/util/language";
 import { Module } from "@fire/lib/util/module";
+import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
 import * as centra from "centra";
 import { MessageEmbed } from "discord.js";
 
@@ -11,35 +13,22 @@ export default class Redirects extends Module {
     super("redirects");
   }
 
-  async init() {
-    if (process.env.NODE_ENV == "staging") return this.unload();
-  }
-
-  async requestFetch(reason = "No Reason Provided") {
-    const fetchReq = await centra(
-      this.client.config.dev
-        ? "https://vanity-local.inv.wtf/fetch"
-        : "https://inv.wtf/fetch",
-      "PUT"
-    )
-      .header("User-Agent", this.client.manager.ua)
-      .header("Authorization", process.env.VANITY_KEY)
-      .body({ reason }, "json")
-      .send();
-    if (fetchReq.statusCode != 204)
-      this.client.console.warn(
-        `Failed to request redirect fetch with reason: "${reason}"`
-      );
+  requestFetch(redirect: string) {
+    this.client.manager.ws?.send(
+      new Message(EventType.VANITY_REFRESH, {
+        redirect,
+      })
+    );
   }
 
   async getRedirect(code: string) {
     const redirectReq = await centra(
       this.client.config.dev
-        ? `https://vanity-local.inv.wtf/api/${code}`
+        ? `${this.client.manager.REST_HOST}/inv.wtf/api/${code}`
         : `https://inv.wtf/api/${code}`
     )
       .header("User-Agent", this.client.manager.ua)
-      .header("Authorization", process.env.VANITY_KEY)
+      .header("Authorization", process.env.WS_AUTH)
       .send();
     if (redirectReq.statusCode != 200) return false;
     const redirect = await redirectReq.json();
@@ -79,10 +68,7 @@ export default class Redirects extends Module {
         )
         .first()
         .catch(() => {});
-      if (created)
-        await this.requestFetch(
-          `Created redirect with code ${code} for ${url}`
-        );
+      if (created) this.requestFetch(code);
       return created;
     } else {
       const updated = await this.client.db
@@ -92,21 +78,20 @@ export default class Redirects extends Module {
         )
         .first()
         .catch(() => {});
-      if (updated)
-        await this.requestFetch(`Updated redirect with code ${code} to ${url}`);
+      if (updated) this.requestFetch(code);
       return updated;
     }
   }
 
   async delete(code: string, user: FireMember | FireUser) {
     const deleted = await this.client.db
-      .query(
-        "DELETE FROM vanity WHERE code=$1 OR code=$2 AND uid=$3 RETURNING *;",
-        [code, code.toLowerCase(), user.id]
-      )
+      .query("DELETE FROM vanity WHERE code ILIKE $1 AND uid=$2 RETURNING *;", [
+        code,
+        user.id,
+      ])
       .first()
       .catch(() => {});
-    if (deleted) await this.requestFetch(`Deleted redirect with code ${code}`);
+    if (deleted) this.requestFetch(code);
     return deleted;
   }
 
