@@ -22,7 +22,7 @@ export enum EventType {
   LOAD_MODULE, // send & receive
   BROADCAST_EVAL, // send & receive
   ADMIN_ACTION, // send only
-  UNUSED1 = 17,
+  VANITY_REFRESH, // send only
   BLACKLIST_SYNC, // send & receive
   RELOAD_EXPERIMENTS, // send & receive
   UPDATE_STATE, // receive only
