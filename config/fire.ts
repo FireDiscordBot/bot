@@ -2,8 +2,7 @@ import { Fire } from "@fire/lib/Fire";
 import { Snowflake } from "discord-api-types/globals";
 
 export const fire = {
-  dev:
-    process.env.NODE_ENV == "development" || process.env.NODE_ENV == "staging",
+  dev: process.env.NODE_ENV != "production",
   readyMessage: (client: Fire) => {
     client.console.log("-------------------------");
     client.console.log(`Bot: ${client.user}`);

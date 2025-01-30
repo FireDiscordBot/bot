@@ -505,9 +505,10 @@ export class Util extends ClientUtil {
       totalRam: humanFileSize(totalmem()),
       totalRamBytes: totalmem(),
       pid: process.pid,
-      version: this.client.config.dev
-        ? "dev"
-        : this.client.manager.commit.slice(0, 7),
+      version:
+        process.env.NODE_ENV == "development"
+          ? "dev"
+          : this.client.manager.commit.slice(0, 7),
       versions: `Discord.JS v${djsver} | Node.JS ${process.version}`,
       guilds: this.client.guilds.cache.filter((guild) => guild.available).size,
       unavailableGuilds: this.client.guilds.cache.filter(
