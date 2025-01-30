@@ -220,11 +220,14 @@ export class GuildSettings {
   static async retrieve(
     guild: Snowflake | FireGuild,
     client: Fire
-  ): Promise<boolean> {
+  ): Promise<GuildSettings | false> {
     if (!client.manager.ws?.open) throw new ConfigError("SERVICE_UNAVAILABLE");
 
     const id = guild instanceof FireGuild ? guild.id : guild;
-    if (client.manager.state.guildConfigs[id]) return true;
+    if (client.manager.state.guildConfigs[id])
+      return client.guilds.cache.has(id)
+        ? (client.guilds.cache.get(id) as FireGuild).settings
+        : new GuildSettings(client, id);
     return new Promise((resolve, reject) => {
       const nonce = SnowflakeUtil.generate();
       const timeout = setTimeout(() => {
@@ -238,7 +241,7 @@ export class GuildSettings {
           if (data.success) {
             if (Object.keys(data.data).length)
               client.manager.state.guildConfigs[id] = data.data;
-            resolve(true);
+            resolve(new GuildSettings(client, id));
           } else resolve(false);
         }
       );
