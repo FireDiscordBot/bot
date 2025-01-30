@@ -5,6 +5,7 @@ import { Language } from "@fire/lib/util/language";
 import { Module } from "@fire/lib/util/module";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
 import { MessageEmbed } from "discord.js";
 
@@ -15,9 +16,11 @@ export default class Redirects extends Module {
 
   requestFetch(redirect: string) {
     this.client.manager.ws?.send(
-      new Message(EventType.VANITY_REFRESH, {
-        redirect,
-      })
+      MessageUtil.encode(
+        new Message(EventType.VANITY_REFRESH, {
+          redirect,
+        })
+      )
     );
   }
 

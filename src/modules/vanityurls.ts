@@ -30,9 +30,11 @@ export default class VanityURLs extends Module {
 
   requestFetch(guild: Snowflake) {
     this.client.manager.ws?.send(
-      new Message(EventType.VANITY_REFRESH, {
-        guild,
-      })
+      MessageUtil.encode(
+        new Message(EventType.VANITY_REFRESH, {
+          guild,
+        })
+      )
     );
   }
 
