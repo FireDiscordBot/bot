@@ -186,7 +186,7 @@ export const constants = {
       "gim"
     ),
     URL: /https?:\/\/([^\/?#]*)([^?#]*)(\?([^#]*))?(#(.*))?/gim,
-    basicURL: /(https?:\/\/[^\s]+)/gim,
+    basicURL: /((?:<)?https?:\/\/[^\s\n]+(?:>)?)/gi,
     protocol: /\w{1,10}:\/\//gim,
     blockedUsername: /Username cannot contain "(\w*)"/gim,
     joinleavemsgs: {

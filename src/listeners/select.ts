@@ -39,8 +39,10 @@ import LoggingConfig from "../commands/Configuration/logging-configure";
 import Google from "../commands/Fun/google";
 import LogScan from "../commands/Utilities/log-scan";
 import ReminderSendEvent from "../ws/events/ReminderSendEvent";
+import RemindersCreate from "../commands/Utilities/createremind";
 
 const { regexes } = constants;
+const SET_AT_QUERY = "?setAt=";
 
 export default class Select extends Listener {
   constructor() {
@@ -244,9 +246,21 @@ export default class Select extends Listener {
 
     if (select.customId.startsWith(`snooze:${select.author.id}:`)) {
       const isContext = select.customId.endsWith(":context");
-      const originalMessage = (await select.message
-        .fetchReference()
-        .catch(() => {})) as FireMessage;
+      const createRemind = this.client.getCommand(
+        "reminders-create"
+      ) as RemindersCreate;
+
+      let originalMessage: FireMessage;
+      const referencedId = select.message.reference?.messageId;
+      if (createRemind.recentlyClicked.has(referencedId)) {
+        originalMessage =
+          createRemind.recentlyClicked.get(referencedId).message;
+        createRemind.recentlyClicked.delete(referencedId);
+      } else
+        originalMessage = (await select.message
+          .fetchReference()
+          .catch(() => {})) as FireMessage;
+
       if (
         // these conditions should all be true for the reminder message
         // so if any aren't, it's not usable
@@ -259,8 +273,7 @@ export default class Select extends Listener {
       )
         return await select.error("REMINDER_SNOOZE_UNKNOWN");
 
-      let hasYouTubeLink = false,
-        contextText: string;
+      let contextText: string;
       if (isContext) {
         // currently we only have a single case for useEmbedDescription
         // in createremind.ts so we can just use that condition as the value
@@ -272,20 +285,19 @@ export default class Select extends Listener {
           originalMessage.embeds[0].description;
 
         const hasYouTubeLink = regexes.youtube.video.exec(
-            originalMessage.content
-          ),
-          hasYouTubeEmbed = originalMessage.embeds.find((e) =>
-            e.url.includes(`/watch?v=${hasYouTubeLink?.groups?.video}`)
-          );
+          originalMessage.content
+        );
+        const hasYouTubeEmbed = originalMessage.embeds.find((e) =>
+          e.url.includes(`/watch?v=${hasYouTubeLink?.groups?.video}`)
+        );
         regexes.youtube.video.lastIndex = 0;
 
-        contextText = useEmbedDescription
-          ? originalMessage.embeds[0].description
-          : hasYouTubeLink
-          ? hasYouTubeEmbed
+        contextText =
+          hasYouTubeLink && hasYouTubeEmbed
             ? `[${hasYouTubeEmbed.title}](${hasYouTubeEmbed.url})`
-            : originalMessage.content
-          : originalMessage.content;
+            : useEmbedDescription
+            ? originalMessage.embeds[0].description
+            : originalMessage.content;
       }
 
       const currentRemind = {
@@ -297,12 +309,14 @@ export default class Select extends Listener {
         link: originalMessage.components.length
           ? (originalMessage.components[0].components as MessageButton[]).find(
               (button) => button.style == "LINK"
-            )?.url ?? originalMessage.url
-          : originalMessage.url,
+            )?.url ?? originalMessage.url + `?setAt=${+new Date()}`
+          : originalMessage.url + `?setAt=${+new Date()}`,
       };
       // if we don't have the text, we can't snooze it so we return an error
       if (!currentRemind.text)
         return await select.error("REMINDER_SNOOZE_UNKNOWN");
+      else if (currentRemind.text.length > 4000)
+        return await select.error("REMINDER_CONTENT_TOO_LONG");
 
       const hasSelectedOther = select.values.find((v) => v == "other");
       let specifyTimeModal: ModalMessage;
@@ -649,6 +663,13 @@ export default class Select extends Listener {
       let deconstructed: DeconstructedSnowflake;
       if (snowflake) deconstructed = SnowflakeUtil.deconstruct(snowflake);
 
+      let reminderSetAt: Date;
+      if (reminder.link.includes(SET_AT_QUERY)) {
+        const [link, setAt] = reminder.link.split(SET_AT_QUERY);
+        reminderSetAt = new Date(parseInt(setAt));
+        reminder.link = link;
+      } else if (deconstructed) reminderSetAt = deconstructed.date;
+
       const embed = new MessageEmbed()
         .setColor(select.member?.displayColor || "#FFFFFF")
         .setAuthor({
@@ -674,7 +695,7 @@ export default class Select extends Listener {
             name: select.language.get(
               "REMINDERS_LIST_SELECTED_CREATED_AT_FIELD_NAME"
             ),
-            value: Formatters.time(deconstructed.date, "F"),
+            value: Formatters.time(reminderSetAt, "F"),
           },
         ]);
 

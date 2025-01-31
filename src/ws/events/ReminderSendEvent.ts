@@ -19,6 +19,7 @@ import {
 
 const { regexes } = constants;
 const PLACEHOLDER_ID = "0".repeat(15);
+const SET_AT_QUERY = "?setAt=";
 
 enum REMINDER_FAILURE_CAUSES {
   UNKNOWN,
@@ -61,6 +62,13 @@ export default class ReminderSendEvent extends Event {
     let deconstructed: DeconstructedSnowflake;
     if (snowflake) deconstructed = SnowflakeUtil.deconstruct(snowflake);
 
+    let reminderSetAt: Date;
+    if (data.link.includes(SET_AT_QUERY)) {
+      const [link, setAt] = data.link.split(SET_AT_QUERY);
+      reminderSetAt = new Date(parseInt(setAt));
+      data.link = link;
+    } else if (deconstructed) reminderSetAt = deconstructed.date;
+
     // This placeholder is used for reminders set via the website
     // which can't link to a message, so we delete it after we got the time
     if (data.link?.includes(PLACEHOLDER_ID)) delete data.link;
@@ -91,9 +99,7 @@ export default class ReminderSendEvent extends Event {
         ? "REMINDER_MESSAGE_BODY_WITH_TIME_NO_TEXT"
         : "REMINDER_MESSAGE_BODY_NO_TIME_OR_TEXT",
       {
-        time: deconstructed
-          ? Formatters.time(deconstructed.date, "R")
-          : undefined,
+        time: reminderSetAt ? Formatters.time(reminderSetAt, "R") : undefined,
       }
     );
     const requiresEmbed =
@@ -101,7 +107,7 @@ export default class ReminderSendEvent extends Event {
       data.text.length >= 2000 - emptyReminderContent.length - 2;
 
     const reminderContent = user.language.get(
-      deconstructed && deconstructed.timestamp != 0
+      reminderSetAt && +reminderSetAt != 0
         ? requiresEmbed
           ? "REMINDER_MESSAGE_BODY_WITH_TIME_NO_TEXT"
           : "REMINDER_MESSAGE_BODY_WITH_TIME_AND_TEXT"
@@ -109,9 +115,7 @@ export default class ReminderSendEvent extends Event {
         ? "REMINDER_MESSAGE_BODY_NO_TIME_OR_TEXT"
         : "REMINDER_MESSAGE_BODY_NO_TIME_WITH_TEXT",
       {
-        time: deconstructed
-          ? Formatters.time(deconstructed.date, "R")
-          : undefined,
+        time: reminderSetAt ? Formatters.time(reminderSetAt, "R") : undefined,
         text: data.text,
       }
     );

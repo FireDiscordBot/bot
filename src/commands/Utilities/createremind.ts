@@ -7,7 +7,9 @@ import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { ParsedTime, parseWithUserTimezone } from "@fire/src/arguments/time";
 import { ParsedResult, strict } from "chrono-node";
 import * as dayjs from "dayjs";
+import { Snowflake } from "discord-api-types/globals";
 import {
+  Collection,
   Formatters,
   MessageActionRow,
   MessageButton,
@@ -59,9 +61,13 @@ const getContextOptions = (
     });
 };
 
+type ClickedMessage = { message: FireMessage; clickedAt: number };
+
 export default class RemindersCreate extends Command {
   repeatRegex = /--repeat (\d*)/gim;
   stepRegex = /--step ([^-]*)/gim;
+  recentlyClicked: Collection<Snowflake, ClickedMessage>;
+
   constructor() {
     super("reminders-create", {
       description: (language: Language) =>
@@ -99,6 +105,15 @@ export default class RemindersCreate extends Command {
       ephemeral: true,
       slashOnly: true,
     });
+
+    this.recentlyClicked = new Collection();
+    setInterval(
+      () =>
+        (this.recentlyClicked = this.recentlyClicked.filter(
+          (m) => +new Date() - m.clickedAt >= 300_000
+        )),
+      30_000
+    );
   }
 
   async run(
@@ -157,6 +172,16 @@ export default class RemindersCreate extends Command {
         return await command.error("REMINDER_MISSING_CONTEXT");
 
       const now = +new Date();
+
+      if (!this.client.guilds.cache.has(command.guildId))
+        // we need this to get the data for setting the reminder
+        // since we can't fetch the message in future interactions
+        // and will overwrite the previous one if it exists
+        // with new data & new timestamp
+        this.recentlyClicked.set(clickedMessage.id, {
+          message: clickedMessage,
+          clickedAt: now,
+        });
 
       // Parse with chrono-node early so we can get the content without the time
       let { parsed, preliminaryParsedDate: date } = parseWithUserTimezone(
@@ -339,24 +364,32 @@ export default class RemindersCreate extends Command {
         .setCustomId("!reminders_context_cancel");
 
       return await command.channel.send({
-        content: command.author.language.get(
-          parsed.length
-            ? clickedMessage.author.settings.has("reminders.timezone.iana")
-              ? clickedMessage.author.id == command.author.id
+        content:
+          command.author.language.get(
+            parsed.length
+              ? clickedMessage.author.settings.has("reminders.timezone.iana")
+                ? clickedMessage.author.id == command.author.id
+                  ? command.author.settings.has("reminders.timezone.iana")
+                    ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
+                    : "REMINDER_CONTEXT_CONTENT"
+                  : "REMINDER_CONTEXT_CONTENT_WITH_AUTHOR_TZ"
+                : command.author.settings.has("reminders.timezone.iana")
                 ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
-                : "REMINDER_CONTEXT_CONTENT_WITH_AUTHOR_TZ"
-              : command.author.settings.has("reminders.timezone.iana")
-              ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
-              : "REMINDER_CONTEXT_CONTENT"
-            : "REMINDER_CONTEXT_CONTENT_NO_TZ",
-          {
-            content:
-              reminderText.length >= 503
-                ? reminderText.slice(0, 500) + "..."
-                : reminderText,
-            author: clickedMessage.author.toString(),
-          }
-        ),
+                : "REMINDER_CONTEXT_CONTENT"
+              : "REMINDER_CONTEXT_CONTENT_NO_TZ",
+            {
+              content:
+                reminderText.length >= 503
+                  ? reminderText.slice(0, 500) + "..."
+                  : reminderText,
+              author: clickedMessage.author.toString(),
+            }
+          ) +
+          (!this.client.guilds.cache.has(command.guildId)
+            ? `\n${command.author.language.get(
+                "REMINDER_CONTEXT_TEMPORARY_WARNING"
+              )}`
+            : ""),
         components: [
           new MessageActionRow().addComponents(dropdown),
           new MessageActionRow().addComponents(cancelButton),
@@ -370,6 +403,10 @@ export default class RemindersCreate extends Command {
     // quick checks
     if (!reminder?.text?.length || !reminder?.date)
       return await command.error("REMINDER_MISSING_ARG", {
+        includeSlashUpsell: true,
+      });
+    else if (reminder.text.length > 4000)
+      return await command.error("REMINDER_CONTENT_TOO_LONG", {
         includeSlashUpsell: true,
       });
     else if (reminder.date < command.createdAt)

@@ -1303,16 +1303,23 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         components: [new MessageActionRow().addComponents(dropdown)],
       });
     } else if (button.customId == "complete_reminder") {
+      const hasReminderContentEmbed =
+        button.message.embeds.length &&
+        // this specific color is used for the embed with the reminder content
+        // whenever the content is too long for the main message content
+        button.message.embeds[0].color == 3066993;
+
       let content = (
-        button.message.content || button.message.embeds[0].description
+        hasReminderContentEmbed
+          ? button.message.embeds[0].description
+          : button.message.content
       ).split("\n");
       content = content.map((line) => {
-        // suppress any embeds
-        line = line.replace(regexes.basicURL, (url) => `<${url}>`);
-        if (line.length) return Formatters.strikethrough(line);
+        if (line.length)
+          return Formatters.strikethrough(this.client.util.supressLinks(line));
       });
       return await button.channel.update(
-        button.message.embeds.length
+        hasReminderContentEmbed
           ? {
               content: Formatters.strikethrough(button.message.content),
               embeds: [
@@ -1480,9 +1487,11 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           (option) => +option.value > +new Date()
         );
         dropdown.options.forEach((option) => (option.default = false));
-        await button.message.edit({
-          components: button.message.components,
-        });
+        await button.message
+          .edit({
+            components: button.message.components,
+          })
+          .catch(() => {});
         return await button.error("REMINDERS_EDIT_PAST_DATE");
       }
 

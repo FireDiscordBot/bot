@@ -3,6 +3,7 @@ import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { Snowflake } from "discord-api-types/globals";
+import { MessageFlags } from "discord-api-types/v9";
 import {
   ApplicationCommandOptionChoiceData,
   CommandInteractionOption,
@@ -58,7 +59,7 @@ export default class RemindersDelete extends Command {
         interaction.language
       );
       let text = this.client.util.shortenText(
-        reminder.get("reminder") as string,
+        this.client.util.stripMaskedLinks(reminder.get("reminder") as string),
         100 - 3 - relativeTime.length
       );
       text += ` - ${relativeTime}`;
@@ -114,7 +115,7 @@ export default class RemindersDelete extends Command {
     );
     return await command.send("REMINDERS_DELETE_CONFIRM", {
       text: this.client.util.shortenText(
-        reminder.text,
+        this.client.util.supressLinks(reminder.text),
         2000 - emptyConfirmMessage.length
       ),
       date: Formatters.time(reminder.date, "R"),

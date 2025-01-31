@@ -660,8 +660,7 @@ export class FireMessage extends Message {
         : (BigInt((destination as PartialQuoteDestination).permissions) &
             EMBED_LINKS) ==
           EMBED_LINKS;
-    if (!canEmbed && content)
-      content = content.replace(regexes.basicURL, (m) => `<${m}>`);
+    if (!canEmbed && content) content = this.client.util.supressLinks(content);
     if (!content && this.attachments.size && canAttach)
       content = this.attachments.map((a) => a.url).join("\n");
     else if (canAttach && this.attachments.size) {

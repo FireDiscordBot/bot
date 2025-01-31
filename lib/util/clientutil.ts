@@ -423,6 +423,18 @@ export class Util extends ClientUtil {
     return text.replace(regexes.maskedLink, "$<name>");
   }
 
+  suppressMaskedLinks(text: string) {
+    return text.replace(regexes.maskedLink, "[$<name>](<$<link>>)");
+  }
+
+  supressLinks(text: string) {
+    // supress masked links first
+    // basicURL will exclude them
+    return this.suppressMaskedLinks(text).replace(regexes.basicURL, (url) =>
+      url.startsWith("<") && url.endsWith(">)") ? url : `<${url}>`
+    );
+  }
+
   getUserStatuses(shard?: number) {
     try {
       return {
