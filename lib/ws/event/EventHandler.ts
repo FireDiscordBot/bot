@@ -12,7 +12,6 @@ export class EventHandler {
   }
 
   async handle(message: Payload) {
-    if (typeof message.s == "number") this.manager.seq = message.s;
     const event = this.store.get(message.op);
 
     if (event === null) {
