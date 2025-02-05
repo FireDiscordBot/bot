@@ -1576,6 +1576,12 @@ The lack of this is a sign that this message may have been sent automatically by
     )
       return await triggerFilter("Fake steam gift link");
     else if (
+      lowerContent.includes("giftfromsteam") &&
+      lowerContent.includes("http") &&
+      lowerContent.includes("steam")
+    )
+      return await triggerFilter("Fake steam gift link");
+    else if (
       lowerContent.includes("steamgift") &&
       lowerContent.includes("$-steamcommunity.com")
     )
