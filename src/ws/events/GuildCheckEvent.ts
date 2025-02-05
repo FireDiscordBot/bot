@@ -52,7 +52,7 @@ export default class GuildCheckEvent extends Event {
         pending: member.pending,
         mute: member.mute,
         deaf: member.deaf,
-        permissions: 0,
+        permissions: "0",
       };
     }
   }
