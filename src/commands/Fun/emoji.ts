@@ -23,7 +23,7 @@ export default class Emoji extends Command {
           id: "name",
           type: "string",
           default: null,
-          required: false,
+          required: true,
         },
         {
           id: "emoji",
@@ -31,7 +31,7 @@ export default class Emoji extends Command {
           readableType: "emoji/emoji id/emoji url",
           slashCommandType: "emoji",
           default: null,
-          required: false,
+          required: true,
         },
       ],
       enableSlashCommand: true,
@@ -43,7 +43,12 @@ export default class Emoji extends Command {
   async exec(message: FireMessage, args: { name?: string; emoji?: string }) {
     let emoji = args.emoji || message.attachments.first()?.url || args.name;
     let name = args.name || "stolen_emoji";
+
+    // smol checks on the arguments to ensure they're valid
     if (!emoji) return await message.error("EMOJI_INVALID");
+    else if (name.length > 32) return await message.error("EMOJI_NAME_LONG");
+    else if (name.length < 2) return await message.error("EMOJI_NAME_SHORT");
+
     if (snowflakeRegex.test(emoji.toString())) {
       this.resetIndexes();
       emoji = `https://cdn.discordapp.com/emojis/${emoji}`;
