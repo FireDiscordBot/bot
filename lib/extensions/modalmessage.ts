@@ -41,7 +41,7 @@ export class ModalMessage {
   latestResponse: Snowflake;
   ephemeralSource: boolean;
   private _flags: number;
-  message: FireMessage;
+  message?: FireMessage;
   channel: FakeChannel;
   member: FireMember;
   language: Language;
@@ -67,10 +67,11 @@ export class ModalMessage {
       | NewsChannel
       | DMChannel;
     this.components = modal.components;
-    this.message =
-      modal.message instanceof FireMessage
-        ? modal.message
-        : new FireMessage(client, modal.message as RawMessageData);
+    if (modal.message)
+      this.message =
+        modal.message instanceof FireMessage
+          ? modal.message
+          : new FireMessage(client, modal.message as RawMessageData);
     if (modal.member && this.guild)
       this.member =
         (this.guild.members.cache.get(modal.member.user.id) as FireMember) ||
