@@ -36,8 +36,8 @@ import { parseWithUserTimezone } from "../arguments/time";
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 import LoggingConfig from "../commands/Configuration/logging-configure";
 import Google from "../commands/Fun/google";
-import RemindersCreate from "../commands/Utilities/createremind";
-import LogScan from "../commands/Utilities/log-scan";
+import LogScan from "../commands/Utilities/minecraft-log-scan";
+import RemindersCreate from "../commands/Utilities/reminders-create";
 
 const { regexes } = constants;
 const SET_AT_QUERY = "?setAt=";
