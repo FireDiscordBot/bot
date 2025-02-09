@@ -10,8 +10,8 @@ import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
-import RemindersCreate from "@fire/src/commands/Utilities/createremind";
 import Quote from "@fire/src/commands/Utilities/quote";
+import RemindersCreate from "@fire/src/commands/Utilities/reminders-create";
 import { Constants } from "discord-akairo";
 import { parseTime } from "../arguments/time";
 
