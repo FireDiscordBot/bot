@@ -2,7 +2,6 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import GuildCommand, { InviteWithGuildCounts } from "./server";
-import { match } from "assert";
 
 export default class InviteInfo extends Command {
   command: GuildCommand;

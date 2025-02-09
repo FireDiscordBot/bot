@@ -3,7 +3,7 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { constants, zws } from "@fire/lib/util/constants";
+import { zws } from "@fire/lib/util/constants";
 import {
   guildPreviewConverter,
   snowflakeConverter,

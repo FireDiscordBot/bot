@@ -4,7 +4,6 @@ import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import {
   ActionLogTypes,
-  constants,
   ModLogTypes,
   titleCase,
 } from "@fire/lib/util/constants";

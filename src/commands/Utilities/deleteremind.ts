@@ -3,7 +3,6 @@ import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { Snowflake } from "discord-api-types/globals";
-import { MessageFlags } from "discord-api-types/v9";
 import {
   ApplicationCommandOptionChoiceData,
   CommandInteractionOption,

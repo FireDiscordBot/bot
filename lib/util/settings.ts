@@ -6,9 +6,9 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord-api-types/globals";
 import { SnowflakeUtil } from "discord.js";
+import { FireMember } from "../extensions/guildmember";
 import { DiscoveryUpdateOp } from "../interfaces/stats";
 import { GuildOrUserConfig, SettingsValueTypes } from "./constants";
-import { FireMember } from "../extensions/guildmember";
 
 export class ConfigError extends Error {
   message:

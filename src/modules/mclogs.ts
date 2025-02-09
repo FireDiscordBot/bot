@@ -23,7 +23,7 @@ import {
   MessageEmbed,
   Util,
 } from "discord.js";
-import { lt as semverLessThan, gt as semverGreaterThan } from "semver";
+import { gt as semverGreaterThan, lt as semverLessThan } from "semver";
 import { getCodeblockMatch } from "../arguments/codeblock";
 import Filters from "./filters";
 

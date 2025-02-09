@@ -1,8 +1,7 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
-import { ActionLogTypes } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
-import { Formatters, MessageEmbed, ThreadChannel } from "discord.js";
+import { ThreadChannel } from "discord.js";
 
 // Totally not copied from channelCreate lol
 export default class ThreadCreate extends Listener {

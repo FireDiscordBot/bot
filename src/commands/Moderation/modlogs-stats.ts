@@ -5,7 +5,6 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { ModLogTypesEnumToString, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { count } from "console";
 import { MessageEmbed } from "discord.js";
 
 export default class ModlogsStats extends Command {

@@ -3,17 +3,7 @@ import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import {
-  PaginatorEmbedInterface,
-  WrappedPaginator,
-} from "@fire/lib/util/paginators";
-import {
-  Formatters,
-  MessageActionRow,
-  MessageButton,
-  MessageEmbed,
-  MessageSelectMenu,
-} from "discord.js";
+import { MessageActionRow, MessageButton, MessageSelectMenu } from "discord.js";
 
 export default class RemindersList extends Command {
   constructor() {

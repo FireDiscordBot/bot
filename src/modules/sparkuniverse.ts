@@ -4,13 +4,13 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Module } from "@fire/lib/util/module";
+import { Snowflake } from "discord-api-types/globals";
 import {
   CategoryChannel,
   Channel,
   MessageActionRow,
   MessageButton,
 } from "discord.js";
-import { Snowflake } from "discord-api-types/globals";
 
 const supportMarketplaceBugMessage =
   "Please select the product you require support with below.";

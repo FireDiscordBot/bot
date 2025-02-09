@@ -14,7 +14,6 @@ import {
   MessageButton,
   MessageEmbed,
   NewsChannel,
-  TextBasedChannel,
   ThreadChannel,
 } from "discord.js";
 import Semaphore from "semaphore-async-await";
@@ -22,7 +21,6 @@ import { ComponentMessage } from "../extensions/componentmessage";
 import {
   ContextCommandMessage,
   FakeChannel as ContextFakeChannel,
-  FakeChannel,
 } from "../extensions/contextcommandmessage";
 import { BaseFakeChannel } from "../interfaces/misc";
 

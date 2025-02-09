@@ -16,7 +16,6 @@ import {
 } from "@fire/lib/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -37,9 +36,8 @@ import { parseWithUserTimezone } from "../arguments/time";
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 import LoggingConfig from "../commands/Configuration/logging-configure";
 import Google from "../commands/Fun/google";
-import LogScan from "../commands/Utilities/log-scan";
-import ReminderSendEvent from "../ws/events/ReminderSendEvent";
 import RemindersCreate from "../commands/Utilities/createremind";
+import LogScan from "../commands/Utilities/log-scan";
 
 const { regexes } = constants;
 const SET_AT_QUERY = "?setAt=";

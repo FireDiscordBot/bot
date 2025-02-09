@@ -1,5 +1,5 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
-import { ActionLogTypes, constants } from "@fire/lib/util/constants";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import { Invite, MessageEmbed } from "discord.js";
 

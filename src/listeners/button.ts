@@ -37,13 +37,12 @@ import { codeblockTypeCaster } from "../arguments/codeblock";
 import Anti from "../commands/Configuration/anti";
 import Google from "../commands/Fun/google";
 import Rank from "../commands/Premium/rank";
+import RemindersDelete from "../commands/Utilities/deleteremind";
+import RemindersList from "../commands/Utilities/listremind";
 import LogScan from "../commands/Utilities/log-scan";
 import Essential from "../modules/essential";
 import Sk1er from "../modules/sk1er";
 import SparkUniverse from "../modules/sparkuniverse";
-import ReminderSendEvent from "../ws/events/ReminderSendEvent";
-import RemindersList from "../commands/Utilities/listremind";
-import RemindersDelete from "../commands/Utilities/deleteremind";
 
 const { url, regexes } = constants;
 

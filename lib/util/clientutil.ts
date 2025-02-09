@@ -44,8 +44,8 @@ import { Command } from "./command";
 import {
   CouponType,
   GuildTextChannel,
-  titleCase,
   constants,
+  titleCase,
 } from "./constants";
 import { Language, LanguageKeys } from "./language";
 import { PaginatorInterface } from "./paginators";

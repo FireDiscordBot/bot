@@ -1,12 +1,11 @@
 import * as sanitizer from "@aero/sanitizer";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { constants, GuildTextChannel } from "@fire/lib/util/constants";
+import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
 import MCLogs from "@fire/src/modules/mclogs";
-import { APIMessage } from "discord-api-types/v9";
 import { Snowflake } from "discord-api-types/globals";
-import { FireMember } from "@fire/lib/extensions/guildmember";
+import { APIMessage } from "discord-api-types/v9";
 
 const { regexes } = constants;
 

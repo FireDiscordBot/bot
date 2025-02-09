@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { version as djsver, SnowflakeUtil } from "discord.js";
+import { isDeepStrictEqual } from "util";
 import { Fire } from "./Fire";
 import {
   IPoint,
@@ -10,12 +11,11 @@ import {
 import { Command } from "./util/command";
 import { getCommitHash } from "./util/gitUtils";
 import { Module } from "./util/module";
+import { Message } from "./ws/Message";
 import { Reconnector } from "./ws/Reconnector";
 import { Websocket } from "./ws/Websocket";
 import { EventHandler } from "./ws/event/EventHandler";
-import { isDeepStrictEqual } from "util";
 import { MessageUtil } from "./ws/util/MessageUtil";
-import { Message } from "./ws/Message";
 import { EventType } from "./ws/util/constants";
 
 type InfluxPoints = { points: IPoint[]; options?: IWriteOptions }[];

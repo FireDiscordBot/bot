@@ -3,10 +3,10 @@ import "module-alias/register";
 import "source-map-support/register";
 
 import * as dayjs from "dayjs";
+import * as calendar from "dayjs/plugin/calendar";
+import * as relativeTime from "dayjs/plugin/relativeTime";
 import * as timezone from "dayjs/plugin/timezone";
 import * as utc from "dayjs/plugin/utc";
-import * as relativeTime from "dayjs/plugin/relativeTime";
-import * as calendar from "dayjs/plugin/calendar";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

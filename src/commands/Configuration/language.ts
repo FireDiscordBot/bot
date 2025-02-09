@@ -1,7 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
-import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 

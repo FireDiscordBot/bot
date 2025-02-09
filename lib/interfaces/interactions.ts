@@ -1,3 +1,4 @@
+import { Snowflake } from "discord-api-types/globals";
 import {
   APIActionRowComponent,
   APIActionRowComponentTypes,
@@ -10,7 +11,6 @@ import {
   ApplicationCommandOptionType,
   RESTPostAPIChatInputApplicationCommandsJSONBody,
 } from "discord-api-types/v9";
-import { Snowflake } from "discord-api-types/globals";
 import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 
 export type FireAPIApplicationCommand =

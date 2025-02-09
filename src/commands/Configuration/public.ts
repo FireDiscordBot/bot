@@ -1,6 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
-import { ActionLogTypes, constants } from "@fire/lib/util/constants";
+import { ActionLogTypes } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { PermissionFlagsBits } from "discord-api-types/v9";
