@@ -75,7 +75,9 @@ export const getCommands = (client: Fire) => {
           (command: Command) =>
             !command.ownerOnly &&
             command.category.id != "Admin" &&
-            !command.hidden
+            !command.hidden &&
+            !command.group &&
+            !command.guilds?.length
         )
         .map((command) => {
           const args = command.getArgumentsClean().join(" ");
