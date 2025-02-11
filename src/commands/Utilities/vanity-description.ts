@@ -5,19 +5,19 @@ import { Language } from "@fire/lib/util/language";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 
-export default class Description extends Command {
+export default class VanityDescription extends Command {
   module: VanityURLs;
 
   constructor() {
-    super("description", {
+    super("vanity-description", {
       description: (language: Language) =>
-        language.get("DESCRIPTION_COMMAND_DESCRIPTION"),
+        language.get("VANITY_DESCRIPTION_COMMAND_DESCRIPTION"),
       userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
           id: "desc",
           description: (language: Language) =>
-            language.get("DESCRIPTION_DESCRIPTION_ARGUMENT_DESCRIPTION"),
+            language.get("VANITY_DESCRIPTION_DESCRIPTION_ARGUMENT_DESCRIPTION"),
           type: "string",
           match: "rest",
           required: true,
@@ -45,7 +45,7 @@ export default class Description extends Command {
     );
 
     if (!vanity.rows.length) {
-      return await command.error("DESCRIPTION_NO_VANITY", {
+      return await command.error("VANITY_DESCRIPTION_NO_VANITY", {
         prefix: command.util?.parsed?.prefix,
       });
     }
@@ -53,10 +53,10 @@ export default class Description extends Command {
     try {
       await this.setDesc(command.guild, args.desc);
       return args.desc
-        ? await command.success("DESCRIPTION_SET")
-        : await command.success("DESCRIPTION_RESET");
+        ? await command.success("VANITY_DESCRIPTION_SUCCESS")
+        : await command.success("VANITY_DESCRIPTION_RESET");
     } catch (e) {
-      return await command.error("DESCRIPTION_FAILED");
+      return await command.error("VANITY_DESCRIPTION_FAILED");
     }
   }
 }
