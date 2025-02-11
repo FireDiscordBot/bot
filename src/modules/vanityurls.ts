@@ -1,4 +1,6 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireUser } from "@fire/lib/extensions/user";
 import { VanityURL } from "@fire/lib/interfaces/invwtf";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { Language } from "@fire/lib/util/language";
@@ -28,6 +30,18 @@ export default class VanityURLs extends Module {
       this.blacklisted.push(blacklist.get("gid") as string);
   }
 
+  get vanityDomain() {
+    return this.client.config.dev
+      ? `${this.client.manager.REST_HOST}/inv.wtf`
+      : "https://inv.wtf";
+  }
+
+  isBlacklisted(guild: FireGuild | Snowflake) {
+    return this.blacklisted.includes(
+      guild instanceof FireGuild ? guild.id : guild
+    );
+  }
+
   requestFetch(guild: Snowflake) {
     this.client.manager.ws?.send(
       MessageUtil.encode(
@@ -39,31 +53,68 @@ export default class VanityURLs extends Module {
   }
 
   async getVanity(code: string) {
-    const vanityReq = await centra(
-      this.client.config.dev
-        ? `${this.client.manager.REST_HOST}/inv.wtf/api/${code}`
-        : `https://inv.wtf/api/${code}`
-    )
+    const vanityReq = await centra(`${this.vanityDomain}/api/${code}`)
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", process.env.WS_AUTH)
       .send();
-    if (vanityReq.statusCode != 200) return false;
+    if (vanityReq.statusCode == 404) return false;
+    // if we get an unexpected status code, we should return true
+    // as that will indicate that the vanity is not valid for creation
+    else if (vanityReq.statusCode != 200) throw new Error();
     const vanity = await vanityReq.json();
-    if (!vanity.invite) return true;
+    // if there's no invite, it's not a valid vanity response
+    // (possibly a redirect or something broke)
+    if (!vanity.invite) throw new Error();
     return vanity as VanityURL;
   }
 
-  async create(guild: FireGuild, code: string, invite: Invite) {
-    if (this.blacklisted.includes(guild.id)) return "blacklisted";
+  async getVanityLimitRemaining(user: FireMember | FireUser, guild: FireGuild) {
+    const totalLimit = user.settings.get<number>(
+      "stripe.addons.extra_vanity",
+      0
+    );
+    if (!totalLimit) {
+      const current = await this.client.db
+        .query("SELECT code FROM vanity WHERE gid=$1;", [guild.id])
+        .first();
+      if (current && current.get("code")) return 0;
+      else return 1; // each guild can have one vanity by default
+    } else {
+      const currentUser = await this.client.db.query(
+        "SELECT gid, count(code) FROM vanity WHERE uid=$1 AND redirect IS NULL GROUP BY gid;",
+        [user.id]
+      );
+      let inUse = 0;
+      for await (const row of currentUser) {
+        const count = Number(row.get("count") as bigint);
+        if (!count) continue;
+        // we subtract 1 because each guild can have one vanity by default
+        inUse += count - 1;
+      }
+
+      return totalLimit - inUse;
+    }
+  }
+
+  async create(
+    guild: FireGuild,
+    code: string,
+    invite: Invite,
+    createdBy: FireMember | FireUser
+  ) {
+    if (this.isBlacklisted(guild)) return "blacklisted";
     code = code.toLowerCase();
     const currentResult = await this.client.db
-      .query("SELECT code FROM vanity WHERE gid=$1;", [guild.id])
+      .query("SELECT code FROM vanity WHERE gid=$1 AND code ILIKE $2;", [
+        guild.id,
+        code,
+      ])
       .first();
     if (!currentResult) {
       const created = await this.client.db
         .query(
-          "INSERT INTO vanity (gid, code, invite) VALUES ($1, $2, $3) RETURNING *;",
-          [guild.id, code, invite.code]
+          "INSERT INTO vanity (gid, code, invite, uid) VALUES ($1, $2, $3, $4) RETURNING *;",
+          [guild.id, code, invite.code, createdBy.id]
         )
         .first()
         .catch(() => {});
@@ -72,8 +123,8 @@ export default class VanityURLs extends Module {
     } else {
       const updated = await this.client.db
         .query(
-          "UPDATE vanity SET (code, invite) = ($1, $2) WHERE code=$3 RETURNING *;",
-          [code, invite.code, currentResult.get("code") as string]
+          "UPDATE vanity SET (code, invite, uid) = ($1, $2, $3) WHERE code=$4 RETURNING *;",
+          [code, invite.code, createdBy.id, currentResult.get("code") as string]
         )
         .first()
         .catch(() => {});
@@ -82,7 +133,7 @@ export default class VanityURLs extends Module {
     }
   }
 
-  async delete(source: FireGuild | string) {
+  async delete(source: FireGuild | string, alsoDeleteInvite = false) {
     if (source instanceof FireGuild) {
       // You can't have public set to true without a vanity
       // (though that does not necessarily mean you need a vanity to be public)
@@ -104,17 +155,26 @@ export default class VanityURLs extends Module {
 
       // and now we actually delete the guild's vanities
       const deleted = await this.client.db
-        .query("DELETE FROM vanity WHERE gid=$1 RETURNING *;")
+        .query("DELETE FROM vanity WHERE gid=$1 RETURNING *;", [source.id])
         .catch(() => {});
       if (deleted && deleted.status.startsWith("DELETE ")) {
         this.requestFetch(source.id);
-        for await (const vanity of deleted)
-          await this.client
-            .fetchInvite(vanity.get("invite") as string)
-            // we only want to delete invites *we* created
-            .then((i) => i.inviterId == this.client.user.id && i.delete())
-            .catch(() => {});
+        if (alsoDeleteInvite)
+          for await (const vanity of deleted)
+            await this.client
+              .fetchInvite(vanity.get("invite") as string)
+              // we only want to delete invites *we* created
+              .then(
+                (i) =>
+                  i.inviterId == this.client.user.id &&
+                  i.delete(
+                    source.language.get("VANITY_DELETE_DELETING_INVITE_REASON")
+                  )
+              )
+              .catch(() => {});
       }
+
+      return deleted && deleted.status.startsWith("DELETE ");
     } else {
       // If we have a code, we delete first and ask questions later
       const deleted = await this.client.db
@@ -128,41 +188,59 @@ export default class VanityURLs extends Module {
         const guildId = deleted.get("gid") as Snowflake;
         this.requestFetch(guildId);
 
-        // might not be a guild on this cluster so we need to use
-        // GuildSettings#retrieve instead of getting from cache
-        const settings = await GuildSettings.retrieve(
-          guildId,
-          this.client
-        ).catch(() => {});
-        if (settings && settings.get<boolean>("utils.public")) {
-          await settings.set<boolean>("utils.public", false, this.client.user);
-          if (this.client.manager.ws?.open)
-            this.client.manager.ws?.send(
-              MessageUtil.encode(
-                new Message(EventType.DISCOVERY_UPDATE, {
-                  op: DiscoveryUpdateOp.REMOVE,
-                  guilds: [{ id: guildId }],
-                })
-              )
+        const remainingResult = await this.client.db
+          .query("SELECT count(code) FROM vanity WHERE gid=$1;", [guildId])
+          .first();
+        const remaining = Number(remainingResult.get("count") as bigint);
+
+        // if there are no more vanities for this guild, we should remove it from discovery
+        if (!remaining) {
+          // might not be a guild on this cluster so we need to use
+          // GuildSettings#retrieve instead of getting from cache
+          const settings = await GuildSettings.retrieve(
+            guildId,
+            this.client
+          ).catch(() => {});
+          if (settings && settings.get<boolean>("utils.public", false)) {
+            await settings.set<boolean>(
+              "utils.public",
+              false,
+              this.client.user
             );
+            if (this.client.manager.ws?.open)
+              this.client.manager.ws?.send(
+                MessageUtil.encode(
+                  new Message(EventType.DISCOVERY_UPDATE, {
+                    op: DiscoveryUpdateOp.REMOVE,
+                    guilds: [{ id: guildId }],
+                  })
+                )
+              );
+          }
         }
 
-        // this should always be true but just in case
-        if (deleted.get("invite")) {
-          const invite = await this.client
-            .fetchInvite(deleted.get("invite") as string)
-            .catch(() => {});
-          if (invite && invite.inviterId == this.client.user.id)
-            await invite.delete().catch(() => {});
+        if (alsoDeleteInvite) {
+          // this should always be true but just in case
+          if (deleted.get("invite")) {
+            const invite = await this.client
+              .fetchInvite(deleted.get("invite") as string)
+              .catch(() => {});
+            if (invite && invite.inviterId == this.client.user.id)
+              await invite.delete().catch(() => {});
+          }
         }
       }
+
+      return deleted && deleted.get("gid");
     }
   }
 
   async current(guild: FireGuild, code: string, language?: Language) {
     if (!language) language = guild.language;
-    const data = await this.getVanity(code);
-    if (typeof data == "boolean") return;
+    const data = await this.getVanity(code).catch(() => {});
+    if (!data) return null;
+    else if (data.gid != guild.id)
+      throw new Error("VANITY_VIEW_CODE_WRONG_GUILD");
     let splash: string;
     if (guild.splash)
       splash = guild
@@ -184,7 +262,7 @@ export default class VanityURLs extends Module {
         iconURL: guild.iconURL({ size: 2048, format: "png", dynamic: true }),
       })
       .setColor("#2ECC71")
-      .addFields({ name: "URL", value: `https://inv.wtf/${code}` })
+      .addFields({ name: "URL", value: `${this.vanityDomain}/${code}` })
       .setTimestamp();
     if (guild.premium) {
       embed.addFields([

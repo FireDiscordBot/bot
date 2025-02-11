@@ -14,6 +14,12 @@ export default class Redirects extends Module {
     super("redirects");
   }
 
+  get redirectDomain() {
+    return this.client.config.dev
+      ? `${this.client.manager.REST_HOST}/inv.wtf`
+      : "https://inv.wtf";
+  }
+
   requestFetch(redirect: string) {
     this.client.manager.ws?.send(
       MessageUtil.encode(
@@ -25,11 +31,7 @@ export default class Redirects extends Module {
   }
 
   async getRedirect(code: string) {
-    const redirectReq = await centra(
-      this.client.config.dev
-        ? `${this.client.manager.REST_HOST}/inv.wtf/api/${code}`
-        : `https://inv.wtf/api/${code}`
-    )
+    const redirectReq = await centra(`${this.redirectDomain}/api/${code}`)
       .header("User-Agent", this.client.manager.ua)
       .header("Authorization", process.env.WS_AUTH)
       .send();
@@ -98,16 +100,12 @@ export default class Redirects extends Module {
     return deleted;
   }
 
-  async current(
-    user: FireMember | FireUser,
-    code: string,
-    language?: Language
-  ) {
-    if (user instanceof FireMember) user = user.user;
-    user = user as FireUser;
+  async current(user: FireUser, code: string, language?: Language) {
     if (!language) language = user.language;
     const data = await this.getRedirect(code);
-    if (typeof data == "boolean") return;
+    if (typeof data == "boolean") return null;
+    else if (data.uid != user.id)
+      throw new Error("REDIRECT_VIEW_CODE_NOT_YOURS");
     const embed = new MessageEmbed()
       .setAuthor({
         name: user.username,
@@ -121,7 +119,7 @@ export default class Redirects extends Module {
       .addFields([
         {
           name: language.get("REDIRECT_SHORT_URL"),
-          value: `https://inv.wtf/${code}`,
+          value: `${this.redirectDomain}/${code}`,
         },
         { name: "URL", value: data.url },
         {
