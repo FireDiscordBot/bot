@@ -15,7 +15,7 @@ export default class VanityDescription extends Command {
       userPermissions: [PermissionFlagsBits.ManageGuild],
       args: [
         {
-          id: "desc",
+          id: "description",
           description: (language: Language) =>
             language.get("VANITY_DESCRIPTION_DESCRIPTION_ARGUMENT_DESCRIPTION"),
           type: "string",
@@ -24,6 +24,7 @@ export default class VanityDescription extends Command {
         },
       ],
       enableSlashCommand: true,
+      parent: "vanity",
       slashOnly: true,
     });
   }
