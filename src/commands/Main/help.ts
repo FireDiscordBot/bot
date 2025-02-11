@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
-import { titleCase } from "@fire/lib/util/constants";
+import { constants, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import VanityURLs from "@fire/src/modules/vanityurls";
 import { PermissionFlagsBits } from "discord-api-types/v9";
@@ -74,11 +74,11 @@ export default class Help extends Command {
         return commands.size > 0;
       });
     let components: MessageActionRow[] = null;
-    let supportInvite = "https://inv.wtf/fire";
+    let supportInvite = constants.url.support;
     const vanityurls = this.client.getModule("vanityurls") as VanityURLs;
     if (vanityurls) {
-      const supportVanity = await vanityurls.getVanity("fire");
-      if (typeof supportVanity == "object" && supportVanity?.invite)
+      const supportVanity = await vanityurls.getVanity("fire").catch(() => {});
+      if (supportVanity && supportVanity.invite)
         supportInvite = `https://discord.gg/${supportVanity.invite}`;
     }
     components = [
