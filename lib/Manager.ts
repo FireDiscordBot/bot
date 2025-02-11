@@ -33,12 +33,13 @@ export class Manager {
     // if something tries to access state too early,
     // they'll just get empty data rather than needing
     // to check if the property exists
+    optifineVersions: {},
     guildExperiments: [],
-    guildConfigs: {},
+    browserUserAgent: "",
     userExperiments: [],
+    guildConfigs: {},
     userConfigs: {},
     modVersions: {},
-    optifineVersions: {},
     appEmojis: [],
   };
   private _ready: boolean = false;
@@ -83,6 +84,13 @@ export class Manager {
 
   get djsua() {
     return `DiscordBot (https://discord.js.org, ${djsver}) Fire/${this.version} Node.JS/${process.version}`;
+  }
+
+  get browserua() {
+    return (
+      this.state.browserUserAgent ??
+      "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36"
+    );
   }
 
   get isDist() {

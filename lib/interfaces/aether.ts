@@ -52,12 +52,13 @@ export interface Caches {
 }
 
 export interface ManagerState {
-  guildExperiments: GuildExperimentConfig[];
+  optifineVersions: Record<MinecraftVersion, OptifineVersion[]>;
   guildConfigs: Record<Snowflake, GuildOrUserConfig>;
-  userExperiments: UserExperimentConfig[];
   userConfigs: Record<Snowflake, GuildOrUserConfig>;
   modVersions: Record<string, ModVersionData>;
-  optifineVersions: Record<MinecraftVersion, OptifineVersion[]>;
+  guildExperiments: GuildExperimentConfig[];
+  userExperiments: UserExperimentConfig[];
+  browserUserAgent: string;
   appEmojis: APIEmoji[];
 }
 
