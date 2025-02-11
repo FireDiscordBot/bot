@@ -1574,6 +1574,7 @@
   "UNMUTE_ARGUMENT_REASON_DESCRIPTION": "The reason for unmuting the user (shown only in mod logs)",
   "UNMUTE_USER_REQUIRED": "You must provide a user to unmute!",
   "UNBLACKLIST_LOG_AUTHOR": "Unblacklist | {{user}}",
+  "VANITY_COMMAND_DESCRIPTION": "Manage custom vanity invites for your server",
   "VANITY_CREATE_COMMAND_DESCRIPTION": "Create a custom vanity invite for your server using inv.wtf",
   "VANITY_CREATE_CODE_ARGUMENT_DESCRIPTION": "The code you would like to use for the vanity invite (3-25 characters, A-Z0-9)",
   "VANITY_CREATE_INVITE_ARGUMENT_DESCRIPTION": "An optional invite code to use for the vanity invite (if not provided, a new one will be created)",

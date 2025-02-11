@@ -2,13 +2,13 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 
-export default class Redirect extends Command {
+export default class Vanity extends Command {
   constructor() {
-    super("redirect", {
+    super("vanity", {
       description: (language: Language) =>
-        language.get("REDIRECT_COMMAND_DESCRIPTION"),
+        language.get("VANITY_COMMAND_DESCRIPTION"),
       enableSlashCommand: true,
-      restrictTo: "all",
+      restrictTo: "guild",
       slashOnly: true,
       group: true,
     });
