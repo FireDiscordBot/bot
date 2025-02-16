@@ -42,7 +42,7 @@
     "discord-api-types": "^0.37.14",
     "discord.js": "FireDiscordBot/discord.js",
     "dotenv-extended": "^2.9.0",
-    "emoji-regex": "^10.1.0",
+    "emoji-regex": "^10.4.0",
     "fuzzball": "^2.1.2",
     "i18next": "^21.9.1",
     "libsodium-wrappers": "^0.7.13",
