@@ -18,8 +18,8 @@ export default class ForwardMessageUserEvent extends Event {
   async run(data: {
     user: Snowflake;
     message: LanguageKeys | string;
-    args: TOptions<StringMap>;
-    buttons?: (Required<BaseMessageComponentOptions> &
+    args?: TOptions<StringMap>;
+    components?: (Required<BaseMessageComponentOptions> &
       MessageActionRowOptions)[];
   }) {
     const user = (await this.manager.client.users
@@ -27,17 +27,33 @@ export default class ForwardMessageUserEvent extends Event {
       .catch(() => {})) as FireUser;
     if (!user) return;
 
+    const components = data.components;
+
     const language = user.language;
     const defaultLang = this.manager.client.getLanguage("en-US");
+    for (const row of components)
+      for (const component of row.components)
+        if (
+          "label" in component &&
+          (language.has(component.label) || defaultLang.has(component.label))
+        )
+          component.label = language.get(
+            component.label as LanguageKeys,
+            data.args
+          ) as string;
     if (language.has(data.message) || defaultLang.has(data.message)) {
       const message = language.get(data.message as LanguageKeys, data.args);
       if (typeof message == "string")
         return await user
-          .send({ content: message, components: data.buttons })
+          .send({ content: message, components })
+          .catch(() => {});
+      else
+        return await user
+          .send({ content: data.message, components })
           .catch(() => {});
     } else
       return await user
-        .send({ content: data.message, components: data.buttons })
+        .send({ content: data.message, components })
         .catch(() => {});
   }
 }

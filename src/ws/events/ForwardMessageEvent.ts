@@ -16,7 +16,7 @@ export default class ForwardMessageEvent extends Event {
   }
 
   async run(data: {
-    buttons?: (Required<BaseMessageComponentOptions> &
+    components?: (Required<BaseMessageComponentOptions> &
       MessageActionRowOptions)[];
     message: string | MessageEmbedOptions[];
     parseUsers: Snowflake[];
@@ -68,7 +68,7 @@ export default class ForwardMessageEvent extends Event {
       await channel
         .send({
           embeds: embeds as MessageEmbed[],
-          components: data.buttons,
+          components: data.components,
           content,
         })
         .catch(() => {});
