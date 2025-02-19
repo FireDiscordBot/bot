@@ -53,6 +53,8 @@ import { UserSettings } from "./settings";
 
 const { regexes } = constants;
 
+export type TimestampStyle = "t" | "T" | "d" | "D" | "f" | "F" | "R";
+
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
   return (
@@ -227,12 +229,75 @@ export class Util extends ClientUtil {
     return Math.floor(Math.random() * max) + min;
   }
 
+  // Used to get values similar to Discord's timestamp markdown
+  getTimestamp(
+    date: Date | number,
+    lang: Language | Intl.LocalesArgument,
+    timeZone: string = "Etc/UTC",
+    style: TimestampStyle = "f" // same default as Discord
+  ) {
+    if (typeof date == "number") date = new Date(date);
+    if (isNaN(+date)) return "Invalid Date";
+    const locale = lang instanceof Language ? lang.id : lang;
+
+    switch (style) {
+      case "t": // Short Time (e.g. 16:20)
+        return date.toLocaleTimeString(locale, {
+          hour: "numeric",
+          minute: "numeric",
+          timeZone,
+        });
+      case "T": // Long Time (e.g. 16:20:30)
+        return date.toLocaleTimeString(locale, {
+          hour: "numeric",
+          minute: "numeric",
+          second: "numeric",
+          timeZone,
+        });
+      case "d": // Short Date (e.g. 20/04/2021)
+        return date.toLocaleDateString(locale, {
+          month: "numeric",
+          day: "numeric",
+          year: "numeric",
+        });
+      case "D": // Long Date (e.g. 20 April 2021)
+        return date.toLocaleDateString(locale, {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          timeZone,
+        });
+      case "f": // Short Date/Time (e.g. 20 April 2021 16:20)
+        return date.toLocaleString(locale, {
+          dateStyle: "long",
+          timeStyle: "short",
+          timeZone,
+        });
+      case "F": // Long Date/Time (e.g. Tuesday, 20 April 2021 16:20)
+        return date.toLocaleString(locale, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+          timeZone,
+        });
+      case "R": // Relative Time (e.g. 	2 months ago)
+        return this.getRelativeTimeString(date, lang);
+      default:
+        // This will be if an invalid style is passed in
+        // since omitting it will use the default of "f"
+        return "Invalid Style";
+    }
+  }
+
   // may or may not be stolen
   // you may or may not find this exact code at the link below
   // https://www.builder.io/blog/relative-time
   getRelativeTimeString(
     date: Date | number,
-    lang: Language | Intl.Locale
+    lang: Language | Intl.LocalesArgument
   ): string {
     // Allow dates or times to be passed
     const timeMs = typeof date === "number" ? date : date.getTime();

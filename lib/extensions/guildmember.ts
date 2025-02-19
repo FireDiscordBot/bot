@@ -44,6 +44,10 @@ export class FireMember extends GuildMember {
     return this.user.language;
   }
 
+  get timezone() {
+    return this.user.timezone;
+  }
+
   get settings() {
     return this.user.settings;
   }
@@ -529,12 +533,20 @@ export class FireMember extends GuildMember {
     reason: string,
     moderator: FireMember,
     until?: number,
-    days: number = 0,
+    deleteMessageSeconds: number = 0,
     channel?: SlashFakeChannel | ContextFakeChannel | GuildTextChannel,
     sendDM: boolean = true
   ) {
     if (!reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
+    else if (!moderator.isModerator(channel)) return "forbidden";
+    else if (this.guild.ownerId == this.id) return "owner";
+    else if (this.id == moderator.id) return "self";
+    else if (
+      this.roles.highest.position >= this.guild.me.roles.highest.position ||
+      this.roles.highest.position >= moderator.roles.highest.position
+    )
+      return "higher";
+
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.BAN, reason)
       .catch(() => {});
@@ -546,7 +558,7 @@ export class FireMember extends GuildMember {
       ).catch(() => {});
     const banned = await this.ban({
       reason: `${moderator} | ${reason}`,
-      deleteMessageSeconds: 86400 * days,
+      deleteMessageSeconds,
     }).catch(() => {});
     if (!banned) {
       const deleted = await this.guild

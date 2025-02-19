@@ -20,7 +20,7 @@ export const timeTypeCaster: ArgumentTypeCaster = (
   return parseTime(
     content,
     message.createdAt,
-    message.author.settings.get<string>("reminders.timezone.iana", "Etc/UTC"),
+    message.author.timezone,
     message
   );
 };

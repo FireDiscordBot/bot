@@ -163,14 +163,6 @@ export const constants = {
   audioExts: [".mp3", ".wav", ".flac", ".alac", ".m4a"],
   videoExts: [".mp4", ".mkv", ".mov", ".webm"],
   prodBotId: "444871677176709141",
-  dayjsCalendarFormats: {
-    sameDay: `[Today at] HH:mm (h:mm A)`,
-    nextDay: `[Tomorrow at] HH:mm (h:mm A)`,
-    nextWeek: `dddd [at] HH:mm (h:mm A)`,
-    lastDay: `[Yesterday at] HH:mm (h:mm A)`,
-    lastWeek: `[Last] dddd [at] HH:mm (h:mm A)`,
-    sameElse: "DD/MM/YYYY [at] HH:mm (h:mm A)",
-  },
   regexes: {
     maskedLink: /\[(?<name>[^\]]+)\]\((?<link><?https?:\/\/[^\)]+>?)\)/gim,
     symbol: /<|>|\`|\*|~|#|!|"|\(|\)|\[|]|\{|\}|;|\'|/gim,
@@ -258,14 +250,6 @@ export const constants = {
       /(?<uploader>(?:www\.)?toptal\.com\/developers\/hastebin|hastebin\.com|hasteb\.in|hst\.sh|h\.inv\.wtf)\/(?<key>\w{1,20})/gim,
   },
   escapedShruggie: "¯\\_(ツ)_/¯",
-  blockedGifts: [
-    "690195254191849478",
-    "712716640940326962",
-    "444871677176709141",
-    "715594662257229848",
-    "715724782011678821",
-    "590547469624934410",
-  ],
   allowedInvites: [
     // Below are guild ids of which invites for won't be deleted by the "discord" filter
     // They are servers that people may find helpful (e.g. discord-owned servers, programming servers etc.)

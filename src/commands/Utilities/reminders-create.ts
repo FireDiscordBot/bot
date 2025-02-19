@@ -119,7 +119,7 @@ export default class RemindersCreate extends Command {
   async run(
     // FireMessage is here to allow for the --remind flag
     command: ApplicationCommandMessage | ContextCommandMessage | FireMessage,
-    args: { reminder: ParsedTime | null; repeat: number; step: string }
+    args: { reminder: ParsedTime; repeat: number; step: string }
   ) {
     if (
       !(command instanceof FireMessage) &&

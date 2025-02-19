@@ -1,8 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
-import { parseTime } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { ParsedTime } from "@fire/src/arguments/time";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Mute extends Command {
@@ -30,7 +30,7 @@ export default class Mute extends Command {
         },
         {
           id: "time",
-          type: "string",
+          type: "time",
           description: (language: Language) =>
             language.get("MUTE_ARGUMENT_TIME_DESCRIPTION"),
           required: false,
@@ -54,7 +54,7 @@ export default class Mute extends Command {
 
   async run(
     command: ApplicationCommandMessage,
-    args: { user: FireMember; reason?: string; time?: string }
+    args: { user: FireMember; reason?: string; time?: ParsedTime }
   ) {
     if (!args.user) return await command.error("MUTE_USER_REQUIRED");
     else if (
@@ -63,22 +63,14 @@ export default class Mute extends Command {
       command.author.id != command.guild.ownerId
     )
       return await command.error("MODERATOR_ACTION_DISALLOWED");
-    let minutes: number;
-    try {
-      minutes = parseTime(args.time) as number;
-    } catch {
-      return await command.error("TIME_PARSING_FAILED");
-    }
-    const now = new Date();
-    let date: number;
-    if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
+    const muteUntil = args.time?.date;
     const muted = await args.user.mute(
       args.reason?.trim() ||
         (command.guild.language.get(
           "MODERATOR_ACTION_DEFAULT_REASON"
         ) as string),
       command.member,
-      date,
+      muteUntil ? +muteUntil : undefined,
       command.channel
     );
     if (muted == "forbidden")

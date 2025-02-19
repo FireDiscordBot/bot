@@ -3,10 +3,14 @@ import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { parseTime } from "@fire/lib/util/constants";
 import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { ParsedTime } from "@fire/src/arguments/time";
 import { KeySupplier } from "discord-akairo";
 import { PermissionFlagsBits } from "discord-api-types/v9";
+import {
+  ApplicationCommandOptionChoiceData,
+  CommandInteractionOption,
+} from "discord.js";
 
 export default class Ban extends Command {
   constructor() {
@@ -34,7 +38,7 @@ export default class Ban extends Command {
         },
         {
           id: "time",
-          type: "string",
+          type: "time",
           description: (language: Language) =>
             language.get("BAN_ARGUMENT_TIME_DESCRIPTION"),
           required: false,
@@ -42,14 +46,15 @@ export default class Ban extends Command {
           match: "rest",
         },
         {
-          id: "days",
+          id: "deleteMessageSeconds",
           type: "number",
+          slashCommandType: "delete",
           description: (language: Language) =>
             language.get("BAN_ARGUMENT_DAYS_DESCRIPTION"),
           required: false,
+          autocomplete: true,
           default: 0,
           match: "rest",
-          // TODO: add min/max to this
         },
       ],
       context: ["1225072261044764857"],
@@ -80,13 +85,63 @@ export default class Ban extends Command {
     });
   }
 
+  async autocomplete(
+    interaction: ApplicationCommandMessage,
+    _: CommandInteractionOption
+  ): Promise<ApplicationCommandOptionChoiceData[] | string[]> {
+    return [
+      {
+        name: interaction.language.get(
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.NONE" as LanguageKeys
+        ),
+        value: 0,
+      },
+      {
+        name: interaction.language.get(
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_HOUR" as LanguageKeys
+        ),
+        value: 3_600,
+      },
+      {
+        name: interaction.language.get(
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_SIX_HOURS" as LanguageKeys
+        ),
+        value: 21_600,
+      },
+      {
+        name: interaction.language.get(
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_TWELVE_HOURS" as LanguageKeys
+        ),
+        value: 43_200,
+      },
+      {
+        name: interaction.language.get(
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_DAY" as LanguageKeys
+        ),
+        value: 86_400,
+      },
+      {
+        name: interaction.language.get(
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_THREE_DAYS" as LanguageKeys
+        ),
+        value: 259_200,
+      },
+      {
+        name: interaction.language.get(
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_WEEK" as LanguageKeys
+        ),
+        value: 604_800,
+      },
+    ];
+  }
+
   async run(
     command: ApplicationCommandMessage | ContextCommandMessage,
     args: {
       user: FireMember | FireUser;
       reason?: string;
-      time?: string;
-      days?: number;
+      time?: ParsedTime;
+      deleteMessageSeconds?: number;
     }
   ) {
     // Essential Discord has guild context commands for quick bans on automod flagged messages
@@ -96,7 +151,7 @@ export default class Ban extends Command {
         return await command.error("BAN_CONTEXT_AUTOMOD_ONLY");
       args.user = command.getMessage().member ?? command.getMessage().author;
       args.reason = command.contextCommand.commandName.split("Ban - ")[1];
-      args.days = 7;
+      args.deleteMessageSeconds = 7 * 24 * 60 * 60; // 7 days
     }
 
     if (typeof args.user == "undefined")
@@ -108,21 +163,21 @@ export default class Ban extends Command {
       command.author.id != command.guild.ownerId
     )
       return await command.error("MODERATOR_ACTION_DISALLOWED");
-    if (args.days && (args.days < 1 || args.days > 7))
+    if (
+      args.deleteMessageSeconds &&
+      (args.deleteMessageSeconds < 1 || args.deleteMessageSeconds > 604_800)
+    )
       return await command.error("BAN_INVALID_DAYS");
-    let minutes: number;
-    try {
-      minutes = parseTime(args.time) as number;
-    } catch {
-      return await command.error("TIME_PARSING_FAILED");
-    }
-    if (minutes != 0 && minutes < 30 && !command.author.isSuperuser())
+    const banUntil = args.time?.date;
+    if (
+      banUntil &&
+      // 30 minute minimum ban time
+      +banUntil - +new Date() > 1_800_000 &&
+      !command.author.isSuperuser()
+    )
       return await command.error("BAN_TIME_TOO_SHORT");
-    else if (minutes && args.user instanceof FireUser)
+    else if (banUntil && args.user instanceof FireUser)
       return await command.error("BAN_MEMBER_REQUIRED");
-    const now = new Date();
-    let date: number;
-    if (minutes) date = now.setMinutes(now.getMinutes() + minutes);
     const beaned =
       args.user instanceof FireMember
         ? await args.user.bean(
@@ -131,8 +186,8 @@ export default class Ban extends Command {
                 "MODERATOR_ACTION_DEFAULT_REASON"
               ) as string),
             command.member,
-            date,
-            args.days,
+            banUntil ? +banUntil : undefined,
+            args.deleteMessageSeconds,
             command.channel
           )
         : await args.user.bean(
@@ -142,7 +197,7 @@ export default class Ban extends Command {
                 "MODERATOR_ACTION_DEFAULT_REASON"
               ) as string),
             command.member,
-            args.days,
+            args.deleteMessageSeconds,
             command.channel
           );
     if (beaned == "forbidden")

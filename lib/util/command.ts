@@ -9,6 +9,7 @@ import { Snowflake } from "discord-api-types/globals";
 import {
   APIApplicationCommandBasicOption,
   APIApplicationCommandOption,
+  APIApplicationCommandOptionChoice,
   APIApplicationCommandSubcommandGroupOption,
   APIApplicationCommandSubcommandOption,
   ApplicationCommandOptionType,
@@ -397,17 +398,20 @@ export class Command extends AkairoCommand {
     argument: ArgumentOptions
   ): APIApplicationCommandOption {
     // @ts-ignore
-    let options: APIApplicationCommandBasicOption & { autocomplete?: boolean } =
-      {
-        type: getSlashType(argument.type?.toString()),
-        name: this.getSlashCommandArgName(argument),
-        description:
-          typeof argument.description == "function"
-            ? argument.description(this.client.getLanguage("en-US"))
-            : argument.description || "No Description Provided",
-        required: argument.required,
-        autocomplete: argument.autocomplete,
-      };
+    let options: APIApplicationCommandBasicOption & {
+      autocomplete?: boolean;
+      choices?: APIApplicationCommandOptionChoice[];
+    } = {
+      type: getSlashType(argument.type?.toString()),
+      name: this.getSlashCommandArgName(argument),
+      description:
+        typeof argument.description == "function"
+          ? argument.description(this.client.getLanguage("en-US"))
+          : argument.description || "No Description Provided",
+      required: argument.required,
+      autocomplete: argument.autocomplete,
+      choices: !argument.autocomplete ? argument.choices : undefined,
+    };
     if (
       options.type == ApplicationCommandOptionType.Channel &&
       typeof argument.type == "string"
@@ -802,6 +806,7 @@ export interface ArgumentOptions extends AkairoArgumentOptions {
   description?: ((language: Language) => string) | string;
   slashCommandType?: string;
   autocomplete?: boolean;
+  choices?: APIApplicationCommandOptionChoice[];
   readableType?: string;
   required?: boolean;
 }

@@ -297,7 +297,7 @@ export class UserSettings {
   // will check if migration is needed for the current migration script
   // must be synchronous so it can be used in the constructor and the getter below
   shouldMigrate() {
-    return false;
+    return this.has("reminders.timezone.iana");
   }
 
   // boolean to determine whether the migration has been run (based on the migrationId)
@@ -311,12 +311,17 @@ export class UserSettings {
 
   // unique identifier for the current migration script
   get migrationId() {
-    return "";
+    return "February25-Reminders-Timezone-To-Generic";
   }
 
-  // will be "return false;" unless there's a migration to run
+  // will be empty unless there's a migration to run
   async runMigration(): Promise<boolean> {
-    return false;
+    const replaced = await this.set<string>(
+      "timezone.iana",
+      this.get("reminders.timezone.iana")
+    );
+    const deleted = await this.delete("reminders.timezone.iana");
+    return replaced && deleted;
   }
 
   has(key: string) {

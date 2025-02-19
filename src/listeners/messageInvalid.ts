@@ -88,10 +88,7 @@ export default class MessageInvalid extends Listener {
         const parsedTime = parseTime(
           content.trim(),
           message.createdAt,
-          message.author.settings.get<string>(
-            "reminders.timezone.iana",
-            "Etc/UTC"
-          ),
+          message.author.timezone,
           message
         );
 

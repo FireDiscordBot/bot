@@ -254,7 +254,6 @@ export default class InteractionListener extends Listener {
         },
       ]);
     let autocomplete = await message.command.autocomplete(message, focused);
-    // @ts-ignore no idea why this is complaining but whatever
     if (autocomplete.every((option) => typeof option === "string"))
       // allow returning an array of strings if name & value should be the same
       autocomplete = autocomplete.map((a) => ({

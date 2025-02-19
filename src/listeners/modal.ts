@@ -151,10 +151,7 @@ export default class Modal extends Listener {
           ? parseWithUserTimezone(
               modal.interaction.fields.getTextInputValue("time"),
               modal.createdAt,
-              modal.author.settings.get<string>(
-                "reminders.timezone.iana",
-                "Etc/UTC"
-              )
+              modal.author.timezone
             ).parsed[0]?.start.date() ?? reminder.date
           : reminder.date,
       };

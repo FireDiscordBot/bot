@@ -35,6 +35,10 @@ export class FireUser extends User {
     );
   }
 
+  get timezone() {
+    return this.settings.get<string>("timezone.iana", "Etc/UTC");
+  }
+
   get premium() {
     return [...this.client.util.premium.values()].filter(
       (data) => data.user == this.id
@@ -211,11 +215,14 @@ export class FireUser extends User {
     guild: FireGuild,
     reason: string,
     moderator: FireMember,
-    days: number = 0,
+    deleteMessageSeconds: number = 0,
     channel?: SlashFakeChannel | ContextFakeChannel | GuildTextChannel
   ) {
     if (!guild || !reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
+    else if (!moderator.isModerator(channel)) return "forbidden";
+    else if (guild.ownerId == this.id) return "owner";
+    else if (this.id == moderator.id) return "self";
+
     const already = await guild.bans.fetch(this).catch(() => {});
     if (already) return "already";
     const logEntry = await guild
@@ -225,7 +232,7 @@ export class FireUser extends User {
     const banned = await guild.members
       .ban(this, {
         reason: `${moderator} | ${reason}`,
-        deleteMessageSeconds: 86400 * days,
+        deleteMessageSeconds,
       })
       .catch(() => {});
     if (!banned) {

@@ -353,10 +353,7 @@ export default class Select extends Listener {
         const { parsed } = parseWithUserTimezone(
           input,
           specifyTimeModal.createdAt,
-          select.author.settings.get<string>(
-            "reminders.timezone.iana",
-            "Etc/UTC"
-          )
+          select.author.timezone
         );
         const timestamp = +parsed[0]?.start.date();
         if (!parsed || isNaN(timestamp))
