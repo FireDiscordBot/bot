@@ -4,5 +4,14 @@
   "COLOR": "Colour",
   "COLOR_COMMAND_DESCRIPTION": "Get information about a colour",
   "COLOR_ARGUMENT_INVALID": "That does not seem to be a valid colour, maybe try {{random}}",
-  "COLOR_HEADING": "Information about the colour **{{color}}**"
+  "COLOR_HEADING": "Information about the colour **{{color}}**",
+  "TIME_STAMP_STYLES_AUTOCOMPLETE": {
+    "t": "Short Time (e.g. 16:20)",
+    "T": "Long Time (e.g. 16:20:30)",
+    "d": "Short Date (e.g. 20/04/2021)",
+    "D": "Long Date (e.g. 20 April 2021)",
+    "f": "Short Date/Time (e.g. 20 April 2021 at 16:20)",
+    "F": "Long Date/Time (e.g. Tuesday 20 April 2021 at 16:20)",
+    "R": "Relative Time (e.g. 2 months ago)"
+  }
 }

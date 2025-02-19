@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { TimestampStyle } from "@fire/lib/util/clientutil";
 import { Command } from "@fire/lib/util/command";
-import { Language } from "@fire/lib/util/language";
+import { Language, LanguageKeys } from "@fire/lib/util/language";
 import { ParsedTime } from "@fire/src/arguments/time";
 import {
   ApplicationCommandOptionChoiceData,
@@ -40,33 +40,50 @@ export default class Timestamp extends Command {
   }
 
   async autocomplete(
-    _: ApplicationCommandMessage,
+    interaction: ApplicationCommandMessage,
     __: CommandInteractionOption
   ): Promise<ApplicationCommandOptionChoiceData[] | string[]> {
     return [
-      { name: "Short Time (e.g. 16:20)", value: "t" },
       {
-        name: "Long Time (e.g. 16:20:30)",
+        name: interaction.language.get(
+          "TIME_STAMP_STYLES_AUTOCOMPLETE.t" as LanguageKeys
+        ),
+        value: "t",
+      },
+      {
+        name: interaction.language.get(
+          "TIME_STAMP_STYLES_AUTOCOMPLETE.T" as LanguageKeys
+        ),
         value: "T",
       },
       {
-        name: "Short Date (e.g. 20/04/2021)",
+        name: interaction.language.get(
+          "TIME_STAMP_STYLES_AUTOCOMPLETE.d" as LanguageKeys
+        ),
         value: "d",
       },
       {
-        name: "Long Date (e.g. 20 April 2021)",
+        name: interaction.language.get(
+          "TIME_STAMP_STYLES_AUTOCOMPLETE.D" as LanguageKeys
+        ),
         value: "D",
       },
       {
-        name: "Short Date/Time (e.g. 20 April 2021 16:20)",
+        name: interaction.language.get(
+          "TIME_STAMP_STYLES_AUTOCOMPLETE.f" as LanguageKeys
+        ),
         value: "f",
       },
       {
-        name: "Long Date/Time (e.g. Tuesday, 20 April 2021 16:20)",
+        name: interaction.language.get(
+          "TIME_STAMP_STYLES_AUTOCOMPLETE.F" as LanguageKeys
+        ),
         value: "F",
       },
       {
-        name: "Relative Time (e.g. 2 months ago)",
+        name: interaction.language.get(
+          "TIME_STAMP_STYLES_AUTOCOMPLETE.R" as LanguageKeys
+        ),
         value: "R",
       },
     ];
