@@ -162,13 +162,11 @@ export default class Timezone extends Command {
     if (!focused.value) return defaults;
     else {
       const value = focused.value.toString().toLowerCase();
-      return extended
-        .filter(
-          (v) =>
-            v.name.toLowerCase().includes(value) ||
-            (v.value as string).toLowerCase().includes(value)
-        )
-        .slice(0, 25);
+      return extended.filter(
+        (v) =>
+          v.name.toLowerCase().includes(value) ||
+          (v.value as string).toLowerCase().includes(value)
+      );
     }
   }
 
