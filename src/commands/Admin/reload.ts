@@ -41,7 +41,6 @@ export default class AdminReload extends Command {
           default: null,
         },
       ],
-      enableSlashCommand: true,
       restrictTo: "all",
       ownerOnly: true,
       slashOnly: true,

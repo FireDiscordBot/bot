@@ -20,11 +20,10 @@ export default class LoggingConfig extends Command {
       description: (language: Language) =>
         language.get("LOGGING_CONFIG_COMMAND_DESCRIPTION"),
       userPermissions: [PermissionFlagsBits.ManageGuild],
-      args: [],
-      enableSlashCommand: true,
       restrictTo: "guild",
       parent: "logging",
       slashOnly: true,
+      args: [],
     });
   }
 

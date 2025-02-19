@@ -22,7 +22,6 @@ export default class RestrictModerator extends Command {
           required: false,
         },
       ],
-      enableSlashCommand: true,
       restrictTo: "guild",
       parent: "restrict",
       slashOnly: true,

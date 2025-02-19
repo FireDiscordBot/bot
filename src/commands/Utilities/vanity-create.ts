@@ -36,7 +36,6 @@ export default class VanityCreate extends Command {
           default: null,
         },
       ],
-      enableSlashCommand: true,
       restrictTo: "guild",
       parent: "vanity",
       slashOnly: true,

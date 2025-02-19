@@ -9,7 +9,6 @@ export default class ClearWarnings extends Command {
     super("warnings-clear", {
       description: (language: Language) =>
         language.get("WARNINGS_CLEAR_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
       args: [
         {
           id: "user",

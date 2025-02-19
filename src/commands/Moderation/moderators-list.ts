@@ -8,7 +8,6 @@ export default class ListModerators extends Command {
     super("moderators-list", {
       description: (language: Language) =>
         language.get("MODERATORS_LIST_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
       parent: "moderators",
       restrictTo: "guild",
       slashOnly: true,

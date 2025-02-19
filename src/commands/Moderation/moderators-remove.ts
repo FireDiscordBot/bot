@@ -22,7 +22,6 @@ export default class RemoveModerator extends Command {
           required: true,
         },
       ],
-      enableSlashCommand: true,
       parent: "moderators",
       slashOnly: true,
     });

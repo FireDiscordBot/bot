@@ -32,7 +32,6 @@ export default class LoggingToggle extends Command {
           default: null,
         },
       ],
-      enableSlashCommand: true,
       restrictTo: "guild",
       parent: "logging",
       slashOnly: true,

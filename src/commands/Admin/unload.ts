@@ -42,7 +42,6 @@ export default class AdminUnload extends Command {
           default: null,
         },
       ],
-      enableSlashCommand: true,
       restrictTo: "all",
       ownerOnly: true,
       slashOnly: true,

@@ -21,7 +21,6 @@ export default class ModlogsStats extends Command {
         },
       ],
       context: ["moderation log stats"],
-      enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,

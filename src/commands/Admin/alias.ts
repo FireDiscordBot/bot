@@ -32,7 +32,6 @@ export default class AdminAlias extends Command {
           default: null,
         },
       ],
-      enableSlashCommand: true,
       superuserOnly: true,
       restrictTo: "all",
       slashOnly: true,

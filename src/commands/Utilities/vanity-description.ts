@@ -23,7 +23,6 @@ export default class VanityDescription extends Command {
           required: true,
         },
       ],
-      enableSlashCommand: true,
       parent: "vanity",
       slashOnly: true,
     });

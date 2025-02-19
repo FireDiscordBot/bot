@@ -25,7 +25,6 @@ export default class Warnings extends Command {
           default: null,
         },
       ],
-      enableSlashCommand: true,
       moderatorOnly: true,
       restrictTo: "guild",
       deferAnyways: true,

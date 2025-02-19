@@ -187,12 +187,13 @@ export default class RemindersCreate extends Command {
       let { parsed, preliminaryParsedDate: date } = parseWithUserTimezone(
           clickedMessage.content,
           clickedMessage.createdAt,
+          // we can't use FireUser#timezone for clickedMessage.author here
+          // as we don't want to have Etc/UTC returned as a default
+          // but instead use the command author's timezone and then
+          // fallback to Etc/UTC if they *also* don't have a timezone set
           clickedMessage.author.settings.get<string>(
-            "reminders.timezone.iana",
-            command.author.settings.get<string>(
-              "reminders.timezone.iana",
-              "Etc/UTC"
-            )
+            "timezone.iana",
+            command.author.timezone
           )
         ),
         useEmbedDescription = false;
@@ -215,11 +216,8 @@ export default class RemindersCreate extends Command {
               .tz(
                 date,
                 clickedMessage.author.settings.get<string>(
-                  "reminders.timezone.iana",
-                  command.author.settings.get<string>(
-                    "reminders.timezone.iana",
-                    "Etc/UTC"
-                  )
+                  "timezone.iana",
+                  command.author.timezone
                 )
               )
               .utcOffset(),
@@ -367,13 +365,13 @@ export default class RemindersCreate extends Command {
         content:
           command.author.language.get(
             parsed.length
-              ? clickedMessage.author.settings.has("reminders.timezone.iana")
+              ? clickedMessage.author.settings.has("timezone.iana")
                 ? clickedMessage.author.id == command.author.id
-                  ? command.author.settings.has("reminders.timezone.iana")
+                  ? command.author.settings.has("timezone.iana")
                     ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
                     : "REMINDER_CONTEXT_CONTENT"
                   : "REMINDER_CONTEXT_CONTENT_WITH_AUTHOR_TZ"
-                : command.author.settings.has("reminders.timezone.iana")
+                : command.author.settings.has("timezone.iana")
                 ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
                 : "REMINDER_CONTEXT_CONTENT"
               : "REMINDER_CONTEXT_CONTENT_NO_TZ",

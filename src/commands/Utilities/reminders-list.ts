@@ -10,7 +10,6 @@ export default class RemindersList extends Command {
     super("reminders-list", {
       description: (language: Language) =>
         language.get("REMINDERS_LIST_COMMAND_DESCRIPTION"),
-      enableSlashCommand: true,
       parent: "reminders",
       restrictTo: "all",
       slashOnly: true,

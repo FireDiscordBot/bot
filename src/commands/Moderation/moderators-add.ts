@@ -22,7 +22,6 @@ export default class AddModerator extends Command {
           required: true,
         },
       ],
-      enableSlashCommand: true,
       parent: "moderators",
       slashOnly: true,
     });

@@ -10,7 +10,6 @@ export default class LinkfilterListExclude extends Command {
       description: (language: Language) =>
         language.get("LINKFILTER_LIST_EXCLUDE_COMMAND_DESCRIPTION"),
       args: [],
-      enableSlashCommand: true,
       parent: "linkfilter",
       moderatorOnly: true,
       restrictTo: "guild",

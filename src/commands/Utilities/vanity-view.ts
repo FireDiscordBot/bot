@@ -29,7 +29,6 @@ export default class VanityView extends Command {
           default: null,
         },
       ],
-      enableSlashCommand: true,
       restrictTo: "guild",
       parent: "vanity",
       slashOnly: true,

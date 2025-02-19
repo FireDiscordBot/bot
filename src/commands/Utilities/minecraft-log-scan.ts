@@ -75,7 +75,6 @@ export default class LogScan extends Command {
         language.get("MINECRAFT_LOGSCAN_COMMAND_DESCRIPTION"),
       clientPermissions: [PermissionFlagsBits.ManageMessages],
       userPermissions: [PermissionFlagsBits.ManageGuild],
-      enableSlashCommand: false,
       restrictTo: "guild",
       parent: "minecraft",
       slashOnly: true,

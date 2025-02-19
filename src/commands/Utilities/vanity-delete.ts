@@ -38,7 +38,6 @@ export default class VanityDelete extends Command {
           default: false,
         },
       ],
-      enableSlashCommand: true,
       restrictTo: "guild",
       parent: "vanity",
       slashOnly: true,

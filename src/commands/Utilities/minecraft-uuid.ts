@@ -22,7 +22,6 @@ export default class MinecraftUUID extends Command {
           required: true,
         },
       ],
-      enableSlashCommand: false,
       parent: "minecraft",
       restrictTo: "all",
       ephemeral: true,

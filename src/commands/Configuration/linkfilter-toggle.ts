@@ -80,7 +80,6 @@ export default class LinkfilterToggle extends Command {
         language.get("LINKFILTER_TOGGLE_COMMAND_DESCRIPTION"),
       clientPermissions: [PermissionFlagsBits.ManageMessages],
       userPermissions: [PermissionFlagsBits.ManageGuild],
-      enableSlashCommand: true,
       parent: "linkfilter",
       restrictTo: "guild",
       slashOnly: true,

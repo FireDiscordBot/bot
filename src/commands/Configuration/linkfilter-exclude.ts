@@ -60,7 +60,6 @@ export default class LinkfilterExclude extends Command {
         },
       ],
       context: ["link filter exclude"],
-      enableSlashCommand: true,
       parent: "linkfilter",
       restrictTo: "guild",
       slashOnly: true,

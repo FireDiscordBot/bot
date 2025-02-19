@@ -36,7 +36,6 @@ export default class ModlogsView extends Command {
         },
       ],
       context: ["moderation logs"],
-      enableSlashCommand: true,
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,
