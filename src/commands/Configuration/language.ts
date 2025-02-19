@@ -3,6 +3,10 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
+import {
+  ApplicationCommandOptionChoiceData,
+  CommandInteractionOption,
+} from "discord.js";
 
 export default class LanguageCommand extends Command {
   constructor() {
@@ -13,14 +17,34 @@ export default class LanguageCommand extends Command {
         {
           id: "language",
           type: "language",
+          description: (language: Language) =>
+            language.get("LANGUAGE_COMMAND_ARGUMENT_LANGUAGE_DESCRIPTION"),
+          autocomplete: true,
           required: false,
           default: null,
         },
       ],
       enableSlashCommand: true,
-      aliases: ["lang"],
       restrictTo: "all",
+      slashOnly: true,
     });
+  }
+
+  async autocomplete(
+    _: ApplicationCommandMessage,
+    focused: CommandInteractionOption
+  ): Promise<ApplicationCommandOptionChoiceData[] | string[]> {
+    return this.client.languages.modules
+      .filter((lang: Language) =>
+        focused.value
+          ? lang.get("LANGUAGE_NAME").includes(focused.value.toString()) ||
+            lang.id.includes(focused.value.toString())
+          : true
+      )
+      .map((lang: Language) => ({
+        name: lang.get("LANGUAGE_NAME"),
+        value: lang.id,
+      }));
   }
 
   async exec(message: FireMessage, args: { language: Language }) {
