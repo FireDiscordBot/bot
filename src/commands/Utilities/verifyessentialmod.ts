@@ -57,7 +57,7 @@ export default class VerifyEssentialMod extends Command {
       enableSlashCommand: true,
       restrictTo: "guild",
       slashOnly: true,
-      ephemeral: true,
+      ephemeral: false,
       deferAnyways: false,
     });
     this.essentialOrgId = "61853a125d653656b5e732b8";
