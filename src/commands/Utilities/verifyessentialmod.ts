@@ -74,8 +74,7 @@ export default class VerifyEssentialMod extends Command {
   }
 
   async runSlash(command: ApplicationCommandMessage, args?: CommandArgs) {
-    if ((command.flags & 64) == 64) command.flags -= 64;
-    await command.channel.ack(false);
+    await command.channel.ack();
     if (!args?.hash)
       return await command.error("VERIFY_ESSENTIAL_MOD_NO_ARGUMENTS");
     const file = await this.getEssentialFileForChecksum(args.hash);
