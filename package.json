@@ -9,7 +9,7 @@
     "The Aero Team <team@aero.bot> (https://aero.bot)"
   ],
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.20.2"
   },
   "scripts": {
     "dev": "yarn compile && yarn rundev",
