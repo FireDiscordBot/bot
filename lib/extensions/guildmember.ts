@@ -1,4 +1,3 @@
-import sanitizer from "@aero/sanitizer";
 import { Fire } from "@fire/lib/Fire";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -21,8 +20,6 @@ import { FakeChannel as SlashFakeChannel } from "./appcommandmessage";
 import { FakeChannel as ContextFakeChannel } from "./contextcommandmessage";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
-
-const sanitizerInvalid = "gibberish";
 
 export class FireMember extends GuildMember {
   dehoistAndDecancerLock: Semaphore;
@@ -269,16 +266,15 @@ export class FireMember extends GuildMember {
       `John Doe ${this.user.discriminator}`
     );
     if (nonASCII.nickname) {
-      let sanitized: string = sanitizer(this.nickname);
+      let sanitized: string = this.client.util.sanitizer(
+        this.nickname,
+        badName
+      );
       if (this.guild.settings.get<boolean>("mod.autodehoist"))
         // we need to make sure our sanitized nickname isn't hoisted
         // and since we're sanitizing, we won't care about removing characters from the start
         while (sanitized[0] < "0") sanitized = sanitized.slice(1);
-      if (
-        sanitized.length <= 32 &&
-        sanitized.length >= 2 &&
-        sanitized != sanitizerInvalid
-      )
+      if (sanitized.length <= 32 && sanitized.length >= 2)
         return this.edit(
           { nick: sanitized },
           this.guild.language.get("AUTODECANCER_NICKNAME_REASON")
@@ -299,16 +295,15 @@ export class FireMember extends GuildMember {
           this.guild.language.get("AUTODECANCER_BADNAME_REASON")
         );
     } else if (nonASCII.globalName && !this.nickname) {
-      let sanitized: string = sanitizer(this.user.globalName);
+      let sanitized: string = this.client.util.sanitizer(
+        this.user.globalName,
+        badName
+      );
       if (this.guild.settings.get<boolean>("mod.autodehoist"))
         // we need to make sure our sanitized nickname isn't hoisted
         // and since we're sanitizing, we won't care about removing characters from the start
         while (sanitized[0] < "0") sanitized = sanitized.slice(1);
-      if (
-        sanitized.length <= 32 &&
-        sanitized.length >= 2 &&
-        sanitized != sanitizerInvalid
-      )
+      if (sanitized.length <= 32 && sanitized.length >= 2)
         return this.edit(
           { nick: sanitized },
           this.guild.language.get("AUTODECANCER_DISPLAYNAME_REASON")
@@ -324,16 +319,15 @@ export class FireMember extends GuildMember {
           this.guild.language.get("AUTODECANCER_BADNAME_REASON")
         );
     } else if (nonASCII.username && !this.globalName) {
-      let sanitized: string = sanitizer(this.user.username);
+      let sanitized: string = this.client.util.sanitizer(
+        this.user.username,
+        badName
+      );
       if (this.guild.settings.get<boolean>("mod.autodehoist"))
         // we need to make sure our sanitized nickname isn't hoisted
         // and since we're sanitizing, we won't care about removing characters from the start
         while (sanitized[0] < "0") sanitized = sanitized.slice(1);
-      if (
-        sanitized.length <= 32 &&
-        sanitized.length >= 2 &&
-        sanitized != sanitizerInvalid
-      )
+      if (sanitized.length <= 32 && sanitized.length >= 2)
         return this.edit(
           { nick: sanitized },
           this.guild.language.get("AUTODECANCER_USERNAME_REASON")

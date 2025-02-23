@@ -1,3 +1,4 @@
+import * as sanitizer from "@aero/sanitizer";
 import {
   AudioPlayer,
   AudioPlayerStatus,
@@ -200,6 +201,10 @@ export class Util extends ClientUtil {
       PermissionString,
       bigint
     ][];
+  }
+
+  get sanitizer() {
+    return sanitizer as unknown as typeof import("@aero/sanitizer").default;
   }
 
   sleep(ms: number) {

@@ -1,4 +1,3 @@
-import sanitizer from "@aero/sanitizer";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
@@ -337,7 +336,10 @@ export default class Filters extends Module {
       message.attachments.map((attachment) => attachment.description).join(" ");
     let found: RegExpExecArray[] = [];
     let regexec: RegExpExecArray;
-    const sanitizedSearch = sanitizer(searchString);
+    const sanitizedSearch = this.client.util.sanitizer(
+      searchString,
+      searchString
+    );
     for (const regex of regexes.invites)
       while ((regexec = regex.exec(sanitizedSearch))) {
         found.push(regexec);
@@ -562,7 +564,9 @@ export default class Filters extends Module {
         .join(" ") +
       " " +
       extra;
-    const match = regexes.paypal.exec(sanitizer(searchString));
+    const match = regexes.paypal.exec(
+      this.client.util.sanitizer(searchString, searchString)
+    );
     if (!match) return;
     if (message.type != "AUTO_MODERATION_ACTION")
       await message
@@ -625,7 +629,10 @@ export default class Filters extends Module {
       extra;
     let videoMatch: RegExpExecArray;
     const ids: string[] = [];
-    const sanitizedSearch = sanitizer(searchString);
+    const sanitizedSearch = this.client.util.sanitizer(
+      searchString,
+      searchString
+    );
     while ((videoMatch = regexes.youtube.video.exec(sanitizedSearch)) != null) {
       if (!ids.includes(videoMatch.groups.video))
         ids.push(videoMatch.groups.video);
@@ -761,7 +768,10 @@ export default class Filters extends Module {
     let channelMatch: RegExpExecArray;
     const singleChannelLinks: string[] = [];
     const channelLinks: string[] = [];
-    const sanitizedSearch = sanitizer(searchString);
+    const sanitizedSearch = this.client.util.sanitizer(
+      searchString,
+      searchString
+    );
     while (
       (channelMatch = regexes.youtube.channel.exec(sanitizedSearch)) != null
     ) {
@@ -903,8 +913,12 @@ export default class Filters extends Module {
         .join(" ") +
       " " +
       extra;
-    const clipMatch = regexes.twitch.clip.exec(sanitizer(searchString));
-    const channelMatch = regexes.twitch.channel.exec(sanitizer(searchString));
+    const clipMatch = regexes.twitch.clip.exec(
+      this.client.util.sanitizer(searchString, searchString)
+    );
+    const channelMatch = regexes.twitch.channel.exec(
+      this.client.util.sanitizer(searchString, searchString)
+    );
     if (!clipMatch && !channelMatch) return;
     if (message.type != "AUTO_MODERATION_ACTION")
       await message
@@ -960,7 +974,9 @@ export default class Filters extends Module {
         .join(" ") +
       " " +
       extra;
-    const match = regexes.twitter.exec(sanitizer(searchString));
+    const match = regexes.twitter.exec(
+      this.client.util.sanitizer(searchString, searchString)
+    );
     if (!match) return;
     if (message.type != "AUTO_MODERATION_ACTION")
       await message
@@ -1021,7 +1037,9 @@ export default class Filters extends Module {
         .join(" ") +
       " " +
       extra;
-    const match = this.shortURLRegex.exec(sanitizer(searchString));
+    const match = this.shortURLRegex.exec(
+      this.client.util.sanitizer(searchString, searchString)
+    );
     if (!match) return;
     if (message.type != "AUTO_MODERATION_ACTION")
       await message

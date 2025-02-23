@@ -1,4 +1,3 @@
-import sanitizer from "@aero/sanitizer";
 import { Fire } from "@fire/lib/Fire";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { CommandUtil } from "@fire/lib/util/commandutil";
@@ -1282,12 +1281,13 @@ export class FireMessage extends Message {
       +new Date() - this.createdTimestamp > 604_800_000 // ignore msgs older than 7 days
     )
       return;
-    const lowerContent = sanitizer(
-      (this.content + (this.embeds.map((e) => e.description).join(" ") ?? ""))
-        .toLowerCase()
-        .replace(/\s/gim, "")
-        .replace(regexes.zws, "")
-    );
+    const toSanitize = (
+      this.content + (this.embeds.map((e) => e.description).join(" ") ?? "")
+    )
+      .toLowerCase()
+      .replace(/\s/gim, "")
+      .replace(regexes.zws, "");
+    const sanitized = this.client.util.sanitizer(toSanitize, toSanitize);
     const logPhish = async (match?: string) => {
       let embedsHaste: { url: string; raw: string };
       if (this.embeds.length)
@@ -1409,31 +1409,31 @@ The lack of this is a sign that this message may have been sent automatically by
           });
     };
     if (
-      lowerContent.includes("@everyone") &&
-      (lowerContent.includes("nitro") ||
-        lowerContent.includes("cs:go") ||
-        lowerContent.includes("tradeoffer") ||
-        lowerContent.includes("partner"))
+      sanitized.includes("@everyone") &&
+      (sanitized.includes("nitro") ||
+        sanitized.includes("cs:go") ||
+        sanitized.includes("tradeoffer") ||
+        sanitized.includes("partner"))
     )
       return await triggerFilter("Common Words");
     else if (
-      lowerContent.includes("steam") &&
-      lowerContent.includes("http") &&
-      (lowerContent.includes("tradeoffer") ||
-        lowerContent.includes("partner") ||
-        lowerContent.includes("cs:go"))
+      sanitized.includes("steam") &&
+      sanitized.includes("http") &&
+      (sanitized.includes("tradeoffer") ||
+        sanitized.includes("partner") ||
+        sanitized.includes("cs:go"))
     )
       return await triggerFilter("CS:GO Trade/Partner Link");
     else if (
-      lowerContent.includes("nitro") &&
-      lowerContent.includes("steam") &&
-      lowerContent.includes("http")
+      sanitized.includes("nitro") &&
+      sanitized.includes("steam") &&
+      sanitized.includes("http")
     )
       return await triggerFilter("Nitro/Steam Link");
     else if (
-      lowerContent.includes("nitro") &&
-      lowerContent.includes("distributiоn") &&
-      lowerContent.includes("free")
+      sanitized.includes("nitro") &&
+      sanitized.includes("distributiоn") &&
+      sanitized.includes("free")
     )
       return await triggerFilter("Free Nitro Link");
     // else if (
@@ -1443,15 +1443,15 @@ The lack of this is a sign that this message may have been sent automatically by
     // )
     //   return await triggerFilter("Discord/Steam Link");
     else if (
-      (lowerContent.includes("csgo") || lowerContent.includes("cs:go")) &&
-      lowerContent.includes("skin") &&
-      lowerContent.includes("http")
+      (sanitized.includes("csgo") || sanitized.includes("cs:go")) &&
+      sanitized.includes("skin") &&
+      sanitized.includes("http")
     )
       return await triggerFilter("CS:GO Skin");
     else if (
-      lowerContent.includes("nitro") &&
-      lowerContent.includes("gift") &&
-      lowerContent.includes(".ru")
+      sanitized.includes("nitro") &&
+      sanitized.includes("gift") &&
+      sanitized.includes(".ru")
     )
       return await triggerFilter(".ru Nitro Gift Link");
     // else if (
@@ -1467,123 +1467,123 @@ The lack of this is a sign that this message may have been sent automatically by
     // )
     //   return await triggerFilter("@everyone Mention w/Gift Link");
     else if (
-      lowerContent.includes("gift") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes("bro")
+      sanitized.includes("gift") &&
+      sanitized.includes("http") &&
+      sanitized.includes("bro")
     )
       // copilot generated this and I can't stop laughing at it
       return await triggerFilter("Bro Mention w/Gift Link");
     else if (
-      lowerContent.includes("gift") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes("foryou")
+      sanitized.includes("gift") &&
+      sanitized.includes("http") &&
+      sanitized.includes("foryou")
     )
       return await triggerFilter("gift 4 you bro");
-    else if (lowerContent.includes("airdrop") && lowerContent.includes("nitro"))
+    else if (sanitized.includes("airdrop") && sanitized.includes("nitro"))
       return await triggerFilter("Nitro Airdrop");
-    else if (lowerContent.includes("/n@") && lowerContent.includes("nitro"))
+    else if (sanitized.includes("/n@") && sanitized.includes("nitro"))
       return await triggerFilter("Epic Newline Fail");
     else if (
-      lowerContent.includes("distribution") &&
-      lowerContent.includes("nitro") &&
-      lowerContent.includes("steam")
+      sanitized.includes("distribution") &&
+      sanitized.includes("nitro") &&
+      sanitized.includes("steam")
     )
       return await triggerFilter("Nitro/Steam Link");
     else if (
-      lowerContent.includes("dis") &&
-      lowerContent.includes(".gift") &&
-      !lowerContent.includes("discord.gift")
+      sanitized.includes("dis") &&
+      sanitized.includes(".gift") &&
+      !sanitized.includes("discord.gift")
     )
       return await triggerFilter("Fake gift link");
     else if (
-      lowerContent.includes("dis") &&
-      lowerContent.includes(".gift") &&
-      lowerContent.includes("who is")
+      sanitized.includes("dis") &&
+      sanitized.includes(".gift") &&
+      sanitized.includes("who is")
     )
       return await triggerFilter("Fake gift link");
     else if (
-      lowerContent.includes("steamgift50$") &&
-      ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
-        (lowerContent.includes("[http") && lowerContent.includes("steam")))
+      sanitized.includes("steamgift50$") &&
+      ((sanitized.includes("[steam") && sanitized.includes("http")) ||
+        (sanitized.includes("[http") && sanitized.includes("steam")))
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("$fromsteam") &&
-      ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
-        (lowerContent.includes("[http") && lowerContent.includes("steam")))
+      sanitized.includes("$fromsteam") &&
+      ((sanitized.includes("[steam") && sanitized.includes("http")) ||
+        (sanitized.includes("[http") && sanitized.includes("steam")))
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("$gift") &&
-      ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
-        (lowerContent.includes("[http") && lowerContent.includes("steam")))
+      sanitized.includes("$gift") &&
+      ((sanitized.includes("[steam") && sanitized.includes("http")) ||
+        (sanitized.includes("[http") && sanitized.includes("steam")))
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("freegift") &&
-      ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
-        (lowerContent.includes("[http") && lowerContent.includes("steam")))
+      sanitized.includes("freegift") &&
+      ((sanitized.includes("[steam") && sanitized.includes("http")) ||
+        (sanitized.includes("[http") && sanitized.includes("steam")))
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("steamwintergiveaway") &&
-      ((lowerContent.includes("[steam") && lowerContent.includes("http")) ||
-        (lowerContent.includes("[http") && lowerContent.includes("steam")))
+      sanitized.includes("steamwintergiveaway") &&
+      ((sanitized.includes("[steam") && sanitized.includes("http")) ||
+        (sanitized.includes("[http") && sanitized.includes("steam")))
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("$gift") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes("ste")
+      sanitized.includes("$gift") &&
+      sanitized.includes("http") &&
+      sanitized.includes("ste")
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("$gift") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes("steam") &&
-      lowerContent.includes("winter")
+      sanitized.includes("$gift") &&
+      sanitized.includes("http") &&
+      sanitized.includes("steam") &&
+      sanitized.includes("winter")
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("$gift") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes("steam") &&
-      lowerContent.includes("ticket")
+      sanitized.includes("$gift") &&
+      sanitized.includes("http") &&
+      sanitized.includes("steam") &&
+      sanitized.includes("ticket")
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("$steamgift") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes("activation")
+      sanitized.includes("$steamgift") &&
+      sanitized.includes("http") &&
+      sanitized.includes("activation")
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("$steamgift") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes(".to")
+      sanitized.includes("$steamgift") &&
+      sanitized.includes("http") &&
+      sanitized.includes(".to")
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("$steamgift") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes("comm")
+      sanitized.includes("$steamgift") &&
+      sanitized.includes("http") &&
+      sanitized.includes("comm")
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("steamgivesapersonalgift-") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes("steam")
+      sanitized.includes("steamgivesapersonalgift-") &&
+      sanitized.includes("http") &&
+      sanitized.includes("steam")
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("giftfromsteam") &&
-      lowerContent.includes("http") &&
-      lowerContent.includes("steam")
+      sanitized.includes("giftfromsteam") &&
+      sanitized.includes("http") &&
+      sanitized.includes("steam")
     )
       return await triggerFilter("Fake steam gift link");
     else if (
-      lowerContent.includes("steamgift") &&
-      lowerContent.includes("$-steamcommunity.com")
+      sanitized.includes("steamgift") &&
+      sanitized.includes("$-steamcommunity.com")
     )
       // this isn't even phishing
       // idk what the point is
@@ -1619,7 +1619,7 @@ The lack of this is a sign that this message may have been sent automatically by
     //   return await triggerFilter("Try my game scam");
     // always keep this last
     else if (
-      lowerContent.includes("http") &&
+      sanitized.includes("http") &&
       !this.nonce &&
       this.type != "AUTO_MODERATION_ACTION"
     )

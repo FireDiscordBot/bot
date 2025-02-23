@@ -1,4 +1,3 @@
-import sanitizer from "@aero/sanitizer";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
@@ -178,6 +177,6 @@ export default class Message extends Listener {
       for (const regex of regexes)
         content = content.replace(regex, replacement);
 
-    return sanitizer(content);
+    return this.client.util.sanitizer(content, content);
   }
 }
