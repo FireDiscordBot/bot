@@ -738,9 +738,8 @@ export class FakeChannel extends BaseFakeChannel {
   async ack(ephemeral = false) {
     await this.ackLock.acquire();
     if (
-      ephemeral ||
-      (this.flags & 64) != 0 ||
-      !this.message.command?.deferAnyways ||
+      ((ephemeral || (this.flags & 64) != 0) &&
+        !this.message.command?.deferAnyways) ||
       this.message.slashCommand.isAutocomplete()
     )
       return this.ackLock.release();
