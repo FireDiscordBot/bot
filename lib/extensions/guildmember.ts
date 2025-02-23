@@ -1,4 +1,4 @@
-import * as sanitizer from "@aero/sanitizer";
+import sanitizer from "@aero/sanitizer";
 import { Fire } from "@fire/lib/Fire";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {

@@ -9,6 +9,8 @@ import {
   APIRole,
   APIUser,
   ApplicationCommandOptionType,
+  ApplicationIntegrationType,
+  InteractionContextType,
   RESTPostAPIChatInputApplicationCommandsJSONBody,
 } from "discord-api-types/v9";
 import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
@@ -16,8 +18,8 @@ import { ApplicationCommandOptionTypes } from "discord.js/typings/enums";
 export type FireAPIApplicationCommand =
   RESTPostAPIChatInputApplicationCommandsJSONBody & {
     id?: Snowflake;
-    integration_types: IntegrationTypes[];
-    contexts: InteractionContexts[];
+    integration_types: ApplicationIntegrationType[];
+    contexts: InteractionContextType[];
   };
 
 export enum IntegrationTypes {

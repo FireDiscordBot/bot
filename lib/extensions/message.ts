@@ -1,4 +1,4 @@
-import * as sanitizer from "@aero/sanitizer";
+import sanitizer from "@aero/sanitizer";
 import { Fire } from "@fire/lib/Fire";
 import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { CommandUtil } from "@fire/lib/util/commandutil";

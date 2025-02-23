@@ -1,4 +1,4 @@
-import * as sanitizer from "@aero/sanitizer";
+import sanitizer from "@aero/sanitizer";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";

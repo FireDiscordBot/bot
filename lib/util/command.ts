@@ -14,7 +14,9 @@ import {
   APIApplicationCommandSubcommandOption,
   ApplicationCommandOptionType,
   ApplicationCommandType,
+  ApplicationIntegrationType,
   ChannelType,
+  InteractionContextType,
   PermissionFlagsBits,
 } from "discord-api-types/v9";
 import {
@@ -34,11 +36,7 @@ import { FireGuild } from "../extensions/guild";
 import { FireMember } from "../extensions/guildmember";
 import { FireMessage } from "../extensions/message";
 import { FireUser } from "../extensions/user";
-import {
-  FireAPIApplicationCommand,
-  IntegrationTypes,
-  InteractionContexts,
-} from "../interfaces/interactions";
+import { FireAPIApplicationCommand } from "../interfaces/interactions";
 import { Message } from "../ws/Message";
 import { MessageUtil } from "../ws/util/MessageUtil";
 import { EventType } from "../ws/util/constants";
@@ -326,15 +324,18 @@ export class Command extends AkairoCommand {
       options: [],
       integration_types:
         this.channel == "guild"
-          ? [IntegrationTypes.GUILD_INSTALL]
-          : [IntegrationTypes.GUILD_INSTALL, IntegrationTypes.USER_INSTALL],
+          ? [ApplicationIntegrationType.GuildInstall]
+          : [
+              ApplicationIntegrationType.GuildInstall,
+              ApplicationIntegrationType.UserInstall,
+            ],
       contexts:
         this.channel == "guild"
-          ? [InteractionContexts.GUILD]
+          ? [InteractionContextType.Guild]
           : [
-              InteractionContexts.GUILD,
-              InteractionContexts.BOT_DM,
-              InteractionContexts.PRIVATE_CHANNEL,
+              InteractionContextType.Guild,
+              InteractionContextType.BotDM,
+              InteractionContextType.PrivateChannel,
             ],
     };
     if (id) data.id = id;

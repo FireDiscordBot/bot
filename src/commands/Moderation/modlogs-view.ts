@@ -77,7 +77,7 @@ export default class ModlogsView extends Command {
       return await command.error("MODLOGS_NONE_FOUND");
     const reasonIndex = logs.names.indexOf("reason");
     const longestReason = logs.rows.reduce((a, b) => {
-      const l = (b[reasonIndex] as string).length;
+      const l = (b[reasonIndex] as unknown as string).length;
       return a > l ? a : l;
     }, 0);
     const paginator = new WrappedPaginator("", "", 800 + longestReason);

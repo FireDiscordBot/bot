@@ -1,4 +1,4 @@
-import * as sanitizer from "@aero/sanitizer";
+import sanitizer from "@aero/sanitizer";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";

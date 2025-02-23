@@ -1679,7 +1679,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     }
     const embed = new MessageEmbed()
       .setColor(
-        blockee instanceof FireMember ? blockee.displayColor : null || "#E74C3C"
+        (blockee instanceof FireMember ? blockee.displayColor : null) ||
+          "#E74C3C"
       )
       .setTimestamp()
       .setAuthor({
@@ -1764,9 +1765,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     }
     const embed = new MessageEmbed()
       .setColor(
-        unblockee instanceof FireMember
-          ? unblockee.displayColor
-          : null || "#2ECC71"
+        (unblockee instanceof FireMember ? unblockee.displayColor : null) ||
+          "#2ECC71"
       )
       .setTimestamp()
       .setAuthor({
