@@ -447,15 +447,16 @@ export class FireMember extends GuildMember {
         value: this.guild.language.get("WARN_LOG_DM_FAIL"),
       });
     await this.guild.modLog(embed, ModLogTypes.WARN).catch(() => {});
-    const count = await this.client.db
-      .query("SELECT * FROM modlogs WHERE gid=$1 AND type=$2 AND uid=$3;", [
-        this.guild.id,
-        "warn",
-        this.id,
-      ])
-      .then((value) => value.rows.length)
-      .catch(() => 0);
-    const times = this.client.util.numberWithSuffix(count);
+    const countResult = await this.client.db
+      .query(
+        "SELECT count(caseid) FROM modlogs WHERE gid=$1 AND type=$2 AND uid=$3;",
+        [this.guild.id, "warn", this.id]
+      )
+      .first()
+      .catch(() => ({ get: (_: string) => 0n }));
+    const times = this.client.util.numberWithSuffix(
+      Number(countResult.get("count") as bigint)
+    );
     if (channel)
       return noDM
         ? await channel

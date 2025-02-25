@@ -58,7 +58,9 @@ export default class Warnings extends Command {
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
           warn.get("modid") || constants.escapedShruggie
         }
-**${command.language.get("DATE")}**: ${warn.get("date")}
+**${command.language.get("DATE")}**: ${(
+          warn.get("created") as Date
+        ).toLocaleString(command.language.id)}
 **-----------------**`)
       );
     }

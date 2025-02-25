@@ -2,7 +2,6 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
-import { Util } from "discord.js";
 
 export default class ClearWarnings extends Command {
   constructor() {
@@ -53,43 +52,54 @@ export default class ClearWarnings extends Command {
     )
       // you can't warn mods anyways
       return await command.error("MODERATOR_ACTION_DISALLOWED");
-    const typeOrCountResult = await this.client.db
+
+    // we'll get the count first so we know if there's even anything to delete
+    const available = await this.client.db
       .query(
         typeof userOrCaseId == "string"
-          ? "SELECT type FROM modlogs WHERE gid = $1 AND caseid = $2;"
-          : "SELECT COUNT(*) FROM modlogs WHERE gid = $1 AND uid = $2;",
+          ? "SELECT count(caseid) FROM modlogs WHERE gid = $1 AND caseid = $2 AND type=ANY(array['warn','note']);"
+          : "SELECT count(caseid) FROM modlogs WHERE gid = $1 AND uid = $2 AND type=ANY(array['warn','note']);",
         [
-          command.guild.id,
+          command.guildId,
           typeof userOrCaseId == "string" ? userOrCaseId : userOrCaseId.id,
         ]
       )
       .first()
-      .catch(() => {});
-    if (!typeOrCountResult) return await command.error("WARNINGS_CLEAR_FAILED");
-    const type = (typeOrCountResult.get("type") as string) ?? "warn",
-      amount = (typeOrCountResult.get("count") as number) ?? 0;
-    if (type != "warn" && type != "note")
-      return await command.error("WARNINGS_CLEAR_INVALID_CASE_TYPE");
+      .then((r) => r.get("count") as bigint)
+      .catch(() => 0n);
+    if (available <= 0n)
+      return await command.error(
+        typeof userOrCaseId == "string"
+          ? "WARNINGS_CLEAR_SINGLE_NONE_FOUND"
+          : "WARNINGS_CLEAR_ALL_NONE_FOUND"
+      );
+
+    // and now we run the delete, making sure we only target warn & note
     const cleared = await this.client.db
       .query(
         typeof userOrCaseId == "string"
-          ? "DELETE FROM modlogs WHERE gid = $1 AND caseid = $2;"
-          : "DELETE FROM modlogs WHERE gid = $1 AND uid = $2;",
+          ? "DELETE FROM modlogs WHERE gid = $1 AND caseid = $2 AND type=ANY(array['warn','note']);"
+          : "DELETE FROM modlogs WHERE gid = $1 AND uid = $2 AND type=ANY(array['warn','note']);",
         [
-          command.guild.id,
+          command.guildId,
           typeof userOrCaseId == "string" ? userOrCaseId : userOrCaseId.id,
         ]
       )
       .catch(() => {});
+
     // even if it deletes nothing just pretend it works
+    // but realistically it always should due to the count check
     return cleared && cleared.status.startsWith("DELETE")
       ? await command.success(
           typeof userOrCaseId == "string"
             ? "WARNINGS_CLEAR_SINGLE_SUCCESS"
             : "WARNINGS_CLEAR_ALL_SUCCESS",
           {
-            amount: amount,
-            user: Util.escapeMarkdown(userOrCaseId.toString()),
+            amount: cleared.status.split(" ")[1],
+            user:
+              typeof userOrCaseId == "string"
+                ? undefined
+                : userOrCaseId.toMention(),
           }
         )
       : await command.error("WARNINGS_CLEAR_FAILED");

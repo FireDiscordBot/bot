@@ -1688,7 +1688,8 @@
   "WARNINGS_CLEAR_ARGUMENT_CASEID_DESCRIPTION": "The ID of the case you would like to clear",
   "WARNINGS_CLEAR_ARGUMENT_REQUIRED": "You must provide a member or case ID to clear warn(s)",
   "WARNINGS_CLEAR_ARGUMENTS_EXCLUSIVE": "You cannot provide both arguments, please provide either a member or case ID",
-  "WARNINGS_CLEAR_INVALID_CASE_TYPE": "You cannot clear this type of case!",
+  "WARNINGS_CLEAR_SINGLE_NONE_FOUND": "That case ID either does not exist or cannot be cleared!",
+  "WARNINGS_CLEAR_ALL_NONE_FOUND": "That user does not have any warnings to clear!",
   "WARNINGS_CLEAR_ALL_SUCCESS": "Successfully cleared {{amount}} warning(s) from **{{user}}**",
   "WARNINGS_CLEAR_SINGLE_SUCCESS": "Successfully cleared warning!",
   "WARNINGS_CLEAR_FAILED": "Uh oh, something went wrong while trying to clear warnings"

@@ -59,7 +59,9 @@ export default class Reason extends Command {
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
         result.get("modid") || constants.escapedShruggie
       }
-**${command.language.get("DATE")}**: ${result.get("date")}
+**${command.language.get("DATE")}**: ${(
+        result.get("created") as Date
+      ).toLocaleString(command.language.id)}
 **${command.language.get("TYPE")}**: ${titleCase(
         result.get("type") as string
       )}`);

@@ -3,7 +3,7 @@ import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { ModLogTypesEnumToString, titleCase } from "@fire/lib/util/constants";
+import { titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { MessageEmbed } from "discord.js";
 
@@ -38,7 +38,6 @@ export default class ModlogsStats extends Command {
       args.user = command.getMemberOrUser(true);
     if (!args.user) return;
     const types: Record<string, number> = {};
-    for (const type of Object.values(ModLogTypesEnumToString)) types[type] = 0;
     const logs = await this.client.db
       .query("SELECT type FROM modlogs WHERE uid=$1 AND gid=$2;", [
         args.user.id,
@@ -49,7 +48,8 @@ export default class ModlogsStats extends Command {
       return await command.error("MODLOGS_NONE_FOUND");
     for await (const action of logs) {
       const type = action.get("type") as string;
-      types[type]++;
+      if (!types[type]) types[type] = 1;
+      else types[type]++;
     }
     const countsEmbed = new MessageEmbed()
       .setColor(

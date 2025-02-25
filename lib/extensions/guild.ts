@@ -1555,11 +1555,11 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     )
       return false;
     const typeString = ModLogTypesEnumToString[type];
-    const date = new Date().toLocaleString(this.language.id);
+    const date = new Date();
     const caseID = nanoid();
     const entryResult = await this.client.db
       .query(
-        "INSERT INTO modlogs (gid, uid, modid, reason, date, type, caseid) VALUES ($1, $2, $3, $4, $5, $6, $7);",
+        "INSERT INTO modlogs (gid, uid, modid, reason, created, type, caseid) VALUES ($1, $2, $3, $4, $5, $6, $7);",
         [this.id, user.id, moderator.id, reason, date, typeString, caseID]
       )
       .catch(() => {});

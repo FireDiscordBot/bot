@@ -97,7 +97,9 @@ export default class ModlogsView extends Command {
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
           action.get("modid") || constants.escapedShruggie
         }
-**${command.language.get("DATE")}**: ${action.get("date")}${typeInfo}
+**${command.language.get("DATE")}**: ${(
+          action.get("created") as Date
+        ).toLocaleString(command.language.id)}${typeInfo}
 **-----------------**`)
       );
     }
