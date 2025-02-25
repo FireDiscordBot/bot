@@ -6,7 +6,7 @@ import {
 } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
 import { i18nOptions } from "@fire/lib/util/constants";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { LanguageKeys } from "@fire/lib/util/language";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -61,7 +61,6 @@ export class ContextCommandMessage {
   channel: FakeChannel;
   deleteReason: string;
   member?: FireMember;
-  language: Language;
   guild?: FireGuild;
   util: CommandUtil;
   command: Command;
@@ -96,13 +95,6 @@ export class ContextCommandMessage {
         (this.guild.members.cache.get(this.author.id) as FireMember) ||
         new FireMember(client, command.member, this.guild);
     }
-    this.language =
-      (this.author?.settings.has("utils.language")
-        ? this.author.language.id == "en-US" &&
-          this.guild?.language.id != "en-US"
-          ? this.guild?.language
-          : this.author.language
-        : this.guild?.language) ?? client.getLanguage("en-US");
     this.realChannel = this.client.channels.cache.get(
       this.contextCommand.channelId
     ) as FireTextChannel | NewsChannel | DMChannel;
@@ -127,6 +119,14 @@ export class ContextCommandMessage {
       command.id,
       command.token,
       this.realChannel
+    );
+  }
+
+  get language() {
+    return (
+      (this.author?.settings.has("utils.language")
+        ? this.author.language
+        : this.guild?.language) ?? this.client.getLanguage("en-US")
     );
   }
 

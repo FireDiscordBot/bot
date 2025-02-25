@@ -25,7 +25,7 @@ import Semaphore from "semaphore-async-await";
 import { Fire } from "../Fire";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { i18nOptions } from "../util/constants";
-import { Language, LanguageKeys } from "../util/language";
+import { LanguageKeys } from "../util/language";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
@@ -46,7 +46,6 @@ export class ComponentMessage {
   message: FireMessage;
   channel: FakeChannel;
   member: FireMember;
-  language: Language;
   customId: string;
   guild: FireGuild;
   author: FireUser;
@@ -89,13 +88,6 @@ export class ComponentMessage {
       : component.member &&
         ((client.users.cache.get(component.member.user.id) as FireUser) ||
           new FireUser(client, component.member.user as RawUserData));
-    this.language =
-      (this.author?.settings.has("utils.language")
-        ? this.author.language.id == "en-US" &&
-          this.guild?.language.id != "en-US"
-          ? this.guild?.language
-          : this.author.language
-        : this.guild?.language) ?? client.getLanguage("en-US");
     if (!this.guild) {
       this.channel = new FakeChannel(
         this,
@@ -112,6 +104,14 @@ export class ComponentMessage {
       component.id,
       component.token,
       this.realChannel
+    );
+  }
+
+  get language() {
+    return (
+      (this.author?.settings.has("utils.language")
+        ? this.author.language
+        : this.guild?.language) ?? this.client.getLanguage("en-US")
     );
   }
 
