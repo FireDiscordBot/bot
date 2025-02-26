@@ -37,12 +37,12 @@ export default class LanguageCommand extends Command {
     return this.client.languages.modules
       .filter((lang: Language) =>
         focused.value
-          ? lang.get("LANGUAGE_NAME").includes(focused.value.toString()) ||
+          ? lang.name.includes(focused.value.toString()) ||
             lang.id.includes(focused.value.toString())
           : true
       )
       .map((lang: Language) => ({
-        name: lang.get("LANGUAGE_NAME"),
+        name: lang.name,
         value: lang.id,
       }));
   }

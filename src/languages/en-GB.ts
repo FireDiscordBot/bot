@@ -6,6 +6,8 @@ import { Language } from "@fire/lib/util/language";
 // need to be added here (mostly small things like "color" vs "colour")
 
 export default class enGB extends Language {
+  readonly name = "English (GB)";
+
   constructor() {
     super("en-GB", {
       language: language,

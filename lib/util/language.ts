@@ -7,6 +7,8 @@ type LanguageOptions = Partial<typeof enUS>;
 export type LanguageKeys = keyof typeof enUS;
 
 export class Language extends AkairoModule {
+  name = "CHANGE ME";
+
   private language: LanguageOptions;
   declare client: Fire;
   enabled: boolean;
