@@ -36,11 +36,9 @@ export default class RateLimit extends Listener {
       .warn(
         `Limited on route ${
           rateLimit.route
-        } while trying to ${rateLimit.method?.toUpperCase()}${
-          rateLimit.reason ? ' due to "' + rateLimit.reason + '"' : ""
-        } with limit ${rateLimit.limit}, waiting for timeout of ${
-          rateLimit.timeout
-        }ms`
+        } while trying to ${rateLimit.method?.toUpperCase()}`,
+        rateLimit.reason ? `due to "${rateLimit.reason}"` : "",
+        `with limit ${rateLimit.limit}, waiting for timeout of ${rateLimit.timeout}ms`
       );
   }
 }

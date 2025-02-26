@@ -23,9 +23,8 @@ export default class Deploy extends Event {
     requireInstall: boolean;
   }) {
     this.console.warn(
-      `Received request to deploy commit ${data.commit} on branch ${
-        data.branch
-      }${data.requireInstall ? " (requires install)" : ""}`
+      `Received request to deploy commit ${data.commit} on branch ${data.branch}`,
+      data.requireInstall ? "(requires install)" : ""
     );
     // check what commit we're currently on first
     const currentCommit = getCommitHash();
