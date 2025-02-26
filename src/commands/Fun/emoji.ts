@@ -99,7 +99,7 @@ export default class Emoji extends Command {
   }
 
   async getFormat(url: string) {
-    const emojiReq = await centra(`${url}`, "HEAD")
+    const emojiReq = await centra(url, "HEAD")
       .header("User-Agent", this.client.manager.ua)
       .send();
     const contentType = emojiReq.headers["content-type"];

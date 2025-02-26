@@ -7,7 +7,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { Snowflake } from "discord-api-types/globals";
 import { APIGuildMember } from "discord-api-types/v9";
 
-export default class GuildCheckEvent extends Event {
+export default class GuildCheck extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.GUILD_CHECK);
   }
@@ -65,7 +65,7 @@ export default class GuildCheckEvent extends Event {
           {
             id: data.id,
             has: this.manager.client?.guilds.cache.has(data.id),
-            member: GuildCheckEvent.getMemberJSON(
+            member: GuildCheck.getMemberJSON(
               this.manager.client?.guilds.cache.get(data.id)?.members
                 .me as FireMember
             ),

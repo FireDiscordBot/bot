@@ -10,7 +10,7 @@ import {
   MessageEmbedOptions,
 } from "discord.js";
 
-export default class ForwardMessageEvent extends Event {
+export default class ForwardMessage extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.FORWARD_MESSAGE);
   }

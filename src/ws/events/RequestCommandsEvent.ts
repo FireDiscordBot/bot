@@ -5,15 +5,13 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 
-export default class RequestCommandsEvent extends Event {
+export default class RequestCommands extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.REQUEST_COMMANDS);
   }
 
   async run() {
-    this.manager.client.console.log(
-      `[Event] Received request to sync commands.`
-    );
+    this.console.log(`Received request to sync commands.`);
     this.manager.ws.send(
       MessageUtil.encode(
         new Message(EventType.REQUEST_COMMANDS, {

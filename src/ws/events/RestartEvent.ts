@@ -8,7 +8,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import GuildCheckEvent from "./GuildCheckEvent";
 
-export default class RestartEvent extends Event {
+export default class Restart extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.RESTART_CLIENT);
   }
@@ -21,8 +21,8 @@ export default class RestartEvent extends Event {
     session: string;
     id: number;
   }) {
-    this.manager.client.console.log(
-      "[Aether] Received restart event, checking whether sharding options have changed..."
+    this.console.log(
+      "Received restart event, checking whether sharding options have changed..."
     );
     if (data.id != this.manager.id)
       return this.manager.kill("cluster_id_mismatch");

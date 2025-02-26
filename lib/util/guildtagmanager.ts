@@ -249,19 +249,23 @@ export class GuildTagManager {
       .then((updated: APIApplicationCommand[]) => {
         const slashTags = updated.filter((command) => this.isSlashTag(command));
         if (!this.preparedSlashCommands)
-          this.client.console.info(
-            `[Commands] Successfully bulk updated ${slashTags.length} slash command tags for guild ${this.guild.name}`
-          );
+          this.client
+            .getLogger("Commands")
+            .info(
+              `Successfully bulk updated ${slashTags.length} slash command tags for guild ${this.guild.name}`
+            );
         for (const tag of slashTags)
           if (this.slashCommands[tag.id] != tag.name)
             this.slashCommands[tag.id] = tag.name;
       })
       .catch(async (e: DiscordAPIError) => {
-        this.client.console.error(
-          `[Commands] Failed to update slash command tags for guild ${
-            this.guild.name
-          }\n${e.code ?? 0}: ${e.stack}`
-        );
+        this.client
+          .getLogger("Commands")
+          .error(
+            `Failed to update slash command tags for guild ${
+              this.guild.name
+            }\n${e.code ?? 0}: ${e.stack}`
+          );
         if (
           e.message.includes("Maximum number of application commands reached")
         )
@@ -304,16 +308,20 @@ export class GuildTagManager {
       .guilds(this.guild.id)
       .commands.put({ data: current })
       .then(() => {
-        this.client.console.info(
-          `[Commands] Successfully removed slash command tags from guild ${this.guild.name}`
-        );
+        this.client
+          .getLogger("Commands")
+          .info(
+            `Successfully removed slash command tags from guild ${this.guild.name}`
+          );
         this.slashCommands = {};
         return true;
       })
       .catch((e: Error) =>
-        this.client.console.error(
-          `[Commands] Failed to remove slash command tags for guild ${this.guild.name}\n${e.stack}`
-        )
+        this.client
+          .getLogger("Commands")
+          .error(
+            `Failed to remove slash command tags for guild ${this.guild.name}\n${e.stack}`
+          )
       );
     return removed;
   }
@@ -399,10 +407,12 @@ export class GuildTagManager {
       .catch((e: DiscordAPIError) => e);
     if (commandRaw instanceof DiscordAPIError) {
       if (commandRaw.httpStatus != 403 && commandRaw.code != 50001)
-        this.client.console.warn(
-          `[Commands] Failed to register slash command for tag "${name}" in guild ${this.guild.name}`,
-          commandRaw
-        );
+        this.client
+          .getLogger("Commands")
+          .warn(
+            `Failed to register slash command for tag "${name}" in guild ${this.guild.name}`,
+            commandRaw
+          );
     } else if (commandRaw?.id) this.slashCommands[commandRaw.id] = name;
   }
 
@@ -434,9 +444,11 @@ export class GuildTagManager {
       .commands(id)
       .delete()
       .catch(() =>
-        this.client.console.error(
-          `[Commands] Failed to delete slash command for tag "${tag}" in guild ${this.guild.name}`
-        )
+        this.client
+          .getLogger("Commands")
+          .error(
+            `Failed to delete slash command for tag "${tag}" in guild ${this.guild.name}`
+          )
       );
   }
 

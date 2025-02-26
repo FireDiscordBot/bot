@@ -15,10 +15,8 @@ import { MessageEmbed } from "discord.js";
 import { inspect } from "util";
 
 const codeBlock = (lang: string, expression: any) => {
-  return `\`\`\`${lang}\n${expression || zws}\`\`\``;
+  return `\`\`\`${lang}\n${expression ?? zws}\`\`\``;
 };
-
-const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 const reserved = [
   "break",
@@ -44,6 +42,7 @@ const reserved = [
   "var",
   "while",
   "with",
+  "}",
 ];
 
 export default class Eval extends Command {
@@ -222,8 +221,9 @@ export default class Eval extends Command {
       !content.includes("return ") &&
       !reserved.some((keyword) => lines[lines.length - 1].startsWith(keyword))
     ) {
-      lines[lines.length - 1] = "return " + lines[lines.length - 1];
-      content = lines.join("\n");
+      if (lines[lines.length - 1].trim().length)
+        lines[lines.length - 1] = "return " + lines[lines.length - 1];
+      content = lines.join("\n    ");
     }
     let success: boolean, result: any;
     let type: string = "void";
@@ -233,26 +233,27 @@ export default class Eval extends Command {
       }, 1000);
       const scope = {
         require,
-        exports,
         message,
         me: message.member ?? message.author,
         fire: message.client,
         guild: message.guild,
         channel: message.channel,
       };
-      result =
-        args.async || content.includes("await ")
-          ? new AsyncFunction(
-              ...Object.keys(scope),
-              "try {\n  " + content + "\n} catch (err) {\n  return err;\n}"
-            )(...Object.values(scope))
-          : new Function(
-              ...Object.keys(scope),
-              "try {\n  " + content + "\n} catch (err) {\n  return err;\n}"
-            )(...Object.values(scope));
-      if (this.client.util.isPromise(result)) {
-        result = await result;
+      const name = `$eval_${message.author.username.replace(".", "")}`;
+      const func = new Function(
+        `
+${
+  args.async || content.includes("await ") ? "async " : ""
+}function ${name} (${Object.keys(scope).join(", ")}) {
+  ${content.replaceAll("\n", "\n  ")}
+}; return ${name};`
+      )();
+      try {
+        result = func(...Object.values(scope));
+      } catch (error) {
+        result = error;
       }
+      if (this.client.util.isPromise(result)) result = await result;
       type = result?.constructor.name ?? typeof result;
       success = !(result instanceof Error);
     } catch (error) {

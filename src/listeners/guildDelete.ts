@@ -21,10 +21,10 @@ export default class GuildDelete extends Listener {
         cache: false,
       })
       .catch(() => {})) as FireUser;
-    this.client.console.log(
-      `[Guilds] Fire left a guild! ${guild.name} (${guild.id}) with ${
-        guild.memberCount
-      } members owned by ${owner ?? "an unknown user"} (${guild.ownerId})`
+    guild.console.log(
+      `Fire left ${guild.name} with ${guild.memberCount} members, owned by ${
+        owner ?? "an unknown user"
+      } (${guild.ownerId})`
     );
 
     if (this.client.manager.ws?.open)

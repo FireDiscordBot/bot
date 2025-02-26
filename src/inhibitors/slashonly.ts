@@ -3,7 +3,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 
-export default class SlashOnlyInhibitor extends Inhibitor {
+export default class SlashOnly extends Inhibitor {
   constructor() {
     super("slashonly", {
       reason: "slashonly",

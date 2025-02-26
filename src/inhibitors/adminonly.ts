@@ -4,7 +4,7 @@ import { Inhibitor } from "@fire/lib/util/inhibitor";
 import { Snowflake } from "discord-api-types/globals";
 import { GuildChannel } from "discord.js";
 
-export default class AdminOnlyInhibitor extends Inhibitor {
+export default class AdminOnly extends Inhibitor {
   constructor() {
     super("adminonly", {
       reason: "adminonly",

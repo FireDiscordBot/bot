@@ -4,7 +4,7 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 
-export default class AliasSyncEvent extends Event {
+export default class AliasSync extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.REQUEST_STATS);
   }

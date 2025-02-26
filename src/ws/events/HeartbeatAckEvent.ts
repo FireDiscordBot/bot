@@ -2,7 +2,7 @@ import { Manager } from "@fire/lib/Manager";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 
-export default class HeartbeatAckEvent extends Event {
+export default class HeartbeatAck extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.HEARTBEAT_ACK);
   }

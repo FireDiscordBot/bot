@@ -2,7 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 
-export default class AccountAgeInhibitor extends Inhibitor {
+export default class AccountAge extends Inhibitor {
   constructor() {
     super("accountage", {
       reason: "accountage",

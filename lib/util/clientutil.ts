@@ -917,7 +917,7 @@ export class Util extends ClientUtil {
       [username, user.id, reason]
     );
     this.client.util.plonked.push(user.id);
-    this.client.console.warn(`[Blacklist] Successfully blacklisted ${user}`);
+    this.client.getLogger("Blacklist").warn(`Successfully blacklisted ${user}`);
   }
 
   private async updateBlacklist(user: FireMember | FireUser, reason: string) {
@@ -927,9 +927,9 @@ export class Util extends ClientUtil {
       "UPDATE blacklist user=$1, reason=$2 WHERE uid=$4;",
       [username, reason, user.id]
     );
-    this.client.console.warn(
-      `[Blacklist] Successfully updated blacklist for ${user}`
-    );
+    this.client
+      .getLogger("Blacklist")
+      .warn(`Successfully updated blacklist for ${user}`);
   }
 
   private async deleteBlacklist(user: FireMember | FireUser) {
@@ -939,7 +939,9 @@ export class Util extends ClientUtil {
     this.client.util.plonked = this.client.util.plonked.filter(
       (u) => u != user.id
     );
-    this.client.console.warn(`[Blacklist] Successfully unblacklisted ${user}`);
+    this.client
+      .getLogger("Blacklist")
+      .warn(`Successfully unblacklisted ${user}`);
   }
 
   static greedyArg = (
@@ -1277,7 +1279,7 @@ export class Util extends ClientUtil {
   ): Promise<S extends true ? Readable : string> {
     const rawURL = this.getRawPasteURL(url);
     if (!rawURL) return null;
-    this.client.console.debug(`[Paste] Fetching ${rawURL}`);
+    this.client.getLogger("Paste").debug(`Fetching ${rawURL}`);
     const req = centra(rawURL).header("User-Agent", this.client.manager.ua);
     if (stream) req.stream();
     const res = await req.send();

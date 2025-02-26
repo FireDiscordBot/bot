@@ -79,7 +79,6 @@ import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
 import { Util } from "./util/clientutil";
 import { Command } from "./util/command";
 import { CommandHandler } from "./util/commandhandler";
-import { FireConsole } from "./util/console";
 import { Inhibitor } from "./util/inhibitor";
 import { Language, LanguageHandler } from "./util/language";
 import { Listener } from "./util/listener";
@@ -109,7 +108,6 @@ export class Fire extends AkairoClient {
   manager: Manager;
 
   // Logging
-  console: FireConsole;
   sentry: typeof Sentry | undefined;
 
   // Handlers
@@ -179,7 +177,6 @@ export class Fire extends AkairoClient {
     this.restPing = 0;
 
     this.manager = manager;
-    this.console = new FireConsole();
     this.util = new Util(this);
 
     this.initDB();
@@ -187,10 +184,8 @@ export class Fire extends AkairoClient {
     this.experiments = new Collection();
     this.aliases = new Collection();
 
-    this.on("warn", (warning) => this.console.warn(`[Discord] ${warning}`));
-    this.on("error", (error) =>
-      this.console.error(`[Discord]\n${error.stack}`)
-    );
+    this.on("warn", (warning) => this.getLogger("Discord").warn(warning));
+    this.on("error", (error) => this.getLogger("Discord").error(error.stack));
     this.on("ready", () => config.fire.readyMessage(this));
     this.nonceHandlers = new Collection();
     this.on("raw", (r: any, shard: number) => {
@@ -263,7 +258,7 @@ export class Fire extends AkairoClient {
       this.sentry.setTag("process", process.pid.toString());
       this.sentry.setTag("discord.js", djsver);
       this.sentry.setTag("discord-akairo", akairover);
-      this.console.log("[Sentry] Connected.");
+      this.getLogger("Sentry").log("Connected.");
     }
 
     this.config = config.fire;
@@ -316,8 +311,8 @@ export class Fire extends AkairoClient {
             )
           )
         ) {
-          this.console.warn(
-            `[Commands] Removing ${command.id} due to being locked to ${
+          this.getLogger("Commands").warn(
+            `Removing ${command.id} due to being locked to ${
               command.guilds.length > 1 ? "guilds" : "a guild"
             } on a different cluster`
           );
@@ -439,6 +434,14 @@ export class Fire extends AkairoClient {
     return __dirname.includes("/dist/") || __dirname.includes("\\dist\\");
   }
 
+  get console() {
+    return this.manager.console;
+  }
+
+  getLogger(tag: string) {
+    return this.manager.getLogger(tag);
+  }
+
   private async initDB(reconnect: boolean = false) {
     if (this.db && !this.db.closed) await this.db.end();
     delete this.db;
@@ -450,18 +453,21 @@ export class Fire extends AkairoClient {
       database: process.env.POSTGRES_DB,
       ssl: SSLMode.Disable, // we're connecting locally
     });
-    this.db.on("error", (err) =>
-      this.console.error(`[DB] An error occured\n${err.stack}`)
-    );
-    this.db.on("connect", () => this.console.log("[DB] Connected"));
+    this.db.on("error", (err) => {
+      this.sentry.captureException(err);
+      this.getLogger("DB").error(err.stack);
+    });
+    this.db.on("connect", () => this.getLogger("DB").log("Connected"));
     this.db.on("end", () => {
-      this.console.error(`[DB] Connection ended, attempting to reconnect...`);
+      this.getLogger("DB").error(
+        `Connection ended, attempting to reconnect...`
+      );
       this.initDB(true);
     });
 
-    this.console.warn("[DB] Attempting to connect...");
+    this.getLogger("DB").warn("Attempting to connect...");
     this.db.connect().catch((err) => {
-      this.console.error(`[DB] Failed to connect\n${err.stack}`);
+      this.getLogger("DB").error(`Failed to connect`, err.stack);
       this.manager.kill("db_error");
     });
 
@@ -470,12 +476,10 @@ export class Fire extends AkairoClient {
 
   async login() {
     if (!this.options.shards) this.options.shards = [this.manager.id || 0];
-    this.console.warn(
-      `[Discord] Attempting to login on cluster ${
-        this.manager.id
-      } with shards [${(this.options.shards as number[]).join(", ")}] (Total: ${
-        this.options.shardCount
-      }).`
+    this.getLogger("Discord").warn(
+      `Attempting to login on cluster ${this.manager.id} with shards [${(
+        this.options.shards as number[]
+      ).join(", ")}] (Total: ${this.options.shardCount}).`
     );
     await Promise.all([this.loadExperiments(), this.loadAliases()]);
     this.commandHandler.modules.forEach((command: Command) => {
@@ -485,8 +489,8 @@ export class Fire extends AkairoClient {
           (this.options.shards as number[]).includes(this.util.getShard(guild))
         )
       ) {
-        this.console.warn(
-          `[Commands] Removing ${command.id} due to being locked to ${
+        this.getLogger("Commands").warn(
+          `Removing ${command.id} due to being locked to ${
             command.guilds.length > 1 ? "guilds" : "a guild"
           } on a different cluster`
         );

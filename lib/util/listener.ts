@@ -8,5 +8,9 @@ export class Listener extends AkairoListener {
     super(id, options);
   }
 
+  get console() {
+    return this.client.getLogger(`Listener:${this.constructor.name}`);
+  }
+
   async init(): Promise<any> {}
 }

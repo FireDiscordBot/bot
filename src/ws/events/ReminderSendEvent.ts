@@ -37,7 +37,7 @@ type SendingReminder = Reminder & {
 
 // This will always get sent to shard 0 so we can handle
 // interactions here too
-export default class ReminderSendEvent extends Event {
+export default class ReminderSend extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.REMINDER_SEND);
   }
@@ -46,8 +46,8 @@ export default class ReminderSendEvent extends Event {
     const user = (await this.manager.client.users
       .fetch(data.user, { cache: false })
       .catch(() => {})) as FireUser;
-    this.manager.client.console.log(
-      `[Aether] Got request to ${
+    this.console.log(
+      `Got request to ${
         data.sendAttempts == 0 ? "send" : "retry"
       } reminder to ${user} (${data.user})${
         data.sendAttempts > 0 ? ` (attempt ${data.sendAttempts + 1})` : ""
@@ -138,8 +138,8 @@ export default class ReminderSendEvent extends Event {
             }
       )
       .catch((e: Error) => {
-        this.manager.client.console.error(
-          `[Aether] Failed to send reminder to ${user} (${data.user}) due to "${e.message}"`
+        this.console.error(
+          `Failed to send reminder to ${user} (${data.user}) due to "${e.message}"`
         );
         let cause: REMINDER_FAILURE_CAUSES = REMINDER_FAILURE_CAUSES.UNKNOWN,
           opcode: number = e instanceof DiscordAPIError ? e.code : 0;

@@ -5,14 +5,14 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord-api-types/globals";
 
-export default class BroadcastEvalEvent extends Event {
+export default class BroadcastEval extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.BROADCAST_EVAL);
   }
 
   async run(data: { messageId: Snowflake; channelId: Snowflake }) {
-    this.manager.client.console.warn(
-      `[Event] Received eval request for /${data.channelId}/messages/${data.messageId}`
+    this.console.warn(
+      `Received eval request for /${data.channelId}/messages/${data.messageId}`
     );
     try {
       const channel = await this.manager.client.channels.fetch(data.channelId);
@@ -26,8 +26,7 @@ export default class BroadcastEvalEvent extends Event {
       if (!this.manager.client.isOwner(message.author)) return;
       message.content = message.content.replace("--broadcast", ""); // We don't want an infinite loop so goodbye flag
       const handled = await this.manager.client.commandHandler.handle(message);
-      if (!handled)
-        this.manager.client.console.warn(`[Event] Broadcasted eval failed!`);
+      if (!handled) this.console.warn(`Broadcasted eval failed!`);
     } catch (e) {
       this.manager.sentry.captureException(e);
     }

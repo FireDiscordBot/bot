@@ -27,10 +27,8 @@ export default class Ready extends Listener {
       (guild) => !guild.available
     );
     if (unavailableGuilds.size) {
-      unavailableGuilds.forEach((guild) => {
-        this.client.console.warn(
-          `[Guilds] Guild ${guild.id} unavailable on connection open`
-        );
+      unavailableGuilds.forEach((guild: FireGuild) => {
+        guild.console.warn(`Server unavailable on connection open`);
       });
     }
 
@@ -93,8 +91,8 @@ export default class Ready extends Listener {
         if (!command.guilds.length) continue;
         const registered = await command.registerSlashCommand();
         if (registered && registered.length)
-          this.client.console.info(
-            `[Commands] Successfully registered locked command ${command.id} in ${registered.length} guild(s)`,
+          this.client.getLogger("Commands").info(
+            `Successfully registered locked command ${command.id} in ${registered.length} guild(s)`,
             registered
               .map((cmd) => cmd.guild?.name)
               .filter((n) => !!n)
@@ -153,15 +151,15 @@ export default class Ready extends Listener {
           data: commands,
         })
         .catch((e: Error) => {
-          this.client.console.error(
-            `[Commands] Failed to update slash commands\n${e.stack}`
-          );
+          this.client
+            .getLogger("Commands")
+            .error(`Failed to update slash commands\n${e.stack}`);
           return [];
         });
       if (updated && updated.length) {
-        this.client.console.info(
-          `[Commands] Successfully bulk updated ${updated.length} slash commands`
-        );
+        this.client
+          .getLogger("Commands")
+          .info(`Successfully bulk updated ${updated.length} slash commands`);
         for (const applicationCommand of updated.values()) {
           const command = this.client.getCommand(applicationCommand.name);
           if (command) command.slashId = applicationCommand.id;

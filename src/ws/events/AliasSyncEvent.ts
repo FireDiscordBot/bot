@@ -3,7 +3,7 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord-api-types/globals";
 
-export default class AliasSyncEvent extends Event {
+export default class AliasSync extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.ALIAS_SYNC);
   }

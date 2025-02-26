@@ -13,7 +13,7 @@ const paidStatuses = ["trialing", "active", "past_due"];
 const dataKeys = ["user", "limit", "status", "periodEnd", "action"];
 const hasPaid = (status: SubscriptionStatus) => paidStatuses.includes(status);
 
-export default class PremiumSyncEvent extends Event {
+export default class PremiumSync extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.PREMIUM_SYNC);
   }
@@ -28,9 +28,11 @@ export default class PremiumSyncEvent extends Event {
         premium.status == "trialing" &&
         instance?.settings.get<boolean>("premium.trialeligible", true)
       ) {
-        client.console.warn(
-          `[Premium] Setting trial eligibility for ${instance} due to subscription from ${premium.user} in trial period`
-        );
+        client
+          .getLogger("Premium")
+          .warn(
+            `Setting trial eligibility for ${instance} due to subscription from ${premium.user} in trial period`
+          );
         await instance.settings.set<boolean>(
           "premium.trialeligible",
           false,

@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/node";
-import { version as djsver, SnowflakeUtil } from "discord.js";
+import { Collection, version as djsver, SnowflakeUtil } from "discord.js";
 import { isDeepStrictEqual } from "util";
 import { Fire } from "./Fire";
 import {
@@ -9,6 +9,7 @@ import {
   ManagerState,
 } from "./interfaces/aether";
 import { Command } from "./util/command";
+import { FireConsole } from "./util/console";
 import { getCommitHash } from "./util/gitUtils";
 import { Module } from "./util/module";
 import { Message } from "./ws/Message";
@@ -27,6 +28,9 @@ export class Manager {
     ? `http://127.0.0.1:${process.env.REST_PORT}`
     : null; // realistically never gonna be encountered
   readonly CURRENT_REST_VERSION = "v2";
+
+  private loggers: Collection<string, FireConsole> = new Collection();
+  console: FireConsole = new FireConsole();
 
   state: ManagerState = {
     // we set it to empty values so that
@@ -107,6 +111,11 @@ export class Manager {
       clearTimeout(this.reconnector.sessionTimeout);
   }
 
+  getLogger(tag: string) {
+    if (!this.loggers.has(tag)) this.loggers.set(tag, new FireConsole(tag));
+    return this.loggers.get(tag);
+  }
+
   init(reconnecting = false) {
     if (reconnecting && this.ws?.open) return;
     if (process.env.BOOT_SINGLE == "false") {
@@ -116,19 +125,19 @@ export class Manager {
 
   private initWebsocket() {
     if (this.ws?.open)
-      return this.client.console.warn(
-        `[Manager] Tried to initialize websocket while already open with state ${this.ws.readyState}`
+      return this.getLogger("Manager").warn(
+        `Tried to initialize websocket while already open with state ${this.ws.readyState}`
       );
     this.ws.init();
 
     this.ws.once("open", () => {
-      this.client.console.log("[Sharder] WS opened.");
+      this.getLogger("Aether").log("WS opened.");
       if (this.client.readyAt) this.client.setReadyPresence();
       this.reconnector.handleOpen();
     });
 
     this.ws.once("close", (code: number, reason: Buffer | string) => {
-      this.client.console.warn("[Sharder] WS closed");
+      this.getLogger("Aether").warn("WS closed");
       // this will be sent when we next connect, assuming we don't restart before then
       this.writeToInflux([
         {
@@ -149,7 +158,7 @@ export class Manager {
     });
 
     this.ws.once("error", (error: any) => {
-      this.client.console.error("[Sharder] WS errored.");
+      this.getLogger("Aether").error("WS errored.");
       this.reconnector.handleError(error);
     });
   }
@@ -160,7 +169,7 @@ export class Manager {
     shardCount: number;
     shards: number[];
   }) {
-    this.client.console.log(`[Sharder] Received sharding config.`);
+    this.getLogger("Aether").log(`Received sharding config.`);
     this.id = data.id;
     this.session = data.session;
     this.client.options.presence.shardId = this.client.options.shards =
@@ -173,7 +182,7 @@ export class Manager {
   async kill(event: string) {
     if (this.killing) return;
     this.killing = true;
-    this.client?.console.warn(`[Manager] Destroying client (${event})`);
+    this.getLogger("Manager").warn(`Destroying client (${event})`);
     if (this.ws?.open) this.ws.close(1001, event);
     this.client?.user?.setStatus(
       "invisible",

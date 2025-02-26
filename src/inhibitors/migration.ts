@@ -1,7 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 
-export default class MigrationInhibitor extends Inhibitor {
+export default class Migration extends Inhibitor {
   constructor() {
     super("migration", {
       reason: "migration",

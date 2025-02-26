@@ -2,7 +2,7 @@ import { Manager } from "@fire/lib/Manager";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 
-export default class UnsubscribeUserEvent extends Event {
+export default class UnsubscribeUser extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.UNSUBSCRIBE_USER);
   }

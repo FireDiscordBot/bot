@@ -7,7 +7,7 @@ import { EventType } from "@fire/lib/ws/util/constants";
 type HTTPMethod = "get" | "post" | "delete" | "patch" | "put";
 const methods = ["get", "post", "delete", "patch", "put"];
 
-export default class APIRequestEvent extends Event {
+export default class APIRequest extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.API_REQUEST);
   }
@@ -22,10 +22,8 @@ export default class APIRequestEvent extends Event {
   ) {
     if (!methods.includes(data.method)) return;
     try {
-      this.manager.client.console.info(
-        `[Aether] Forwarding API request to ${data.method.toUpperCase()} /${
-          data.route
-        }`
+      this.console.info(
+        `Forwarding API request to ${data.method.toUpperCase()} /${data.route}`
       );
       const response = await this.manager.client
         .req(data.route)
@@ -37,7 +35,7 @@ export default class APIRequestEvent extends Event {
           )
         );
     } catch (e) {
-      this.manager.client.console.warn(`[Aether] Forwarded API request failed`);
+      this.console.warn(`Forwarded API request failed`);
       return this.manager.ws.send(
         MessageUtil.encode(new Message(EventType.API_REQUEST, null, nonce))
       );

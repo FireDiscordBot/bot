@@ -466,8 +466,8 @@ export class RequestHandler {
       (response.statusCode.toString().startsWith("2") && latency < 25000)
     )
       return;
-    request.client.console[type == "high" ? "warn" : "error"](
-      `[Rest] Encountered ${type} latency of ${latency}ms on ${request.method.toUpperCase()} ${
+    request.console[type == "high" ? "warn" : "error"](
+      `Encountered ${type} latency of ${latency}ms on ${request.method.toUpperCase()} ${
         request.path
       }`
     );

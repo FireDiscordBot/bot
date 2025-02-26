@@ -2,7 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 
-export default class BlacklistInhibitor extends Inhibitor {
+export default class Blacklist extends Inhibitor {
   constructor() {
     super("blacklist", {
       reason: "blacklist",
@@ -27,8 +27,10 @@ export default class BlacklistInhibitor extends Inhibitor {
       this.client.util.plonked.push(row.get("uid") as string);
     }
     this.client.util.loadedData.plonked = true;
-    this.client.console.log(
-      `[Blacklist] Successfully loaded ${this.client.util.plonked.length} blacklisted users`
-    );
+    this.client
+      .getLogger("Blacklist")
+      .log(
+        `Successfully loaded ${this.client.util.plonked.length} blacklisted users`
+      );
   }
 }

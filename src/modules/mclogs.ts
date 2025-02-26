@@ -1964,7 +1964,7 @@ export default class MCLogs extends Module {
             "uploaded"
           );
       } catch (e) {
-        this.client.console.debug(`[MCLogs] Failed to process log,`, e.stack);
+        this.console.debug(`Failed to process log,`, e.stack);
         this.client.sentry.captureException(e);
         await message.send("MC_LOG_READ_FAIL");
       }
@@ -2189,8 +2189,8 @@ export default class MCLogs extends Module {
               "MC_LOG_PROFILE_CONFLICT"
             )}**`;
         } catch (e) {
-          this.client.console.error(
-            `[MCLogs] Failed to get Mojang profile for ${ign}\n${e.stack}`
+          this.console.error(
+            `Failed to get Mojang profile for ${ign}\n${e.stack}`
           );
           this.client.sentry.captureException(e);
         }
@@ -2318,17 +2318,15 @@ export default class MCLogs extends Module {
           });
       }
     } catch (e) {
-      this.client.console.error(
-        `[MCLogs] Failed to create log haste\n${e.stack}`
-      );
+      this.console.error(`Failed to create log haste\n${e.stack}`);
       this.client.sentry.captureException(e);
     }
   }
 
   hasLogText(text: string) {
     return this.logText.some((logText) => {
-      // this.client.console.debug(
-      //   `[MCLogs] Does ${text} include ${logText}? ${text.includes(logText)}`
+      // this.console.debug(
+      //   `Does ${text} include ${logText}? ${text.includes(logText)}`
       // );
       return text.includes(logText);
     });

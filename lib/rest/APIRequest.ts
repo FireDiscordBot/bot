@@ -34,10 +34,14 @@ export class APIRequest {
     );
   }
 
+  get console() {
+    return this.client.getLogger(`APIRequest:${this.route}`);
+  }
+
   async make() {
     if (this.options.debug)
-      this.client.console.warn(
-        `[Rest] Creating request for ${this.method.toUpperCase()} ${this.path}`
+      this.console.warn(
+        `Creating request for ${this.method.toUpperCase()} ${this.path}`
       );
     const API =
       this.options.versioned === false
@@ -92,8 +96,8 @@ export class APIRequest {
     for (const [name, value] of Object.entries(headers))
       if (value) request.header(name, value);
     if (this.options.debug)
-      this.client.console.warn(
-        `[Rest] Sending request to ${request.method.toUpperCase()} ${
+      this.console.warn(
+        `Sending request to ${request.method.toUpperCase()} ${
           request.url.pathname
         }`
       );
@@ -103,10 +107,10 @@ export class APIRequest {
     } finally {
       this.client.restPing = +new Date() - start;
       if (this.options.debug)
-        this.client.console.warn(
-          `[Rest] Finished request to ${this.method.toUpperCase()} ${
-            this.path
-          } in ${this.client.restPing}ms`
+        this.console.warn(
+          `Finished request to ${this.method.toUpperCase()} ${this.path} in ${
+            this.client.restPing
+          }ms`
         );
     }
   }

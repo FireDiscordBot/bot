@@ -27,6 +27,10 @@ export class FireUser extends User {
     this.settings = new UserSettings(this.client, this);
   }
 
+  get console() {
+    return this.client.getLogger(`User:${this.id}`);
+  }
+
   get language() {
     return (
       this.client.getLanguage(
@@ -190,8 +194,8 @@ export class FireUser extends User {
   }
 
   async deleteReminder(timestamp: number) {
-    this.client.console.warn(
-      `[Reminders] Deleting reminder for user ${this} with timestamp ${timestamp}`
+    this.console.warn(
+      `Deleting reminder for user ${this} with timestamp ${timestamp}`
     );
     const deleted = await this.client.db
       .query("DELETE FROM remind WHERE uid=$1 AND forwhen=$2;", [

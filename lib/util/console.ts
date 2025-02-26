@@ -1,46 +1,72 @@
-import { Timestamp } from "@skyra/timestamp";
-import * as Logger from "node-color-log";
+import * as chalk from "chalk";
+
+const format = new Intl.DateTimeFormat("en-GB", {
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+  hour12: false,
+});
 
 export class FireConsole {
-  logger: typeof Logger;
-  template: Timestamp;
+  private readonly _tag?: string;
 
-  constructor() {
-    this.logger = Logger;
-    this.logger.setLevel(
-      process.env.NODE_ENV == "development" || process.env.NODE_ENV == "staging"
-        ? "debug"
-        : "info"
-    );
-    this.template = new Timestamp("DD/MM/YYYY @ HH:mm:ss");
+  constructor(tag?: string) {
+    this._tag = tag;
+  }
+
+  get level() {
+    return process.env.NODE_ENV == "development" ||
+      process.env.NODE_ENV == "staging"
+      ? "debug"
+      : "info";
   }
 
   get timestamp() {
-    return this.template.display(new Date());
+    const parts = format.formatToParts();
+    const day = parts.find((part) => part.type === "day")?.value,
+      month = parts.find((part) => part.type === "month")?.value,
+      year = parts.find((part) => part.type === "year")?.value,
+      hour = parts.find((part) => part.type === "hour")?.value,
+      minute = parts.find((part) => part.type === "minute")?.value,
+      second = parts.find((part) => part.type === "second")?.value;
+    return `[${day}/${month}/${year} @ ${hour}:${minute}:${second}]`;
+  }
+
+  get tag() {
+    if (this._tag) return `[${this._tag}]`;
+    else {
+      const stack = new Error().stack;
+      return `[${stack
+        .split("\n")
+        .find((v, i) => i != 0 && !v.includes(this.constructor.name))
+        .split("/")
+        .pop()
+        .replace(")", "")}]`;
+    }
+  }
+
+  get prefix() {
+    return `${this.timestamp} ${this.tag}`;
   }
 
   debug(...args: any[]) {
-    if (this.logger.level != "debug") return;
-    this.logger
-      .bgColor("magenta")
-      .bold()
-      .log(`[${this.timestamp}]`)
-      .joint()
-      .log(" ")
-      .joint()
-      .log(...args);
+    if (this.level != "debug") return;
+    console.debug(
+      chalk.bgMagenta.bold(this.timestamp),
+      chalk.bgMagenta.bold(this.tag),
+      ...args
+    );
   }
 
   info(...args: any[]) {
-    this.logger
-      .bgColor("green")
-      .color("black")
-      .bold()
-      .log(`[${this.timestamp}]`)
-      .joint()
-      .log(" ")
-      .joint()
-      .log(...args);
+    console.log(
+      chalk.bgGreen.bold(this.timestamp),
+      chalk.bgGreen.bold(this.tag),
+      ...args
+    );
   }
 
   log(...args: any[]) {
@@ -48,14 +74,11 @@ export class FireConsole {
   }
 
   warn(...args: any[]) {
-    this.logger
-      .bgColor("yellow")
-      .color("black")
-      .log(`[${this.timestamp}]`)
-      .joint()
-      .log(" ")
-      .joint()
-      .log(...args);
+    console.warn(
+      chalk.bgYellow.bold(this.timestamp),
+      chalk.bgYellow.bold(this.tag),
+      ...args
+    );
   }
 
   oops(...args: any[]) {
@@ -63,14 +86,11 @@ export class FireConsole {
   }
 
   error(...args: any[]) {
-    this.logger
-      .bgColor("red")
-      .bold()
-      .log(`[${this.timestamp}]`)
-      .joint()
-      .log(" ")
-      .joint()
-      .log(...args);
+    console.error(
+      chalk.bgRed.bold(this.timestamp),
+      chalk.bgRed.bold(this.tag),
+      ...args
+    );
   }
 
   wtf(...args: any[]) {

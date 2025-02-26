@@ -1,7 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 
-export default class CacheInhibitor extends Inhibitor {
+export default class Cache extends Inhibitor {
   constructor() {
     super("cache", {
       reason: "cache",

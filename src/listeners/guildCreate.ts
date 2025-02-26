@@ -1,4 +1,5 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireUser } from "@fire/lib/extensions/user";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { Listener } from "@fire/lib/util/listener";
 import { GuildSettings } from "@fire/lib/util/settings";
@@ -17,9 +18,7 @@ export default class GuildCreate extends Listener {
   async exec(guild: FireGuild) {
     const loadedConfig = await GuildSettings.retrieve(guild, this.client);
     if (!loadedConfig) {
-      this.client.console.error(
-        `[Guilds] Failed to load config for guild ${guild.name} (${guild.id})`
-      );
+      guild.console.error(`Failed to load config for guild ${guild.name}`);
       // Send to sentry too so it gets noticed
       this.client.sentry.captureEvent({
         message: `Failed to load config for guild ${guild.name} (${guild.id})`,
@@ -31,11 +30,16 @@ export default class GuildCreate extends Listener {
     const hasKeys = Object.keys(
       this.client.manager.state.guildConfigs[guild.id] ?? {}
     ).length;
+    const owner = (await this.client.users
+      .fetch(guild.ownerId, {
+        cache: false,
+      })
+      .catch(() => {})) as FireUser;
 
-    this.client.console.log(
-      `[Guilds] Fire ${hasKeys ? "re" : ""}joined a ${
-        hasKeys ? "" : "new "
-      }guild! ${guild.name} (${guild.id}) with ${guild.memberCount} members`
+    guild.console.log(
+      `Fire ${hasKeys ? "re" : ""}joined ${guild.name} with ${
+        guild.memberCount
+      } members, owned by ${owner ?? "an unknown user"} (${guild.ownerId})`
     );
 
     if (guild.isPublic() && this.client.manager.ws?.open)

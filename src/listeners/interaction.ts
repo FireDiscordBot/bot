@@ -183,22 +183,28 @@ export default class InteractionListener extends Listener {
             .delete(message.slashCommand.id)
             .catch((e: Error) => {
               if (!(e instanceof DiscordAPIError && e.code == 10063))
-                this.client.console.error(
-                  `[Commands] Failed to delete locked slash command "${message.command.id}" in ${message.guild.name} (${message.guild.id})\n${e.stack}`
-                );
+                this.client
+                  .getLogger("Commands")
+                  .error(
+                    `Failed to delete locked slash command "${message.command.id}" in ${message.guild.name} (${message.guild.id})\n${e.stack}`
+                  );
             });
         else return;
       }
 
-      this.client.console.debug(
-        message.guild
-          ? `[Commands] Handling slash command request for command /${command.commandName} from ${message.author} (${message.author.id}) in ${message.guild.name} (${message.guild.id})`
-          : `[Commands] Handling slash command request for command /${command.commandName} from ${message.author} (${message.author.id})`
-      );
-      if (!message.command) {
-        this.client.console.warn(
-          `[Commands] Got slash command request for unknown command, /${command.commandName}`
+      this.client
+        .getLogger("Commands")
+        .debug(
+          message.guild
+            ? `Handling slash command request for command /${command.commandName} from ${message.author} (${message.author.id}) in ${message.guild.name} (${message.guild.id})`
+            : `Handling slash command request for command /${command.commandName} from ${message.author} (${message.author.id})`
         );
+      if (!message.command) {
+        this.client
+          .getLogger("Commands")
+          .warn(
+            `Got slash command request for unknown command, /${command.commandName}`
+          );
         return await message.error("UNKNOWN_COMMAND");
       } else if (!message.guild && message.command.channel == "guild")
         return await message.error("SLASH_COMMAND_BOT_REQUIRED", {
@@ -388,9 +394,11 @@ export default class InteractionListener extends Listener {
       const message = new ContextCommandMessage(this.client, context);
       // await message.channel.ack((message.flags & 64) != 0);
       if (!message.command) {
-        this.client.console.warn(
-          `[Commands] Got application command request for unknown context menu, ${context.commandName}`
-        );
+        this.client
+          .getLogger("Commands")
+          .warn(
+            `Got application command request for unknown context menu, ${context.commandName}`
+          );
         return await message.error("UNKNOWN_COMMAND");
       } else if (!message.guild && message.command.channel == "guild")
         return await message.error("SLASH_COMMAND_BOT_REQUIRED", {

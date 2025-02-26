@@ -15,9 +15,7 @@ export default class GuildUnavailable extends Listener {
     if (typeof guild.name == "undefined") return;
     if (this.unavailable.has(guild.id)) return;
     this.unavailable.add(guild.id);
-    this.client.console.warn(
-      `[Guilds] Guild ${guild.name} (${guild.id}) has gone unavailable`
-    );
+    guild.console.warn(`${guild.name} has gone unavailable`);
     this.client.sentry.captureEvent({
       message: `Guild ${guild.name} (${guild.id}) has gone unavailable`,
       tags: {

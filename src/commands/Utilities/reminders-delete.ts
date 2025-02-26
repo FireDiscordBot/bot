@@ -63,7 +63,7 @@ export default class RemindersDelete extends Command {
       );
       text += ` - ${relativeTime}`;
       reminders.push({
-        name: `${text}`,
+        name: text,
         value: timestamp.toString(),
       });
     }

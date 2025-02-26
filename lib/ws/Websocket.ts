@@ -52,9 +52,11 @@ export class Websocket extends Client {
   init() {
     this.on("message", (message) => {
       if (!this.open) {
-        this.manager.client?.console?.warn(
-          `[Aether] Received message on non-open socket, closing to initiate reconnect.`
-        );
+        this.manager
+          .getLogger("Aether")
+          .warn(
+            `Received message on non-open socket, closing to initiate reconnect.`
+          );
         return this.close(1006, "Received message on non-open socket");
       }
 
@@ -70,17 +72,20 @@ export class Websocket extends Client {
 
       this.manager.eventHandler.handle(decoded).catch((e) => {
         this.manager.sentry.captureException(e);
-        this.manager.client?.console.error(
-          `[EventHandler] Failed to handle event from Aether due to\n${e.stack}`
-        );
+        this.manager
+          .getLogger("Aether")
+          .error(
+            `Failed to handle event ${decoded.t} (${decoded.op})`,
+            e.stack
+          );
       });
     });
   }
 
   startHeartbeat() {
-    this.manager.client?.console?.log(
-      `[Aether] Starting heartbeat with interval ${this.heartbeatInterval}ms`
-    );
+    this.manager
+      .getLogger("Aether")
+      .log(`Starting heartbeat with interval ${this.heartbeatInterval}ms`);
     if (this.keepAlive) clearTimeout(this.keepAlive);
     if (this.heartbeatTask) clearInterval(this.heartbeatTask);
     this.heartbeatTask = setInterval(() => {

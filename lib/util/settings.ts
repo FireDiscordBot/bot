@@ -36,32 +36,35 @@ export class GuildSettings {
         await client.waitUntilReady();
         const migrated = await this.runMigration();
         if (!migrated)
-          return this.client.console.error(
-            `[GuildSettings] Migration "${this.migrationId}" failed for`,
+          return this.console.error(
+            `Migration "${this.migrationId}" failed`,
             this.guild instanceof FireGuild && this.guild.name
-              ? this.guild.name
-              : this.guild,
-            `${
-              this.guild instanceof FireGuild ? "(" + this.guild.id + ")" : ""
-            }`
+              ? ` for ${this.guild.name}`
+              : ""
           );
         const updatedConfig = await this.set(
           `settings.migration.${this.migrationId}`,
           true,
           client.user
         );
-        this.client.console.log(
-          `[GuildSettings] Migration "${this.migrationId}" complete for`,
+        this.console.log(
+          `Migration "${this.migrationId}" complete`,
           this.guild instanceof FireGuild && this.guild.name
-            ? this.guild.name
+            ? `for ${this.guild.name}`
             : this.guild,
-          `${this.guild instanceof FireGuild ? "(" + this.guild.id + ")" : ""}${
-            updatedConfig
-              ? ""
-              : " however adding the migration key to its config failed"
-          }`
+          updatedConfig
+            ? ""
+            : "however adding the migration key to its config failed"
         );
       })();
+  }
+
+  get console() {
+    return this.client.getLogger(
+      `GuildSettings:${
+        this.guild instanceof FireGuild ? this.guild.id : this.guild
+      }`
+    );
   }
 
   get id() {
@@ -120,6 +123,9 @@ export class GuildSettings {
       throw new ConfigError("SERVICE_UNAVAILABLE");
     if (!updatedBy) throw new MissingUpdatedByError();
 
+    const previous = this.get(key);
+    this.client.manager.state.guildConfigs[this.id][key] = value;
+
     const updated = await new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
       const timeout = setTimeout(() => {
@@ -130,8 +136,6 @@ export class GuildSettings {
         nonce,
         (data: { success: boolean }) => {
           clearTimeout(timeout);
-          if (data.success)
-            this.client.manager.state.guildConfigs[this.id][key] = value;
           resolve(data.success);
         }
       );
@@ -174,7 +178,8 @@ export class GuildSettings {
             })
           )
         );
-    }
+    } else if (typeof previous !== "undefined")
+      this.client.manager.state.guildConfigs[this.id][key] = previous;
 
     return updated;
   }
@@ -185,7 +190,10 @@ export class GuildSettings {
       throw new ConfigError("SERVICE_UNAVAILABLE");
     if (!updatedBy) throw new MissingUpdatedByError();
 
-    return new Promise((resolve: ResolveBoolean, reject) => {
+    const value = this.get(key);
+    delete this.client.manager.state.guildConfigs[this.id][key];
+
+    const deleted = new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
       const timeout = setTimeout(() => {
         if (this.client.manager.ws.handlers.has(nonce))
@@ -195,8 +203,6 @@ export class GuildSettings {
         nonce,
         (data: { success: boolean }) => {
           clearTimeout(timeout);
-          if (data.success)
-            delete this.client.manager.state.guildConfigs[this.id][key];
           resolve(data.success);
         }
       );
@@ -215,6 +221,9 @@ export class GuildSettings {
         )
       );
     });
+
+    if (!deleted) this.client.manager.state.guildConfigs[this.id][key] = value;
+    return deleted;
   }
 
   static async retrieve(
@@ -265,25 +274,29 @@ export class UserSettings {
       (async () => {
         const migrated = await this.runMigration();
         if (!migrated)
-          return this.client.console.error(
-            `[UserSettings] Migration "${this.migrationId}" failed for ${
-              this.user instanceof FireUser ? this.user.toString() : this.user
-            } ${this.user instanceof FireUser ? "(" + this.user.id + ")" : ""}`
+          return this.console.error(
+            `Migration "${this.migrationId}" failed${
+              this.user instanceof FireUser ? ` for ${this.user}` : ""
+            }`
           );
         const updatedConfig = await this.set(
           `settings.migration.${this.migrationId}`,
           true
         );
-        this.client.console.log(
-          `[UserSettings] Migration "${this.migrationId}" complete for`,
-          this.user instanceof FireUser ? this.user.toString() : this.user,
-          `${this.user instanceof FireUser ? "(" + this.user.id + ")" : ""}${
-            updatedConfig
-              ? ""
-              : " however adding the migration key to their config failed"
-          }`
+        this.console.log(
+          `Migration "${this.migrationId}" complete`,
+          this.user instanceof FireUser ? `for ${this.user}` : "",
+          updatedConfig
+            ? ""
+            : " however adding the migration key to their config failed"
         );
       })();
+  }
+
+  get console() {
+    return this.client.getLogger(
+      `UserSettings:${this.user instanceof FireUser ? this.user.id : this.user}`
+    );
   }
 
   get id() {
@@ -336,6 +349,9 @@ export class UserSettings {
     if (!this.client.manager.ws?.open)
       throw new ConfigError("SERVICE_UNAVAILABLE");
 
+    const previous = this.get(key);
+    this.client.manager.state.userConfigs[this.id][key] = value;
+
     const updated = new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
       const timeout = setTimeout(() => {
@@ -369,6 +385,9 @@ export class UserSettings {
       );
     });
 
+    if (!updated)
+      this.client.manager.state.userConfigs[this.id][key] = previous;
+
     return updated;
   }
 
@@ -377,7 +396,10 @@ export class UserSettings {
     else if (!this.client.manager.ws?.open)
       throw new ConfigError("SERVICE_UNAVAILABLE");
 
-    return new Promise((resolve: ResolveBoolean, reject) => {
+    const value = this.get(key);
+    delete this.client.manager.state.userConfigs[this.id][key];
+
+    const deleted = new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
       const timeout = setTimeout(() => {
         if (this.client.manager.ws.handlers.has(nonce))
@@ -406,6 +428,9 @@ export class UserSettings {
         )
       );
     });
+
+    if (!deleted) this.client.manager.state.userConfigs[this.id][key] = value;
+    return deleted;
   }
 
   static async retrieve(

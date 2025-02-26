@@ -2,7 +2,7 @@ import { Manager } from "@fire/lib/Manager";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 
-export default class LoadEvent extends Event {
+export default class Load extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.LOAD_MODULE);
   }
@@ -12,10 +12,10 @@ export default class LoadEvent extends Event {
     type: "Command" | "Language" | "Listener" | "Module";
     action: "reload" | "unload";
   }) {
-    this.manager.client.console.log(
-      `[Aether] Received request to ${
-        data.action
-      } the ${data.type.toLowerCase()}, ${data.name}`
+    this.console.log(
+      `Received request to ${data.action} the ${data.type.toLowerCase()}, ${
+        data.name
+      }`
     );
     switch (data.type) {
       case "Command": {

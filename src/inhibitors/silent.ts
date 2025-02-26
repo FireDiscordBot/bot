@@ -2,7 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 
-export default class SilentInhibitor extends Inhibitor {
+export default class Silent extends Inhibitor {
   constructor() {
     super("silent", {
       reason: "silent",

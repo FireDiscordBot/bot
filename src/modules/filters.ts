@@ -117,10 +117,10 @@ export default class Filters extends Module {
       []
     );
     if (this.debug.includes(message.guild.id) && enabled.length)
-      this.client.console.warn(
-        `[Filters] Running handler(s) for filters ${enabled.join(
-          ", "
-        )} in guild ${message.guild}`
+      this.console.warn(
+        `Running handler(s) for filters ${enabled.join(", ")} in guild ${
+          message.guild
+        }`
       );
     [message, extra] = (await this.invWtfReplace(message, extra).catch(() => [
       message,
@@ -129,7 +129,7 @@ export default class Filters extends Module {
     for (const name of Object.keys(this.filters))
       if (!exclude.includes(name) && enabled.includes(name as LinkFilters)) {
         if (this.debug.includes(message.guild.id))
-          this.client.console.warn(`[Filters] Running handler(s) for ${name}`);
+          this.console.warn(`Running handler(s) for ${name}`);
         this.filters[name].map(
           async (handler) =>
             await this.safelyRunPromise(handler.bind(this), message, extra)

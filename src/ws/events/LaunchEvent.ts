@@ -6,7 +6,7 @@ import AetherStats from "@fire/src/modules/aetherstats";
 
 type EventData = Record<string, Record<string, number>>;
 
-export default class LaunchEvent extends Event {
+export default class Launch extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.LAUNCH_CLIENT);
   }
@@ -20,9 +20,9 @@ export default class LaunchEvent extends Event {
     session: string;
     id: number;
   }) {
-    this.manager.client.console.log(
-      `[Aether] Received launch event with cluster id ${data.id}.`
-    );
+    this.manager
+      .getLogger("Aether")
+      .log(`Received launch event with cluster id ${data.id}.`);
     this.manager.state = data.state;
     this.manager.ws.heartbeatInterval = data.interval;
     this.manager.ws.startHeartbeat();

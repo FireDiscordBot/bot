@@ -5,7 +5,7 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { exec, ExecOptions } from "child_process";
 import { MessageEmbed } from "discord.js";
 
-export default class DeployEvent extends Event {
+export default class Deploy extends Event {
   deployLog: { out: any[]; err: any[] };
   lastCommand: string;
 
@@ -22,17 +22,15 @@ export default class DeployEvent extends Event {
     branch: "master" | "deploy";
     requireInstall: boolean;
   }) {
-    this.manager.client.console.warn(
-      `[Aether] Received request to deploy commit ${data.commit} on branch ${
+    this.console.warn(
+      `Received request to deploy commit ${data.commit} on branch ${
         data.branch
       }${data.requireInstall ? " (requires install)" : ""}`
     );
     // check what commit we're currently on first
     const currentCommit = getCommitHash();
     if (currentCommit == data.commit) {
-      this.manager.client.console.info(
-        `[Aether] Already on commit ${data.commit}, no need to pull`
-      );
+      this.console.info(`Already on commit ${data.commit}, no need to pull`);
       // no need to pull from git, but we may need to restart if it doesn't match what is loaded
       // (another cluster on the same machine may have already deployed this commit meaning it has already pulled and compiled)
       if (this.manager.commit != data.commit)
@@ -54,7 +52,7 @@ export default class DeployEvent extends Event {
       await this.execPromise(`git checkout ${data.branch}`);
       return this.manager.kill("deploy");
     } catch (e) {
-      this.manager.client.console.error(
+      this.console.error(
         `[Aether] Error while deploying commit ${data.commit} on branch ${data.branch}`,
         `Last command ran: "${this.lastCommand}"`,
         e

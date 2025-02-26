@@ -2,7 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 import { ThreadChannel } from "discord.js";
 
-export default class ThreadInhibitor extends Inhibitor {
+export default class Thread extends Inhibitor {
   constructor() {
     super("thread", {
       reason: "thread",

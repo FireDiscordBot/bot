@@ -5,7 +5,7 @@ import { Inhibitor } from "@fire/lib/util/inhibitor";
 import { Snowflake } from "discord-api-types/globals";
 import { GuildChannel } from "discord.js";
 
-export default class ModOnlyInhibitor extends Inhibitor {
+export default class ModOnly extends Inhibitor {
   constructor() {
     super("modonly", {
       reason: "modonly",

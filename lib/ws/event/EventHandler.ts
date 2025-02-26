@@ -28,9 +28,11 @@ export class EventHandler {
             nonce: message.n,
           },
         });
-        this.manager.client.console.error(
-          `[EventHandler] Failed to handle event ${message.t} (${message.op}) due to\n${e.stack}`
-        );
+        this.manager
+          .getLogger("Aether")
+          .error(
+            `[EventHandler] Failed to handle event ${message.t} (${message.op}) due to\n${e.stack}`
+          );
       });
   }
 }

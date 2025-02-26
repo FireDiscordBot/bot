@@ -7,7 +7,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 
-export default class CreateInviteDiscoverableEvent extends Event {
+export default class CreateInviteDiscoverable extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.CREATE_INVITE_DISCOVERABLE);
   }

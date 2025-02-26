@@ -3,7 +3,7 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord-api-types/globals";
 
-export default class RefreshSlashCmdIdsEvent extends Event {
+export default class RefreshSlashCmdIds extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.REFRESH_SLASH_COMMAND_IDS);
   }
@@ -22,8 +22,8 @@ export default class RefreshSlashCmdIdsEvent extends Event {
         command.slashIds = cmd.slashIds;
       }
     }
-    this.manager.client.console.log(
-      `[Aether] Refreshed slash command IDs for ${data.commands.length} commands`
-    );
+    this.manager
+      .getLogger("Commands")
+      .log(`Refreshed slash command IDs for ${data.commands.length} commands`);
   }
 }

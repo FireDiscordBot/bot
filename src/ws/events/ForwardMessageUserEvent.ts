@@ -10,7 +10,7 @@ import {
 } from "discord.js";
 import { StringMap, TOptions } from "i18next";
 
-export default class ForwardMessageUserEvent extends Event {
+export default class ForwardMessageUser extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.FORWARD_MESSAGE_USER);
   }

@@ -4,11 +4,12 @@ import { Snowflake } from "discord-api-types/globals";
 export const fire = {
   dev: process.env.NODE_ENV != "production",
   readyMessage: (client: Fire) => {
-    client.console.log("-------------------------");
-    client.console.log(`Bot: ${client.user}`);
-    client.console.log(`ID: ${client.user?.id}`);
-    client.console.log(`Guilds: ${client.guilds.cache.size.toLocaleString()}`);
-    client.console.log(
+    const logger = client.getLogger("Fire");
+    logger.log("-------------------------");
+    logger.log(`Bot: ${client.user}`);
+    logger.log(`ID: ${client.user?.id}`);
+    logger.log(`Guilds: ${client.guilds.cache.size.toLocaleString()}`);
+    logger.log(
       `Users: ${(client.guilds.cache.size >= 1
         ? client.guilds.cache
             .map((guild) => guild.memberCount || 0)
@@ -17,10 +18,10 @@ export const fire = {
       ).toLocaleString()}`
     );
     if (!client.started)
-      client.console.log(
+      logger.log(
         `Started in ${(+new Date() - client.launchTime) / 1000} seconds`
       );
-    client.console.log("-------------------------");
+    logger.log("-------------------------");
   },
   aetherPingTimeout: 10000,
   fireGuildId: "564052798044504084" as Snowflake,

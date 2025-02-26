@@ -725,15 +725,16 @@ export class Command extends AkairoCommand {
         .catch((e: Error) => e);
       if (command instanceof DiscordAPIError)
         command.code != 30032 &&
-          this.client.console.warn(
-            `[Commands] Failed to register slash command for ${this.id}`,
-            command
-          );
+          this.client
+            .getLogger("Commands")
+            .warn(`Failed to register slash command for ${this.id}`, command);
       else if (command instanceof Error)
-        this.client.console.warn(
-          `[Commands] Failed to register slash command for ${this.id}`,
-          command.stack
-        );
+        this.client
+          .getLogger("Commands")
+          .warn(
+            `Failed to register slash command for ${this.id}`,
+            command.stack
+          );
       else if (command.id) {
         this.slashId = command.id;
         commands.push(command);
@@ -752,15 +753,19 @@ export class Command extends AkairoCommand {
         if (command instanceof DiscordAPIError)
           command.httpStatus != 403 &&
             command.code != 50001 &&
-            this.client.console.warn(
-              `[Commands] Failed to register slash command for ${this.id} in guild ${guild}`,
+            this.client
+              .getLogger("Commands")
+              .warn(
+                `Failed to register slash command for ${this.id} in guild ${guild}`,
+                command.stack
+              );
+        else if (command instanceof Error)
+          this.client
+            .getLogger("Commands")
+            .warn(
+              `Failed to register slash command for ${this.id} in guild ${guild}`,
               command.stack
             );
-        else if (command instanceof Error)
-          this.client.console.warn(
-            `[Commands] Failed to register slash command for ${this.id} in guild ${guild}`,
-            command.stack
-          );
         else if (command.id) {
           this.slashIds[guildId] = command.id;
           commands.push({ ...command, guild });

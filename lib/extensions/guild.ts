@@ -122,6 +122,10 @@ export class FireGuild extends Guild {
     this.loadBans();
   }
 
+  get console() {
+    return this.client.getLogger(`Guild:${this.id}`);
+  }
+
   get language() {
     return (
       this.client.getLanguage(
@@ -239,8 +243,8 @@ export class FireGuild extends Guild {
         reason: this.language.get("MUTE_ROLE_CREATE_REASON"),
       })
       .catch((e) => {
-        this.client.console.warn(
-          `[Guilds] Failed to create mute role in ${this.name} due to\n${e.stack}`
+        this.console.warn(
+          `Failed to create mute role in ${this.name} due to\n${e.stack}`
         );
       });
     if (!role) return false;
@@ -358,9 +362,7 @@ export class FireGuild extends Guild {
       .query("SELECT * FROM mutes WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!mutes)
-      return this.client.console.error(
-        `[Guild] Failed to load mutes for ${this.name} (${this.id})`
-      );
+      return this.console.error(`Failed to load mutes for ${this.name} `);
     for await (const mute of mutes) {
       this.mutes.set(
         mute.get("uid") as Snowflake,
@@ -377,9 +379,7 @@ export class FireGuild extends Guild {
       .query("SELECT * FROM bans WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!bans)
-      return this.client.console.error(
-        `[Guild] Failed to load bans for ${this.name} (${this.id})`
-      );
+      return this.console.error(`Failed to load bans for ${this.name} `);
     for await (const ban of bans) {
       this.tempBans.set(
         ban.get("uid") as Snowflake,
@@ -414,8 +414,8 @@ export class FireGuild extends Guild {
         );
         this.mutes.delete(id); // ensures id is removed from cache even if above fails to do so
         if (typeof unmuted == "string") {
-          this.client.console.warn(
-            `[Guild] Failed to remove mute for ${member} (${id}) in ${this.name} (${this.id}) due to ${unmuted}`
+          this.console.warn(
+            `Failed to remove mute for ${member} (${id}) in ${this.name}  due to ${unmuted}`
           );
           await this.modLog(
             this.language.get("UNMUTE_AUTO_FAIL", {
@@ -492,8 +492,8 @@ export class FireGuild extends Guild {
       .query("SELECT * FROM starboard WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!messages)
-      return this.client.console.error(
-        `[Guild] Failed to load starboard messages for ${this.name} (${this.id})`
+      return this.console.error(
+        `Failed to load starboard messages for ${this.name} `
       );
     for await (const message of messages)
       this.starboardMessages.set(
@@ -508,8 +508,8 @@ export class FireGuild extends Guild {
       .query("SELECT * FROM starboard_reactions WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!reactions)
-      return this.client.console.error(
-        `[Guild] Failed to load starboard reactions for ${this.name} (${this.id})`
+      return this.console.error(
+        `Failed to load starboard reactions for ${this.name} `
       );
     for await (const reaction of reactions)
       this.starboardReactions.set(
@@ -525,8 +525,8 @@ export class FireGuild extends Guild {
       .query("SELECT * FROM invrole WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!invroles)
-      return this.client.console.error(
-        `[Guild] Failed to load invite roles for ${this.name} (${this.id})`
+      return this.console.error(
+        `Failed to load invite roles for ${this.name} `
       );
     for await (const invrole of invroles)
       this.inviteRoles.set(
@@ -542,8 +542,8 @@ export class FireGuild extends Guild {
       .query("SELECT * FROM rolepersists WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!persisted)
-      return this.client.console.error(
-        `[Guild] Failed to load persisted roles for ${this.name} (${this.id})`
+      return this.console.error(
+        `Failed to load persisted roles for ${this.name} `
       );
     for await (const role of persisted)
       this.persistedRoles.set(
@@ -559,9 +559,7 @@ export class FireGuild extends Guild {
       .query("SELECT * FROM vcroles WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!voiceroles)
-      return this.client.console.error(
-        `[Guild] Failed to load voice roles for ${this.name} (${this.id})`
-      );
+      return this.console.error(`Failed to load voice roles for ${this.name} `);
     for await (const vcrole of voiceroles) {
       this.vcRoles.set(
         vcrole.get("cid") as Snowflake,
@@ -600,8 +598,8 @@ export class FireGuild extends Guild {
       .query("SELECT * FROM reactrole WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!reactRoles)
-      return this.client.console.error(
-        `[Guild] Failed to load reaction roles for ${this.name} (${this.id})`
+      return this.console.error(
+        `Failed to load reaction roles for ${this.name} `
       );
     for await (const rero of reactRoles) {
       const mid = rero.get("mid") as Snowflake;
@@ -619,8 +617,8 @@ export class FireGuild extends Guild {
       .query("SELECT * FROM permroles WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!permRoles)
-      return this.client.console.error(
-        `[Guild] Failed to load permission roles for ${this.name} (${this.id})`
+      return this.console.error(
+        `Failed to load permission roles for ${this.name} `
       );
     for await (const role of permRoles) {
       if (!this.roles.cache.has(role.get("rid") as Snowflake)) continue;

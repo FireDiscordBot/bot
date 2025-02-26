@@ -17,7 +17,7 @@ import { NewsChannel, ThreadChannel } from "discord.js";
 
 const { CommandHandlerEvents } = Constants;
 
-export default class CrossClusterQuoteEvent extends Event {
+export default class CrossClusterQuote extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.CROSS_CLUSTER_QUOTE);
   }
@@ -31,12 +31,12 @@ export default class CrossClusterQuoteEvent extends Event {
     }
   ) {
     if (!data.destination)
-      return this.manager.client.console[data.debug ? "warn" : "debug"](
-        `[Aether] Attempted cross cluster quote with no destination`,
+      return this.console[data.debug ? "warn" : "debug"](
+        `Attempted cross cluster quote with no destination`,
         JSON.stringify(data)
       );
-    this.manager.client.console[data.debug ? "log" : "debug"](
-      `[Aether] Received cross cluster quote for ${data.destination.guild_id}/${data.destination.id}/${data.message_id} from quoter ${data.quoter}`
+    this.console[data.debug ? "log" : "debug"](
+      `Received cross cluster quote for ${data.destination.guild_id}/${data.destination.id}/${data.message_id} from quoter ${data.quoter}`
     );
     let { destination } = data;
     const quoteCommand = this.manager.client.getCommand("quote") as Quote;
@@ -65,22 +65,22 @@ export default class CrossClusterQuoteEvent extends Event {
       .fetch(data.quoter)
       .catch(() => {})) as FireMember;
     if (!member)
-      return this.manager.client.console.warn(
-        `[Aether] Attempted cross cluster quote with unknown member`
+      return this.console.warn(
+        `Attempted cross cluster quote with unknown member`
       );
     const channel = guild.channels.cache
       .filter((channel) => channel.isText() || channel.isThread())
       .get(data.channel_id) as FireTextChannel | NewsChannel | ThreadChannel;
     if (!channel)
-      return this.manager.client.console.warn(
-        `[Aether] Attempted cross cluster quote with unknown channel`
+      return this.console.warn(
+        `Attempted cross cluster quote with unknown channel`
       );
     const message = await channel.messages
       .fetch(data.message_id)
       .catch(() => {});
     if (!message)
-      return this.manager.client.console.warn(
-        `[Aether] Attempted cross cluster quote with unknown message`
+      return this.console.warn(
+        `Attempted cross cluster quote with unknown message`
       );
     const args = {
       quote: message as FireMessage,

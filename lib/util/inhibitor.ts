@@ -11,6 +11,10 @@ export class Inhibitor extends AkairoInhibitor {
     super(id, options);
   }
 
+  get console() {
+    return this.client.getLogger(`Inhibitor:${this.constructor.name}`);
+  }
+
   async init(): Promise<any> {}
 
   async unload(): Promise<any> {}

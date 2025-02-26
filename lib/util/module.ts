@@ -9,6 +9,10 @@ export class Module extends AkairoModule {
     super(id, {});
   }
 
+  get console() {
+    return this.client.getLogger(`Module:${this.constructor.name}`);
+  }
+
   async init(): Promise<any> {}
 
   async unload(): Promise<any> {}

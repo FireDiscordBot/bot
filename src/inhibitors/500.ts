@@ -1,6 +1,6 @@
 import { Inhibitor } from "@fire/lib/util/inhibitor";
 
-export default class InternalServerErrorInhibitor extends Inhibitor {
+export default class InternalServerError extends Inhibitor {
   constructor() {
     super("500", {
       reason: "500",

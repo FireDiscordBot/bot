@@ -3,14 +3,14 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord-api-types/globals";
 
-export default class BlacklistSyncEvent extends Event {
+export default class BlacklistSync extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.BLACKLIST_SYNC);
   }
 
   async run(data: { user: Snowflake; action: "blacklist" | "unblacklist" }) {
-    this.manager.client.console.log(
-      `[Event] Received blacklist sync request for ${
+    this.console.log(
+      `Received blacklist sync request for ${
         this.manager.client.users.cache.get(data.user) || data.user
       }.`
     );

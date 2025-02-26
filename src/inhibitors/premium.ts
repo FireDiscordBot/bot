@@ -12,7 +12,7 @@ import { Collection } from "discord.js";
 const paidStatuses = ["trialing", "active", "past_due"];
 const hasPaid = (status: SubscriptionStatus) => paidStatuses.includes(status);
 
-export default class PremiumInhibitor extends Inhibitor {
+export default class Premium extends Inhibitor {
   constructor() {
     super("premium", {
       reason: "premium",
@@ -44,11 +44,13 @@ export default class PremiumInhibitor extends Inhibitor {
             row.get("status") == "trialing" &&
             instance?.settings.get<boolean>("premium.trialeligible", true)
           ) {
-            this.client.console.warn(
-              `[Premium] Setting trial eligibility for ${instance} due to subscription from ${row.get(
-                "uid"
-              )} in trial period`
-            );
+            this.client
+              .getLogger("Premium")
+              .warn(
+                `Setting trial eligibility for ${instance} due to subscription from ${row.get(
+                  "uid"
+                )} in trial period`
+              );
             await instance.settings.set<boolean>(
               "premium.trialeligible",
               false,
@@ -65,9 +67,11 @@ export default class PremiumInhibitor extends Inhibitor {
         }
     }
     this.client.util.loadedData.premium = true;
-    this.client.console.log(
-      `[Premium] Successfully loaded ${this.client.util.premium.size} premium guilds`
-    );
+    this.client
+      .getLogger("Premium")
+      .log(
+        `Successfully loaded ${this.client.util.premium.size} premium guilds`
+      );
 
     if (
       !(this.client.options.shards as number[]).includes(

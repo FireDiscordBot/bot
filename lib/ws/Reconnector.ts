@@ -18,10 +18,10 @@ export class Reconnector {
   handleOpen() {
     if (this.timeout) clearTimeout(this.timeout);
     if (this.state == WebsocketStates.RECONNECTING) {
-      this.manager.client.console.log("[Aether] Reconnected to Websocket.");
+      this.manager.getLogger("Aether").log("Reconnected to Websocket.");
       this.state = WebsocketStates.CONNECTED;
     } else {
-      this.manager.client.console.log("[Aether] Connected to Websocket.");
+      this.manager.getLogger("Aether").log("Connected to Websocket.");
       this.state = WebsocketStates.CONNECTED;
     }
     this.sessionTimeout = setTimeout(() => {
@@ -36,11 +36,13 @@ export class Reconnector {
     this.manager.ready = false;
     if (this.state != WebsocketStates.CLOSED) {
       this.state = WebsocketStates.CLOSED;
-      this.manager.client.console.warn(
-        `[Aether] Disconnected from websocket (${
-          this.manager.ws?.clientSideClose ? "client" : "server"
-        }) with code ${code} and reason ${reason}.`
-      );
+      this.manager
+        .getLogger("Aether")
+        .warn(
+          `Disconnected from websocket (${
+            this.manager.ws?.clientSideClose ? "client" : "server"
+          }) with code ${code} and reason ${reason}.`
+        );
     }
     if (code == 1006) this.manager.ws?.terminate();
     if (code == 1012) {
@@ -84,9 +86,7 @@ export class Reconnector {
   handleError(error: any) {
     if (error.code == "ECONNREFUSED") this.activate(8000);
     else {
-      this.manager.client.console.error(
-        `[Aether] Received error event: ${error}`
-      );
+      this.manager.getLogger("Aether").error(`Received error event: ${error}`);
       this.activate(5000);
     }
   }
@@ -99,7 +99,7 @@ export class Reconnector {
 
   reconnect(log = true) {
     if (log)
-      this.manager.client.console.info(`[Aether] Attempting to reconnect...`);
+      this.manager.getLogger("Aether").info(`Attempting to reconnect...`);
     // it likes to try reconnect while already connected sometimes
     // why? not a single fucking clue
     if (this.manager.ws?.open) this.manager.ws.close(4000, "brb");

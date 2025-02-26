@@ -2,17 +2,17 @@ import { Manager } from "@fire/lib/Manager";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 
-export default class ResumeEvent extends Event {
+export default class Resume extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.RESUME_CLIENT);
   }
 
   async run(data: { replayed: number; interval: number }) {
     this.manager.ready = true;
-    this.manager.client.console.log(
+    this.console.log(
       data.replayed
-        ? `[Aether] Sucessfully resumed session ${this.manager.session} with ${data.replayed} replayed events.`
-        : `[Aether] Sucessfully resumed session ${this.manager.session}.`
+        ? `Sucessfully resumed session ${this.manager.session} with ${data.replayed} replayed events.`
+        : `Sucessfully resumed session ${this.manager.session}.`
     );
     this.manager.ws.heartbeatInterval = data.interval;
     this.manager.ws.startHeartbeat();
