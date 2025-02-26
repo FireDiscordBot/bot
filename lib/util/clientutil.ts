@@ -26,6 +26,7 @@ import {
   GuildTextBasedChannel,
   LimitedCollection,
   MessageActionRow,
+  MessageAttachment,
   MessageButton,
   MessageEmbed,
   PermissionString,
@@ -1292,5 +1293,16 @@ export class Util extends ClientUtil {
       );
     else if (res.statusCode != 200) return null;
     return (stream ? (res as unknown as Readable) : await res.text()) as any;
+  }
+
+  async getAttachmentPreview(attachment: MessageAttachment) {
+    const req = await centra(attachment.url)
+      .header("User-Agent", this.client.manager.ua)
+      .header("Range", "bytes=0-50000")
+      .send()
+      .catch(() => {});
+    if (req && (req.statusCode == 200 || req.statusCode == 206))
+      return req.body.toString();
+    else return "";
   }
 }

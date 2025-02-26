@@ -198,23 +198,11 @@ export default class Filters extends Module {
 
   async invWtfReplace(message: FireMessage | string, extra?: string) {
     let exec: RegExpExecArray;
-    while (
-      (exec = regexes.invwtf.exec(
-        typeof message == "string"
-          ? message
-          : message.content +
-              " " +
-              message.embeds
-                .map((embed) => JSON.stringify(embed.toJSON()))
-                .join(" ") +
-              " " +
-              message.attachments
-                .map((attachment) => attachment.description)
-                .join(" ") +
-              " " +
-              extra
-      )) != null
-    ) {
+    const searchString =
+      typeof message == "string"
+        ? message
+        : await this.getSearchString(message, extra);
+    while ((exec = regexes.invwtf.exec(searchString)) != null) {
       if (regexes.invwtf.lastIndex == exec.index) regexes.invwtf.lastIndex++;
 
       const code = exec.groups?.code;
@@ -247,56 +235,69 @@ export default class Filters extends Module {
       } else if (message instanceof FireMessage)
         data = message.invWtfResolved.get(code);
 
-      try {
-        if (data && data.invite) {
+      if (data && ("invite" in data || "url" in data))
+        try {
+          const replacement = "invite" in data ? data.invite : data.url;
+
           if (message instanceof FireMessage)
-            message.content = message.content.replace(
-              new RegExp(`inv.wtf\/${code}`, "gim"),
-              `discord.gg/${data.invite}`
-            );
-          else
-            message = message.replace(
-              new RegExp(`inv.wtf\/${code}`, "gim"),
-              `discord.gg/${data.invite}`
-            );
-          if (extra)
-            extra = extra.replace(
-              new RegExp(`inv.wtf\/${code}`, "gim"),
-              `discord.gg/${data.invite}`
-            );
-          if (message instanceof FireMessage && message.embeds.length) {
-            const index = message.embeds.findIndex((embed) =>
-              embed.url.includes(`inv.wtf/${code}`)
-            );
-            if (index >= 0)
-              message.embeds[index].url = `discord.gg/${data.invite}`;
-          }
-        } else if (data && data.url) {
-          if (message instanceof FireMessage)
-            message.content = message.content.replace(
-              new RegExp(`(https?:\/\/)?inv.wtf\/${code}`, "gim"),
-              data.url
-            );
-          else
-            message = message.replace(
-              new RegExp(`(https?:\/\/)?inv.wtf\/${code}`, "gim"),
-              data.url
-            );
-          if (extra)
-            extra = extra.replace(
-              new RegExp(`(https?:\/\/)?inv.wtf\/${code}`, "gim"),
-              data.url
-            );
-          if (message instanceof FireMessage && message.embeds.length) {
-            const index = message.embeds.findIndex((embed) =>
-              embed.url.includes(`inv.wtf/${code}`)
-            );
-            if (index >= 0) message.embeds[index].url = data.url;
-          }
-        }
-      } catch {}
+            message.content = message.content.replace(exec[0], replacement);
+          else message = message.replace(exec[0], replacement);
+          if (extra) extra = extra.replace(exec[0], replacement);
+
+          if (message instanceof FireMessage && message.embeds.length)
+            for (const embed of message.embeds) {
+              if (embed.url?.includes(exec[0]))
+                embed.url = embed.url.replace(exec[0], replacement);
+              if (embed.title?.includes(exec[0]))
+                embed.title = embed.title.replace(exec[0], replacement);
+              if (embed.description?.includes(exec[0]))
+                embed.description = embed.description.replace(
+                  exec[0],
+                  replacement
+                );
+              for (const field of embed.fields) {
+                if (field.name.includes(exec[0]))
+                  field.name = field.name.replace(exec[0], replacement);
+                if (field.value.includes(exec[0]))
+                  field.value = field.value.replace(exec[0], replacement);
+              }
+              if (embed.author?.name?.includes(exec[0]))
+                embed.author.name = embed.author.name.replace(
+                  exec[0],
+                  replacement
+                );
+              if (embed.footer?.text?.includes(exec[0]))
+                embed.footer.text = embed.footer.text.replace(
+                  exec[0],
+                  replacement
+                );
+            }
+        } catch {}
     }
     return [message, extra];
+  }
+
+  async getSearchString(message: FireMessage, extra: string = "") {
+    return [
+      message.content,
+      ...message.embeds.flatMap((embed) => [
+        embed.title,
+        embed.author?.name,
+        embed.description,
+        embed.footer?.text,
+        embed.fields.map((field) => field.name),
+        embed.fields.map((field) => field.value),
+      ]),
+      ...message.attachments.map((attachment) => attachment.description),
+      ...(await Promise.all(
+        message.attachments.map((attachment) =>
+          this.client.util.getAttachmentPreview(attachment)
+        )
+      )),
+      extra,
+    ]
+      .filter((s) => !!s)
+      .join(" ");
   }
 
   async handleInvite(message: FireMessage, extra: string = "") {
@@ -318,22 +319,8 @@ export default class Filters extends Module {
           reason: message.guild.language.get("FILTER_MESSAGE_DELETE_REASON"),
         })
         .catch(() => {});
-    const searchString =
-      message.content +
-      " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
-      " " +
-      message.attachments
-        .map((attachment) => attachment.description)
-        .join(" ") +
-      " " +
-      extra;
-    const noExtra =
-      message.content +
-      " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
-      " " +
-      message.attachments.map((attachment) => attachment.description).join(" ");
+    const noExtra = await this.getSearchString(message);
+    const searchString = noExtra + " " + extra;
     let found: RegExpExecArray[] = [];
     let regexec: RegExpExecArray;
     const sanitizedSearch = this.client.util.sanitizer(
@@ -554,16 +541,7 @@ export default class Filters extends Module {
     message: FireMessage,
     extra: string = ""
   ) {
-    const searchString =
-      message.content +
-      " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
-      " " +
-      message.attachments
-        .map((attachment) => attachment.description)
-        .join(" ") +
-      " " +
-      extra;
+    const searchString = await this.getSearchString(message, extra);
     const match = regexes.paypal.exec(
       this.client.util.sanitizer(searchString, searchString)
     );
@@ -617,16 +595,7 @@ export default class Filters extends Module {
   }
 
   async handleYouTubeVideo(message: FireMessage, extra: string = "") {
-    const searchString =
-      message.content +
-      " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
-      " " +
-      message.attachments
-        .map((attachment) => attachment.description)
-        .join(" ") +
-      " " +
-      extra;
+    const searchString = await this.getSearchString(message, extra);
     let videoMatch: RegExpExecArray;
     const ids: string[] = [];
     const sanitizedSearch = this.client.util.sanitizer(
@@ -754,17 +723,10 @@ export default class Filters extends Module {
   }
 
   async handleYouTubeChannel(message: FireMessage, extra: string = "") {
-    const searchString = (
-      message.content +
-      " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
-      " " +
-      message.attachments
-        .map((attachment) => attachment.description)
-        .join(" ") +
-      " " +
-      extra
-    ).replace(regexes.youtube.video, "[ youtube video ]"); // prevents videos being matched
+    const searchString = (await this.getSearchString(message, extra)).replace(
+      regexes.youtube.video,
+      "[ youtube video ]"
+    ); // prevents videos being matched
     let channelMatch: RegExpExecArray;
     const singleChannelLinks: string[] = [];
     const channelLinks: string[] = [];
@@ -903,16 +865,7 @@ export default class Filters extends Module {
   }
 
   async handleTwitch(message: FireMessage, extra: string = "") {
-    const searchString =
-      message.content +
-      " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
-      " " +
-      message.attachments
-        .map((attachment) => attachment.description)
-        .join(" ") +
-      " " +
-      extra;
+    const searchString = await this.getSearchString(message, extra);
     const clipMatch = regexes.twitch.clip.exec(
       this.client.util.sanitizer(searchString, searchString)
     );
@@ -964,16 +917,7 @@ export default class Filters extends Module {
   }
 
   async handleTwitter(message: FireMessage, extra: string = "") {
-    const searchString =
-      message.content +
-      " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
-      " " +
-      message.attachments
-        .map((attachment) => attachment.description)
-        .join(" ") +
-      " " +
-      extra;
+    const searchString = await this.getSearchString(message, extra);
     const match = regexes.twitter.exec(
       this.client.util.sanitizer(searchString, searchString)
     );
@@ -1027,16 +971,7 @@ export default class Filters extends Module {
   }
 
   async handleShort(message: FireMessage, extra: string = "") {
-    const searchString =
-      message.content +
-      " " +
-      message.embeds.map((embed) => JSON.stringify(embed.toJSON())).join(" ") +
-      " " +
-      message.attachments
-        .map((attachment) => attachment.description)
-        .join(" ") +
-      " " +
-      extra;
+    const searchString = await this.getSearchString(message, extra);
     const match = this.shortURLRegex.exec(
       this.client.util.sanitizer(searchString, searchString)
     );
