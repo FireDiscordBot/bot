@@ -37,17 +37,17 @@ export default class Deploy extends Event {
       else return;
     }
     try {
-      await this.execPromise(`git pull`);
+      await this.execPromise("git pull");
       await this.execPromise(`git checkout ${data.commit}`);
       if (data.requireInstall) {
-        await this.execPromise(`rm -rf node_modules`);
-        await this.execPromise(`yarn install`);
+        await this.execPromise("rm -rf node_modules");
+        await this.execPromise("yarn install");
         // for some reason, we need to install these two last
         await this.execPromise(
-          `yarn add discord-akairo/discord-akairo FireDiscordBot/discord.js`
+          "yarn add discord-akairo/discord-akairo FireDiscordBot/discord.js"
         );
       }
-      await this.execPromise(`yarn compile`);
+      await this.execPromise("yarn compile");
       await this.execPromise(`git checkout ${data.branch}`);
       return this.manager.kill("deploy");
     } catch (e) {

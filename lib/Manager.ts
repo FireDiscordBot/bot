@@ -131,7 +131,7 @@ export class Manager {
     this.ws.init();
 
     this.ws.once("open", () => {
-      this.getLogger("Aether").log("WS opened.");
+      this.getLogger("Aether").log("Websocket opened");
       if (this.client.readyAt) this.client.setReadyPresence();
       this.reconnector.handleOpen();
     });
@@ -157,8 +157,8 @@ export class Manager {
       this.reconnector.handleClose(code, reason.toString());
     });
 
-    this.ws.once("error", (error: any) => {
-      this.getLogger("Aether").error("WS errored.");
+    this.ws.once("error", (error) => {
+      this.getLogger("Aether").error("Websocket errored\n", error.stack);
       this.reconnector.handleError(error);
     });
   }
@@ -169,7 +169,7 @@ export class Manager {
     shardCount: number;
     shards: number[];
   }) {
-    this.getLogger("Aether").log(`Received sharding config.`);
+    this.getLogger("Aether").log("Received sharding config");
     this.id = data.id;
     this.session = data.session;
     this.client.options.presence.shardId = this.client.options.shards =

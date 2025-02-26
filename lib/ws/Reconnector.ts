@@ -18,10 +18,10 @@ export class Reconnector {
   handleOpen() {
     if (this.timeout) clearTimeout(this.timeout);
     if (this.state == WebsocketStates.RECONNECTING) {
-      this.manager.getLogger("Aether").log("Reconnected to Websocket.");
+      this.manager.getLogger("Aether").log("Reconnected to websocket");
       this.state = WebsocketStates.CONNECTED;
     } else {
-      this.manager.getLogger("Aether").log("Connected to Websocket.");
+      this.manager.getLogger("Aether").log("Connected to websocket");
       this.state = WebsocketStates.CONNECTED;
     }
     this.sessionTimeout = setTimeout(() => {
@@ -99,7 +99,7 @@ export class Reconnector {
 
   reconnect(log = true) {
     if (log)
-      this.manager.getLogger("Aether").info(`Attempting to reconnect...`);
+      this.manager.getLogger("Aether").info("Attempting to reconnect...");
     // it likes to try reconnect while already connected sometimes
     // why? not a single fucking clue
     if (this.manager.ws?.open) this.manager.ws.close(4000, "brb");

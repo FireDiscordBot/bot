@@ -1964,7 +1964,7 @@ export default class MCLogs extends Module {
             "uploaded"
           );
       } catch (e) {
-        this.console.debug(`Failed to process log,`, e.stack);
+        this.console.debug("Failed to process log\n", e.stack);
         this.client.sentry.captureException(e);
         await message.send("MC_LOG_READ_FAIL");
       }

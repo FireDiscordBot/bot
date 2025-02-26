@@ -9,7 +9,7 @@ export default class ReloadExperiments extends Event {
   }
 
   async run(experiments: Experiment[]) {
-    this.console.log("Received request to reload experiments.");
+    this.console.log("Received request to reload experiments...");
     for (const experiment of experiments)
       this.manager.client.experiments.set(experiment.hash, experiment);
   }

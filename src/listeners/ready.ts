@@ -28,7 +28,7 @@ export default class Ready extends Listener {
     );
     if (unavailableGuilds.size) {
       unavailableGuilds.forEach((guild: FireGuild) => {
-        guild.console.warn(`Server unavailable on connection open`);
+        guild.console.warn("Server unavailable on connection open");
       });
     }
 

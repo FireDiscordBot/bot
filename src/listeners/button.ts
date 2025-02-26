@@ -121,7 +121,7 @@ const defaultGFuelModalComponents = [
       .setCustomId("subject")
       .setRequired(true)
       .setLabel("Ticket Subject")
-      .setPlaceholder("Enter a subject for your ticket here.")
+      .setPlaceholder("Enter a subject for your ticket here")
       .setStyle(TextInputStyles.PARAGRAPH)
       .setMaxLength(500)
   ),
@@ -149,7 +149,7 @@ const twitchGFuelModalComponents = [
       .setCustomId("subject")
       .setRequired(true)
       .setLabel("Ticket Subject")
-      .setPlaceholder("Enter a subject for your ticket here.")
+      .setPlaceholder("Enter a subject for your ticket here")
       .setStyle(TextInputStyles.PARAGRAPH)
       .setMaxLength(500)
   ),

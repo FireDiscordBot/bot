@@ -35,7 +35,7 @@ export default class APIRequest extends Event {
           )
         );
     } catch (e) {
-      this.console.warn(`Forwarded API request failed`);
+      this.console.warn("Forwarded API request failed");
       return this.manager.ws.send(
         MessageUtil.encode(new Message(EventType.API_REQUEST, null, nonce))
       );

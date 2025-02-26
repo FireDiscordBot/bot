@@ -13,14 +13,14 @@ import {
 } from "discord.js";
 
 const supportMarketplaceBugMessage =
-  "Please select the product you require support with below.";
+  "Please select the product you require support with below";
 
 const supportMarketplaceBugMessageTwo = `Make sure you have checked <#595100330757193747> before continuing.
 
 If you still require support, hit the green button below or hit the red one to cancel.`;
 
 const supportJavaBugMessage =
-  "Please select the modpack you require support with below.";
+  "Please select the modpack you require support with below";
 
 const productNames = {
   furniture: "Furniture Series",

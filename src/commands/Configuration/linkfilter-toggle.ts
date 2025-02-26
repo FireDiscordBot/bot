@@ -100,7 +100,7 @@ export default class LinkfilterToggle extends Command {
       new MessageActionRow().addComponents(
         new MessageSelectMenu()
           .setPlaceholder(context.language.get("LINKFILTER_TOGGLE_PLACEHOLDER"))
-          .setCustomId(`!linkfilters`)
+          .setCustomId("!linkfilters")
           .addOptions(options)
           .setMinValues(1)
           .setMaxValues(options.length)

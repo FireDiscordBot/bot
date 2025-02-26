@@ -26,7 +26,7 @@ export default class BroadcastEval extends Event {
       if (!this.manager.client.isOwner(message.author)) return;
       message.content = message.content.replace("--broadcast", ""); // We don't want an infinite loop so goodbye flag
       const handled = await this.manager.client.commandHandler.handle(message);
-      if (!handled) this.console.warn(`Broadcasted eval failed!`);
+      if (!handled) this.console.warn("Broadcasted eval failed!");
     } catch (e) {
       this.manager.sentry.captureException(e);
     }

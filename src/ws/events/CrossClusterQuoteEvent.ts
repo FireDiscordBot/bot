@@ -32,7 +32,7 @@ export default class CrossClusterQuote extends Event {
   ) {
     if (!data.destination)
       return this.console[data.debug ? "warn" : "debug"](
-        `Attempted cross cluster quote with no destination`,
+        "Attempted cross cluster quote with no destination",
         JSON.stringify(data)
       );
     this.console[data.debug ? "log" : "debug"](
@@ -66,21 +66,21 @@ export default class CrossClusterQuote extends Event {
       .catch(() => {})) as FireMember;
     if (!member)
       return this.console.warn(
-        `Attempted cross cluster quote with unknown member`
+        "Attempted cross cluster quote with unknown member"
       );
     const channel = guild.channels.cache
       .filter((channel) => channel.isText() || channel.isThread())
       .get(data.channel_id) as FireTextChannel | NewsChannel | ThreadChannel;
     if (!channel)
       return this.console.warn(
-        `Attempted cross cluster quote with unknown channel`
+        "Attempted cross cluster quote with unknown channel"
       );
     const message = await channel.messages
       .fetch(data.message_id)
       .catch(() => {});
     if (!message)
       return this.console.warn(
-        `Attempted cross cluster quote with unknown message`
+        "Attempted cross cluster quote with unknown message"
       );
     const args = {
       quote: message as FireMessage,

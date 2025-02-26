@@ -55,7 +55,7 @@ export class Websocket extends Client {
         this.manager
           .getLogger("Aether")
           .warn(
-            `Received message on non-open socket, closing to initiate reconnect.`
+            "Received message on non-open socket, closing to initiate reconnect..."
           );
         return this.close(1006, "Received message on non-open socket");
       }

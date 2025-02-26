@@ -85,7 +85,7 @@ export default class Help extends Command {
       new MessageActionRow().addComponents([
         new MessageSelectMenu()
           .setPlaceholder(message.language.get("HELP_SELECT_CATEGORY"))
-          .setCustomId(`help_category`)
+          .setCustomId("help_category")
           .setMaxValues(1)
           .setMinValues(1)
           .addOptions(

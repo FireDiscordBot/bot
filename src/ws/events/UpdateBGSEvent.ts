@@ -19,12 +19,12 @@ export default class UpdateBGS extends Event {
     recommendations: { [key: string]: string };
     cheats: string[];
   }) {
-    this.console.warn(`Got request to update solutions`);
+    this.console.warn("Got request to update solutions");
     const mcLogs = this.manager.client.getModule("mclogs") as MCLogs;
     if (!mcLogs) return;
     if (!("solutions" in data) || Object.keys(data.solutions)?.length < 5) {
       this.console.error(
-        `Solutions were missing or less than 5, something likely went wrong so they were not updated.`
+        "Solutions were missing or less than 5, something likely went wrong so they were not updated!"
       );
       return;
     }

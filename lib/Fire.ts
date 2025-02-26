@@ -258,7 +258,7 @@ export class Fire extends AkairoClient {
       this.sentry.setTag("process", process.pid.toString());
       this.sentry.setTag("discord.js", djsver);
       this.sentry.setTag("discord-akairo", akairover);
-      this.getLogger("Sentry").log("Connected.");
+      this.getLogger("Sentry").log("Connected");
     }
 
     this.config = config.fire;
@@ -460,14 +460,14 @@ export class Fire extends AkairoClient {
     this.db.on("connect", () => this.getLogger("DB").log("Connected"));
     this.db.on("end", () => {
       this.getLogger("DB").error(
-        `Connection ended, attempting to reconnect...`
+        "Connection ended, attempting to reconnect..."
       );
       this.initDB(true);
     });
 
     this.getLogger("DB").warn("Attempting to connect...");
     this.db.connect().catch((err) => {
-      this.getLogger("DB").error(`Failed to connect`, err.stack);
+      this.getLogger("DB").error("Failed to connect\n", err.stack);
       this.manager.kill("db_error");
     });
 

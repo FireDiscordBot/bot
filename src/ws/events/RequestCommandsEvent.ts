@@ -11,7 +11,7 @@ export default class RequestCommands extends Event {
   }
 
   async run() {
-    this.console.log(`Received request to sync commands.`);
+    this.console.log("Received request to sync commands...");
     this.manager.ws.send(
       MessageUtil.encode(
         new Message(EventType.REQUEST_COMMANDS, {
