@@ -1,4 +1,8 @@
-import * as chalk from "chalk";
+import { Instance } from "chalk";
+
+const chalk = new Instance({
+  level: 3,
+});
 
 const format = new Intl.DateTimeFormat("en-GB", {
   year: "numeric",
