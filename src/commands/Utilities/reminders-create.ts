@@ -147,9 +147,26 @@ export default class RemindersCreate extends Command {
       command.author.settings.has("reminders.dms_closed_fail") &&
       command.author.settings.get("reminders.dms_closed_fail") == true
     ) {
-      // we delete the key so that the next invocation will work
-      await command.author.settings.delete("reminders.dms_closed_fail");
+      let timeout: number;
+      if (!command.author.settings.has("reminders.dms_closed_fail.timeout")) {
+        timeout = +new Date() + 30_000;
+        setTimeout(() => {
+          // we delete the key so that the next invocation will work
+          // but we give it a delay so they have time to read the message
+          // and either enable DMs or add the app
+          command.author.settings.delete("reminders.dms_closed_fail");
+          command.author.settings.delete("reminders.dms_closed_fail.timeout");
+        }, 30_000);
+        await command.author.settings.set(
+          "reminders.dms_closed_fail.timeout",
+          timeout
+        );
+      } else
+        timeout = command.author.settings.get<number>(
+          "reminders.dms_closed_fail.timeout"
+        );
       return await command.error("REMINDER_FAILURE_DM_CLOSED", {
+        timeout: Formatters.time(Math.ceil(timeout / 1000), "R"),
         components: [
           new MessageActionRow().addComponents(
             new MessageButton()
