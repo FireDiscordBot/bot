@@ -78,7 +78,7 @@ export class FireConsole {
   }
 
   warn(...args: any[]) {
-    console.warn(
+    console.log(
       chalk.bgYellow.bold(this.timestamp),
       chalk.bgYellow.bold(this.tag),
       ...args
