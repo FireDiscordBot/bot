@@ -72,7 +72,10 @@ export class GuildSettings {
   }
 
   private get data() {
-    return this.client.manager.state.guildConfigs[this.id] ?? {};
+    return (
+      this.client.manager.state.guildConfigs[this.id] ??
+      (this.client.manager.state.guildConfigs[this.id] = {})
+    );
   }
 
   // will check if migration is needed for the current migration script
@@ -124,7 +127,7 @@ export class GuildSettings {
     if (!updatedBy) throw new MissingUpdatedByError();
 
     const previous = this.get(key);
-    this.client.manager.state.guildConfigs[this.id][key] = value;
+    this.data[key] = value;
 
     const updated = await new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
@@ -178,8 +181,10 @@ export class GuildSettings {
             })
           )
         );
-    } else if (typeof previous !== "undefined")
-      this.client.manager.state.guildConfigs[this.id][key] = previous;
+    } else {
+      if (typeof previous !== "undefined") this.data[key] = previous;
+      else delete this.data[key];
+    }
 
     return updated;
   }
@@ -191,7 +196,7 @@ export class GuildSettings {
     if (!updatedBy) throw new MissingUpdatedByError();
 
     const value = this.get(key);
-    delete this.client.manager.state.guildConfigs[this.id][key];
+    delete this.data[key];
 
     const deleted = new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
@@ -222,7 +227,7 @@ export class GuildSettings {
       );
     });
 
-    if (!deleted) this.client.manager.state.guildConfigs[this.id][key] = value;
+    if (!deleted) this.data[key] = value;
     return deleted;
   }
 
@@ -304,7 +309,10 @@ export class UserSettings {
   }
 
   private get data() {
-    return this.client.manager.state.userConfigs[this.id] ?? {};
+    return (
+      this.client.manager.state.userConfigs[this.id] ??
+      (this.client.manager.state.userConfigs[this.id] = {})
+    );
   }
 
   // will check if migration is needed for the current migration script
@@ -350,7 +358,7 @@ export class UserSettings {
       throw new ConfigError("SERVICE_UNAVAILABLE");
 
     const previous = this.get(key);
-    this.client.manager.state.userConfigs[this.id][key] = value;
+    this.data[key] = value;
 
     const updated = new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
@@ -362,10 +370,6 @@ export class UserSettings {
         nonce,
         (data: { success: boolean }) => {
           clearTimeout(timeout);
-          if (data.success && this.id in this.client.manager.state.userConfigs)
-            this.client.manager.state.userConfigs[this.id][key] = value;
-          else if (data.success)
-            this.client.manager.state.userConfigs[this.id] = { [key]: value };
           resolve(data.success);
         }
       );
@@ -385,8 +389,8 @@ export class UserSettings {
       );
     });
 
-    if (!updated)
-      this.client.manager.state.userConfigs[this.id][key] = previous;
+    if (!updated && typeof previous != "undefined") this.data[key] = previous;
+    else if (!updated) delete this.data[key];
 
     return updated;
   }
@@ -397,7 +401,7 @@ export class UserSettings {
       throw new ConfigError("SERVICE_UNAVAILABLE");
 
     const value = this.get(key);
-    delete this.client.manager.state.userConfigs[this.id][key];
+    delete this.data[key];
 
     const deleted = new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
@@ -409,8 +413,6 @@ export class UserSettings {
         nonce,
         (data: { success: boolean }) => {
           clearTimeout(timeout);
-          if (data.success)
-            delete this.client.manager.state.userConfigs[this.id][key];
           resolve(data.success);
         }
       );
@@ -429,7 +431,7 @@ export class UserSettings {
       );
     });
 
-    if (!deleted) this.client.manager.state.userConfigs[this.id][key] = value;
+    if (!deleted) this.data[key] = value;
     return deleted;
   }
 
