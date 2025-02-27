@@ -278,7 +278,7 @@ export default class Filters extends Module {
   }
 
   async getSearchString(message: FireMessage, extra: string = "") {
-    return [
+    const searchString = [
       message.content,
       ...message.embeds.flatMap((embed) => [
         embed.title,
@@ -298,6 +298,13 @@ export default class Filters extends Module {
     ]
       .filter((s) => !!s)
       .join(" ");
+
+    if (searchString.includes("%"))
+      try {
+        return decodeURIComponent(searchString);
+      } catch {}
+
+    return searchString;
   }
 
   async handleInvite(message: FireMessage, extra: string = "") {
