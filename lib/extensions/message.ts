@@ -1528,7 +1528,7 @@ The lack of this is a sign that this message may have been sent automatically by
     else if (
       sanitized.includes("steamwintergiveaway") &&
       ((sanitized.includes("[steam") && sanitized.includes("http")) ||
-        (sanitized.includes("[http") && sanitized.includes("steam")))
+        sanitized.includes("[http"))
     )
       return await triggerFilter("Fake steam gift link");
     else if (
@@ -1571,15 +1571,12 @@ The lack of this is a sign that this message may have been sent automatically by
       return await triggerFilter("Fake steam gift link");
     else if (
       sanitized.includes("steamgivesapersonalgift-") &&
-      sanitized.includes("http") &&
-      sanitized.includes("steam")
+      sanitized.includes("http")
     )
       return await triggerFilter("Fake steam gift link");
-    else if (
-      sanitized.includes("giftfromsteam") &&
-      sanitized.includes("http") &&
-      sanitized.includes("steam")
-    )
+    else if (sanitized.includes("giftfromsteam") && sanitized.includes("http"))
+      return await triggerFilter("Fake steam gift link");
+    else if (sanitized.includes("giftforsteam") && sanitized.includes("http"))
       return await triggerFilter("Fake steam gift link");
     else if (
       sanitized.includes("$") &&
