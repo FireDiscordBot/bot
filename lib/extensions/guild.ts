@@ -56,7 +56,6 @@ import { BaseFakeChannel } from "../interfaces/misc";
 import { PermRolesData } from "../interfaces/permroles";
 import { BadgeType, DiscoverableGuild } from "../interfaces/stats";
 import { MessageIterator } from "../util/iterators";
-import { LanguageKeys } from "../util/language";
 import { GuildLogManager } from "../util/logmanager";
 import { FakeChannel } from "./appcommandmessage";
 import { FireMember } from "./guildmember";
@@ -420,9 +419,7 @@ export class FireGuild extends Guild {
           await this.modLog(
             this.language.get("UNMUTE_AUTO_FAIL", {
               member: `${member} (${id})`,
-              reason: this.language.get(
-                `UNMUTE_FAILED_${unmuted.toUpperCase()}` as LanguageKeys
-              ),
+              reason: this.language.get(`UNMUTE_FAILED_${unmuted}`),
             }),
             ModLogTypes.UNMUTE
           );
@@ -1169,9 +1166,7 @@ export class FireGuild extends Guild {
           name,
           autoArchiveDuration: this.settings.get("tickets.autoarchive", 10080),
           reason: this.language.get(
-            subject
-              ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
-              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+            subject ? "TICKET_SUBJECT_CHANNEL_TOPIC" : "TICKET_CHANNEL_TOPIC",
             { author: author.toString(), id: author.id, subject }
           ),
           invitable: this.settings.get("tickets.invitable", true),
@@ -1249,15 +1244,11 @@ export class FireGuild extends Guild {
             },
           ],
           topic: this.language.get(
-            subject
-              ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
-              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+            subject ? "TICKET_SUBJECT_CHANNEL_TOPIC" : "TICKET_CHANNEL_TOPIC",
             { author: author.toString(), id: author.id, subject }
           ),
           reason: this.language.get(
-            subject
-              ? ("TICKET_SUBJECT_CHANNEL_TOPIC" as LanguageKeys)
-              : ("TICKET_CHANNEL_TOPIC" as LanguageKeys),
+            subject ? "TICKET_SUBJECT_CHANNEL_TOPIC" : "TICKET_CHANNEL_TOPIC",
             { author: author.toString(), id: author.id, subject }
           ),
         })
@@ -1585,23 +1576,23 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     moderator: FireMember,
     channel?: FakeChannel | GuildTextChannel
   ) {
-    if (!reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
+    if (!reason || !moderator) return null;
+    if (!moderator.isModerator(channel)) return "FORBIDDEN";
     const ban = await this.bans.fetch(user).catch(() => {});
-    if (!ban) return "no_ban";
+    if (!ban) return "NO_BAN";
     const logEntry = await this.createModLogEntry(
       user,
       moderator,
       ModLogTypes.UNBAN,
       reason
     ).catch(() => {});
-    if (!logEntry) return "entry";
+    if (!logEntry) return "ENTRY";
     const unbanned = await this.members
       .unban(user, `${moderator} | ${reason}`)
       .catch(() => {});
     if (!unbanned) {
       const deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
-      return deleted ? "unban" : "unban_and_entry";
+      return deleted ? "UNBAN" : "UNBAN_AND_ENTRY";
     }
     if (this.tempBans.has(user.id)) {
       await this.client.db
@@ -1646,9 +1637,9 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     moderator: FireMember,
     channel: FakeChannel | GuildTextChannel
   ) {
-    if (!reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
-    if (!channel.permissionOverwrites) return "block";
+    if (!reason || !moderator) return null;
+    if (!moderator.isModerator(channel)) return "FORBIDDEN";
+    if (!channel.permissionOverwrites) return "BLOCK";
     let logEntry: string | false | void;
     if (blockee instanceof FireMember) {
       logEntry = await this.createModLogEntry(
@@ -1657,7 +1648,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         ModLogTypes.BLOCK,
         `#${channel.name} | ${reason}`
       ).catch(() => {});
-      if (!logEntry) return "entry";
+      if (!logEntry) return "ENTRY";
     }
     const overwrite: PermissionOverwriteOptions = {
       SEND_MESSAGES_IN_THREADS: false,
@@ -1673,7 +1664,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       let deleted = true; // ensures "block" is used if logEntry doesn't exist
       if (logEntry)
         deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
-      return deleted ? "block" : "block_and_entry";
+      return deleted ? "BLOCK" : "BLOCK_AND_ENTRY";
     }
     const embed = new MessageEmbed()
       .setColor(
@@ -1722,8 +1713,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     moderator: FireMember,
     channel: FakeChannel | GuildTextChannel
   ) {
-    if (!reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
+    if (!reason || !moderator) return null;
+    if (!moderator.isModerator(channel)) return "FORBIDDEN";
     let logEntry: string | false | void;
     if (unblockee instanceof FireMember) {
       logEntry = await this.createModLogEntry(
@@ -1732,7 +1723,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
         ModLogTypes.UNBLOCK,
         `#${channel.name} | ${reason}`
       ).catch(() => {});
-      if (!logEntry) return "entry";
+      if (!logEntry) return "ENTRY";
     }
     const overwrite: PermissionOverwriteOptions = {
       SEND_MESSAGES_IN_THREADS: null,
@@ -1759,7 +1750,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       let deleted = true; // ensures "unblock" is used if logEntry doesn't exist
       if (logEntry)
         deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
-      return deleted ? "unblock" : "unblock_and_entry";
+      return deleted ? "UNBLOCK" : "UNBLOCK_AND_ENTRY";
     }
     const embed = new MessageEmbed()
       .setColor(

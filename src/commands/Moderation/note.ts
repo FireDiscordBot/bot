@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 
 export default class Note extends Command {
   constructor() {
@@ -48,11 +48,9 @@ export default class Note extends Command {
       command.member,
       command.channel
     );
-    if (noted == "forbidden")
+    if (noted == "FORBIDDEN")
       return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof noted == "string")
-      return await command.error(
-        `NOTE_FAILED_${noted.toUpperCase()}` as LanguageKeys
-      );
+      return await command.error(`NOTE_FAILED_${noted}`);
   }
 }

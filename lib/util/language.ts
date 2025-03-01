@@ -4,7 +4,13 @@ import { AkairoHandler, AkairoModule } from "discord-akairo";
 import { StringMap, TOptions } from "i18next";
 
 type LanguageOptions = Partial<typeof enUS>;
-export type LanguageKeys = keyof typeof enUS;
+type NestedKeys<T, Prefix extends string = ""> = {
+  [K in keyof T & string]: T[K] extends Record<string, any>
+    ? K | `${Prefix}${K}.${NestedKeys<T[K], `${Prefix}${K}.`>}`
+    : K | `${Prefix}${K}`;
+}[keyof T & string];
+
+export type LanguageKeys = NestedKeys<typeof enUS>;
 
 export class Language extends AkairoModule {
   name = "CHANGE ME";

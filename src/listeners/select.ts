@@ -172,22 +172,14 @@ export default class Select extends Listener {
           components: [],
           attachments: [],
         });
-      } else if (assist.success == false) {
-        if (select.language.has(`GOOGLE_ERROR_${assist.error}`))
-          return await select.edit({
-            content: select.language.get(
-              `GOOGLE_ERROR_${assist.error}` as LanguageKeys
-            ),
-            components: [],
-            attachments: [],
-          });
-        else
-          return await select.edit({
-            content: select.language.get("GOOGLE_ERROR_UNKNOWN"),
-            components: [],
-            attachments: [],
-          });
-      }
+      } else if (assist.success == false)
+        return await select.edit({
+          content: select.language.has(`GOOGLE_ERROR_${assist.error}`)
+            ? select.language.get(`GOOGLE_ERROR_${assist.error}`)
+            : select.language.get("GOOGLE_ERROR_UNKNOWN"),
+          components: [],
+          attachments: [],
+        });
       let components = [],
         files = [];
       if (assist.response.suggestions?.length)

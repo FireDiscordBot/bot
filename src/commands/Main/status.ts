@@ -2,7 +2,7 @@ import { FireMessage } from "@fire/lib/extensions/message";
 import { Components, Summary } from "@fire/lib/interfaces/instatus";
 import { Command } from "@fire/lib/util/command";
 import { constants, titleCase } from "@fire/lib/util/constants";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import * as centra from "centra";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import { MessageEmbed } from "discord.js";
@@ -105,7 +105,7 @@ export default class FireStatus extends Command {
               statusToAppEmoji[component.status]
             )} **${component.name}**: ${
               message.language.get(
-                `INSTATUS_COMPONENT_STATUS.${component.status}` as LanguageKeys
+                `INSTATUS_COMPONENT_STATUS.${component.status}`
               ) || titleCase(component.status.split("OUTAGE").join(" "))
             }`
         ),
@@ -115,9 +115,8 @@ export default class FireStatus extends Command {
           `├${this.client.util.useEmoji(statusToAppEmoji[group.status])} **${
             group.name
           }**: ${
-            message.language.get(
-              `INSTATUS_COMPONENT_STATUS.${group.status}` as LanguageKeys
-            ) || titleCase(group.status.split("OUTAGE").join(" "))
+            message.language.get(`INSTATUS_COMPONENT_STATUS.${group.status}`) ||
+            titleCase(group.status.split("OUTAGE").join(" "))
           }`,
           ...components.components
             .filter((component) => component.group?.id == group.id)
@@ -146,7 +145,7 @@ export default class FireStatus extends Command {
                   statusToAppEmoji[groupComponent.status]
                 )} **${groupComponent.name}**: ${
                   message.language.get(
-                    `INSTATUS_COMPONENT_STATUS.${groupComponent.status}` as LanguageKeys
+                    `INSTATUS_COMPONENT_STATUS.${groupComponent.status}`
                   ) ||
                   titleCase(groupComponent.status.split("OUTAGE").join(" "))
                 }`
@@ -158,7 +157,7 @@ export default class FireStatus extends Command {
       .setTitle(
         message.language
           .get(
-            `INSTATUS_PAGE_DESCRPTIONS.${summary.page.status}` as LanguageKeys,
+            `INSTATUS_PAGE_DESCRPTIONS.${summary.page.status}`,
             summary.page.status.startsWith("ONE")
               ? {
                   component:
@@ -197,7 +196,7 @@ export default class FireStatus extends Command {
           }](${incident.url})`,
           value:
             message.language.get(
-              `INSTATUS_INCIDENT_STATUS.${incident.status}` as LanguageKeys
+              `INSTATUS_INCIDENT_STATUS.${incident.status}`
             ) || titleCase(incident.status),
         }))
       );
@@ -208,10 +207,9 @@ export default class FireStatus extends Command {
           name: `${message.language.get("STATUS_ACTIVE_MAINTENANCE")} - [${
             maintenance.name
           }](${maintenance.url})`,
-          value:
-            message.language.get(
-              `INSTATUS_MAINTENANCE_STATUS.${maintenance.status}` as LanguageKeys
-            ) || maintenance.status,
+          value: message.language.get(
+            `INSTATUS_MAINTENANCE_STATUS.${maintenance.status}`
+          ),
         }))
       );
 

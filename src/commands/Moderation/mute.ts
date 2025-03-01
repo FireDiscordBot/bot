@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import { ParsedTime } from "@fire/src/arguments/time";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 
@@ -73,11 +73,9 @@ export default class Mute extends Command {
       muteUntil ? +muteUntil : undefined,
       command.channel
     );
-    if (muted == "forbidden")
+    if (muted == "FORBIDDEN")
       return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof muted == "string")
-      return await command.error(
-        `MUTE_FAILED_${muted.toUpperCase()}` as LanguageKeys
-      );
+      return await command.error(`MUTE_FAILED_${muted}`);
   }
 }

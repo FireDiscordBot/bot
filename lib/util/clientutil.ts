@@ -23,6 +23,7 @@ import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Collection,
   GuildChannel,
+  GuildFeatures,
   GuildTextBasedChannel,
   LimitedCollection,
   MessageActionRow,
@@ -56,6 +57,15 @@ import { UserSettings } from "./settings";
 const { regexes } = constants;
 
 export type TimestampStyle = "t" | "T" | "d" | "D" | "f" | "F" | "R";
+export type Range<
+  Start extends number,
+  End extends number,
+  Acc extends number[] = [Start]
+> = Start extends End
+  ? Acc[number]
+  : `${Acc["length"]}` extends `${End}`
+  ? Acc[number] | End
+  : Range<Start, End, [...Acc, Acc["length"]]>;
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -673,8 +683,8 @@ export class Util extends ClientUtil {
     else if (typeof permission == "string") name = permission;
     if (!name) return null;
     language = language ?? this.client.getLanguage("en-US");
-    if (language.has(`PERMISSIONS.${name}` as LanguageKeys))
-      return language.get(`PERMISSIONS.${name}` as LanguageKeys);
+    if (language.has(`PERMISSIONS.${name}`))
+      return language.get(`PERMISSIONS.${name}`);
     return titleCase(
       name
         .toLowerCase()
@@ -683,10 +693,10 @@ export class Util extends ClientUtil {
     );
   }
 
-  cleanFeatureName(feature: string, language?: Language): string {
+  cleanFeatureName(feature: GuildFeatures, language?: Language): string {
     language = language ?? this.client.getLanguage("en-US");
-    if (language.has(`FEATURES.${feature}` as unknown as LanguageKeys))
-      return language.get(`FEATURES.${feature}` as unknown as LanguageKeys);
+    if (language.has(`FEATURES.${feature}`))
+      return language.get(`FEATURES.${feature}` as LanguageKeys);
     return titleCase(feature.toLowerCase().replace(guildRegex, "server"), "_");
   }
 

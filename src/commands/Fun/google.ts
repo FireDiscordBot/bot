@@ -7,7 +7,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { Command } from "@fire/lib/util/command";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -47,6 +47,20 @@ type GoogleAssistantData =
       languageCode: string;
     };
 
+type AssistantErrorCodes =
+  | "UNKNOWN"
+  | "TEXT_TOO_LONG"
+  | "ACCESS_REVOKED"
+  | "INVALID_GRANT"
+  | "VOLUME_OUT_OF_RANGE"
+  | "LOCALE_UNSUPPORTED";
+
+type AssistantAuthErrorCodes =
+  | "NO_CLIENT"
+  | "ALREADY_AUTHENTICATED"
+  | "CONFIG_UNAVAILABLE"
+  | "CONFIG_UPDATE_FAILED";
+
 type AssistantTextQueryResponse =
   | {
       success: true;
@@ -64,7 +78,7 @@ type AssistantTextQueryResponse =
           | { success: false; error: string };
       };
     }
-  | { success: false; error: string };
+  | { success: false; error: AssistantErrorCodes };
 
 export default class Google extends Command {
   constructor() {
@@ -131,9 +145,7 @@ export default class Google extends Command {
     if (!assist) return await command.send("GOOGLE_ERROR_UNKNOWN");
     else if (assist.success == false) {
       if (command.language.has(`GOOGLE_ERROR_${assist.error}`))
-        return await command.send(
-          `GOOGLE_ERROR_${assist.error}` as LanguageKeys
-        );
+        return await command.send(`GOOGLE_ERROR_${assist.error}`);
       else return await command.send("GOOGLE_ERROR_UNKNOWN");
     }
     let components: MessageActionRow[] = [],
@@ -254,10 +266,12 @@ export default class Google extends Command {
     });
   }
 
-  async getAssistantAuthUrl(
-    button: ComponentMessage
-  ): Promise<
-    { success: true; url: string } | { success: false; error: string }
+  async getAssistantAuthUrl(button: ComponentMessage): Promise<
+    | { success: true; url: string }
+    | {
+        success: false;
+        error: AssistantAuthErrorCodes;
+      }
   > {
     return new Promise((resolve, reject) => {
       const nonce = SnowflakeUtil.generate();

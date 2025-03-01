@@ -32,6 +32,7 @@ import {
 import { RawMessageData } from "discord.js/typings/rawDataTypes";
 import Semaphore from "semaphore-async-await";
 import { BaseFakeChannel } from "../interfaces/misc";
+import { Range } from "../util/clientutil";
 import { LanguageKeys } from "../util/language";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
@@ -178,8 +179,8 @@ export class FireMessage extends Message {
     if (this.type == "GUILD_MEMBER_JOIN")
       return lang.get(
         `QUOTE_SYSTSEM_MESSAGE_JOIN.JOIN_MESSAGE_${
-          this.createdTimestamp % 13
-        }` as LanguageKeys,
+          (this.createdTimestamp % 13) as Range<0, 12>
+        }`,
         { member: user }
       );
     else if (this.type == "CHANNEL_FOLLOW_ADD")

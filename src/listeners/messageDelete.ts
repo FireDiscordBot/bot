@@ -1,7 +1,6 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { ActionLogTypes } from "@fire/lib/util/constants";
-import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { MessageEmbed } from "discord.js";
 
@@ -128,7 +127,7 @@ export default class MessageDelete extends Listener {
                     message.guild.language.get("MSGDELETELOG_ACTIVITY", {
                       partyID: message.activity.partyId,
                       type: message.guild.language.get(
-                        `ACTIVITY_TYPES.${message.activity.type}` as unknown as LanguageKeys
+                        `ACTIVITY_TYPES.${message.activity.type}`
                       ),
                     }),
                 }

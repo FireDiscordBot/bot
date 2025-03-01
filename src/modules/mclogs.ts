@@ -13,7 +13,7 @@ import {
   validPasteURLs,
 } from "@fire/lib/util/clientutil";
 import { constants, titleCase } from "@fire/lib/util/constants";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 import {
@@ -2208,18 +2208,12 @@ export default class MCLogs extends Module {
           new MessageButton()
             .setStyle("LINK")
             .setURL(haste.url ?? "https://google.com/something_broke_lol")
-            .setLabel(
-              message.language.get(
-                `MC_LOG_VIEW_${mcInfo.logType}` as LanguageKeys
-              )
-            ),
+            .setLabel(message.language.get(`MC_LOG_VIEW_${mcInfo.logType}`)),
           new MessageButton()
             .setStyle("LINK")
             .setURL(haste.raw ?? "https://google.com/something_broke_lol")
             .setLabel(
-              message.language.get(
-                `MC_LOG_VIEW_${mcInfo.logType}_RAW` as LanguageKeys
-              )
+              message.language.get(`MC_LOG_VIEW_${mcInfo.logType}_RAW`)
             ),
           new MessageButton()
             .setStyle("PRIMARY")

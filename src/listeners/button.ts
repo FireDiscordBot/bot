@@ -8,7 +8,6 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { getBranch } from "@fire/lib/util/gitUtils";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
-import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -44,7 +43,7 @@ import Essential from "../modules/essential";
 import Sk1er from "../modules/sk1er";
 import SparkUniverse from "../modules/sparkuniverse";
 
-const { url, regexes } = constants;
+const { url } = constants;
 
 const reminderSnoozeTimes = {
   REMINDER_SNOOZE_FIVEMIN: 300000,
@@ -1290,7 +1289,9 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         .addOptions(
           Object.entries(reminderSnoozeTimes).map(([key, time]) => {
             return {
-              label: button.author.language.get(key as LanguageKeys),
+              label: button.author.language.get(
+                key as keyof typeof reminderSnoozeTimes
+              ),
               value:
                 typeof time == "number"
                   ? (button.createdTimestamp + time).toString()
@@ -1361,9 +1362,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       const auth = await google.getAssistantAuthUrl(button);
       if (!auth) return await button.error("GOOGLE_AUTH_ERROR");
       else if (auth.success == false)
-        return await button.error(
-          `GOOGLE_AUTH_ERROR_${auth.error}` as LanguageKeys
-        );
+        return await button.error(`GOOGLE_AUTH_ERROR_${auth.error}`);
       else
         return await button.send("GOOGLE_AUTH_LEARN_AND_LINK", {
           components: [

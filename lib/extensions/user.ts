@@ -222,17 +222,17 @@ export class FireUser extends User {
     deleteMessageSeconds: number = 0,
     channel?: SlashFakeChannel | ContextFakeChannel | GuildTextChannel
   ) {
-    if (!guild || !reason || !moderator) return "args";
-    else if (!moderator.isModerator(channel)) return "forbidden";
-    else if (guild.ownerId == this.id) return "owner";
-    else if (this.id == moderator.id) return "self";
+    if (!guild || !reason || !moderator) return null;
+    else if (!moderator.isModerator(channel)) return "FORBIDDEN";
+    else if (guild.ownerId == this.id) return "OWNER";
+    else if (this.id == moderator.id) return "SELF";
 
     const already = await guild.bans.fetch(this).catch(() => {});
-    if (already) return "already";
+    if (already) return "ALREADY";
     const logEntry = await guild
       .createModLogEntry(this, moderator, ModLogTypes.BAN, reason)
       .catch(() => {});
-    if (!logEntry) return "entry";
+    if (!logEntry) return "ENTRY";
     const banned = await guild.members
       .ban(this, {
         reason: `${moderator} | ${reason}`,
@@ -243,7 +243,7 @@ export class FireUser extends User {
       const deleted = await guild
         .deleteModLogEntry(logEntry)
         .catch(() => false);
-      return deleted ? "ban" : "ban_and_entry";
+      return deleted ? "BAN" : "BAN_AND_ENTRY";
     }
     const embed = new MessageEmbed()
       .setColor(moderator.displayColor || "#FFFFFF")

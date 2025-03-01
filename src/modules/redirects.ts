@@ -54,17 +54,17 @@ export default class Redirects extends Module {
   }
 
   async create(user: FireMember | FireUser, code: string, url: string) {
-    if (!user.premium) return "premium";
+    if (!user.premium) return "PREMIUM";
     const limit = 5 * user.premium;
     code = code.toLowerCase();
     const current = await this.list(user);
-    if (current.length >= limit && !user.isSuperuser()) return "limit";
+    if (current.length >= limit && !user.isSuperuser()) return "LIMIT";
     const exists = await this.getRedirect(code);
     if (
       (typeof exists == "boolean" && exists) ||
       (typeof exists != "boolean" && exists.uid != user.id)
     )
-      return "exists";
+      return "EXISTS";
     if (!exists) {
       const created = await this.client.db
         .query(

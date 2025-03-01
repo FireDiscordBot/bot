@@ -1,6 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { Command } from "@fire/lib/util/command";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import Redirects from "@fire/src/modules/redirects";
 import * as centra from "centra";
 
@@ -83,9 +83,7 @@ export default class RedirectCreate extends Command {
     );
     if (!created) return await command.error("ERROR_CONTACT_SUPPORT");
     else if (typeof created == "string")
-      return await command.error(
-        `REDIRECT_CREATE_ERROR_${created.toUpperCase()}` as LanguageKeys
-      );
+      return await command.error(`REDIRECT_CREATE_ERROR_${created}`);
     else
       return await command.success(
         location

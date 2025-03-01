@@ -2,7 +2,6 @@ import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { DiscoveryUpdateOp } from "@fire/lib/interfaces/stats";
 import { ActionLogTypes, constants } from "@fire/lib/util/constants";
-import { LanguageKeys } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
@@ -159,11 +158,9 @@ export default class GuildUpdate extends Listener {
               ? {
                   name: language.get("VERIFICATION_LEVEL"),
                   value: `${language.get(
-                    ("GUILD_VERIF_" +
-                      before.verificationLevel.toString()) as LanguageKeys
+                    `GUILD_VERIF_${before.verificationLevel}`
                   )} ➜ ${language.get(
-                    ("GUILD_VERIF_" +
-                      after.verificationLevel.toString()) as LanguageKeys
+                    `GUILD_VERIF_${after.verificationLevel}`
                   )}`.replace(/\*/gim, ""),
                 }
               : null,
@@ -171,11 +168,9 @@ export default class GuildUpdate extends Listener {
               ? {
                   name: language.get("EXPLICIT_CONTENT_FILTER"),
                   value: `${language.get(
-                    ("EXPLICIT_CONTENT_FILTER_" +
-                      before.explicitContentFilter.toString()) as LanguageKeys
+                    `EXPLICIT_CONTENT_FILTER_${before.explicitContentFilter}`
                   )} ➜ ${language.get(
-                    ("EXPLICIT_CONTENT_FILTER_" +
-                      after.explicitContentFilter.toString()) as LanguageKeys
+                    `EXPLICIT_CONTENT_FILTER_${after.explicitContentFilter}`
                   )}`,
                 }
               : null,

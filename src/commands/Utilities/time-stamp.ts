@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { TimestampStyle } from "@fire/lib/util/clientutil";
 import { Command } from "@fire/lib/util/command";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import { ParsedTime, parseTime } from "@fire/src/arguments/time";
 import {
   ApplicationCommandOptionChoiceData,
@@ -60,7 +60,7 @@ export default class Timestamp extends Command {
 
     return styles.map((style) => ({
       name: interaction.language.get(
-        `TIME_STAMP_STYLES_AUTOCOMPLETE.${style}` as LanguageKeys,
+        `TIME_STAMP_STYLES_AUTOCOMPLETE.${style}`,
         {
           time:
             parsed && parsed.date
@@ -71,7 +71,7 @@ export default class Timestamp extends Command {
                   style
                 )
               : interaction.language.get(
-                  `TIME_STAMP_STYLES_AUTOCOMPLETE.${style}_example` as LanguageKeys
+                  `TIME_STAMP_STYLES_AUTOCOMPLETE.${style}_example`
                 ),
         }
       ),

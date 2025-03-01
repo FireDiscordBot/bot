@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Unban extends Command {
@@ -54,11 +54,9 @@ export default class Unban extends Command {
       command.member,
       command.channel
     );
-    if (unbanned == "forbidden")
+    if (unbanned == "FORBIDDEN")
       return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof unbanned == "string")
-      return await command.error(
-        `UNBAN_FAILED_${unbanned.toUpperCase()}` as LanguageKeys
-      );
+      return await command.error(`UNBAN_FAILED_${unbanned}`);
   }
 }

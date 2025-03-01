@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import { Role } from "discord.js";
 
@@ -73,11 +73,9 @@ export default class Unblock extends Command {
       command.member,
       command.channel
     );
-    if (blocked == "forbidden")
+    if (blocked == "FORBIDDEN")
       return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof blocked == "string")
-      return await command.error(
-        `UNBLOCK_FAILED_${blocked.toUpperCase()}` as LanguageKeys
-      );
+      return await command.error(`UNBLOCK_FAILED_${blocked}`);
   }
 }

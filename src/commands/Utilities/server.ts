@@ -129,7 +129,8 @@ export default class GuildCommand extends Command {
                   .map((region) =>
                     region && command.language.has(`REGIONS.${region}`)
                       ? command.language.get(
-                          `REGIONS.${region}` as unknown as LanguageKeys,
+                          // TODO: add specific type to region so that we don't have to use `as LanguageKeys`
+                          `REGIONS.${region}` as LanguageKeys,
                           {
                             automaticEmoji:
                               this.client.util.useEmoji("REGION_WUMPUS"),

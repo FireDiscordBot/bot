@@ -405,8 +405,8 @@ export class FireMember extends GuildMember {
     moderator: FireMember,
     channel?: SlashFakeChannel | GuildTextChannel
   ) {
-    if (!reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
+    if (!reason || !moderator) return null;
+    if (!moderator.isModerator(channel)) return "FORBIDDEN";
     const embed = new MessageEmbed()
       .setColor(this.displayColor || moderator.displayColor || "#FFFFFF")
       .setTimestamp()
@@ -431,7 +431,7 @@ export class FireMember extends GuildMember {
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.WARN, reason)
       .catch(() => {});
-    if (!logEntry) return "entry";
+    if (!logEntry) return "ENTRY";
     let noDM: boolean = false;
     await this.send(
       this.language.get("WARN_DM", {
@@ -482,8 +482,8 @@ export class FireMember extends GuildMember {
     moderator: FireMember,
     channel?: SlashFakeChannel | GuildTextChannel
   ) {
-    if (!reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
+    if (!reason || !moderator) return null;
+    if (!moderator.isModerator(channel)) return "FORBIDDEN";
     const embed = new MessageEmbed()
       .setColor(this.displayColor || moderator.displayColor || "#FFFFFF")
       .setTimestamp()
@@ -502,7 +502,7 @@ export class FireMember extends GuildMember {
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.NOTE, reason)
       .catch(() => {});
-    if (!logEntry) return "entry";
+    if (!logEntry) return "ENTRY";
     await this.guild.modLog(embed, ModLogTypes.NOTE).catch(() => {});
     const count = await this.client.db
       .query(
@@ -532,20 +532,20 @@ export class FireMember extends GuildMember {
     channel?: SlashFakeChannel | ContextFakeChannel | GuildTextChannel,
     sendDM: boolean = true
   ) {
-    if (!reason || !moderator) return "args";
-    else if (!moderator.isModerator(channel)) return "forbidden";
-    else if (this.guild.ownerId == this.id) return "owner";
-    else if (this.id == moderator.id) return "self";
+    if (!reason || !moderator) return null;
+    else if (!moderator.isModerator(channel)) return "FORBIDDEN";
+    else if (this.guild.ownerId == this.id) return "OWNER";
+    else if (this.id == moderator.id) return "SELF";
     else if (
       this.roles.highest.position >= this.guild.me.roles.highest.position ||
       this.roles.highest.position >= moderator.roles.highest.position
     )
-      return "higher";
+      return "HIGHER";
 
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.BAN, reason)
       .catch(() => {});
-    if (!logEntry) return "entry";
+    if (!logEntry) return "ENTRY";
     if (this.guild.mutes.has(this.id))
       await this.unmute(
         this.guild.language.get("BAN_MUTED_REASON"),
@@ -559,7 +559,7 @@ export class FireMember extends GuildMember {
       const deleted = await this.guild
         .deleteModLogEntry(logEntry)
         .catch(() => false);
-      return deleted ? "ban" : "ban_and_entry";
+      return deleted ? "BAN" : "BAN_AND_ENTRY";
     }
     let dbadd: any = !until;
     if (until) {
@@ -642,18 +642,18 @@ export class FireMember extends GuildMember {
     channel?: SlashFakeChannel | GuildTextChannel,
     sendDM: boolean = true
   ) {
-    if (!reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
+    if (!reason || !moderator) return null;
+    if (!moderator.isModerator(channel)) return "FORBIDDEN";
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.KICK, reason)
       .catch(() => {});
-    if (!logEntry) return "entry";
+    if (!logEntry) return "ENTRY";
     const kicked = await this.kick(`${moderator} | ${reason}`).catch(() => {});
     if (!kicked) {
       const deleted = await this.guild
         .deleteModLogEntry(logEntry)
         .catch(() => false);
-      return deleted ? "kick" : "kick_and_entry";
+      return deleted ? "KICK" : "KICK_AND_ENTRY";
     }
     const embed = new MessageEmbed()
       .setColor(this.displayColor || "#E74C3C")
@@ -708,12 +708,12 @@ export class FireMember extends GuildMember {
     moderator: FireMember,
     channel?: SlashFakeChannel | GuildTextChannel
   ) {
-    if (!reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
+    if (!reason || !moderator) return null;
+    if (!moderator.isModerator(channel)) return "FORBIDDEN";
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.DERANK, reason)
       .catch(() => {});
-    if (!logEntry) return "entry";
+    if (!logEntry) return "ENTRY";
     let failed = false;
     const beforeIds = this.roles.cache
       .filter((role) => role.id != this.guild.roles.everyone.id)
@@ -733,7 +733,7 @@ export class FireMember extends GuildMember {
       const deleted = await this.guild
         .deleteModLogEntry(logEntry)
         .catch(() => false);
-      return deleted ? "derank" : "derank_and_entry";
+      return deleted ? "DERANK" : "DERANK_AND_ENTRY";
     }
     if (afterIds.length >= 1) failed = true;
     const embed = new MessageEmbed()
@@ -797,8 +797,8 @@ export class FireMember extends GuildMember {
       this.guild.members.me?.permissions?.has(
         PermissionFlagsBits.ModerateMembers
       );
-    if (!reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
+    if (!reason || !moderator) return null;
+    if (!moderator.isModerator(channel)) return "FORBIDDEN";
     let useEdit = false;
     if (!this.guild.muteRole && !canTimeOut) {
       if (channel) {
@@ -806,12 +806,12 @@ export class FireMember extends GuildMember {
         await channel.send(this.language.get("MUTE_ROLE_CREATE_REASON"));
       }
       const role = await this.guild.initMuteRole();
-      if (!role) return "role";
+      if (!role) return "ROLE";
     } else if (!canTimeOut) this.guild.syncMuteRolePermissions();
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.MUTE, reason)
       .catch(() => {});
-    if (!logEntry) return "entry";
+    if (!logEntry) return "ENTRY";
     const muted = canTimeOut
       ? await this.disableCommunicationUntil(
           new Date(until),
@@ -824,7 +824,7 @@ export class FireMember extends GuildMember {
       const deleted = await this.guild
         .deleteModLogEntry(logEntry)
         .catch(() => false);
-      return deleted ? "mute" : "mute_and_entry";
+      return deleted ? "MUTE" : "MUTE_AND_ENTRY";
     }
     if (this.guild.mutes.has(this.id))
       // delete existing mute first
@@ -912,8 +912,8 @@ export class FireMember extends GuildMember {
     moderator: FireMember,
     channel?: SlashFakeChannel | GuildTextChannel
   ) {
-    if (!reason || !moderator) return "args";
-    if (!moderator.isModerator(channel)) return "forbidden";
+    if (!reason || !moderator) return null;
+    if (!moderator.isModerator(channel)) return "FORBIDDEN";
     if (!this.guild.mutes.has(this.id)) {
       if (+new Date() < +this.communicationDisabledUntil) {
         const unmuted = await this.disableCommunicationUntil(
@@ -924,7 +924,7 @@ export class FireMember extends GuildMember {
           return await channel.send(
             this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
           );
-        else return "unknown";
+        else return "UNKNOWN";
       } else if (this.roles.cache.has(this.guild.muteRole?.id)) {
         const unmuted = await this.roles
           .remove(this.guild.muteRole, `${moderator} | ${reason}`)
@@ -937,8 +937,8 @@ export class FireMember extends GuildMember {
           return await channel.send(
             this.guild.language.get("UNMUTE_UNKNOWN_REMOVED")
           );
-        else return "unknown";
-      } else return "not_muted";
+        else return "UNKNOWN";
+      } else return "NOT_MUTED";
     }
     if (
       !this.roles.cache.has(this.guild.muteRole?.id) &&
@@ -951,12 +951,12 @@ export class FireMember extends GuildMember {
           this.id,
         ])
         .catch(() => {});
-      return "not_muted";
+      return "NOT_MUTED";
     }
     const logEntry = await this.guild
       .createModLogEntry(this, moderator, ModLogTypes.UNMUTE, reason)
       .catch(() => {});
-    if (!logEntry) return "entry";
+    if (!logEntry) return "ENTRY";
     const until = this.guild.mutes.get(this.id);
     this.guild.mutes.delete(this.id);
     const unmuted = this.communicationDisabledUntil
@@ -974,7 +974,7 @@ export class FireMember extends GuildMember {
       const deleted = await this.guild
         .deleteModLogEntry(logEntry)
         .catch(() => false);
-      return deleted ? "unmute" : "unmute_and_entry";
+      return deleted ? "UNMUTE" : "UNMUTE_AND_ENTRY";
     }
     const dbremove = await this.client.db
       .query("DELETE FROM mutes WHERE gid=$1 AND uid=$2;", [

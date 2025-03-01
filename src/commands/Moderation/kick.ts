@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 
 export default class Kick extends Command {
@@ -57,11 +57,9 @@ export default class Kick extends Command {
       command.member,
       command.channel
     );
-    if (kicked == "forbidden")
+    if (kicked == "FORBIDDEN")
       return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof kicked == "string")
-      return await command.error(
-        `KICK_FAILED_${kicked.toUpperCase()}` as LanguageKeys
-      );
+      return await command.error(`KICK_FAILED_${kicked}`);
   }
 }

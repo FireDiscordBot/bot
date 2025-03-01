@@ -3,7 +3,7 @@ import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import { ParsedTime } from "@fire/src/arguments/time";
 import { KeySupplier } from "discord-akairo";
 import { PermissionFlagsBits } from "discord-api-types/v9";
@@ -91,44 +91,42 @@ export default class Ban extends Command {
   ): Promise<ApplicationCommandOptionChoiceData[] | string[]> {
     return [
       {
-        name: interaction.language.get(
-          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.NONE" as LanguageKeys
-        ),
+        name: interaction.language.get("BAN_DELETE_ARGUMENT_AUTOCOMPLETE.NONE"),
         value: 0,
       },
       {
         name: interaction.language.get(
-          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_HOUR" as LanguageKeys
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_HOUR"
         ),
         value: 3_600,
       },
       {
         name: interaction.language.get(
-          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_SIX_HOURS" as LanguageKeys
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_SIX_HOURS"
         ),
         value: 21_600,
       },
       {
         name: interaction.language.get(
-          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_TWELVE_HOURS" as LanguageKeys
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_TWELVE_HOURS"
         ),
         value: 43_200,
       },
       {
         name: interaction.language.get(
-          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_DAY" as LanguageKeys
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_DAY"
         ),
         value: 86_400,
       },
       {
         name: interaction.language.get(
-          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_THREE_DAYS" as LanguageKeys
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_THREE_DAYS"
         ),
         value: 259_200,
       },
       {
         name: interaction.language.get(
-          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_WEEK" as LanguageKeys
+          "BAN_DELETE_ARGUMENT_AUTOCOMPLETE.PREVIOUS_WEEK"
         ),
         value: 604_800,
       },
@@ -200,11 +198,9 @@ export default class Ban extends Command {
             args.deleteMessageSeconds,
             command.channel
           );
-    if (beaned == "forbidden")
+    if (beaned == "FORBIDDEN")
       return await command.error("COMMAND_MODERATOR_ONLY");
     else if (typeof beaned == "string")
-      return await command.error(
-        `BAN_FAILED_${beaned.toUpperCase()}` as LanguageKeys
-      );
+      return await command.error(`BAN_FAILED_${beaned}`);
   }
 }

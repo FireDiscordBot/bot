@@ -3,7 +3,7 @@ import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessag
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { classicRemind, constants } from "@fire/lib/util/constants";
-import { Language, LanguageKeys } from "@fire/lib/util/language";
+import { Language } from "@fire/lib/util/language";
 import { ParsedTime, parseWithUserTimezone } from "@fire/src/arguments/time";
 import { ParsedResult, strict } from "chrono-node";
 import * as dayjs from "dayjs";
@@ -52,7 +52,9 @@ const getContextOptions = (
   } else
     return Object.entries(reminderContextTimes).map(([key, time]) => {
       return {
-        label: context.author.language.get(key as LanguageKeys),
+        label: context.author.language.get(
+          key as keyof typeof reminderContextTimes
+        ),
         value:
           typeof time == "number"
             ? (context.createdTimestamp + time).toString()
