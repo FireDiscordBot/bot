@@ -345,7 +345,7 @@ export class Util extends ClientUtil {
     // Intl.RelativeTimeFormat do its magic
     const rtf = new Intl.RelativeTimeFormat(
       lang instanceof Language ? lang.id : lang,
-      { numeric: "auto" }
+      { numeric: "always" }
     );
     return rtf.format(Math.floor(deltaSeconds / divisor), units[unitIndex]);
   }
