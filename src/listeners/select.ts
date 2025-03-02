@@ -10,6 +10,9 @@ import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import {
   ActionLogTypes,
   constants,
+  DEFAULT_ACTION_LOG_FLAGS,
+  DEFAULT_MEMBER_LOG_FLAGS,
+  DEFAULT_MOD_LOG_FLAGS,
   MemberLogTypes,
   ModLogTypes,
   titleCase,
@@ -586,24 +589,35 @@ export default class Select extends Listener {
       const loggingConfigure = this.client.getCommand(
         "logging-configure"
       ) as LoggingConfig;
-      let flags = 0;
-      let typeEnum:
-        | typeof ModLogTypes
-        | typeof ActionLogTypes
-        | typeof MemberLogTypes;
+      let flags = 0,
+        typeEnum:
+          | typeof ModLogTypes
+          | typeof ActionLogTypes
+          | typeof MemberLogTypes,
+        defaultFlags:
+          | typeof DEFAULT_ACTION_LOG_FLAGS
+          | typeof DEFAULT_MEMBER_LOG_FLAGS
+          | typeof DEFAULT_MOD_LOG_FLAGS;
       switch (type) {
         case "moderation":
           typeEnum = ModLogTypes;
+          defaultFlags = DEFAULT_MOD_LOG_FLAGS;
           break;
         case "action":
           typeEnum = ActionLogTypes;
+          defaultFlags = DEFAULT_ACTION_LOG_FLAGS;
           break;
         case "members":
           typeEnum = MemberLogTypes;
+          defaultFlags = DEFAULT_MEMBER_LOG_FLAGS;
           break;
       }
       for (const action of select.values) flags |= typeEnum[action];
-      await guild.settings.set(`logging.${type}.flags`, flags, select.author);
+      if (flags == defaultFlags)
+        // we don't need to store if the value equals the default since it's the same as not having it
+        await guild.settings.delete(`logging.${type}.flags`, select.author);
+      else
+        await guild.settings.set(`logging.${type}.flags`, flags, select.author);
       const components = [
         loggingConfigure.getModLogsSelect(select),
         loggingConfigure.getActionLogsSelect(select),

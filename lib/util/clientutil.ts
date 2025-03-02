@@ -30,6 +30,7 @@ import {
   MessageAttachment,
   MessageButton,
   MessageEmbed,
+  MessageEmbedOptions,
   PermissionString,
   Permissions,
   SnowflakeUtil,
@@ -243,6 +244,28 @@ export class Util extends ClientUtil {
 
   randInt(min: number = 0, max: number = 69) {
     return Math.floor(Math.random() * max) + min;
+  }
+
+  getEmbedSize(embed: MessageEmbed | MessageEmbedOptions) {
+    let size = 0;
+    if (embed.title) size += embed.title.length;
+    if (embed.description) size += embed.description.length;
+    if (embed.fields)
+      size += embed.fields
+        .map(
+          (field: (typeof embed)["fields"][0]) =>
+            field.name.length + field.value.length
+        )
+        .reduce((a, b) => a + b, 0);
+    if (embed.footer?.text) size += embed.footer.text.length;
+    if (embed.author?.name) size += embed.author.name.length;
+    return size;
+  }
+
+  getTotalEmbedsSize(embeds: (MessageEmbed | MessageEmbedOptions)[]) {
+    return embeds
+      .map((embed) => this.getEmbedSize(embed))
+      .reduce((a, b) => a + b);
   }
 
   // Used to get values similar to Discord's timestamp markdown

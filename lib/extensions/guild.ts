@@ -3,9 +3,6 @@ import { ReactionRoleData } from "@fire/lib/interfaces/rero";
 import {
   ActionLogTypes,
   constants,
-  DEFAULT_ACTION_LOG_FLAGS,
-  DEFAULT_MEMBER_LOG_FLAGS,
-  DEFAULT_MOD_LOG_FLAGS,
   GuildTextChannel,
   MemberLogTypes,
   ModLogTypes,
@@ -784,17 +781,16 @@ export class FireGuild extends Guild {
   ) {
     if (this.isAnyLogTypeEnabled() && !this.logger)
       this.logger = new GuildLogManager(this.client, this);
-    if (!this.logger?.isActionEnabled()) return;
+
+    if (
+      !this.logger?.isActionEnabled() ||
+      !this.logger?.isActionTypeEnabled(type)
+    )
+      return;
 
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.action")
     );
-
-    const flags = this.settings.get(
-      "logging.action.flags",
-      DEFAULT_ACTION_LOG_FLAGS
-    );
-    if (type != ActionLogTypes.SYSTEM && (flags & type) != type) return;
 
     if (
       channel &&
@@ -808,9 +804,7 @@ export class FireGuild extends Guild {
           embeds: typeof log != "string" ? [log] : null,
         })
         .catch(() => {});
-    else {
-      return await this.logger.handleAction(log, type);
-    }
+    else return await this.logger.handleAction(log, type);
   }
 
   async modLog(
@@ -819,17 +813,16 @@ export class FireGuild extends Guild {
   ) {
     if (this.isAnyLogTypeEnabled() && !this.logger)
       this.logger = new GuildLogManager(this.client, this);
-    if (!this.logger?.isModerationEnabled()) return;
+
+    if (
+      !this.logger?.isModerationEnabled() ||
+      !this.logger?.isModerationTypeEnabled(type)
+    )
+      return;
 
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.moderation")
     );
-
-    const flags = this.settings.get(
-      "logging.moderation.flags",
-      DEFAULT_MOD_LOG_FLAGS
-    );
-    if (type != ModLogTypes.SYSTEM && (flags & type) != type) return;
 
     if (
       channel &&
@@ -843,10 +836,7 @@ export class FireGuild extends Guild {
           embeds: typeof log != "string" ? [log] : null,
         })
         .catch(() => {});
-    else {
-      if (!this.logger) this.logger = new GuildLogManager(this.client, this);
-      return await this.logger.handleModeration(log, type);
-    }
+    else return await this.logger.handleModeration(log, type);
   }
 
   async memberLog(
@@ -855,17 +845,16 @@ export class FireGuild extends Guild {
   ) {
     if (this.isAnyLogTypeEnabled() && !this.logger)
       this.logger = new GuildLogManager(this.client, this);
-    if (!this.logger?.isMembersEnabled()) return;
+
+    if (
+      !this.logger?.isMembersEnabled() ||
+      !this.logger?.isMembersTypeEnabled(type)
+    )
+      return;
 
     const channel = this.channels.cache.get(
       this.settings.get<Snowflake>("log.members")
     );
-
-    const flags = this.settings.get(
-      "logging.members.flags",
-      DEFAULT_MEMBER_LOG_FLAGS
-    );
-    if (type != MemberLogTypes.SYSTEM && (flags & type) != type) return;
 
     if (
       channel &&
@@ -879,10 +868,7 @@ export class FireGuild extends Guild {
           embeds: typeof log != "string" ? [log] : null,
         })
         .catch(() => {});
-    else {
-      if (!this.logger) this.logger = new GuildLogManager(this.client, this);
-      return await this.logger.handleMembers(log, type);
-    }
+    else return await this.logger.handleMembers(log, type);
   }
 
   hasExperiment(id: number, bucket: number | number[]): boolean {

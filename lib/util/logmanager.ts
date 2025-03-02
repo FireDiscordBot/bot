@@ -10,9 +10,17 @@ import Semaphore from "semaphore-async-await";
 import { Fire } from "../Fire";
 import { FireGuild } from "../extensions/guild";
 import { FireTextChannel } from "../extensions/textchannel";
-import { ActionLogTypes, MemberLogTypes, ModLogTypes } from "./constants";
+import {
+  ActionLogTypes,
+  DEFAULT_ACTION_LOG_FLAGS,
+  DEFAULT_MEMBER_LOG_FLAGS,
+  DEFAULT_MOD_LOG_FLAGS,
+  MemberLogTypes,
+  ModLogTypes,
+} from "./constants";
 
-type logContent = string | MessageEmbed | MessageEmbedOptions;
+type logContentEmbed = MessageEmbed | MessageEmbedOptions;
+type logContent = string | logContentEmbed;
 
 enum QueueReasons {
   FORCED = "forced",
@@ -156,12 +164,34 @@ export class GuildLogManager {
     );
   }
 
+  isModerationTypeEnabled(type: ModLogTypes) {
+    return (
+      (this.guild.settings.get<number>(
+        "logging.moderation.flags",
+        DEFAULT_MOD_LOG_FLAGS
+      ) &
+        type) ==
+      type
+    );
+  }
+
   isMembersEnabled() {
     return (
       this.guild.settings.has("log.members") &&
       this.guild.channels.cache.has(
         this.guild.settings.get<Snowflake>("log.members")
       )
+    );
+  }
+
+  isMembersTypeEnabled(type: MemberLogTypes) {
+    return (
+      (this.guild.settings.get<number>(
+        "logging.members.flags",
+        DEFAULT_MEMBER_LOG_FLAGS
+      ) &
+        type) ==
+      type
     );
   }
 
@@ -174,7 +204,20 @@ export class GuildLogManager {
     );
   }
 
+  isActionTypeEnabled(type: ActionLogTypes) {
+    return (
+      (this.guild.settings.get<number>(
+        "logging.action.flags",
+        DEFAULT_ACTION_LOG_FLAGS
+      ) &
+        type) ==
+      type
+    );
+  }
+
   async handleModeration(content: logContent, type: ModLogTypes) {
+    if (!this.isModerationTypeEnabled(type)) return;
+
     if (!this.rateLimitListener)
       this.rateLimitListener = this.client.getListener(
         "rateLimit"
@@ -242,10 +285,27 @@ export class GuildLogManager {
       const queue =
         typeof content == "string"
           ? data.queue
-              .filter((log) => typeof log.content != "string" && log.type) // TODO: check if type is enabled
+              .filter(
+                (log) =>
+                  typeof log.content != "string" &&
+                  this.isModerationTypeEnabled(log.type)
+              )
               .splice(0, 10)
           : data.queue.splice(0, 9);
-      while (queue.length && sending.length < 10) sending.push(queue.pop());
+      while (
+        queue.length &&
+        sending.length < 10 &&
+        this.client.util.getTotalEmbedsSize(
+          sending
+            .filter((item) => typeof item.content != "string")
+            .map((item) => item.content as logContentEmbed)
+        ) +
+          this.client.util.getEmbedSize(
+            queue.at(-1).content as logContentEmbed
+          ) <=
+          6000
+      )
+        sending.push(queue.pop());
       for (const log of queue) data.queue.push(log); // will push back any that didn't make it
     }
 
@@ -272,7 +332,7 @@ export class GuildLogManager {
         }),
         embeds: sending
           .filter((log) => typeof log.content != "string")
-          .map((log) => log.content) as (MessageEmbed | MessageEmbedOptions)[],
+          .map((log) => log.content) as logContentEmbed[],
       })
       .catch((e) => {
         if (e instanceof DiscordAPIError && e.code == 10015)
@@ -297,6 +357,8 @@ export class GuildLogManager {
   }
 
   async handleMembers(content: logContent, type: MemberLogTypes) {
+    if (!this.isMembersTypeEnabled(type)) return;
+
     if (!this.rateLimitListener)
       this.rateLimitListener = this.client.getListener(
         "rateLimit"
@@ -364,10 +426,27 @@ export class GuildLogManager {
       const queue =
         typeof content == "string"
           ? data.queue
-              .filter((log) => typeof log.content != "string" && log.type) // TODO: check if type is enabled
+              .filter(
+                (log) =>
+                  typeof log.content != "string" &&
+                  this.isMembersTypeEnabled(log.type)
+              )
               .splice(0, 10)
           : data.queue.splice(0, 9);
-      while (queue.length && sending.length < 10) sending.push(queue.pop());
+      while (
+        queue.length &&
+        sending.length < 10 &&
+        this.client.util.getTotalEmbedsSize(
+          sending
+            .filter((item) => typeof item.content != "string")
+            .map((item) => item.content as logContentEmbed)
+        ) +
+          this.client.util.getEmbedSize(
+            queue.at(-1).content as logContentEmbed
+          ) <=
+          6000
+      )
+        sending.push(queue.pop());
       for (const log of queue) data.queue.push(log); // will push back any that didn't make it
     }
 
@@ -394,7 +473,7 @@ export class GuildLogManager {
         }),
         embeds: sending
           .filter((log) => typeof log.content != "string")
-          .map((log) => log.content) as (MessageEmbed | MessageEmbedOptions)[],
+          .map((log) => log.content) as logContentEmbed[],
       })
       .catch((e) => {
         if (e instanceof DiscordAPIError && e.code == 10015)
@@ -419,6 +498,8 @@ export class GuildLogManager {
   }
 
   async handleAction(content: logContent, type: ActionLogTypes) {
+    if (!this.isActionTypeEnabled(type)) return;
+
     if (!this.rateLimitListener)
       this.rateLimitListener = this.client.getListener(
         "rateLimit"
@@ -486,10 +567,27 @@ export class GuildLogManager {
       const queue =
         typeof content == "string"
           ? data.queue
-              .filter((log) => typeof log.content != "string" && log.type) // TODO: check if type is enabled
+              .filter(
+                (log) =>
+                  typeof log.content != "string" &&
+                  this.isActionTypeEnabled(log.type)
+              )
               .splice(0, 10)
           : data.queue.splice(0, 9);
-      while (queue.length && sending.length < 10) sending.push(queue.pop());
+      while (
+        queue.length &&
+        sending.length < 10 &&
+        this.client.util.getTotalEmbedsSize(
+          sending
+            .filter((item) => typeof item.content != "string")
+            .map((item) => item.content as logContentEmbed)
+        ) +
+          this.client.util.getEmbedSize(
+            queue.at(-1).content as logContentEmbed
+          ) <=
+          6000
+      )
+        sending.push(queue.pop());
       for (const log of queue) data.queue.push(log); // will push back any that didn't make it
     }
 
@@ -516,7 +614,7 @@ export class GuildLogManager {
         }),
         embeds: sending
           .filter((log) => typeof log.content != "string")
-          .map((log) => log.content) as (MessageEmbed | MessageEmbedOptions)[],
+          .map((log) => log.content) as logContentEmbed[],
       })
       .catch((e) => {
         // 10015: Unknown Webhook
