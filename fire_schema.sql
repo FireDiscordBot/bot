@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.14 (Ubuntu 10.14-1.pgdg18.04+1)
--- Dumped by pg_dump version 10.14 (Ubuntu 10.14-1.pgdg18.04+1)
+-- Dumped from database version 10.23 (Ubuntu 10.23-0ubuntu0.18.04.2)
+-- Dumped by pg_dump version 10.23 (Ubuntu 10.23-0ubuntu0.18.04.2)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -17,14 +17,14 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -45,6 +45,19 @@ CREATE TABLE public.aliases (
 
 
 ALTER TABLE public.aliases OWNER TO postgres;
+
+--
+-- Name: assistant; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.assistant (
+    uid text NOT NULL,
+    access_token text,
+    refresh_token text
+);
+
+
+ALTER TABLE public.assistant OWNER TO postgres;
 
 --
 -- Name: bans; Type: TABLE; Schema: public; Owner: postgres
@@ -120,18 +133,6 @@ CREATE TABLE public.datapackages (
 ALTER TABLE public.datapackages OWNER TO postgres;
 
 --
--- Name: essential; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.essential (
-    uid text NOT NULL,
-    uuid text NOT NULL
-);
-
-
-ALTER TABLE public.essential OWNER TO postgres;
-
---
 -- Name: experimentfilters; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -174,8 +175,8 @@ ALTER TABLE public.experiments OWNER TO postgres;
 --
 
 CREATE TABLE public.guildconfig (
-    gid text NOT NULL,
-    data json
+    gid bigint NOT NULL,
+    data jsonb NOT NULL
 );
 
 
@@ -203,9 +204,9 @@ CREATE TABLE public.modlogs (
     uid text,
     type text,
     reason text,
-    date text,
     caseid text,
-    modid text
+    modid text,
+    created timestamp without time zone
 );
 
 
@@ -382,8 +383,8 @@ ALTER TABLE public.tags OWNER TO postgres;
 --
 
 CREATE TABLE public.userconfig (
-    uid text NOT NULL,
-    data json
+    uid bigint NOT NULL,
+    data jsonb NOT NULL
 );
 
 
@@ -432,6 +433,29 @@ CREATE TABLE public.vcroles (
 
 
 ALTER TABLE public.vcroles OWNER TO postgres;
+
+--
+-- Name: assistant assistant_uid_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.assistant
+    ADD CONSTRAINT assistant_uid_key UNIQUE (uid);
+
+
+--
+-- Name: guildconfig single_guild; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.guildconfig
+    ADD CONSTRAINT single_guild UNIQUE (gid);
+
+
+--
+-- Name: userconfig single_user; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.userconfig
+    ADD CONSTRAINT single_user UNIQUE (uid);
 
 
 --
