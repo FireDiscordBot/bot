@@ -26,17 +26,11 @@ export default class Eightball extends Command {
   async run(command: ApplicationCommandMessage, args: { question?: string }) {
     if (!args.question?.trim().endsWith("?"))
       return await command.send("EIGHTBALL_NO_QUESTION");
-    const responses = command.language.get(
+    await command.send(
       `EIGHTBALL_ANSWERS.${this.client.util.randInt(
         1,
         20
-      )}` as `EIGHTBALL_ANSWERS.${Range<1, 20>}`,
-      {
-        returnObjects: true,
-      }
-    ) as unknown as string[];
-    await command.channel.send(
-      responses[Math.floor(Math.random() * responses.length)]
+      )}` as `EIGHTBALL_ANSWERS.${Range<1, 20>}`
     );
   }
 }
