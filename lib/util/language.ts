@@ -55,7 +55,7 @@ export class Language extends AkairoModule {
       args.interpolation = { escapeValue: false };
     if (!this.enabled) return this.client.i18n.t(key, { ...args });
     else if (!this.has(key))
-      return `"${key} has not been localized for any languages yet!"`;
+      return `"${key}" has not been localized for any languages yet!`;
     return this.client.i18n.t(key, { ...args, lng: this.id });
   }
 
