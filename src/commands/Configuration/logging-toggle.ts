@@ -47,12 +47,13 @@ export default class LoggingToggle extends Command {
       channel: FireTextChannel;
     }
   ) {
-    const type = args.type as LOGGING_TYPES;
-    if (!type || !valid.includes(type.toLowerCase()))
+    const typeUpper = args.type?.toUpperCase() as LOGGING_TYPES,
+      typeLower = args.type?.toLowerCase() as LOGGING_TYPES;
+    if (!args.type || !valid.includes(typeLower))
       return await command.error("LOGGING_INVALID_TYPE", {
         types: valid.join(", "),
       });
-    const otherTypes = valid.filter((t) => t != type.toLowerCase());
+    const otherTypes = valid.filter((t) => t != typeLower);
     const otherChannels = otherTypes.map((t) =>
       command.guild.settings.get<string>(`log.${t}`)
     );
@@ -66,7 +67,7 @@ export default class LoggingToggle extends Command {
       let deleted: any;
       try {
         deleted = await command.guild.settings.delete(
-          `log.${type.toLowerCase()}`,
+          `log.${typeLower}`,
           command.author
         );
         if (!command.guild.logger)
@@ -77,13 +78,13 @@ export default class LoggingToggle extends Command {
         await command.guild.logger.refreshWebhooks().catch(() => {});
       } catch {}
       return deleted
-        ? await command.success(`LOGGING_DISABLED_${type}`)
+        ? await command.success(`LOGGING_DISABLED_${typeUpper}`)
         : await command.error("ERROR_CONTACT_SUPPORT");
     } else {
       let set: any;
       try {
         set = await command.guild.settings.set<string>(
-          `log.${type.toLowerCase()}`,
+          `log.${typeLower}`,
           args.channel.id,
           command.author
         );
@@ -97,7 +98,7 @@ export default class LoggingToggle extends Command {
         }
       } catch {}
       return set
-        ? await command.success(`LOGGING_ENABLED_${type}`)
+        ? await command.success(`LOGGING_ENABLED_${typeUpper}`)
         : await command.error("ERROR_CONTACT_SUPPORT");
     }
   }
