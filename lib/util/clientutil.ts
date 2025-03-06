@@ -239,11 +239,19 @@ export class Util extends ClientUtil {
   }
 
   randomItem<T>(array: T[]): T {
-    return array[Math.floor(Math.random() * array.length)];
+    return array[this.randInt(0, array.length - 1)];
   }
 
   randInt(min: number = 0, max: number = 69) {
     return Math.floor(Math.random() * max) + min;
+  }
+
+  async randomWord() {
+    const req = await centra(`${this.client.manager.REST_HOST}/v2/word/random`)
+      .header("User-Agent", this.client.manager.ua)
+      .send();
+    if (req.statusCode == 200) return req.body.toString();
+    else return "error";
   }
 
   getEmbedSize(embed: MessageEmbed | MessageEmbedOptions) {
@@ -449,9 +457,9 @@ export class Util extends ClientUtil {
     if (!this.client.manager.REST_HOST)
       throw new MojangAPIError("No REST host set", 500);
     const profileReq = await centra(
-      `${this.client.manager.REST_HOST}/${
-        this.client.manager.CURRENT_REST_VERSION
-      }/minecraft/uuid/${player}?checkUUID=${uuid ?? "false"}`
+      `${this.client.manager.REST_HOST}/v2/minecraft/uuid/${player}?checkUUID=${
+        uuid ?? "false"
+      }`
     )
       .header("User-Agent", this.client.manager.ua)
       .send();

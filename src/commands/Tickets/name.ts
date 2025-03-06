@@ -3,12 +3,9 @@ import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import { MessageEmbed } from "discord.js";
-import { readFileSync } from "fs";
 import { v4 as uuidv4 } from "uuid";
 
 export default class TicketName extends Command {
-  words: string[];
-
   constructor() {
     super("ticket-name", {
       description: (language: Language) =>
@@ -31,7 +28,6 @@ export default class TicketName extends Command {
       aliases: ["tickets-name"],
       parent: "ticket",
     });
-    this.words = readFileSync("words.txt").toString().split("\n");
   }
 
   async exec(message: FireMessage, args: { name?: string }) {
@@ -48,7 +44,7 @@ export default class TicketName extends Command {
         .toString() as string,
       "{name}": message.author.username,
       "{id}": message.author.id,
-      "{word}": this.client.util.randomItem(this.words) as string,
+      "{word}": await this.client.util.randomWord(),
       "{uuid}": uuidv4().slice(0, 4),
     };
     if (!args.name) {
