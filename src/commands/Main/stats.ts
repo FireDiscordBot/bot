@@ -39,9 +39,7 @@ export default class Stats extends Command {
       return await this.singularStats(message);
     let clusterStats: ClusterStats;
     const stats: ClusterStats[] = await (
-      await centra(
-        `${this.client.manager.REST_HOST}/${this.client.manager.CURRENT_REST_VERSION}/stats`
-      )
+      await centra(`${this.client.manager.REST_HOST}/v2/stats`)
         .header("User-Agent", this.client.manager.ua)
         .send()
     ).json();

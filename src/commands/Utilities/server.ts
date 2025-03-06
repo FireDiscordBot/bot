@@ -444,9 +444,7 @@ export default class GuildCommand extends Command {
     if (command.author.isSuperuser() && this.client.manager.REST_HOST) {
       // we make a request so we can get the cluster id too
       const shardReq: ShardInfo = await (
-        await centra(
-          `${this.client.manager.REST_HOST}/${this.client.manager.CURRENT_REST_VERSION}/shard/${guild.id}`
-        )
+        await centra(`${this.client.manager.REST_HOST}/v1/shard/${guild.id}`)
           .header("User-Agent", this.client.manager.ua)
           .send()
       )

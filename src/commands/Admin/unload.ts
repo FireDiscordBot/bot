@@ -123,9 +123,7 @@ export default class AdminUnload extends Command {
         if (this.client.manager.REST_HOST) {
           // check if only a single cluster is running and if so, sync commands with aether
           const stats = (await (
-            await centra(
-              `${this.client.manager.REST_HOST}/${this.client.manager.CURRENT_REST_VERSION}/stats`
-            )
+            await centra(`${this.client.manager.REST_HOST}/v2/stats`)
               .header("User-Agent", this.client.manager.ua)
               .send()
           )

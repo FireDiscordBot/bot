@@ -261,7 +261,7 @@ export default class Modal extends Listener {
         return await modal.error("ERROR_CONTACT_SUPPORT");
 
       const logInfoReq = await centra(
-        `${this.client.manager.REST_HOST}/${this.client.manager.CURRENT_REST_VERSION}/minecraft/logs`,
+        `${this.client.manager.REST_HOST}/v2/minecraft/logs`,
         "POST"
       )
         .header("User-Agent", this.client.manager.ua)

@@ -11,7 +11,6 @@ import {
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { GuildSettings } from "@fire/lib/util/settings";
-import TicketName from "@fire/src/commands/Tickets/name";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -1107,13 +1106,12 @@ export class FireGuild extends Guild {
     }
 
     let channels = this.tickets;
-    const words = (this.client.getCommand("ticket-name") as TicketName).words;
     let increment = this.settings.get<number>("tickets.increment", 0);
     const variables = {
       "{increment}": increment.toString(),
       "{name}": author.user.username,
       "{id}": author.id,
-      "{word}": this.client.util.randomItem<string>(words),
+      "{word}": await this.client.util.randomWord(),
       "{uuid}": uuidv4().slice(0, 4),
       "{crab}": "🦀", // CRAB IN DA CODE
     };
