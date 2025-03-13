@@ -76,31 +76,32 @@ export default class Ready extends Listener {
     this.client.manager.ready = true;
     this.client.setReadyPresence();
 
-    if (process.env.USE_LITECORD != "true")
-      for (const [, command] of this.client.commandHandler
-        .modules as Collection<string, Command>) {
-        if (!command.requiresExperiment) continue;
-        command.guilds = this.client.guilds.cache
-          .filter((guild: FireGuild) =>
-            guild.hasExperiment(
-              command.requiresExperiment.id,
-              command.requiresExperiment.bucket
-            )
+    for (const [, command] of this.client.commandHandler.modules as Collection<
+      string,
+      Command
+    >) {
+      if (!command.requiresExperiment) continue;
+      command.guilds = this.client.guilds.cache
+        .filter((guild: FireGuild) =>
+          guild.hasExperiment(
+            command.requiresExperiment.id,
+            command.requiresExperiment.bucket
           )
-          .map((g) => g.id);
-        if (!command.guilds.length) continue;
-        const registered = await command.registerSlashCommand();
-        if (registered && registered.length)
-          this.client.getLogger("Commands").info(
-            `Successfully registered locked command ${command.id} in ${registered.length} guild(s)`,
-            registered
-              .map((cmd) => cmd.guild?.name)
-              .filter((n) => !!n)
-              .join(", ")
-          );
-      }
+        )
+        .map((g) => g.id);
+      if (!command.guilds.length) continue;
+      const registered = await command.registerSlashCommand();
+      if (registered && registered.length)
+        this.client.getLogger("Commands").info(
+          `Successfully registered locked command ${command.id} in ${registered.length} guild(s)`,
+          registered
+            .map((cmd) => cmd.guild?.name)
+            .filter((n) => !!n)
+            .join(", ")
+        );
+    }
 
-    if (process.env.USE_LITECORD || this.client.manager.id != 0) return;
+    if (this.client.manager.id != 0) return;
 
     const appCommandsDirect = await this.client.req
       .applications(this.client.application.id)

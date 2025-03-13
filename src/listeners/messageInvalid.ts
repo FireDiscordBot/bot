@@ -39,12 +39,7 @@ export default class MessageInvalid extends Listener {
   }
 
   async exec(message: FireMessage) {
-    if (
-      // (this.client.config.dev && process.env.USE_LITECORD != "true") ||
-      this.botQuoteRegex.test(message.content) ||
-      // !message.guild ||
-      message.editedAt
-    ) {
+    if (this.botQuoteRegex.test(message.content) || message.editedAt) {
       this.botQuoteRegex.lastIndex = 0;
       return this.cleanCommandUtil(message);
     }

@@ -4,21 +4,10 @@ import { FireUser } from "@fire/lib/extensions/user";
 import {
   ClientOptions,
   Constants,
-  HTTPOptions,
   Intents,
   Options,
   Sweepers,
 } from "discord.js";
-
-let litecord: { http?: HTTPOptions } = {};
-if (process.env.USE_LITECORD == "true")
-  litecord = {
-    http: {
-      api: process.env.LITECORD_HOST,
-      cdn: process.env.LITECORD_CDN,
-      version: parseInt(process.env.LITECORD_VERSION),
-    },
-  };
 
 export const discord: ClientOptions = {
   allowedMentions: {
@@ -130,7 +119,6 @@ export const discord: ClientOptions = {
     Intents.FLAGS.DIRECT_MESSAGES |
     Intents.FLAGS.GUILD_VOICE_STATES |
     Intents.FLAGS.MESSAGE_CONTENT,
-  ...litecord,
   presence: {
     status: "idle",
     activities: [{ name: "things load...", type: "WATCHING" }],

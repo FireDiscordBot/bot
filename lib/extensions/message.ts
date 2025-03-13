@@ -374,8 +374,6 @@ export class FireMessage extends Message {
       !this.channel
     )
       return;
-    if (process.env.USE_LITECORD == "true")
-      return await super.react(emoji).catch(() => this.reactions.cache.first());
     return await super.react(emoji);
   }
 
