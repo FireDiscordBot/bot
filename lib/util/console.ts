@@ -1,4 +1,5 @@
 import { Instance } from "chalk";
+import { inspect } from "util";
 
 const chalk = new Instance({
   level: 3,
@@ -36,41 +37,57 @@ export class FireConsole {
       hour = parts.find((part) => part.type === "hour")?.value,
       minute = parts.find((part) => part.type === "minute")?.value,
       second = parts.find((part) => part.type === "second")?.value;
-    return `[${day}/${month}/${year} @ ${hour}:${minute}:${second}]`;
+    return ` ${day}/${month}/${year} @ ${hour}:${minute}:${second} `;
   }
 
   get tag() {
-    if (this._tag) return `[${this._tag}]`;
+    if (this._tag) return this._tag;
     else {
       const stack = new Error().stack;
-      return `[${stack
+      return `${stack
         .split("\n")
         .find((v, i) => i != 0 && !v.includes(this.constructor.name))
         .split("/")
         .pop()
-        .replace(")", "")}]`;
+        .replaceAll(")", "")}`;
     }
   }
 
-  get prefix() {
-    return `${this.timestamp} ${this.tag}`;
+  _log(
+    level: "info" | "warn" | "error" | "debug",
+    bgHex: `#${string}`,
+    ...args: any[]
+  ) {
+    const formattedTimestamp = chalk.bgHex("#279AF1").hex("#FFFFFF")(
+      this.timestamp
+    );
+    const formattedTag = chalk.bgHex(bgHex).hex("#000000")(` ${this.tag} `);
+    const formattedMessage = chalk.bgHex("#353A47").hex("#FFFFFF")(
+      ` ${
+        typeof args[0] == "string"
+          ? args[0]
+          : inspect(args[0], { colors: true })
+      } `
+    );
+
+    console[level](
+      `${formattedTimestamp}${formattedTag}${formattedMessage}`,
+      chalk.reset(),
+      ...args
+        .slice(1)
+        .map((arg) =>
+          typeof arg == "string" ? arg : inspect(arg, { colors: true })
+        )
+    );
   }
 
   debug(...args: any[]) {
     if (this.level != "debug") return;
-    console.debug(
-      chalk.bgMagenta.bold(this.timestamp),
-      chalk.bgMagenta.bold(this.tag),
-      ...args
-    );
+    this._log("debug", "#F5BDE6", ...args);
   }
 
   info(...args: any[]) {
-    console.log(
-      chalk.bgGreen.bold(this.timestamp),
-      chalk.bgGreen.bold(this.tag),
-      ...args
-    );
+    this._log("info", "#9CFC97", ...args);
   }
 
   log(...args: any[]) {
@@ -78,11 +95,7 @@ export class FireConsole {
   }
 
   warn(...args: any[]) {
-    console.log(
-      chalk.bgYellow.bold(this.timestamp),
-      chalk.bgYellow.bold(this.tag),
-      ...args
-    );
+    this._log("warn", "#FFFD98", ...args);
   }
 
   oops(...args: any[]) {
@@ -90,11 +103,7 @@ export class FireConsole {
   }
 
   error(...args: any[]) {
-    console.error(
-      chalk.bgRed.bold(this.timestamp),
-      chalk.bgRed.bold(this.tag),
-      ...args
-    );
+    this._log("error", "#ED8796", ...args);
   }
 
   wtf(...args: any[]) {
