@@ -53,41 +53,38 @@ export class FireConsole {
     }
   }
 
-  _log(
-    level: "info" | "warn" | "error" | "debug",
-    bgHex: `#${string}`,
-    ...args: any[]
-  ) {
+  _log(bgHex: `#${string}`, ...args: any[]) {
     const formattedTimestamp = chalk.bgHex("#279AF1").hex("#FFFFFF")(
       this.timestamp
     );
     const formattedTag = chalk.bgHex(bgHex).hex("#000000")(` ${this.tag} `);
+    let message: string =
+      typeof args[0] == "string"
+        ? args.shift()
+        : inspect(args.shift(), { colors: true });
+    // combine continuous strings into one
+    while (typeof args[0] == "string") message += ` ${args.shift()}`;
+
     const formattedMessage = chalk.bgHex("#353A47").hex("#FFFFFF")(
-      ` ${
-        typeof args[0] == "string"
-          ? args[0]
-          : inspect(args[0], { colors: true })
-      } `
+      ` ${message} `
     );
 
-    console[level](
+    console.log(
       `${formattedTimestamp}${formattedTag}${formattedMessage}`,
-      chalk.reset(),
-      ...args
-        .slice(1)
-        .map((arg) =>
-          typeof arg == "string" ? arg : inspect(arg, { colors: true })
-        )
+      chalk.reset()
     );
+
+    // we want extra args to be on a new line so we call it again
+    if (args.length) console.log(...args);
   }
 
   debug(...args: any[]) {
     if (this.level != "debug") return;
-    this._log("debug", "#F5BDE6", ...args);
+    this._log("#F5BDE6", ...args);
   }
 
   info(...args: any[]) {
-    this._log("info", "#9CFC97", ...args);
+    this._log("#9CFC97", ...args);
   }
 
   log(...args: any[]) {
@@ -95,7 +92,7 @@ export class FireConsole {
   }
 
   warn(...args: any[]) {
-    this._log("warn", "#FFFD98", ...args);
+    this._log("#FFFD98", ...args);
   }
 
   oops(...args: any[]) {
@@ -103,7 +100,7 @@ export class FireConsole {
   }
 
   error(...args: any[]) {
-    this._log("error", "#ED8796", ...args);
+    this._log("#ED8796", ...args);
   }
 
   wtf(...args: any[]) {
