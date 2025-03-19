@@ -1339,13 +1339,27 @@ Please choose accurately as it will allow us to help you as quick as possible! â
               components: button.message.components
                 .filter((c) => c instanceof MessageActionRow)
                 .map((row) => {
-                  row.components = row.components.map((component) =>
+                  row.components = row.components.map((component) => {
                     component.setDisabled(
                       component.type == "BUTTON"
                         ? component.style != "LINK"
                         : true
-                    )
-                  );
+                    );
+                    if (component.customId == "!complete_reminder")
+                      (component as MessageButton).setLabel(
+                        button.language.get(
+                          "REMINDER_COMPLETE_BUTTON_COMPLETED",
+                          {
+                            time: this.client.util.getTimestamp(
+                              button.createdAt,
+                              button.language,
+                              button.author.timezone
+                            ),
+                          }
+                        )
+                      );
+                    return component;
+                  });
                   return row;
                 }),
             }

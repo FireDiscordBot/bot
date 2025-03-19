@@ -1211,6 +1211,7 @@
   "REMINDER_CREATION_FAILED": "I was unable to set your reminder!\n\nThis is usually due to one of the following:\n- Setting a reminder (or repeats) too far in the future\n- Setting a reminder for a time that has already passed\n- Setting a reminder for a time you already have a reminder set for",
   "REMINDER_SNOOZE_BUTTON": "Snooze",
   "REMINDER_COMPLETE_BUTTON": "Complete",
+  "REMINDER_COMPLETE_BUTTON_COMPLETED": "Completed on {{time}}",
   "REMINDER_LINK_BUTTON": "Source",
   "REMINDER_SNOOZE_ERROR": "I was unable to snooze that reminder.",
   "REMINDER_SNOOZE_UNKNOWN": "I was unable to read the data for the reminder so I was unable to snooze/set it.",
