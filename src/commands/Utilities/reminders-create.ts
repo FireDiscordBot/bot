@@ -111,9 +111,7 @@ export default class RemindersCreate extends Command {
     this.recentlyClicked = new Collection();
     setInterval(
       () =>
-        (this.recentlyClicked = this.recentlyClicked.filter(
-          (m) => +new Date() - m.clickedAt >= 300_000
-        )),
+        this.recentlyClicked.sweep((m) => +new Date() - m.clickedAt >= 300_000),
       30_000
     );
   }
