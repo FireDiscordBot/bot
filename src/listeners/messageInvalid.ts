@@ -208,9 +208,13 @@ export default class MessageInvalid extends Listener {
           message.channel as GuildTextChannel
         );
         if (!webhookURL || typeof webhookURL != "string") continue;
-        this.console.log(
-          `Forwarding cross-cluster quote for ${quote.guild_id}/${quote.channel_id}/${quote.message_id} to shard ${shard} for user ${message.author} (${message.author.id}) in guild ${message.guild} (${message.guild.id})`
-        );
+        this.console.log("Forwarding cross-cluster quote", {
+          user: `${message.author} (${message.author.id})`,
+          guild: `${message.guild} (${message.guild.id})`,
+          source: `${quote.guild_id}/${quote.channel_id}/${quote.message_id}`,
+          destination: `${message.guild.id}/${message.channelId}`,
+          shard,
+        });
         this.client.manager.ws.send(
           MessageUtil.encode(
             new Message(EventType.CROSS_CLUSTER_QUOTE, {
