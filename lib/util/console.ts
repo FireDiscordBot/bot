@@ -75,7 +75,12 @@ export class FireConsole {
     );
 
     // we want extra args to be on a new line so we call it again
-    if (args.length) console.log(...args);
+    if (args.length)
+      console.log(
+        ...args.map((arg) =>
+          typeof arg == "string" ? arg : inspect(arg, { colors: true })
+        )
+      );
   }
 
   debug(...args: any[]) {
