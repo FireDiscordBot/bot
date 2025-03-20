@@ -51,7 +51,7 @@ export default class UpdateUserConfig extends Event {
     } else if ("key" in data && !(data.id in this.manager.state.userConfigs))
       if ("value" in data) {
         this.console.log(
-          "Adding new config for ",
+          "Adding new config",
           this.manager.client.users.cache.has(data.id)
             ? `for ${this.manager.client.users.cache.get(data.id)} (${data.id})`
             : `for ${data.id}`,
