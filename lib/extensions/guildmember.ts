@@ -537,7 +537,8 @@ export class FireMember extends GuildMember {
     else if (this.guild.ownerId == this.id) return "OWNER";
     else if (this.id == moderator.id) return "SELF";
     else if (
-      this.roles.highest.position >= this.guild.me.roles.highest.position ||
+      this.roles.highest.position >=
+        this.guild.members.me.roles.highest.position ||
       this.roles.highest.position >= moderator.roles.highest.position
     )
       return "HIGHER";
