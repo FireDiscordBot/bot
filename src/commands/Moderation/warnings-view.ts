@@ -8,7 +8,7 @@ import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
-import { MessageEmbed, Util } from "discord.js";
+import { Formatters, MessageEmbed, Util } from "discord.js";
 
 export default class Warnings extends Command {
   constructor() {
@@ -58,9 +58,10 @@ export default class Warnings extends Command {
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
           warn.get("modid") || constants.escapedShruggie
         }
-**${command.language.get("DATE")}**: ${(
-          warn.get("created") as Date
-        ).toLocaleString(command.language.id)}
+**${command.language.get("DATE")}**: ${Formatters.time(
+          warn.get("created") as Date,
+          "f"
+        )}
 **-----------------**`)
       );
     }

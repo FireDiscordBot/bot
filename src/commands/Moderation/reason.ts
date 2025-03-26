@@ -2,7 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { MessageEmbed } from "discord.js";
+import { Formatters, MessageEmbed } from "discord.js";
 
 export default class Reason extends Command {
   constructor() {
@@ -59,9 +59,10 @@ export default class Reason extends Command {
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
         result.get("modid") || constants.escapedShruggie
       }
-**${command.language.get("DATE")}**: ${(
-        result.get("created") as Date
-      ).toLocaleString(command.language.id)}
+**${command.language.get("DATE")}**: ${Formatters.time(
+        result.get("created") as Date,
+        "f"
+      )}
 **${command.language.get("TYPE")}**: ${titleCase(
         result.get("type") as string
       )}`);
