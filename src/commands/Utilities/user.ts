@@ -460,14 +460,9 @@ export default class User extends Command {
           )}`
         );
 
-      // we'll temporarily fetch members for guilds with less than 100k members
+      // we'll temporarily fetch members for guilds with less than 50k members
       // so that we can display the join position
-
-      // but bypass this for superusers because lol
-      // im sure panley will have fun with that if she
-      // ever figures it out...
-      if (guild.memberCount <= 100_000 || command.author.isSuperuser())
-        await guild.members.fetch();
+      if (guild.memberCount <= 50_000) await guild.members.fetch();
 
       if (guild && guild.members.cache.size / guild.memberCount > 0.98) {
         const joinPos =
