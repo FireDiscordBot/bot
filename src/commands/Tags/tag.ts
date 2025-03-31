@@ -38,17 +38,23 @@ export default class Tag extends Command {
       );
       return await this.client.commandHandler.handle(message);
     }
+
     if (["dtag", "dtags"].includes(message.util?.parsed?.alias.toLowerCase()))
       message.delete({ reason: message.guild.language.get("TAG_DTAG_REASON") });
+
     if (!message.guild.tags) {
       message.guild.tags = new GuildTagManager(this.client, message.guild);
       await message.guild.tags.init();
     }
     const manager = message.guild.tags;
+
     const cachedTag = await manager.getTag(args.tag);
     if (!cachedTag)
       return await message.error("TAG_INVALID_TAG", { tag: args.tag });
     await manager.useTag(cachedTag.name);
+
+    const embeds = await manager.embedCommand.getEmbeds(cachedTag.embedIds);
+
     let referenced: FireMessage;
     if (message.type == "REPLY") {
       referenced = (await message.channel.messages
@@ -60,10 +66,15 @@ export default class Tag extends Command {
         .reply({
           allowedMentions: { repliedUser: true },
           content: cachedTag.content,
+          embeds: embeds.map((embed) => embed.embed),
           failIfNotExists: false,
         })
         .catch(() => {});
-    else return await message.channel.send({ content: cachedTag.content });
+    else
+      return await message.channel.send({
+        content: cachedTag.content,
+        embeds: embeds.map((embed) => embed.embed),
+      });
   }
 
   async sendTagsList(message: FireMessage) {

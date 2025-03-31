@@ -200,7 +200,7 @@ export default class Essential extends Module {
       await modal.channel.ack();
       modal.flags = 64;
 
-      const reason = modal.interaction.fields.getTextInputValue("reason");
+      const reason = modal.getTextInputValue("reason");
       if (!reason?.length)
         return await modal.error("COMMAND_ERROR_GENERIC", { id: "new" });
 
@@ -328,7 +328,10 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
       await manager.useTag(cachedTag.name);
       return await dropdown
-        .edit({ content: cachedTag.content, components: [] })
+        .edit({
+          content: cachedTag.content,
+          components: [],
+        })
         .catch(() => {});
     } else if (launcher == "curseforge") {
       const manager = this.publicGuild.tags;
@@ -336,7 +339,10 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
       await manager.useTag(cachedTag.name);
       return await dropdown
-        .edit({ content: cachedTag.content, components: [] })
+        .edit({
+          content: cachedTag.content,
+          components: [],
+        })
         .catch(() => {});
     } else if (launcher == "multimc") {
       const manager = this.publicGuild.tags;
@@ -344,7 +350,10 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
       await manager.useTag(cachedTag.name);
       return await dropdown
-        .edit({ content: cachedTag.content, components: [] })
+        .edit({
+          content: cachedTag.content,
+          components: [],
+        })
         .catch(() => {});
     } else if (launcher == "polymc") {
       return await dropdown.edit({
@@ -358,7 +367,10 @@ You can run \`/latestlog\` for instructions on how to find your log.`
       if (!cachedTag) return await dropdown.error("COMMAND_ERROR_GENERIC");
       await manager.useTag(cachedTag.name);
       return await dropdown
-        .edit({ content: cachedTag.content, components: [] })
+        .edit({
+          content: cachedTag.content,
+          components: [],
+        })
         .catch(() => {});
     }
   }

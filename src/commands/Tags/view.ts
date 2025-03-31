@@ -3,8 +3,13 @@ import { Command } from "@fire/lib/util/command";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Language } from "@fire/lib/util/language";
 import { CommandInteractionOption } from "discord.js";
+import Embed from "../Utilities/embed";
+
+const embedRegex = /\{embed:(?<id>[A-Za-z0-9-]{21})\}/gim;
 
 export default class TagView extends Command {
+  embed: Embed;
+
   constructor() {
     super("tag-view", {
       description: (language: Language) =>
@@ -41,6 +46,8 @@ export default class TagView extends Command {
   }
 
   async run(command: ApplicationCommandMessage, args: { tag: string }) {
+    if (!this.embed) this.embed = this.client.getCommand("embed") as Embed;
+
     if (!command.guild.tags) {
       command.guild.tags = new GuildTagManager(this.client, command.guild);
       await command.guild.tags.init();
@@ -50,6 +57,12 @@ export default class TagView extends Command {
     if (!cachedTag)
       return await command.error("TAG_INVALID_TAG", { tag: args.tag });
     await manager.useTag(cachedTag.name);
-    return await command.channel.send({ content: cachedTag.content });
+
+    const embeds = await manager.embedCommand.getEmbeds(cachedTag.embedIds);
+
+    return await command.channel.send({
+      content: cachedTag.content || "",
+      embeds: embeds.map((embed) => embed.embed),
+    });
   }
 }

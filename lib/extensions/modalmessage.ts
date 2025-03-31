@@ -1,5 +1,4 @@
 import { Snowflake } from "discord-api-types/globals";
-import { APIMessage } from "discord-api-types/v9";
 import {
   AwaitMessagesOptions,
   Collection,
@@ -37,8 +36,10 @@ export class ModalMessage {
   private snowflake: DeconstructedSnowflake;
   interaction: ModalSubmitInteraction;
   components: PartialModalActionRow[];
+  getLatestResponseLock: Semaphore;
   sent: false | "ack" | "message";
-  latestResponse: Snowflake;
+  latestResponse: FireMessage;
+  latestResponseId: Snowflake;
   ephemeralSource: boolean;
   private _flags: number;
   message?: FireMessage;
@@ -167,12 +168,31 @@ export class ModalMessage {
     return this.interaction.guildId;
   }
 
+  hasField(field: string) {
+    try {
+      this.interaction.fields.getField(field);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  getField(field: string) {
+    if (this.hasField(field)) return this.interaction.fields.getField(field);
+  }
+
+  getTextInputValue(field: string) {
+    if (this.hasField(field))
+      return this.interaction.fields.getTextInputValue(field);
+  }
+
   send(key?: LanguageKeys, args?: i18nOptions) {
     return this.channel.send(
       {
         content: this.language.get(key, args),
         allowedMentions: args?.allowedMentions,
         components: args?.components,
+        embeds: args?.embeds,
       },
       this.flags
     );
@@ -220,6 +240,31 @@ export class ModalMessage {
     );
   }
 
+  async getLatestResponse() {
+    await this.getLatestResponseLock.acquire();
+    if (this.latestResponse instanceof FireMessage) {
+      this.getLatestResponseLock.release();
+      return this.latestResponse;
+    }
+
+    const message = (await this.client.req
+      .webhooks(this.client.user.id, this.interaction.token)
+      .messages(this.latestResponseId)
+      .get()) as RawMessageData;
+    if (message && message.id)
+      this.latestResponse = new FireMessage(this.client, message);
+    this.getLatestResponseLock.release();
+    return this.latestResponse;
+  }
+
+  async getResponse(messageId: Snowflake) {
+    const message = (await this.client.req
+      .webhooks(this.client.user.id, this.interaction.token)
+      .messages(messageId)
+      .get()) as RawMessageData;
+    if (message && message.id) return new FireMessage(this.client, message);
+  }
+
   async edit(
     options?:
       | string
@@ -245,7 +290,7 @@ export class ModalMessage {
 
     await this.client.req
       .webhooks(this.client.user.id, this.interaction.token)
-      .messages(this.latestResponse ?? "@original")
+      .messages(this.latestResponseId ?? "@original")
       .patch({
         data,
         files,
@@ -258,7 +303,7 @@ export class ModalMessage {
     if (this.ephemeralSource) return;
     await this.client.req
       .webhooks(this.client.user.id, this.interaction.token)
-      .messages(id ?? this.latestResponse ?? "@original")
+      .messages(id ?? this.latestResponseId ?? "@original")
       .delete()
       .catch(() => {});
   }
@@ -412,15 +457,49 @@ export class FakeChannel extends BaseFakeChannel {
     if (this.message.author.settings.get("utils.incognito", false))
       data.flags = 64;
 
-    const message = await this.client.req
-      .webhooks(this.client.user.id)(this.token)
-      .post<APIMessage>({
-        data,
-        files,
-        query: { wait: true },
-      })
-      .catch(() => {});
-    if (message && message.id) this.message.latestResponse = message.id;
+    if (!this.message.sent)
+      await this.client.req
+        .interactions(this.interactionId)(this.token)
+        .callback.post({
+          data: {
+            type: 4,
+            data,
+          },
+          files,
+        })
+        .then(() => (this.message.sent = "message"));
+    else if (this.message.sent == "ack")
+      await this.client.req
+        .webhooks(this.client.user.id)(this.token)
+        .messages("@original")
+        .patch<RawMessageData>({
+          data,
+          files,
+        })
+        .then((original) => {
+          this.message.sent = "message";
+          if (original && original.id)
+            this.message.latestResponse = new FireMessage(
+              this.client,
+              original
+            );
+        });
+    else
+      await this.client.req
+        .webhooks(this.client.user.id)(this.token)
+        .post<RawMessageData>({
+          data,
+          files,
+          query: { wait: true },
+        })
+        .then((message) => {
+          this.message.sent = "message";
+          if (message && message.id) {
+            this.message.latestResponse = new FireMessage(this.client, message);
+            this.message.latestResponseId = message.id;
+          }
+        });
+    this.message.getLatestResponse().catch(() => {});
     return this.message;
   }
 
@@ -465,7 +544,7 @@ export class FakeChannel extends BaseFakeChannel {
       })
       .then(() => {
         this.message.sent = "message";
-        this.message.latestResponse = "@original" as Snowflake;
+        this.message.latestResponseId = "@original" as Snowflake;
       })
       .catch(() => {});
     return this.message;

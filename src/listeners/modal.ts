@@ -17,6 +17,7 @@ import {
   ThreadChannel,
 } from "discord.js";
 import { parseWithUserTimezone } from "../arguments/time";
+import Embed from "../commands/Utilities/embed";
 
 export default class Modal extends Listener {
   constructor() {
@@ -43,6 +44,12 @@ export default class Modal extends Listener {
       }
     } catch {}
 
+    // Embed Builder
+    if (modal.customId.startsWith("embed-builder")) {
+      const embed = this.client.getCommand("embed") as Embed;
+      return await embed.handleModal(modal);
+    }
+
     if (modal.customId.startsWith("ticket_close")) {
       modal.channel.ack();
       const channelId = modal.customId.slice(13) as Snowflake;
@@ -60,7 +67,7 @@ export default class Modal extends Listener {
         return await modal.error("TICKET_CLOSE_FORBIDDEN");
       else if (canClose == "nonticket")
         return await modal.error("TICKET_NON_TICKET");
-      const reason = modal.interaction.fields.getTextInputValue("close_reason");
+      const reason = modal.getTextInputValue("close_reason");
       if (!reason)
         return await modal.error("COMMAND_ERROR_GENERIC", { id: "close" });
       const closed = await guild
@@ -95,14 +102,13 @@ export default class Modal extends Listener {
       const tag = await modal.guild.tags.getTag(name, false);
       if (!tag) return await modal.error("TAG_INVALID_TAG", { tag: name });
 
-      const newName = modal.interaction.fields.getTextInputValue("tag_name");
+      const newName = modal.getTextInputValue("tag_name");
       if (newName.length && newName != name) {
         const renamed = await modal.guild.tags.renameTag(name, newName);
         if (!renamed) return await modal.error("TAG_EDIT_NAME_FAILED");
       }
 
-      const newContent =
-        modal.interaction.fields.getTextInputValue("tag_content");
+      const newContent = modal.getTextInputValue("tag_content");
       if (newContent.length) {
         const edited = await modal.guild.tags.editTag(
           newName || name,
@@ -144,12 +150,10 @@ export default class Modal extends Listener {
         date,
       };
       const modalValues = {
-        text:
-          modal.interaction.fields.getTextInputValue("reminder") ||
-          reminder.text,
-        time: modal.interaction.fields.getTextInputValue("time")
+        text: modal.getTextInputValue("reminder") || reminder.text,
+        time: modal.getTextInputValue("time")
           ? parseWithUserTimezone(
-              modal.interaction.fields.getTextInputValue("time"),
+              modal.getTextInputValue("time"),
               modal.createdAt,
               modal.author.timezone
             ).parsed[0]?.start.date() ?? reminder.date
@@ -335,11 +339,11 @@ export default class Modal extends Listener {
       const solutionEmbed = new MessageEmbed().addFields([
         {
           name: enUS.get("MINECRAFT_LOGSCAN_SOLUTION_MODAL_DESC_LABEL"),
-          value: modal.interaction.fields.getTextInputValue("description"),
+          value: modal.getTextInputValue("description"),
         },
         {
           name: enUS.get("MINECRAFT_LOGSCAN_SOLUTION_MODAL_SOLUTION_LABEL"),
-          value: modal.interaction.fields.getTextInputValue("solution"),
+          value: modal.getTextInputValue("solution"),
         },
       ]);
 

@@ -179,7 +179,7 @@ export default class Carbon extends Command {
     await modal.channel.ack();
     modal.flags = 64;
 
-    let code = modal.interaction.fields.getTextInputValue("code");
+    let code = modal.getTextInputValue("code");
     if (!code?.length)
       return await modal.error("COMMAND_ERROR_GENERIC", { id: "carbon" });
     try {

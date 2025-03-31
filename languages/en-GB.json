@@ -5,6 +5,8 @@
   "COLOR_COMMAND_DESCRIPTION": "Get information about a colour",
   "COLOR_ARGUMENT_INVALID": "That does not seem to be a valid colour, maybe try {{random}}",
   "COLOR_HEADING": "Information about the colour **{{color}}**",
+  "EMBED_CREATE_EDITOR_SINGLE_ITEMS_COLOR_DESCRIPTION": "The colour of the embed",
+  "EMBED_BUILDER_COLOR_MODAL_TITLE": "Embed Colour",
   "TIME_STAMP_STYLES_AUTOCOMPLETE": {
     "t": "Short Time ({{time}})",
     "t_example": "e.g. 16:20",

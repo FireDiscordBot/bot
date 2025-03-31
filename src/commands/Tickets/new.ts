@@ -59,7 +59,7 @@ export default class NewTicket extends Command {
       return this.client.commandHandler.emit(
         "missingPermissions",
         message,
-        message.util?.parsed?.command,
+        this,
         "client",
         message.guild.members.me
           ?.permissionsIn(message.guild.channels.cache.get(parents[0]))

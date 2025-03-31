@@ -36,6 +36,7 @@ import { codeblockTypeCaster } from "../arguments/codeblock";
 import Anti from "../commands/Configuration/anti";
 import Google from "../commands/Fun/google";
 import Rank from "../commands/Premium/rank";
+import Embed from "../commands/Utilities/embed";
 import LogScan from "../commands/Utilities/minecraft-log-scan";
 import RemindersDelete from "../commands/Utilities/reminders-delete";
 import RemindersList from "../commands/Utilities/reminders-list";
@@ -228,6 +229,28 @@ export default class Button extends Listener {
         handler(button);
       }
     } catch {}
+
+    // Embed Builder
+    if (button.customId.startsWith("embed-builder")) {
+      const embed = this.client.getCommand("embed") as Embed;
+      return await embed.handleButton(button);
+    } else if (button.customId.startsWith("embed-delete-confirm")) {
+      const id = button.customId.slice(21);
+      const deleted = await this.client.db
+        .query("DELETE FROM embeds WHERE id=$1 AND uid=$2", [
+          id,
+          button.author.id,
+        ])
+        .catch(() => {});
+      if (!deleted || !deleted.status.startsWith("DELETE"))
+        return await button.error("EMBED_DELETE_FAILED");
+      else
+        return await button.channel.update({
+          content: button.language.getSuccess("EMBED_DELETE_SUCCESS", { id }),
+          embeds: [],
+          components: [],
+        });
+    }
 
     if (
       url.supportedHaste.some((url) => button.customId.startsWith(`h:${url}:`))
@@ -535,8 +558,19 @@ export default class Button extends Listener {
       if (!tag) return;
       else {
         await button.guild.tags.useTag(tag.name);
+
+        const embeds = await button.guild.tags.embedCommand.getEmbeds(
+          tag.embedIds
+        );
+
         return await button.channel
-          .send({ content: tag.content }, 64)
+          .send(
+            {
+              content: tag.content,
+              embeds: embeds.map((embed) => embed.embed),
+            },
+            64
+          )
           .catch(() => {});
       }
     }
@@ -1083,10 +1117,10 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       let additionalFields: EmbedFieldData[], subject: string;
       if (type == "verification") {
         subject = "Verification";
-        const email = modal.interaction.fields.getTextInputValue("email"),
-          code = modal.interaction.fields.getTextInputValue("code"),
-          fullName = modal.interaction.fields.getTextInputValue("fullname"),
-          alias = modal.interaction.fields.getTextInputValue("alias");
+        const email = modal.getTextInputValue("email"),
+          code = modal.getTextInputValue("code"),
+          fullName = modal.getTextInputValue("fullname"),
+          alias = modal.getTextInputValue("alias");
         additionalFields = [
           {
             name: "Email",
@@ -1106,9 +1140,9 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           },
         ];
       } else if (type == "twitch") {
-        subject = modal.interaction.fields.getTextInputValue("subject");
-        const username = modal.interaction.fields.getTextInputValue("username"),
-          code = modal.interaction.fields.getTextInputValue("code");
+        subject = modal.getTextInputValue("subject");
+        const username = modal.getTextInputValue("username"),
+          code = modal.getTextInputValue("code");
         additionalFields = [
           {
             name: "Twitch Username",
@@ -1120,9 +1154,9 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           },
         ];
       } else {
-        subject = modal.interaction.fields.getTextInputValue("subject");
-        const email = modal.interaction.fields.getTextInputValue("email"),
-          code = modal.interaction.fields.getTextInputValue("code");
+        subject = modal.getTextInputValue("subject");
+        const email = modal.getTextInputValue("email"),
+          code = modal.getTextInputValue("code");
         additionalFields = [
           {
             name: "Email",

@@ -438,6 +438,7 @@ export class ApplicationCommandMessage {
         content: this.language.get(key, args),
         allowedMentions: args?.allowedMentions,
         components: args?.components,
+        embeds: args?.embeds,
       },
       this.flags
     );

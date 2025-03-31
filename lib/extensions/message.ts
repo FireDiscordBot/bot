@@ -292,7 +292,9 @@ export class FireMessage extends Message {
       allowedMentions: args?.allowedMentions,
       components: args?.components,
       reply: args?.reply,
-      embeds: upsell ? [upsell] : undefined,
+      embeds: upsell
+        ? [upsell, ...(args.embeds?.length ? args.embeds : [])]
+        : args.embeds,
     });
   }
 

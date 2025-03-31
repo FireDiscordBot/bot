@@ -4,6 +4,8 @@ import {
   BaseMessageComponentOptions,
   MessageActionRow,
   MessageActionRowOptions,
+  MessageEmbed,
+  MessageEmbedOptions,
   MessageMentionOptions,
   NewsChannel,
   ReplyOptions,
@@ -116,6 +118,7 @@ export type i18nOptions = TOptions<StringMap> & {
     | MessageActionRow
     | (Required<BaseMessageComponentOptions> & MessageActionRowOptions)
   )[];
+  embeds?: (MessageEmbed | MessageEmbedOptions)[];
   allowedMentions?: MessageMentionOptions;
   reply?: ReplyOptions;
   includeSlashUpsell?: boolean;

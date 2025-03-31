@@ -2,16 +2,19 @@ import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
+import Embed from "@fire/src/commands/Utilities/embed";
 import { Snowflake } from "discord-api-types/globals";
 import { APIApplicationCommand } from "discord-api-types/v9";
 import { DiscordAPIError, LimitedCollection } from "discord.js";
 import * as fuzz from "fuzzball";
 
 const slashCommandNameRegex =
-  /^[-_\p{L}\p{N}\p{Script=Devanagari}\p{Script=Thai}]{1,32}$/gmu;
+    /^[-_\p{L}\p{N}\p{Script=Devanagari}\p{Script=Thai}]{1,32}$/gmu,
+  embedRegex = /\{embed:(?<id>[A-Za-z0-9-]{21})\}/gim;
 
 export interface Tag {
   createdBy: Snowflake | FireUser | FireMember;
+  embedIds: string[];
   aliases: string[];
   content: string;
   name: string;
@@ -21,6 +24,7 @@ export interface Tag {
 export class GuildTagManager {
   slashCommands: { [id: string]: string };
   preparedSlashCommands: boolean;
+  embedCommand: Embed;
   aliases: string[];
   guild: FireGuild;
   names: string[];
@@ -33,6 +37,8 @@ export class GuildTagManager {
     this.aliases = [];
     this.slashCommands = {};
     this.preparedSlashCommands = false;
+
+    this.embedCommand = this.client.getCommand("embed") as Embed;
   }
 
   get size() {
@@ -112,6 +118,7 @@ export class GuildTagManager {
     const tag: Tag = {
       createdBy: (fetchedTag.get("uid") as string) ?? null,
       content: fetchedTag.get("content") as string,
+      embedIds: [],
       aliases: (fetchedTag.get("aliases") as string[]) ?? [],
       name: fetchedTag.get("name") as string,
       uses: fetchedTag.get("uses") as number,
@@ -129,6 +136,16 @@ export class GuildTagManager {
         if (fetched) tag.createdBy = fetched as FireUser;
       }
     }
+    const embeds = Array.from(tag.content.matchAll(embedRegex)).sort(
+      (a, b) => a.index - b.index
+    );
+    for (const match of embeds) {
+      tag.content = tag.content.replaceAll(match[0], "");
+      const id = match.groups?.id;
+      if (!id || tag.embedIds.includes(id)) continue;
+      if (tag.embedIds.length < 10) tag.embedIds.push(id);
+    }
+    tag.content = tag.content.trim();
     return tag;
   }
 
@@ -327,24 +344,38 @@ export class GuildTagManager {
   }
 
   async fetchTags() {
-    const result = await this.client.db.query(
+    const tagsQuery = await this.client.db.query(
       "SELECT * FROM tags WHERE gid=$1;",
       [this.guild.id]
     );
     const tags = new LimitedCollection<string, Tag>({
       maxSize: 100,
     });
-    for await (const tag of result) {
-      tags.set(tag.get("name") as string, {
-        name: (tag.get("name") as string).toLowerCase(),
-        content: tag.get("content") as string,
+    for await (const result of tagsQuery) {
+      const tag = {
+        name: (result.get("name") as string).toLowerCase(),
+        content: result.get("content") as string,
+        embedIds: [],
         aliases:
-          (tag.get("aliases") as string[])?.map((alias) =>
+          (result.get("aliases") as string[])?.map((alias) =>
             alias.toLowerCase()
           ) || [],
-        createdBy: tag.get("uid") as Snowflake,
-        uses: tag.get("uses") as number,
-      });
+        createdBy: result.get("uid") as Snowflake,
+        uses: result.get("uses") as number,
+      } as Tag;
+
+      const embeds = Array.from(tag.content.matchAll(embedRegex)).sort(
+        (a, b) => a.index - b.index
+      );
+      for (const match of embeds) {
+        tag.content = tag.content.replaceAll(match[0], "");
+        const id = match.groups?.id;
+        if (!id || tag.embedIds.includes(id)) continue;
+        if (tag.embedIds.length < 10) tag.embedIds.push(id);
+      }
+      tag.content = tag.content.trim();
+
+      tags.set(tag.name, tag);
     }
     this.names = [
       ...tags.map((tag) => tag.name.toLowerCase()),
@@ -363,14 +394,29 @@ export class GuildTagManager {
       )
       .first();
     if (!fetchedTag) return null;
-    else
-      return {
+    else {
+      const tag = {
         content: fetchedTag.get("content") as string,
         aliases: (fetchedTag.get("aliases") as string[]) ?? [],
+        embedIds: [],
         name: fetchedTag.get("name") as string,
         uses: fetchedTag.get("uses") as number,
         createdBy: null,
       } as Tag;
+
+      const embeds = Array.from(tag.content.matchAll(embedRegex)).sort(
+        (a, b) => a.index - b.index
+      );
+      for (const match of embeds) {
+        tag.content = tag.content.replaceAll(match[0], "");
+        const id = match.groups?.id;
+        if (!id || tag.embedIds.includes(id)) continue;
+        if (tag.embedIds.length < 10) tag.embedIds.push(id);
+      }
+      tag.content = tag.content.trim();
+
+      return tag;
+    }
   }
 
   async createTag(name: string, content: string, user: FireUser | FireMember) {
@@ -387,13 +433,27 @@ export class GuildTagManager {
     this.preparedSlashCommands && Object.keys(this.slashCommands).length
       ? this.createSlashTag(name)
       : this.prepareSlashCommands();
-    return {
+    const tag = {
       name,
       content,
+      embedIds: [],
       uses: 0,
       aliases: [],
       createdBy: user,
-    };
+    } as Tag;
+
+    const embeds = Array.from(tag.content.matchAll(embedRegex)).sort(
+      (a, b) => a.index - b.index
+    );
+    for (const match of embeds) {
+      tag.content = tag.content.replaceAll(match[0], "");
+      const id = match.groups?.id;
+      if (!id || tag.embedIds.includes(id)) continue;
+      if (tag.embedIds.length < 10) tag.embedIds.push(id);
+    }
+    tag.content = tag.content.trim();
+
+    return tag;
   }
 
   private async createSlashTag(name: string) {

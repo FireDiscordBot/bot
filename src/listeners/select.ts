@@ -39,6 +39,7 @@ import { parseWithUserTimezone } from "../arguments/time";
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 import LoggingConfig from "../commands/Configuration/logging-configure";
 import Google from "../commands/Fun/google";
+import Embed from "../commands/Utilities/embed";
 import LogScan from "../commands/Utilities/minecraft-log-scan";
 import RemindersCreate from "../commands/Utilities/reminders-create";
 
@@ -78,6 +79,12 @@ export default class Select extends Listener {
         handler(select);
       }
     } catch {}
+
+    // Embed Builder
+    if (select.customId.startsWith("embed-builder")) {
+      const embed = this.client.getCommand("embed") as Embed;
+      return await embed.handleDropdown(select);
+    }
 
     if (
       guild &&
@@ -341,8 +348,7 @@ export default class Select extends Listener {
         specifyTimeModal = await modalPromise;
         // await specifyTimeModal.channel.ack();
 
-        const input =
-          specifyTimeModal.interaction.fields.getTextInputValue("time");
+        const input = specifyTimeModal.getTextInputValue("time");
         if (!input)
           return await specifyTimeModal.error("REMINDER_SNOOZE_TIME_INVALID");
         const { parsed } = parseWithUserTimezone(

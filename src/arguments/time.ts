@@ -1,6 +1,8 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
+import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
+import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { classicRemind, constants } from "@fire/lib/util/constants";
 import { ParsedResult, casual } from "chrono-node";
 import * as dayjs from "dayjs";
@@ -31,7 +33,12 @@ export const parseTime = (
   text: string,
   instant: Date,
   IANA: string,
-  context: FireMessage | ApplicationCommandMessage | ContextCommandMessage
+  context:
+    | FireMessage
+    | ApplicationCommandMessage
+    | ContextCommandMessage
+    | ComponentMessage
+    | ModalMessage
 ) => {
   text = text.trim();
   let useClassic = false;
