@@ -502,7 +502,7 @@ export default class User extends Command {
 
       if (
         guild.members.me.permissions.has(PermissionFlagsBits.ManageGuild) &&
-        member.permissions.has(PermissionFlagsBits.ManageGuild)
+        command.member?.permissions.has(PermissionFlagsBits.ManageGuild)
       ) {
         const membersSearchResult = (await this.client.req
           .guilds(command.guildId, "members-search")
