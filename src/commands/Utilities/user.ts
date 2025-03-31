@@ -13,6 +13,7 @@ import { Snowflake } from "discord-api-types/globals";
 import {
   APIApplication,
   APIChannel,
+  APIGuildMember,
   ApplicationFlags,
   PermissionFlagsBits,
 } from "discord-api-types/v9";
@@ -47,6 +48,32 @@ type InstallParams = {
   };
   custom_install_url?: string;
 };
+
+enum JoinSourceType {
+  UNSPECIFIED,
+  BOT,
+  INTEGRATION,
+  DISCOVERY,
+  HUB,
+  INVITE,
+  VANITY_URL,
+  MANUAL_MEMBER_VERIFICATION,
+}
+
+interface MembersSearchResult {
+  guild_id: Snowflake;
+  members: [
+    {
+      member: APIGuildMember;
+      source_invite_code: string;
+      join_source_type: JoinSourceType;
+      inviter_id: Snowflake;
+      integration_type?: number;
+    }
+  ];
+  page_result_count: number;
+  total_result_count: number;
+}
 
 export default class User extends Command {
   plsShutUp: number = 0;
@@ -136,7 +163,10 @@ export default class User extends Command {
       command.guild,
       command.content
     );
-    const info = this.getInfo(command, member ? member : user);
+    const [userInfo, memberInfo] = await this.getInfo(
+      command,
+      member ? member : user
+    );
     let application: Exclude<APIApplication, "rpc_origins" | "owner" | "team"> &
       InstallParams;
     if (user.bot)
@@ -157,7 +187,12 @@ export default class User extends Command {
       })
       .addFields({
         name: `» ${command.language.get("ABOUT")}`,
-        value: info.join("\n"),
+        value: userInfo.join("\n"),
+      });
+    if (memberInfo.length)
+      embed.addFields({
+        name: `» ${command.language.get("MEMBER")}`,
+        value: memberInfo.join("\n"),
       });
     if (badges.length)
       embed.setDescription(
@@ -378,7 +413,7 @@ export default class User extends Command {
     return emojis;
   }
 
-  getInfo(
+  async getInfo(
     command: ApplicationCommandMessage | ContextCommandMessage,
     member: FireMember | FireUser
   ) {
@@ -388,7 +423,7 @@ export default class User extends Command {
       now.getDate() == user.createdAt.getDate() &&
       now.getMonth() == user.createdAt.getMonth() &&
       now.getFullYear() != user.createdAt.getFullYear();
-    let info = [
+    let userInfo = [
       `**${command.language.get("MENTION")}:** ${user.toMention()}`,
       user.globalName
         ? `**${command.language.get("DISPLAY_NAME")}:**${
@@ -403,49 +438,147 @@ export default class User extends Command {
         "R"
       )}${isCakeDay ? " 🎂" : ""}`,
     ].filter((i) => !!i);
+    let memberInfo = [];
     if (member instanceof FireMember) {
+      const guild = command.guild;
       if (
-        command.guild &&
-        command.guild.ownerId == member.id &&
+        guild &&
+        guild.ownerId == member.id &&
         member.joinedTimestamp - command.guild.createdTimestamp < 5000
       )
-        info.push(
+        memberInfo.push(
           `**${command.language.get("CREATED_GUILD")}** ${Formatters.time(
             member.joinedAt,
             "R"
           )}`
         );
       else
-        info.push(
+        memberInfo.push(
           `**${command.language.get("JOINED")}** ${Formatters.time(
             member.joinedAt,
             "R"
           )}`
         );
-      if (
-        command.guild &&
-        command.guild.members.cache.size / command.guild.memberCount > 0.98
-      ) {
+
+      // we'll temporarily fetch members for guilds with less than 100k members
+      // so that we can display the join position
+
+      // but bypass this for superusers because lol
+      // im sure panley will have fun with that if she
+      // ever figures it out...
+      if (guild.memberCount <= 100_000 || command.author.isSuperuser())
+        await guild.members.fetch();
+
+      if (guild && guild.members.cache.size / guild.memberCount > 0.98) {
         const joinPos =
-          command.guild.members.cache
+          guild.members.cache
             .sorted(
               (memberA, memberB) =>
                 memberA.joinedTimestamp - memberB.joinedTimestamp
             )
             .toJSON()
             .indexOf(member) + 1;
-        info.push(
+        memberInfo.push(
           `**${command.language.get(
             "JOIN_POSITION"
           )}:** ${joinPos.toLocaleString(command.language.id)}`
         );
       }
+
+      // and now, we get rid of them, first from user cache
+      this.client.users.cache.sweep(
+        (u: FireUser) =>
+          // we only want to sweep from the members
+          // we just cached
+          guild.members.cache.has(u.id) &&
+          // but we want to keep the usual exclusions
+          u.id != user.id &&
+          u.id != this.client.user.id &&
+          !this.client.isRunningCommand(u)
+      );
+      // and then from member cache where we can
+      // get rid of every single one
+      guild.members.cache.sweep(() => true);
+
       if (member && member.nickname && member.nickname != member.user.username)
-        info.push(
+        memberInfo.push(
           `**${command.language.get("NICKNAME")}:** ${member.nickname}`
         );
+
+      if (
+        guild.members.me.permissions.has(PermissionFlagsBits.ManageGuild) &&
+        member.permissions.has(PermissionFlagsBits.ManageGuild)
+      ) {
+        const membersSearchResult = (await this.client.req
+          .guilds(command.guildId, "members-search")
+          .post({
+            data: {
+              and_query: {
+                user_id: {
+                  or_query: [member.id],
+                },
+              },
+              limit: 1,
+            },
+          })
+          .catch(() => {})) as MembersSearchResult;
+
+        const memberSearchData = membersSearchResult?.members?.find(
+          (m) => m.member.user.id == member.id
+        );
+        if (memberSearchData) {
+          const joinMethod = memberSearchData.join_source_type,
+            inviteCode = memberSearchData.source_invite_code,
+            inviterId = memberSearchData.inviter_id;
+
+          if (
+            joinMethod == JoinSourceType.INVITE ||
+            joinMethod == JoinSourceType.VANITY_URL
+          )
+            memberInfo.push(
+              `**${command.language.get(
+                "JOIN_METHOD"
+              )}:** ${command.language.get(`JOIN_METHODS.INVITE_LINK`, {
+                emoji: this.client.util.useEmoji("INVITE_LINK"),
+                invite: inviteCode,
+              })}`
+            );
+          else if (joinMethod == JoinSourceType.DISCOVERY)
+            memberInfo.push(
+              `**${command.language.get(
+                "JOIN_METHOD"
+              )}:** ${command.language.get(`JOIN_METHODS.DISCOVERY`, {
+                emoji: this.client.util.useEmoji("SERVER_DISCOVERY"),
+              })}`
+            );
+          else if (joinMethod == JoinSourceType.BOT)
+            memberInfo.push(
+              `**${command.language.get(
+                "JOIN_METHOD"
+              )}:** ${command.language.get(`JOIN_METHODS.BOT`, {
+                emoji: this.client.util.useEmoji("BOT_INVITE"),
+              })}`
+            );
+
+          if (inviterId) {
+            const inviter = await this.client.users
+              .fetch(inviterId)
+              .catch(() => {});
+            if (inviter)
+              memberInfo.push(
+                `**${command.language.get(
+                  "INVITED_BY"
+                )}:** ${inviter.toString()}`
+              );
+            else
+              memberInfo.push(
+                `**${command.language.get("INVITED_BY")}:** ${inviterId}`
+              );
+          }
+        }
+      }
     }
-    return info;
+    return [userInfo, memberInfo];
   }
 
   async getApplication(id: string) {
