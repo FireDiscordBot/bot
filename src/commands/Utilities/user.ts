@@ -492,8 +492,8 @@ export default class User extends Command {
           !this.client.isRunningCommand(u)
       );
       // and then from member cache where we can
-      // get rid of every single one
-      guild.members.cache.sweep(() => true);
+      // get rid of every single one except Fire
+      guild.members.cache.sweep((m) => m.id != this.client.user.id);
 
       if (member && member.nickname && member.nickname != member.user.username)
         memberInfo.push(
@@ -692,7 +692,9 @@ export default class User extends Command {
             })
           );
       } else if (channel instanceof ThreadChannel) {
-        const members = await channel.members.fetch(false).catch(() => {});
+        const members = await channel.members
+          .fetch({ cache: false })
+          .catch(() => {});
         info.push(
           members && members.has(command.author.id)
             ? command.language.get("USER_SNOWFLAKE_BELONGS_TO_EXTRA", {
