@@ -382,6 +382,19 @@ export default class User extends Command {
               }.png`,
         })
       : embed.setFooter({ text: user.id });
+
+    if (command.author.hasExperiment(3422641027, 1)) {
+      if (!user.banner) await user.fetch();
+      if (user.banner)
+        embed.setImage(
+          user.bannerURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          })
+        );
+    }
+
     return await command.channel.send({ embeds: [embed], components });
   }
 
