@@ -573,6 +573,7 @@ export class FireMessage extends Message {
     let hook: Webhook | WebhookClient = webhook;
     const filters = this.client.getModule("filters") as Filters;
     const destinationGuild = destination.guild as FireGuild;
+    const foreignDestination = destinationGuild.id != this.guildId;
     if (destinationGuild && !destinationGuild?.quoteHooks)
       destinationGuild.quoteHooks = new Collection();
     if (!destinationGuild?.quoteHooks.has(destination.id)) {
@@ -622,6 +623,9 @@ export class FireMessage extends Message {
     }
     destinationGuild?.quoteHooks.set(destination.id, hook);
     let content = this.system ? await this.getSystemContent() : this.content;
+    const embeds = [...this.embeds].filter(
+      (embed) => !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
+    );
     if (content) {
       if (!quoter?.isSuperuser() && !this.system) {
         content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
@@ -631,16 +635,137 @@ export class FireMessage extends Message {
       }
       for (const [, user] of this.mentions.users)
         content = content.replace((user as FireUser).toMention(), `@${user}`);
-      for (const [, role] of this.mentions.roles)
-        content = content.replace(
-          role.toString(),
-          `@${role.name ?? "Unknown Role"}`
-        );
+      if (foreignDestination) {
+        for (const [, role] of this.mentions.roles)
+          content = content.replace(
+            role.toString(),
+            `@${role.name ?? "Unknown Role"}`
+          );
+      }
       for (const [, channel] of this.mentions.channels)
         if (channel instanceof GuildChannel)
-          content = content.replace(channel.toString(), `#${channel.name}`);
+          if (
+            foreignDestination &&
+            quoter instanceof FireMember &&
+            quoter.permissionsIn(channel).has(PermissionFlagsBits.ViewChannel)
+          )
+            content = content.replace(channel.toString(), `#${channel.name}`);
+          else if (
+            quoter instanceof FireMember &&
+            !quoter.permissionsIn(channel).has(PermissionFlagsBits.ViewChannel)
+          )
+            content = content.replace(
+              channel.toString(),
+              (destination.guild as FireGuild).language.get(
+                "QUOTE_CHANNEL_NO_ACCESS"
+              )
+            );
+
       if (content.length > 2000) return "QUOTE_PREMIUM_INCREASED_LENGTH";
     }
+    if (embeds.length)
+      for (const embed of embeds) {
+        // Replace user mentions
+        const userMentions = [];
+        if (embed.description)
+          userMentions.push(
+            ...embed.description
+              .matchAll(regexes.discord.userMention)
+              .map((match) => match[1])
+          );
+        if (embed.fields.length)
+          embed.fields.forEach((field) => {
+            if (field.value)
+              userMentions.push(
+                ...field.value.matchAll(regexes.discord.userMention)
+              );
+          });
+
+        const members = await this.guild.members
+          .fetch({
+            user: userMentions,
+          })
+          .catch(() => {});
+        if (members && members.size) {
+          if (embed.description)
+            embed.setDescription(
+              embed.description.replaceAll(
+                regexes.discord.userMention,
+                (full, id) => {
+                  const member = members.get(id);
+                  return member ? `@${member}` : full;
+                }
+              )
+            );
+          if (embed.fields.length)
+            embed.setFields(
+              embed.fields.map((field) => {
+                field.value = field.value.replaceAll(
+                  regexes.discord.userMention,
+                  (full, id) => {
+                    const member = members.get(id);
+                    return member ? `@${member}` : full;
+                  }
+                );
+                return field;
+              })
+            );
+        }
+
+        // We don't need to replace the rest
+        // if we're in the same guild as the message
+        if (!foreignDestination) continue;
+
+        // Replace role mentions
+        if (embed.description)
+          embed.setDescription(
+            embed.description.replaceAll(
+              regexes.discord.roleMention,
+              (full, id) => {
+                const role = this.guild.roles.cache.get(id);
+                return role ? `@${role.name}` : full;
+              }
+            )
+          );
+        if (embed.fields.length)
+          embed.setFields(
+            embed.fields.map((field) => {
+              field.value = field.value.replaceAll(
+                regexes.discord.roleMention,
+                (full, id) => {
+                  const role = this.guild.roles.cache.get(id);
+                  return role ? `@${role.name}` : full;
+                }
+              );
+              return field;
+            })
+          );
+
+        // Replace channel mentions
+        if (embed.description)
+          embed.setDescription(
+            embed.description.replaceAll(
+              regexes.discord.channelMention,
+              (full, id) => {
+                const channel = this.guild.channels.cache.get(id);
+                return channel ? `#${channel.name}` : full;
+              }
+            )
+          );
+        if (embed.fields.length)
+          embed.setFields(
+            embed.fields.map((field) => {
+              field.value = field.value.replaceAll(
+                regexes.discord.channelMention,
+                (full, id) => {
+                  const channel = this.guild.channels.cache.get(id);
+                  return channel ? `#${channel.name}` : full;
+                }
+              );
+              return field;
+            })
+          );
+      }
     let attachments: {
       attachment: Buffer;
       name: string;
@@ -782,12 +907,7 @@ export class FireMessage extends Message {
               size: 2048,
               format: "png",
             }),
-        embeds: isAutomod
-          ? automodEmbeds
-          : this.embeds.filter(
-              (embed) =>
-                !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
-            ),
+        embeds: isAutomod ? automodEmbeds : embeds,
         files: attachments.map((data) =>
           new MessageAttachment(data.attachment, data.name).setDescription(
             data.description

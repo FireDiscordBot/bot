@@ -197,6 +197,9 @@ export const constants = {
     invwtf: /inv\.wtf\/(?<code>[\w-]{2,25})/gim,
     discord: {
       snowflake: /\d{15,21}/g,
+      userMention: /<@!?(\d{15,21})>/gim,
+      roleMention: /<@&(\d{15,21})>/gim,
+      channelMention: /<#(\d{15,21})>/gim,
       invite:
         /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/gim,
       invitePartial: /invites?\/(?:[\w-]{1,25})/gim,

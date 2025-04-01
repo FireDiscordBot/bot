@@ -1175,6 +1175,7 @@
   "QUOTE_NO_CONTENT_TO_SAVE": "This message cannot be saved as it does not have anything to be quoted. A message must have text, embeds, attachments or components (buttons & dropdowns) to be saved & quoted",
   "QUOTE_SAVE_BUTTON_LABEL": "Saved Message",
   "QUOTE_SAVED_SUCCESS": "Message saved successfully! You can now send the message link in any channel Fire can see to quote it",
+  "QUOTE_CHANNEL_NO_ACCESS": "#private-channel",
   "QUOTE_PREMIUM_INCREASED_LENGTH": "This message is using the new 4,000 character limit for nitro users or has been altered due to filters and is now greater than 2,000 characters. Because of this, I am unable to quote it.",
   "QUOTE_NSFW_TO_SFW": "You cannot quote messages from an NSFW channel here!",
   "QUOTE_MISSING_CONTENT": "This message does not have any content I can quote. A message must have text, embeds, attachments or components (buttons & dropdowns) to be quoted",
