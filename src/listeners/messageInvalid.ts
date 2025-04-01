@@ -6,6 +6,7 @@ import {
 } from "@fire/lib/interfaces/messages";
 import { GuildTextChannel, constants } from "@fire/lib/util/constants";
 import { messageConverter } from "@fire/lib/util/converters";
+import { MessageIterator } from "@fire/lib/util/iterators";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -141,9 +142,8 @@ export default class MessageInvalid extends Listener {
     const quoteCommand = this.client.getCommand("quote") as Quote;
 
     if (
-      (quoteCommand.isDisabled(message.guild) &&
-        !message.author?.isSuperuser()) ||
-      (process.env.NODE_ENV != "production" && message.guild)
+      quoteCommand.isDisabled(message.guild) &&
+      !message.author?.isSuperuser()
     ) {
       this.cleanCommandUtil(message);
       return;
@@ -151,9 +151,7 @@ export default class MessageInvalid extends Listener {
 
     let matches: MessageLinkMatch[] = [];
     let messageLink: RegExpExecArray;
-    while (
-      (messageLink = regexes.discord.messageGlobal.exec(message.content))
-    ) {
+    while ((messageLink = regexes.discord.quoteMessage.exec(message.content))) {
       if (
         messageLink &&
         !messageLink[0].startsWith("<") &&
@@ -161,6 +159,13 @@ export default class MessageInvalid extends Listener {
       )
         matches.push(messageLink.groups as unknown as MessageLinkMatch);
     }
+
+    matches = matches.filter((match) => {
+      if (process.env.NODE_ENV == "development") return match.channel == "dev.";
+      else if (process.env.NODE_ENV == "staging")
+        return match.channel == "beta.";
+      return match.channel != "dev." && match.channel != "beta.";
+    });
 
     if (!matches.length) {
       this.cleanCommandUtil(message);
@@ -200,10 +205,14 @@ export default class MessageInvalid extends Listener {
 
     const shards = this.client.options.shards as number[];
 
-    for (const quote of matches) {
+    const crossClusterQuotes = matches.filter((quote) => {
       const shard = this.client.util.getShard(quote.guild_id);
-      if (!shards.includes(shard)) {
-        if (!this.client.manager.ws?.open) continue;
+      return !shards.includes(shard);
+    });
+
+    if (this.client.manager.ws?.open) {
+      for (const quote of crossClusterQuotes) {
+        const shard = this.client.util.getShard(quote.guild_id);
         const webhookURL = await this.client.util.getQuoteWebhookURL(
           message.channel as GuildTextChannel
         );
@@ -233,46 +242,110 @@ export default class MessageInvalid extends Listener {
             })
           )
         );
-      } else {
-        const convertedMessage = await messageConverter(
+      }
+    }
+
+    const localQuotes = matches.filter((quote) => {
+      const shard = this.client.util.getShard(quote.guild_id);
+      return shards.includes(shard);
+    });
+
+    const iterableQuotes = localQuotes.filter(
+      (quote) =>
+        !!quote.end_message_id &&
+        quote.guild_id == quote.end_guild_id &&
+        quote.channel_id == quote.end_channel_id
+    );
+    for (const quote of iterableQuotes) {
+      let limit = 5;
+      if (message.author.premium) limit = 10;
+      if (message.author.isSuperuser()) limit = 50;
+
+      const source = this.client.channels.cache.get(quote.channel_id);
+      if (!source || !("messages" in source)) continue;
+
+      const iterator = new MessageIterator(source, {
+        limit,
+        after: quote.message_id,
+        before: (BigInt(quote.end_message_id) + 1n).toString(),
+      });
+      const messages = await iterator.flatten().catch(() => []);
+      if (messages.length && messages.at(-1)?.id == quote.end_message_id)
+        quote.iteratedMessages = messages;
+    }
+
+    for (const quote of localQuotes) {
+      const convertedMessage = await messageConverter(
+        message,
+        null,
+        quote.channel != "debug.", // will return converter error msgs if using debug.discord.com
+        quote
+      ).catch(() => {});
+      // TODO: maybe return the caught error and add an else here?
+      if (convertedMessage) {
+        const args = {
+          quote: convertedMessage as FireMessage,
+          debug: quote.channel == "debug.",
+        };
+        this.client.commandHandler.emit(
+          CommandHandlerEvents.COMMAND_STARTED,
           message,
-          null,
-          quote.channel != "debug.", // will return converter error msgs if using debug.discord.com
-          quote
-        ).catch(() => {});
-        // TODO: maybe return the caught error and add an else here?
-        if (convertedMessage) {
-          const args = {
-            quote: convertedMessage as FireMessage,
-            debug: quote.channel == "debug.",
-          };
-          this.client.commandHandler.emit(
-            CommandHandlerEvents.COMMAND_STARTED,
-            message,
-            quoteCommand,
-            args
-          );
-          await quoteCommand
-            .exec(message, args)
-            .then((ret) => {
-              this.client.commandHandler.emit(
-                CommandHandlerEvents.COMMAND_FINISHED,
-                message,
-                quoteCommand,
-                args,
-                ret
-              );
-            })
-            .catch((err) => {
-              this.client.commandHandler.emit(
-                "commandError",
-                message,
-                quoteCommand,
-                args,
-                err
-              );
-            });
-          await this.client.util.sleep(500);
+          quoteCommand,
+          args
+        );
+        await quoteCommand
+          .exec(message, args)
+          .then((ret) => {
+            this.client.commandHandler.emit(
+              CommandHandlerEvents.COMMAND_FINISHED,
+              message,
+              quoteCommand,
+              args,
+              ret
+            );
+          })
+          .catch((err) => {
+            this.client.commandHandler.emit(
+              "commandError",
+              message,
+              quoteCommand,
+              args,
+              err
+            );
+          });
+        if (quote.iteratedMessages) {
+          for (const iterated of quote.iteratedMessages) {
+            const args = {
+              quote: iterated,
+              debug: quote.channel == "debug.",
+            };
+            this.client.commandHandler.emit(
+              CommandHandlerEvents.COMMAND_STARTED,
+              message,
+              quoteCommand,
+              args
+            );
+            await quoteCommand
+              .exec(message, args)
+              .then((ret) => {
+                this.client.commandHandler.emit(
+                  CommandHandlerEvents.COMMAND_FINISHED,
+                  message,
+                  quoteCommand,
+                  args,
+                  ret
+                );
+              })
+              .catch((err) => {
+                this.client.commandHandler.emit(
+                  "commandError",
+                  message,
+                  quoteCommand,
+                  args,
+                  err
+                );
+              });
+          }
         }
       }
     }

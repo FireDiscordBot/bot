@@ -356,7 +356,7 @@ export const messageConverter = async (
   argument: string,
   silent = false,
   groups: { guild_id: string; message_id: string; channel_id: string } = null
-): Promise<FireMessage | "cross_cluster" | null> => {
+): Promise<FireMessage | null> => {
   let linkMatch: RegExpExecArray, idMatch: RegExpMatchArray;
   if (argument) {
     linkMatch = getMessageLinkMatch(argument);
@@ -388,7 +388,7 @@ export const messageConverter = async (
     ) &&
     message.util?.parsed?.command?.id == "quote"
   )
-    return "cross_cluster";
+    return null;
 
   let messageId: Snowflake, channelId: Snowflake;
   if (linkMatch || groups?.message_id) {

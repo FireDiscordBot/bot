@@ -3,19 +3,12 @@ import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageContextMenuInteraction } from "@fire/lib/extensions/messagecontextmenuinteraction";
-import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
-import {
-  MessageLinkMatch,
-  PartialQuoteDestination,
-} from "@fire/lib/interfaces/messages";
+import { PartialQuoteDestination } from "@fire/lib/interfaces/messages";
 import { Command } from "@fire/lib/util/command";
 import { GuildTextChannel, constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
-import { Message } from "@fire/lib/ws/Message";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -51,7 +44,7 @@ export default class Quote extends Command {
           default: false,
         },
       ],
-      context: ["save to quote", "save to quote (preview)"],
+      context: ["save to quote"],
       restrictTo: "all", // required for context cmd
       ephemeral: true, // context only
     });
@@ -69,7 +62,7 @@ export default class Quote extends Command {
     args?: {
       destination?: PartialQuoteDestination;
       quoter?: FireMember | FireUser;
-      quote: FireMessage | "cross_cluster";
+      quote?: FireMessage;
       webhook?: string;
       debug?: boolean;
     }
@@ -85,68 +78,6 @@ export default class Quote extends Command {
     if (!args?.quote) return;
     let debugMessages: string[];
     if (args.debug) debugMessages = [];
-    if (args.quote == "cross_cluster") {
-      let matches: MessageLinkMatch[] = [];
-      let messageLink: RegExpExecArray;
-      while (
-        (messageLink = regexes.discord.messageGlobal.exec(message.content))
-      ) {
-        if (
-          messageLink &&
-          !messageLink[0].startsWith("<") &&
-          !messageLink[0].endsWith(">")
-        )
-          matches.push(messageLink.groups as unknown as MessageLinkMatch);
-      }
-
-      if (!matches.length) return;
-
-      const messageIds = matches.map((match) => match.message_id);
-      matches = matches.filter(
-        (match, pos) => messageIds.indexOf(match.message_id) == pos
-      ); // remove dupes
-
-      const shards = this.client.options.shards as number[];
-
-      for (const quote of matches) {
-        const shard = this.client.util.getShard(quote.guild_id);
-        if (!shards.includes(shard)) {
-          if (!this.client.manager.ws?.open) continue;
-          const webhookURL = await this.client.util
-            .getQuoteWebhookURL(message.channel as GuildTextChannel)
-            .catch(() => {});
-          if (!webhookURL || typeof webhookURL != "string") continue;
-          if (
-            message.guild &&
-            message.author?.id &&
-            !message.member &&
-            !message.webhookId
-          )
-            // ensure member is cached so message.member.permissions works
-            await message.guild.members.fetch(message.author).catch(() => {});
-          this.client.manager.ws.send(
-            MessageUtil.encode(
-              new Message(EventType.CROSS_CLUSTER_QUOTE, {
-                shard,
-                quoter: message.author.id,
-                webhook: webhookURL,
-                message: quote,
-                destination: {
-                  nsfw: (message.channel as FireTextChannel)?.nsfw || false,
-                  permissions: message.guild
-                    ? message.member.permissions.bitfield.toString()
-                    : "0",
-                  guild_id: message.guild?.id,
-                  id: message.channelId,
-                } as PartialQuoteDestination,
-                debug: args.debug,
-              })
-            )
-          );
-        }
-      }
-      return;
-    }
     let webhook: ThreadhookClient;
     if (args.webhook) {
       const match = regexes.discord.webhook.exec(args.webhook);

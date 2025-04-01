@@ -208,9 +208,9 @@ export const constants = {
       cdnAttachment:
         /^https?:\/\/cdn\.discordapp\.com\/attachments\/\d{15,21}\/\d{15,21}\/\w*\.\w{3,4}\?ex=(?<ex>[0-9a-fA-F]{8,12})&is=(?<is>\d{8,12})&hm=(?<hm>[0-9a-f]{64})&?/im,
       message:
-        /(?:debug\.|ptb\.|canary\.|staging\.|lc\.|dscrd\.)?(?:discord(?:app)?|inv)\.(?:com?|wtf)?\/channels\/(?<guild_id>\d{15,21}|@me)\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
-      messageGlobal:
-        /<?(?<channel>debug\.|ptb\.|canary\.|staging\.|lc\.|dscrd\.)?(?:discord(?:app)?|inv)\.(?:com?|wtf)?\/channels\/(?<guild_id>\d{15,21}|@me)\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})>?/gim,
+        /(?:ptb\.|canary\.|staging\.|lc\.|dscrd\.)?(?:discord(?:app)?|inv)\.(?:com?|wtf)?\/channels\/(?<guild_id>\d{15,21}|@me)\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})/im,
+      quoteMessage:
+        /<?(?<channel>debug\.|dev\.|beta\.|ptb\.|canary\.|staging\.|lc\.|dscrd\.)?(?:discord(?:app)?|inv)\.(?:com?|wtf)?\/channels\/(?<guild_id>\d{15,21}|@me)\/(?<channel_id>\d{15,21})\/(?<message_id>\d{15,21})-?(?:https?:\/\/(?:debug\.|dev\.|beta\.|ptb\.|canary\.|staging\.|lc\.|dscrd\.)?(?:discord(?:app)?|inv)\.(?:com?|wtf)?\/channels\/(?<end_guild_id>\d{15,21}|@me)\/(?<end_channel_id>\d{15,21})\/(?<end_message_id>\d{15,21}))/gim,
       webhook:
         /discord(?:app)?\.com\/api\/(?:v\d{1,2}\/)?webhooks\/(?<id>\d{15,21})\/(?<token>[\w-]{50,80})(?<thread>\?thread_id=(?<threadId>\d{15,21}))?/im,
       webhookPartial: /(webhooks|interactions)\/:id\/(?<token>[\w-]{0,250})/im,
