@@ -493,11 +493,11 @@ export class FireMessage extends Message {
       !this.guild.features?.includes("DISCOVERABLE") ||
       (this.guild.features?.includes("DISCOVERABLE") && !isLurkable)
     ) {
-      if (this.guild.id != destination?.guild?.id) {
+      if (this.guild.id != destination?.guild?.id)
         member = (await this.guild.members
           .fetch({ user: quoter, cache: false })
           .catch(() => undefined)) as FireMember;
-      } else if (quoter instanceof FireMember) member = quoter;
+      if (quoter instanceof FireMember) member = quoter;
     }
 
     if (debug && member)
@@ -643,23 +643,28 @@ export class FireMessage extends Message {
           );
       }
       for (const [, channel] of this.mentions.channels)
-        if (channel instanceof GuildChannel)
-          if (
-            foreignDestination &&
-            quoter instanceof FireMember &&
-            quoter.permissionsIn(channel).has(PermissionFlagsBits.ViewChannel)
-          )
+        if (channel instanceof GuildChannel) {
+          const VIEW_CHANNEL = PermissionFlagsBits.ViewChannel;
+          const canView =
+            quoter instanceof FireMember
+              ? quoter.permissionsIn(channel).has(VIEW_CHANNEL)
+              : "permissions" in destination
+              ? (BigInt((destination as PartialQuoteDestination).permissions) &
+                  VIEW_CHANNEL) ==
+                VIEW_CHANNEL
+              : this.guild?.roles.everyone
+                  .permissionsIn(channel)
+                  .has(VIEW_CHANNEL);
+          if (foreignDestination && canView)
             content = content.replace(channel.toString(), `#${channel.name}`);
-          else if (
-            quoter instanceof FireMember &&
-            !quoter.permissionsIn(channel).has(PermissionFlagsBits.ViewChannel)
-          )
+          else if (!canView)
             content = content.replace(
               channel.toString(),
               (destination.guild as FireGuild).language.get(
                 "QUOTE_CHANNEL_NO_ACCESS"
               )
             );
+        }
 
       if (content.length > 2000) return "QUOTE_PREMIUM_INCREASED_LENGTH";
     }
@@ -681,7 +686,7 @@ export class FireMessage extends Message {
               );
           });
 
-        const members = await this.guild.members
+        const members = await this.guild?.members
           .fetch({
             user: userMentions,
           })
@@ -722,7 +727,7 @@ export class FireMessage extends Message {
             embed.description.replaceAll(
               regexes.discord.roleMention,
               (full, id) => {
-                const role = this.guild.roles.cache.get(id);
+                const role = this.guild?.roles.cache.get(id);
                 return role ? `@${role.name}` : full;
               }
             )
@@ -733,7 +738,7 @@ export class FireMessage extends Message {
               field.value = field.value.replaceAll(
                 regexes.discord.roleMention,
                 (full, id) => {
-                  const role = this.guild.roles.cache.get(id);
+                  const role = this.guild?.roles.cache.get(id);
                   return role ? `@${role.name}` : full;
                 }
               );
@@ -747,7 +752,7 @@ export class FireMessage extends Message {
             embed.description.replaceAll(
               regexes.discord.channelMention,
               (full, id) => {
-                const channel = this.guild.channels.cache.get(id);
+                const channel = this.guild?.channels.cache.get(id);
                 return channel ? `#${channel.name}` : full;
               }
             )
@@ -758,7 +763,7 @@ export class FireMessage extends Message {
               field.value = field.value.replaceAll(
                 regexes.discord.channelMention,
                 (full, id) => {
-                  const channel = this.guild.channels.cache.get(id);
+                  const channel = this.guild?.channels.cache.get(id);
                   return channel ? `#${channel.name}` : full;
                 }
               );
