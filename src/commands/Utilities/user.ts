@@ -181,7 +181,6 @@ export default class User extends Command {
     const components: MessageActionRow[] = [];
     const embed = new MessageEmbed()
       .setColor(color)
-      .setTimestamp()
       .setAuthor({
         name: user.toString(),
         iconURL: user.displayAvatarURL({
