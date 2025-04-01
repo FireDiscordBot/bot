@@ -10,7 +10,7 @@ import * as fuzz from "fuzzball";
 
 const slashCommandNameRegex =
     /^[-_\p{L}\p{N}\p{Script=Devanagari}\p{Script=Thai}]{1,32}$/gmu,
-  embedRegex = /\{embed:(?<id>[A-Za-z0-9-]{21})\}/gim;
+  embedRegex = /\{embed:(?<id>[\w-]{21})\}/gim;
 
 export interface Tag {
   createdBy: Snowflake | FireUser | FireMember;

@@ -5,8 +5,6 @@ import { Language } from "@fire/lib/util/language";
 import { CommandInteractionOption } from "discord.js";
 import Embed from "../Utilities/embed";
 
-const embedRegex = /\{embed:(?<id>[A-Za-z0-9-]{21})\}/gim;
-
 export default class TagView extends Command {
   embed: Embed;
 
