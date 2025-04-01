@@ -573,7 +573,16 @@ export class FireMessage extends Message {
     let hook: Webhook | WebhookClient = webhook;
     const filters = this.client.getModule("filters") as Filters;
     const destinationGuild = destination.guild as FireGuild;
-    const foreignDestination = destinationGuild.id != this.guildId;
+    // todo: check if we can just fetch and use that?
+    // will be a bit fucky but should work
+    // const destinationGuild =
+    //   "guild_id" in destination
+    //     ? ((await this.client.guilds.fetch(destination.guild_id)) as FireGuild)
+    //     : (destination.guild as FireGuild);
+    const foreignDestination =
+      ("guild_id" in destination
+        ? destination.guild_id
+        : destinationGuild.id) != this.guildId;
     if (destinationGuild && !destinationGuild?.quoteHooks)
       destinationGuild.quoteHooks = new Collection();
     if (!destinationGuild?.quoteHooks.has(destination.id)) {
