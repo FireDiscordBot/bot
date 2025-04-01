@@ -157,6 +157,7 @@
   "UPDATED_BY": "Updated By",
   "DELETED_BY": "Deleted By",
   "ADDED_TAGS": "Added Tags",
+  "JOIN_ORDER": "Join Order",
   "JOIN_METHOD": "Join Method",
   "CREATED_TAG": "Created Tag",
   "NO_SLOWMODE": "No Slowmode",
@@ -309,8 +310,11 @@
   },
   "JOIN_METHODS": {
     "INVITE_LINK": "{{emoji}} `{{invite}}`",
-    "DISCOVERY": "{{emoji}} Server Discovery",
-    "BOT": "{{emoji}} Bot Invite"
+    "DISCOVERY": "{{emoji}} `Server Discovery`",
+    "BOT": "{{emoji}} `Bot Invite`",
+    "MANUAL_VERIFICATION": "{{emoji}} `Manual Verification ({{invite}})`",
+    "INTEGRATION": "{{emoji}} `Integration`",
+    "HUB": "{{emoji}} `Student Hub`"
   },
   "DM_FAIL": "Unable to DM user, they may have DMs off or blocked me",
   "ANTI_COMMAND_DESCRIPTION": "Remove messages containing certain content e.g. @everyone or zero width spaces",

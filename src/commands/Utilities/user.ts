@@ -60,6 +60,11 @@ enum JoinSourceType {
   MANUAL_MEMBER_VERIFICATION,
 }
 
+const integrationEmojis = {
+  twitch: "icons_TWITCH",
+  youtube: "icons_YOUTUBE",
+};
+
 interface MembersSearchResult {
   guild_id: Snowflake;
   members: [
@@ -465,19 +470,42 @@ export default class User extends Command {
       if (guild.memberCount <= 50_000) await guild.members.fetch();
 
       if (guild && guild.members.cache.size / guild.memberCount > 0.98) {
-        const joinPos =
-          guild.members.cache
-            .sorted(
-              (memberA, memberB) =>
-                memberA.joinedTimestamp - memberB.joinedTimestamp
-            )
-            .toJSON()
-            .indexOf(member) + 1;
+        const sorted = guild.members.cache
+          .sorted(
+            (memberA, memberB) =>
+              memberA.joinedTimestamp - memberB.joinedTimestamp
+          )
+          .toJSON();
+        const joinPos = sorted.indexOf(member) + 1;
         memberInfo.push(
           `**${command.language.get(
             "JOIN_POSITION"
           )}:** ${joinPos.toLocaleString(command.language.id)}`
         );
+        if (joinPos > 1 && guild.memberCount > 2 && joinPos < guild.memberCount)
+          memberInfo.push(
+            `**${command.language.get("JOIN_ORDER")}:** ${
+              sorted[joinPos - 2]
+            } -> **${member}** -> ${sorted[joinPos]}`
+          );
+        else if (joinPos > 1 && guild.memberCount > 2)
+          memberInfo.push(
+            `**${command.language.get("JOIN_ORDER")}:** ${
+              sorted[joinPos - 2]
+            } -> **${member}**`
+          );
+        else if (guild.memberCount > 2)
+          memberInfo.push(
+            `**${command.language.get("JOIN_ORDER")}:** **${member}** -> ${
+              sorted[joinPos]
+            }`
+          );
+        else if (joinPos < guild.memberCount)
+          memberInfo.push(
+            `**${command.language.get("JOIN_ORDER")}:** ${
+              sorted[joinPos - 2]
+            } -> **${member}**`
+          );
       }
 
       // and now, we get rid of them, first from user cache
@@ -526,7 +554,39 @@ export default class User extends Command {
             inviteCode = memberSearchData.source_invite_code,
             inviterId = memberSearchData.inviter_id;
 
-          if (
+          if (joinMethod == JoinSourceType.BOT)
+            memberInfo.push(
+              `**${command.language.get(
+                "JOIN_METHOD"
+              )}:** ${command.language.get(`JOIN_METHODS.BOT`, {
+                emoji: this.client.util.useEmoji("BOT_INVITE"),
+              })}`
+            );
+          else if (joinMethod == JoinSourceType.INTEGRATION)
+            memberInfo.push(
+              `**${command.language.get(
+                "JOIN_METHOD"
+              )}:** ${command.language.get(`JOIN_METHODS.INTEGRATION`, {
+                emoji: this.client.util.useEmoji("INTEGRATION"),
+              })}`
+            );
+          else if (joinMethod == JoinSourceType.DISCOVERY)
+            memberInfo.push(
+              `**${command.language.get(
+                "JOIN_METHOD"
+              )}:** ${command.language.get(`JOIN_METHODS.DISCOVERY`, {
+                emoji: this.client.util.useEmoji("SERVER_DISCOVERY"),
+              })}`
+            );
+          else if (joinMethod == JoinSourceType.HUB)
+            memberInfo.push(
+              `**${command.language.get(
+                "JOIN_METHOD"
+              )}:** ${command.language.get(`JOIN_METHODS.HUB`, {
+                emoji: this.client.util.useEmoji("STUDENT_HUB"),
+              })}`
+            );
+          else if (
             joinMethod == JoinSourceType.INVITE ||
             joinMethod == JoinSourceType.VANITY_URL
           )
@@ -538,24 +598,17 @@ export default class User extends Command {
                 invite: inviteCode,
               })}`
             );
-          else if (joinMethod == JoinSourceType.DISCOVERY)
+          else if (joinMethod == JoinSourceType.MANUAL_MEMBER_VERIFICATION)
             memberInfo.push(
               `**${command.language.get(
                 "JOIN_METHOD"
-              )}:** ${command.language.get(`JOIN_METHODS.DISCOVERY`, {
-                emoji: this.client.util.useEmoji("SERVER_DISCOVERY"),
-              })}`
-            );
-          else if (joinMethod == JoinSourceType.BOT)
-            memberInfo.push(
-              `**${command.language.get(
-                "JOIN_METHOD"
-              )}:** ${command.language.get(`JOIN_METHODS.BOT`, {
-                emoji: this.client.util.useEmoji("BOT_INVITE"),
+              )}:** ${command.language.get(`JOIN_METHODS.MANUAL_VERIFICATION`, {
+                emoji: this.client.util.useEmoji("MANUAL_VERIFICATION"),
+                invite: inviteCode,
               })}`
             );
 
-          if (inviterId) {
+          if (inviterId && joinMethod != JoinSourceType.INTEGRATION) {
             const inviter = await this.client.users
               .fetch(inviterId)
               .catch(() => {});
@@ -563,12 +616,22 @@ export default class User extends Command {
               memberInfo.push(
                 `**${command.language.get(
                   "INVITED_BY"
-                )}:** ${inviter.toString()}`
+                )}:** ${inviter.toString()} (${inviterId})`
               );
-            else
+          } else if (inviterId) {
+            const integrations = await guild.fetchIntegrations();
+            if (integrations.has(inviterId)) {
+              const inviter = integrations.get(inviterId);
               memberInfo.push(
-                `**${command.language.get("INVITED_BY")}:** ${inviterId}`
+                `**${command.language.get("INVITED_BY")}:**${
+                  integrationEmojis[inviter.type]
+                    ? ` ${this.client.util.useEmoji(
+                        integrationEmojis[inviter.type]
+                      )}`
+                    : ""
+                } ${inviter.name} (${inviterId})`
               );
+            }
           }
         }
       }
