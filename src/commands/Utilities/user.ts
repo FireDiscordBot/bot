@@ -629,7 +629,7 @@ export default class User extends Command {
                         integrationEmojis[inviter.type]
                       )}`
                     : ""
-                } ${inviter.name} (${inviterId})`
+                } ${inviter.name}`
               );
             }
           }
