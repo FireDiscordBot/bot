@@ -489,7 +489,7 @@ export class FireMessage extends Message {
     let member: FireMember;
     if (this.guild.id == destination?.guild?.id && quoter instanceof FireMember)
       member = quoter;
-    if (
+    else if (
       !this.guild.features?.includes("DISCOVERABLE") ||
       (this.guild.features?.includes("DISCOVERABLE") && !isLurkable)
     ) {
@@ -497,7 +497,7 @@ export class FireMessage extends Message {
         member = (await this.guild.members
           .fetch({ user: quoter, cache: false })
           .catch(() => undefined)) as FireMember;
-      if (quoter instanceof FireMember) member = quoter;
+      else if (quoter instanceof FireMember) member = quoter;
     }
 
     if (debug && member)
