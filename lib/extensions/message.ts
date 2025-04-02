@@ -685,7 +685,7 @@ export class FireMessage extends Message {
           userMentions.push(
             ...embed.description
               .matchAll(regexes.discord.userMention)
-              .map((match) => match[1])
+              ?.map((match) => match[1])
           );
         if (embed.fields.length)
           embed.fields.forEach((field) => {
