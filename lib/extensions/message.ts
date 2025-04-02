@@ -682,11 +682,13 @@ export class FireMessage extends Message {
         // Replace user mentions
         const userMentions = [];
         if (embed.description)
-          userMentions.push(
-            ...embed.description
-              .matchAll(regexes.discord.userMention)
-              ?.map((match) => match[1])
-          );
+          try {
+            userMentions.push(
+              ...embed.description
+                .matchAll(regexes.discord.userMention)
+                .map((match) => match[1])
+            );
+          } catch {}
         if (embed.fields.length)
           embed.fields.forEach((field) => {
             if (field.value)
