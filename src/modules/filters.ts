@@ -18,6 +18,7 @@ import {
   GuildChannelResolvable,
   Invite,
   MessageEmbed,
+  MessageSnapshot,
 } from "discord.js";
 import { LinkFilters } from "../commands/Configuration/linkfilter-toggle";
 
@@ -59,9 +60,12 @@ export default class Filters extends Module {
   }
 
   // Ensures next filter doesn't get stopped by an error in the previous
-  private async safelyRunPromise(promise: Function, ...args: any[]) {
+  private async safelyRunPromise<T extends (...args: any[]) => Promise<any>>(
+    promise: T,
+    ...args: Parameters<T>
+  ) {
     try {
-      await promise(...args);
+      return await promise(...args);
     } catch {}
   }
 
@@ -132,7 +136,11 @@ export default class Filters extends Module {
           this.console.warn(`Running handler(s) for ${name}`);
         this.filters[name].map(
           async (handler) =>
-            await this.safelyRunPromise(handler.bind(this), message, extra)
+            await this.safelyRunPromise<typeof handler>(
+              handler.bind(this),
+              message,
+              extra
+            )
         );
       }
   }
@@ -277,8 +285,10 @@ export default class Filters extends Module {
     return [message, extra];
   }
 
-  async getSearchString(message: FireMessage, extra: string = "") {
-    const searchString = [
+  private async getSearchStringBasicComponents(
+    message: FireMessage | MessageSnapshot
+  ) {
+    return [
       message.content,
       ...message.embeds.flatMap((embed) => [
         embed.title,
@@ -291,12 +301,33 @@ export default class Filters extends Module {
       ...message.attachments.map((attachment) => attachment.description),
       ...(await Promise.all(
         message.attachments.map((attachment) =>
-          this.client.util.getAttachmentPreview(attachment)
+          this.safelyRunPromise<typeof this.client.util.getAttachmentPreview>(
+            this.client.util.getAttachmentPreview.bind(this.client.util),
+            attachment
+          )
+        )
+      )),
+    ];
+  }
+
+  async getSearchString(
+    message: FireMessage | MessageSnapshot,
+    extra: string = ""
+  ) {
+    const searchString = [
+      await this.getSearchStringBasicComponents(message),
+      ...(await Promise.all(
+        message.messageSnapshots.map((snapshot) =>
+          this.safelyRunPromise<typeof this.getSearchStringBasicComponents>(
+            this.getSearchStringBasicComponents.bind(this),
+            snapshot
+          )
         )
       )),
       extra,
     ]
-      .filter((s) => !!s)
+      .flat()
+      .filter(Boolean)
       .join(" ");
 
     if (searchString.includes("%"))

@@ -25,6 +25,7 @@ export class ThreadMembersUpdateAction extends GenericAction {
               id: thread.id,
               user_id: id,
               join_timestamp: "2069-04-20T00:00:00+00:00",
+              // @ts-ignore
               flags: 0,
             })
           );

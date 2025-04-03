@@ -84,6 +84,8 @@ export class FireUser extends User {
     if (this.bot)
       return new DMChannel(this.client, {
         id: "991835355533811793",
+        name: "dm-channel",
+        permissions: "0",
         type: 1,
       });
     else return super.createDM();
