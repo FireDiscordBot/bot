@@ -10,14 +10,15 @@ import {
 } from "@fire/lib/interfaces/messages";
 import { Manager } from "@fire/lib/Manager";
 import { MessageIterator } from "@fire/lib/util/iterators";
+import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import Quote from "@fire/src/commands/Utilities/quote";
-import { Constants } from "discord-akairo";
+import { Constants as AkairoConstants } from "discord-akairo";
 import { Snowflake } from "discord-api-types/globals";
-import { NewsChannel, ThreadChannel } from "discord.js";
+import { Constants, NewsChannel, ThreadChannel } from "discord.js";
 
-const { CommandHandlerEvents } = Constants;
+const { CommandHandlerEvents } = AkairoConstants;
 
 export default class CrossClusterQuote extends Event {
   client: Fire;
@@ -31,7 +32,11 @@ export default class CrossClusterQuote extends Event {
     data: MessageLinkMatch & {
       destination: PartialQuoteDestination;
       quoter: Snowflake;
-      webhook: string;
+      webhook: {
+        id: Snowflake;
+        token: string;
+        threadId?: Snowflake;
+      };
       debug: boolean;
     }
   ) {
@@ -43,9 +48,12 @@ export default class CrossClusterQuote extends Event {
     this.console[data.debug ? "log" : "debug"](
       `Received cross cluster quote for ${data.destination.guild_id}/${data.destination.id}/${data.message_id} from quoter ${data.quoter}`
     );
+
     let { destination } = data;
     const quoteCommand = this.client.getCommand("quote") as Quote;
     if (!quoteCommand) return;
+
+    // Handle saved quotes first since we don't need to fetch anything
     const link = `${data.guild_id}/${data.channel_id}/${data.message_id}`;
     if (quoteCommand && quoteCommand.savedQuotes.has(link)) {
       const guild = this.client.guilds.cache.get(destination.guild_id);
@@ -54,18 +62,20 @@ export default class CrossClusterQuote extends Event {
         const quoter = guild
           ? ((await guild.members.fetch(data.quoter)) as FireMember)
           : ((await this.client.users.fetch(data.quoter)) as FireUser);
-        return await quoteCommand.exec(null, {
-          quote: saved,
-          quoter: quoter,
-          webhook: data.webhook,
-          debug: data.debug,
+        return await saved.quote(
           destination,
-        });
+          quoter,
+          new ThreadhookClient(
+            { id: data.webhook.id, token: data.webhook.token },
+            { threadId: data.webhook.threadId }
+          )
+        );
       }
     }
-    const guild = this.client.guilds.cache.get(data.guild_id);
+
+    let guild = this.client.guilds.cache.get(data.guild_id) as FireGuild;
     if (!guild) return;
-    destination.guild = guild as FireGuild;
+    destination.guild = guild;
     const member = (await guild.members
       .fetch(data.quoter)
       .catch(() => {})) as FireMember;
@@ -110,75 +120,40 @@ export default class CrossClusterQuote extends Event {
       }
     }
 
-    const args = {
-      quote: message,
-      quoter: member,
-      webhook: data.webhook,
-      debug: data.debug,
-      destination,
-    };
-    this.client.commandHandler.emit(
-      CommandHandlerEvents.COMMAND_STARTED,
-      message,
-      quoteCommand,
-      args
-    );
-    await quoteCommand
-      .exec(null, args)
-      .then((ret) => {
-        this.client.commandHandler.emit(
-          CommandHandlerEvents.COMMAND_FINISHED,
-          message,
-          quoteCommand,
-          args,
-          ret
-        );
-      })
-      .catch((err) => {
-        this.client.commandHandler.emit(
-          "commandError",
-          message,
-          quoteCommand,
-          args,
-          err
-        );
-      });
-    if (data.iteratedMessages) {
-      for (const iterated of data.iteratedMessages) {
-        const args = {
-          quote: iterated,
-          quoter: member,
-          webhook: data.webhook,
-          debug: data.debug,
+    if (message.reference?.type == Constants.MessageReferenceType.FORWARD) {
+      const { reference } = message;
+      const shard = this.client.util.getShard(reference.guildId);
+      if (!(this.client.options.shards as number[]).includes(shard))
+        // back to you in the studio (and by studio, I mean aether)
+        return quoteCommand.returnCrossClusterQuote(
           destination,
-        };
-        this.client.commandHandler.emit(
-          CommandHandlerEvents.COMMAND_STARTED,
-          message,
-          quoteCommand,
-          args
+          {
+            guild_id: reference.guildId,
+            channel_id: reference.channelId,
+            message_id: reference.messageId,
+          },
+          data.quoter,
+          data.webhook
         );
-        await quoteCommand
-          .exec(null, args)
-          .then((ret) => {
-            this.client.commandHandler.emit(
-              CommandHandlerEvents.COMMAND_FINISHED,
-              message,
-              quoteCommand,
-              args,
-              ret
-            );
-          })
-          .catch((err) => {
-            this.client.commandHandler.emit(
-              "commandError",
-              message,
-              quoteCommand,
-              args,
-              err
-            );
-          });
-      }
-    }
+    } else
+      await message.quote(
+        destination,
+        member,
+        new ThreadhookClient(
+          { id: data.webhook.id, token: data.webhook.token },
+          { threadId: data.webhook.threadId }
+        )
+      );
+
+    if (data.iteratedMessages)
+      for (const iterated of data.iteratedMessages)
+        await iterated.quote(
+          destination,
+          member,
+          new ThreadhookClient(
+            { id: data.webhook.id, token: data.webhook.token },
+            { threadId: data.webhook.threadId }
+          )
+        );
   }
 }

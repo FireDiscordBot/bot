@@ -149,7 +149,7 @@ export default class Lockdown extends Command {
             .catch(() => {});
         })
         .catch((e) => {
-          this.client.console.debug(
+          this.console.debug(
             `Lockdown permission overwrite failed for ${channel.name} (${channel.id})\n${e.stack}`
           );
           failed.push(channel.toString());

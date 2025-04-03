@@ -9,6 +9,7 @@ import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Channel,
   Collection,
+  Constants,
   DMChannel,
   DiscordAPIError,
   EmojiIdentifierResolvable,
@@ -409,6 +410,24 @@ export class FireMessage extends Message {
     webhook?: WebhookClient,
     debug?: string[]
   ) {
+    // check for forwarded message from guilds on current cluster
+    if (
+      this.reference?.type == Constants.MessageReferenceType.FORWARD &&
+      this.client.guilds.cache.has(this.reference.guildId)
+    ) {
+      const guild = this.client.guilds.cache.get(this.reference.guildId);
+      if (!guild) return;
+      const channel = guild.channels.cache.get(this.reference.channelId);
+      if (!channel || !("messages" in channel)) return;
+      const message = (await channel.messages.fetch(
+        this.reference.messageId
+      )) as FireMessage;
+      if (message)
+        return await message.quote(destination, quoter, webhook, debug);
+      else return;
+    } else if (this.reference?.type == Constants.MessageReferenceType.FORWARD)
+      return; // not cached and nothing to quote so just ignore it
+
     // check for quoteable content first
     if (
       !this.content &&

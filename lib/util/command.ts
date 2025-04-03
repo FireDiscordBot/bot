@@ -257,6 +257,10 @@ export class Command extends AkairoCommand {
     this.slashIds = {};
   }
 
+  get console() {
+    return this.client.getLogger(`Command:${this.constructor.name}`);
+  }
+
   async init(): Promise<any> {}
 
   async unload(): Promise<any> {}

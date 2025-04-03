@@ -1057,11 +1057,9 @@ export class Util extends ClientUtil {
 
   async getQuoteWebhookURL(destination: GuildTextChannel | ThreadChannel) {
     let thread: ThreadChannel;
-    if (destination instanceof ThreadChannel) {
-      // we can't assign thread to destination since we're reassigning it
-      thread = this.client.channels.cache.get(destination.id) as ThreadChannel;
+    if (destination instanceof ThreadChannel)
       destination = destination.parent as GuildTextChannel;
-    } else if (typeof destination.fetchWebhooks != "function") return;
+    else if (typeof destination.fetchWebhooks != "function") return;
     if (
       !destination
         .permissionsFor(destination.guild.members.me)
@@ -1071,7 +1069,7 @@ export class Util extends ClientUtil {
     const hooks = await destination.fetchWebhooks().catch(() => {});
     let hook: Webhook;
     if (hooks) hook = hooks.filter((hook) => !!hook.token).first();
-    if (!hook) {
+    if (!hook)
       hook = await destination
         .createWebhook(`Fire Quotes #${destination.name}`.slice(0, 80), {
           avatar: this.client.user.displayAvatarURL({
@@ -1083,10 +1081,13 @@ export class Util extends ClientUtil {
           ) as string,
         })
         .catch(() => null);
-    }
-    return thread && hook?.url
-      ? `${hook?.url}?thread_id=${thread.id}`
-      : hook?.url;
+    return (
+      hook && {
+        id: hook.id,
+        token: hook.token,
+        threadId: thread?.id,
+      }
+    );
   }
 
   makeImageUrl(root: string, { format = "webp", size = 512 } = {}) {

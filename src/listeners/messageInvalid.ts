@@ -1,16 +1,9 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
-import {
-  MessageLinkMatch,
-  PartialQuoteDestination,
-} from "@fire/lib/interfaces/messages";
-import { GuildTextChannel, constants } from "@fire/lib/util/constants";
-import { messageConverter } from "@fire/lib/util/converters";
+import { MessageLinkMatch } from "@fire/lib/interfaces/messages";
+import { constants } from "@fire/lib/util/constants";
 import { MessageIterator } from "@fire/lib/util/iterators";
 import { Listener } from "@fire/lib/util/listener";
-import { Message } from "@fire/lib/ws/Message";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
 import Quote from "@fire/src/commands/Utilities/quote";
 import RemindersCreate from "@fire/src/commands/Utilities/reminders-create";
 import { Constants } from "discord-akairo";
@@ -184,7 +177,7 @@ export default class MessageInvalid extends Listener {
     inhibited = false;
 
     for (const inhibitor of inhibitors) {
-      if (inhibited) continue;
+      if (inhibited || inhibitor.id == "slashonly") continue;
       let exec = inhibitor.exec(message, quoteCommand);
       if (this.client.util.isPromise(exec)) exec = await exec;
       if (exec) {
@@ -210,40 +203,10 @@ export default class MessageInvalid extends Listener {
       return !shards.includes(shard);
     });
 
-    if (this.client.manager.ws?.open) {
-      for (const quote of crossClusterQuotes) {
-        const shard = this.client.util.getShard(quote.guild_id);
-        const webhookURL = await this.client.util.getQuoteWebhookURL(
-          message.channel as GuildTextChannel
-        );
-        if (!webhookURL || typeof webhookURL != "string") continue;
-        this.console.log("Forwarding cross-cluster quote", {
-          user: `${message.author} (${message.author.id})`,
-          guild: `${message.guild} (${message.guild.id})`,
-          source: `${quote.guild_id}/${quote.channel_id}/${quote.message_id}`,
-          destination: `${message.guild.id}/${message.channelId}`,
-          shard,
-        });
-        this.client.manager.ws.send(
-          MessageUtil.encode(
-            new Message(EventType.CROSS_CLUSTER_QUOTE, {
-              shard,
-              quoter: message.author.id,
-              webhook: webhookURL,
-              message: quote,
-              destination: {
-                nsfw: (message.channel as GuildTextChannel)?.nsfw || false,
-                permissions: message.guild
-                  ? message.member?.permissions.bitfield.toString() || "0"
-                  : "0",
-                guild_id: message.guild?.id,
-                id: message.channelId,
-              } as PartialQuoteDestination,
-            })
-          )
-        );
-      }
-    }
+    if (this.client.manager.ws?.open)
+      crossClusterQuotes.forEach((quote) =>
+        quoteCommand.forwardCrossClusterQuote(message, quote)
+      );
 
     const localQuotes = matches.filter((quote) => {
       const shard = this.client.util.getShard(quote.guild_id);
@@ -274,81 +237,12 @@ export default class MessageInvalid extends Listener {
         quote.iteratedMessages = messages;
     }
 
-    for (const quote of localQuotes) {
-      const convertedMessage = await messageConverter(
+    for (const quote of localQuotes)
+      await quoteCommand.handleLocalQuote(
         message,
-        null,
-        quote.channel != "debug.", // will return converter error msgs if using debug.discord.com
-        quote
-      ).catch(() => {});
-      // TODO: maybe return the caught error and add an else here?
-      if (convertedMessage) {
-        const args = {
-          quote: convertedMessage as FireMessage,
-          debug: quote.channel == "debug.",
-        };
-        this.client.commandHandler.emit(
-          CommandHandlerEvents.COMMAND_STARTED,
-          message,
-          quoteCommand,
-          args
-        );
-        await quoteCommand
-          .exec(message, args)
-          .then((ret) => {
-            this.client.commandHandler.emit(
-              CommandHandlerEvents.COMMAND_FINISHED,
-              message,
-              quoteCommand,
-              args,
-              ret
-            );
-          })
-          .catch((err) => {
-            this.client.commandHandler.emit(
-              "commandError",
-              message,
-              quoteCommand,
-              args,
-              err
-            );
-          });
-        if (quote.iteratedMessages) {
-          for (const iterated of quote.iteratedMessages) {
-            const args = {
-              quote: iterated,
-              debug: quote.channel == "debug.",
-            };
-            this.client.commandHandler.emit(
-              CommandHandlerEvents.COMMAND_STARTED,
-              message,
-              quoteCommand,
-              args
-            );
-            await quoteCommand
-              .exec(message, args)
-              .then((ret) => {
-                this.client.commandHandler.emit(
-                  CommandHandlerEvents.COMMAND_FINISHED,
-                  message,
-                  quoteCommand,
-                  args,
-                  ret
-                );
-              })
-              .catch((err) => {
-                this.client.commandHandler.emit(
-                  "commandError",
-                  message,
-                  quoteCommand,
-                  args,
-                  err
-                );
-              });
-          }
-        }
-      }
-    }
+        quote,
+        quote.channel == "debug."
+      );
   }
 
   cleanCommandUtil(message: FireMessage | ApplicationCommandMessage) {
