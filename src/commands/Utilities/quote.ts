@@ -71,7 +71,7 @@ export default class Quote extends Command {
     const convertedMessage = await messageConverter(
       message,
       null,
-      debug,
+      !debug,
       match
     ).catch(() => {});
     if (!convertedMessage) return;
