@@ -100,7 +100,7 @@ export default class Quote extends Command {
       if (!referencedMessage) return;
       else
         return await referencedMessage.quote(
-          channel,
+          message.channel as GuildTextBasedChannel,
           message.member ?? message.author
         );
     } else {
