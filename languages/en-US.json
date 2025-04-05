@@ -63,7 +63,7 @@
   "USER_USED_CONTEXT_COMMAND": "{{user}} used {{cmd}}",
   "USER_SNOWFLAKE_ARGUMENT_DESCRIPTION": "A mention, username, user ID or any valid snowflake",
   "HELLO_PREFIX": "Hey! My prefix here is `{{prefix}}` or you can mention me :)",
-  "ERROR_ROLE_UNUSABLE": "This role cannot be used as it is either managed by an integration, higher than my top role or the default role.",
+  "ERROR_ROLE_UNUSABLE": "This role cannot be used as it is either managed by an integration, higher than my top role, has permissions I don't or the default role.",
   "ERROR_CONTACT_SUPPORT": "Something went wrong, please contact support! <https://inv.wtf/fire>",
   "NO_MODERATORS_SET": "There are no moderators set in this server.",
   "PREMIUM_INVOICE_PAYMENT_FAILED": "Your payment for an invoice for {{amount}} failed. Another attempt (#{{attempts}}) will be made <t:{{nextAttempt}}:R> or you can use the link below to pay now.\nIf all attempts fail, you will lose access to `{{item}}`",

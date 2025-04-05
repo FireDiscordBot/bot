@@ -44,7 +44,9 @@ export default class MuteRole extends Command {
           message.guild.members.me.roles.highest.rawPosition ||
         args.role.id == message.guild.roles.everyone.id ||
         (args.role.rawPosition >= message.member.roles.highest.rawPosition &&
-          message.guild.ownerId != message.author.id))
+          message.guild.ownerId != message.author.id) ||
+        message.guild.members.me.permissions.missing(args.role.permissions)
+          .length > 0)
     )
       return await message.error("ERROR_ROLE_UNUSABLE");
     const settingUp = await message.send("MUTE_ROLE_CREATE_REASON");

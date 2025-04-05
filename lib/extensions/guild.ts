@@ -258,7 +258,7 @@ export class FireGuild extends Guild {
     if (
       this.members.me.permissions.missing(muteCommand.clientPermissions).length
     )
-      return;
+      return false;
     if (
       role.rawPosition != this.members.me.roles.highest.rawPosition - 2 ||
       role.permissions.bitfield != 0n
