@@ -1,6 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import { zws } from "@fire/lib/util/constants";
@@ -292,14 +293,20 @@ export default class GuildCommand extends Command {
   ) {
     if (!(guild instanceof FireGuild)) return null;
     return {
-      [command.language.get("TOTAL") + ":"]: guild.channels.cache.size,
+      [command.language.get("TOTAL")]: guild.channels.cache.size,
       [this.client.util.useEmoji("GUILD_CATEGORY")]:
         guild.channels.cache.filter(
           (channel) => channel.type == "GUILD_CATEGORY"
         ).size,
       [this.client.util.useEmoji("GUILD_TEXT")]: guild.channels.cache.filter(
-        (channel) => channel.type == "GUILD_TEXT"
+        (channel: FireTextChannel) =>
+          channel.type == "GUILD_TEXT" && !channel.linkedLobby
       ).size,
+      [this.client.util.useEmoji("GUILD_TEXT_LINKED")]:
+        guild.channels.cache.filter(
+          (channel: FireTextChannel) =>
+            channel.type == "GUILD_TEXT" && !!channel.linkedLobby
+        ).size,
       [this.client.util.useEmoji("GUILD_VOICE")]: guild.channels.cache.filter(
         (channel) => channel.type == "GUILD_VOICE"
       ).size,
@@ -418,8 +425,9 @@ export default class GuildCommand extends Command {
                 name: command.language.get("GUILD_CHANNELS"),
                 value: Object.entries(channels)
                   .filter(([, value]) => value > 0)
-                  .map(([k, v]) => `${k} ${v}`)
-                  .join(" | "),
+                  .map(([k, v], i) => (i == 0 ? `${k}: ${v}\n` : `${k} ${v} •`))
+                  .join(" ")
+                  .slice(0, -2),
               }
             : null,
           features.length > 0
