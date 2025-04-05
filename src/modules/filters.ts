@@ -307,7 +307,11 @@ export default class Filters extends Module {
           )
         )
       )),
-    ];
+      message.poll?.question.text,
+      message.poll?.answers.map((answer) => answer.text),
+    ]
+      .flat()
+      .filter(Boolean);
   }
 
   async getSearchString(
