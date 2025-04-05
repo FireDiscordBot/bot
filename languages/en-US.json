@@ -1476,6 +1476,7 @@
   "USER_SNOWFLAKE_DESCRIPTION": "It looks like that isn't a valid user, but it is a valid snowflake! {{snowflakeemoji}}\n\nA [Snowflake](https://discord.com/developers/docs/reference#snowflakes) is essentially a unique ID for a resource (message, user, channel, etc) which contains a timestamp.\n\nYou can copy the snowflakes from messages in Discord by right clicking on them.\nYou must have Developer Mode enabled, which is found in User Settings > Advanced",
   "USER_SNOWFLAKE_BELONGS_TO": "**Belongs To**: {{type}}",
   "USER_SNOWFLAKE_BELONGS_TO_EXTRA": "**Belongs To**: {{type}} ({{extra}})",
+  "USER_PROVISIONAL_ACCOUNT": "### Provisional Account\nThis user does not have a Discord account yet\nso some features may be limited. [Learn more]({{learnMoreLink}})",
   "USER_BOT_PUBLIC": "Public Bot",
   "USER_BOT_PRIVATE": "Private Bot",
   "USER_BOT_MEMBERS_INTENT": "Guild Members Intent",

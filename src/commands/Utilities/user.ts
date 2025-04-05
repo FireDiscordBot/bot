@@ -198,6 +198,13 @@ export default class User extends Command {
         name: `» ${command.language.get("MEMBER")}`,
         value: memberInfo.join("\n"),
       });
+    if (user.flags.has("PROVISIONAL_ACCOUNT"))
+      embed.setDescription(
+        command.language.get("USER_PROVISIONAL_ACCOUNT", {
+          learnMoreLink:
+            "https://support.discord.com/hc/en-us/articles/29667419799063",
+        })
+      );
     if (badges.length)
       embed.setDescription(
         application
