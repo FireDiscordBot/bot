@@ -256,7 +256,12 @@
     "MANAGE_EVENTS": "Manage Events",
     "VIEW_CREATOR_MONETIZATION_ANALYTICS": "View Creator Monetization Analytics",
     "USE_SOUNDBOARD": "Use Soundboard",
-    "SEND_VOICE_MESSAGES": "Send Voice Messages"
+    "CREATE_GUILD_EXPRESSIONS": "Create Expressions",
+    "CREATE_EVENTS": "Create Events",
+    "USE_EXTERNAL_SOUNDS": "Use External Sounds",
+    "SEND_VOICE_MESSAGES": "Send Voice Messages",
+    "SEND_POLLS": "Send Polls",
+    "USE_EXTERNAL_APPS": "Use External Apps"
   },
   "ACTIVITY_TYPES": {
     "1": "Join",

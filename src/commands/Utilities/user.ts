@@ -236,7 +236,8 @@ export default class User extends Command {
           PermissionFlagsBits.KickMembers,
           PermissionFlagsBits.ManageChannels,
           PermissionFlagsBits.ManageGuild,
-          PermissionFlagsBits.ManageEmojisAndStickers,
+          PermissionFlagsBits.ManageGuildExpressions,
+          PermissionFlagsBits.CreateGuildExpressions,
           PermissionFlagsBits.ManageMessages,
           PermissionFlagsBits.ManageNicknames,
           PermissionFlagsBits.ManageRoles,
@@ -247,6 +248,7 @@ export default class User extends Command {
           PermissionFlagsBits.ManageThreads,
           PermissionFlagsBits.ModerateMembers,
           PermissionFlagsBits.ManageEvents,
+          PermissionFlagsBits.CreateEvents,
         ];
         for (const permission of keyPerms)
           if (member.permissions.has(permission))
