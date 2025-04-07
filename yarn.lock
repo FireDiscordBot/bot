@@ -238,10 +238,10 @@ chalk@4.1.2:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
-chrono-node@^2.7.8:
-  version "2.7.8"
-  resolved "https://registry.yarnpkg.com/chrono-node/-/chrono-node-2.7.8.tgz#629a96b955ea20b1fba9811328c69cbc932c8e39"
-  integrity sha512-pzxemrTKu6jFVyAfkNxUckp9nlrmRFtr5lGrEJcVKyeKV9WSeGT78Oysazlzd/H0BdMv7EzACtJrw0pi2KODBQ==
+chrono-node@^2.8.0:
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/chrono-node/-/chrono-node-2.8.0.tgz#3617452d3e871b40720dc9dee242b2933e3bfb77"
+  integrity sha512-//a/HhnCQ4zFHxRfi1m+jQwr8o0Gxsg0GUjZ39O6ud9lkhrnuLGX1oOKjGsivm9AVMS79cn0PmTa6JCRlzgfWA==
   dependencies:
     dayjs "^1.10.0"
 
