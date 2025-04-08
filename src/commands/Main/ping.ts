@@ -17,12 +17,14 @@ export default class Ping extends Command {
   async run(command: ApplicationCommandMessage) {
     const embed = new MessageEmbed()
       .setTitle(
-        `:ping_pong: ${this.client.restPing}ms\n:heartpulse: ${command.shard.ping}ms`
+        `:ping_pong: ${this.client.restPing}ms\n:heartpulse: ${
+          this.client.ws.shards.get(command.shard)?.ping ?? -1
+        }ms`
       )
       .setColor(command.member?.displayColor || "#FFFFFF")
       .setFooter({
         text: command.language.get("PING_FOOTER", {
-          shard: command.shard.id,
+          shard: command.shard,
           cluster: this.client.manager.id,
         }),
       })

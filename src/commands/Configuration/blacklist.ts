@@ -91,7 +91,7 @@ export default class Blacklist extends Command {
               user_id: command.author.id,
               // TODO: possibly rename to "source" rather than guild?
               guild: command.source,
-              shard: command.shard.id,
+              shard: command.shard,
               action: `${args.user} (${args.user.id}) was unblacklisted`,
             })
           )
@@ -112,7 +112,7 @@ export default class Blacklist extends Command {
               user_id: command.author.id,
               // TODO: possibly rename to "source" rather than guild?
               guild: command.source,
-              shard: command.shard.id,
+              shard: command.shard,
               action: `${args.user} (${args.user.id}) was blacklisted`,
             })
           )
