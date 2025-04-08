@@ -105,12 +105,14 @@ export default class Quote extends Command {
       if (!referencedMessage) return;
       else
         await this.quoteWithCommandEvents(
+          message,
           referencedMessage,
           message.channel as GuildTextBasedChannel,
           message.member ?? message.author
         );
     } else {
       await this.quoteWithCommandEvents(
+        message,
         convertedMessage,
         message.channel as GuildTextBasedChannel,
         message.member ?? message.author
@@ -118,6 +120,7 @@ export default class Quote extends Command {
       if (match.iteratedMessages?.length)
         for (const iterated of match.iteratedMessages) {
           await this.quoteWithCommandEvents(
+            message,
             iterated,
             message.channel as GuildTextBasedChannel,
             message.member ?? message.author
@@ -197,6 +200,7 @@ export default class Quote extends Command {
   }
 
   async quoteWithCommandEvents(
+    context: FireMessage,
     message: FireMessage,
     destination: GuildTextBasedChannel | PartialQuoteDestination,
     quoter: FireMember | FireUser,
@@ -208,7 +212,7 @@ export default class Quote extends Command {
     };
     this.client.commandHandler.emit(
       CommandHandlerEvents.COMMAND_STARTED,
-      message,
+      context,
       this,
       args
     );
@@ -217,7 +221,7 @@ export default class Quote extends Command {
       .then((returnVal: unknown) =>
         this.client.commandHandler.emit(
           CommandHandlerEvents.COMMAND_FINISHED,
-          message,
+          context,
           this,
           args,
           returnVal
@@ -226,7 +230,7 @@ export default class Quote extends Command {
       .catch((error: Error) =>
         this.client.commandHandler.emit(
           "commandError",
-          message,
+          context,
           this,
           args,
           error
