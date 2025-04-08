@@ -22,7 +22,7 @@ export default class CommandBlocked extends Listener {
           type: "blocked",
           command: command.id,
           cluster: this.client.manager.id.toString(),
-          shard: message.shard.id.toString(),
+          shard: message.shard.toString(),
           user_id: message.author.id, // easier to query tag
         },
         fields: {

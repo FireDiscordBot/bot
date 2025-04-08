@@ -45,7 +45,7 @@ export default class CommandError extends Listener {
         type: "error",
         command: command.id,
         cluster: this.client.manager.id.toString(),
-        shard: message.shard.id.toString(),
+        shard: message.shard.toString(),
         user_id: message.author.id, // easier to query tag
       },
       fields: {
@@ -69,7 +69,7 @@ export default class CommandError extends Listener {
         "message.id": message.id,
         "guild.id": message.guildId,
         "source.name": message.source,
-        "source.shard": message.shard.id,
+        "source.shard": message.shard,
         "channel.id": message.channel?.id || "0",
         "channel.name": this.getChannelName(message.channel) || "Unknown",
         "command.name": command.id,

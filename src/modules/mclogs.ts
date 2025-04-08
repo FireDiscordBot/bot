@@ -2046,7 +2046,7 @@ export default class MCLogs extends Module {
               type: "upload",
               user_id: message.author.id,
               cluster: this.client.manager.id.toString(),
-              shard: message.shard.id.toString(),
+              shard: message.shard.toString(),
             },
             fields: {
               guild: message.guild
@@ -2124,7 +2124,7 @@ export default class MCLogs extends Module {
                     type: "cracked",
                     user_id: message.author.id,
                     cluster: this.client.manager.id.toString(),
-                    shard: message.shard.id.toString(),
+                    shard: message.shard.toString(),
                   },
                   fields: {
                     guild: message.guild
@@ -2162,7 +2162,7 @@ export default class MCLogs extends Module {
                     type: "user",
                     user_id: message.author.id,
                     cluster: this.client.manager.id.toString(),
-                    shard: message.shard.id.toString(),
+                    shard: message.shard.toString(),
                   },
                   fields: {
                     guild: message.guild

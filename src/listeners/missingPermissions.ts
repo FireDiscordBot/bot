@@ -24,7 +24,7 @@ export default class MissingPermissions extends Listener {
           type: "permissions",
           command: command.id,
           cluster: this.client.manager.id.toString(),
-          shard: message.shard.id.toString() ?? "0",
+          shard: message.shard.toString() ?? "0",
           user_id: message.author.id, // easier to query tag
         },
         fields: {

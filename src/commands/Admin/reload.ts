@@ -101,7 +101,7 @@ export default class AdminReload extends Command {
               user_id: message.author.id,
               // TODO: possibly rename to "source" rather than guild?
               guild: message.source,
-              shard: message.shard.id,
+              shard: message.shard,
               action: "All commands/languages/listeners/modules were reloaded",
             })
           )
@@ -140,7 +140,7 @@ export default class AdminReload extends Command {
               user_id: message.author.id,
               // TODO: possibly rename to "source" rather than guild?
               guild: message.source,
-              shard: message.shard.id,
+              shard: message.shard,
               action: `${args.module.handler.classToHandle.name} ${args.module.id} was reloaded`,
             })
           )

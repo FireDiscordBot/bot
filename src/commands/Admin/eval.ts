@@ -154,7 +154,7 @@ export default class Eval extends Command {
             user_id: message.author.id,
             // TODO: possibly rename to "source" rather than guild?
             guild: message.source,
-            shard: message.shard.id,
+            shard: message.shard,
             action: `Eval Command Ran. Input: ${input} | Output: ${output}`,
           })
         )

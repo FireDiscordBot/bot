@@ -140,7 +140,7 @@ export default class Help extends Command {
       ])
       .setFooter({
         text: message.language.get("HELP_FOOTER", {
-          shard: message.shard.id,
+          shard: message.shard,
           cluster: this.client.manager.id,
         }),
       })
