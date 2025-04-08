@@ -208,15 +208,16 @@ export default class Quote extends Command {
     };
     this.client.commandHandler.emit(
       CommandHandlerEvents.COMMAND_STARTED,
-      quoter,
-      this
+      message,
+      this,
+      args
     );
     await message
       .quote(destination, quoter, webhook, debug)
       .then((returnVal: unknown) =>
         this.client.commandHandler.emit(
           CommandHandlerEvents.COMMAND_FINISHED,
-          quoter,
+          message,
           this,
           args,
           returnVal
@@ -225,7 +226,7 @@ export default class Quote extends Command {
       .catch((error: Error) =>
         this.client.commandHandler.emit(
           "commandError",
-          quoter,
+          message,
           this,
           args,
           error
