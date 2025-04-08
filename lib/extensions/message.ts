@@ -447,8 +447,16 @@ export class FireMessage extends Message {
 
       const canUseAttachmentsInWebhook =
         !this.attachments.size ||
-        this.attachments.filter((attachment) => attachment.size > 10485760)
-          .size == 0 ||
+        this.attachments.reduce((size, attach) => {
+          if (
+            attach.size + size > 10485760 &&
+            this.content &&
+            this.content.length + attach.url.length + 2 <= 2000
+          )
+            // we can append the url of this
+            return size;
+          return size + attach.size;
+        }, 0) <= 10485760 ||
         !this.content;
       const useWebhooks = webhook
         ? true
@@ -547,10 +555,17 @@ export class FireMessage extends Message {
 
     const canUseAttachmentsInWebhook =
       !this.attachments.size ||
-      // limit attachment size to 25mb for premium, 10mb for regular
-      this.attachments.filter(
-        (attachment) => attachment.size > (quoter.premium ? 26214400 : 10485760)
-      ).size == 0 ||
+      this.attachments.reduce((size, attach) => {
+        if (
+          attach.size + size > 10485760 &&
+          this.content &&
+          this.content.length + attach.url.length + 2 < 2000
+        )
+          // we can append the url to the content
+          // to avoid any 413s
+          return size;
+        return size + attach.size;
+      }, 0) <= 10485760 ||
       !this.content;
     const useWebhooks = webhook
       ? true
@@ -814,12 +829,23 @@ export class FireMessage extends Message {
     if (!content && this.attachments.size && canAttach)
       content = this.attachments.map((a) => a.url).join("\n");
     else if (canAttach && this.attachments.size) {
-      const info = this.attachments.map((attach) => ({
+      const tooLargeAttachments = this.attachments.filter(
+        (a) => a.size > 10485760
+      );
+      for (const [, attach] of tooLargeAttachments)
+        if (content.length + attach.url.length + 2 <= 2000)
+          content += `\n${attach.url}`;
+
+      const finalAttachments = this.attachments.filter(
+        (a) => a.size <= 10485760
+      );
+
+      const info = finalAttachments.map((attach) => ({
         name: attach.name,
         description: attach.description,
       }));
       const attachReqs = await Promise.all(
-        this.attachments.map((attachment) =>
+        finalAttachments.map((attachment) =>
           centra(attachment.url)
             .header("User-Agent", this.client.manager.ua)
             .send()
