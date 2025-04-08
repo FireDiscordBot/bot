@@ -62,7 +62,8 @@ export default class CrossClusterQuote extends Event {
         const quoter = guild
           ? ((await guild.members.fetch(data.quoter)) as FireMember)
           : ((await this.client.users.fetch(data.quoter)) as FireUser);
-        return await saved.quote(
+        return await quoteCommand.quoteWithCommandEvents(
+          saved,
           destination,
           quoter,
           new ThreadhookClient(
@@ -136,7 +137,8 @@ export default class CrossClusterQuote extends Event {
           data.webhook
         );
     } else
-      await message.quote(
+      await quoteCommand.quoteWithCommandEvents(
+        message,
         destination,
         member,
         new ThreadhookClient(
@@ -147,7 +149,8 @@ export default class CrossClusterQuote extends Event {
 
     if (data.iteratedMessages)
       for (const iterated of data.iteratedMessages)
-        await iterated.quote(
+        await quoteCommand.quoteWithCommandEvents(
+          iterated,
           destination,
           member,
           new ThreadhookClient(

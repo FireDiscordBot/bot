@@ -1,7 +1,9 @@
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
+import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageContextMenuInteraction } from "@fire/lib/extensions/messagecontextmenuinteraction";
+import { FireUser } from "@fire/lib/extensions/user";
 import {
   MessageLinkMatch,
   PartialQuoteDestination,
@@ -13,6 +15,7 @@ import { Language } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { Constants as AkairoConstants } from "discord-akairo";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -22,8 +25,10 @@ import {
   GuildTextBasedChannel,
   MessageActionRow,
   MessageButton,
+  WebhookClient,
 } from "discord.js";
 
+const { CommandHandlerEvents } = AkairoConstants;
 const { regexes } = constants;
 const QUOTE_PREMIUM_INCREASED_LENGTH = "QUOTE_PREMIUM_INCREASED_LENGTH";
 
@@ -99,21 +104,25 @@ export default class Quote extends Command {
         .catch(() => {})) as FireMessage;
       if (!referencedMessage) return;
       else
-        return await referencedMessage.quote(
+        await this.quoteWithCommandEvents(
+          referencedMessage,
           message.channel as GuildTextBasedChannel,
           message.member ?? message.author
         );
     } else {
-      await convertedMessage.quote(
+      await this.quoteWithCommandEvents(
+        convertedMessage,
         message.channel as GuildTextBasedChannel,
         message.member ?? message.author
       );
       if (match.iteratedMessages?.length)
-        for (const iterated of match.iteratedMessages)
-          await iterated.quote(
+        for (const iterated of match.iteratedMessages) {
+          await this.quoteWithCommandEvents(
+            iterated,
             message.channel as GuildTextBasedChannel,
             message.member ?? message.author
           );
+        }
     }
   }
 
@@ -185,6 +194,43 @@ export default class Quote extends Command {
         })
       )
     );
+  }
+
+  async quoteWithCommandEvents(
+    message: FireMessage,
+    destination: GuildTextBasedChannel | PartialQuoteDestination,
+    quoter: FireMember | FireUser,
+    webhook?: WebhookClient,
+    debug?: string[]
+  ) {
+    const args = {
+      message: `${message.guildId ?? "@me"}/${message.channelId}/${message.id}`,
+    };
+    this.client.commandHandler.emit(
+      CommandHandlerEvents.COMMAND_STARTED,
+      quoter,
+      this
+    );
+    await message
+      .quote(destination, quoter, webhook, debug)
+      .then((returnVal: unknown) =>
+        this.client.commandHandler.emit(
+          CommandHandlerEvents.COMMAND_FINISHED,
+          quoter,
+          this,
+          args,
+          returnVal
+        )
+      )
+      .catch((error: Error) =>
+        this.client.commandHandler.emit(
+          "commandError",
+          quoter,
+          this,
+          args,
+          error
+        )
+      );
   }
 
   // Slash & Context commands will always try Command#run first

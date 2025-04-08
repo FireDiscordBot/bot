@@ -1,6 +1,7 @@
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { Listener } from "@fire/lib/util/listener";
+import { inspect } from "util";
 
 export default class CommandStarted extends Listener {
   constructor() {
@@ -13,7 +14,7 @@ export default class CommandStarted extends Listener {
   async exec(
     message: FireMessage,
     command: Command,
-    _: Record<string, unknown>
+    args: Record<string, unknown>
   ) {
     const point = {
       measurement: "commands",
@@ -31,7 +32,14 @@ export default class CommandStarted extends Listener {
         guild: message.source,
         user: `${message.author} (${message.author.id})`,
         message_id: message.id,
-        args: message.util?.parsed?.content ?? "",
+        args:
+          message.util?.parsed?.content ?? args
+            ? inspect(args, {
+                showHidden: false,
+                getters: true,
+                depth: 0,
+              })
+            : "",
       },
     };
     this.client.manager.writeToInflux([point]);
