@@ -14,11 +14,8 @@ import { ThreadhookClient } from "@fire/lib/util/threadhookclient";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import Quote from "@fire/src/commands/Utilities/quote";
-import { Constants as AkairoConstants } from "discord-akairo";
 import { Snowflake } from "discord-api-types/globals";
 import { Constants, NewsChannel, ThreadChannel } from "discord.js";
-
-const { CommandHandlerEvents } = AkairoConstants;
 
 export default class CrossClusterQuote extends Event {
   client: Fire;
@@ -62,8 +59,7 @@ export default class CrossClusterQuote extends Event {
         const quoter = guild
           ? ((await guild.members.fetch(data.quoter)) as FireMember)
           : ((await this.client.users.fetch(data.quoter)) as FireUser);
-        return await quoteCommand.quoteWithCommandEvents(
-          saved,
+        return await saved.quote(
           destination,
           quoter,
           new ThreadhookClient(
@@ -137,8 +133,7 @@ export default class CrossClusterQuote extends Event {
           data.webhook
         );
     } else
-      await quoteCommand.quoteWithCommandEvents(
-        message,
+      await message.quote(
         destination,
         member,
         new ThreadhookClient(
@@ -149,8 +144,7 @@ export default class CrossClusterQuote extends Event {
 
     if (data.iteratedMessages)
       for (const iterated of data.iteratedMessages)
-        await quoteCommand.quoteWithCommandEvents(
-          iterated,
+        await iterated.quote(
           destination,
           member,
           new ThreadhookClient(
