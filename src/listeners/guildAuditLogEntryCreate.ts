@@ -17,6 +17,7 @@ import {
   ForumChannel,
   GuildAuditLogsEntry,
   GuildForumTagData,
+  MediaChannel,
   MessageEmbed,
   NewsChannel,
   PermissionOverwriteManager,
@@ -476,7 +477,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
     )) as FireMember;
     let parent = guild.channels.cache.find(
       (c) => "threads" in c && c.threads.cache.has(auditLogEntry.targetId)
-    ) as NewsChannel | TextChannel | ForumChannel;
+    ) as NewsChannel | TextChannel | ForumChannel | MediaChannel;
     const thread =
       parent?.threads.cache.get(auditLogEntry.targetId) ??
       // we should never need this, but just in case...
@@ -771,7 +772,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
     )) as FireMember;
     let parent = guild.channels.cache.find(
       (c) => "threads" in c && c.threads.cache.has(auditLogEntry.targetId)
-    ) as NewsChannel | TextChannel | ForumChannel;
+    ) as NewsChannel | TextChannel | ForumChannel | MediaChannel;
     const thread =
       parent?.threads.cache.get(auditLogEntry.targetId) ??
       // we should never need this, but just in case...
