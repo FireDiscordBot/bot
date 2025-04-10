@@ -58,6 +58,11 @@ export default class GuildCheck extends Event {
   }
 
   async run(data: { id: Snowflake }, nonce: string) {
+    // we may not have the guild's data if we're not ready yet
+    // so we can await this promise which will resolve when ready
+    // either immediately if it was already or once "ready" fires
+    await this.manager.client.waitUntilReady();
+
     this.manager.ws.send(
       MessageUtil.encode(
         new Message(
