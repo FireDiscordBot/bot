@@ -377,6 +377,7 @@ export default class Filters extends Module {
       (exec, pos, arr) =>
         exec?.length >= 3 && arr.findIndex((m) => m[2] == exec[2]) == pos
     ); // remove non matches and duplicates
+    const invites: Invite[] = [];
     for (const exec of found) {
       let invite: Invite;
       try {
@@ -392,6 +393,17 @@ export default class Filters extends Module {
           continue;
         if (message.type != "AUTO_MODERATION_ACTION") await deleteFail();
       }
+      if (invite) invites.push(invite);
+    }
+
+    for (const invite of invites) {
+      if (!invite) continue;
+
+      const sameGuild = invites.filter(
+        (i) => i.code != invite.code && i.guild?.id == invite.guild?.id
+      );
+      for (const [index] of sameGuild.entries()) invites[index] = undefined;
+
       if (message.guild.logIgnored.includes(message.channelId)) continue;
       const embed = new MessageEmbed()
         .setColor(message.member?.displayColor || "#FFFFFF")
@@ -419,23 +431,38 @@ export default class Filters extends Module {
           }),
         })
         .setFooter({ text: message.author.id });
-      if (invite) {
+      if (invite.guild) {
         if (invite.guild.description?.length + embed.description.length < 4000)
           embed.setDescription(
             embed.description + `\n\n${invite.guild.description}`
           );
         embed.addFields([
           {
-            name: message.guild.language.get("FILTER_INVITE_LOG_CODE"),
-            value: invite.code,
+            name: message.guild.language.get(
+              sameGuild.length
+                ? "FILTER_INVITE_LOG_CODES"
+                : "FILTER_INVITE_LOG_CODE"
+            ),
+            value: sameGuild.length
+              ? [invite.code, ...sameGuild.map((i) => i.code)].join("\n")
+              : invite.code,
           },
           {
             name: message.guild.language.get("GUILD"),
             value: `${invite.guild.name} (${invite.guild.id})`,
           },
           {
-            name: message.guild.language.get("CHANNEL"),
-            value: `${invite.channel.name} (${invite.channel.id})`,
+            name: message.guild.language.get(
+              sameGuild.length ? "CHANNELS" : "CHANNEL"
+            ),
+            value: sameGuild.length
+              ? [
+                  `${invite.channel.name} (${invite.channel.id})`,
+                  ...sameGuild
+                    .map((i) => `${i.channel.name} (${i.channel.id})`)
+                    .filter((val, index, full) => full.indexOf(val) == index),
+                ].join("\n")
+              : `${invite.channel.name} (${invite.channel.id})`,
           },
           {
             name: message.guild.language.get("MEMBERS"),
@@ -449,7 +476,7 @@ export default class Filters extends Module {
       } else
         embed.addFields({
           name: message.guild.language.get("FILTER_INVITE_LOG_LINK"),
-          value: exec[0],
+          value: `discord.gg/${invite.code}`,
         });
       if (
         message.type == "AUTO_MODERATION_ACTION" &&

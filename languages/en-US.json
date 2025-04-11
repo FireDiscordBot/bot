@@ -735,6 +735,7 @@
   "FILTEREXCL_SET": "Successfully set filter exclusion list to:\n{{mentions}}",
   "FILTER_INVITE_LOG_DESCRIPTION": "**Invite link sent in** {{channel}}",
   "FILTER_INVITE_LOG_CODE": "Invite Code",
+  "FILTER_INVITE_LOG_CODES": "Invite Codes",
   "FILTER_INVITE_LOG_LINK": "Invite Link",
   "FILTER_PAYPAL_LOG_DESCRIPTION": "**PayPal link sent in** {{channel}}",
   "FILTER_YOUTUBE_LOG_DESCRIPTION": "**YouTube link sent in** {{channel}}",
