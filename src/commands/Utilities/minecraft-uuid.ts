@@ -35,7 +35,8 @@ export default class MinecraftUUID extends Command {
       username?: { match: RegExpMatchArray; matches: RegExpExecArray[] };
     }
   ) {
-    if (!args.username) return await command.error("MINECRAFT_INVALID_IGN");
+    if (!args.username?.match?.[0])
+      return await command.error("MINECRAFT_INVALID_IGN");
     const ign: string = args.username.match[0];
     let profile = await this.client.util
       .mcProfile(ign)
