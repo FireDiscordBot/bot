@@ -14,7 +14,9 @@ import {
   MessageButton,
   MessageEmbed,
   NewsChannel,
+  StageChannel,
   ThreadChannel,
+  VoiceChannel,
 } from "discord.js";
 import Semaphore from "semaphore-async-await";
 import { ComponentMessage } from "../extensions/componentmessage";
@@ -303,10 +305,12 @@ export class PaginatorInterface {
 
   async send(
     destination:
+      | DMChannel
       | FireTextChannel
       | NewsChannel
       | ThreadChannel
-      | DMChannel
+      | StageChannel
+      | VoiceChannel
       | AppFakeChannel
       | ContextFakeChannel
   ) {

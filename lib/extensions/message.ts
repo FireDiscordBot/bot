@@ -25,8 +25,10 @@ import {
   MessageSelectMenu,
   NewsChannel,
   ReplyMessageOptions,
+  StageChannel,
   Structures,
   ThreadChannel,
+  VoiceChannel,
   Webhook,
   WebhookClient,
 } from "discord.js";
@@ -43,7 +45,13 @@ import { FireUser } from "./user";
 const { regexes, imageExts, audioExts, videoExts } = constants;
 
 export class FireMessage extends Message {
-  declare channel: DMChannel | FireTextChannel | NewsChannel | ThreadChannel;
+  declare channel:
+    | DMChannel
+    | FireTextChannel
+    | NewsChannel
+    | ThreadChannel
+    | StageChannel
+    | VoiceChannel;
   invWtfResolved: Collection<string, { invite?: string; url?: string }>;
   savedQuoteData: { nsfw: boolean; name: string };
   declare member: FireMember;
