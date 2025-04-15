@@ -117,7 +117,10 @@ export default class CrossClusterQuote extends Event {
       }
     }
 
-    if (message.reference?.type == Constants.MessageReferenceType.FORWARD) {
+    if (
+      message.reference?.type == Constants.MessageReferenceType.FORWARD &&
+      message.reference?.guildId
+    ) {
       const { reference } = message;
       const shard = this.client.util.getShard(reference.guildId);
       if (!(this.client.options.shards as number[]).includes(shard))
@@ -132,7 +135,9 @@ export default class CrossClusterQuote extends Event {
           data.quoter,
           data.webhook
         );
-    } else
+    } else if (
+      message.reference?.type != Constants.MessageReferenceType.FORWARD
+    )
       await message.quote(
         destination,
         member,

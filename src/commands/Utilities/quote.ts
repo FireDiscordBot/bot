@@ -81,7 +81,9 @@ export default class Quote extends Command {
     ).catch(() => {});
     if (!convertedMessage) return;
     else if (
-      convertedMessage.reference?.type == Constants.MessageReferenceType.FORWARD
+      convertedMessage.reference?.type ==
+        Constants.MessageReferenceType.FORWARD &&
+      convertedMessage.reference?.guildId
     ) {
       const { reference } = convertedMessage;
       const shard = this.client.util.getShard(reference.guildId);
@@ -110,7 +112,9 @@ export default class Quote extends Command {
           message.channel as GuildTextBasedChannel,
           message.member ?? message.author
         );
-    } else {
+    } else if (
+      convertedMessage.reference?.type != Constants.MessageReferenceType.FORWARD
+    ) {
       await this.quoteWithCommandEvents(
         message,
         convertedMessage,
