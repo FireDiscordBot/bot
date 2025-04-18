@@ -215,6 +215,10 @@ export class Util extends ClientUtil {
     ][];
   }
 
+  get console() {
+    return this.client.getLogger("Util");
+  }
+
   get sanitizer() {
     return sanitizer as unknown as typeof import("@aero/sanitizer").default;
   }
@@ -1236,6 +1240,9 @@ export class Util extends ClientUtil {
     const current = member.settings.get<CouponType>("premium.coupon");
     if (current == code)
       return { success: false, reason: "DISCOUNT_UNCHANGED" };
+    this.console.warn(
+      `Updating special coupon for ${member} (${member.id}) from ${current} to ${code}`
+    );
     return new Promise((resolve) => {
       const nonce = SnowflakeUtil.generate();
       this.client.manager.ws.handlers.set(nonce, resolve);
