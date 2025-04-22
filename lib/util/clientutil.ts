@@ -870,7 +870,9 @@ export class Util extends ClientUtil {
             this.client.ws.shards.has(this.getShard(guildId))
           ),
           channel: command.channel,
-          availableViaSlash: command.enableSlashCommand,
+          availableViaSlash: command.parent
+            ? command.parentCommand.enableSlashCommand
+            : command.enableSlashCommand,
           ownerOnly: command.ownerOnly,
           superuserOnly: command.superuserOnly,
           moderatorOnly: command.moderatorOnly,
