@@ -33,7 +33,7 @@ export enum EventType {
   PREMIUM_SYNC, // receive only
   UPDATE_BLOCKGAMESOLUTIONS, // receive only
   PLAYWRIGHT_REQUEST, // send only
-  UNUSED2 = 28,
+  REFRESH_COMMANDS, // send only
   FORWARD_MESSAGE, // receive only
   FORWARD_MESSAGE_USER, // receive only
   UNUSED3 = 31,

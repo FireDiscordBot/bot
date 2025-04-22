@@ -44,7 +44,7 @@ import { SlashArgumentTypeCaster } from "./commandhandler";
 import { UseExec, UseRun } from "./constants";
 import { Language } from "./language";
 
-const getSlashType = (type: string) => {
+export const getSlashType = (type: string) => {
   switch (type) {
     case "string":
     case "codeblock":
@@ -261,9 +261,29 @@ export class Command extends AkairoCommand {
     return this.client.getLogger(`Command:${this.constructor.name}`);
   }
 
-  async init(): Promise<any> {}
+  async init(): Promise<any> {
+    // likely loading on startup
+    if (!this.client.readyAt) return;
+    this.client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(
+          EventType.REFRESH_COMMANDS,
+          this.client.util.getCommandsV2()
+        )
+      )
+    );
+  }
 
-  async unload(): Promise<any> {}
+  async unload(): Promise<any> {
+    this.client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(
+          EventType.REFRESH_COMMANDS,
+          this.client.util.getCommandsV2()
+        )
+      )
+    );
+  }
 
   async autocomplete(
     interaction: ApplicationCommandMessage,
@@ -377,7 +397,7 @@ export class Command extends AkairoCommand {
     }>`;
   }
 
-  private getSlashCommandArgName(argument: ArgumentOptions) {
+  getSlashCommandArgName(argument: ArgumentOptions) {
     return (
       argument.slashCommandType
         ? argument.slashCommandType
@@ -813,10 +833,49 @@ export interface CommandOptions extends AkairoCommandOptions {
 
 // @ts-ignore
 export interface ArgumentOptions extends AkairoArgumentOptions {
-  description?: ((language: Language) => string) | string;
+  description?: (language: Language) => string;
   slashCommandType?: string;
   autocomplete?: boolean;
   choices?: APIApplicationCommandOptionChoice[];
   readableType?: string;
   required?: boolean;
+}
+
+export interface CommandsV2Command {
+  id: `${string}/${string}`;
+  name: string;
+  category: string;
+  description: ReturnType<Command["description"]>;
+  localisedDescription: {
+    [k: string]: ReturnType<ArgumentOptions["description"]>;
+  };
+  arguments: {
+    name: ReturnType<Command["getSlashCommandArgName"]>;
+    description: ReturnType<ArgumentOptions["description"]>;
+    localisedDescription: {
+      [k: string]: ReturnType<ArgumentOptions["description"]>;
+    };
+    type: Omit<
+      keyof typeof ApplicationCommandOptionType,
+      "Subcommand" | "SubcommandGroup"
+    >;
+    required: ArgumentOptions["required"];
+    default: ArgumentOptions["default"];
+    autocomplete: ArgumentOptions["autocomplete"];
+    choices: ArgumentOptions["choices"];
+  }[];
+  guilds: Command["guilds"];
+  channel: Command["channel"];
+  availableViaSlash: Command["enableSlashCommand"];
+  ownerOnly: Command["ownerOnly"];
+  superuserOnly: Command["superuserOnly"];
+  moderatorOnly: Command["moderatorOnly"];
+  requiresExperiment: Command["requiresExperiment"];
+  hidden: Command["hidden"];
+  premium: Command["premium"];
+  slashOnly: Command["slashOnly"];
+  ephemeral: Command["ephemeral"];
+  slashId: Command["slashId"];
+  slashIds: Command["slashIds"];
+  context: Command["context"];
 }

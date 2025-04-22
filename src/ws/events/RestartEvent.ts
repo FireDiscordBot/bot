@@ -70,6 +70,14 @@ export default class Restart extends Event {
         )
       )
     );
+    this.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(
+          EventType.REFRESH_COMMANDS,
+          this.manager.client.util.getCommandsV2()
+        )
+      )
+    );
 
     let item: ReturnType<Manager["influxQueue"]["shift"]>;
     if (this.manager.influxQueue.length) {

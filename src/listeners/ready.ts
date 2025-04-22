@@ -101,7 +101,15 @@ export default class Ready extends Listener {
         );
     }
 
-    if (this.client.manager.id != 0) return;
+    if (this.client.manager.id != 0)
+      return this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(
+            EventType.REFRESH_COMMANDS,
+            this.client.util.getCommandsV2()
+          )
+        )
+      );
 
     const appCommandsDirect = await this.client.req
       .applications(this.client.application.id)
@@ -178,5 +186,14 @@ export default class Ready extends Listener {
         );
       }
     }
+
+    return this.client.manager.ws?.send(
+      MessageUtil.encode(
+        new Message(
+          EventType.REFRESH_COMMANDS,
+          this.client.util.getCommandsV2()
+        )
+      )
+    );
   }
 }
