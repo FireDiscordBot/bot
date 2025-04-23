@@ -293,7 +293,7 @@ export class FireMessage extends Message {
       reply: args?.reply,
       embeds: upsell
         ? [upsell, ...(args.embeds?.length ? args.embeds : [])]
-        : args.embeds,
+        : args?.embeds ?? [],
     });
   }
 
