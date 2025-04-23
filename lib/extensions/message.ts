@@ -300,13 +300,14 @@ export class FireMessage extends Message {
   async reply(options: string | MessagePayload | ReplyMessageOptions) {
     if (
       !this.channel ||
-      this.deleted ||
       (this.guild &&
-        !this.guild.members.me?.permissions.has(
-          PermissionFlagsBits.ViewChannel |
-            PermissionFlagsBits.ReadMessageHistory |
-            PermissionFlagsBits.SendMessages
-        ))
+        !this.guild.members.me
+          ?.permissionsIn(this.channelId)
+          .has(
+            PermissionFlagsBits.ViewChannel |
+              PermissionFlagsBits.ReadMessageHistory |
+              PermissionFlagsBits.SendMessages
+          ))
     )
       return this; // we need to return a message to prevent issues so just return this
     return (await super.reply(options)) as FireMessage;
