@@ -144,14 +144,13 @@ export default class MessageInvalid extends Listener {
 
     let matches: MessageLinkMatch[] = [];
     let messageLink: RegExpExecArray;
-    while ((messageLink = regexes.discord.quoteMessage.exec(message.content))) {
+    while ((messageLink = regexes.discord.quoteMessage.exec(message.content)))
       if (
         messageLink &&
         !messageLink[0].startsWith("<") &&
         !messageLink[0].endsWith(">")
       )
         matches.push(messageLink.groups as unknown as MessageLinkMatch);
-    }
 
     matches = matches.filter((match) => {
       if (process.env.NODE_ENV == "development") return match.channel == "dev.";
