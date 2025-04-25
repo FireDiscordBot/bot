@@ -80,16 +80,7 @@ export default class Ready extends Listener {
       string,
       Command
     >) {
-      if (!command.requiresExperiment) continue;
-      command.guilds = this.client.guilds.cache
-        .filter((guild: FireGuild) =>
-          guild.hasExperiment(
-            command.requiresExperiment.id,
-            command.requiresExperiment.bucket
-          )
-        )
-        .map((g) => g.id);
-      if (!command.guilds.length) continue;
+      if (!command.requiresExperiment || !command.guilds.length) continue;
       const registered = await command.registerSlashCommand();
       if (registered && registered.length)
         this.client.getLogger("Commands").info(

@@ -171,6 +171,11 @@ export class Command extends AkairoCommand {
   public declare userPermissions: bigint[];
   public declare clientPermissions: bigint[];
 
+  // we use a getter for guilds so that we
+  // can add guilds with the required experiment
+  // into the array too
+  private _guilds: Snowflake[];
+
   requiresExperiment?: { id: number; bucket: number };
   declare description: (language: Language) => string;
   slashIds: Record<Snowflake, Snowflake>; // map of guild id to snowflake if guild specific
@@ -181,7 +186,6 @@ export class Command extends AkairoCommand {
   superuserOnly: boolean;
   deferAnyways: boolean;
   declare client: Fire;
-  guilds: Snowflake[];
   slashOnly: boolean;
   ephemeral: boolean;
   slashId: Snowflake;
@@ -251,7 +255,7 @@ export class Command extends AkairoCommand {
     this.parent = options.parent || null;
     this.context = options.context || [];
     this.group = options.group || false;
-    this.guilds = options.guilds || [];
+    this._guilds = options.guilds || [];
     this.args = options.args;
     this.slashId = null;
     this.slashIds = {};
@@ -261,8 +265,25 @@ export class Command extends AkairoCommand {
     return this.client.getLogger(`Command:${this.constructor.name}`);
   }
 
+  get guilds() {
+    return [
+      ...this._guilds,
+      ...(this.requiresExperiment?.id
+        ? this.client.guilds.cache
+            .filter((guild: FireGuild) =>
+              guild.hasExperiment(
+                this.requiresExperiment.id,
+                this.requiresExperiment.bucket
+              )
+            )
+            .map((guild) => guild.id)
+        : []),
+    ].filter((guildId, idx, arr) => arr.indexOf(guildId) == idx);
+  }
+
   async init(): Promise<any> {
-    // likely loading on startup
+    // likely loading on startup so we
+    // return as we'll fresh on ready
     if (!this.client.readyAt) return;
     this.client.manager.ws?.send(
       MessageUtil.encode(
@@ -808,6 +829,63 @@ export class Command extends AkairoCommand {
       )
     );
     return commands;
+  }
+
+  getCommandsV2Data() {
+    const defaultLanguage = this.client.getLanguage("en-US");
+    const languages = this.client.languages.modules;
+    return {
+      id: `${this.categoryID}/${this.id}` as `${string}/${string}`,
+      name: this.parent
+        ? this.id.replace(`${this.parent}-`, `${this.parent} `)
+        : this.id,
+      category: this.categoryID,
+      description: this.description(defaultLanguage),
+      localisedDescription: Object.fromEntries(
+        languages.map((lang: Language) => [lang.id, this.description(lang)])
+      ),
+      arguments:
+        this.args?.map((arg) => ({
+          name: this.getSlashCommandArgName(arg),
+          description:
+            typeof arg.description == "function"
+              ? arg.description(defaultLanguage)
+              : arg.description,
+          localisedDescription: Object.fromEntries(
+            languages.map((lang: Language) => [
+              lang.id,
+              typeof arg.description == "function"
+                ? arg.description(lang)
+                : arg.description,
+            ])
+          ),
+          type: ApplicationCommandOptionType[
+            getSlashType(arg.type?.toString())
+          ],
+          required: arg.required,
+          default: arg.default,
+          autocomplete: arg.autocomplete,
+          choices: arg.choices,
+        })) ?? [],
+      guilds: this.guilds.filter((guildId) =>
+        this.client.ws.shards.has(this.client.util.getShard(guildId))
+      ),
+      channel: this.channel,
+      availableViaSlash: this.parent
+        ? this.parentCommand.enableSlashCommand
+        : this.enableSlashCommand,
+      ownerOnly: this.ownerOnly,
+      superuserOnly: this.superuserOnly,
+      moderatorOnly: this.moderatorOnly,
+      requiresExperiment: this.requiresExperiment,
+      hidden: this.hidden,
+      premium: this.premium,
+      slashOnly: this.slashOnly,
+      ephemeral: this.ephemeral,
+      slashId: this.slashId,
+      slashIds: this.slashIds,
+      context: this.context,
+    };
   }
 }
 

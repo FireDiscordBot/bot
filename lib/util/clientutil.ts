@@ -19,10 +19,7 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import * as centra from "centra";
 import { ClientUtil } from "discord-akairo";
 import { Snowflake } from "discord-api-types/globals";
-import {
-  ApplicationCommandOptionType,
-  PermissionFlagsBits,
-} from "discord-api-types/v9";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Collection,
   GuildChannel,
@@ -47,7 +44,7 @@ import * as pidusage from "pidusage";
 import { Readable } from "stream";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import { ClusterStats } from "../interfaces/stats";
-import { Command, CommandsV2Command, getSlashType } from "./command";
+import { Command, CommandsV2Command } from "./command";
 import {
   CouponType,
   GuildTextChannel,
@@ -824,67 +821,11 @@ export class Util extends ClientUtil {
   }
 
   getCommandsV2(): CommandsV2Command[] {
-    const defaultLanguage = this.client.getLanguage("en-US");
-    const languages = this.client.languages.modules;
     return (
       this.client.commandHandler.modules
         // groups are hidden as commands v2 is primarily built around slash commands
         .filter((command) => command instanceof Command && !command.group)
-        .map((command: Command) => ({
-          id: `${command.categoryID}/${command.id}` as `${string}/${string}`,
-          name: command.parent
-            ? command.id.replace(`${command.parent}-`, `${command.parent} `)
-            : command.id,
-          category: command.categoryID,
-          description: command.description(defaultLanguage),
-          localisedDescription: Object.fromEntries(
-            languages.map((lang: Language) => [
-              lang.id,
-              command.description(lang),
-            ])
-          ),
-          arguments:
-            command.args?.map((arg) => ({
-              name: command.getSlashCommandArgName(arg),
-              description:
-                typeof arg.description == "function"
-                  ? arg.description(defaultLanguage)
-                  : arg.description,
-              localisedDescription: Object.fromEntries(
-                languages.map((lang: Language) => [
-                  lang.id,
-                  typeof arg.description == "function"
-                    ? arg.description(lang)
-                    : arg.description,
-                ])
-              ),
-              type: ApplicationCommandOptionType[
-                getSlashType(arg.type?.toString())
-              ],
-              required: arg.required,
-              default: arg.default,
-              autocomplete: arg.autocomplete,
-              choices: arg.choices,
-            })) ?? [],
-          guilds: command.guilds.filter((guildId) =>
-            this.client.ws.shards.has(this.getShard(guildId))
-          ),
-          channel: command.channel,
-          availableViaSlash: command.parent
-            ? command.parentCommand.enableSlashCommand
-            : command.enableSlashCommand,
-          ownerOnly: command.ownerOnly,
-          superuserOnly: command.superuserOnly,
-          moderatorOnly: command.moderatorOnly,
-          requiresExperiment: command.requiresExperiment,
-          hidden: command.hidden,
-          premium: command.premium,
-          slashOnly: command.slashOnly,
-          ephemeral: command.ephemeral,
-          slashId: command.slashId,
-          slashIds: command.slashIds,
-          context: command.context,
-        }))
+        .map((command) => command.getCommandsV2Data())
         .sort((a, b) => a.id.localeCompare(b.id))
     );
   }
