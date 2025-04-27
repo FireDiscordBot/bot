@@ -7,6 +7,7 @@ import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { ModalMessage } from "@fire/lib/extensions/modalmessage";
+import { FireUser } from "@fire/lib/extensions/user";
 import {
   ActionLogTypes,
   constants,
@@ -227,7 +228,9 @@ export default class Select extends Listener {
             adapterCreator: state.guild.voiceAdapterCreator,
           });
         const player = this.client.util.createAssistantAudioPlayer(
-          state.member as FireMember,
+          (state.member ?? select.member ?? select.author) as
+            | FireMember
+            | FireUser,
           connection
         );
         connection.subscribe(player);
