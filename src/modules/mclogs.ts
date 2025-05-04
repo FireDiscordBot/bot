@@ -1794,7 +1794,6 @@ export default class MCLogs extends Module {
               })}**`
             );
         }
-        this.console.debug(currentSolutions);
       }
 
     if (versions.mods.find((m) => m.modId == "skytils")) {
