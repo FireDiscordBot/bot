@@ -63,7 +63,9 @@ export class FireConsole {
         ? args.shift()
         : inspect(args.shift(), { colors: true });
     // combine continuous strings into one
-    while (typeof args[0] == "string") message += ` ${args.shift()}`;
+    while (typeof args[0] == "string")
+      if (args[0].length) message += ` ${args.shift()}`;
+      else args.shift();
 
     const formattedMessage = chalk.bgHex("#353A47").hex("#FFFFFF")(
       ` ${message} `
