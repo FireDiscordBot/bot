@@ -1150,7 +1150,11 @@ export default class MCLogs extends Module {
             name: dep,
             requiredVersion: high
               ? `${low}-${high}`
-              : `${low} ${lang.get("MC_LOG_MISSING_DEP_OR_NEWER")}`,
+              : low == "*"
+              ? lang.get("MC_LOG_MISSING_DEP_ANY")
+              : lang.get("MC_LOG_MISSING_DEP_OR_NEWER", {
+                  requiredVersion: low,
+                }),
             actual,
           });
         else
@@ -1161,7 +1165,11 @@ export default class MCLogs extends Module {
                 name: dep,
                 requiredVersion: high
                   ? `${low}-${high}`
-                  : `${low} ${lang.get("MC_LOG_MISSING_DEP_OR_NEWER")}`,
+                  : low == "*"
+                  ? lang.get("MC_LOG_MISSING_DEP_ANY")
+                  : lang.get("MC_LOG_MISSING_DEP_OR_NEWER", {
+                      requiredVersion: low,
+                    }),
                 actual,
               },
             ],
@@ -1748,21 +1756,45 @@ export default class MCLogs extends Module {
             );
         }
         if ("erroredDependencies" in mod && mod.erroredDependencies.length) {
-          for (const dep of mod.erroredDependencies) {
-            const isMissing = dep.actual == missingDep;
+          const missingDeps = mod.erroredDependencies.filter(
+            (dep) => dep.actual == missingDep
+          );
+          if (missingDeps.length == 1)
             currentSolutions.add(
-              "- **" +
-                language.get(
-                  isMissing ? "MC_LOG_MISSING_DEP" : "MC_LOG_MISMATCHED_DEP",
-                  {
+              `- **${language.get("MC_LOG_MISSING_DEP_SINGLE", {
+                mod: mod.modId,
+                ...missingDeps[0],
+              })}**`
+            );
+          else {
+            currentSolutions.add(
+              `- **${language.get("MC_LOG_MISSING_DEP_MULTI", {
+                mod: mod.modId,
+              })}**`
+            );
+            missingDeps
+              .map(
+                (dep) =>
+                  `  - **${language.get("MC_LOG_MISSING_DEP_ENTRY", {
                     mod: mod.modId,
                     ...dep,
-                  }
-                ) +
-                "**"
-            );
+                  })}**`
+              )
+              .forEach(currentSolutions.add.bind(currentSolutions));
           }
+
+          const mismatchedDeps = mod.erroredDependencies.filter(
+            (dep) => dep.actual != missingDep
+          );
+          for (const mismatched of mismatchedDeps)
+            currentSolutions.add(
+              `- **${language.get("MC_LOG_MISMATCHED_DEP", {
+                mod: mod.modId,
+                ...mismatched,
+              })}**`
+            );
         }
+        this.console.debug(currentSolutions);
       }
 
     if (versions.mods.find((m) => m.modId == "skytils")) {
