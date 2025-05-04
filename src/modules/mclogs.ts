@@ -384,7 +384,7 @@ export default class MCLogs extends Module {
       forgeValidModFile:
         /Found valid mod file (?<source>[\w\s\-\+\.'`!()\[\]]+\.jar) with {(?<modid>[a-z][a-z0-9_.-]{1,63}(?:,[a-z][a-z0-9_.-]{1,63})*)} mods - versions {(?<version>[\w\-\+\.!\[\]]+(?:,[\w\s\-\+\.!\[\]]+)*)}/gim,
       forgeDependenciesError:
-        /Mod ID: '(?<dep>[a-z][a-z0-9_.-]{1,63})', Requested by: '(?<requiredby>[a-z][a-z0-9_.-]{1,63})', Expected range: '[\(\[](?<low>[\w\.\-+]+),(?<high>[\w\.\-+]+)?[\)\]]', Actual version: '(?<actual>[\w\.\-+]+|\[MISSING\])'/gim,
+        /Mod ID: '(?<dep>[a-z][a-z0-9_.-]{1,63})', Requested by: '(?<requiredby>[a-z][a-z0-9_.-]{1,63})', Expected range: '(?:[\(\[])?(?<low>[\w\.\-+*]+),?(?<high>[\w\.\-+*]+)?(?:[\)\]])?', Actual version: '(?<actual>[\w\.\-+]+|\[MISSING\])'/gim,
       forgeDupedModsError:
         /\tMod ID: '(?<modid>[a-z][a-z0-9_' .-]{1,63})' from mod files: (?<sources>(?:(?:, )?[\w\s\-\+\.'`!()\[\]]+\.jar)*)/gim,
       fabricModsHeader:
