@@ -353,7 +353,7 @@ export default class GuildCommand extends Command {
 
     const badges = this.getBadges(guild, command.author);
     const info = await this.getInfo(command, guild);
-    const inviteInfo = await this.getInviteInfo(command, invite);
+    const inviteInfo = this.getInviteInfo(command, invite);
     const security = this.getSecurity(command, guild);
     const channels = this.getChannels(command, guild);
 
