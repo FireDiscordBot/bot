@@ -431,12 +431,12 @@ export default class GuildCommand extends Command {
                   .slice(0, -2),
               }
             : null,
-          features.length > 0
-            ? {
-                name: command.language.get("GUILD_FEATURES"),
-                value: features.join(", "),
-              }
-            : null,
+          // features.length > 0
+          //   ? {
+          //       name: command.language.get("GUILD_FEATURES"),
+          //       value: features.join(", "),
+          //     }
+          //   : null,
           guild instanceof FireGuild && roles?.length
             ? {
                 name:
