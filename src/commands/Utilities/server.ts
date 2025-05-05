@@ -91,7 +91,7 @@ export default class GuildCommand extends Command {
       owner.joinedTimestamp - guild.createdTimestamp < 5000
         ? owner?.user?.discriminator != null
           ? owner.toString()
-          : "Unknown#0000"
+          : "unknown.user"
         : null;
     let messages = [
       command.language.get(
