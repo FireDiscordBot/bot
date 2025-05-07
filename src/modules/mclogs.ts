@@ -5,6 +5,7 @@ import { FireUser } from "@fire/lib/extensions/user";
 import { IPoint } from "@fire/lib/interfaces/aether";
 import { FabricLoaderVersion } from "@fire/lib/interfaces/fabricmc";
 import { ForgePromotions } from "@fire/lib/interfaces/minecraftforge";
+import { NeoForgedVersion } from "@fire/lib/interfaces/neoforge";
 import {
   MojangAPIError,
   ProfileConflictError,
@@ -53,6 +54,7 @@ enum LogType {
 
 enum Loaders {
   FORGE = "Forge",
+  NEOFORGE = "NeoForge",
   FABRIC = "Fabric",
   QUILT = "Quilt",
   OPTIFINE = "Vanilla w/OptiFine HD U", // will be shown as "Vanilla w/OptiFine HD U H4"
@@ -60,10 +62,11 @@ enum Loaders {
   FEATHER_FABRIC = "Feather with Fabric", // same here
 }
 
-type ModLoaders = "Forge" | "Fabric" | "Quilt";
+type ModLoaders = "Forge" | "NeoForge" | "Fabric" | "Quilt";
 
 const validEssentialLoaders = [
   Loaders.FORGE,
+  Loaders.NEOFORGE,
   Loaders.FEATHER_FORGE,
   Loaders.FABRIC,
   Loaders.FEATHER_FABRIC,
@@ -221,6 +224,12 @@ type ForgeEssentialMod = {
   erroredDependencies: DependencyInfo[];
   partial: false;
 };
+type NeoForgeMod = {
+  name: string;
+  modId: string;
+  version: string;
+  partial: false;
+};
 type FabricModNonPartial = {
   modId: string;
   version: string;
@@ -242,6 +251,7 @@ type PartialMod = {
 export type ModInfo =
   | ForgeModNonPartial
   | ForgeEssentialMod
+  | NeoForgeMod
   | PartialMod
   | FabricModNonPartial
   | FabricEssentialMod;
@@ -284,6 +294,7 @@ const builtInMods = [
   "FML",
   "mcp",
   "Forge",
+  "neoforge",
   "minecraft",
   "java",
   "fabricloader",
@@ -313,6 +324,8 @@ export default class MCLogs extends Module {
     forgeValidModFile: RegExp;
     forgeDependenciesError: RegExp;
     forgeDupedModsError: RegExp;
+    neoforgedDiscoveryHeader: RegExp;
+    neoforgedDiscoveryEntry: RegExp;
     fabricModsHeader: RegExp;
     classicFabricModsEntry: RegExp;
     fabricModsEntry: RegExp;
@@ -356,7 +369,7 @@ export default class MCLogs extends Module {
     this.regexes = {
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets:
-        /--accessToken,? [^\?\s*]+|\(Session ID is token:|Authorization ?: ?(Bearer\n?\w*)/gim,
+        /--accessToken,? [^\?\s*❄]+|\(Session ID is token:|Authorization ?: ?(Bearer\n?\w*)/gim,
       jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx(?:\d{1,2}G|\d{3,5}M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
       optifine:
         /OptiFine_(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
@@ -387,6 +400,10 @@ export default class MCLogs extends Module {
         /Mod ID: '(?<dep>[a-z][a-z0-9_.-]{1,63})', Requested by: '(?<requiredby>[a-z][a-z0-9_.-]{1,63})', Expected range: '(?:[\(\[])?(?<low>[\w\.\-+*]+),?(?<high>[\w\.\-+*]+)?(?:[\)\]])?', Actual version: '(?<actual>[\w\.\-+]+|\[MISSING\])'/gim,
       forgeDupedModsError:
         /\tMod ID: '(?<modid>[a-z][a-z0-9_' .-]{1,63})' from mod files: (?<sources>(?:(?:, )?[\w\s\-\+\.'`!()\[\]]+\.jar)*)/gim,
+      neoforgedDiscoveryHeader:
+        /ModDiscoverer\/]:\s\n\s*Mod List:\n\s*Name Version \(Mod Id\)\n/im,
+      neoforgedDiscoveryEntry:
+        /^\s*(?<name>[\w\s()]*) (?<version>[\w\-\+\.!\[\]]+) \((?<modid>[a-z][a-z0-9_' .-]{1,63})\)/gim,
       fabricModsHeader:
         /\[main\/INFO]:? (?:\(FabricLoader\) )?Loading \d{1,4} mods:/gim,
       classicFabricModsEntry:
@@ -547,6 +564,14 @@ export default class MCLogs extends Module {
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
+        // Older versions of NeoForge will trigger regular Forge regexes so we need to have NeoForge first
+        {
+          loader: Loaders.NEOFORGE,
+          regexes: [
+            /--fml\.neoForgeVersion,? (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--fml\.mcVersion,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+          ],
+        },
         {
           loader: Loaders.FORGE,
           regexes: [
@@ -624,6 +649,8 @@ export default class MCLogs extends Module {
       "net.minecraft.launchwrapper.Launch",
       "net.fabricmc.loader.impl.launch.knot.KnotClient",
       "net.minecraftforge.fml.common.launcher.FMLTweaker",
+      "ModLauncher running: args [",
+      "Loading ImmediateWindowProvider fmlearlywindow",
       "Launched instance in online mode",
       "# A fatal error has been detected by the Java Runtime Environment:",
       "---- Minecraft Crash Report ----",
@@ -973,6 +1000,31 @@ export default class MCLogs extends Module {
             erroredDependencies: [],
             partial: false,
           });
+      }
+    } else if (
+      loader == Loaders.NEOFORGE &&
+      this.regexes.neoforgedDiscoveryHeader.test(log)
+    ) {
+      this.regexes.neoforgedDiscoveryHeader.lastIndex = 0;
+      const index = splitLog.findIndex((v) =>
+        v.includes("Name Version (Mod Id)")
+      );
+      splitLog = splitLog.slice(index);
+      for (const line of splitLog) {
+        const modMatch = this.regexes.neoforgedDiscoveryEntry.exec(line);
+        this.regexes.neoforgedDiscoveryEntry.lastIndex = 0;
+        if (!modMatch) continue;
+        const name = modMatch.groups.name,
+          modId = modMatch.groups.modid,
+          version = modMatch.groups.version;
+        if (name == "Name" && version == "Version" && modId == "Mod Id")
+          continue; // skip header
+        mods.push({
+          name,
+          modId,
+          version: cleanModVersion(version, mcVersion, "NeoForge"),
+          partial: false,
+        });
       }
     } else if (
       (loader == Loaders.FABRIC || loader == Loaders.FEATHER_FABRIC) &&
@@ -1608,6 +1660,32 @@ export default class MCLogs extends Module {
               "**"
           );
       }
+    } else if (versions?.loader == Loaders.NEOFORGE) {
+      const versionsReq = await centra(
+        `https://maven.neoforged.net/api/maven/latest/version/releases/net/neoforged/neoforge?filter=${
+          versions.mcVersion.includes("w")
+            ? // snapshots are special
+              `0.${versions.mcVersion}`
+            : versions.mcVersion.slice(2)
+        }`
+      )
+        .header("User-Agent", this.client.manager.ua)
+        .send()
+        .catch(() => ({ json: async () => ({ version: "" }) }));
+      const neoforgeVersions = (await versionsReq.json()) as NeoForgedVersion;
+      // the "-beta" suffix isn't always in logs so we need to remove it
+      // before comparing to prevent false positives
+      const latestNeoForge = neoforgeVersions.version.replace("-beta", "");
+      if (latestNeoForge && latestNeoForge != versions?.loaderVersion)
+        currentSolutions.add(
+          "- **" +
+            language.get("MC_LOG_UPDATE", {
+              item: Loaders.NEOFORGE,
+              current: versions.loaderVersion,
+              latest: latestNeoForge,
+            }) +
+            "**"
+        );
     } else if (versions?.loader == Loaders.OPTIFINE) {
       let optifineVersions =
         this.client.manager.state.optifineVersions?.[versions.mcVersion];
@@ -2265,7 +2343,14 @@ export default class MCLogs extends Module {
       if (mcInfo.loader)
         details.push(
           (message.guild ?? message).language.get(
-            mcInfo.mods.length
+            mcInfo.mods.length &&
+              // we don't want to show a mod count if
+              // essential is the only known mod
+              // as that is detected separately
+              !(
+                mcInfo.mods.length == 1 &&
+                mcInfo.mods[0].modId.includes("essential")
+              )
               ? "MC_LOG_LOADER_INFO_WITH_MODS"
               : "MC_LOG_LOADER_INFO",
             {
