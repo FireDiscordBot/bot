@@ -279,6 +279,8 @@ export default class CodeImage extends Command {
       } catch {
         return await respond.error("CODE_IMAGE_FAILED_TO_FETCH");
       }
+      if (!respond.author.settings.get<boolean>("utils.incognito", false))
+        respond.flags = 0;
     } else {
       const modalPromise = this.waitForModal(command);
       await (respond.slashCommand as CommandInteraction).showModal(
@@ -302,7 +304,6 @@ export default class CodeImage extends Command {
       const modal = await modalPromise;
       await modal.channel.ack();
       respond = modal;
-      modal.flags = 64;
 
       code = modal.getTextInputValue("code");
       if (!code?.length)
@@ -340,7 +341,7 @@ export default class CodeImage extends Command {
       if (!respond.author.settings.get<boolean>("utils.incognito", false))
         respond.flags = 0;
       const attach = new MessageAttachment(image.body, "code.png");
-      return await respond.channel.send({ files: [attach] });
+      return await respond.edit({ content: null, files: [attach] });
     }
   }
 
