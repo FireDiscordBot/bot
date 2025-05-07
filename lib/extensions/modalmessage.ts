@@ -404,7 +404,9 @@ export class FakeChannel extends BaseFakeChannel {
       .then(() => {
         this.message.sent = "ack";
       })
-      .catch(() => (this.message.sent = "ack"));
+      .catch(() => {
+        this.message.sent = "ack";
+      });
     this.ackLock.release();
   }
 
@@ -412,11 +414,12 @@ export class FakeChannel extends BaseFakeChannel {
   async defer(ephemeral: boolean = false) {
     await this.message.interaction
       .deferReply({ ephemeral, fetchReply: !ephemeral })
-      // @ts-ignore
       .then(() => {
         this.message.sent = "ack";
       })
-      .catch(() => (this.message.sent = "ack"));
+      .catch(() => {
+        this.message.sent = "ack";
+      });
   }
 
   async send(
@@ -458,22 +461,6 @@ export class FakeChannel extends BaseFakeChannel {
           files,
         })
         .then(() => (this.message.sent = "message"));
-    else if (this.message.sent == "ack")
-      await this.client.req
-        .webhooks(this.client.user.id)(this.token)
-        .messages("@original")
-        .patch<RawMessageData>({
-          data,
-          files,
-        })
-        .then((original) => {
-          this.message.sent = "message";
-          if (original && original.id)
-            this.message.latestResponse = new FireMessage(
-              this.client,
-              original
-            );
-        });
     else
       await this.client.req
         .webhooks(this.client.user.id)(this.token)
