@@ -1324,7 +1324,9 @@ export class Util extends ClientUtil {
         const split = url.pathname.split("/");
         if (url.pathname.includes("/blob/"))
           (url.hostname = "raw.githubusercontent.com"),
-            (url.pathname = `/${split[1]}/${split[2]}/${split[4]}/${split[5]}`);
+            (url.pathname = split
+              .filter((part) => part && part !== "blob")
+              .join("/"));
         else if (!url.pathname.includes("/files/")) url = null;
         break;
       }
