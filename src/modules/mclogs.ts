@@ -1958,7 +1958,7 @@ export default class MCLogs extends Module {
       });
     } else this.regexes.noRaw.lastIndex = 0;
 
-    const pasteURLs: URL[] = [];
+    const pasteURLs: { match: string; rawURL: URL }[] = [];
     if (validPasteURLs.some((u) => message.content.includes(u))) {
       const matches = message.content.match(regexes.basicURL);
       for (const match of matches) {
@@ -1972,12 +1972,12 @@ export default class MCLogs extends Module {
             rawURL.pathname.endsWith(".txt")
           )
             rawURL.pathname = rawURL.pathname.slice(0, -4);
-          pasteURLs.push(rawURL);
+          pasteURLs.push({ match, rawURL });
         }
       }
     }
 
-    for (const paste of pasteURLs)
+    for (const { match: source, rawURL: paste } of pasteURLs)
       message.attachments.set(
         paste.pathname,
         new MessageAttachment(
@@ -1987,7 +1987,7 @@ export default class MCLogs extends Module {
             id: paste.pathname,
             filename: `${paste.hostname}${paste.pathname}.txt`,
             size: 0,
-            proxy_url: paste.toString(),
+            proxy_url: source.toString(),
             url: paste.toString(),
           }
         )
@@ -2382,10 +2382,10 @@ export default class MCLogs extends Module {
       let content = message.content;
       for (const attachment of message.attachments.values())
         if (
-          content.includes(attachment.url) &&
-          !attachment.url.includes("discord")
+          content.includes(attachment.proxyURL) &&
+          !attachment.proxyURL.includes("discord")
         )
-          content = content.replaceAll(attachment.url, "");
+          content = content.replaceAll(attachment.proxyURL, "");
 
       const logHaste = (message.guild ?? message).language
         .get(ign ? "MC_LOG_HASTE_WITH_IGN" : "MC_LOG_HASTE", {
