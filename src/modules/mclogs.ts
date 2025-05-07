@@ -403,7 +403,7 @@ export default class MCLogs extends Module {
       neoforgedDiscoveryHeader:
         /ModDiscoverer\/]:\s\n\s*Mod List:\n\s*Name Version \(Mod Id\)\n/im,
       neoforgedDiscoveryEntry:
-        /^\s*(?<name>[\w\s()]*) (?<version>[\w\-\+\.!\[\]]+) \((?<modid>[a-z][a-z0-9_' .-]{1,63})\)/gim,
+        /^\s*(?<name>[\w\s'()]*) (?<version>[\w\s\-\+\.!\[\]]+) \((?<modid>[a-z][a-z0-9_' .-]{1,63})\)[\n\s]?$/gim,
       fabricModsHeader:
         /\[main\/INFO]:? (?:\(FabricLoader\) )?Loading \d{1,4} mods:/gim,
       classicFabricModsEntry:
