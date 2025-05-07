@@ -132,9 +132,13 @@ const cleanModVersion = (
       .replace(versionBaseRegex, "")
       .replace(`-${loader}`, "")
       .replace(`-${loader.toLowerCase()}`, "")
+      .replace(`-${loader.toUpperCase()}`, "")
       .replace(`${loader}-`, "")
       .replace(`${loader.toLowerCase()}-`, "")
+      .replace(`${loader.toUpperCase()}-`, "")
       .replace(loader, "")
+      .replace(loader.toLowerCase(), "")
+      .replace(loader.toUpperCase(), "")
       .replace(REMOVE_BUILD_NUMBER, "")
       // special case for Fabric Language Kotlin
       .replace(" kotlin.", "+kotlin.")
@@ -401,9 +405,9 @@ export default class MCLogs extends Module {
       forgeDupedModsError:
         /\tMod ID: '(?<modid>[a-z][a-z0-9_' .-]{1,63})' from mod files: (?<sources>(?:(?:, )?[\w\s\-\+\.'`!()\[\]]+\.jar)*)/gim,
       neoforgedDiscoveryHeader:
-        /ModDiscoverer\/]:\s\n\s*Mod List:\n\s*Name Version \(Mod Id\)\n/im,
+        /:\s\n\s*Mod List:\n\s*Name Version \(Mod Id\)\n/im,
       neoforgedDiscoveryEntry:
-        /^\s*(?<name>[\w\s'()]*) (?<version>[\w\s\-\+\.!\[\]]+) \((?<modid>[a-z][a-z0-9_' .-]{1,63})\)[\n\s]?$/gim,
+        /^\s*(?<name>[\S\t\f\cK '()*&:\-!,]*) (?<version>[\S\t\f\cK \-\+\.,!\[\]]*) \((?<modid>[a-z][a-z0-9_' .-]{1,63})\)[\n\s]?$/gim,
       fabricModsHeader:
         /\[main\/INFO]:? (?:\(FabricLoader\) )?Loading \d{1,4} mods:/gim,
       classicFabricModsEntry:
@@ -1969,7 +1973,6 @@ export default class MCLogs extends Module {
           )
             rawURL.pathname = rawURL.pathname.slice(0, -4);
           pasteURLs.push(rawURL);
-          message.content = message.content.replaceAll(match, "");
         }
       }
     }
@@ -2376,9 +2379,17 @@ export default class MCLogs extends Module {
           })
         );
 
+      let content = message.content;
+      for (const attachment of message.attachments.values())
+        if (
+          content.includes(attachment.url) &&
+          !attachment.url.includes("discord")
+        )
+          content = content.replaceAll(attachment.url, "");
+
       const logHaste = (message.guild ?? message).language
         .get(ign ? "MC_LOG_HASTE_WITH_IGN" : "MC_LOG_HASTE", {
-          extra: msgType == "uploaded" ? message.content : "",
+          extra: msgType == "uploaded" ? content : "",
           details: details.map((d) => `- ${d}`).join("\n"),
           user: message.author.toMention(),
           solutions: possibleSolutions,
