@@ -2381,10 +2381,7 @@ export default class MCLogs extends Module {
 
       let content = message.content;
       for (const attachment of message.attachments.values())
-        if (
-          content.includes(attachment.proxyURL) &&
-          !attachment.proxyURL.includes("discord")
-        )
+        if (content.includes(attachment.proxyURL))
           content = content.replaceAll(attachment.proxyURL, "");
 
       const logHaste = (message.guild ?? message).language
