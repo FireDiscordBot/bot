@@ -115,20 +115,7 @@ export class ProfileConflictError extends MojangAPIError {
   }
 }
 
-type PasteURL =
-  | "h.inv.wtf"
-  | "hst.sh"
-  | "paste.ee"
-  | "api.paste.ee"
-  | "mclo.gs"
-  | "api.mclo.gs"
-  | "pastebin.com"
-  | "paste.essential.gg"
-  | "github.com"
-  | "raw.githubusercontent.com"
-  | "objects.githubusercontent.com"
-  | "cdn.discordapp.com";
-export const validPasteURLs: PasteURL[] = [
+export const validPasteURLs = [
   "h.inv.wtf",
   "hst.sh",
   "paste.ee",
@@ -141,7 +128,9 @@ export const validPasteURLs: PasteURL[] = [
   "raw.githubusercontent.com",
   "objects.githubusercontent.com",
   "cdn.discordapp.com",
-];
+  "media.discordapp.net",
+] as const;
+type PasteURL = (typeof validPasteURLs)[number];
 
 interface MojangProfile {
   name: string;
