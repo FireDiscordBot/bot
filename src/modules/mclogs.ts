@@ -568,12 +568,19 @@ export default class MCLogs extends Module {
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
-        // Older versions of NeoForge will trigger regular Forge regexes so we need to have NeoForge first
+        // Older versions of NeoForge may trigger regular Forge regexes so we need to have NeoForge first
         {
           loader: Loaders.NEOFORGE,
           regexes: [
             /--fml\.neoForgeVersion,? (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
             /--fml\.mcVersion,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+          ],
+        },
+        {
+          loader: Loaders.NEOFORGE,
+          regexes: [
+            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /NeoForge: (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
