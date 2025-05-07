@@ -67,9 +67,11 @@ export class FireConsole {
       if (args[0].length) message += ` ${args.shift()}`;
       else args.shift();
 
-    const formattedMessage = chalk.bgHex("#353A47").hex("#FFFFFF")(
-      ` ${message} `
-    );
+    const formattedMessage = (
+      typeof args[0] == "string"
+        ? chalk.bgHex("#353A47").hex("#FFFFFF")
+        : chalk.reset
+    )(` ${message} `);
 
     console.log(
       `${formattedTimestamp}${formattedTag}${formattedMessage}`,
