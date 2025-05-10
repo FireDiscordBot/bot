@@ -403,6 +403,13 @@ export default class User extends Command {
         );
     }
 
+    if (user instanceof FireUser && user.primaryGuild?.tag)
+      embed.setThumbnail(
+        process.env.NODE_ENV == "production"
+          ? `https://server-tags.inv.wtf/${user.primaryGuild.guildId}/${user.primaryGuild.badge}/${user.primaryGuild.tag}`
+          : `${this.client.manager.REST_HOST}/v2/img/tag/${user.primaryGuild.guildId}/${user.primaryGuild.badge}/${user.primaryGuild.tag}`
+      );
+
     return await command.channel.send({ embeds: [embed], components });
   }
 

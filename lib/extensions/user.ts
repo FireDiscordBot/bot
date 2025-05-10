@@ -12,6 +12,7 @@ import {
   Util,
 } from "discord.js";
 import { RawUserData } from "discord.js/typings/rawDataTypes";
+import { PrimaryGuild } from "../structures/PrimaryGuild";
 import { GuildTextChannel, ModLogTypes } from "../util/constants";
 import { FakeChannel as SlashFakeChannel } from "./appcommandmessage";
 import { FakeChannel as ContextFakeChannel } from "./contextcommandmessage";
@@ -20,6 +21,7 @@ import { FireMember } from "./guildmember";
 
 export class FireUser extends User {
   settings: UserSettings;
+  primaryGuild: PrimaryGuild;
   declare client: Fire;
 
   constructor(client: Fire, data: RawUserData) {
@@ -59,6 +61,16 @@ export class FireUser extends User {
     return this.client.guilds.cache
       .find((g) => g.voiceStates.cache.has(this.id))
       ?.voiceStates.cache.get(this.id);
+  }
+
+  _patch(data) {
+    // @ts-ignore
+    super._patch(data);
+
+    if (this.primaryGuild && data.primary_guild)
+      this.primaryGuild._patch(data.primary_guild);
+    else if (data.primary_guild)
+      this.primaryGuild = new PrimaryGuild(data.primary_guild, this);
   }
 
   toString() {

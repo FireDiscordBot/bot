@@ -473,6 +473,13 @@ export default class GuildCommand extends Command {
         });
     }
 
+    if (guild instanceof FireGuild && guild.profile?.tag)
+      embed.setImage(
+        process.env.NODE_ENV == "production"
+          ? `https://server-tags.inv.wtf/${guild.id}/${guild.profile.badge}/${guild.profile.tag}`
+          : `${this.client.manager.REST_HOST}/v2/img/tag/${guild.id}/${guild.profile.badge}/${guild.profile.tag}`
+      );
+
     await command.channel.send({ embeds: [embed] });
   }
 }

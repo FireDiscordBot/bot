@@ -788,6 +788,7 @@
   "GUILD_INPUT_REQUIRED": "You need to provide a server ID when using this command in DMs or in servers without Fire. You can invite me to a server at <{{invite}}>",
   "GUILD_CREATED_AT": "**Created:** {{created}}",
   "GUILD_CREATED_BY": "**Created by {{owner}} {{created}}**",
+  "GUILD_TAG": "**Tag:** {{tag}}",
   "GUILD_JOIN_POS": "**Your Join Position:** {{pos}}",
   "GUILD_VERIF_VERY_HIGH": "**Extreme Verification Level**",
   "GUILD_VERIF_HIGH": "**High Verification Level**",

@@ -60,6 +60,10 @@ export class FireMember extends GuildMember {
       : this.user.display;
   }
 
+  get primaryGuild() {
+    return this.user.primaryGuild;
+  }
+
   toString() {
     return this.user.toString();
   }

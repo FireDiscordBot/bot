@@ -48,6 +48,7 @@ import { v4 as uuidv4 } from "uuid";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { PermRolesData } from "../interfaces/permroles";
 import { BadgeType, DiscoverableGuild } from "../interfaces/stats";
+import { GuildProfile } from "../structures/GuildProfile";
 import { MessageIterator } from "../util/iterators";
 import { GuildLogManager } from "../util/logmanager";
 import { FakeChannel } from "./appcommandmessage";
@@ -86,8 +87,8 @@ const VIEW_AND_MANAGE_PERMISSION_BITS = (channel: GuildChannel) =>
     : PermissionFlagsBits.ViewChannel) | PermissionFlagsBits.ManageRoles;
 
 export class FireGuild extends Guild {
-  quoteHooks: Collection<string, Webhook | WebhookClient>;
   reactionRoles: Collection<Snowflake, ReactionRoleData[]>;
+  quoteHooks: Collection<string, Webhook | WebhookClient>;
   starboardMessages: Collection<Snowflake, Snowflake>;
   persistedRoles: Collection<Snowflake, Snowflake[]>;
   starboardReactions: Collection<Snowflake, number>;
@@ -103,6 +104,7 @@ export class FireGuild extends Guild {
   settings: GuildSettings;
   logger: GuildLogManager;
   tags: GuildTagManager;
+  profile: GuildProfile;
   declare client: Fire;
 
   constructor(client: Fire, data: RawGuildData) {
@@ -190,6 +192,9 @@ export class FireGuild extends Guild {
         (m) => m.user?.id == this.client.user?.id
       );
     if (data.presences) delete data.presences;
+
+    if (this.profile && data.profile) this.profile._patch(data.profile);
+    else if (data.profile) this.profile = new GuildProfile(data.profile, this);
 
     // @ts-ignore
     super._patch(data);
