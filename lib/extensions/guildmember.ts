@@ -6,6 +6,7 @@ import {
   GuildBasedChannel,
   GuildChannelResolvable,
   GuildMember,
+  GuildMemberFlags,
   ImageURLOptions,
   MessageEmbed,
   Permissions,
@@ -344,7 +345,11 @@ export class FireMember extends GuildMember {
     if (
       this.user.bot ||
       (!this.guild.settings.get<boolean>("mod.autodecancer") &&
-        !this.guild.settings.get<boolean>("mod.autodehoist"))
+        !this.guild.settings.get<boolean>("mod.autodehoist")) ||
+      // can't edit if quarantined, even if it's for
+      // the clan tag which we're not changing
+      this.flags.has(GuildMemberFlags.FLAGS.AUTOMOD_QUARANTINED_CLAN_TAG) ||
+      this.flags.has(GuildMemberFlags.FLAGS.AUTOMOD_QUARANTINED_NAME)
     )
       return;
     // Runs both dehoist and decancer with a lock
