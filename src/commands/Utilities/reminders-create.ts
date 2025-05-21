@@ -282,6 +282,9 @@ export default class RemindersCreate extends Command {
           })
           .catch(() => {});
         if (video) {
+          // ensure we replace embed suppression
+          if (clickedMessage.content.includes(`<${ytVideos[0]}>`))
+            ytVideos[0] = `<${ytVideos[0]}>`;
           // We'll replace the link with the title regardless of
           // whether or not it is upcoming since we have the data anyways
           reminderText = clickedMessage.content.replace(
