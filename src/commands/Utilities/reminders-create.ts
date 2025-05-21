@@ -370,7 +370,13 @@ export default class RemindersCreate extends Command {
         .setCustomId(`!snooze:${command.author.id}:${now}:context`)
         .setMinValues(1)
         .addOptions(
-          droptions.filter((o) => o.value == "other" || +o.value > now)
+          droptions.filter(
+            (o, i, a) =>
+              // filter out the snooze options that are in the past
+              (o.value == "other" || +o.value > now) &&
+              // filter out duplicate values
+              a.findIndex((o2) => o2.value == o.value) == i
+          )
         );
       if (!parsed.length) dropdown.setMaxValues(1);
       const cancelButton = new MessageButton()
