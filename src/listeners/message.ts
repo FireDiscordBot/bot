@@ -21,6 +21,7 @@ const cleanMap = {
   "/": [/\.\//gim, /\\\/\//gim, /\\\//gim, /slash/gim, /\\/gim, /\s\//gim],
   "": [regexes.zws, regexes.protocol, regexes.symbol, /(\*|_|\|)/gim],
   com: [/c.m/gim],
+  ".com": [/\scom/gim, /\.c\.o\.m/gim, /com\s/gim],
   "discord.gg/$1": [/(^|\s)\.gg(?:\/|\\)(?<code>[\w-]{1,25})[^\/]?/gim],
   // always keep this at the end
   "/ lets be honest there is no reason to post this other than trying to send rick roll so lol, youtu.be/dQw4w9WgXcQ":
