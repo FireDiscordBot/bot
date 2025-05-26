@@ -51,8 +51,11 @@ export default class RedirectCreate extends Command {
     if (
       !args.code ||
       (!validityRegex.test(args.code.trim()) && !command.author.isSuperuser())
-    )
+    ) {
+      validityRegex.lastIndex = 0;
       return await command.error("REDIRECT_CREATE_CODE_INVALID");
+    }
+    validityRegex.lastIndex = 0;
 
     let destination: URL;
     try {
