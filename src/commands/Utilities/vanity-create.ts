@@ -55,8 +55,11 @@ export default class VanityCreate extends Command {
     if (
       !args.code ||
       (!validityRegex.test(args.code.trim()) && !command.author.isSuperuser())
-    )
+    ) {
+      validityRegex.lastIndex = 0;
       return await command.error("VANITY_CREATE_CODE_INVALID");
+    }
+    validityRegex.lastIndex = 0;
 
     const exists = await this.module.getVanity(args.code).catch((e) => e);
     if (exists instanceof Error)
@@ -70,6 +73,8 @@ export default class VanityCreate extends Command {
             this.client.getCommand("vanity-delete")
           ),
       });
+    else if (exists && exists.gid != command.guildId)
+      return await command.error("VANITY_CREATE_CODE_EXISTS");
 
     const remaining = await this.module.getVanityLimitRemaining(
       command.member ?? command.author,
