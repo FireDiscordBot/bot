@@ -124,23 +124,23 @@ export default class VanityCreate extends Command {
         // if all that failed, return error
         if (!invite) return await command.error("VANITY_CREATE_INVITE_FAILED");
       }
-
-      if (invite.guild.id != command.guild.id)
-        return await command.error("VANITY_CREATE_INVITE_WRONG_GUILD");
-
-      const vanity = await this.module.create(
-        command.guild,
-        args.code,
-        invite,
-        command.member ?? command.author
-      );
-      if (!vanity) return await command.error("ERROR_CONTACT_SUPPORT");
-      else if (vanity == "blacklisted")
-        return await command.error("VANITY_CREATE_BLACKLISTED");
-      else
-        return await command.success("VANITY_CREATE_SUCCESS", {
-          vanity: `${this.module.vanityDomain}/${args.code}`,
-        });
     }
+
+    if (invite.guild.id != command.guild.id)
+      return await command.error("VANITY_CREATE_INVITE_WRONG_GUILD");
+
+    const vanity = await this.module.create(
+      command.guild,
+      args.code,
+      invite,
+      command.member ?? command.author
+    );
+    if (!vanity) return await command.error("ERROR_CONTACT_SUPPORT");
+    else if (vanity == "blacklisted")
+      return await command.error("VANITY_CREATE_BLACKLISTED");
+    else
+      return await command.success("VANITY_CREATE_SUCCESS", {
+        vanity: `${this.module.vanityDomain}/${args.code}`,
+      });
   }
 }
