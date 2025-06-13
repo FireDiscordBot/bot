@@ -1149,6 +1149,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
       auditLogEntry.executorId
     )) as FireMember;
     const target = guild.roles.cache.get(auditLogEntry.targetId);
+    if (!target) return; // role is somehow not cached yet, nothing we can log here
 
     const embed = new MessageEmbed()
       .setColor(target.color || "#2ECC71")
