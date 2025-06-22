@@ -1061,7 +1061,8 @@ export class Util extends ClientUtil {
   async getQuoteWebhookURL(destination: GuildTextChannel | ThreadChannel) {
     let thread: ThreadChannel;
     if (destination instanceof ThreadChannel)
-      destination = destination.parent as GuildTextChannel;
+      (thread = destination),
+        (destination = destination.parent as GuildTextChannel);
     else if (typeof destination.fetchWebhooks != "function") return;
     if (
       !destination
