@@ -25,6 +25,7 @@ import {
   GuildTextBasedChannel,
   MessageActionRow,
   MessageButton,
+  ThreadChannel,
   WebhookClient,
 } from "discord.js";
 
@@ -146,7 +147,15 @@ export default class Quote extends Command {
       user: `${message.author} (${message.author.id})`,
       guild: `${message.guild} (${message.guild.id})`,
       source: `${quote.guild_id}/${quote.channel_id}/${quote.message_id}`,
-      destination: `${message.guild.id}/${message.channelId}`,
+      destination: `${message.guild.id}/${
+        "parent" in message.channel
+          ? message.channel.parentId
+          : message.channel.id
+      }${
+        message.channel instanceof ThreadChannel
+          ? `?thread_id=${message.channel.id}`
+          : ""
+      }`,
       shard,
     });
     this.client.manager.ws.send(
