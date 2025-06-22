@@ -135,7 +135,7 @@ export default class MessageInvalid extends Listener {
     const quoteCommand = this.client.getCommand("quote") as Quote;
 
     if (
-      quoteCommand.isDisabled(message.guild) &&
+      quoteCommand?.isDisabled(message.guild) &&
       !message.author?.isSuperuser()
     ) {
       this.cleanCommandUtil(message);
