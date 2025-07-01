@@ -670,16 +670,19 @@ export class FireMessage extends Message {
     );
     if (content) {
       if (!quoter?.isSuperuser() && !this.system) {
-        content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
+        content = content.replaceAll(regexes.maskedLink, "\\[$1\\]\\($2)");
         content = await filters
           .runReplace(content, quoter)
           .catch(() => content);
       }
       for (const [, user] of this.mentions.users)
-        content = content.replace((user as FireUser).toMention(), `@${user}`);
+        content = content.replaceAll(
+          (user as FireUser).toMention(),
+          `@${user}`
+        );
       if (foreignDestination) {
         for (const [, role] of this.mentions.roles)
-          content = content.replace(
+          content = content.replaceAll(
             role.toString(),
             `@${role.name ?? "Unknown Role"}`
           );
@@ -698,9 +701,12 @@ export class FireMessage extends Message {
                   .permissionsIn(channel)
                   .has(VIEW_CHANNEL);
           if (foreignDestination && canView)
-            content = content.replace(channel.toString(), `#${channel.name}`);
+            content = content.replaceAll(
+              channel.toString(),
+              `#${channel.name}`
+            );
           else if (!canView)
-            content = content.replace(
+            content = content.replaceAll(
               channel.toString(),
               (destination.guild as FireGuild).language.get(
                 "QUOTE_CHANNEL_NO_ACCESS"
@@ -1103,9 +1109,9 @@ export class FireMessage extends Message {
       const imageMatches = regexes.imageURL.exec(content);
       if (imageMatches) {
         embed.setImage(imageMatches[0]);
-        content = content.replace(imageMatches[0], "");
+        content = content.replaceAll(imageMatches[0], "");
       }
-      content = content.replace(regexes.maskedLink, "\\[$1\\]\\($2)");
+      content = content.replaceAll(regexes.maskedLink, "\\[$1\\]\\($2)");
       const filters = this.client.getModule("filters") as Filters;
       content = await filters.runReplace(content, quoter);
       embed.setDescription(content);
@@ -1134,8 +1140,9 @@ export class FireMessage extends Message {
     ) {
       if (
         this.attachments.size == 1 &&
-        imageExts.filter((ext) => this.attachments.first().name.endsWith(ext))
-          .length &&
+        imageExts.filter((ext) =>
+          this.attachments.first().name.toLowerCase().endsWith(ext)
+        ).length &&
         !embed.image?.url
       )
         embed.setImage(this.attachments.first().url);
@@ -1340,14 +1347,18 @@ export class FireMessage extends Message {
     } else if (this.attachments.size) {
       for (const [, attachment] of this.attachments) {
         if (
-          imageExts.some((ext) => attachment.name.endsWith(ext)) &&
+          imageExts.some((ext) =>
+            attachment.name.toLowerCase().endsWith(ext)
+          ) &&
           !embed.image // prevent setting if already set, should always use the first image attachment
         ) {
           embed.setImage(attachment.proxyURL);
           break;
         }
 
-        if (videoExts.some((ext) => attachment.name.endsWith(ext))) {
+        if (
+          videoExts.some((ext) => attachment.name.toLowerCase().endsWith(ext))
+        ) {
           if (
             embed.fields.find(
               (field) =>
@@ -1364,7 +1375,9 @@ export class FireMessage extends Message {
             });
         }
 
-        if (audioExts.some((ext) => attachment.name.endsWith(ext))) {
+        if (
+          audioExts.some((ext) => attachment.name.toLowerCase().endsWith(ext))
+        ) {
           if (
             embed.fields.find(
               (field) =>
@@ -1424,7 +1437,7 @@ export class FireMessage extends Message {
     if (
       this.guild.settings.get<boolean>("mod.antizws", false) &&
       // some emojis use \u200d (e.g. trans flag) so we replace all unicode emoji before checking for zero width characters
-      regexes.zws.test(this.content.replace(regexes.unicodeEmoji, "")) &&
+      regexes.zws.test(this.content.replaceAll(regexes.unicodeEmoji, "")) &&
       !this.member.isModerator()
     ) {
       regexes.zws.lastIndex = 0;
