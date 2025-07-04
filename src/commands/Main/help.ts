@@ -161,7 +161,10 @@ export default class Help extends Command {
     const embed = {
       color: message.member?.displayColor,
       title: titleCase(command.id.replace("-", " ")),
-      description: command.description(message.language),
+      description:
+        typeof command.description == "function"
+          ? command.description(message.language)
+          : command.description ?? "No Description Provided",
       fields: [
         {
           name: message.language.get("HELP_USAGE"),
