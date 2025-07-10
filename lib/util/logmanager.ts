@@ -244,7 +244,7 @@ export class GuildLogManager {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get<Snowflake>("log.moderation")
       ) as FireTextChannel;
-      if (!channel) return;
+      if (!channel || typeof channel.fetchWebhooks != "function") return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
       if (!webhooks)
@@ -385,7 +385,7 @@ export class GuildLogManager {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get<Snowflake>("log.members")
       ) as FireTextChannel;
-      if (!channel) return;
+      if (!channel || typeof channel.fetchWebhooks != "function") return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
       if (!webhooks)
@@ -526,7 +526,7 @@ export class GuildLogManager {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get<Snowflake>("log.action")
       ) as FireTextChannel;
-      if (!channel) return;
+      if (!channel || typeof channel.fetchWebhooks != "function") return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
       if (!webhooks)
