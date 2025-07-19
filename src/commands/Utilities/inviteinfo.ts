@@ -12,7 +12,7 @@ export default class InviteInfo extends Command {
       args: [
         {
           id: "invite",
-          type: /^(?:(?:https?:\/\/)?discord(?:app)?\.(?:com|gg)\/(?:invite\/)?)?(?<invite>[\w-]{1,25})$/im,
+          type: /^discord(?:app)?\.(?:com|gg)\/(?:invite\/|invite\\)?(?<code>[\w-]{1,25})$/im,
           readableType: "invite",
           description: (language: Language) =>
             language.get("INVITEINFO_ARGUMENT_INVITE_DESCRIPTION"),

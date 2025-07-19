@@ -87,7 +87,7 @@ export const DEFAULT_MEMBER_LOG_FLAGS = Object.values(MemberLogTypes)
   .filter((v) => typeof v == "number")
   .reduce((a, b: MemberLogTypes) => a | b, 0);
 
-export const ModLogTypesEnumToString: Record<ModLogTypes, string> = {
+export const ModLogTypesEnumToString = {
   [ModLogTypes.SYSTEM]: "system", // only here to please the typings, should never be used
   [ModLogTypes.WARN]: "warn",
   [ModLogTypes.NOTE]: "note",
@@ -103,6 +103,21 @@ export const ModLogTypesEnumToString: Record<ModLogTypes, string> = {
   [ModLogTypes.BLACKLIST]: "blacklist",
   [ModLogTypes.UNBLACKLIST]: "unblacklist",
 };
+export type ModLogTypeString =
+  | "system"
+  | "warn"
+  | "note"
+  | "ban"
+  | "unban"
+  | "kick"
+  | "block"
+  | "unblock"
+  | "derank"
+  | "mute"
+  | "unmute"
+  | "role_persist"
+  | "blacklist"
+  | "unblacklist";
 
 export type LinkfilterExcluded = LinkfilterExcludedItem[];
 
@@ -201,7 +216,7 @@ export const constants = {
       roleMention: /<@&(\d{15,21})>/gim,
       channelMention: /<#(\d{15,21})>/gim,
       invite:
-        /discord(?:app)?\.(?:com|gg)\/(?:invite\/)?(?<code>[\w-]{1,25})/gim,
+        /discord(?:app)?\.(?:com|gg)\/(?:invite\/|invite\\)?(?<code>[\w-]{1,25})/gim,
       invitePartial: /invites?\/(?:[\w-]{1,25})/gim,
       cdnEmoji:
         /^https?:\/\/cdn\.discordapp\.com\/emojis\/(\d{15,21})\.\w{3,4}(?:\?v=\d|\?size=\d{1,4})?/gim,
