@@ -29,7 +29,6 @@ import { FireUser } from "./user";
 export class FireMember extends GuildMember {
   // fields not currently in d.js fork
   unusualDMActivityUntil: Date | null;
-  unusualDMActivityUntilTimestamp: number | null;
 
   dehoistAndDecancerLock: Semaphore;
   declare guild: FireGuild;
@@ -40,14 +39,10 @@ export class FireMember extends GuildMember {
     super(client, data, guild);
     this.dehoistAndDecancerLock = new Semaphore(1);
 
-    if ("unusual_dm_activity_until" in data) {
+    if ("unusual_dm_activity_until" in data)
       this.unusualDMActivityUntil = data.unusual_dm_activity_until
         ? new Date(data.unusual_dm_activity_until)
         : null;
-      this.unusualDMActivityUntilTimestamp = data.unusual_dm_activity_until
-        ? +data.unusual_dm_activity_until
-        : null;
-    }
   }
 
   // @ts-ignore
@@ -90,14 +85,10 @@ export class FireMember extends GuildMember {
   }
 
   _patch(data: any) {
-    if ("unusual_dm_activity_until" in data) {
+    if ("unusual_dm_activity_until" in data)
       this.unusualDMActivityUntil = data.unusual_dm_activity_until
         ? new Date(data.unusual_dm_activity_until)
         : null;
-      this.unusualDMActivityUntilTimestamp = data.unusual_dm_activity_until
-        ? +data.unusual_dm_activity_until
-        : null;
-    }
 
     // @ts-ignore
     super._patch(data);
@@ -106,6 +97,10 @@ export class FireMember extends GuildMember {
   _clone(): FireMember {
     // @ts-ignore
     return super._clone();
+  }
+
+  get unusualDMActivityUntilTimestamp() {
+    return this.unusualDMActivityUntil ? +this.unusualDMActivityUntil : null;
   }
 
   avatarURL({
