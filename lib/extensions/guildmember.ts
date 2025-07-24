@@ -39,6 +39,15 @@ export class FireMember extends GuildMember {
   constructor(client: Fire, data: any, guild: FireGuild) {
     super(client, data, guild);
     this.dehoistAndDecancerLock = new Semaphore(1);
+
+    if ("unusual_dm_activity_until" in data) {
+      this.unusualDMActivityUntil = data.unusual_dm_activity_until
+        ? new Date(data.unusual_dm_activity_until)
+        : null;
+      this.unusualDMActivityUntilTimestamp = data.unusual_dm_activity_until
+        ? +data.unusual_dm_activity_until
+        : null;
+    }
   }
 
   // @ts-ignore
