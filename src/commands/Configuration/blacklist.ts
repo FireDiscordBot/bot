@@ -2,7 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { ModLogTypes } from "@fire/lib/util/constants";
+import { ModLogTypes, ModLogTypeString } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
@@ -135,6 +135,8 @@ export default class Blacklist extends Command {
     if (isPlonked) current = current.filter((id) => id != args.user.id);
     else current.push(args.user.id);
 
+    const user = args.user instanceof FireMember ? args.user.user : args.user;
+
     if (current.length)
       await command.guild.settings.set<string[]>(
         "utils.plonked",
@@ -192,14 +194,34 @@ export default class Blacklist extends Command {
             ) as string),
         },
       ])
-      .setFooter({ text: `${args.user.id} | ${command.author.id}` });
+      .setFooter({ text: `${user.id} | ${command.author.id}` });
     await command.guild.modLog(
       embed,
       isPlonked ? ModLogTypes.UNBLACKLIST : ModLogTypes.BLACKLIST
     );
-    return await command.success(
-      isPlonked ? "UNBLACKLIST_SUCCESS" : "BLACKLIST_SUCCESS",
-      { user: args.user.toString(), guild: command.guild.name }
+    const stats = await user.getModLogStats(command.guild);
+    const nonZeroTypes = Object.entries(stats)
+      .filter(
+        ([type, count]) =>
+          count > 0 && type != (isPlonked ? "unblacklist" : "blacklist")
+      )
+      .map(([type, count]: [ModLogTypeString, number]) =>
+        command.guild.language.get("MODLOGS_ACTION_LINE", {
+          action: type,
+          count,
+        })
+      )
+      .join("\n");
+    return await command.channel.send(
+      command.guild.language.getSuccess(
+        isPlonked ? "UNBLACKLIST_SUCCESS" : "BLACKLIST_SUCCESS",
+        { user: user.toString(), guild: command.guild.name }
+      ) +
+        (nonZeroTypes
+          ? `\n\n${command.guild.language.get("MODLOGS_ACTION_FOOTER", {
+              entries: nonZeroTypes,
+            })}`
+          : "")
     );
   }
 }

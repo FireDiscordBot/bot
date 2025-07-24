@@ -1,7 +1,7 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
-import { ModLogTypes } from "@fire/lib/util/constants";
+import { ModLogTypes, ModLogTypeString } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import { MessageEmbed, Role } from "discord.js";
@@ -117,15 +117,32 @@ export default class RolePersist extends Command {
           message.guild.language.get("MODERATOR_ACTION_DEFAULT_REASON")
       ).catch(() => {});
     }
+    const stats = await args.user.getModLogStats();
+    const nonZeroTypes = Object.entries(stats)
+      .filter(([type, count]) => count > 0 && type != "role_persist")
+      .map(([type, count]: [ModLogTypeString, number]) =>
+        message.guild.language.get("MODLOGS_ACTION_LINE", {
+          action: type,
+          count,
+        })
+      )
+      .join("\n");
     return added &&
       (added.status.startsWith("INSERT") || added.status.startsWith("UPDATE"))
-      ? await message.success(
-          roles.length ? "ROLEPERSIST_SUCCESS" : "ROLEPERSIST_REMOVED",
-          {
-            member: args.user.toString(),
-            roles: roles.map((role) => role.toString()).join(", "),
-          }
-        )
+      ? (await message.channel.send(
+          message.guild.language.getSuccess(
+            roles.length ? "ROLEPERSIST_SUCCESS" : "ROLEPERSIST_REMOVED",
+            {
+              member: args.user.toString(),
+              roles: roles.map((role) => role.toString()).join(", "),
+            }
+          )
+        )) +
+          (nonZeroTypes
+            ? `\n\n${message.guild.language.get("MODLOGS_ACTION_FOOTER", {
+                entries: nonZeroTypes,
+              })}`
+            : "")
       : await message.error("ROLEPERSIST_FAILED");
   }
 

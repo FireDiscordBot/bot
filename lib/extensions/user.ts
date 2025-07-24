@@ -13,7 +13,11 @@ import {
 } from "discord.js";
 import { RawUserData } from "discord.js/typings/rawDataTypes";
 import { PrimaryGuild } from "../structures/PrimaryGuild";
-import { GuildTextChannel, ModLogTypes } from "../util/constants";
+import {
+  GuildTextChannel,
+  ModLogTypes,
+  ModLogTypeString,
+} from "../util/constants";
 import { FakeChannel as SlashFakeChannel } from "./appcommandmessage";
 import { FakeChannel as ContextFakeChannel } from "./contextcommandmessage";
 import { FireGuild } from "./guild";
@@ -229,6 +233,44 @@ export class FireUser extends User {
     return true;
   }
 
+  async getModLogStats(guild: FireGuild, excludeAutomated = true) {
+    const logs = await this.client.db
+      .query(
+        excludeAutomated
+          ? "SELECT type, count(caseid) FROM modlogs WHERE uid=$1 AND gid=$2 AND modid != $3 GROUP BY type;"
+          : "SELECT type, count(caseid) FROM modlogs WHERE uid=$1 AND gid=$2 GROUP BY type;",
+        excludeAutomated
+          ? [this.id, guild.id, this.client.user.id]
+          : [this.id, guild.id]
+      )
+      .catch(() => {});
+    const types: {
+      [K in ModLogTypeString]: number;
+    } = {
+      system: 0,
+      warn: 0,
+      note: 0,
+      ban: 0,
+      unban: 0,
+      kick: 0,
+      block: 0,
+      unblock: 0,
+      derank: 0,
+      mute: 0,
+      unmute: 0,
+      role_persist: 0,
+      blacklist: 0,
+      unblacklist: 0,
+    };
+    if (!logs) return types;
+    for await (const entry of logs) {
+      const type = entry.get("type") as ModLogTypeString;
+      const count = entry.get("count") as bigint;
+      types[type] = Number(count); // we don't want bigints nor should we ever need them
+    }
+    return types;
+  }
+
   async bean(
     guild: FireGuild,
     reason: string,
@@ -279,7 +321,14 @@ export class FireUser extends User {
       ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     await guild.modLog(embed, ModLogTypes.BAN).catch(() => {});
-    if (channel)
+    if (channel) {
+      const stats = await this.getModLogStats(guild);
+      const nonZeroTypes = Object.entries(stats)
+        .filter(([type, count]) => count > 0 && type != "ban")
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          guild.language.get("MODLOGS_ACTION_LINE", { action: type, count })
+        )
+        .join("\n");
       return await channel
         .send({
           content:
@@ -287,11 +336,17 @@ export class FireUser extends User {
               user: Util.escapeMarkdown(this.toString()),
               guild: Util.escapeMarkdown(guild.name),
             }) +
+            (nonZeroTypes
+              ? `\n\n${guild.language.get("MODLOGS_ACTION_FOOTER", {
+                  entries: nonZeroTypes,
+                })}`
+              : "") +
             (this.id == "159985870458322944"
               ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
               : ""),
         })
         .catch(() => {});
+    }
   }
 }
 

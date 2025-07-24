@@ -3,7 +3,7 @@ import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessag
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { titleCase } from "@fire/lib/util/constants";
+import { ModLogTypeString } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { MessageEmbed } from "discord.js";
 
@@ -37,33 +37,22 @@ export default class ModlogsStats extends Command {
     if (command instanceof ContextCommandMessage)
       args.user = command.getMemberOrUser(true);
     if (!args.user) return;
-    const types: Record<string, number> = {};
-    const logs = await this.client.db
-      .query("SELECT type FROM modlogs WHERE uid=$1 AND gid=$2;", [
-        args.user.id,
-        command.guild.id,
-      ])
-      .catch(() => {});
-    if (!logs || !logs.rows.length)
-      return await command.error("MODLOGS_NONE_FOUND");
-    for await (const action of logs) {
-      const type = action.get("type") as string;
-      if (!types[type]) types[type] = 1;
-      else types[type]++;
-    }
+    const user = args.user instanceof FireMember ? args.user.user : args.user;
+    const member = args.user instanceof FireMember ? args.user : null;
+    const stats = await user.getModLogStats(command.guild, false);
     const countsEmbed = new MessageEmbed()
       .setColor(
-        args.user instanceof FireMember
-          ? args.user.displayColor || "#FFFFFF"
+        member
+          ? member.displayColor || "#FFFFFF"
           : command.member?.displayColor || "#FFFFFF"
       )
       .setTimestamp()
       .setFooter({ text: args.user.id });
     countsEmbed.addFields(
-      Object.entries(types)
+      Object.entries(stats)
         .filter(([, count]) => !!count)
-        .map(([type, count]) => ({
-          name: titleCase(type, "_"),
+        .map(([type, count]: [ModLogTypeString, number]) => ({
+          name: command.language.get(`MODLOGS_TYPES.${type}`),
           value: count.toLocaleString(command.language.id),
           inline: true,
         }))

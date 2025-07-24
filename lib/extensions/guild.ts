@@ -7,6 +7,7 @@ import {
   MemberLogTypes,
   ModLogTypes,
   ModLogTypesEnumToString,
+  ModLogTypeString,
 } from "@fire/lib/util/constants";
 import { getIDMatch } from "@fire/lib/util/converters";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
@@ -1589,15 +1590,29 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       ])
       .setFooter({ text: `${user.id} | ${moderator.id}` });
     await this.modLog(embed, ModLogTypes.UNBAN).catch(() => {});
-    if (channel)
+    if (channel) {
+      const stats = await user.getModLogStats(this);
+      const nonZeroTypes = Object.entries(stats)
+        .filter(([type, count]) => count > 0 && type != "unban")
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          this.language.get("MODLOGS_ACTION_LINE", { action: type, count })
+        )
+        .join("\n");
       return await channel
         .send({
-          content: this.language.getSuccess("UNBAN_SUCCESS", {
-            user: Util.escapeMarkdown(user.toString()),
-            guild: Util.escapeMarkdown(this.name),
-          }),
+          content:
+            this.language.getSuccess("UNBAN_SUCCESS", {
+              user: Util.escapeMarkdown(user.toString()),
+              guild: Util.escapeMarkdown(this.name),
+            }) +
+            (nonZeroTypes
+              ? `\n\n${this.language.get("MODLOGS_ACTION_FOOTER", {
+                  entries: nonZeroTypes,
+                })}`
+              : ""),
         })
         .catch(() => {});
+    }
   }
 
   async block(
@@ -1665,15 +1680,35 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     await this.modLog(embed, ModLogTypes.BLOCK).catch(() => {});
-    return await channel
-      .send({
-        content: this.language.getSuccess("BLOCK_SUCCESS", {
-          blockee: Util.escapeMarkdown(
-            blockee instanceof FireMember ? blockee.toString() : blockee.name
-          ),
-        }),
-      })
-      .catch(() => {});
+    if (channel) {
+      const stats =
+        blockee instanceof FireMember ? await blockee.getModLogStats() : {};
+      const nonZeroTypes = Object.entries(stats)
+        .filter(
+          ([type, count]: [string, number]) => count > 0 && type != "block"
+        )
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          this.language.get("MODLOGS_ACTION_LINE", { action: type, count })
+        )
+        .join("\n");
+      return await channel
+        .send({
+          content:
+            this.language.getSuccess("BLOCK_SUCCESS", {
+              blockee: Util.escapeMarkdown(
+                blockee instanceof FireMember
+                  ? blockee.toString()
+                  : blockee.name
+              ),
+            }) +
+            (nonZeroTypes
+              ? `\n\n${this.language.get("MODLOGS_ACTION_FOOTER", {
+                  entries: nonZeroTypes,
+                })}`
+              : ""),
+        })
+        .catch(() => {});
+    }
   }
 
   async unblock(
@@ -1752,17 +1787,35 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
     await this.modLog(embed, ModLogTypes.UNBLOCK).catch(() => {});
-    return await channel
-      .send({
-        content: this.language.getSuccess("UNBLOCK_SUCCESS", {
-          unblockee: Util.escapeMarkdown(
-            unblockee instanceof FireMember
-              ? unblockee.toString()
-              : unblockee.name
-          ),
-        }),
-      })
-      .catch(() => {});
+    if (channel) {
+      const stats =
+        unblockee instanceof FireMember ? await unblockee.getModLogStats() : {};
+      const nonZeroTypes = Object.entries(stats)
+        .filter(
+          ([type, count]: [string, number]) => count > 0 && type != "unblock"
+        )
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          this.language.get("MODLOGS_ACTION_LINE", { action: type, count })
+        )
+        .join("\n");
+      return await channel
+        .send({
+          content:
+            this.language.getSuccess("UNBLOCK_SUCCESS", {
+              unblockee: Util.escapeMarkdown(
+                unblockee instanceof FireMember
+                  ? unblockee.toString()
+                  : unblockee.name
+              ),
+            }) +
+            (nonZeroTypes
+              ? `\n\n${this.language.get("MODLOGS_ACTION_FOOTER", {
+                  entries: nonZeroTypes,
+                })}`
+              : ""),
+        })
+        .catch(() => {});
+    }
   }
 }
 

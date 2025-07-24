@@ -16,13 +16,21 @@ import {
 } from "discord.js";
 import Semaphore from "semaphore-async-await";
 import { BaseFakeChannel } from "../interfaces/misc";
-import { GuildTextChannel, ModLogTypes } from "../util/constants";
+import {
+  GuildTextChannel,
+  ModLogTypes,
+  ModLogTypeString,
+} from "../util/constants";
 import { FakeChannel as SlashFakeChannel } from "./appcommandmessage";
 import { FakeChannel as ContextFakeChannel } from "./contextcommandmessage";
 import { FireGuild } from "./guild";
 import { FireUser } from "./user";
 
 export class FireMember extends GuildMember {
+  // fields not currently in d.js fork
+  unusualDMActivityUntil: Date | null;
+  unusualDMActivityUntilTimestamp: number | null;
+
   dehoistAndDecancerLock: Semaphore;
   declare guild: FireGuild;
   declare user: FireUser;
@@ -73,6 +81,15 @@ export class FireMember extends GuildMember {
   }
 
   _patch(data: any) {
+    if ("unusual_dm_activity_until" in data) {
+      this.unusualDMActivityUntil = data.unusual_dm_activity_until
+        ? new Date(data.unusual_dm_activity_until)
+        : null;
+      this.unusualDMActivityUntilTimestamp = data.unusual_dm_activity_until
+        ? +data.unusual_dm_activity_until
+        : null;
+    }
+
     // @ts-ignore
     super._patch(data);
   }
@@ -163,6 +180,10 @@ export class FireMember extends GuildMember {
 
   removeExperiment(id: number, bucket: number) {
     return this.user.removeExperiment(id, bucket);
+  }
+
+  async getModLogStats(excludeAutomated = true) {
+    return this.user.getModLogStats(this.guild, excludeAutomated);
   }
 
   private isHoisted() {
@@ -466,24 +487,47 @@ export class FireMember extends GuildMember {
     const times = this.client.util.numberWithSuffix(
       Number(countResult.get("count") as bigint)
     );
-    if (channel)
+    if (channel) {
+      const stats = await this.getModLogStats();
+      const nonZeroTypes = Object.entries(stats)
+        .filter(([type, count]) => count > 0 && type != "warn")
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          this.guild.language.get("MODLOGS_ACTION_LINE", {
+            action: type,
+            count,
+          })
+        )
+        .join("\n");
       return noDM
         ? await channel
             .send({
-              content: this.guild.language.getWarning("WARN_FAIL", {
-                user: Util.escapeMarkdown(this.toString()),
-                times,
-              }),
+              content:
+                this.guild.language.getWarning("WARN_FAIL", {
+                  user: Util.escapeMarkdown(this.toString()),
+                  times,
+                }) +
+                (nonZeroTypes
+                  ? `\n\n${this.guild.language.get("MODLOGS_ACTION_FOOTER", {
+                      entries: nonZeroTypes,
+                    })}`
+                  : ""),
             })
             .catch(() => {})
         : await channel
             .send({
-              content: this.guild.language.getSuccess("WARN_SUCCESS", {
-                user: Util.escapeMarkdown(this.toString()),
-                times,
-              }),
+              content:
+                this.guild.language.getSuccess("WARN_SUCCESS", {
+                  user: Util.escapeMarkdown(this.toString()),
+                  times,
+                }) +
+                (nonZeroTypes
+                  ? `\n\n${this.guild.language.get("MODLOGS_ACTION_FOOTER", {
+                      entries: nonZeroTypes,
+                    })}`
+                  : ""),
             })
             .catch(() => {});
+    }
   }
 
   async note(
@@ -522,15 +566,32 @@ export class FireMember extends GuildMember {
       .then((result) => (result.get("count") as number) ?? 0)
       .catch(() => 0);
     const times = this.client.util.numberWithSuffix(count);
-    if (channel)
+    if (channel) {
+      const stats = await this.getModLogStats();
+      const nonZeroTypes = Object.entries(stats)
+        .filter(([type, count]) => count > 0 && type != "note")
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          this.guild.language.get("MODLOGS_ACTION_LINE", {
+            action: type,
+            count,
+          })
+        )
+        .join("\n");
       return await channel
         .send({
-          content: this.guild.language.getSuccess("NOTE_SUCCESS", {
-            user: Util.escapeMarkdown(this.toString()),
-            times,
-          }),
+          content:
+            this.guild.language.getSuccess("NOTE_SUCCESS", {
+              user: Util.escapeMarkdown(this.toString()),
+              times,
+            }) +
+            (nonZeroTypes
+              ? `\n\n${this.guild.language.get("MODLOGS_ACTION_FOOTER", {
+                  entries: nonZeroTypes,
+                })}`
+              : ""),
         })
         .catch(() => {});
+    }
   }
 
   async bean(
@@ -626,7 +687,17 @@ export class FireMember extends GuildMember {
         });
     }
     await this.guild.modLog(embed, ModLogTypes.BAN).catch(() => {});
-    if (channel)
+    if (channel) {
+      const stats = await this.getModLogStats();
+      const nonZeroTypes = Object.entries(stats)
+        .filter(([type, count]) => count > 0 && type != "ban")
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          this.guild.language.get("MODLOGS_ACTION_LINE", {
+            action: type,
+            count,
+          })
+        )
+        .join("\n");
       return await channel
         .send({
           content:
@@ -639,11 +710,17 @@ export class FireMember extends GuildMember {
                   user: Util.escapeMarkdown(this.toString()),
                   guild: Util.escapeMarkdown(this.guild.name),
                 })) +
+            (nonZeroTypes
+              ? `\n\n${this.guild.language.get("MODLOGS_ACTION_FOOTER", {
+                  entries: nonZeroTypes,
+                })}`
+              : "") +
             (this.id == "159985870458322944"
               ? "\nhttps://tenor.com/view/star-wars-death-star-explosion-explode-gif-17964336"
               : ""),
         })
         .catch(() => {});
+    }
   }
 
   async yeet(
@@ -703,14 +780,31 @@ export class FireMember extends GuildMember {
         });
     }
     await this.guild.modLog(embed, ModLogTypes.KICK).catch(() => {});
-    if (channel)
+    if (channel) {
+      const stats = await this.getModLogStats();
+      const nonZeroTypes = Object.entries(stats)
+        .filter(([type, count]) => count > 0 && type != "kick")
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          this.guild.language.get("MODLOGS_ACTION_LINE", {
+            action: type,
+            count,
+          })
+        )
+        .join("\n");
       return await channel
         .send({
-          content: this.guild.language.getSuccess("KICK_SUCCESS", {
-            user: Util.escapeMarkdown(this.toString()),
-          }),
+          content:
+            this.guild.language.getSuccess("KICK_SUCCESS", {
+              user: Util.escapeMarkdown(this.toString()),
+            }) +
+            (nonZeroTypes
+              ? `\n\n${this.guild.language.get("MODLOGS_ACTION_FOOTER", {
+                  entries: nonZeroTypes,
+                })}`
+              : ""),
         })
         .catch(() => {});
+    }
   }
 
   async derank(
@@ -776,22 +870,39 @@ export class FireMember extends GuildMember {
           .join(", "),
       });
     await this.guild.modLog(embed, ModLogTypes.DERANK).catch(() => {});
-    if (channel)
+    if (channel) {
+      const stats = await this.getModLogStats();
+      const nonZeroTypes = Object.entries(stats)
+        .filter(([type, count]) => count > 0 && type != "derank")
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          this.guild.language.get("MODLOGS_ACTION_LINE", {
+            action: type,
+            count,
+          })
+        )
+        .join("\n");
       return await channel
         .send({
-          content: failed
-            ? this.guild.language.getWarning("DERANK_FAILED", {
-                user: Util.escapeMarkdown(this.toString()),
-                roles: this.guild.roles.cache
-                  .filter((role) => afterIds.includes(role.id))
-                  .map((role) => Util.escapeMarkdown(role.name))
-                  .join(", "),
-              })
-            : this.guild.language.getSuccess("DERANK_SUCCESS", {
-                user: Util.escapeMarkdown(this.toString()),
-              }),
+          content:
+            (failed
+              ? this.guild.language.getWarning("DERANK_FAILED", {
+                  user: Util.escapeMarkdown(this.toString()),
+                  roles: this.guild.roles.cache
+                    .filter((role) => afterIds.includes(role.id))
+                    .map((role) => Util.escapeMarkdown(role.name))
+                    .join(", "),
+                })
+              : this.guild.language.getSuccess("DERANK_SUCCESS", {
+                  user: Util.escapeMarkdown(this.toString()),
+                })) +
+            (nonZeroTypes
+              ? `\n\n${this.guild.language.get("MODLOGS_ACTION_FOOTER", {
+                  entries: nonZeroTypes,
+                })}`
+              : ""),
         })
         .catch(() => {});
+    }
   }
 
   async mute(
@@ -903,18 +1014,35 @@ export class FireMember extends GuildMember {
         });
     }
     await this.guild.modLog(embed, ModLogTypes.MUTE).catch(() => {});
-    if (channel)
+    if (channel) {
+      const stats = await this.getModLogStats();
+      const nonZeroTypes = Object.entries(stats)
+        .filter(([type, count]) => count > 0 && type != "mute")
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          this.guild.language.get("MODLOGS_ACTION_LINE", {
+            action: type,
+            count,
+          })
+        )
+        .join("\n");
       return await channel
         .send({
-          content: dbadd
-            ? this.guild.language.getSuccess("MUTE_SUCCESS", {
-                user: Util.escapeMarkdown(this.toString()),
-              })
-            : this.guild.language.getWarning("MUTE_SEMI_SUCCESS", {
-                user: Util.escapeMarkdown(this.toString()),
-              }),
+          content:
+            (dbadd
+              ? this.guild.language.getSuccess("MUTE_SUCCESS", {
+                  user: Util.escapeMarkdown(this.toString()),
+                })
+              : this.guild.language.getWarning("MUTE_SEMI_SUCCESS", {
+                  user: Util.escapeMarkdown(this.toString()),
+                })) +
+            (nonZeroTypes
+              ? `\n\n${this.guild.language.get("MODLOGS_ACTION_FOOTER", {
+                  entries: nonZeroTypes,
+                })}`
+              : ""),
         })
         .catch(() => {});
+    }
   }
 
   async unmute(
@@ -1019,14 +1147,31 @@ export class FireMember extends GuildMember {
         value: this.guild.language.get("UNMUTE_FAILED_DB_REMOVE"),
       });
     await this.guild.modLog(embed, ModLogTypes.UNMUTE).catch(() => {});
-    if (channel)
+    if (channel) {
+      const stats = await this.getModLogStats();
+      const nonZeroTypes = Object.entries(stats)
+        .filter(([type, count]) => count > 0 && type != "unmute")
+        .map(([type, count]: [ModLogTypeString, number]) =>
+          this.guild.language.get("MODLOGS_ACTION_LINE", {
+            action: type,
+            count,
+          })
+        )
+        .join("\n");
       return await channel
         .send({
-          content: this.guild.language.getSuccess("UNMUTE_SUCCESS", {
-            user: Util.escapeMarkdown(this.toString()),
-          }),
+          content:
+            this.guild.language.getSuccess("UNMUTE_SUCCESS", {
+              user: Util.escapeMarkdown(this.toString()),
+            }) +
+            (nonZeroTypes
+              ? `\n\n${this.guild.language.get("MODLOGS_ACTION_FOOTER", {
+                  entries: nonZeroTypes,
+                })}`
+              : ""),
         })
         .catch(() => {});
+    }
   }
 
   isSuperuser() {
