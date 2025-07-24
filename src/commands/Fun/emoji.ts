@@ -79,7 +79,7 @@ export default class Emoji extends Command {
     this.resetIndexes();
     if (
       !constants.imageExts.some(
-        (ext) => emoji.split("?")[0].endsWith(ext)
+        (ext) => emoji.split("?")[0].toLowerCase().endsWith(ext)
         // there is a chance for this to break if they change the "1"
         // but the likelihood of that happening is very low
       )
