@@ -1,5 +1,6 @@
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
+import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import {
   constants,
   CouponType,
@@ -129,6 +130,71 @@ export default class GuildMemberUpdate extends Listener {
               .disableCommunicationUntil(new Date(until))
               .catch(() => {})
           : await newMember.roles.add(newMember.guild.muteRole).catch(() => {});
+    }
+
+    // TODO: use timestamp - 24 hours to determine if new and log as additional treatment
+    if (
+      newMember.guild.hasExperiment(495100165, 2) &&
+      newMember.unusualDMActivityUntil &&
+      +new Date() - newMember.joinedTimestamp < 259_200_000 &&
+      // ignore boosters, less likely to be a result of spam/sus activity
+      !newMember.roles.cache.has(
+        newMember.guild.roles.premiumSubscriberRole?.id
+      )
+    ) {
+      this.client.manager.writeToInflux([
+        {
+          measurement: "unusual_dm_activity",
+          tags: {
+            guild_id: newMember.guild.id,
+            user_id: newMember.id,
+          },
+          fields: {
+            unusual_dm_activity_until:
+              newMember.unusualDMActivityUntilTimestamp ?? 0,
+            guild: `${newMember.guild} (${newMember.guild.id})`,
+            user: `${newMember.user} (${newMember.id})`,
+            joinedAt: newMember.joinedTimestamp,
+          },
+        },
+      ]);
+      await newMember.bean(
+        "Sent excessive DMs to non-friend server members in the last 24 hours",
+        newMember.guild.members.me as FireMember,
+        null,
+        604_800,
+        newMember.guild.safetyAlertsChannel as FireTextChannel,
+        false
+      );
+    } else if (
+      newMember.guild.hasExperiment(495100165, 1) &&
+      newMember.unusualDMActivityUntilTimestamp &&
+      newMember.unusualDMActivityUntilTimestamp - 86_400_000 >
+        +new Date() - 60_000 &&
+      // ignore boosters, less likely to be a result of spam/sus activity
+      !newMember.roles.cache.has(
+        newMember.guild.roles.premiumSubscriberRole?.id
+      )
+    ) {
+      this.client.manager.writeToInflux([
+        {
+          measurement: "unusual_dm_activity",
+          tags: {
+            guild_id: newMember.guild.id,
+            user_id: newMember.id,
+          },
+          fields: {
+            unusual_dm_activity_until:
+              newMember.unusualDMActivityUntilTimestamp ?? 0,
+            guild: `${newMember.guild} (${newMember.guild.id})`,
+            user: `${newMember.user} (${newMember.id})`,
+            joinedAt: newMember.joinedTimestamp,
+          },
+        },
+      ]);
+      await newMember.guild.safetyAlertsChannel.send(
+        `${newMember} (${newMember.id}) has sent excessive DMs to non-friend server members in the last 24 hours`
+      );
     }
 
     // maybe fix role persist removing on member upddte shortly after joining
