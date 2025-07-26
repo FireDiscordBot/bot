@@ -1114,7 +1114,8 @@
     "unmute": "Unmute",
     "role_persist": "Role Persist",
     "blacklist": "Blacklist",
-    "unblacklist": "Unblacklist"
+    "unblacklist": "Unblacklist",
+    "unusual_dm_activity": "Unusual DM Activity"
   },
   "MODLOGS_ACTION_FOOTER": "They have also had other actions taken against them in the past:\n{{entries}}",
   "MODLOGS_ACTION_LINE": "**$t(MODLOGS_TYPES.{{action}})**: {{count}}",

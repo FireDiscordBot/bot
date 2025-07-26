@@ -5,6 +5,7 @@ import {
   constants,
   CouponType,
   MemberLogTypes,
+  ModLogTypes,
 } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
@@ -137,9 +138,11 @@ export default class GuildMemberUpdate extends Listener {
       newMember.guild.hasExperiment(495100165, 2) &&
       newMember.unusualDMActivityUntil &&
       +new Date() - newMember.joinedTimestamp < 259_200_000 &&
-      // ignore boosters, less likely to be a result of spam/sus activity
-      !newMember.roles.cache.has(
-        newMember.guild.roles.premiumSubscriberRole?.id
+      // ignore non-new boosters (here longer than a week), less likely to be a result of spam/sus activity
+      !(
+        newMember.roles.cache.has(
+          newMember.guild.roles.premiumSubscriberRole?.id
+        ) && newMember.joinedTimestamp > +new Date() - 604_800_000
       )
     ) {
       this.client.manager.writeToInflux([
@@ -159,7 +162,10 @@ export default class GuildMemberUpdate extends Listener {
         },
       ]);
       await newMember.bean(
-        "Sent excessive DMs to non-friend server members in the last 24 hours",
+        `Sent excessive DMs to non-friend server members in the last 24 hours, flagged until ${Formatters.time(
+          newMember.unusualDMActivityUntil,
+          "F"
+        )}, joined ${Formatters.time(newMember.joinedAt, "R")}`,
         newMember.guild.members.me as FireMember,
         null,
         604_800,
@@ -192,8 +198,19 @@ export default class GuildMemberUpdate extends Listener {
           },
         },
       ]);
+      await newMember.createModLogEntry(
+        newMember.guild.members.me as FireMember,
+        ModLogTypes.UNUSUAL_DM_ACTIVITY,
+        "Sent excessive DMs to non-friend server members",
+        new Date(newMember.unusualDMActivityUntilTimestamp - 86_400_000)
+      );
       await newMember.guild.safetyAlertsChannel.send(
-        `${newMember} (${newMember.id}) has sent excessive DMs to non-friend server members in the last 24 hours`
+        `${newMember} (${
+          newMember.id
+        }) has sent excessive DMs to non-friend server members in the last 24 hours, flagged until ${Formatters.time(
+          newMember.unusualDMActivityUntil,
+          "F"
+        )}, joined ${Formatters.time(newMember.joinedAt, "R")}`
       );
     }
 

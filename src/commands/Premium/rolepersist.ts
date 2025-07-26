@@ -152,8 +152,8 @@ export default class RolePersist extends Command {
     moderator: FireMember,
     reason: string
   ) {
-    await member.guild
-      .createModLogEntry(member, moderator, ModLogTypes.ROLE_PERSIST, reason)
+    await member
+      .createModLogEntry(moderator, ModLogTypes.ROLE_PERSIST, reason)
       .catch(() => {});
     const embed = new MessageEmbed()
       .setTimestamp()

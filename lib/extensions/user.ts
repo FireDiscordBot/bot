@@ -261,6 +261,7 @@ export class FireUser extends User {
       role_persist: 0,
       blacklist: 0,
       unblacklist: 0,
+      unusual_dm_activity: 0,
     };
     if (!logs) return types;
     for await (const entry of logs) {

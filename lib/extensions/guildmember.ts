@@ -190,6 +190,15 @@ export class FireMember extends GuildMember {
     return this.user.getModLogStats(this.guild, excludeAutomated);
   }
 
+  async createModLogEntry(
+    moderator: FireMember,
+    type: ModLogTypes,
+    reason: string,
+    date?: Date
+  ) {
+    return this.guild.createModLogEntry(this, moderator, type, reason, date);
+  }
+
   private isHoisted() {
     const badName = this.guild.settings.get<string>(
       "utils.badname",
@@ -462,9 +471,11 @@ export class FireMember extends GuildMember {
         { name: this.guild.language.get("REASON"), value: reason },
       ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
-    const logEntry = await this.guild
-      .createModLogEntry(this, moderator, ModLogTypes.WARN, reason)
-      .catch(() => {});
+    const logEntry = await this.createModLogEntry(
+      moderator,
+      ModLogTypes.WARN,
+      reason
+    ).catch(() => {});
     if (!logEntry) return "ENTRY";
     let noDM: boolean = false;
     await this.send(
@@ -556,9 +567,11 @@ export class FireMember extends GuildMember {
         { name: this.guild.language.get("REASON"), value: reason },
       ])
       .setFooter({ text: `${this.id} | ${moderator.id}` });
-    const logEntry = await this.guild
-      .createModLogEntry(this, moderator, ModLogTypes.NOTE, reason)
-      .catch(() => {});
+    const logEntry = await this.createModLogEntry(
+      moderator,
+      ModLogTypes.NOTE,
+      reason
+    ).catch(() => {});
     if (!logEntry) return "ENTRY";
     await this.guild.modLog(embed, ModLogTypes.NOTE).catch(() => {});
     const count = await this.client.db
@@ -617,9 +630,11 @@ export class FireMember extends GuildMember {
     )
       return "HIGHER";
 
-    const logEntry = await this.guild
-      .createModLogEntry(this, moderator, ModLogTypes.BAN, reason)
-      .catch(() => {});
+    const logEntry = await this.createModLogEntry(
+      moderator,
+      ModLogTypes.BAN,
+      reason
+    ).catch(() => {});
     if (!logEntry) return "ENTRY";
     if (this.guild.mutes.has(this.id))
       await this.unmute(
@@ -735,9 +750,11 @@ export class FireMember extends GuildMember {
   ) {
     if (!reason || !moderator) return null;
     if (!moderator.isModerator(channel)) return "FORBIDDEN";
-    const logEntry = await this.guild
-      .createModLogEntry(this, moderator, ModLogTypes.KICK, reason)
-      .catch(() => {});
+    const logEntry = await this.createModLogEntry(
+      moderator,
+      ModLogTypes.KICK,
+      reason
+    ).catch(() => {});
     if (!logEntry) return "ENTRY";
     const kicked = await this.kick(`${moderator} | ${reason}`).catch(() => {});
     if (!kicked) {
@@ -818,9 +835,11 @@ export class FireMember extends GuildMember {
   ) {
     if (!reason || !moderator) return null;
     if (!moderator.isModerator(channel)) return "FORBIDDEN";
-    const logEntry = await this.guild
-      .createModLogEntry(this, moderator, ModLogTypes.DERANK, reason)
-      .catch(() => {});
+    const logEntry = await this.createModLogEntry(
+      moderator,
+      ModLogTypes.DERANK,
+      reason
+    ).catch(() => {});
     if (!logEntry) return "ENTRY";
     let failed = false;
     const beforeIds = this.roles.cache
@@ -933,9 +952,11 @@ export class FireMember extends GuildMember {
       const role = await this.guild.initMuteRole();
       if (!role) return "ROLE";
     } else if (!canTimeOut) this.guild.syncMuteRolePermissions();
-    const logEntry = await this.guild
-      .createModLogEntry(this, moderator, ModLogTypes.MUTE, reason)
-      .catch(() => {});
+    const logEntry = await this.createModLogEntry(
+      moderator,
+      ModLogTypes.MUTE,
+      reason
+    ).catch(() => {});
     if (!logEntry) return "ENTRY";
     const muted = canTimeOut
       ? await this.disableCommunicationUntil(
@@ -1095,9 +1116,11 @@ export class FireMember extends GuildMember {
         .catch(() => {});
       return "NOT_MUTED";
     }
-    const logEntry = await this.guild
-      .createModLogEntry(this, moderator, ModLogTypes.UNMUTE, reason)
-      .catch(() => {});
+    const logEntry = await this.createModLogEntry(
+      moderator,
+      ModLogTypes.UNMUTE,
+      reason
+    ).catch(() => {});
     if (!logEntry) return "ENTRY";
     const until = this.guild.mutes.get(this.id);
     this.guild.mutes.delete(this.id);

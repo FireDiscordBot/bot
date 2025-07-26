@@ -71,6 +71,7 @@ export enum ModLogTypes {
   ROLE_PERSIST = 1 << 10,
   BLACKLIST = 1 << 11,
   UNBLACKLIST = 1 << 12,
+  UNUSUAL_DM_ACTIVITY = 1 << 13,
 }
 export const DEFAULT_MOD_LOG_FLAGS = Object.values(ModLogTypes)
   .filter((v) => typeof v == "number")
@@ -102,6 +103,7 @@ export const ModLogTypesEnumToString = {
   [ModLogTypes.ROLE_PERSIST]: "role_persist",
   [ModLogTypes.BLACKLIST]: "blacklist",
   [ModLogTypes.UNBLACKLIST]: "unblacklist",
+  [ModLogTypes.UNUSUAL_DM_ACTIVITY]: "unusual_dm_activity",
 };
 export type ModLogTypeString =
   | "system"
@@ -117,7 +119,8 @@ export type ModLogTypeString =
   | "unmute"
   | "role_persist"
   | "blacklist"
-  | "unblacklist";
+  | "unblacklist"
+  | "unusual_dm_activity";
 
 export type LinkfilterExcluded = LinkfilterExcludedItem[];
 

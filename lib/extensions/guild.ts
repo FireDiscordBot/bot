@@ -1506,7 +1506,8 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     user: FireUser | FireMember,
     moderator: FireMember,
     type: ModLogTypes,
-    reason: string
+    reason: string,
+    date?: Date
   ) {
     if (
       (user instanceof FireUser && user.bot) ||
@@ -1514,7 +1515,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     )
       return false;
     const typeString = ModLogTypesEnumToString[type];
-    const date = new Date();
+    date ??= new Date();
     const caseID = nanoid();
     const entryResult = await this.client.db
       .query(
