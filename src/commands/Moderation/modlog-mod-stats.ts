@@ -73,9 +73,11 @@ export default class ModlogsStats extends Command {
       )
       .setTimestamp(time ?? new Date())
       .setFooter({
-        text: command.language.get("MODLOGS_MODERATOR_STATS_FOOTER", {
-          userid: moderator.id,
-        }),
+        text: time
+          ? command.language.get("MODLOGS_MODERATOR_STATS_FOOTER", {
+              userid: moderator.id,
+            })
+          : moderator.id,
       });
     countsEmbed.addFields(
       Object.entries(stats)
