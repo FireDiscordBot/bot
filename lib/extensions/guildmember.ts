@@ -190,6 +190,44 @@ export class FireMember extends GuildMember {
     return this.user.getModLogStats(this.guild, excludeAutomated);
   }
 
+  async getModeratorStats(guild: FireGuild, since?: Date) {
+    if (!this.isModerator()) return null;
+    const logs = await this.client.db
+      .query(
+        since
+          ? "SELECT type, count(caseid) FROM modlogs WHERE modid=$1 AND gid=$2 AND created >= $3 GROUP BY type;"
+          : "SELECT type, count(caseid) FROM modlogs WHERE modid=$1 AND gid=$2 GROUP BY type;",
+        since ? [this.id, guild.id, since] : [this.id, guild.id]
+      )
+      .catch(() => {});
+    const types: {
+      [K in ModLogTypeString]: number;
+    } = {
+      system: 0,
+      warn: 0,
+      note: 0,
+      ban: 0,
+      unban: 0,
+      kick: 0,
+      block: 0,
+      unblock: 0,
+      derank: 0,
+      mute: 0,
+      unmute: 0,
+      role_persist: 0,
+      blacklist: 0,
+      unblacklist: 0,
+      unusual_dm_activity: 0,
+    };
+    if (!logs) return types;
+    for await (const entry of logs) {
+      const type = entry.get("type") as ModLogTypeString;
+      const count = entry.get("count") as bigint;
+      types[type] = Number(count); // we don't want bigints nor should we ever need them
+    }
+    return types;
+  }
+
   async createModLogEntry(
     moderator: FireMember,
     type: ModLogTypes,
