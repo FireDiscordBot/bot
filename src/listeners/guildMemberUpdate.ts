@@ -137,13 +137,8 @@ export default class GuildMemberUpdate extends Listener {
     if (
       newMember.guild.hasExperiment(495100165, 2) &&
       newMember.unusualDMActivityUntil &&
-      +new Date() - newMember.joinedTimestamp < 259_200_000 &&
-      // ignore non-new boosters (here longer than a week), less likely to be a result of spam/sus activity
-      !(
-        newMember.roles.cache.has(
-          newMember.guild.roles.premiumSubscriberRole?.id
-        ) && newMember.joinedTimestamp > +new Date() - 604_800_000
-      )
+      // ignore non-new members (here longer than a week), less likely to be a result of spam/sus activity
+      newMember.joinedTimestamp > +new Date() - 604_800_000
     ) {
       this.client.manager.writeToInflux([
         {
@@ -176,11 +171,7 @@ export default class GuildMemberUpdate extends Listener {
       newMember.guild.hasExperiment(495100165, 1) &&
       newMember.unusualDMActivityUntilTimestamp &&
       newMember.unusualDMActivityUntilTimestamp - 86_400_000 >
-        +new Date() - 60_000 &&
-      // ignore boosters, less likely to be a result of spam/sus activity
-      !newMember.roles.cache.has(
-        newMember.guild.roles.premiumSubscriberRole?.id
-      )
+        +new Date() - 60_000
     ) {
       this.client.manager.writeToInflux([
         {
