@@ -33,7 +33,7 @@ export default class BadName extends Command {
 
     if (current == args.name) return message.success("BADNAME_NO_CHANGES");
 
-    if (args.name.length > 32 || args.name.length < 2)
+    if (args.name && (args.name.length > 32 || args.name.length < 2))
       return message.error("BADNAME_LENGTH");
 
     if (args.name)
