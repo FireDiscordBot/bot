@@ -291,7 +291,7 @@ export default class Select extends Listener {
           originalMessage.content
         );
         const hasYouTubeEmbed = originalMessage.embeds.find((e) =>
-          e.url.includes(`/watch?v=${hasYouTubeLink?.groups?.video}`)
+          e.url?.includes(`/watch?v=${hasYouTubeLink?.groups?.video}`)
         );
         regexes.youtube.video.lastIndex = 0;
 
