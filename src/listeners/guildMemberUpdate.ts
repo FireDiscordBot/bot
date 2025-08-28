@@ -134,11 +134,13 @@ export default class GuildMemberUpdate extends Listener {
     }
 
     // TODO: use timestamp - 24 hours to determine if new and log as additional treatment
+    const now = +new Date();
     if (
       newMember.guild.hasExperiment(495100165, 2) &&
       newMember.unusualDMActivityUntil &&
-      // ignore non-new members (here longer than a week), less likely to be a result of spam/sus activity
-      newMember.joinedTimestamp > +new Date() - 604_800_000
+      newMember.unusualDMActivityUntilTimestamp > now &&
+      // ignore non-new members (here longer than a month), less likely to be a result of spam/sus activity
+      newMember.joinedTimestamp > now - 2_629_746_000
     ) {
       this.client.manager.writeToInflux([
         {
@@ -169,9 +171,9 @@ export default class GuildMemberUpdate extends Listener {
       );
     } else if (
       newMember.guild.hasExperiment(495100165, 1) &&
-      newMember.unusualDMActivityUntilTimestamp &&
-      newMember.unusualDMActivityUntilTimestamp - 86_400_000 >
-        +new Date() - 60_000
+      newMember.unusualDMActivityUntil &&
+      newMember.unusualDMActivityUntilTimestamp > now &&
+      newMember.unusualDMActivityUntilTimestamp - 86_400_000 > now - 60_000
     ) {
       this.client.manager.writeToInflux([
         {
