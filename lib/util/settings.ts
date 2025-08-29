@@ -363,12 +363,6 @@ export class UserSettings {
       this.client.manager.ws.handlers.set(
         nonce,
         (data: { success: boolean }) => {
-          this.client.console.debug({
-            user: this.user.toString(),
-            setting: key,
-            value,
-            data,
-          });
           clearTimeout(timeout);
           resolve(data.success);
         }
