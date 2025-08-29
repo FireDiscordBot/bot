@@ -192,7 +192,7 @@ export class GuildSettings {
     const value = this.get(key);
     delete this.data[key];
 
-    const deleted = new Promise((resolve: ResolveBoolean, reject) => {
+    const deleted = await new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
       const timeout = setTimeout(() => {
         if (this.client.manager.ws.handlers.has(nonce))
@@ -354,7 +354,7 @@ export class UserSettings {
     const previous = this.get(key);
     this.data[key] = value;
 
-    const updated = new Promise((resolve: ResolveBoolean, reject) => {
+    const updated = await new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
       const timeout = setTimeout(() => {
         if (this.client.manager.ws.handlers.has(nonce))
@@ -363,6 +363,12 @@ export class UserSettings {
       this.client.manager.ws.handlers.set(
         nonce,
         (data: { success: boolean }) => {
+          this.client.console.debug({
+            user: this.user.toString(),
+            setting: key,
+            value,
+            data,
+          });
           clearTimeout(timeout);
           resolve(data.success);
         }
@@ -397,7 +403,7 @@ export class UserSettings {
     const value = this.get(key);
     delete this.data[key];
 
-    const deleted = new Promise((resolve: ResolveBoolean, reject) => {
+    const deleted = await new Promise((resolve: ResolveBoolean, reject) => {
       const nonce = SnowflakeUtil.generate();
       const timeout = setTimeout(() => {
         if (this.client.manager.ws.handlers.has(nonce))
