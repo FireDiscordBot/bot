@@ -55,8 +55,8 @@ export class ContextCommandMessage {
   type: MessageType = "DEFAULT";
   latestResponseId: Snowflake;
   latestResponse: FireMessage;
+  private _flags: number = 0;
   mentions: MessageMentions;
-  private _flags: number;
   content: string = "";
   channel: FakeChannel;
   deleteReason: string;

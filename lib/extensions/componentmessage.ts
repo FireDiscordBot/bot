@@ -41,8 +41,8 @@ export class ComponentMessage {
   latestResponseId: Snowflake;
   latestResponse: FireMessage;
   type: MessageComponentType;
+  private _flags: number = 0;
   ephemeralSource: boolean;
-  private _flags: number;
   message: FireMessage;
   channel: FakeChannel;
   member: FireMember;

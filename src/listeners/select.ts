@@ -57,7 +57,7 @@ export default class Select extends Listener {
 
   // used to handle generic dropdowns like the rank selector
   async exec(select: ComponentMessage) {
-    if (select.type != "SELECT_MENU") return;
+    if (select.type != "SELECT_MENU" && select.type != "STRING_SELECT") return;
 
     if (select.customId == "quote_copy") {
       select.flags = 64;

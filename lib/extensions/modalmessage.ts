@@ -40,8 +40,8 @@ export class ModalMessage {
   sent: false | "ack" | "message";
   latestResponse: FireMessage;
   latestResponseId: Snowflake;
+  private _flags: number = 0;
   ephemeralSource: boolean;
-  private _flags: number;
   message?: FireMessage;
   channel: FakeChannel;
   member: FireMember;

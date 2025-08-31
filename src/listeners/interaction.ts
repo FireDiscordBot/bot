@@ -157,8 +157,10 @@ export default class InteractionListener extends Listener {
       );
     else if (interaction.isButton())
       return await this.handleButton(interaction);
-    else if (interaction.isSelectMenu())
-      return await this.handleSelect(interaction);
+    else if (interaction.isStringSelectMenu())
+      return await this.handleStringSelect(interaction);
+    else if (interaction.isChannelSelectMenu())
+      return await this.handleChannelSelect(interaction);
     else if (interaction.isModalSubmit())
       return await this.handleModalSubmit(interaction);
   }
@@ -315,7 +317,8 @@ export default class InteractionListener extends Listener {
     }
   }
 
-  async handleSelect(select: MessageComponentInteraction) {
+  async handleStringSelect(select: MessageComponentInteraction) {
+    if (!select.isStringSelectMenu()) return;
     try {
       // should be cached if in guild or fetch if dm channel
       await this.client.channels.fetch(select.channelId).catch(() => {});
@@ -323,6 +326,42 @@ export default class InteractionListener extends Listener {
       if (!message.customId.startsWith("!")) await message.channel.ack();
       else message.customId = message.customId.slice(1);
       this.client.emit("select", message);
+    } catch (error) {
+      await this.error(select, error).catch(() => {
+        select.reply(
+          `${this.client.util.useEmoji("error")} Something went wrong...`
+        );
+      });
+      if (typeof this.client.sentry != "undefined") {
+        const sentry = this.client.sentry;
+        sentry.captureException(error, {
+          extra: {
+            button: JSONStringifyBigint(select),
+            member: select.member
+              ? select.member.toString()
+              : select.user.toString(),
+            channel_id: select.channelId,
+            guild_id: select.guildId,
+            env: process.env.NODE_ENV,
+          },
+          user: {
+            id: select.user.id,
+            username: select.user.toString(),
+          },
+        });
+      }
+    }
+  }
+
+  async handleChannelSelect(select: MessageComponentInteraction) {
+    if (!select.isChannelSelectMenu()) return;
+    try {
+      // should be cached if in guild or fetch if dm channel
+      await this.client.channels.fetch(select.channelId).catch(() => {});
+      const message = new ComponentMessage(this.client, select);
+      if (!message.customId.startsWith("!")) await message.channel.ack();
+      else message.customId = message.customId.slice(1);
+      this.client.emit("channelSelect", message);
     } catch (error) {
       await this.error(select, error).catch(() => {
         select.reply(

@@ -1203,6 +1203,13 @@ export class FireMessage extends Message {
     const starboard = this.guild.starboard;
     if (!starboard || this.channel.id == starboard.id) return;
 
+    const limitedChannels = this.guild.settings.get<Snowflake[]>(
+      "starboard.limitchannels",
+      []
+    );
+    if (limitedChannels.length && !limitedChannels.includes(this.channel.id))
+      return;
+
     if (!this.guild.starboardReactions)
       await this.guild.loadStarboardReactions();
 

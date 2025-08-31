@@ -56,8 +56,8 @@ export class ApplicationCommandMessage {
   type: MessageType = "DEFAULT";
   latestResponseId: Snowflake;
   latestResponse: FireMessage;
+  private _flags: number = 0;
   mentions: MessageMentions;
-  private _flags: number;
   channel: FakeChannel;
   content: string = "";
   deleteReason: string;
