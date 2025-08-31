@@ -397,6 +397,7 @@ export default class Button extends Listener {
         components,
       });
     } else if (button.customId.startsWith(`rank:`)) {
+      button.flags = 64;
       const roleId = button.customId.slice(5) as Snowflake;
       const role = button.guild?.roles.cache.get(roleId);
       if (!role || !button.guild || !button.member) return;
