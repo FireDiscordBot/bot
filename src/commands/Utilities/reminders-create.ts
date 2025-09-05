@@ -437,7 +437,7 @@ export default class RemindersCreate extends Command {
       return await command.error("REMINDER_PAST_TIME", {
         includeSlashUpsell: true,
       });
-    if (!repeat || repeat > 6 || repeat < 1)
+    if (!repeat || (repeat > 6 && !command.author.isSuperuser()) || repeat < 1)
       return await command.error("REMINDER_INVALID_REPEAT", {
         includeSlashUpsell: true,
       });
