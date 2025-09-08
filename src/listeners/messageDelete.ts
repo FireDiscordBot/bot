@@ -119,7 +119,7 @@ export default class MessageDelete extends Listener {
               ? {
                   name: message.guild.language.get("ACTIVITY"),
                   value:
-                    (message.activity.partyId.startsWith("spotify:")
+                    (message.activity.partyId?.startsWith("spotify:")
                       ? message.guild.language.get(
                           "MSGDELETELOG_SPOTIFY_ACTIVITY"
                         ) + "\n"
