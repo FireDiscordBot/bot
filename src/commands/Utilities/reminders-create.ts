@@ -185,8 +185,14 @@ export default class RemindersCreate extends Command {
       const clickedMessage = (
         command as ContextCommandMessage
       ).getMessage() as FireMessage;
-      if (!clickedMessage?.content)
-        return await command.error("REMINDER_MISSING_CONTEXT");
+
+      const content =
+        clickedMessage?.content ||
+        clickedMessage?.messageSnapshots.first()?.content;
+      const embeds = clickedMessage?.embeds.length
+        ? clickedMessage.embeds
+        : clickedMessage?.messageSnapshots.first()?.embeds ?? [];
+      if (!content) return await command.error("REMINDER_MISSING_CONTEXT");
 
       const now = +new Date();
 
@@ -202,7 +208,7 @@ export default class RemindersCreate extends Command {
 
       // Parse with chrono-node early so we can get the content without the time
       let { parsed, preliminaryParsedDate: date } = parseWithUserTimezone(
-          clickedMessage.content,
+          content,
           clickedMessage.createdAt,
           // we can't use FireUser#timezone for clickedMessage.author here
           // as we don't want to have Etc/UTC returned as a default
@@ -216,18 +222,16 @@ export default class RemindersCreate extends Command {
         useEmbedDescription = false;
       if (
         !parsed.length &&
-        clickedMessage.embeds.length &&
-        clickedMessage.content
-          .replaceAll("x.com", "twitter.com")
-          .includes(clickedMessage.embeds[0].url) &&
-        clickedMessage.embeds[0].description
+        embeds.length &&
+        content.replaceAll("x.com", "twitter.com").includes(embeds[0].url) &&
+        embeds[0].description
       )
         // possibly a linked tweet or other social media post, use that instead
         (parsed = strict.parse(
-          clickedMessage.embeds[0].description,
+          embeds[0].description,
           {
-            instant: clickedMessage.embeds[0].timestamp
-              ? new Date(clickedMessage.embeds[0].timestamp)
+            instant: embeds[0].timestamp
+              ? new Date(embeds[0].timestamp)
               : clickedMessage.createdAt,
             timezone: dayjs
               .tz(
@@ -252,9 +256,7 @@ export default class RemindersCreate extends Command {
           (res, index, self) =>
             self.findIndex((r) => +r.start.date() == +res.start.date()) == index
         );
-      let reminderText = useEmbedDescription
-        ? clickedMessage.embeds[0].description
-        : clickedMessage.content;
+      let reminderText = useEmbedDescription ? embeds[0].description : content;
       // for (const result of parsed)
       //   reminderText = reminderText.replace(result.text, "");
       // reminderText = reminderText.replace(doubledUpWhitespace, " ").trim();
@@ -271,7 +273,7 @@ export default class RemindersCreate extends Command {
 
       // Find a YouTube video, check if premiere/scheduled livestream
       // idt this warrants supporting multiple links so it'll only do the first match
-      const ytVideos = regexes.youtube.video.exec(clickedMessage.content);
+      const ytVideos = regexes.youtube.video.exec(content);
       regexes.youtube.video.lastIndex = 0;
       if (ytVideos && ytVideos.groups?.video) {
         const video = await this.client.util
@@ -283,11 +285,11 @@ export default class RemindersCreate extends Command {
           .catch(() => {});
         if (video) {
           // ensure we replace embed suppression
-          if (clickedMessage.content.includes(`<${ytVideos[0]}>`))
+          if (content.includes(`<${ytVideos[0]}>`))
             ytVideos[0] = `<${ytVideos[0]}>`;
           // We'll replace the link with the title regardless of
           // whether or not it is upcoming since we have the data anyways
-          reminderText = clickedMessage.content.replace(
+          reminderText = content.replace(
             ytVideos[0],
             `[${video.snippet.title}](<https://youtu.be/${video.id}>)`
           );
