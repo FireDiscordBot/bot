@@ -249,6 +249,7 @@ export default class Select extends Listener {
 
     if (select.customId.startsWith(`snooze:${select.author.id}:`)) {
       const isContext = select.customId.endsWith(":context");
+      if (isContext) select.flags = 64; // ensure responses are ephemeral
       const createRemind = this.client.getCommand(
         "reminders-create"
       ) as RemindersCreate;
@@ -264,11 +265,18 @@ export default class Select extends Listener {
           .fetchReference()
           .catch(() => {})) as FireMessage;
 
+      const content =
+        originalMessage?.content ||
+        originalMessage?.messageSnapshots.first()?.content;
+      const embeds = originalMessage?.embeds.length
+        ? originalMessage.embeds
+        : originalMessage?.messageSnapshots.first()?.embeds ?? [];
+
       if (
         // these conditions should all be true for the reminder message
         // so if any aren't, it's not usable
         !originalMessage ||
-        !originalMessage.content ||
+        !content ||
         (isContext
           ? false
           : !originalMessage.components.length ||
@@ -281,16 +289,12 @@ export default class Select extends Listener {
         // currently we only have a single case for useEmbedDescription
         // in createremind.ts so we can just use that condition as the value
         const useEmbedDescription =
-          originalMessage.embeds.length &&
-          originalMessage.content
-            .replaceAll("x.com", "twitter.com")
-            .includes(originalMessage.embeds[0].url) &&
-          originalMessage.embeds[0].description;
+          embeds.length &&
+          content.replaceAll("x.com", "twitter.com").includes(embeds[0].url) &&
+          embeds[0].description;
 
-        const hasYouTubeLink = regexes.youtube.video.exec(
-          originalMessage.content
-        );
-        const hasYouTubeEmbed = originalMessage.embeds.find((e) =>
+        const hasYouTubeLink = regexes.youtube.video.exec(content);
+        const hasYouTubeEmbed = embeds.find((e) =>
           e.url?.includes(`/watch?v=${hasYouTubeLink?.groups?.video}`)
         );
         regexes.youtube.video.lastIndex = 0;
@@ -299,16 +303,16 @@ export default class Select extends Listener {
           hasYouTubeLink && hasYouTubeEmbed
             ? `[${hasYouTubeEmbed.title}](${hasYouTubeEmbed.url})`
             : useEmbedDescription
-            ? originalMessage.embeds[0].description
-            : originalMessage.content;
+            ? embeds[0].description
+            : content;
       }
 
       const currentRemind = {
         text: isContext
           ? contextText
-          : originalMessage.embeds.length
-          ? originalMessage.embeds[0].description
-          : originalMessage.content.split("\n\n").at(1) ?? undefined,
+          : embeds.length
+          ? embeds[0].description
+          : content.split("\n\n").at(1) ?? undefined,
         link: originalMessage.components.length
           ? (originalMessage.components[0].components as MessageButton[]).find(
               (button) => button.style == "LINK"
