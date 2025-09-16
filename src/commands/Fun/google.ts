@@ -1,8 +1,3 @@
-import {
-  createAudioResource,
-  getVoiceConnection,
-  joinVoiceChannel,
-} from "@discordjs/voice";
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
@@ -17,7 +12,6 @@ import {
   MessageSelectMenu,
   SnowflakeUtil,
 } from "discord.js";
-import { Readable } from "stream";
 
 enum GoogleAssistantActions {
   GET_AUTHENTICATE_URL,
@@ -193,35 +187,9 @@ export default class Google extends Command {
       const screenshot = Buffer.from(assist.response.screenshot.image.data);
       files.push({ attachment: screenshot, name: "google.png" });
     }
-    const canPlayAudio =
-      assist.response.audio &&
-      // author voice will give voice state for any guild on the same cluster
-      // so it's a nice little bonus if you happen to be in a vc
-      // in one server and run the command in another on the same cluster
-      (command.member ?? command.author).voice?.channelId;
-    if (canPlayAudio) {
-      const state = (command.member ?? command.author).voice;
-      const audio = Buffer.from(assist.response.audio.data);
-      const connection =
-        getVoiceConnection(state.guild.id) ??
-        joinVoiceChannel({
-          channelId: state.channelId,
-          guildId: state.guild.id,
-          // @ts-ignore
-          adapterCreator: state.guild.voiceAdapterCreator,
-        });
-      const player = this.client.util.createAssistantAudioPlayer(
-        command.member ?? command.author,
-        connection
-      );
-      connection.subscribe(player);
-      player.play(createAudioResource(Readable.from(audio)));
-    }
     return await command.channel.send({
       content: !files.length
-        ? assist.response.text ?? canPlayAudio
-          ? command.language.get("GOOGLE_RESPONSE_AUDIO_ONLY")
-          : command.language.get("GOOGLE_NO_RESPONSE")
+        ? command.language.get("GOOGLE_NO_RESPONSE")
         : undefined,
       files,
       components,

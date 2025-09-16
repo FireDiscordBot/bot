@@ -1,11 +1,4 @@
 import * as sanitizer from "@aero/sanitizer";
-import {
-  AudioPlayer,
-  AudioPlayerStatus,
-  NoSubscriberBehavior,
-  VoiceConnection,
-  createAudioPlayer,
-} from "@discordjs/voice";
 import { Fire } from "@fire/lib/Fire";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -173,7 +166,6 @@ export class Util extends ClientUtil {
   paginators: LimitedCollection<Snowflake, PaginatorInterface>;
   loadedData: { plonked: boolean; premium: boolean };
   mcProfileCache: Collection<string, MojangProfile & { retrievedAt: Date }>;
-  assistantAudioPlayers: Collection<Snowflake, AudioPlayer>;
   permissionFlags: [PermissionString, bigint][];
   premium: Collection<string, PremiumData>;
   hasRoleUpdates: string[];
@@ -192,7 +184,6 @@ export class Util extends ClientUtil {
       },
       sweepInterval: 60,
     });
-    this.assistantAudioPlayers = new Collection();
     this.mcProfileCache = new Collection();
     this.premium = new Collection();
     this.hasRoleUpdates = [];
@@ -481,36 +472,6 @@ export class Util extends ClientUtil {
         profileReq.statusCode
       );
     else return body as MojangProfile;
-  }
-
-  createAssistantAudioPlayer(
-    user: FireMember | FireUser,
-    connection: VoiceConnection
-  ) {
-    if (this.assistantAudioPlayers.has(user.id))
-      return this.assistantAudioPlayers.get(user.id);
-    const player = createAudioPlayer({
-      behaviors: {
-        noSubscriber: NoSubscriberBehavior.Pause,
-      },
-    });
-    player.on("stateChange", async (oldState, newState) => {
-      if (
-        oldState.status == AudioPlayerStatus.Playing &&
-        newState.status == AudioPlayerStatus.Idle
-      ) {
-        await this.client.util.sleep(8000);
-        if (player.state.status != AudioPlayerStatus.Playing) {
-          try {
-            connection.destroy();
-            player.stop(true);
-            this.client.util.assistantAudioPlayers.delete(user.id);
-          } catch {}
-        }
-      }
-    });
-    this.assistantAudioPlayers.set(user.id, player);
-    return player;
   }
 
   addDashesToUUID = (uuid: string) =>

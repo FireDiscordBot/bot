@@ -1,13 +1,7 @@
-import {
-  createAudioResource,
-  getVoiceConnection,
-  joinVoiceChannel,
-} from "@discordjs/voice";
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { ModalMessage } from "@fire/lib/extensions/modalmessage";
-import { FireUser } from "@fire/lib/extensions/user";
 import {
   ActionLogTypes,
   constants,
@@ -35,7 +29,6 @@ import {
   TextInputComponent,
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
-import { Readable } from "stream";
 import { parseWithUserTimezone } from "../arguments/time";
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 import LoggingConfig from "../commands/Configuration/logging-configure";
@@ -213,34 +206,9 @@ export default class Select extends Listener {
         const screenshot = Buffer.from(assist.response.screenshot.image.data);
         files.push({ attachment: screenshot, name: "google.png" });
       }
-      const canPlayAudio =
-        assist.response.audio &&
-        (select.member ?? select.author).voice?.channelId;
-      if (canPlayAudio) {
-        const state = (select.member ?? select.author).voice;
-        const audio = Buffer.from(assist.response.audio.data);
-        const connection =
-          getVoiceConnection(state.guild.id) ??
-          joinVoiceChannel({
-            channelId: state.channelId,
-            guildId: state.guild.id,
-            // @ts-ignore
-            adapterCreator: state.guild.voiceAdapterCreator,
-          });
-        const player = this.client.util.createAssistantAudioPlayer(
-          (state.member ?? select.member ?? select.author) as
-            | FireMember
-            | FireUser,
-          connection
-        );
-        connection.subscribe(player);
-        player.play(createAudioResource(Readable.from(audio)));
-      }
       return await select.edit({
         content: !files.length
-          ? assist.response.text ?? canPlayAudio
-            ? select.language.get("GOOGLE_RESPONSE_AUDIO_ONLY")
-            : select.language.get("GOOGLE_NO_RESPONSE")
+          ? select.language.get("GOOGLE_NO_RESPONSE")
           : undefined,
         files,
         components,

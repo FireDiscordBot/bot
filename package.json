@@ -29,7 +29,6 @@
   "license": "AGPL-3.0-only",
   "dependencies": {
     "@aero/sanitizer": "^1.3.2",
-    "@discordjs/voice": "0.17.0",
     "@sapphire/async-queue": "^1.5.0",
     "@sentry/node": "^6.19.7",
     "centra": "^2.7.0",
