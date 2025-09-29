@@ -836,13 +836,20 @@ export class Command extends AkairoCommand {
     const languages = this.client.languages.modules;
     return {
       id: `${this.categoryID}/${this.id}` as `${string}/${string}`,
-      name: this.parent
-        ? this.id.replace(`${this.parent}-`, `${this.parent} `)
-        : this.id,
+      name: this.parent ? this.id.replace(`${this.parent}-`, "") : this.id,
       category: this.categoryID,
-      description: this.description(defaultLanguage),
+      parent: this.parent,
+      description:
+        typeof this.description == "function"
+          ? this.description(defaultLanguage)
+          : this.description,
       localisedDescription: Object.fromEntries(
-        languages.map((lang: Language) => [lang.id, this.description(lang)])
+        languages.map((lang: Language) => [
+          lang.id,
+          typeof this.description == "function"
+            ? this.description(lang)
+            : this.description,
+        ])
       ),
       arguments:
         this.args?.map((arg) => ({
@@ -867,9 +874,15 @@ export class Command extends AkairoCommand {
           autocomplete: arg.autocomplete,
           choices: arg.choices,
         })) ?? [],
+      subCommands: this.group
+        ? this.client.commandHandler.modules
+            .filter((c) => c.parent == this.id)
+            .map((c) => c.getCommandsV2Data())
+        : [],
       guilds: this.guilds.filter((guildId) =>
         this.client.ws.shards.has(this.client.util.getShard(guildId))
       ),
+      popular: false, // filled in by aether when returning commands list
       channel: this.channel,
       availableViaSlash: this.parent
         ? this.parentCommand.enableSlashCommand
