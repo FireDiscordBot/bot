@@ -305,7 +305,7 @@ discord-api-types@^0.38.24:
 
 discord.js@FireDiscordBot/discord.js:
   version "13.18.0-fire"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/87e8757d4f59486e028d87a85cad3c384d53fdba"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/15ad9a6d2a18fd40b5ff3cf15c8e73eab27d0ad6"
   dependencies:
     "@discordjs/builders" "^0.16.0"
     "@discordjs/collection" "^0.7.0"

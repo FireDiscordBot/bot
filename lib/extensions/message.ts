@@ -10,9 +10,11 @@ import {
   Channel,
   Collection,
   Constants,
+  ContainerComponent,
   DMChannel,
   DiscordAPIError,
   EmojiIdentifierResolvable,
+  FileComponent,
   GuildChannel,
   GuildTextBasedChannel,
   Message,
@@ -43,6 +45,8 @@ import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
 const { regexes, imageExts, audioExts, videoExts } = constants;
+
+const EIGHT_MIB = 8_388_608;
 
 export class FireMessage extends Message {
   declare channel:
@@ -432,7 +436,7 @@ export class FireMessage extends Message {
       !this.content &&
       !this.embeds.length &&
       !this.attachments.size &&
-      !this.components.filter((c) => c instanceof MessageActionRow).length &&
+      !this.components.length &&
       !(await this.getSystemContent())
     )
       return "empty";
@@ -458,14 +462,14 @@ export class FireMessage extends Message {
         !this.attachments.size ||
         this.attachments.reduce((size, attach) => {
           if (
-            attach.size + size > 10485760 &&
+            attach.size + size > EIGHT_MIB &&
             this.content &&
             this.content.length + attach.url.length + 2 <= 2000
           )
             // we can append the url of this
             return size;
           return size + attach.size;
-        }, 0) <= 10485760 ||
+        }, 0) <= EIGHT_MIB ||
         !this.content;
       const useWebhooks = webhook
         ? true
@@ -566,7 +570,7 @@ export class FireMessage extends Message {
       !this.attachments.size ||
       this.attachments.reduce((size, attach) => {
         if (
-          attach.size + size > 10485760 &&
+          attach.size + size > EIGHT_MIB &&
           this.content &&
           this.content.length + attach.url.length + 2 < 2000
         )
@@ -574,7 +578,7 @@ export class FireMessage extends Message {
           // to avoid any 413s
           return size;
         return size + attach.size;
-      }, 0) <= 10485760 ||
+      }, 0) <= EIGHT_MIB ||
       !this.content;
     const useWebhooks = webhook
       ? true
@@ -841,18 +845,23 @@ export class FireMessage extends Message {
             EMBED_LINKS) ==
           EMBED_LINKS;
     if (!canEmbed && content) content = this.client.util.supressLinks(content);
-    if (!content && this.attachments.size && canAttach)
+    if (
+      !content &&
+      !this.flags.has("IS_COMPONENTS_V2") &&
+      this.attachments.size &&
+      canAttach
+    )
       content = this.attachments.map((a) => a.url).join("\n");
     else if (canAttach && this.attachments.size) {
       const tooLargeAttachments = this.attachments.filter(
-        (a) => a.size > 10485760
+        (a) => a.size > EIGHT_MIB
       );
       for (const [, attach] of tooLargeAttachments)
         if (content.length + attach.url.length + 2 <= 2000)
           content += `\n${attach.url}`;
 
       const finalAttachments = this.attachments.filter(
-        (a) => a.size <= 10485760
+        (a) => a.size <= EIGHT_MIB
       );
 
       const info = finalAttachments.map((attach) => ({
@@ -881,10 +890,14 @@ export class FireMessage extends Message {
       ((await this.guild?.members
         .fetch(this.author)
         .catch(() => null)) as FireMember);
+
     let components = this.components;
-    if (components.length && this.author.id != this.client?.user?.id)
+    if (components.length)
       for (const [rowIndex, component] of components.entries()) {
-        if (component instanceof MessageActionRow)
+        if (
+          component instanceof MessageActionRow &&
+          this.author.id != this.client?.user?.id
+        )
           for (const [componentIndex, c] of component.components.entries()) {
             if (c instanceof MessageButton && c.style != "LINK")
               c.setCustomId(`quote_copy${rowIndex}${componentIndex}`);
@@ -898,10 +911,55 @@ export class FireMessage extends Message {
               else return true;
             });
           }
+        else if (component instanceof FileComponent) {
+          if (component.size > EIGHT_MIB) continue;
+          const fileReq = await centra(component.file.url)
+            .header("User-Agent", this.client.manager.ua)
+            .send()
+            .catch(() => {});
+          if (fileReq && fileReq.statusCode == 200) {
+            attachments.push({
+              attachment: fileReq.body,
+              name: component.name,
+            });
+            component.setFile(component.name);
+          }
+        } else if (
+          component instanceof ContainerComponent &&
+          component.components.some((c) => c instanceof FileComponent)
+        ) {
+          for (const contained of component.components) {
+            if (!(contained instanceof FileComponent)) continue;
+            else if (contained.size > EIGHT_MIB) continue;
+            const fileReq = await centra(contained.file.url)
+              .header("User-Agent", this.client.manager.ua)
+              .send()
+              .catch(() => {});
+            if (fileReq && fileReq.statusCode == 200) {
+              attachments.push({
+                attachment: fileReq.body,
+                name: contained.name,
+              });
+              contained.setFile(contained.name);
+            }
+          }
+        }
       }
+
+    // remove invalid file components
     components = components.filter(
-      (c) => c instanceof MessageActionRow && c.components.length
+      (c) =>
+        !(c instanceof FileComponent) || c.file.url.startsWith("attachment://")
     );
+    for (const component of components) {
+      if (!(component instanceof ContainerComponent)) return;
+      component.components = component.components.filter(
+        (c) =>
+          !(c instanceof FileComponent) ||
+          c.file.url.startsWith("attachment://")
+      );
+    }
+
     const isAutomod = this.type == "AUTO_MODERATION_ACTION";
     const automodEmbeds = [];
     if (isAutomod) {
@@ -955,35 +1013,67 @@ export class FireMessage extends Message {
         ? member.display.replace(/#0000/gim, "")
         : this.author.display.replace(/#0000/gim, ""));
     return await hook
-      .send({
-        content: content.length ? content : null,
-        username: isAutomod
-          ? this.guild.language.get("QUOTE_AUTOMOD_USERNAME", {
-              username,
-            })
-          : username,
-        avatarURL: isAutomod
-          ? constants.url.automodAvatar
-          : this.system && this.guild
-          ? this.guild.iconURL({
-              size: 2048,
-              format: "png",
-            })
-          : (member ?? this.author).displayAvatarURL({
-              size: 2048,
-              format: "png",
-            }),
-        embeds: isAutomod ? automodEmbeds : embeds,
-        files: attachments.map((data) =>
-          new MessageAttachment(data.attachment, data.name).setDescription(
-            data.description
-          )
-        ),
-        allowedMentions: this.client.options.allowedMentions,
-        threadId: thread?.id,
-        components,
-      })
+      .send(
+        this.flags.has("IS_COMPONENTS_V2")
+          ? {
+              components,
+              threadId: thread?.id,
+              username: isAutomod
+                ? this.guild.language.get("QUOTE_AUTOMOD_USERNAME", {
+                    username,
+                  })
+                : username,
+              avatarURL: isAutomod
+                ? constants.url.automodAvatar
+                : this.system && this.guild
+                ? this.guild.iconURL({
+                    size: 2048,
+                    format: "png",
+                  })
+                : (member ?? this.author).displayAvatarURL({
+                    size: 2048,
+                    format: "png",
+                  }),
+              allowedMentions: this.client.options.allowedMentions,
+              files: attachments.map((data) =>
+                new MessageAttachment(
+                  data.attachment,
+                  data.name
+                ).setDescription(data.description)
+              ),
+            }
+          : {
+              content: content.length ? content : null,
+              username: isAutomod
+                ? this.guild.language.get("QUOTE_AUTOMOD_USERNAME", {
+                    username,
+                  })
+                : username,
+              avatarURL: isAutomod
+                ? constants.url.automodAvatar
+                : this.system && this.guild
+                ? this.guild.iconURL({
+                    size: 2048,
+                    format: "png",
+                  })
+                : (member ?? this.author).displayAvatarURL({
+                    size: 2048,
+                    format: "png",
+                  }),
+              embeds: isAutomod ? automodEmbeds : embeds,
+              files: attachments.map((data) =>
+                new MessageAttachment(
+                  data.attachment,
+                  data.name
+                ).setDescription(data.description)
+              ),
+              allowedMentions: this.client.options.allowedMentions,
+              threadId: thread?.id,
+              components,
+            }
+      )
       .catch(async (e: Error) => {
+        this.client.console.error(e);
         if (
           e instanceof DiscordAPIError &&
           e.code == 50035 &&
@@ -1068,6 +1158,13 @@ export class FireMessage extends Message {
       if (debug) debug.push("Destination is not a channel or thread");
       return;
     }
+
+    if (this.flags.has("IS_COMPONENTS_V2")) {
+      if (debug)
+        debug.push("Cannot use embedQuote for a components v2 message");
+      return;
+    }
+
     const { language } = (destination.guild as FireGuild) ?? quoter;
     const extraEmbeds: MessageEmbed[] = [];
     if (!this.content && this.author.bot && this.embeds.length) {
