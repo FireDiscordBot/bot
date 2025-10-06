@@ -708,6 +708,8 @@ export class FireGuild extends Guild {
         splash,
         members: 0,
         badge: this.guildBadge,
+        boostTier: this.premiumTier,
+        features: this.features,
         featured: false,
         shard: this.shardId,
         cluster: this.client.manager.id,
@@ -736,6 +738,8 @@ export class FireGuild extends Guild {
       splash,
       members: this.memberCount,
       badge: this.guildBadge,
+      boostTier: this.premiumTier,
+      features: this.features,
       featured: this.settings.get<boolean>(
         "utils.featured",
         this.features.includes("FEATURABLE")

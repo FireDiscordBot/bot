@@ -1,3 +1,4 @@
+import { GuildFeatures, PremiumTier } from "discord.js";
 import { Caches } from "./aether";
 
 export interface ClusterStats {
@@ -52,6 +53,8 @@ export interface DiscoverableGuild {
   splashProxy?: string;
   members: number;
   badge: BadgeType;
+  boostTier: PremiumTier;
+  features: GuildFeatures[];
   featured: boolean;
   shard?: number;
   cluster?: number;
