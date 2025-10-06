@@ -1,6 +1,6 @@
 import { ComponentMessage } from "@fire/lib/extensions/componentmessage";
 import { Listener } from "@fire/lib/util/listener";
-import { ChannelSelectMenu } from "discord.js";
+import { ChannelSelectMenu, MessageActionRow } from "discord.js";
 
 export default class ChannelSelect extends Listener {
   constructor() {
@@ -17,7 +17,7 @@ export default class ChannelSelect extends Listener {
 
     if (select.customId == "starboard-limit-channels") {
       const channels = select.values,
-        row = select.message.components[0];
+        row = select.message.components[0] as MessageActionRow;
       if (channels.length) {
         await guild.settings.set(
           "starboard.limitchannels",

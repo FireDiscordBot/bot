@@ -649,7 +649,7 @@ export default class Button extends Listener {
       if (!message) return "no message";
       const component = message.components
         ?.map((component) =>
-          component.type == "ACTION_ROW" || component.type == 1
+          component.type == "ACTION_ROW"
             ? component?.components ?? component
             : component
         )
@@ -1253,7 +1253,8 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         if (solutionsPrevented)
           return await button.error("MINECRAFT_LOGSCAN_SOLUTION_UNSUPPORTED");
         const logURL = (
-          button.message?.components[0]?.components[0] as MessageButton
+          (button.message?.components[0] as MessageActionRow)
+            ?.components[0] as MessageButton
         )?.url;
         if (!logURL)
           return await button.error("MINECRAFT_LOGSCAN_SOLUTION_MISSING_LOG");
@@ -1528,7 +1529,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
 
       const date = new Date(+timestamp);
       if (date <= new Date()) {
-        const dropdown = button.message.components[0]
+        const dropdown = (button.message.components[0] as MessageActionRow)
           .components[0] as MessageSelectMenu;
         dropdown.options = dropdown.options.filter(
           (option) => +option.value > +new Date()

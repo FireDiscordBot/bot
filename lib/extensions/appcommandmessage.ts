@@ -737,16 +737,16 @@ export class FakeChannel extends BaseFakeChannel {
     if (this.message.sent) return this.ackLock.release();
     if (this.message.author.settings.get<boolean>("utils.incognito", false))
       ephemeral = true;
+    this.message.sent = "ack";
     await this.message.slashCommand
       .deferReply({
         ephemeral: ephemeral || !!((this.flags & 64) == 64),
         fetchReply: true,
       })
       .then((real) => {
-        this.message.sent = "ack";
         if (real) this.message.latestResponse = real as FireMessage; // literally (real)
       })
-      .catch(() => (this.message.sent = "ack"));
+      .catch(() => {});
     this.ackLock.release();
   }
 

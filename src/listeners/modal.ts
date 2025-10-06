@@ -12,6 +12,7 @@ import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Channel,
   Formatters,
+  MessageActionRow,
   MessageEmbed,
   MessageSelectMenu,
   ThreadChannel,
@@ -189,9 +190,9 @@ export default class Modal extends Listener {
       else if (updated.status.startsWith("UPDATE ")) {
         // we need to update the components in the og message
         // so they can be reused, rather than needing to run list again
-        const dropdown = modal.message.components[0]
+        const dropdown = (modal.message.components[0] as MessageActionRow)
           .components[0] as MessageSelectMenu;
-        const buttonRow = modal.message.components[1];
+        const buttonRow = modal.message.components[1] as MessageActionRow;
         for (const button of buttonRow.components) {
           if (!button.customId) continue;
           button.setCustomId(

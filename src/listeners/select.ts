@@ -282,9 +282,11 @@ export default class Select extends Listener {
           ? embeds[0].description
           : content.split("\n\n").at(1) ?? undefined,
         link: originalMessage.components.length
-          ? (originalMessage.components[0].components as MessageButton[]).find(
-              (button) => button.style == "LINK"
-            )?.url ?? originalMessage.url + `?setAt=${+new Date()}`
+          ? (
+              (originalMessage.components[0] as MessageActionRow)
+                .components as MessageButton[]
+            ).find((button) => button.style == "LINK")?.url ??
+            originalMessage.url + `?setAt=${+new Date()}`
           : originalMessage.url + `?setAt=${+new Date()}`,
       };
       // if we don't have the text, we can't snooze it so we return an error
@@ -682,7 +684,8 @@ export default class Select extends Listener {
         ]);
 
       (
-        select.message.components[0].components[0] as MessageSelectMenu
+        (select.message.components[0] as MessageActionRow)
+          .components[0] as MessageSelectMenu
       ).options.forEach(
         (option) => (option.default = option.value == timestamp.toString())
       );

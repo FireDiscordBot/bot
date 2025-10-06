@@ -436,7 +436,7 @@ export default class Embed extends Command {
               )
             ),
           ],
-          components: button.message.components.map((row) => {
+          components: button.message.components.map((row: MessageActionRow) => {
             row.components = row.components.map((component) => {
               if (component.customId == button.customId)
                 (component as MessageButton).setStyle(
@@ -522,7 +522,10 @@ export default class Embed extends Command {
               components: this.getEmbedBuilderComponents(
                 dropdown,
                 id,
-                !dropdown.message.components[1].components[1].disabled
+                !(
+                  dropdown.message
+                    .components[1] as MessageActionRow as MessageActionRow
+                ).components[1].disabled
               ),
             });
           }
@@ -566,7 +569,10 @@ export default class Embed extends Command {
               components: this.getEmbedBuilderComponents(
                 dropdown,
                 id,
-                !dropdown.message.components[1].components[1].disabled
+                !(
+                  dropdown.message
+                    .components[1] as MessageActionRow as MessageActionRow
+                ).components[1].disabled
               ),
             });
           }
@@ -598,7 +604,10 @@ export default class Embed extends Command {
               components: this.getEmbedBuilderComponents(
                 dropdown,
                 id,
-                !dropdown.message.components[1].components[1].disabled
+                !(
+                  dropdown.message
+                    .components[1] as MessageActionRow as MessageActionRow
+                ).components[1].disabled
               ),
             });
           }
@@ -643,7 +652,10 @@ export default class Embed extends Command {
               components: this.getEmbedBuilderComponents(
                 dropdown,
                 id,
-                !dropdown.message.components[1].components[1].disabled
+                !(
+                  dropdown.message
+                    .components[1] as MessageActionRow as MessageActionRow
+                ).components[1].disabled
               ),
             });
           }
@@ -672,7 +684,10 @@ export default class Embed extends Command {
               components: this.getEmbedBuilderComponents(
                 dropdown,
                 id,
-                !dropdown.message.components[1].components[1].disabled
+                !(
+                  dropdown.message
+                    .components[1] as MessageActionRow as MessageActionRow
+                ).components[1].disabled
               ),
             });
           }
@@ -728,7 +743,8 @@ export default class Embed extends Command {
               components: this.getEmbedBuilderComponents(
                 dropdown,
                 id,
-                !dropdown.message.components[1].components[1].disabled
+                !(dropdown.message.components[1] as MessageActionRow)
+                  .components[1].disabled
               ),
             });
           }
@@ -762,7 +778,8 @@ export default class Embed extends Command {
               components: this.getEmbedBuilderComponents(
                 dropdown,
                 id,
-                !dropdown.message.components[1].components[1].disabled
+                !(dropdown.message.components[1] as MessageActionRow)
+                  .components[1].disabled
               ),
             });
           }
@@ -800,7 +817,8 @@ export default class Embed extends Command {
               components: this.getEmbedBuilderComponents(
                 dropdown,
                 id,
-                !dropdown.message.components[1].components[1].disabled
+                !(dropdown.message.components[1] as MessageActionRow)
+                  .components[1].disabled
               ),
             });
           }
@@ -870,7 +888,8 @@ export default class Embed extends Command {
               components: this.getEmbedBuilderComponents(
                 dropdown,
                 id,
-                !dropdown.message.components[1].components[1].disabled
+                !(dropdown.message.components[1] as MessageActionRow)
+                  .components[1].disabled
               ),
             });
           }
@@ -914,8 +933,8 @@ export default class Embed extends Command {
 
         const fieldsRow = dropdown.message.components.find(
           // only the dropdown row will have a single component
-          (row) => row.components.length == 1
-        );
+          (row: MessageActionRow) => row.components.length == 1
+        ) as MessageActionRow;
         const fieldsDropdown = fieldsRow.components[0] as MessageSelectMenu;
         fieldsDropdown.options = fieldsDropdown.options.map((option) => {
           if (option.value == dropdown.values[0]) option.default = true;

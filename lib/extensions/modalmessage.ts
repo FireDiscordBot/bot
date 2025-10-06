@@ -12,13 +12,13 @@ import {
   MessageResolvable,
   ModalSubmitInteraction,
   NewsChannel,
-  PartialModalActionRow,
   Permissions,
   RoleResolvable,
   SnowflakeUtil,
   ThreadChannel,
   WebhookMessageOptions,
 } from "discord.js";
+import { ChannelTypes } from "discord.js/typings/enums";
 import { RawMessageData, RawUserData } from "discord.js/typings/rawDataTypes";
 import Semaphore from "semaphore-async-await";
 import { Fire } from "../Fire";
@@ -35,7 +35,7 @@ export class ModalMessage {
   realChannel?: FireTextChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
   interaction: ModalSubmitInteraction;
-  components: PartialModalActionRow[];
+  components: ModalSubmitInteraction["components"];
   getLatestResponseLock: Semaphore;
   sent: false | "ack" | "message";
   latestResponse: FireMessage;
@@ -174,6 +174,49 @@ export class ModalMessage {
   getTextInputValue(field: string) {
     if (this.hasField(field))
       return this.interaction.fields.getTextInputValue(field);
+  }
+
+  getStringSelectValues(field: string) {
+    if (this.hasField(field))
+      return this.interaction.fields.getStringSelectValues(field);
+  }
+
+  getSelectedUsers(field: string, required?: boolean) {
+    if (this.hasField(field))
+      return this.interaction.fields.getSelectedUsers(field, required);
+  }
+
+  getSelectedMembers(field: string) {
+    if (this.hasField(field))
+      return this.interaction.fields.getSelectedMembers(field);
+  }
+
+  getSelectedChannels(
+    field: string,
+    required?: boolean,
+    channelTypes: ChannelTypes[] = []
+  ) {
+    if (this.hasField(field))
+      return this.interaction.fields.getSelectedChannels(
+        field,
+        required,
+        channelTypes
+      );
+  }
+
+  getSelectedRoles(field: string, required?: boolean) {
+    if (this.hasField(field))
+      return this.interaction.fields.getSelectedRoles(field, required);
+  }
+
+  getSelectedMentionables(field: string, required?: boolean) {
+    if (this.hasField(field))
+      return this.interaction.fields.getSelectedMentionables(field, required);
+  }
+
+  getUploadedFiles(field: string, required?: boolean) {
+    if (this.hasField(field))
+      return this.interaction.fields.getUploadedFiles(field, required);
   }
 
   send(key?: LanguageKeys, args?: i18nOptions) {

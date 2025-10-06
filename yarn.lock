@@ -298,16 +298,21 @@ discord-api-types@^0.37.119:
   resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.37.119.tgz#29e32f635351da32dd4c92defcafdeb65156ad33"
   integrity sha512-WasbGFXEB+VQWXlo6IpW3oUv73Yuau1Ig4AZF/m13tXcTKnMpc/mHjpztIlz4+BM9FG9BHQkEXiPto3bKduQUg==
 
+discord-api-types@^0.38.24:
+  version "0.38.28"
+  resolved "https://registry.yarnpkg.com/discord-api-types/-/discord-api-types-0.38.28.tgz#7051c04caf72284bcce6b32d90b0aa0655dda3dd"
+  integrity sha512-QwgoJb+83O8Cx0bhHdI/Y9cQIHRvzy8lKXzSQOmzHEf8InuJMEWrzYk94f+OncHk3qWOqBdr9i0DjtXp4i+NHg==
+
 discord.js@FireDiscordBot/discord.js:
-  version "13.17.2-fire"
-  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/5ca73ba7a0f4f3f47265983de93bced7d5c52fe0"
+  version "13.18.0-fire"
+  resolved "https://codeload.github.com/FireDiscordBot/discord.js/tar.gz/87e8757d4f59486e028d87a85cad3c384d53fdba"
   dependencies:
     "@discordjs/builders" "^0.16.0"
     "@discordjs/collection" "^0.7.0"
     "@sapphire/async-queue" "^1.5.0"
     "@types/node-fetch" "^2.6.3"
     "@types/ws" "^8.5.4"
-    discord-api-types "^0.37.119"
+    discord-api-types "^0.38.24"
     form-data "^4.0.0"
     node-fetch "^2.6.7"
     ws "^8.13.0"

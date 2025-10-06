@@ -6,7 +6,7 @@ import {
   CommandInteraction as CommandInteractionBase,
   CommandInteractionOption,
   CommandInteractionOptionResolver as CommandInteractionOptionResolverBase,
-  CommandInteractionResolvedData,
+  InteractionResolvedData,
   MessageAttachment,
   Structures,
 } from "discord.js";
@@ -29,7 +29,7 @@ type APIInteractionDataResolved = APIApplicationCommandOptionResolved & {
   attachments?: Record<Snowflake, APIAttachment>;
 };
 
-type ResolvedData = CommandInteractionResolvedData & {
+type ResolvedData = InteractionResolvedData & {
   attachments?: Collection<Snowflake, MessageAttachment>;
 };
 
