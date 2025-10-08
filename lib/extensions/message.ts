@@ -1073,7 +1073,6 @@ export class FireMessage extends Message {
             }
       )
       .catch(async (e: Error) => {
-        this.client.console.error(e);
         if (
           e instanceof DiscordAPIError &&
           e.code == 50035 &&
