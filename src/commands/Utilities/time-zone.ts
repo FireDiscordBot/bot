@@ -8,79 +8,139 @@ import {
 } from "discord.js";
 
 const defaults: ApplicationCommandOptionChoiceData[] = [
-  { name: "UTC-8 - Pacific Standard Time (PST)", value: "America/Los_Angeles" },
-  { name: "UTC-7 - Mountain Standard Time (MST)", value: "America/Denver" },
-  { name: "UTC-6 - Central Standard Time (CST)", value: "America/Chicago" },
-  { name: "UTC-5 - Eastern Standard Time (EST)", value: "America/New_York" },
-  { name: "UTC-4 - Atlantic Standard Time (AST)", value: "America/Halifax" },
-  { name: "UTC+0 - Greenwich Mean Time (GMT)", value: "Etc/GMT" },
   {
-    name: "UTC+0 - British Isles / Western European Time (GMT/WET)",
+    name: "UTC-8 / UTC-7 - Pacific Standard Time (PST / PDT)",
+    value: "America/Los_Angeles",
+  },
+  {
+    name: "UTC-7 / UTC-6 - Mountain Standard Time (MST / MDT)",
+    value: "America/Denver",
+  },
+  {
+    name: "UTC-6 / UTC-5 - Central Standard Time (CST / CDT)",
+    value: "America/Chicago",
+  },
+  {
+    name: "UTC-5 / UTC-4 - Eastern Standard Time (EST / EDT)",
+    value: "America/New_York",
+  },
+  {
+    name: "UTC-4 / UTC-3 - Atlantic Standard Time (AST / ADT)",
+    value: "America/Halifax",
+  },
+  {
+    name: "UTC - Greenwich Mean Time (GMT)",
+    value: "Etc/GMT",
+  },
+  {
+    name: "UTC / UTC+1 - British Isles / Western European Time (GMT & WET)",
     value: "Europe/Dublin", // ireland pogger
   },
-  { name: "UTC+1 - Central European Time (CET)", value: "Europe/Paris" },
-  { name: "UTC+5:30 - India Standard Time (IST)", value: "Asia/Kolkata" },
+  {
+    name: "UTC+1 / UTC+2 - Central European Time (CET / CEST)",
+    value: "Europe/Paris",
+  },
+  {
+    name: "UTC+5:30 - India Standard Time (IST)",
+    value: "Asia/Kolkata",
+  },
   { name: "UTC+8 - China Standard Time (CST)", value: "Asia/Shanghai" },
   { name: "UTC+8 - Japan Standard Time (JST)", value: "Asia/Tokyo" },
   {
-    name: "UTC+10 - Australian Eastern Standard Time (AEST)",
+    name: "UTC+10 / UTC+11 - Australian Eastern Standard Time (AEST / AEDT)",
     value: "Australia/Sydney",
   },
   {
-    name: "UTC+11 - Melbourne Standard Time (MST)",
-    value: "Australia/Melbourne",
-  },
-  {
-    name: "UTC+12 - New Zealand Standard Time (NZST)",
+    name: "UTC+12 / UTC+13 - New Zealand Standard Time (NZST / NZDT)",
     value: "Pacific/Auckland",
   },
 ];
 
 const extended: ApplicationCommandOptionChoiceData[] = [
-  { name: "UTC-11 - Samoa Standard Time (SST)", value: "Pacific/Apia" },
   {
-    name: "UTC-10 - Hawaii-Aleutian Standard Time, with daylight savings (HST)",
+    name: "UTC-10 - Hawaii-Aleutian Standard Time (HAST/HADT)",
     value: "America/Adak",
   },
   {
-    name: "UTC-10 - Hawaii-Aleutian Standard Time, without daylight savings (HST)",
+    name: "UTC-10 - Hawaii-Aleutian Standard Time (HST)",
     value: "Pacific/Honolulu",
   },
-  { name: "UTC-9 - Alaska Standard Time (AKST)", value: "America/Anchorage" },
-  { name: "UTC-8 - Pacific Standard Time (PST)", value: "America/Los_Angeles" },
-  { name: "UTC-7 - Mountain Standard Time (MST)", value: "America/Denver" },
-  { name: "UTC-6 - Central Standard Time (CST)", value: "America/Chicago" },
-  { name: "UTC-5 - Eastern Standard Time (EST)", value: "America/New_York" },
-  { name: "UTC-5 - Acre Time (ACT)", value: "America/Rio_Branco" },
-  { name: "UTC-4 - Atlantic Standard Time (AST)", value: "America/Halifax" },
-  { name: "UTC-4 - Amazonas Time (AMT)", value: "America/Manaus" },
   {
-    name: "UTC-3:30 - Newfoundland Standard Time (NST)",
+    name: "UTC-9 / UTC-8 - Alaska Standard Time (AKST / AKDT)",
+    value: "America/Anchorage",
+  },
+  {
+    name: "UTC-8 / UTC-7 - Pacific Standard Time (PST / PDT)",
+    value: "America/Los_Angeles",
+  },
+  {
+    name: "UTC-7 / UTC-6 - Mountain Standard Time (MST / MDT)",
+    value: "America/Denver",
+  },
+  {
+    name: "UTC-6 / UTC-5 - Central Standard Time (CST / CDT)",
+    value: "America/Chicago",
+  },
+  {
+    name: "UTC-5 / UTC-4 - Eastern Standard Time (EST / EDT)",
+    value: "America/New_York",
+  },
+  {
+    name: "UTC-5 - Acre Time (ACT)",
+    value: "America/Rio_Branco",
+  },
+  {
+    name: "UTC-4 / UTC-3 - Atlantic Standard Time (AST / ADT)",
+    value: "America/Halifax",
+  },
+  {
+    name: "UTC-4 - Amazonas Time (AMT)",
+    value: "America/Manaus",
+  },
+  {
+    name: "UTC-3:30 / UTC-2:30 - Newfoundland Standard Time (NST / NDT)",
     value: "America/St_Johns",
   },
   {
     name: "UTC-3 - Argentina Time (ART)",
     value: "America/Argentina/Buenos_Aires",
   },
-  { name: "UTC-3 - Brasilia Time (BRT)", value: "America/Sao_Paulo" },
-  { name: "UTC-2 - South Georgia Time (GST)", value: "Atlantic/South_Georgia" },
-  { name: "UTC-2 - Fernando de Noronha Time (FNT)", value: "America/Noronha" },
-  { name: "UTC-1 - Azores Standard Time (AZOST)", value: "Atlantic/Azores" },
-  { name: "UTC+0 - Greenwich Mean Time (GMT)", value: "Etc/GMT" },
   {
-    name: "UTC+0 - British Isles / Western European Time (GMT/WET)",
+    name: "UTC-3 - Brasilia Time (BRT)",
+    value: "America/Sao_Paulo",
+  },
+  {
+    name: "UTC-2 - South Georgia Time (GST)",
+    value: "Atlantic/South_Georgia",
+  },
+  {
+    name: "UTC-2 - Fernando de Noronha Time (FNT)",
+    value: "America/Noronha",
+  },
+  {
+    name: "UTC-1 / UTC - Azores Standard Time (AZOT / AZOST)",
+    value: "Atlantic/Azores",
+  },
+  {
+    name: "UTC - Greenwich Mean Time (GMT)",
+    value: "Etc/GMT",
+  },
+  {
+    name: "UTC / UTC+1 - British Isles / Western European Time (GMT & WET)",
     value: "Europe/Dublin", // ireland pogger
   },
   {
-    name: "UTC+1 - Central European Time, with daylight savings (CET)",
+    name: "UTC+1 / UTC+2 - Central European Time (CET / CEST)",
     value: "Europe/Paris",
   },
   {
-    name: "UTC+1 - Central European Time, without daylight savings (CET)",
-    value: "CET",
+    name: "UTC+1 - West Africa Time (WAT)",
+    value: "Africa/Lagos",
   },
-  { name: "UTC+1 - West Africa Time (WAT)", value: "Africa/Lagos" },
-  { name: "UTC+2 - Eastern European Time (EET)", value: "Europe/Bucharest" },
+  {
+    name: "UTC+2 / UTC+3 - Eastern European Time (EET / EEST)",
+    value: "Europe/Bucharest",
+  },
   {
     name: "UTC+2 - South African Standard Time (SAST)",
     value: "Africa/Johannesburg",
@@ -89,47 +149,102 @@ const extended: ApplicationCommandOptionChoiceData[] = [
     name: "UTC+2 - Central Africa Time (CAT)",
     value: "Africa/Maputo",
   },
-  { name: "UTC+3 - East Africa Time (EAT)", value: "Africa/Nairobi" },
-  { name: "UTC+3 - Moscow Time (MSK)", value: "Europe/Moscow" },
-  { name: "UTC+3:30 - Iran Standard Time (IRST)", value: "Asia/Tehran" },
-  { name: "UTC+4 - Gulf Standard Time (GST)", value: "Asia/Dubai" },
-  { name: "UTC+4:30 - Afghanistan Time (AFT)", value: "Asia/Kabul" },
-  { name: "UTC+5 - Pakistan Standard Time (PKT)", value: "Asia/Karachi" },
-  { name: "UTC+5:30 - India Standard Time (IST)", value: "Asia/Kolkata" },
-  { name: "UTC+5:45 - Nepal Time (NPT)", value: "Asia/Kathmandu" },
-  { name: "UTC+6 - Bangladesh Standard Time (BST)", value: "Asia/Dhaka" },
-  { name: "UTC+6:30 - Myanmar Time (MMT)", value: "Asia/Yangon" },
-  { name: "UTC+7 - Indochina Time (ICT)", value: "Asia/Bangkok" },
-  { name: "UTC+8 - China Standard Time (CST)", value: "Asia/Shanghai" },
+  {
+    name: "UTC+3 - East Africa Time (EAT)",
+    value: "Africa/Nairobi",
+  },
+  {
+    name: "UTC+3 - Moscow Time (MSK)",
+    value: "Europe/Moscow",
+  },
+  {
+    name: "UTC+3:30 - Iran Standard Time (IRST)",
+    value: "Asia/Tehran",
+  },
+  {
+    name: "UTC+4 - Gulf Standard Time (GST)",
+    value: "Asia/Dubai",
+  },
+  {
+    name: "UTC+4:30 - Afghanistan Time (AFT)",
+    value: "Asia/Kabul",
+  },
+  {
+    name: "UTC+5 - Pakistan Standard Time (PKT)",
+    value: "Asia/Karachi",
+  },
+  {
+    name: "UTC+5:30 - India Standard Time (IST)",
+    value: "Asia/Kolkata",
+  },
+  {
+    name: "UTC+5:45 - Nepal Time (NPT)",
+    value: "Asia/Kathmandu",
+  },
+  {
+    name: "UTC+6 - Bangladesh Standard Time (BST)",
+    value: "Asia/Dhaka",
+  },
+  {
+    name: "UTC+6:30 - Myanmar Time (MMT)",
+    value: "Asia/Yangon",
+  },
+  {
+    name: "UTC+7 - Indochina Time (ICT)",
+    value: "Asia/Bangkok",
+  },
+  {
+    name: "UTC+8 - China Standard Time (CST)",
+    value: "Asia/Shanghai",
+  },
   {
     name: "UTC+8:45 - Central Western Standard Time (CWST)",
     value: "Australia/Eucla",
   },
-  { name: "UTC+9 - Japan Standard Time (JST)", value: "Asia/Tokyo" },
+  {
+    name: "UTC+9 - Japan Standard Time (JST)",
+    value: "Asia/Tokyo",
+  },
   {
     name: "UTC+9:30 - Australian Central Standard Time (ACST)",
     value: "Australia/Darwin",
   },
   {
-    name: "UTC+10 - Australian Eastern Standard Time (AEST)",
+    name: "UTC+10 / UTC+11 - Australian Eastern Standard Time (AEST / AEDT)",
     value: "Australia/Sydney",
   },
   {
-    name: "UTC+10:30 - Lord Howe Standard Time (LHST)",
+    name: "UTC+10:30 / UTC+11 - Lord Howe Standard Time (LHST / LHDT)",
     value: "Australia/Lord_Howe",
   },
-  { name: "UTC+11 - Solomon Islands Time (SBT)", value: "Pacific/Guadalcanal" },
-  { name: "UTC+11:30 - Norfolk Island Time (NFT)", value: "Pacific/Norfolk" },
   {
-    name: "UTC+12 - New Zealand Standard Time (NZST)",
+    name: "UTC+11 - Solomon Islands Time (SBT)",
+    value: "Pacific/Guadalcanal",
+  },
+  {
+    name: "UTC+11:30 / UTC+12 - Norfolk Island Time (NFT / NFDT)",
+    value: "Pacific/Norfolk",
+  },
+  {
+    name: "UTC+12 / UTC+13 - New Zealand Standard Time (NZST / NZDT)",
     value: "Pacific/Auckland",
   },
   {
-    name: "UTC+12:45 - Chatham Standard Time (CHAST)",
+    name: "UTC+12:45 / UTC+13:45 - Chatham Standard Time (CHAST / CHADT)",
     value: "Pacific/Chatham",
   },
-  { name: "UTC+13 - Tonga Standard Time (TOT)", value: "Pacific/Tongatapu" },
-  { name: "UTC+14 - Line Islands Time (LINT)", value: "Pacific/Kiritimati" },
+  {
+    name: "UTC+13 - Tonga Standard Time (TOT)",
+    value: "Pacific/Tongatapu",
+  },
+  {
+    name: "UTC+13 - Samoa Standard Time (SST)",
+    value: "Pacific/Apia",
+  },
+  {
+    name: "UTC+14 - Line Islands Time (LINT)",
+    value: "Pacific/Kiritimati",
+  },
 ];
 
 export default class Timezone extends Command {
