@@ -1022,7 +1022,10 @@ export class Util extends ClientUtil {
     return channel;
   }
 
-  async getQuoteWebhookURL(destination: GuildTextChannel | ThreadChannel) {
+  async getQuoteWebhookURL(
+    destination: GuildTextChannel | ThreadChannel,
+    requiresSelfOwnedWebhook: boolean = false
+  ) {
     let thread: ThreadChannel;
     if (destination instanceof ThreadChannel)
       (thread = destination),
@@ -1036,7 +1039,16 @@ export class Util extends ClientUtil {
       return;
     const hooks = await destination.fetchWebhooks().catch(() => {});
     let hook: Webhook;
-    if (hooks) hook = hooks.filter((hook) => !!hook.token).first();
+    if (hooks)
+      hook = hooks
+        .filter(
+          (hook) =>
+            !!hook.token &&
+            (requiresSelfOwnedWebhook
+              ? hook.owner?.id == this.client.user.id
+              : true)
+        )
+        .first();
     if (!hook)
       hook = await destination
         .createWebhook(`Fire Quotes #${destination.name}`.slice(0, 80), {

@@ -7,6 +7,7 @@ import * as centra from "centra";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
+  BaseSelectMenu,
   Channel,
   Collection,
   Constants,
@@ -27,6 +28,7 @@ import {
   MessageSelectMenu,
   NewsChannel,
   ReplyMessageOptions,
+  SectionComponent,
   StageChannel,
   Structures,
   ThreadChannel,
@@ -173,6 +175,25 @@ export class FireMessage extends Message {
             );
             return role ? `@${role.name}` : input;
           });
+  }
+
+  hasInteractiveComponents() {
+    const components = [];
+    for (const component of this.components) {
+      components.push(component);
+      if ("components" in component)
+        components.push(
+          ...component.components.flatMap((c) =>
+            "components" in c ? c.components : c
+          )
+        );
+      if ("accessory" in component) components.push(component.accessory);
+    }
+    return components.some(
+      (component) =>
+        component instanceof MessageButton ||
+        component instanceof BaseSelectMenu
+    );
   }
 
   async getSystemContent() {
@@ -900,9 +921,19 @@ export class FireMessage extends Message {
         )
           for (const [componentIndex, c] of component.components.entries()) {
             if (c instanceof MessageButton && c.style != "LINK")
-              c.setCustomId(`quote_copy${rowIndex}${componentIndex}`);
+              c.setCustomId(
+                `quote_copy${rowIndex}${componentIndex}${this.client.util.randInt(
+                  0,
+                  +new Date()
+                )}`
+              );
             else if (c instanceof MessageSelectMenu)
-              c.setCustomId(`quote_copy${rowIndex}${componentIndex}`);
+              c.setCustomId(
+                `quote_copy${rowIndex}${componentIndex}${this.client.util.randInt(
+                  0,
+                  +new Date()
+                )}`
+              );
             if (c instanceof MessageButton && c.style == "LINK")
               if (await filters.isFiltered(c.url, quoter)) c.setURL("");
             component.components = component.components.filter((c) => {
@@ -911,7 +942,24 @@ export class FireMessage extends Message {
               else return true;
             });
           }
-        else if (component instanceof FileComponent) {
+        else if (component instanceof SectionComponent) {
+          if (
+            component.accessory instanceof MessageButton &&
+            component.accessory.style != "LINK"
+          )
+            component.accessory.setCustomId(
+              `quote_copy${rowIndex}.accessory${this.client.util.randInt(
+                0,
+                +new Date()
+              )}`
+            );
+          else if (
+            component.accessory instanceof MessageButton &&
+            component.accessory.style == "LINK"
+          )
+            if (await filters.isFiltered(component.accessory.url, quoter))
+              component.setAccessory(null);
+        } else if (component instanceof FileComponent) {
           if (component.size > EIGHT_MIB) continue;
           const fileReq = await centra(component.file.url)
             .header("User-Agent", this.client.manager.ua)
@@ -926,21 +974,55 @@ export class FireMessage extends Message {
           }
         } else if (
           component instanceof ContainerComponent &&
-          component.components.some((c) => c instanceof FileComponent)
+          component.components.some(
+            (c) => c instanceof FileComponent || c instanceof MessageActionRow
+          )
         ) {
           for (const contained of component.components) {
-            if (!(contained instanceof FileComponent)) continue;
-            else if (contained.size > EIGHT_MIB) continue;
-            const fileReq = await centra(contained.file.url)
-              .header("User-Agent", this.client.manager.ua)
-              .send()
-              .catch(() => {});
-            if (fileReq && fileReq.statusCode == 200) {
-              attachments.push({
-                attachment: fileReq.body,
-                name: contained.name,
-              });
-              contained.setFile(contained.name);
+            if (contained instanceof FileComponent) {
+              if (contained.size > EIGHT_MIB) continue;
+              const fileReq = await centra(contained.file.url)
+                .header("User-Agent", this.client.manager.ua)
+                .send()
+                .catch(() => {});
+              if (fileReq && fileReq.statusCode == 200) {
+                attachments.push({
+                  attachment: fileReq.body,
+                  name: contained.name,
+                });
+                contained.setFile(contained.name);
+              }
+            } else if (contained instanceof MessageActionRow) {
+              if (
+                contained instanceof MessageActionRow &&
+                this.author.id != this.client?.user?.id
+              )
+                for (const [
+                  componentIndex,
+                  c,
+                ] of contained.components.entries()) {
+                  if (c instanceof MessageButton && c.style != "LINK")
+                    c.setCustomId(
+                      `quote_copy${rowIndex}${componentIndex}${this.client.util.randInt(
+                        0,
+                        +new Date()
+                      )}`
+                    );
+                  else if (c instanceof MessageSelectMenu)
+                    c.setCustomId(
+                      `quote_copy${rowIndex}${componentIndex}${this.client.util.randInt(
+                        0,
+                        +new Date()
+                      )}`
+                    );
+                  if (c instanceof MessageButton && c.style == "LINK")
+                    if (await filters.isFiltered(c.url, quoter)) c.setURL("");
+                  contained.components = contained.components.filter((c) => {
+                    if (c instanceof MessageButton && c.style == "LINK")
+                      return !!c.url;
+                    else return true;
+                  });
+                }
             }
           }
         }

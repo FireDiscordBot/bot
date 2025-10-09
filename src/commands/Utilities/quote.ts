@@ -141,7 +141,8 @@ export default class Quote extends Command {
   ) {
     const shard = this.client.util.getShard(quote.guild_id);
     const webhook = await this.client.util.getQuoteWebhookURL(
-      message.channel as GuildTextChannel
+      message.channel as GuildTextChannel,
+      message.hasInteractiveComponents()
     );
     if (!webhook?.token) return;
     this.console.log("Forwarding cross-cluster quote", {
