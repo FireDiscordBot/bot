@@ -41,6 +41,7 @@
   "COMMAND_ERROR_COOLDOWN": "This command is on cooldown, please wait a bit before running it again",
   "COMMAND_ERROR_CACHE": "Something went wrong while checking my cache",
   "COMMAND_ERROR_SLASH_UNAVAILABLE_HERE": "This command can only be used via a slash command and it is not available here. This command may be limited to certain servers",
+  "COMMAND_ERROR_INVALID_CONTEXT": "You cannot invoke this command that way! It may require using a context menu command or be executed as a result of another action",
   "COMMAND_ERROR_SLASH_ONLY_UPSELL": "This command can only be used via the slash command {{command}}. You should switch to using them as in the future, Fire will no longer respond to message commands.",
   "COMMAND_NOTICE_SLASH_SWITCH": "Fire is in the process of switching to slash commands as the only way to run commands but you seem to be using message commands still...\n\nGo ahead and hit `/` to discover slash commands!",
   "COMMAND_NOTICE_SLASH_SWITCH_WITH_NAME": "Fire is in the process of switching to slash commands as the only way to run commands but you seem to be using message commands still...\n\nGo ahead and hit `/` to discover slash commands & use {{cmd}} in future for this command!",
