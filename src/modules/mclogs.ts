@@ -1675,8 +1675,8 @@ export default class MCLogs extends Module {
         `https://maven.neoforged.net/api/maven/latest/version/releases/net/neoforged/neoforge?filter=${
           versions.mcVersion.includes("w")
             ? // snapshots are special
-              `0.${versions.mcVersion}`
-            : versions.mcVersion.slice(2)
+              `0.${versions.mcVersion}.`
+            : `${versions.mcVersion.slice(2)}.`
         }`
       )
         .header("User-Agent", this.client.manager.ua)
