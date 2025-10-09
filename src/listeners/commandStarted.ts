@@ -45,7 +45,8 @@ export default class CommandStarted extends Listener {
     this.client.manager.writeToInflux([point], {
       // command started logs are kept forever to power
       // the commands used counter on the WIP Fire website
-      retentionPolicy: "aether_inf",
+      retentionPolicy:
+        process.env.NODE_ENV == "production" ? "aether_inf" : undefined,
     });
   }
 }
