@@ -1,3 +1,4 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
@@ -253,7 +254,16 @@ export default class Quote extends Command {
 
   // Slash & Context commands will always try Command#run first
   // so we can use that to have a separate context handler as quote is not a slash command
-  async run(command: ContextCommandMessage) {
+  async run(
+    command: ContextCommandMessage | FireMessage | ApplicationCommandMessage
+  ) {
+    if (!(command instanceof ContextCommandMessage))
+      if (
+        command instanceof FireMessage ||
+        command instanceof ApplicationCommandMessage
+      )
+        return await command.error("COMMAND_ERROR_INVALID_CONTEXT");
+      else return;
     command.flags = 64;
 
     if (
