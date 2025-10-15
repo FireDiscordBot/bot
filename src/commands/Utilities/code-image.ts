@@ -6,10 +6,10 @@ import { Language } from "@fire/lib/util/language";
 import * as centra from "centra";
 import {
   CommandInteractionOption,
-  MessageActionRow,
+  FileUploadComponent,
+  LabelComponent,
   MessageAttachment,
   Modal,
-  ModalActionRowComponent,
   TextInputComponent,
 } from "discord.js";
 import { TextInputStyles } from "discord.js/typings/enums";
@@ -288,16 +288,35 @@ export default class CodeImage extends Command {
           .setTitle(respond.language.get("CODE_IMAGE_MODAL_TITLE"))
           .setCustomId(`ray.so:${respond.author.id}`)
           .addComponents(
-            new MessageActionRow<ModalActionRowComponent>().addComponents(
-              new TextInputComponent()
-                .setCustomId("code")
-                .setRequired(true)
-                .setLabel(respond.language.get("CODE_IMAGE_MODAL_FIELD_NAME"))
-                .setPlaceholder(
-                  respond.language.get("CODE_IMAGE_MODAL_FIELD_PLACEHOLDER")
-                )
-                .setStyle(TextInputStyles.PARAGRAPH)
-            )
+            new LabelComponent()
+              .setId(1)
+              .setLabel(respond.language.get("CODE_IMAGE_MODAL_INPUT_LABEL"))
+              .setDescription(
+                respond.language.get("CODE_IMAGE_MODAL_INPUT_DESCRIPTION")
+              )
+              .setComponent(
+                new TextInputComponent()
+                  .setCustomId("text-input")
+                  .setRequired(false)
+                  .setPlaceholder(
+                    respond.language.get("CODE_IMAGE_MODAL_INPUT_PLACEHOLDER")
+                  )
+                  .setStyle(TextInputStyles.PARAGRAPH)
+              ),
+            new LabelComponent()
+              .setId(2)
+              .setLabel(respond.language.get("CODE_IMAGE_MODAL_UPLOAD_LABEL"))
+              .setDescription(
+                respond.language.get("CODE_IMAGE_MODAL_UPLOAD_DESCRIPTION")
+              )
+              .setComponent(
+                new FileUploadComponent()
+                  .setCustomId("file-upload")
+                  .setId(3)
+                  .setMinValues(1)
+                  .setMaxValues(1)
+                  .setRequired(false)
+              )
           )
       );
 
@@ -305,9 +324,25 @@ export default class CodeImage extends Command {
       await modal.channel.ack();
       respond = modal;
 
-      code = modal.getTextInputValue("code");
-      if (!code?.length)
-        return await modal.error("COMMAND_ERROR_GENERIC", { id: "code-image" });
+      code = modal.getTextInputValue("text-input");
+      const files = modal.getUploadedFiles("file-upload");
+      if (!code?.length && !files.size)
+        return await modal.error("CODE_IMAGE_NO_CODE_PROVIDED");
+
+      if (files.size) {
+        const file = files.first();
+        if (!file.contentType.startsWith("text/"))
+          return await modal.error("CODE_IMAGE_INVALID_FILE_TYPE");
+        else if (file.size >= 2_500_000)
+          return await modal.error("CODE_IMAGE_FILE_TOO_LARGE");
+        const fileReq = await centra(file.url)
+          .header("User-Agent", this.client.manager.ua)
+          .send();
+        const fileBody = fileReq.body.toString();
+        if (fileBody?.length) code = fileBody;
+        else if (!code)
+          return await modal.error("CODE_IMAGE_FAILED_TO_READ_FILE");
+      }
     }
 
     await respond.send("CODE_IMAGE_PROCESSING");
