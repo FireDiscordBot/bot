@@ -85,7 +85,9 @@ export default class CommandBlocked extends Listener {
       if (command.id == "eval") {
         // @ts-ignore
         if (message instanceof ApplicationCommandMessage) message.flags = 64;
-        return await message.channel.send("https://eval-deez-nuts.xyz/");
+        return await message.channel.send({
+          stickers: ["1428174486913552404"],
+        });
       }
       return await message.error("COMMAND_OWNER_ONLY");
     } else if (reason == "superuser")
