@@ -73,6 +73,8 @@ type EmbedBuilderDropdownValue =
   | "thumbnail"
   | "author";
 
+const BASE_EMBED_DESCRIPTION_KEY = "EMBED_CREATE_BASE_DESCRIPTION";
+
 const maybeColor = (phrase: string) =>
   phrase
     ? typeof tinycolor(phrase)?.isValid == "function" &&
@@ -98,7 +100,9 @@ export default class Embed extends Command {
     return; // base command isn't usable
   }
 
-  async getEmbed(id: string) {
+  async getEmbed(id: string, language?: Language) {
+    if (!language) language = this.client.getLanguage("en-US");
+
     const data = await this.client.db
       .query("SELECT uid, embed FROM embeds WHERE id=$1;", [id])
       .first()
@@ -106,6 +110,10 @@ export default class Embed extends Command {
     if (!data) return null;
     // @ts-ignore idk why this complains when APIEmbed from /v9 is *in* the type
     const embed = new MessageEmbed(data.get("embed") as APIEmbed);
+
+    if (embed.description == BASE_EMBED_DESCRIPTION_KEY)
+      embed.setDescription(language.get(BASE_EMBED_DESCRIPTION_KEY));
+
     return {
       id,
       createdBy: data.get("uid") as Snowflake,
@@ -113,7 +121,9 @@ export default class Embed extends Command {
     } as EmbedData;
   }
 
-  async getEmbeds(ids: string[]) {
+  async getEmbeds(ids: string[], language?: Language) {
+    if (!language) language = this.client.getLanguage("en-US");
+
     const data = await this.client.db
       .query("SELECT id, uid, embed FROM embeds WHERE id=ANY($1);", [ids])
       .catch(() => {});
@@ -122,6 +132,8 @@ export default class Embed extends Command {
     for await (const row of data) {
       // @ts-ignore idk why this complains when APIEmbed from /v9 is *in* the type
       const embed = new MessageEmbed(row.get("embed") as APIEmbed);
+      if (embed.description == BASE_EMBED_DESCRIPTION_KEY)
+        embed.setDescription(language.get(BASE_EMBED_DESCRIPTION_KEY));
       embeds.push({
         id: row.get("id") as string,
         createdBy: row.get("uid") as Snowflake,
@@ -252,7 +264,7 @@ export default class Embed extends Command {
         : (actionFull.slice(14) as EmbedBuilderButtonAction);
     switch (action) {
       case "embed-builder": {
-        const embed = await this.getEmbed(id);
+        const embed = await this.getEmbed(id, button.language);
         if (!embed)
           return await button.error("EMBED_BUILDER_ID_NOT_FOUND", { id });
 
@@ -320,7 +332,7 @@ export default class Embed extends Command {
         );
       }
       case "edit-field": {
-        const embed = await this.getEmbed(id);
+        const embed = await this.getEmbed(id, button.language);
         if (!embed)
           return await button.error("EMBED_BUILDER_ID_NOT_FOUND", { id });
         else if (!embed.embed.fields.length)
@@ -348,7 +360,7 @@ export default class Embed extends Command {
         });
       }
       case "edit-field-content": {
-        const embed = await this.getEmbed(id);
+        const embed = await this.getEmbed(id, button.language);
         if (!embed)
           return await button.error("EMBED_BUILDER_ID_NOT_FOUND", { id });
 
@@ -403,7 +415,7 @@ export default class Embed extends Command {
         );
       }
       case "edit-field-inline": {
-        const embed = await this.getEmbed(id);
+        const embed = await this.getEmbed(id, button.language);
         if (!embed)
           return await button.error("EMBED_BUILDER_ID_NOT_FOUND", { id });
 
@@ -449,7 +461,7 @@ export default class Embed extends Command {
         });
       }
       case "remove-field": {
-        const embed = await this.getEmbed(id);
+        const embed = await this.getEmbed(id, button.language);
         if (!embed)
           return await button.error("EMBED_BUILDER_ID_NOT_FOUND", { id });
         else if (!embed.embed.fields.length)
@@ -532,7 +544,7 @@ export default class Embed extends Command {
           case "description": {
             const isBaseDescription =
               dropdown.message.embeds[0].description ==
-              dropdown.language.get("EMBED_CREATE_BASE_DESCRIPTION");
+              dropdown.language.get(BASE_EMBED_DESCRIPTION_KEY);
 
             await dropdown.component.showModal(
               new Modal()
@@ -896,7 +908,7 @@ export default class Embed extends Command {
         }
       }
       case "embed-builder-edit-field": {
-        const embed = await this.getEmbed(id);
+        const embed = await this.getEmbed(id, dropdown.language);
         if (!embed)
           return await dropdown.error("EMBED_BUILDER_ID_NOT_FOUND", { id });
 
@@ -963,7 +975,7 @@ export default class Embed extends Command {
         });
       }
       case "embed-builder-remove-field": {
-        const embed = await this.getEmbed(id);
+        const embed = await this.getEmbed(id, dropdown.language);
         if (!embed)
           return await dropdown.error("EMBED_BUILDER_ID_NOT_FOUND", { id });
         else if (!embed.embed.fields.length)
@@ -1015,7 +1027,7 @@ export default class Embed extends Command {
     ];
     if (!action.startsWith("embed-builder") || modal.author.id != uid) return;
 
-    const embedData = await this.getEmbed(id);
+    const embedData = await this.getEmbed(id, modal.language);
     if (!embedData)
       return await modal.error("EMBED_BUILDER_ID_NOT_FOUND", { id });
 
@@ -1034,10 +1046,7 @@ export default class Embed extends Command {
       case "thumbnail":
       case "author": {
         const embed = embedData.embed;
-        if (
-          embed.description ==
-          modal.language.get("EMBED_CREATE_BASE_DESCRIPTION")
-        )
+        if (embed.description == modal.language.get(BASE_EMBED_DESCRIPTION_KEY))
           embed.setDescription("");
 
         const title = modal.getTextInputValue("title");
@@ -1185,10 +1194,7 @@ export default class Embed extends Command {
           inline: false,
         });
 
-        if (
-          embed.description ==
-          modal.language.get("EMBED_CREATE_BASE_DESCRIPTION")
-        )
+        if (embed.description == modal.language.get(BASE_EMBED_DESCRIPTION_KEY))
           embed.setDescription("");
 
         const updated = await this.client.db

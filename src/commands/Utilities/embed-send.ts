@@ -84,7 +84,10 @@ export default class EmbedSend extends Command {
         command.member.permissionsIn(channel).missing(requiredPermissions)
       );
 
-    const embed = await (this.parentCommand as Embed).getEmbed(args.id);
+    const embed = await (this.parentCommand as Embed).getEmbed(
+      args.id,
+      command.language
+    );
     if (!embed) return await command.error("EMBED_SEND_ID_NOT_FOUND");
 
     const canManage = command.member

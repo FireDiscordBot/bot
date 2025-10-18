@@ -7,6 +7,8 @@ import { nanoid } from "nanoid";
 import { Value } from "ts-postgres";
 import Embed from "./embed";
 
+const BASE_EMBED_DESCRIPTION_KEY = "EMBED_CREATE_BASE_DESCRIPTION";
+
 export default class EmbedCreate extends Command {
   constructor() {
     super("embed-create", {
@@ -40,10 +42,7 @@ export default class EmbedCreate extends Command {
     const emptyEmbed = await this.client.db
       .query(
         "SELECT id FROM embeds WHERE uid=$1 AND embed ->> 'description' = $2",
-        [
-          command.author.id,
-          command.language.get("EMBED_CREATE_BASE_DESCRIPTION"),
-        ]
+        [command.author.id, BASE_EMBED_DESCRIPTION_KEY]
       )
       .first()
       .catch(() => {});
@@ -53,9 +52,7 @@ export default class EmbedCreate extends Command {
       });
 
     const id = nanoid();
-    const base = new MessageEmbed().setDescription(
-      command.language.get("EMBED_CREATE_BASE_DESCRIPTION")
-    );
+    const base = new MessageEmbed().setDescription(BASE_EMBED_DESCRIPTION_KEY);
     const insertedEmpty = await this.client.db
       .query("INSERT INTO embeds (id, uid, embed) VALUES ($1, $2,$3)", [
         id,
@@ -65,6 +62,10 @@ export default class EmbedCreate extends Command {
       .catch(() => {});
     if (!insertedEmpty || !insertedEmpty.status.startsWith("INSERT"))
       return await command.error("EMBED_CREATE_FAILED_TO_CREATE");
+
+    // we're guaranteed that the description is the base desc
+    // so we can replace without checking
+    base.setDescription(command.language.get(BASE_EMBED_DESCRIPTION_KEY));
 
     return await command.send("EMBED_BUILDER", {
       sendcmd: this.client

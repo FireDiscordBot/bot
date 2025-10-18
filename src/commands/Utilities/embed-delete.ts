@@ -48,7 +48,10 @@ export default class EmbedDelete extends Command {
   }
 
   async run(command: ApplicationCommandMessage, args: { id?: string }) {
-    const embed = await (this.parentCommand as Embed).getEmbed(args.id);
+    const embed = await (this.parentCommand as Embed).getEmbed(
+      args.id,
+      command.language
+    );
     if (!embed) return await command.error("EMBED_DELETE_ID_NOT_FOUND");
     else if (embed.createdBy != command.author.id)
       return await command.error("EMBED_DELETE_ID_NOT_YOURS");
