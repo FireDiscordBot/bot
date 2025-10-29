@@ -1034,12 +1034,12 @@ export class FireMessage extends Message {
         !(c instanceof FileComponent) || c.file.url.startsWith("attachment://")
     );
     for (const component of components) {
-      if (!(component instanceof ContainerComponent)) return;
-      component.components = component.components.filter(
-        (c) =>
-          !(c instanceof FileComponent) ||
-          c.file.url.startsWith("attachment://")
-      );
+      if (component instanceof ContainerComponent)
+        component.components = component.components.filter(
+          (c) =>
+            !(c instanceof FileComponent) ||
+            c.file.url.startsWith("attachment://")
+        );
     }
 
     const isAutomod = this.type == "AUTO_MODERATION_ACTION";
