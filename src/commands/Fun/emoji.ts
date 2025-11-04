@@ -35,6 +35,7 @@ export default class Emoji extends Command {
         },
       ],
       enableSlashCommand: true,
+      deferAnyways: true,
       ephemeral: true,
       hidden: false,
     });
