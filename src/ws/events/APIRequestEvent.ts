@@ -22,7 +22,7 @@ export default class APIRequest extends Event {
   ) {
     if (!methods.includes(data.method)) return;
     try {
-      this.console.info(
+      this.console.debug(
         `Forwarding API request to ${data.method.toUpperCase()} /${data.route}`
       );
       const response = await this.manager.client
@@ -35,7 +35,7 @@ export default class APIRequest extends Event {
           )
         );
     } catch (e) {
-      this.console.warn("Forwarded API request failed");
+      this.console.debug("Forwarded API request failed");
       return this.manager.ws.send(
         MessageUtil.encode(new Message(EventType.API_REQUEST, null, nonce))
       );
