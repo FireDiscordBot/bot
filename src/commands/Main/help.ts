@@ -114,7 +114,7 @@ export default class Help extends Command {
           .setLabel(message.language.get("HELP_BUTTON_PRIVACY")),
         new MessageButton()
           .setStyle("LINK")
-          .setURL("https://inv.wtf/premium")
+          .setURL("https://inv.wtf/plus")
           .setLabel(message.language.get("HELP_BUTTON_PREMIUM")),
       ]),
     ];

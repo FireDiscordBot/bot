@@ -86,22 +86,20 @@ export default class PremiumSync extends Event {
           removeIds.includes(member.id) &&
           !client.config.dev
         )
-          await member.roles
-            .remove(premiumRole, "premium is gone :crabrave:")
-            .catch((e) => {
-              this.manager.sentry.captureException(e, {
-                user: {
-                  id: member.id,
-                  username: member.user.toString(),
-                },
-              });
+          await member.roles.remove(premiumRole, "fire+ is gone").catch((e) => {
+            this.manager.sentry.captureException(e, {
+              user: {
+                id: member.id,
+                username: member.user.toString(),
+              },
             });
+          });
         else if (
           paidIds.includes(member.id) &&
           !member.roles.cache.has(premiumRole.id)
         )
           await member.roles
-            .add(premiumRole, "wow member now has premium")
+            .add(premiumRole, "wow member now has fire+")
             .catch((e) => {
               this.manager.sentry.captureException(e, {
                 user: {

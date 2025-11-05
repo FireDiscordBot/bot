@@ -7,7 +7,7 @@ import { PermissionFlagsBits } from "discord-api-types/v9";
 import { MessageEmbed, Role } from "discord.js";
 
 // TODO: create modlog entry first, block if failed
-// this is the vehavior moderation commands follow
+// this is the behavior moderation commands follow
 // and even though this is in the premium category
 // it should still be treated as one
 
