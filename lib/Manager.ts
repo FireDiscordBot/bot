@@ -10,6 +10,7 @@ import {
 } from "./interfaces/aether";
 import { Command } from "./util/command";
 import { FireConsole } from "./util/console";
+import { constants } from "./util/constants";
 import { getCommitHash } from "./util/gitUtils";
 import { Module } from "./util/module";
 import { Message } from "./ws/Message";
@@ -83,7 +84,7 @@ export class Manager {
   }
 
   get ua() {
-    return `Fire Discord Bot/${this.version} Node.JS/${process.version} (+https://getfire.bot/)`;
+    return `Fire Discord Bot/${this.version} Node.JS/${process.version} (+${constants.url.website})`;
   }
 
   get djsua() {

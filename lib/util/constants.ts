@@ -150,7 +150,8 @@ export class UseRun extends Error {}
 
 const websiteDomain = {
   production: "getfire.bot",
-  development: "localhost:3000",
+  development: "local.getfire.bot",
+  staging: "new-web.staging.getfire.bot",
 }[process.env.NODE_ENV];
 
 export const constants = {
@@ -167,12 +168,10 @@ export const constants = {
   ],
   // urls
   url: {
-    discovery: "https://getfire.bot/discover",
+    discovery: `https://${websiteDomain}/servers`,
     discordStatus: "https://discordstatus.com",
     fireStatus: "https://firestatus.link",
-    website: `${
-      websiteDomain.includes("localhost") ? "http" : "https"
-    }://${websiteDomain}`,
+    website: `https://${websiteDomain}`,
     websiteDomain,
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",
