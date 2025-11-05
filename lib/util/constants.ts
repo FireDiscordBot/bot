@@ -148,9 +148,10 @@ export type CommonContext = { guild?: FireGuild; language: Language };
 export class UseExec extends Error {}
 export class UseRun extends Error {}
 
-const websiteDomain = `${
-  process.env.NODE_ENV == "development" ? "local." : ""
-}getfire.bot`;
+const websiteDomain = {
+  production: "getfire.bot",
+  development: "localhost:3000",
+}[process.env.NODE_ENV];
 
 export const constants = {
   badges: [
@@ -169,7 +170,9 @@ export const constants = {
     discovery: "https://getfire.bot/discover",
     discordStatus: "https://discordstatus.com",
     fireStatus: "https://firestatus.link",
-    website: `https://${websiteDomain}`,
+    website: `${
+      websiteDomain.includes("localhost") ? "http" : "https"
+    }://${websiteDomain}`,
     websiteDomain,
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",

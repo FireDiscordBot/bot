@@ -319,7 +319,7 @@ export class ComponentMessage {
       files: any[];
     };
 
-    data.flags = this.flags;
+    data.flags |= this.flags;
 
     await this.client.req
       .webhooks(this.client.user.id, this.component.token)
@@ -492,8 +492,8 @@ export class FakeChannel extends BaseFakeChannel {
       files: any[];
     };
 
-    data.flags = this.flags;
-    if (typeof flags == "number") data.flags = flags;
+    data.flags |= this.flags;
+    if (typeof flags == "number") data.flags |= flags;
 
     // if (data.embeds?.length && !data.content) {
     //   // hijacking this for advertising sales instead of being a dumbass and sending unsolicited DMs (*cough* mee6 *cough*)
@@ -508,7 +508,7 @@ export class FakeChannel extends BaseFakeChannel {
     // }
 
     if (this.message.author.settings.get("utils.incognito", false))
-      data.flags = 64;
+      data.flags |= 64;
 
     if (!this.message.sent)
       await this.client.req
@@ -571,8 +571,8 @@ export class FakeChannel extends BaseFakeChannel {
       files: any[];
     };
 
-    data.flags = this.flags;
-    if (typeof flags == "number") data.flags = flags;
+    data.flags |= this.flags;
+    if (typeof flags == "number") data.flags |= flags;
 
     if (
       (files?.length || this.real instanceof DMChannel) &&

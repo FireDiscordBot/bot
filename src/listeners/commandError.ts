@@ -4,6 +4,7 @@ import { Command, InvalidArgumentContextError } from "@fire/lib/util/command";
 import { Listener } from "@fire/lib/util/listener";
 import { ConfigError } from "@fire/lib/util/settings";
 import { DMChannel, GuildChannel, ThreadChannel } from "discord.js";
+import { inspect } from "util";
 
 export default class CommandError extends Listener {
   constructor() {
@@ -100,7 +101,9 @@ export default class CommandError extends Listener {
           id: message?.util?.parsed?.alias ?? command.id,
         });
       } else {
-        return await message.channel.send("```js\n" + error.stack + "```");
+        return await message.channel.send(
+          "```js\n" + inspect(error, { depth: 1, colors: false }) + "```"
+        );
       }
     } catch {}
   }

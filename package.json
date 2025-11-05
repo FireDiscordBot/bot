@@ -46,7 +46,7 @@
     "libsodium-wrappers": "^0.7.15",
     "module-alias": "^2.2.3",
     "murmurhash-js": "^1.0.0",
-    "nanoid": "^3.3.8",
+    "nanoid": "3.3.8",
     "opusscript": "^0.1.1",
     "p-event": "^4.2.0",
     "pidusage": "^2.0.21",

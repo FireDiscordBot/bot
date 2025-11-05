@@ -36,7 +36,7 @@ export enum EventType {
   REFRESH_COMMANDS, // send only
   FORWARD_MESSAGE, // receive only
   FORWARD_MESSAGE_USER, // receive only
-  UNUSED3 = 31,
+  SUBMIT_APPEAL, // send & receive
   REQUEST_COMMANDS, // send & receive
   SUBSCRIBE_USER, // receive only
   UNSUBSCRIBE_USER, // receive only

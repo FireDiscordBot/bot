@@ -19,6 +19,7 @@ import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   DeconstructedSnowflake,
   Formatters,
+  LabelComponent,
   MessageActionRow,
   MessageButton,
   MessageEmbed,
@@ -28,11 +29,21 @@ import {
   SnowflakeUtil,
   TextInputComponent,
 } from "discord.js";
-import { TextInputStyles } from "discord.js/typings/enums";
+import {
+  MessageButtonStyles,
+  MessageComponentTypes,
+  TextInputStyles,
+} from "discord.js/typings/enums";
+import { Value } from "ts-postgres";
 import { parseWithUserTimezone } from "../arguments/time";
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 import LoggingConfig from "../commands/Configuration/logging-configure";
 import Google from "../commands/Fun/google";
+import Appeals, {
+  AppealFormDropdownItem,
+  AppealFormFileUploadItem,
+  AppealFormTextInputItem,
+} from "../commands/Moderation/appeals";
 import Embed from "../commands/Utilities/embed";
 import LogScan from "../commands/Utilities/minecraft-log-scan";
 import RemindersCreate from "../commands/Utilities/reminders-create";
@@ -720,6 +731,243 @@ export default class Select extends Listener {
           ),
         ],
       });
+    }
+
+    if (select.customId == "appeals:removeFormItem") {
+      if (!select.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await select.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            select.language
+          ),
+          command: "appeals",
+        });
+
+      select.flags = 64;
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(select.guild);
+      if (!config.channel || !select.guild.channels.cache.has(config.channel))
+        return await select.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      if (!config.items.length)
+        return await select.error(
+          "APPEALS_CONFIG_UPDATE_REMOVE_FORM_ITEM_NONE_FOUND"
+        );
+
+      const [, , typeString, indexString] = select.values[0].split(":") as [
+        string,
+        string,
+        `${MessageComponentTypes}`,
+        `${number}`
+      ];
+
+      const type = +typeString,
+        index = +indexString;
+      if (isNaN(type) || isNaN(index))
+        return await select.error(
+          "APPEALS_CONFIG_UPDATE_REMOVE_FORM_ITEM_INVALID"
+        );
+
+      const item = config.items.find(
+        (i, idx) => i.type == type && idx == index
+      );
+      if (!item)
+        return await select.error(
+          "APPEALS_CONFIG_UPDATE_REMOVE_FORM_ITEM_UNKNOWN"
+        );
+
+      config.items = config.items.filter(
+        (i, idx) => !(i.type == type && idx == index)
+      );
+      const updated = await this.client.db
+        .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
+          config.items as Value,
+          select.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await select.error("ERROR_CONTACT_SUPPORT");
+      else
+        return await select.edit({
+          content: select.language.getSuccess(
+            "APPEALS_CONFIG_UPDATE_REMOVE_FORM_ITEM_SUCCESS",
+            { server: select.guild.name }
+          ),
+          components: [],
+        });
+    } else if (select.customId == "appeals:editFormItem") {
+      if (!select.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await select.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            select.language
+          ),
+          command: "appeals",
+        });
+
+      select.flags = 64;
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(select.guild);
+      if (!config.channel || !select.guild.channels.cache.has(config.channel))
+        return await select.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      if (!config.items.length)
+        return await select.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_NONE_FOUND"
+        );
+
+      const [, , typeString, indexString] = select.values[0].split(":") as [
+        string,
+        string,
+        `${MessageComponentTypes}`,
+        `${number}`
+      ];
+
+      const type = +typeString as
+          | MessageComponentTypes.STRING_SELECT
+          | MessageComponentTypes.TEXT_INPUT
+          | MessageComponentTypes.FILE_UPLOAD,
+        index = +indexString;
+      if (isNaN(type) || isNaN(index))
+        return await select.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_INVALID"
+        );
+
+      const item = config.items.find(
+        (i, idx) => i.type == type && idx == index
+      );
+      if (!item)
+        return await select.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_UNKNOWN"
+        );
+
+      if (
+        type == MessageComponentTypes.TEXT_INPUT ||
+        type == MessageComponentTypes.FILE_UPLOAD
+      ) {
+        let title: string,
+          modalComponents: LabelComponent[] = [];
+        if (type == MessageComponentTypes.TEXT_INPUT) {
+          title = select.language.get(
+            "APPEALS_CONFIG_UPDATE_TEXT_INPUT_MODAL_TITLE"
+          );
+          modalComponents = appeals.textInputCreationComponents(
+            select.language,
+            item as AppealFormTextInputItem
+          );
+        } else if (type == MessageComponentTypes.FILE_UPLOAD) {
+          title = select.language.get(
+            "APPEALS_CONFIG_UPDATE_FILE_UPLOAD_MODAL_TITLE"
+          );
+          modalComponents = appeals.fileUploadCreationComponents(
+            select.language,
+            item as AppealFormFileUploadItem
+          );
+        }
+
+        const modal = new Modal()
+          .setTitle(title)
+          .setCustomId(
+            `appeals:editFormItem:${
+              type == MessageComponentTypes.TEXT_INPUT
+                ? "TEXT_INPUT"
+                : "FILE_UPLOAD"
+            }:${index}`
+          )
+          .addComponents(...modalComponents);
+        return await select.component.showModal(modal);
+      }
+
+      // we're guaranteed to have a string select now
+      // so we can set it up for adding/removing options
+      // as well as editing the form item
+      const editFormItemButton = new MessageButton()
+          .setStyle(MessageButtonStyles.PRIMARY)
+          .setCustomId(`!appeals:editFormItem:${index}`)
+          .setLabel(
+            select.language.get(
+              "APPEALS_CONFIG_UPDATE_EDIT_STRING_SELECT_BUTTON"
+            )
+          ),
+        addOptionButton = new MessageButton()
+          .setStyle(MessageButtonStyles.SUCCESS)
+          .setCustomId(`!appeals:editFormItem:addOption:${index}`)
+          .setLabel(
+            select.language.get(
+              "APPEALS_CONFIG_UPDATE_STRING_SELECT_ADD_OPTION_BUTTON"
+            )
+          ),
+        removeOptionButton = new MessageButton()
+          .setStyle(MessageButtonStyles.DANGER)
+          .setCustomId(`appeals:editFormItem:removeOption:${index}`)
+          .setLabel(
+            select.language.get(
+              "APPEALS_CONFIG_UPDATE_STRING_SELECT_REMOVE_OPTION_BUTTON"
+            )
+          );
+
+      const row = new MessageActionRow().addComponents(
+        editFormItemButton,
+        addOptionButton,
+        removeOptionButton
+      );
+
+      return await select.channel.update({
+        content: select.language.get(
+          "APPEALS_CONFIG_UPDATE_EDIT_STRING_SELECT_STARTER"
+        ),
+        components: [row],
+      });
+    }
+
+    if (select.customId.startsWith("appeals:editFormItem:removeOption:")) {
+      if (!select.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await select.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            select.language
+          ),
+          command: "appeals",
+        });
+
+      select.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(select.guild);
+      if (!config.channel || !select.guild.channels.cache.has(config.channel))
+        return await select.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const index = +select.customId.split(":").at(3);
+      const item = config.items[index] as AppealFormDropdownItem;
+      if (!item || item.type != MessageComponentTypes.STRING_SELECT)
+        return await select.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_UNKNOWN"
+        );
+
+      if (select.values.some((v) => !item.options.find((o) => o.value == v)))
+        return await select.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_REMOVE_OPTION_INVALID"
+        );
+
+      item.options = item.options.filter(
+        (opt) => !select.values.includes(opt.value)
+      );
+
+      const updated = await this.client.db
+        .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
+          config.items as Value,
+          select.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await select.error("ERROR_CONTACT_SUPPORT");
+      else
+        return await select.channel.update({
+          content: select.language.getSuccess(
+            "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_REMOVE_OPTION_SUCCESS"
+          ),
+          components: [],
+        });
     }
   }
 }

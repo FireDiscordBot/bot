@@ -52,7 +52,8 @@ import { BadgeType, DiscoverableGuild } from "../interfaces/stats";
 import { GuildProfile } from "../structures/GuildProfile";
 import { MessageIterator } from "../util/iterators";
 import { GuildLogManager } from "../util/logmanager";
-import { FakeChannel } from "./appcommandmessage";
+import { FakeChannel as ApplicationCommandFakeChannel } from "./appcommandmessage";
+import { FakeChannel as ComponentFakeChannel } from "./componentmessage";
 import { FireMember } from "./guildmember";
 import { FireMessage } from "./message";
 import { FireTextChannel } from "./textchannel";
@@ -1521,15 +1522,31 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     const typeString = ModLogTypesEnumToString[type];
     date ??= new Date();
     const caseID = nanoid();
+    let appealID: string;
+    if (type == ModLogTypes.BAN) appealID = nanoid();
     const entryResult = await this.client.db
       .query(
-        "INSERT INTO modlogs (gid, uid, modid, reason, created, type, caseid) VALUES ($1, $2, $3, $4, $5, $6, $7);",
-        [this.id, user.id, moderator.id, reason, date, typeString, caseID]
+        appealID
+          ? "INSERT INTO modlogs (gid, uid, modid, reason, created, type, caseid, appealid, appealstatus) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+          : "INSERT INTO modlogs (gid, uid, modid, reason, created, type, caseid) VALUES ($1, $2, $3, $4, $5, $6, $7);",
+        appealID
+          ? [
+              this.id,
+              user.id,
+              moderator.id,
+              reason,
+              date,
+              typeString,
+              caseID,
+              appealID,
+              "not_appealed",
+            ]
+          : [this.id, user.id, moderator.id, reason, date, typeString, caseID]
       )
       .catch(() => {});
     if (!entryResult) return false;
     // amazing success detection
-    else if (entryResult.status.startsWith("INSERT")) return caseID;
+    else if (entryResult.status.startsWith("INSERT")) return [caseID, appealID];
     return false;
   }
 
@@ -1549,7 +1566,10 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     user: FireUser,
     reason: string,
     moderator: FireMember,
-    channel?: FakeChannel | GuildTextChannel
+    channel?:
+      | ApplicationCommandFakeChannel
+      | ComponentFakeChannel
+      | GuildTextChannel
   ) {
     if (!reason || !moderator) return null;
     if (!moderator.isModerator(channel)) return "FORBIDDEN";
@@ -1566,7 +1586,9 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
       .unban(user, `${moderator} | ${reason}`)
       .catch(() => {});
     if (!unbanned) {
-      const deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
+      const deleted = await this.deleteModLogEntry(logEntry[0]).catch(
+        () => false
+      );
       return deleted ? "UNBAN" : "UNBAN_AND_ENTRY";
     }
     if (this.tempBans.has(user.id)) {
@@ -1624,12 +1646,12 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     blockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: FakeChannel | GuildTextChannel
+    channel: ApplicationCommandFakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return null;
     if (!moderator.isModerator(channel)) return "FORBIDDEN";
     if (!channel.permissionOverwrites) return "BLOCK";
-    let logEntry: string | false | void;
+    let logEntry: string[] | false | void;
     if (blockee instanceof FireMember) {
       logEntry = await this.createModLogEntry(
         blockee,
@@ -1652,7 +1674,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     if (!blocked) {
       let deleted = true; // ensures "block" is used if logEntry doesn't exist
       if (logEntry)
-        deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
+        deleted = await this.deleteModLogEntry(logEntry[0]).catch(() => false);
       return deleted ? "BLOCK" : "BLOCK_AND_ENTRY";
     }
     const embed = new MessageEmbed()
@@ -1720,11 +1742,11 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     unblockee: FireMember | Role,
     reason: string,
     moderator: FireMember,
-    channel: FakeChannel | GuildTextChannel
+    channel: ApplicationCommandFakeChannel | GuildTextChannel
   ) {
     if (!reason || !moderator) return null;
     if (!moderator.isModerator(channel)) return "FORBIDDEN";
-    let logEntry: string | false | void;
+    let logEntry: string[] | false | void;
     if (unblockee instanceof FireMember) {
       logEntry = await this.createModLogEntry(
         unblockee,
@@ -1758,7 +1780,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
     if (!unblocked) {
       let deleted = true; // ensures "unblock" is used if logEntry doesn't exist
       if (logEntry)
-        deleted = await this.deleteModLogEntry(logEntry).catch(() => false);
+        deleted = await this.deleteModLogEntry(logEntry[0]).catch(() => false);
       return deleted ? "UNBLOCK" : "UNBLOCK_AND_ENTRY";
     }
     const embed = new MessageEmbed()

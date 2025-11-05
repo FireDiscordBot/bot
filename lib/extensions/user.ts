@@ -298,7 +298,7 @@ export class FireUser extends User {
       .catch(() => {});
     if (!banned) {
       const deleted = await guild
-        .deleteModLogEntry(logEntry)
+        .deleteModLogEntry(logEntry[0])
         .catch(() => false);
       return deleted ? "BAN" : "BAN_AND_ENTRY";
     }

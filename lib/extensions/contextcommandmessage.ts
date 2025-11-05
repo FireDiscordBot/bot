@@ -688,8 +688,8 @@ export class FakeChannel extends BaseFakeChannel {
       files: any[];
     };
 
-    data.flags = this.flags;
-    if (typeof flags == "number") data.flags = flags;
+    data.flags |= this.flags;
+    if (typeof flags == "number") data.flags |= flags;
 
     // if (data.embeds?.length && !data.content) {
     //   // hijacking this for advertising sales instead of being a dumbass and sending unsolicited DMs (*cough* mee6 *cough*)
@@ -704,7 +704,7 @@ export class FakeChannel extends BaseFakeChannel {
     // }
 
     if (this.message.author.settings.get("utils.incognito", false))
-      data.flags = 64;
+      data.flags |= 64;
 
     if (!this.message.sent)
       await this.client.req

@@ -17,13 +17,16 @@ import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   CategoryChannel,
+  ContainerComponent,
   EmbedFieldData,
+  FileComponent,
   Formatters,
+  LabelComponent,
   MessageActionRow,
   MessageButton,
-  MessageComponentInteraction,
   MessageEmbed,
   MessageSelectMenu,
+  MessageSelectOptionData,
   Modal,
   ModalActionRowComponent,
   NewsChannel,
@@ -31,10 +34,18 @@ import {
   TextInputComponent,
   ThreadChannel,
 } from "discord.js";
-import { TextInputStyles } from "discord.js/typings/enums";
+import {
+  MessageButtonStyles,
+  MessageComponentTypes,
+  TextInputStyles,
+} from "discord.js/typings/enums";
 import { codeblockTypeCaster } from "../arguments/codeblock";
 import Anti from "../commands/Configuration/anti";
 import Google from "../commands/Fun/google";
+import Appeals, {
+  AppealFormDropdownItem,
+  AppealStatus,
+} from "../commands/Moderation/appeals";
 import Rank from "../commands/Premium/rank";
 import Embed from "../commands/Utilities/embed";
 import LogScan from "../commands/Utilities/minecraft-log-scan";
@@ -187,6 +198,8 @@ const verifGFuelModalComponents = [
   ),
 ];
 
+const validAppealFormTypes = ["STRING_SELECT", "TEXT_INPUT", "FILE_UPLOAD"];
+
 export default class Button extends Listener {
   constructor() {
     super("button", {
@@ -298,6 +311,705 @@ export default class Button extends Listener {
             : await button.channel.send({ embeds: [instance] });
         } else return await button.error("EMBED_OBJECT_INVALID");
       }
+    }
+
+    if (button.customId == "appeals:setNotBefore") {
+      if (!button.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await button.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            button.language
+          ),
+          command: "appeals",
+        });
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(button.guild);
+      if (!config.channel || !button.guild.channels.cache.has(config.channel))
+        return await button.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const modal = new Modal()
+        .setTitle(button.language.get("APPEALS_CONFIG_NOT_BEFORE_MODAL_TITLE"))
+        .setCustomId("appeals:setNotBefore")
+        .addComponents(
+          new LabelComponent()
+            .setId(1)
+            .setLabel(
+              button.language.get("APPEALS_CONFIG_NOT_BEFORE_MODAL_LABEL")
+            )
+            .setDescription(
+              button.language.get("APPEALS_CONFIG_NOT_BEFORE_MODAL_DESCRIPTION")
+            )
+            .setComponent(
+              new TextInputComponent()
+                .setCustomId("not-before")
+                .setRequired(true)
+                .setPlaceholder(
+                  button.language.get(
+                    "APPEALS_CONFIG_TIMELINE_MODAL_PLACEHOLDER"
+                  )
+                )
+                .setStyle(TextInputStyles.SHORT)
+            )
+        );
+      return await button.component.showModal(modal);
+    } else if (button.customId == "appeals:setNotAfter") {
+      if (!button.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await button.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            button.language
+          ),
+          command: "appeals",
+        });
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(button.guild);
+      if (!config.channel || !button.guild.channels.cache.has(config.channel))
+        return await button.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const modal = new Modal()
+        .setTitle(button.language.get("APPEALS_CONFIG_NOT_AFTER_MODAL_TITLE"))
+        .setCustomId("appeals:setNotAfter")
+        .addComponents(
+          new LabelComponent()
+            .setId(1)
+            .setLabel(
+              button.language.get("APPEALS_CONFIG_NOT_AFTER_MODAL_LABEL")
+            )
+            .setDescription(
+              button.language.get("APPEALS_CONFIG_NOT_AFTER_MODAL_DESCRIPTION")
+            )
+            .setComponent(
+              new TextInputComponent()
+                .setCustomId("not-after")
+                .setRequired(true)
+                .setPlaceholder(
+                  button.language.get(
+                    "APPEALS_CONFIG_TIMELINE_MODAL_PLACEHOLDER"
+                  )
+                )
+                .setStyle(TextInputStyles.SHORT)
+            )
+        );
+      return await button.component.showModal(modal);
+    } else if (button.customId == "appeals:addFormItem") {
+      if (!button.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await button.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            button.language
+          ),
+          command: "appeals",
+        });
+
+      button.flags = 64;
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(button.guild);
+      if (!config.channel || !button.guild.channels.cache.has(config.channel))
+        return await button.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      if (config.items.length >= 5)
+        return await button.error(
+          "APPEALS_CONFIG_UPDATE_ADD_FORM_ITEM_MAX_ITEMS"
+        );
+
+      const dropdownButton = new MessageButton()
+          .setCustomId("!appeals:addFormItem:STRING_SELECT")
+          .setStyle(MessageButtonStyles.PRIMARY)
+          .setLabel(button.language.get("APPEALS_CONFIG_UPDATE_STRING_SELECT")),
+        textInputButton = new MessageButton()
+          .setCustomId("!appeals:addFormItem:TEXT_INPUT")
+          .setStyle(MessageButtonStyles.PRIMARY)
+          .setLabel(button.language.get("APPEALS_CONFIG_UPDATE_TEXT_INPUT")),
+        fileUploadButton = new MessageButton()
+          .setCustomId("!appeals:addFormItem:FILE_UPLOAD")
+          .setStyle(MessageButtonStyles.PRIMARY)
+          .setLabel(button.language.get("APPEALS_CONFIG_UPDATE_FILE_UPLOAD"));
+
+      const row = new MessageActionRow().addComponents(
+        dropdownButton,
+        textInputButton,
+        fileUploadButton
+      );
+      return await button.channel.send({
+        content: button.language.get(
+          "APPEALS_CONFIG_UPDATE_ADD_FORM_ITEM_STARTER"
+        ),
+        components: [row],
+      });
+    } else if (button.customId == "appeals:removeFormItem") {
+      if (!button.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await button.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            button.language
+          ),
+          command: "appeals",
+        });
+
+      button.flags = 64;
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(button.guild);
+      if (!config.channel || !button.guild.channels.cache.has(config.channel))
+        return await button.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      if (!config.items.length)
+        return await button.error(
+          "APPEALS_CONFIG_UPDATE_REMOVE_FORM_ITEM_NOTHING_TO_REMOVE"
+        );
+
+      const options: MessageSelectOptionData[] = [];
+      for (const item of config.items) {
+        switch (item.type) {
+          case MessageComponentTypes.STRING_SELECT: {
+            options.push({
+              label: this.client.util.shortenText(
+                `${button.language.get(
+                  "APPEALS_CONFIG_UPDATE_STRING_SELECT"
+                )} - ${item.label}`,
+                60
+              ),
+              value: `appeals:removeFormItem:${
+                item.type
+              }:${config.items.indexOf(item)}`,
+              description: this.client.util.shortenText(item.description, 100),
+            });
+            break;
+          }
+          case MessageComponentTypes.TEXT_INPUT: {
+            options.push({
+              label: this.client.util.shortenText(
+                `${button.language.get("APPEALS_CONFIG_UPDATE_TEXT_INPUT")} - ${
+                  item.label
+                }`,
+                60
+              ),
+              value: `appeals:removeFormItem:${
+                item.type
+              }:${config.items.indexOf(item)}`,
+              description: this.client.util.shortenText(item.description, 100),
+            });
+            break;
+          }
+          case MessageComponentTypes.FILE_UPLOAD: {
+            options.push({
+              label: this.client.util.shortenText(
+                `${button.language.get(
+                  "APPEALS_CONFIG_UPDATE_FILE_UPLOAD"
+                )} - ${item.label}`,
+                60
+              ),
+              value: `appeals:removeFormItem:${
+                item.type
+              }:${config.items.indexOf(item)}`,
+              description: this.client.util.shortenText(item.description, 100),
+            });
+            break;
+          }
+        }
+      }
+
+      const dropdown = new MessageSelectMenu()
+        .setCustomId("appeals:removeFormItem")
+        .addOptions(options)
+        .setMinValues(1)
+        .setMaxValues(1);
+      const row = new MessageActionRow().addComponents(dropdown);
+      return await button.channel.send({
+        content: button.language.get(
+          "APPEALS_CONFIG_UPDATE_REMOVE_FORM_ITEM_STARTER"
+        ),
+        components: [row],
+      });
+    } else if (button.customId == "appeals:editFormItem") {
+      if (!button.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await button.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            button.language
+          ),
+          command: "appeals",
+        });
+
+      button.flags = 64;
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(button.guild);
+      if (!config.channel || !button.guild.channels.cache.has(config.channel))
+        return await button.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      if (!config.items.length)
+        return await button.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_NOTHING_TO_EDIT"
+        );
+
+      const options: MessageSelectOptionData[] = [];
+      for (const item of config.items) {
+        switch (item.type) {
+          case MessageComponentTypes.STRING_SELECT: {
+            options.push({
+              label: this.client.util.shortenText(
+                `${button.language.get(
+                  "APPEALS_CONFIG_UPDATE_STRING_SELECT"
+                )} - ${item.label}`,
+                60
+              ),
+              value: `appeals:editFormItem:${item.type}:${config.items.indexOf(
+                item
+              )}`,
+              description: this.client.util.shortenText(item.description, 100),
+            });
+            break;
+          }
+          case MessageComponentTypes.TEXT_INPUT: {
+            options.push({
+              label: this.client.util.shortenText(
+                `${button.language.get("APPEALS_CONFIG_UPDATE_TEXT_INPUT")} - ${
+                  item.label
+                }`,
+                60
+              ),
+              value: `appeals:editFormItem:${item.type}:${config.items.indexOf(
+                item
+              )}`,
+              description: this.client.util.shortenText(item.description, 100),
+            });
+            break;
+          }
+          case MessageComponentTypes.FILE_UPLOAD: {
+            options.push({
+              label: this.client.util.shortenText(
+                `${button.language.get(
+                  "APPEALS_CONFIG_UPDATE_FILE_UPLOAD"
+                )} - ${item.label}`,
+                60
+              ),
+              value: `appeals:editFormItem:${item.type}:${config.items.indexOf(
+                item
+              )}`,
+              description: this.client.util.shortenText(item.description, 100),
+            });
+            break;
+          }
+        }
+      }
+
+      const dropdown = new MessageSelectMenu()
+        .setCustomId("!appeals:editFormItem")
+        .addOptions(options)
+        .setMinValues(1)
+        .setMaxValues(1);
+      const row = new MessageActionRow().addComponents(dropdown);
+      return await button.channel.send({
+        content: button.language.get(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_STARTER"
+        ),
+        components: [row],
+      });
+    }
+
+    if (button.customId.startsWith("appeals:addFormItem:")) {
+      if (!button.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await button.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            button.language
+          ),
+          command: "appeals",
+        });
+
+      button.flags = 64;
+
+      const itemType = button.customId.slice(20) as
+        | "STRING_SELECT"
+        | "TEXT_INPUT"
+        | "FILE_UPLOAD";
+      if (!validAppealFormTypes.includes(itemType))
+        return await button.error(
+          "APPEALS_CONFIG_UPDATE_INVALID_FORM_ITEM_TYPE"
+        );
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(button.guild);
+      if (!config.channel || !button.guild.channels.cache.has(config.channel))
+        return await button.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      let title: string,
+        modalComponents: LabelComponent[] = [];
+      switch (itemType) {
+        case "STRING_SELECT": {
+          title = button.language.get(
+            "APPEALS_CONFIG_UPDATE_STRING_SELECT_MODAL_TITLE"
+          );
+          modalComponents = appeals.stringSelectCreationComponents(
+            button.language
+          );
+          break;
+        }
+        case "TEXT_INPUT": {
+          title = button.language.get(
+            "APPEALS_CONFIG_UPDATE_TEXT_INPUT_MODAL_TITLE"
+          );
+          modalComponents = appeals.textInputCreationComponents(
+            button.language
+          );
+          break;
+        }
+        case "FILE_UPLOAD": {
+          title = button.language.get(
+            "APPEALS_CONFIG_UPDATE_FILE_UPLOAD_MODAL_TITLE"
+          );
+          modalComponents = appeals.fileUploadCreationComponents(
+            button.language
+          );
+          break;
+        }
+      }
+
+      const modal = new Modal()
+        .setTitle(title)
+        .setCustomId(button.customId)
+        .addComponents(...modalComponents);
+      return await button.component.showModal(modal);
+    }
+
+    if (button.customId.startsWith("appeals:editFormItem:addOption:")) {
+      if (!button.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await button.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            button.language
+          ),
+          command: "appeals",
+        });
+
+      button.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(button.guild);
+      if (!config.channel || !button.guild.channels.cache.has(config.channel))
+        return await button.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const index = +button.customId.split(":").at(3);
+      const item = config.items[index] as AppealFormDropdownItem;
+      if (!item || item.type != MessageComponentTypes.STRING_SELECT)
+        return await button.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_UNKNOWN"
+        );
+
+      const modal = new Modal()
+        .setCustomId(button.customId)
+        .setTitle(
+          button.language.get(
+            "APPEALS_CONFIG_UPDATE_STRING_SELECT_ADD_OPTION_MODAL_TITLE"
+          )
+        )
+        .addComponents(
+          new LabelComponent()
+            .setId(1)
+            .setLabel(button.language.get("LABEL"))
+            .setDescription(
+              button.language.get(
+                "APPEALS_CONFIG_UPDATE_STRING_SELECT_ADD_OPTION_MODAL_LABEL_DESCRIPTION"
+              )
+            )
+            .setComponent(
+              new TextInputComponent()
+                .setCustomId("label")
+                .setStyle(TextInputStyles.SHORT)
+                .setRequired(true)
+                .setMaxLength(100)
+            ),
+          new LabelComponent()
+            .setId(2)
+            .setLabel(button.language.get("DESCRIPTION"))
+            .setDescription(
+              button.language.get(
+                "APPEALS_CONFIG_UPDATE_STRING_SELECT_ADD_OPTION_MODAL_DESCRIPTION_DESCRIPTION"
+              )
+            )
+            .setComponent(
+              new TextInputComponent()
+                .setCustomId("description")
+                .setStyle(TextInputStyles.SHORT)
+                .setRequired(false)
+                .setMaxLength(100)
+            ),
+          new LabelComponent()
+            .setId(3)
+            .setLabel(button.language.get("EMOJI"))
+            .setDescription(
+              button.language.get(
+                "APPEALS_CONFIG_UPDATE_STRING_SELECT_ADD_OPTION_MODAL_EMOJI_DESCRIPTION"
+              )
+            )
+            .setComponent(
+              new TextInputComponent()
+                .setCustomId("emoji")
+                .setStyle(TextInputStyles.SHORT)
+                .setRequired(false)
+                .setMaxLength(32)
+            ),
+          new LabelComponent()
+            .setId(4)
+            .setLabel(button.language.get("DEFAULT"))
+            .setDescription(
+              button.language.get(
+                "APPEALS_CONFIG_UPDATE_STRING_SELECT_ADD_OPTION_MODAL_DEFAULT_DESCRIPTION"
+              )
+            )
+            .setComponent(
+              new MessageSelectMenu()
+                .setCustomId("default")
+                .addOptions([
+                  {
+                    label: button.language.get("YES"),
+                    value: "true",
+                    default: false,
+                  },
+                  {
+                    label: button.language.get("NO"),
+                    value: "false",
+                    default: false,
+                  },
+                ])
+                .setMinValues(1)
+                .setMaxValues(1)
+            )
+        );
+
+      return await button.component.showModal(modal);
+    } else if (
+      button.customId.startsWith("appeals:editFormItem:removeOption:")
+    ) {
+      if (!button.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await button.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            button.language
+          ),
+          command: "appeals",
+        });
+
+      button.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(button.guild);
+      if (!config.channel || !button.guild.channels.cache.has(config.channel))
+        return await button.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const index = +button.customId.split(":").at(3);
+      const item = config.items[index] as AppealFormDropdownItem;
+      if (!item || item.type != MessageComponentTypes.STRING_SELECT)
+        return await button.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_UNKNOWN"
+        );
+
+      if (
+        item.options.length == 1 &&
+        item.options.at(0).value == "PLACEHOLDER_VALUE"
+      )
+        return await button.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_REMOVE_OPTION_PLACEHOLDER_ONLY"
+        );
+
+      const optionSelectDropdown = new MessageSelectMenu()
+        .setCustomId(`appeals:editFormItem:removeOption:${index}`)
+        .setMinValues(1)
+        .setMaxValues(item.options.length)
+        .addOptions(
+          item.options.map((opt) => ({
+            label: opt.label,
+            value: opt.value,
+            description: opt.description,
+            emoji: opt.emoji
+              ? "id" in opt.emoji
+                ? opt.emoji.id
+                : opt.emoji.name
+              : undefined,
+          }))
+        );
+      return await button.channel.send({
+        content: button.language.get(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_REMOVE_OPTION_STARTER"
+        ),
+        components: [
+          new MessageActionRow().addComponents(optionSelectDropdown),
+        ],
+      });
+    } else if (button.customId.startsWith("appeals:editFormItem:")) {
+      if (!button.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await button.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            button.language
+          ),
+          command: "appeals",
+        });
+
+      button.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(button.guild);
+      if (!config.channel || !button.guild.channels.cache.has(config.channel))
+        return await button.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const index = +button.customId.split(":").at(2);
+      const item = config.items[index] as AppealFormDropdownItem;
+      if (!item || item.type != MessageComponentTypes.STRING_SELECT)
+        return await button.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_UNKNOWN"
+        );
+
+      const modal = new Modal()
+        .setTitle(
+          button.language.get("APPEALS_CONFIG_UPDATE_STRING_SELECT_MODAL_TITLE")
+        )
+        .setCustomId(`appeals:editFormItem:STRING_SELECT:${index}`)
+        .addComponents(
+          ...appeals.stringSelectCreationComponents(button.language, item)
+        );
+      return await button.component.showModal(modal);
+    }
+
+    if (button.customId.startsWith("appeal:accept:")) {
+      button.flags = 64;
+      if (!button.member?.isModerator())
+        return await button.error("COMMAND_MODERATOR_ONLY");
+
+      const caseId = button.customId.split(":").at(2);
+      const entry = await this.client.db
+        .query("SELECT * FROM modlogs WHERE caseid=$1 AND gid=$2;", [
+          caseId,
+          button.guildId,
+        ])
+        .first()
+        .catch(() => {});
+      if (!entry || entry.get("caseid") != caseId)
+        return await button.error("APPEAL_ACCEPT_FAILED_TO_FIND_ENTRY");
+      const appealStatus = entry.get("appealstatus") as AppealStatus;
+      if (appealStatus != "appealed")
+        return await button.error("APPEAL_ACTION_DECIDED_ALREADY");
+
+      const userId = entry.get("uid") as Snowflake;
+      const user = (await this.client.users
+        .fetch(userId)
+        .catch(() => {})) as FireUser;
+      if (!user)
+        return await button.error("APPEAL_ACCEPT_FAILED_TO_FETCH_USER");
+
+      const updateModLogs = await this.client.db
+        .query(
+          "UPDATE modlogs SET appealstatus='accepted' WHERE caseid=$1 AND gid=$2;",
+          [caseId, button.guildId]
+        )
+        .catch(() => {});
+      if (!updateModLogs || !updateModLogs.status.startsWith("UPDATE "))
+        return await button.error("APPEAL_ACTION_STATUS_UPDATE_FAILED");
+
+      const unban = await button.guild.unban(
+        user,
+        button.guild.language.get("APPEAL_ACCEPT_REASON"),
+        button.member,
+        button.channel
+      );
+      if (unban == "FORBIDDEN") return await button.error("COMMAND_ERROR_500");
+      if (typeof unban == "string")
+        return await button.error(`UNBAN_FAILED_${unban}`);
+
+      const container = button.message.components[0] as ContainerComponent;
+      const buttonsRow = container.components.find(
+        (comp) =>
+          comp instanceof MessageActionRow &&
+          comp.components.find((onent) =>
+            onent.customId.startsWith("appeal:accept")
+          )
+      ) as MessageActionRow;
+      if (buttonsRow && buttonsRow.components.length) {
+        for (const component of buttonsRow.components)
+          component.setDisabled(true);
+
+        // we can't edit with URLs in file components
+        // so we need to reset them to attachment:// format
+        const fileComponents = container.components.filter(
+          (component) => component instanceof FileComponent
+        );
+        for (const file of fileComponents) file.setFile(file.name);
+
+        await button.message.edit({ components: [container] }).catch(() => {});
+      }
+
+      await user
+        .send(
+          user.language.getSuccess("APPEAL_ACCEPT_MESSAGE", {
+            guild: button.guild.name,
+          })
+        )
+        .catch(() => {});
+    } else if (button.customId.startsWith("appeal:reject:")) {
+      button.flags = 64;
+      if (!button.member?.isModerator())
+        return await button.error("COMMAND_MODERATOR_ONLY");
+
+      const caseId = button.customId.split(":").at(2);
+      const entry = await this.client.db
+        .query("SELECT * FROM modlogs WHERE caseid=$1 AND gid=$2;", [
+          caseId,
+          button.guildId,
+        ])
+        .first()
+        .catch(() => {});
+      if (!entry || entry.get("caseid") != caseId)
+        return await button.error("APPEAL_REJECT_FAILED_TO_FIND_ENTRY");
+      const appealStatus = entry.get("appealstatus") as AppealStatus;
+      if (appealStatus != "appealed")
+        return await button.error("APPEAL_ACTION_DECIDED_ALREADY");
+
+      const updateModLogs = await this.client.db
+        .query(
+          "UPDATE modlogs SET appealstatus='rejected' WHERE caseid=$1 AND gid=$2;",
+          [caseId, button.guildId]
+        )
+        .catch(() => {});
+      if (!updateModLogs || !updateModLogs.status.startsWith("UPDATE "))
+        return await button.error("APPEAL_ACTION_STATUS_UPDATE_FAILED");
+
+      const container = button.message.components[0] as ContainerComponent;
+      const buttonsRow = container.components.find(
+        (comp) =>
+          comp instanceof MessageActionRow &&
+          comp.components.find((onent) =>
+            onent.customId.startsWith("appeal:reject")
+          )
+      ) as MessageActionRow;
+      if (buttonsRow && buttonsRow.components.length) {
+        for (const component of buttonsRow.components)
+          component.setDisabled(true);
+
+        // we can't edit with URLs in file components
+        // so we need to reset them to attachment:// format
+        const fileComponents = container.components.filter(
+          (component) => component instanceof FileComponent
+        );
+        for (const file of fileComponents) file.setFile(file.name);
+
+        await button.message.edit({ components: [container] }).catch(() => {});
+      }
+
+      await button.success("APPEAL_REJECT_RESPONSE");
+
+      const userId = entry.get("uid") as Snowflake;
+      const user = (await this.client.users
+        .fetch(userId)
+        .catch(() => {})) as FireUser;
+      if (user)
+        await user
+          .send(
+            user.language.getError("APPEAL_REJECT_MESSAGE", {
+              guild: button.guild.name,
+            })
+          )
+          .catch(() => {});
     }
 
     // handle ticket close buttons
@@ -1107,9 +1819,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       else if (type == "verification")
         modalObj.addComponents(...verifGFuelModalComponents);
       else modalObj.addComponents(...defaultGFuelModalComponents);
-      await (button.component as MessageComponentInteraction).showModal(
-        modalObj
-      );
+      await button.component.showModal(modalObj);
 
       const modal = await modalPromise;
       await modal.channel.ack();

@@ -1,4 +1,5 @@
 import { Fire } from "@fire/lib/Fire";
+import Appeals from "@fire/src/commands/Moderation/appeals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   DMChannel,
@@ -8,15 +9,19 @@ import {
   GuildMember,
   GuildMemberFlags,
   ImageURLOptions,
+  MessageActionRow,
+  MessageButton,
   MessageEmbed,
   Permissions,
   Structures,
   ThreadChannel,
   Util,
 } from "discord.js";
+import { MessageButtonStyles } from "discord.js/typings/enums";
 import Semaphore from "semaphore-async-await";
 import { BaseFakeChannel } from "../interfaces/misc";
 import {
+  constants,
   GuildTextChannel,
   ModLogTypes,
   ModLogTypeString,
@@ -679,27 +684,6 @@ export class FireMember extends GuildMember {
         this.guild.language.get("BAN_MUTED_REASON"),
         this.guild.members.me as FireMember
       ).catch(() => {});
-    const banned = await this.ban({
-      reason: `${moderator} | ${reason}`,
-      deleteMessageSeconds,
-    }).catch(() => {});
-    if (!banned) {
-      const deleted = await this.guild
-        .deleteModLogEntry(logEntry)
-        .catch(() => false);
-      return deleted ? "BAN" : "BAN_AND_ENTRY";
-    }
-    let dbadd: any = !until;
-    if (until) {
-      this.guild.tempBans.set(this.id, until || 0);
-      dbadd = await this.client.db
-        .query("INSERT INTO bans (gid, uid, until) VALUES ($1, $2, $3);", [
-          this.guild.id,
-          this.id,
-          until?.toString() || "0",
-        ])
-        .catch(() => {});
-    }
     const embed = new MessageEmbed()
       .setColor(this.displayColor || "#E74C3C")
       .setTimestamp()
@@ -727,14 +711,35 @@ export class FireMember extends GuildMember {
         value: Formatters.time(new Date(until), "R"),
       });
     }
-    let noDM: boolean = false;
+    let noDM: boolean = false,
+      banDM: Awaited<ReturnType<FireMember["send"]>> | void;
     if (sendDM) {
-      await this.send(
-        this.language.get("BAN_DM", {
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = appeals
+        ? await appeals.getAppealsConfig(this.guild)
+        : null;
+
+      let components = [];
+      if (
+        this.guild.channels.cache.has(config?.channel) &&
+        config?.items.length
+      ) {
+        const appealButton = new MessageButton()
+          .setStyle(MessageButtonStyles.LINK)
+          .setURL(
+            `${constants.url.website}/appeals/submit/${this.guild.id}/${logEntry[1]}`
+          )
+          .setLabel(this.language.get("APPEALS_BUTTON_LABEL"));
+        components = [new MessageActionRow().addComponents(appealButton)];
+      }
+
+      banDM = await this.send({
+        content: this.language.get("BAN_DM", {
           guild: Util.escapeMarkdown(this.guild.name),
           reason,
-        })
-      ).catch(() => {
+        }),
+        components,
+      }).catch(() => {
         noDM = true;
       });
       if (noDM)
@@ -742,6 +747,28 @@ export class FireMember extends GuildMember {
           name: this.guild.language.get("ERROR"),
           value: this.guild.language.get("DM_FAIL"),
         });
+    }
+    const banned = await this.ban({
+      reason: `${moderator} | ${reason}`,
+      deleteMessageSeconds,
+    }).catch(() => {});
+    if (!banned) {
+      if (banDM) await banDM.delete().catch(() => {});
+      const deleted = await this.guild
+        .deleteModLogEntry(logEntry[0])
+        .catch(() => false);
+      return deleted ? "BAN" : "BAN_AND_ENTRY";
+    }
+    let dbadd: any = !until;
+    if (until) {
+      this.guild.tempBans.set(this.id, until || 0);
+      dbadd = await this.client.db
+        .query("INSERT INTO bans (gid, uid, until) VALUES ($1, $2, $3);", [
+          this.guild.id,
+          this.id,
+          until?.toString() || "0",
+        ])
+        .catch(() => {});
     }
     await this.guild.modLog(embed, ModLogTypes.BAN).catch(() => {});
     if (channel) {
@@ -797,7 +824,7 @@ export class FireMember extends GuildMember {
     const kicked = await this.kick(`${moderator} | ${reason}`).catch(() => {});
     if (!kicked) {
       const deleted = await this.guild
-        .deleteModLogEntry(logEntry)
+        .deleteModLogEntry(logEntry[0])
         .catch(() => false);
       return deleted ? "KICK" : "KICK_AND_ENTRY";
     }
@@ -896,7 +923,7 @@ export class FireMember extends GuildMember {
       .map((role) => role.id);
     if (beforeIds.length == afterIds.length) {
       const deleted = await this.guild
-        .deleteModLogEntry(logEntry)
+        .deleteModLogEntry(logEntry[0])
         .catch(() => false);
       return deleted ? "DERANK" : "DERANK_AND_ENTRY";
     }
@@ -1006,7 +1033,7 @@ export class FireMember extends GuildMember {
           .catch(() => {});
     if (!muted) {
       const deleted = await this.guild
-        .deleteModLogEntry(logEntry)
+        .deleteModLogEntry(logEntry[0])
         .catch(() => false);
       return deleted ? "MUTE" : "MUTE_AND_ENTRY";
     }
@@ -1175,7 +1202,7 @@ export class FireMember extends GuildMember {
       // if moderator retries unmute
       this.guild.mutes.set(this.id, until);
       const deleted = await this.guild
-        .deleteModLogEntry(logEntry)
+        .deleteModLogEntry(logEntry[0])
         .catch(() => false);
       return deleted ? "UNMUTE" : "UNMUTE_AND_ENTRY";
     }

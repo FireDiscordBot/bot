@@ -1,14 +1,16 @@
 import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { MinecraftLogInfo } from "@fire/lib/interfaces/mclogs";
+import { constants } from "@fire/lib/util/constants";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
+import { casual } from "chrono-node";
 import { Snowflake } from "discord-api-types/globals";
-import { PermissionFlagsBits } from "discord-api-types/v9";
+import { APISelectMenuOption, PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Channel,
   Formatters,
@@ -17,8 +19,20 @@ import {
   MessageSelectMenu,
   ThreadChannel,
 } from "discord.js";
+import {
+  MessageComponentTypes,
+  TextInputStyles,
+} from "discord.js/typings/enums";
+import { Value } from "ts-postgres";
 import { parseWithUserTimezone } from "../arguments/time";
+import Appeals, {
+  AppealFormDropdownItem,
+  AppealFormFileUploadItem,
+  AppealFormTextInputItem,
+} from "../commands/Moderation/appeals";
 import Embed from "../commands/Utilities/embed";
+
+const { regexes } = constants;
 
 export default class Modal extends Listener {
   constructor() {
@@ -358,6 +372,543 @@ export default class Modal extends Listener {
         .catch(() => {});
       if (!messageReq) return await modal.error("ERROR_CONTACT_SUPPORT");
       else return await modal.success("MINECRAFT_LOGSCAN_SOLUTION_SUBMITTED");
+    }
+
+    if (modal.customId == "appeals:setNotBefore") {
+      if (!modal.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await modal.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            modal.language
+          ),
+          command: "appeals",
+        });
+
+      modal.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(modal.guild);
+      if (!config.channel || !modal.guild.channels.cache.has(config.channel))
+        return await modal.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const input = modal.getTextInputValue("not-before");
+      if (!input)
+        return await modal.error("APPEALS_CONFIG_UPDATE_NOT_BEFORE_INVALID");
+
+      const parsed = casual.parseDate(input, modal.createdAt, {
+        forwardDate: true,
+      });
+      if (!parsed)
+        return await modal.error("APPEALS_CONFIG_UPDATE_NOT_BEFORE_INVALID");
+
+      const diff = +parsed - +modal.createdAt;
+      if (diff < 0)
+        return await modal.error(
+          "APPEALS_CONFIG_UPDATE_NOT_BEFORE_DIFF_FAILED"
+        );
+
+      config.notBefore = diff;
+
+      const updated = await this.client.db
+        .query("UPDATE appeals SET notbefore=$1 WHERE gid=$2", [
+          config.notBefore,
+          modal.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await modal.error("ERROR_CONTACT_SUPPORT");
+      else {
+        await modal.channel
+          .update({
+            components: [appeals.getAppealsContainer(modal, config)],
+          })
+          .catch(() => {});
+        if (config.notBefore)
+          return await modal.success(
+            "APPEALS_CONFIG_UPDATE_SET_NOT_BEFORE_SUCCESS",
+            {
+              server: modal.guild.name,
+              time: Formatters.time(
+                Math.floor((+modal.createdAt + config.notBefore) / 1000),
+                "F"
+              ),
+            }
+          );
+        else
+          return await modal.success(
+            "APPEALS_CONFIG_UPDATE_RESET_NOT_BEFORE_SUCCESS",
+            { server: modal.guild.name }
+          );
+      }
+    } else if (modal.customId == "appeals:setNotAfter") {
+      if (!modal.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await modal.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            modal.language
+          ),
+          command: "appeals",
+        });
+
+      modal.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(modal.guild);
+      if (!config.channel || !modal.guild.channels.cache.has(config.channel))
+        return await modal.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const input = modal.getTextInputValue("not-after");
+      if (!input)
+        return await modal.error("APPEALS_CONFIG_UPDATE_NOT_AFTER_INVALID");
+
+      const parsed = casual.parseDate(input, modal.createdAt, {
+        forwardDate: true,
+      });
+      if (!parsed)
+        return await modal.error("APPEALS_CONFIG_UPDATE_NOT_AFTER_INVALID");
+
+      const diff = +parsed - +modal.createdAt;
+      if (diff < 0)
+        return await modal.error("APPEALS_CONFIG_UPDATE_NOT_AFTER_DIFF_FAILED");
+
+      config.notAfter = diff;
+
+      const updated = await this.client.db
+        .query("UPDATE appeals SET notafter=$1 WHERE gid=$2", [
+          config.notAfter,
+          modal.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await modal.error("ERROR_CONTACT_SUPPORT");
+      else {
+        await modal.channel
+          .update({
+            components: [appeals.getAppealsContainer(modal, config)],
+          })
+          .catch(() => {});
+        if (config.notAfter)
+          return await modal.success(
+            "APPEALS_CONFIG_UPDATE_SET_NOT_AFTER_SUCCESS",
+            {
+              server: modal.guild.name,
+              time: Formatters.time(
+                Math.floor(
+                  (+modal.createdAt + config.notBefore + config.notAfter) / 1000
+                ),
+                "F"
+              ),
+            }
+          );
+        else
+          return await modal.success(
+            "APPEALS_CONFIG_UPDATE_RESET_NOT_AFTER_SUCCESS",
+            { server: modal.guild.name }
+          );
+      }
+    }
+
+    if (modal.customId == "appeals:addFormItem:STRING_SELECT") {
+      if (!modal.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await modal.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            modal.language
+          ),
+          command: "appeals",
+        });
+
+      modal.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(modal.guild);
+      if (!config.channel || !modal.guild.channels.cache.has(config.channel))
+        return await modal.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      if (config.items.length >= 5)
+        return await modal.error(
+          "APPEALS_CONFIG_UPDATE_ADD_FORM_ITEM_MAX_ITEMS"
+        );
+
+      const stringSelectItem: AppealFormDropdownItem = {
+        type: MessageComponentTypes.STRING_SELECT,
+        label: modal.getTextInputValue("label"),
+        description: modal.getTextInputValue("description"),
+        placeholder: modal.getTextInputValue("placeholder"),
+        options: [
+          {
+            label: modal.language.get(
+              "APPEALS_CONFIG_UPDATE_STRING_SELECT_OPTION_PLACEHOLDER_LABEL"
+            ),
+            description: modal.language.get(
+              "APPEALS_CONFIG_UPDATE_STRING_SELECT_OPTION_PLACEHOLDER_DESCRIPTION"
+            ),
+            value: "PLACEHOLDER_VALUE",
+          },
+        ],
+        required: modal
+          .getStringSelectValues("required")
+          .every((value) => value == "true"),
+      };
+      config.items.push(stringSelectItem);
+
+      const updated = await this.client.db
+        .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
+          config.items as Value,
+          modal.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await modal.error("ERROR_CONTACT_SUPPORT");
+      else
+        return await modal.channel.update({
+          content: modal.language.getSuccess(
+            "APPEALS_CONFIG_UPDATE_ADD_STRING_SELECT_SUCCESS",
+            { server: modal.guild.name }
+          ),
+          components: [],
+        });
+    } else if (modal.customId == "appeals:addFormItem:TEXT_INPUT") {
+      if (!modal.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await modal.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            modal.language
+          ),
+          command: "appeals",
+        });
+
+      modal.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(modal.guild);
+      if (!config.channel || !modal.guild.channels.cache.has(config.channel))
+        return await modal.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      if (config.items.length >= 5)
+        return await modal.error(
+          "APPEALS_CONFIG_UPDATE_ADD_FORM_ITEM_MAX_ITEMS"
+        );
+
+      const textInputItem: AppealFormTextInputItem = {
+        type: MessageComponentTypes.TEXT_INPUT,
+        label: modal.getTextInputValue("label"),
+        description: modal.getTextInputValue("description"),
+        placeholder: modal.getTextInputValue("placeholder"),
+        style: modal
+          .getStringSelectValues("style")
+          .every((value) => value == "SHORT")
+          ? TextInputStyles.SHORT
+          : TextInputStyles.PARAGRAPH,
+        required: modal
+          .getStringSelectValues("required")
+          .every((value) => value == "true"),
+      };
+      config.items.push(textInputItem);
+
+      const updated = await this.client.db
+        .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
+          config.items as Value,
+          modal.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await modal.error("ERROR_CONTACT_SUPPORT");
+      else
+        return await modal.channel.update({
+          content: modal.language.getSuccess(
+            "APPEALS_CONFIG_UPDATE_ADD_TEXT_INPUT_SUCCESS",
+            { server: modal.guild.name }
+          ),
+          components: [],
+        });
+    } else if (modal.customId == "appeals:addFormItem:FILE_UPLOAD") {
+      if (!modal.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await modal.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            modal.language
+          ),
+          command: "appeals",
+        });
+
+      modal.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(modal.guild);
+      if (!config.channel || !modal.guild.channels.cache.has(config.channel))
+        return await modal.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      if (config.items.length >= 5)
+        return await modal.error(
+          "APPEALS_CONFIG_UPDATE_ADD_FORM_ITEM_MAX_ITEMS"
+        );
+
+      const fileUploadItem: AppealFormFileUploadItem = {
+        type: MessageComponentTypes.FILE_UPLOAD,
+        label: modal.getTextInputValue("label"),
+        description: modal.getTextInputValue("description"),
+        minFiles: +modal.getStringSelectValues("min")[0] || 0,
+        maxFiles: +modal.getStringSelectValues("max")[0] || 1,
+        required: modal
+          .getStringSelectValues("required")
+          .every((value) => value == "true"),
+      };
+      config.items.push(fileUploadItem);
+
+      const updated = await this.client.db
+        .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
+          config.items as Value,
+          modal.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await modal.error("ERROR_CONTACT_SUPPORT");
+      else
+        return await modal.channel.update({
+          content: modal.language.getSuccess(
+            "APPEALS_CONFIG_UPDATE_ADD_FILE_UPLOAD_SUCCESS",
+            { server: modal.guild.name }
+          ),
+          components: [],
+        });
+    }
+
+    if (modal.customId.startsWith("appeals:editFormItem:STRING_SELECT")) {
+      if (!modal.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await modal.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            modal.language
+          ),
+          command: "appeals",
+        });
+
+      modal.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(modal.guild);
+      if (!config.channel || !modal.guild.channels.cache.has(config.channel))
+        return await modal.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const index = +modal.customId.split(":").at(3);
+      const item = config.items[index];
+      if (!item)
+        return await modal.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_UNKNOWN"
+        );
+
+      const stringSelectItem: AppealFormDropdownItem = {
+        type: MessageComponentTypes.STRING_SELECT,
+        label: modal.getTextInputValue("label"),
+        description: modal.getTextInputValue("description"),
+        placeholder: modal.getTextInputValue("placeholder"),
+        options: [
+          {
+            label: modal.language.get(
+              "APPEALS_CONFIG_UPDATE_STRING_SELECT_OPTION_PLACEHOLDER_LABEL"
+            ),
+            description: modal.language.get(
+              "APPEALS_CONFIG_UPDATE_STRING_SELECT_OPTION_PLACEHOLDER_DESCRIPTION"
+            ),
+            value: "PLACEHOLDER_VALUE",
+          },
+        ],
+        required: modal
+          .getStringSelectValues("required")
+          .every((value) => value == "true"),
+      };
+      config.items[index] = stringSelectItem;
+
+      const updated = await this.client.db
+        .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
+          config.items as Value,
+          modal.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await modal.error("ERROR_CONTACT_SUPPORT");
+      else
+        return await modal.channel.update({
+          content: modal.language.getSuccess(
+            "APPEALS_CONFIG_UPDATE_EDIT_STRING_SELECT_SUCCESS",
+            { server: modal.guild.name }
+          ),
+          components: [],
+        });
+    } else if (modal.customId.startsWith("appeals:editFormItem:TEXT_INPUT")) {
+      if (!modal.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await modal.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            modal.language
+          ),
+          command: "appeals",
+        });
+
+      modal.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(modal.guild);
+      if (!config.channel || !modal.guild.channels.cache.has(config.channel))
+        return await modal.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const index = +modal.customId.split(":").at(3);
+      const item = config.items[index];
+      if (!item)
+        return await modal.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_UNKNOWN"
+        );
+
+      const textInputItem: AppealFormTextInputItem = {
+        type: MessageComponentTypes.TEXT_INPUT,
+        label: modal.getTextInputValue("label"),
+        description: modal.getTextInputValue("description"),
+        placeholder: modal.getTextInputValue("placeholder"),
+        style: modal
+          .getStringSelectValues("style")
+          .every((value) => value == "SHORT")
+          ? TextInputStyles.SHORT
+          : TextInputStyles.PARAGRAPH,
+        required: modal
+          .getStringSelectValues("required")
+          .every((value) => value == "true"),
+      };
+      config.items[index] = textInputItem;
+
+      const updated = await this.client.db
+        .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
+          config.items as Value,
+          modal.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await modal.error("ERROR_CONTACT_SUPPORT");
+      else
+        return await modal.channel.update({
+          content: modal.language.getSuccess(
+            "APPEALS_CONFIG_UPDATE_EDIT_TEXT_INPUT_SUCCESS",
+            { server: modal.guild.name }
+          ),
+          components: [],
+        });
+    } else if (modal.customId.startsWith("appeals:editFormItem:FILE_UPLOAD")) {
+      if (!modal.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await modal.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            modal.language
+          ),
+          command: "appeals",
+        });
+
+      modal.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(modal.guild);
+      if (!config.channel || !modal.guild.channels.cache.has(config.channel))
+        return await modal.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const index = +modal.customId.split(":").at(3);
+      const item = config.items[index];
+      if (!item)
+        return await modal.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_UNKNOWN"
+        );
+
+      const fileUploadItem: AppealFormFileUploadItem = {
+        type: MessageComponentTypes.FILE_UPLOAD,
+        label: modal.getTextInputValue("label"),
+        description: modal.getTextInputValue("description"),
+        minFiles: +modal.getStringSelectValues("min")[0] || 0,
+        maxFiles: +modal.getStringSelectValues("max")[0] || 1,
+        required: modal
+          .getStringSelectValues("required")
+          .every((value) => value == "true"),
+      };
+      // FIRE-D63
+      if (fileUploadItem.required && fileUploadItem.minFiles < 1)
+        fileUploadItem.minFiles = 1;
+      config.items[index] = fileUploadItem;
+
+      const updated = await this.client.db
+        .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
+          config.items as Value,
+          modal.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await modal.error("ERROR_CONTACT_SUPPORT");
+      else
+        return await modal.channel.update({
+          content: modal.language.getSuccess(
+            "APPEALS_CONFIG_UPDATE_EDIT_FILE_UPLOAD_SUCCESS",
+            { server: modal.guild.name }
+          ),
+          components: [],
+        });
+    }
+
+    if (modal.customId.startsWith("appeals:editFormItem:addOption:")) {
+      if (!modal.member?.permissions.has(PermissionFlagsBits.BanMembers))
+        return await modal.error("MISSING_PERMISSIONS_USER", {
+          permissions: this.client.util.cleanPermissionName(
+            PermissionFlagsBits.BanMembers,
+            modal.language
+          ),
+          command: "appeals",
+        });
+
+      modal.flags = 64;
+
+      const appeals = this.client.getCommand("appeals") as Appeals;
+      const config = await appeals.getAppealsConfig(modal.guild);
+      if (!config.channel || !modal.guild.channels.cache.has(config.channel))
+        return await modal.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+
+      const index = +modal.customId.split(":").at(3);
+      const item = config.items[index];
+      if (!item || item.type != MessageComponentTypes.STRING_SELECT)
+        return await modal.error(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_UNKNOWN"
+        );
+
+      if (
+        item.options.length == 1 &&
+        item.options.at(0).value == "PLACEHOLDER_VALUE"
+      )
+        item.options.pop();
+
+      const option: APISelectMenuOption = {
+        label: modal.getTextInputValue("label"),
+        value: `STRING_SELECT_OPTION_${item.options.length}`,
+        description: modal.getTextInputValue("description") || undefined,
+        default: modal
+          .getStringSelectValues("default")
+          .every((value) => value == "true"),
+      };
+
+      const emojiInput = modal.getTextInputValue("emoji");
+      if (emojiInput) {
+        const isUnicode = regexes.unicodeEmoji.test(emojiInput);
+        regexes.unicodeEmoji.lastIndex = 0;
+        if (isUnicode) option.emoji = { name: emojiInput };
+      }
+
+      item.options.push(option);
+
+      const updated = await this.client.db
+        .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
+          config.items as Value,
+          modal.guild.id,
+        ])
+        .catch((e: Error) => e);
+      if (updated instanceof Error || !updated.status.startsWith("UPDATE "))
+        return await modal.error("ERROR_CONTACT_SUPPORT");
+      else
+        return await modal.success(
+          "APPEALS_CONFIG_UPDATE_EDIT_FORM_ITEM_ADD_OPTION_SUCCESS"
+        );
     }
   }
 }
