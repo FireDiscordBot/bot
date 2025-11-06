@@ -35,7 +35,7 @@
     "chrono-node": "^2.9.0",
     "dayjs": "^1.11.19",
     "discord-akairo": "discord-akairo/discord-akairo",
-    "discord-api-types": "^0.37.120",
+    "discord-api-types": "^0.38.32",
     "discord.js": "FireDiscordBot/discord.js",
     "dotenv-extended": "^2.9.0",
     "emoji-regex": "^10.6.0",
