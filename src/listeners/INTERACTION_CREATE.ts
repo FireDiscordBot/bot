@@ -3,7 +3,6 @@
 
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { Listener } from "@fire/lib/util/listener";
-import { Severity } from "@sentry/node";
 import { APIInteraction, InteractionType } from "discord-api-types/v9";
 
 export default class InteractionCreate extends Listener {
@@ -32,7 +31,7 @@ export default class InteractionCreate extends Listener {
         "json"
       );
       this.client.sentry.captureEvent({
-        level: Severity.Warning,
+        level: "warning",
         message: "Unknown Interaction Type",
         timestamp: +new Date(),
         extra: {

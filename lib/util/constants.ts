@@ -11,7 +11,6 @@ import {
   ReplyOptions,
   VoiceChannel,
 } from "discord.js";
-import { StringMap, TOptions } from "i18next";
 import { FireGuild } from "../extensions/guild";
 import { FireTextChannel } from "../extensions/textchannel";
 import { Language } from "./language";
@@ -131,7 +130,7 @@ export type LinkfilterExcludedItem =
 
 export type GuildTextChannel = FireTextChannel | VoiceChannel | NewsChannel;
 
-export type i18nOptions = TOptions<StringMap> & {
+export type i18nOptions = { [key: string]: any } & {
   components?: (
     | MessageActionRow
     | (Required<BaseMessageComponentOptions> & MessageActionRowOptions)

@@ -5,7 +5,6 @@ import { SubscriptionStatus } from "@fire/lib/interfaces/premium";
 import { Command } from "@fire/lib/util/command";
 import { CouponType } from "@fire/lib/util/constants";
 import { Inhibitor } from "@fire/lib/util/inhibitor";
-import { Severity } from "@sentry/node";
 import { Snowflake } from "discord-api-types/globals";
 import { Collection } from "discord.js";
 
@@ -151,7 +150,7 @@ export default class Premium extends Inhibitor {
             const deleted = await this.client.util.deleteSpecialCoupon(member);
             if (deleted.success == false)
               this.client.sentry.captureEvent({
-                level: Severity.Error,
+                level: "error",
                 message: "Failed to delete premium special coupon",
                 user: {
                   id: member.id,
@@ -177,7 +176,7 @@ export default class Premium extends Inhibitor {
                 .catch(() => {});
             else if (updated.success == false)
               this.client.sentry.captureEvent({
-                level: Severity.Error,
+                level: "error",
                 message: "Failed to update premium special coupon",
                 user: {
                   id: member.id,

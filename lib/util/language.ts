@@ -1,7 +1,7 @@
 import * as enUS from "@fire/i18n/en-US.json";
 import { Fire } from "@fire/lib/Fire";
 import { AkairoHandler, AkairoModule } from "discord-akairo";
-import { StringMap, TOptions } from "i18next";
+import { TOptions } from "i18next";
 
 type LanguageOptions = Partial<typeof enUS>;
 type NestedKeys<T, Prefix extends string = ""> = {
@@ -50,7 +50,7 @@ export class Language extends AkairoModule {
     return this.client.i18n.t(key, { lng: this.id }) != key;
   }
 
-  get(key: LanguageKeys, args?: TOptions<StringMap>) {
+  get(key: LanguageKeys, args?: TOptions) {
     if (args && !("interpolation" in args))
       args.interpolation = { escapeValue: false };
     if (!this.enabled) return this.client.i18n.t(key, { ...args });
@@ -59,19 +59,19 @@ export class Language extends AkairoModule {
     return this.client.i18n.t(key, { ...args, lng: this.id });
   }
 
-  getSuccess(key: LanguageKeys, args?: TOptions<StringMap>) {
+  getSuccess(key: LanguageKeys, args?: TOptions) {
     return `${this.client.util.useEmoji("success")} ${this.get(key, args)}`;
   }
 
-  getWarning(key: LanguageKeys, args?: TOptions<StringMap>) {
+  getWarning(key: LanguageKeys, args?: TOptions) {
     return `${this.client.util.useEmoji("warning")} ${this.get(key, args)}`;
   }
 
-  getError(key: LanguageKeys, args?: TOptions<StringMap>) {
+  getError(key: LanguageKeys, args?: TOptions) {
     return `${this.client.util.useEmoji("error")} ${this.get(key, args)}`;
   }
 
-  getSlashError(key: LanguageKeys, args?: TOptions<StringMap>) {
+  getSlashError(key: LanguageKeys, args?: TOptions) {
     return `${this.client.util.useEmoji("interactionerror")} ${this.get(
       key,
       args

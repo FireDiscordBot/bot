@@ -10,7 +10,7 @@ import {
   MessageEmbed,
   Permissions,
 } from "discord.js";
-import { StringMap, TOptions } from "i18next";
+import { TOptions } from "i18next";
 
 export default class Debug extends Command {
   constructor() {
@@ -266,7 +266,7 @@ export default class Debug extends Command {
   private async sendSingleError(
     command: ApplicationCommandMessage,
     key: LanguageKeys,
-    args?: TOptions<StringMap>
+    args?: TOptions
   ) {
     return await command.channel.send({
       embeds: [
@@ -283,7 +283,7 @@ export default class Debug extends Command {
   private async sendSingleSuccess(
     command: ApplicationCommandMessage,
     key: LanguageKeys,
-    args?: TOptions<StringMap>
+    args?: TOptions
   ) {
     return await command.channel.send({
       embeds: [

@@ -5,7 +5,6 @@ import { PremiumData, SubscriptionStatus } from "@fire/lib/interfaces/premium";
 import { CouponType } from "@fire/lib/util/constants";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
-import { Severity } from "@sentry/node";
 import { Snowflake } from "discord-api-types/globals";
 import { Collection } from "discord.js";
 
@@ -124,12 +123,11 @@ export default class PremiumSync extends Event {
         const currentEligibility =
           this.manager.client.util.getSpecialCouponEligibility(member);
         if (currentCoupon && !currentEligibility) {
-          const deleted = await this.manager.client.util.deleteSpecialCoupon(
-            member
-          );
+          const deleted =
+            await this.manager.client.util.deleteSpecialCoupon(member);
           if (deleted.success == false)
             this.manager.sentry.captureEvent({
-              level: Severity.Error,
+              level: "error",
               message: "Failed to delete premium special coupon",
               user: {
                 id: member.id,
@@ -141,9 +139,8 @@ export default class PremiumSync extends Event {
               },
             });
         } else if (currentCoupon && currentCoupon != currentEligibility) {
-          const updated = await this.manager.client.util.updateSpecialCoupon(
-            member
-          );
+          const updated =
+            await this.manager.client.util.updateSpecialCoupon(member);
           if (updated.success)
             await member
               .send({
@@ -157,7 +154,7 @@ export default class PremiumSync extends Event {
               .catch(() => {});
           else if (updated.success == false)
             this.manager.sentry.captureEvent({
-              level: Severity.Error,
+              level: "error",
               message: "Failed to update premium special coupon",
               user: {
                 id: member.id,

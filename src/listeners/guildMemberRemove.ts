@@ -10,7 +10,6 @@ import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { Severity } from "@sentry/node";
 import { Snowflake } from "discord-api-types/globals";
 import { Formatters, MessageEmbed, ThreadChannel } from "discord.js";
 
@@ -46,7 +45,7 @@ export default class GuildMemberRemove extends Listener {
         .catch(() => false);
       if (!deleted)
         this.client.sentry.captureEvent({
-          level: Severity.Error,
+          level: "error",
           message: "Failed to delete premium special coupon",
           user: {
             id: member.id,

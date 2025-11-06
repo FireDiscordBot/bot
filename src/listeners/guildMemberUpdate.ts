@@ -9,7 +9,6 @@ import {
 } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
-import { Severity } from "@sentry/node";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -63,7 +62,7 @@ export default class GuildMemberUpdate extends Listener {
           // need to explicitly check for false due so the types are correct
           else if (updated && updated.success == false)
             this.client.sentry.captureEvent({
-              level: Severity.Error,
+              level: "error",
               message: "Failed to update premium special coupon",
               user: {
                 id: newMember.id,
@@ -80,7 +79,7 @@ export default class GuildMemberUpdate extends Listener {
 
         if (!newCoupon && deleted && deleted.success == false)
           this.client.sentry.captureEvent({
-            level: Severity.Error,
+            level: "error",
             message: "Failed to delete premium special coupon",
             user: {
               id: newMember.id,
@@ -97,7 +96,7 @@ export default class GuildMemberUpdate extends Listener {
           updated.success == false
         )
           this.client.sentry.captureEvent({
-            level: Severity.Error,
+            level: "error",
             message: "Failed to update premium special coupon",
             user: {
               id: newMember.id,

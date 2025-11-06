@@ -8,7 +8,7 @@ import {
   BaseMessageComponentOptions,
   MessageActionRowOptions,
 } from "discord.js";
-import { StringMap, TOptions } from "i18next";
+import { TOptions } from "i18next";
 
 export default class ForwardMessageUser extends Event {
   constructor(manager: Manager) {
@@ -18,7 +18,7 @@ export default class ForwardMessageUser extends Event {
   async run(data: {
     user: Snowflake;
     message: LanguageKeys | string;
-    args?: TOptions<StringMap>;
+    args?: TOptions;
     components?: (Required<BaseMessageComponentOptions> &
       MessageActionRowOptions)[];
   }) {

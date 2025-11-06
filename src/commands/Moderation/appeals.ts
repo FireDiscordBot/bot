@@ -33,7 +33,7 @@ import {
   SeparatorComponentSpacing,
   TextInputStyles,
 } from "discord.js/typings/enums";
-import { StringMap, TOptions } from "i18next";
+import { TOptions } from "i18next";
 
 export type AppealStatus =
   | "not_appealed"
@@ -129,7 +129,7 @@ export default class Appeals extends Command {
     command: ApplicationCommandMessage | ComponentMessage | ModalMessage,
     config: AppealsConfig
   ) {
-    const get = (key: LanguageKeys, opt: TOptions<StringMap> = {}) =>
+    const get = (key: LanguageKeys, opt: TOptions = {}) =>
       command.guild.language.get(key, opt);
 
     const container = new ContainerComponent().setColor(
