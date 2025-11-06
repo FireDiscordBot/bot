@@ -197,7 +197,7 @@ export class FireMessage extends Message {
   }
 
   async getSystemContent() {
-    const lang = this.guild.language ?? this.language;
+    const lang = this.guild?.language ?? this.language;
     const user =
       this.member?.nickname ?? this.author?.globalName ?? this.author?.username;
     if (this.type == "GUILD_MEMBER_JOIN")
