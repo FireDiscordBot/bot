@@ -326,10 +326,10 @@ export default class CodeImage extends Command {
 
       code = modal.getTextInputValue("text-input");
       const files = modal.getUploadedFiles("file-upload");
-      if (!code?.length && !files.size)
+      if (!code?.length && !files?.size)
         return await modal.error("CODE_IMAGE_NO_CODE_PROVIDED");
 
-      if (files.size) {
+      if (files?.size) {
         const file = files.first();
         if (!file.contentType.startsWith("text/"))
           return await modal.error("CODE_IMAGE_INVALID_FILE_TYPE");
