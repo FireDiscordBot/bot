@@ -98,7 +98,10 @@ const MEMBER_INSTEAD_OF_USER = "is of type: USER; expected a non-empty value.";
 
 const getChannelTypes = (
   type: string
-): Exclude<ChannelType, ChannelType.DM | ChannelType.GroupDM>[] => {
+): Exclude<
+  ChannelType,
+  ChannelType.DM | ChannelType.GroupDM | ChannelType.GuildDirectory
+>[] => {
   switch (type) {
     case "textChannel":
     case "textChannelSilent":
@@ -168,8 +171,8 @@ export class InvalidArgumentContextError extends Error {
 }
 
 export class Command extends AkairoCommand {
-  public declare userPermissions: bigint[];
-  public declare clientPermissions: bigint[];
+  declare public userPermissions: bigint[];
+  declare public clientPermissions: bigint[];
 
   // we use a getter for guilds so that we
   // can add guilds with the required experiment
@@ -414,7 +417,7 @@ export class Command extends AkairoCommand {
     if (this.guilds.length && !guild) return null;
     else if (this.guilds.length && !this.guilds.includes(guild.id)) return null;
     return `</${subcommand ? subcommand.id.replace("-", " ") : this.id}:${
-      guild ? this.slashIds[guild.id] ?? this.slashId : this.slashId
+      guild ? (this.slashIds[guild.id] ?? this.slashId) : this.slashId
     }>`;
   }
 
