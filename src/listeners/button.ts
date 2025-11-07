@@ -1362,7 +1362,7 @@ export default class Button extends Listener {
       const component = message.components
         ?.map((component) =>
           component.type == "ACTION_ROW"
-            ? component?.components ?? component
+            ? (component?.components ?? component)
             : component
         )
         .flat()
@@ -2055,11 +2055,21 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         // whenever the content is too long for the main message content
         button.message.embeds[0].color == 3066993;
 
-      let content = (
-        hasReminderContentEmbed
-          ? button.message.embeds[0].description
-          : button.message.content
-      ).split("\n");
+      const originalContent = hasReminderContentEmbed
+        ? button.message.embeds[0].description
+        : button.message.content;
+      let content = originalContent.split("\n");
+
+      // FIRE-D6S
+      // With longer content, the addition of formatting can push it beyond
+      // the 4096 character limit for embed descriptions, however,
+      // since we're marking a reminder as complete, the entire content
+      // is likely no longer needed so cutting it short should be fine
+      if (originalContent.length >= 3950)
+        content = this.client.util
+          .shortenText(originalContent, 3950)
+          .split("\n");
+
       content = content.map((line) => {
         if (line.length)
           return Formatters.strikethrough(this.client.util.supressLinks(line));
@@ -2202,7 +2212,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       const [, userId, page] = button.customId.split(":") as [
         string,
         Snowflake,
-        `${number}`
+        `${number}`,
       ];
       if (button.author.id != userId) return;
 
@@ -2233,7 +2243,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       const [, userId, timestamp] = button.customId.split(":") as [
         string,
         Snowflake,
-        `${number}`
+        `${number}`,
       ];
       if (button.author.id != userId) return;
 
@@ -2293,7 +2303,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       const [, userId, timestamp] = button.customId.split(":") as [
         string,
         Snowflake,
-        `${number}`
+        `${number}`,
       ];
       if (button.author.id != userId) return;
 
@@ -2321,13 +2331,12 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         string,
         Snowflake,
         "guild" | "global",
-        Snowflake
+        Snowflake,
       ];
       if (type == "guild" && !button.guild)
         return await button.error("AVATAR_BUTTON_NO_GUILD");
-      const user = (await (type == "global"
-        ? this.client.users
-        : button.guild.members
+      const user = (await (
+        type == "global" ? this.client.users : button.guild.members
       )
         .fetch(userId)
         .catch(() => {})) as FireMember | FireUser;
