@@ -6,6 +6,7 @@ import { Message } from "@fire/lib/ws/Message";
 import { Event } from "@fire/lib/ws/event/Event";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
+import AetherStats from "@fire/src/modules/aetherstats";
 import GuildCheckEvent from "./GuildCheckEvent";
 
 export default class Restart extends Event {
@@ -14,11 +15,13 @@ export default class Restart extends Event {
   }
 
   async run(data: {
+    events: Record<string, Record<string, number>>;
     state: ManagerState;
     shardCount: number;
     interval: number;
     shards: number[];
     session: string;
+    force: boolean;
     id: number;
   }) {
     this.console.log(
@@ -27,8 +30,14 @@ export default class Restart extends Event {
     if (data.id != this.manager.id)
       return this.manager.kill("cluster_id_mismatch");
     const currentOptions = this.manager.client.options;
-    if (currentOptions.shardCount != data.shardCount)
-      this.manager.kill("resharding");
+    if (
+      currentOptions.shardCount != data.shardCount ||
+      !data.shards.every((shard) => this.manager.client.ws.shards.has(shard)) ||
+      !this.manager.client.ws.shards.every((_, shard) =>
+        data.shards.includes(shard)
+      )
+    )
+      return await this.manager.kill("resharding");
     for (const [id, guild] of this.manager.client.guilds.cache)
       this.manager.ws.send(
         MessageUtil.encode(
@@ -44,6 +53,10 @@ export default class Restart extends Event {
     this.manager.state = data.state;
     this.manager.ws.heartbeatInterval = data.interval;
     this.manager.ws.startHeartbeat();
+    const aetherstats = this.manager.client.getModule(
+      "aetherstats"
+    ) as AetherStats;
+    aetherstats.events = data.events;
     this.manager.client.manager.ws?.send(
       MessageUtil.encode(
         new Message(EventType.READY_CLIENT, {
