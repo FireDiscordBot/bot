@@ -33,7 +33,7 @@ export default class CommandStarted extends Listener {
         user: `${message.author} (${message.author.id})`,
         message_id: message.id,
         args:
-          message.util?.parsed?.content ?? args
+          (message.util?.parsed?.content ?? args)
             ? inspect(args, {
                 showHidden: false,
                 getters: true,
@@ -45,8 +45,7 @@ export default class CommandStarted extends Listener {
     this.client.manager.writeToInflux([point], {
       // command started logs are kept forever to power
       // the commands used counter on the WIP Fire website
-      retentionPolicy:
-        process.env.NODE_ENV == "production" ? "aether_inf" : undefined,
+      retentionPolicy: "aether_inf",
     });
   }
 }
