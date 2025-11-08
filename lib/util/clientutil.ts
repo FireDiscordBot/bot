@@ -54,12 +54,12 @@ export type TimestampStyle = "t" | "T" | "d" | "D" | "f" | "F" | "R";
 export type Range<
   Start extends number,
   End extends number,
-  Acc extends number[] = [Start]
+  Acc extends number[] = [Start],
 > = Start extends End
   ? Acc[number]
   : `${Acc["length"]}` extends `${End}`
-  ? Acc[number] | End
-  : Range<Start, End, [...Acc, Acc["length"]]>;
+    ? Acc[number] | End
+    : Range<Start, End, [...Acc, Acc["length"]]>;
 
 export const humanFileSize = (size: number) => {
   let i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -191,7 +191,7 @@ export class Util extends ClientUtil {
 
     this.permissionFlags = Object.entries(Permissions.FLAGS) as [
       PermissionString,
-      bigint
+      bigint,
     ][];
   }
 
@@ -561,7 +561,7 @@ export class Util extends ClientUtil {
   async getClusterStats(): Promise<ClusterStats> {
     const processStats = await pidusage(process.pid);
     processStats.memory = process.memoryUsage().heapUsed;
-    const env = (process.env.NODE_ENV || "DEVELOPMENT").toLowerCase();
+    const env = process.env.NODE_ENV;
     const cachedThreads = this.client.channels.cache.filter((c) =>
       c.isThread()
     );
@@ -576,6 +576,7 @@ export class Util extends ClientUtil {
       user: this.client.user ? this.client.user.toString() : "Unknown#0000",
       userId: this.client.user ? this.client.user.id : "",
       started: new Date(this.client.launchTime).toISOString(),
+      ready: !!this.client.isReady(),
       uptime: `Since ${new Date(this.client.launchTime).toLocaleString()}`,
       cpu: parseFloat((processStats.cpu / cpus().length).toFixed(2)),
       ram: humanFileSize(processStats.memory),
@@ -584,9 +585,7 @@ export class Util extends ClientUtil {
       totalRamBytes: totalmem(),
       pid: process.pid,
       version:
-        process.env.NODE_ENV == "development"
-          ? "dev"
-          : this.client.manager.commit.slice(0, 7),
+        env == "development" ? "dev" : this.client.manager.commit.slice(0, 7),
       versions: `Discord.JS v${djsver} | Node.JS ${process.version}`,
       guilds: this.client.guilds.cache.filter((guild) => guild.available).size,
       unavailableGuilds: this.client.guilds.cache.filter(
@@ -1028,8 +1027,8 @@ export class Util extends ClientUtil {
   ) {
     let thread: ThreadChannel;
     if (destination instanceof ThreadChannel)
-      (thread = destination),
-        (destination = destination.parent as GuildTextChannel);
+      ((thread = destination),
+        (destination = destination.parent as GuildTextChannel));
     else if (typeof destination.fetchWebhooks != "function") return;
     if (
       !destination
@@ -1289,10 +1288,10 @@ export class Util extends ClientUtil {
       case "github.com": {
         const split = url.pathname.split("/");
         if (url.pathname.includes("/blob/"))
-          (url.hostname = "raw.githubusercontent.com"),
+          ((url.hostname = "raw.githubusercontent.com"),
             (url.pathname = split
               .filter((part) => part && part !== "blob")
-              .join("/"));
+              .join("/")));
         else if (!url.pathname.includes("/files/")) url = null;
         break;
       }

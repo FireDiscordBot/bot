@@ -9,6 +9,7 @@ export interface ClusterStats {
   userId: string;
   uptime: string;
   started: string;
+  ready: boolean;
   cpu: number;
   ram: string;
   ramBytes: number;
