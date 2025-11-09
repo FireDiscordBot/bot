@@ -136,6 +136,12 @@ const cleanModVersion = (
       .replace(`${loader}-`, "")
       .replace(`${loader.toLowerCase()}-`, "")
       .replace(`${loader.toUpperCase()}-`, "")
+      .replace(`+${loader}`, "")
+      .replace(`+${loader.toLowerCase()}`, "")
+      .replace(`+${loader.toUpperCase()}`, "")
+      .replace(`${loader}+`, "")
+      .replace(`${loader.toLowerCase()}+`, "")
+      .replace(`${loader.toUpperCase()}+`, "")
       .replace(loader, "")
       .replace(loader.toLowerCase(), "")
       .replace(loader.toUpperCase(), "")
@@ -851,13 +857,13 @@ export default class MCLogs extends Module {
     }
 
     if (!(loader && mcVersion && loaderVersion))
-      (loader = undefined),
+      ((loader = undefined),
         (mcVersion = undefined),
-        (loaderVersion = undefined);
+        (loaderVersion = undefined));
 
     if (loader == Loaders.OPTIFINE)
-      (optifineVersion = loaderVersion),
-        (loaderVersion = loaderVersion.replace("_", " ").trim());
+      ((optifineVersion = loaderVersion),
+        (loaderVersion = loaderVersion.replace("_", " ").trim()));
     else {
       let optifineMatch: RegExpExecArray;
       while ((optifineMatch = this.regexes.optifine.exec(log))) {
@@ -1213,10 +1219,10 @@ export default class MCLogs extends Module {
             requiredVersion: high
               ? `${low}-${high}`
               : low == "*"
-              ? lang.get("MC_LOG_MISSING_DEP_ANY")
-              : lang.get("MC_LOG_MISSING_DEP_OR_NEWER", {
-                  requiredVersion: low,
-                }),
+                ? lang.get("MC_LOG_MISSING_DEP_ANY")
+                : lang.get("MC_LOG_MISSING_DEP_OR_NEWER", {
+                    requiredVersion: low,
+                  }),
             actual,
           });
         else
@@ -1228,10 +1234,10 @@ export default class MCLogs extends Module {
                 requiredVersion: high
                   ? `${low}-${high}`
                   : low == "*"
-                  ? lang.get("MC_LOG_MISSING_DEP_ANY")
-                  : lang.get("MC_LOG_MISSING_DEP_OR_NEWER", {
-                      requiredVersion: low,
-                    }),
+                    ? lang.get("MC_LOG_MISSING_DEP_ANY")
+                    : lang.get("MC_LOG_MISSING_DEP_OR_NEWER", {
+                        requiredVersion: low,
+                      }),
                 actual,
               },
             ],
@@ -2170,8 +2176,8 @@ export default class MCLogs extends Module {
               guild: message.guild
                 ? `${message.guild?.name} (${message.guildId})`
                 : message.channel.type == "DM"
-                ? "DM"
-                : "Unknown",
+                  ? "DM"
+                  : "Unknown",
               user: `${message.author} (${message.author.id})`,
               haste: haste.url,
               log_type: mcInfo.logType,
@@ -2248,8 +2254,8 @@ export default class MCLogs extends Module {
                     guild: message.guild
                       ? `${message.guild?.name} (${message.guildId})`
                       : message.channel.type == "DM"
-                      ? "DM"
-                      : "Unknown",
+                        ? "DM"
+                        : "Unknown",
                     user: `${message.author} (${message.author.id})`,
                     ign,
                     loggedUUID: loggedUUID || "Unknown",
@@ -2286,8 +2292,8 @@ export default class MCLogs extends Module {
                     guild: message.guild
                       ? `${message.guild?.name} (${message.guildId})`
                       : message.channel.type == "DM"
-                      ? "DM"
-                      : "Unknown",
+                        ? "DM"
+                        : "Unknown",
                     user: `${message.author} (${message.author.id})`,
                     ign: profile.name,
                     uuid: profile.id,
@@ -2422,8 +2428,8 @@ export default class MCLogs extends Module {
                   ? "MC_LOG_HASTE_WITH_LOADER_AND_IGN"
                   : "MC_LOG_HASTE_WITH_LOADER"
                 : ign
-                ? "MC_LOG_HASTE_WITH_IGN"
-                : "MC_LOG_HASTE",
+                  ? "MC_LOG_HASTE_WITH_IGN"
+                  : "MC_LOG_HASTE",
               {
                 extra: msgType == "uploaded" ? message.content : "",
                 solutions: (message.guild ?? message).language.get(
