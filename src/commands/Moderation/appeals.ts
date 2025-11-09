@@ -295,10 +295,15 @@ export default class Appeals extends Command {
       )
       .addComponents([
         new TextDisplayComponent({
-          content: language.get("APPEAL_SUBMIT_HEADER", {
-            displayName: user.displayName,
-            username: user.username,
-          }),
+          content: language.get(
+            !user.displayName || user.displayName == user.username
+              ? "APPEAL_SUBMIT_HEADER"
+              : "APPEAL_SUBMIT_HEADER_DISPLAY",
+            {
+              displayName: user.displayName,
+              username: user.username,
+            }
+          ),
         }),
         new TextDisplayComponent({
           content:
