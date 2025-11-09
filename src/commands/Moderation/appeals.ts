@@ -334,6 +334,7 @@ export default class Appeals extends Command {
             new MessageActionRow().addComponents(
               new MessageSelectMenu()
                 .setCustomId("IGNORE_ME")
+                .setDisabled(true)
                 .setPlaceholder(item.placeholder)
                 .addOptions(
                   item.options.map((option) => ({
