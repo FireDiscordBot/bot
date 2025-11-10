@@ -544,8 +544,8 @@ export default class GuildAuditLogEntryCreate extends Listener {
           tag.emoji?.id
             ? `<:emoji:${tag.emoji.id}> ${tag.name}`
             : tag.emoji?.name
-            ? `${tag.emoji.name} ${tag.name}`
-            : tag.name
+              ? `${tag.emoji.name} ${tag.name}`
+              : tag.name
         );
       embed.addFields({
         name: guild.language.get("TAGS"),
@@ -685,8 +685,8 @@ export default class GuildAuditLogEntryCreate extends Listener {
               tag.emoji?.id
                 ? `<:emoji:${tag.emoji.id}> ${tag.name}`
                 : tag.emoji?.name
-                ? `${tag.emoji.name} ${tag.name}`
-                : tag.name
+                  ? `${tag.emoji.name} ${tag.name}`
+                  : tag.name
             )
             .filter((tag) => !!tag);
           const newTags = (change.new as GuildForumTagData[])
@@ -694,8 +694,8 @@ export default class GuildAuditLogEntryCreate extends Listener {
               tag.emoji?.id
                 ? `<:emoji:${tag.emoji.id}> ${tag.name}`
                 : tag.emoji?.name
-                ? `${tag.emoji.name} ${tag.name}`
-                : tag.name
+                  ? `${tag.emoji.name} ${tag.name}`
+                  : tag.name
             )
             .filter((tag) => !!tag);
           const deletedTags = oldTags.filter((tag) => !newTags.includes(tag));
@@ -737,14 +737,14 @@ export default class GuildAuditLogEntryCreate extends Listener {
               oldEmoji.emoji_id
                 ? `<:emoji:${oldEmoji.emoji_id}> ${oldEmoji.emoji_name}`
                 : oldEmoji.emoji_name
-                ? `${oldEmoji.emoji_name}`
-                : guild.language.get("NO_EMOJI")
+                  ? `${oldEmoji.emoji_name}`
+                  : guild.language.get("NO_EMOJI")
             } ➜ ${
               newEmoji.emoji_id
                 ? `<:emoji:${newEmoji.emoji_id}> ${newEmoji.emoji_name}`
                 : newEmoji.emoji_name
-                ? `${newEmoji.emoji_name}`
-                : guild.language.get("NO_EMOJI")
+                  ? `${newEmoji.emoji_name}`
+                  : guild.language.get("NO_EMOJI")
             }`,
           });
           break;
@@ -854,8 +854,8 @@ export default class GuildAuditLogEntryCreate extends Listener {
               tag.emoji?.id
                 ? `<:emoji:${tag.emoji.id}> ${tag.name}`
                 : tag.emoji?.name
-                ? `${tag.emoji.name} ${tag.name}`
-                : tag.name
+                  ? `${tag.emoji.name} ${tag.name}`
+                  : tag.name
             );
           // @ts-ignore
           const newTags = ((change.new as string[]) ?? [])
@@ -867,8 +867,8 @@ export default class GuildAuditLogEntryCreate extends Listener {
               tag.emoji?.id
                 ? `<:emoji:${tag.emoji.id}> ${tag.name}`
                 : tag.emoji?.name
-                ? `${tag.emoji.name} ${tag.name}`
-                : tag.name
+                  ? `${tag.emoji.name} ${tag.name}`
+                  : tag.name
             );
           const removedTags = oldTags.filter((tag) => !newTags.includes(tag));
           const addedTags = newTags.filter((tag) => !oldTags.includes(tag));
@@ -1116,8 +1116,8 @@ export default class GuildAuditLogEntryCreate extends Listener {
           tag.emoji?.id
             ? `<:emoji:${tag.emoji.id}> ${tag.name}`
             : tag.emoji?.name
-            ? `${tag.emoji.name} ${tag.name}`
-            : tag.name
+              ? `${tag.emoji.name} ${tag.name}`
+              : tag.name
         );
       if (tags.length)
         embed.addFields({
@@ -1391,21 +1391,23 @@ export default class GuildAuditLogEntryCreate extends Listener {
       ])
       .setFooter({ text: auditLogEntry.targetId });
     if (target.permissions.bitfield)
-      embed.addFields({
-        name: guild.language.get("PERMISSIONS_TEXT"),
-        value: this.client.util.shorten(
-          target.permissions
-            .toArray()
-            // sort the permissions so the key permissions are at the top
-            // and less likely to be cut off
-            .sort((a, b) => (KEY_PERMISSIONS.includes(a) ? -1 : 1))
-            .map((p) =>
-              this.client.util.cleanPermissionName(p, guild.language)
-            ),
-          1024,
-          ", "
-        ),
-      });
+      try {
+        embed.addFields({
+          name: guild.language.get("PERMISSIONS_TEXT"),
+          value: this.client.util.shorten(
+            target.permissions
+              .toArray()
+              // sort the permissions so the key permissions are at the top
+              // and less likely to be cut off
+              .sort((a, b) => (KEY_PERMISSIONS.includes(a) ? -1 : 1))
+              .map((p) =>
+                this.client.util.cleanPermissionName(p, guild.language)
+              ),
+            1024,
+            ", "
+          ),
+        });
+      } catch {}
     embed.addFields({
       name: guild.language.get("DELETED_BY"),
       value: `${executor} (${executor.id})`,
