@@ -127,10 +127,10 @@ export class FireMessage extends Message {
     return this.guild
       ? `${this.guild} (${this.guild.id})`
       : this.guildId
-      ? "User App"
-      : this.channel.type == "DM"
-      ? "DM"
-      : "Unknown";
+        ? "User App"
+        : this.channel.type == "DM"
+          ? "DM"
+          : "Unknown";
   }
 
   get paginator() {
@@ -287,7 +287,7 @@ export class FireMessage extends Message {
           amount: this.content,
         }
       );
-    else if (this.type.startsWith("USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_")) {
+    else if (this.type?.startsWith("USER_PREMIUM_GUILD_SUBSCRIPTION_TIER_")) {
       const tier = this.type.split("_").pop();
       return lang.get(
         this.content
@@ -318,7 +318,7 @@ export class FireMessage extends Message {
       reply: args?.reply,
       embeds: upsell
         ? [upsell, ...(args.embeds?.length ? args.embeds : [])]
-        : args?.embeds ?? [],
+        : (args?.embeds ?? []),
     });
   }
 
@@ -719,12 +719,14 @@ export class FireMessage extends Message {
             quoter instanceof FireMember
               ? quoter.permissionsIn(channel).has(VIEW_CHANNEL)
               : "permissions" in destination
-              ? (BigInt((destination as PartialQuoteDestination).permissions) &
-                  VIEW_CHANNEL) ==
-                VIEW_CHANNEL
-              : this.guild?.roles.everyone
-                  .permissionsIn(channel)
-                  .has(VIEW_CHANNEL);
+                ? (BigInt(
+                    (destination as PartialQuoteDestination).permissions
+                  ) &
+                    VIEW_CHANNEL) ==
+                  VIEW_CHANNEL
+                : this.guild?.roles.everyone
+                    .permissionsIn(channel)
+                    .has(VIEW_CHANNEL);
           if (foreignDestination && canView)
             content = content.replaceAll(
               channel.toString(),
@@ -1092,8 +1094,8 @@ export class FireMessage extends Message {
       (this.system && this.guild && this.reference?.guildId != this.guild.id
         ? this.guild?.name
         : member
-        ? member.display.replace(/#0000/gim, "")
-        : this.author.display.replace(/#0000/gim, ""));
+          ? member.display.replace(/#0000/gim, "")
+          : this.author.display.replace(/#0000/gim, ""));
     return await hook
       .send(
         this.flags.has("IS_COMPONENTS_V2")
@@ -1108,14 +1110,14 @@ export class FireMessage extends Message {
               avatarURL: isAutomod
                 ? constants.url.automodAvatar
                 : this.system && this.guild
-                ? this.guild.iconURL({
-                    size: 2048,
-                    format: "png",
-                  })
-                : (member ?? this.author).displayAvatarURL({
-                    size: 2048,
-                    format: "png",
-                  }),
+                  ? this.guild.iconURL({
+                      size: 2048,
+                      format: "png",
+                    })
+                  : (member ?? this.author).displayAvatarURL({
+                      size: 2048,
+                      format: "png",
+                    }),
               allowedMentions: this.client.options.allowedMentions,
               files: attachments.map((data) =>
                 new MessageAttachment(
@@ -1134,14 +1136,14 @@ export class FireMessage extends Message {
               avatarURL: isAutomod
                 ? constants.url.automodAvatar
                 : this.system && this.guild
-                ? this.guild.iconURL({
-                    size: 2048,
-                    format: "png",
-                  })
-                : (member ?? this.author).displayAvatarURL({
-                    size: 2048,
-                    format: "png",
-                  }),
+                  ? this.guild.iconURL({
+                      size: 2048,
+                      format: "png",
+                    })
+                  : (member ?? this.author).displayAvatarURL({
+                      size: 2048,
+                      format: "png",
+                    }),
               embeds: isAutomod ? automodEmbeds : embeds,
               files: attachments.map((data) =>
                 new MessageAttachment(
