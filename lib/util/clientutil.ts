@@ -771,13 +771,7 @@ export class Util extends ClientUtil {
 
   getCommandsV2(): CommandsV2Command[] {
     return this.client.commandHandler.modules
-      .filter(
-        (command) =>
-          command instanceof Command &&
-          (process.env.NODE_ENV == "production"
-            ? !command.group
-            : !command.parent)
-      )
+      .filter((command) => command instanceof Command && !command.parent)
       .map((command) => command.getCommandsV2Data())
       .sort((a, b) => a.id.localeCompare(b.id));
   }
