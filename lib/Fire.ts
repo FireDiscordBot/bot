@@ -232,25 +232,6 @@ export class Fire extends AkairoClient {
             new Message(EventType.GUILD_DELETE, { id: r.d.id })
           )
         );
-
-      if (
-        r.t == Constants.WSEvents.GUILD_MEMBER_ADD &&
-        this.manager.ws?.subscribed.includes(r.d?.user?.id)
-      )
-        this.manager.ws.send(
-          MessageUtil.encode(
-            new Message(EventType.DISCORD_GUILD_MEMBER_ADD, r.d)
-          )
-        );
-      else if (
-        r.t == Constants.WSEvents.GUILD_MEMBER_REMOVE &&
-        this.manager.ws?.subscribed.includes(r.d?.user?.id)
-      )
-        this.manager.ws.send(
-          MessageUtil.encode(
-            new Message(EventType.DISCORD_GUILD_MEMBER_REMOVE, r.d)
-          )
-        );
     });
 
     if (sentry) {
@@ -285,13 +266,13 @@ export class Fire extends AkairoClient {
         return process.env.SPECIAL_PREFIX
           ? [process.env.SPECIAL_PREFIX, process.env.SPECIAL_PREFIX + " "]
           : message.guild
-          ? [
-              ...prefixes,
-              ...prefixes.map((prefix) => prefix + " "),
-              "fire",
-              "fire ",
-            ]
-          : ["$", "fire "];
+            ? [
+                ...prefixes,
+                ...prefixes.map((prefix) => prefix + " "),
+                "fire",
+                "fire ",
+              ]
+            : ["$", "fire "];
       },
       ignoreCooldown: (message: FireMessage) =>
         message.author?.isSuperuser() ||

@@ -11,7 +11,6 @@ export class Websocket extends Client {
   keepAlive: NodeJS.Timeout;
   heartbeatInterval: number;
   clientSideClose: boolean;
-  subscribed: string[];
   manager: Manager;
   lastPing: Date;
 
@@ -31,7 +30,6 @@ export class Websocket extends Client {
     );
     this.handlers = new Collection();
     this.manager = manager;
-    this.subscribed = [];
     this.once("open", () => {
       delete this.clientSideClose;
       this.manager.client.getModule("aetherstats").init();
@@ -41,7 +39,6 @@ export class Websocket extends Client {
             ready: !!this.manager.client.readyAt,
             id: this.manager.id,
             pid: process.pid,
-            config: {},
           })
         )
       );
@@ -107,8 +104,8 @@ export class Websocket extends Client {
 
   close(code?: number, data?: string | Buffer) {
     // Stop heartbeat keep alive timeout and task interval
-    clearTimeout(this.keepAlive), clearInterval(this.heartbeatTask);
-    delete this.keepAlive, delete this.heartbeatTask;
+    (clearTimeout(this.keepAlive), clearInterval(this.heartbeatTask));
+    (delete this.keepAlive, delete this.heartbeatTask);
 
     // This can be called multiple times per closure
     // so we only want to set it based on the first call

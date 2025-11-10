@@ -1,15 +1,12 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMessage } from "@fire/lib/extensions/message";
-import { ClusterStats } from "@fire/lib/interfaces/stats";
 import { Command } from "@fire/lib/util/command";
-import { getAllCommands, getCommands } from "@fire/lib/util/commandutil";
 import { Language } from "@fire/lib/util/language";
 import { Listener } from "@fire/lib/util/listener";
 import { Module } from "@fire/lib/util/module";
 import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
-import * as centra from "centra";
 import { Argument } from "discord-akairo";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
@@ -120,26 +117,6 @@ export default class AdminUnload extends Command {
         return await message.react("📤");
       } else {
         args.module.remove();
-        if (this.client.manager.REST_HOST) {
-          // check if only a single cluster is running and if so, sync commands with aether
-          const stats = (await (
-            await centra(`${this.client.manager.REST_HOST}/v2/stats`)
-              .header("User-Agent", this.client.manager.ua)
-              .send()
-          )
-            .json()
-            .catch(() => {})) as ClusterStats[] | void;
-          if (stats && stats.length == 1)
-            this.client.manager.ws.send(
-              MessageUtil.encode(
-                new Message(EventType.REQUEST_COMMANDS, {
-                  id: this.client.manager.id,
-                  commands: getCommands(this.client),
-                  allCommands: getAllCommands(this.client),
-                })
-              )
-            );
-        }
         return await message.success("SLASH_COMMAND_HANDLE_SUCCESS");
       }
     } catch {

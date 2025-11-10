@@ -37,11 +37,11 @@ export enum EventType {
   FORWARD_MESSAGE, // receive only
   FORWARD_MESSAGE_USER, // receive only
   SUBMIT_APPEAL, // send & receive
-  REQUEST_COMMANDS, // send & receive
-  SUBSCRIBE_USER, // receive only
-  UNSUBSCRIBE_USER, // receive only
-  DISCORD_GUILD_MEMBER_ADD, // send only
-  DISCORD_GUILD_MEMBER_REMOVE, // send only
+  UNUSED5 = 32,
+  UNUSED6 = 33,
+  UNUSED7 = 34,
+  UNUSED8 = 35,
+  UNUSED9 = 36,
   CREATE_INVITE_DISCOVERABLE, // send only
   UNUSED4 = 38,
   DISCOVERY_UPDATE, // send only

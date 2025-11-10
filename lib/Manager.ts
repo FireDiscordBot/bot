@@ -26,8 +26,8 @@ export class Manager {
   readonly REST_HOST = process.env.REST_HOST
     ? `https://${process.env.REST_HOST}`
     : process.env.REST_PORT
-    ? `http://127.0.0.1:${process.env.REST_PORT}`
-    : null; // realistically never gonna be encountered
+      ? `http://127.0.0.1:${process.env.REST_PORT}`
+      : null; // realistically never gonna be encountered
   readonly CURRENT_REST_VERSION = "v2";
 
   private loggers: Collection<string, FireConsole> = new Collection();
@@ -154,7 +154,6 @@ export class Manager {
         },
       ]);
       if (this.client.readyAt) this.client.setPartialOutageStatus();
-      this.ws.subscribed = [];
       this.reconnector.handleClose(code, reason.toString());
     });
 

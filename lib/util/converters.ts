@@ -160,15 +160,12 @@ export const guildPreviewConverter = async (
     }
     let isPublic = false;
     const publicGuildsReq = await centra(
-      `${message.client.manager.REST_HOST}/public`
+      `${message.client.manager.REST_HOST}/v2/public/${preview.id}`
     )
       .header("User-Agent", message.client.manager.ua)
       .header("Authorization", process.env.WS_AUTH)
       .send();
-    if (publicGuildsReq.statusCode == 200) {
-      const publicGuilds: string[] = await publicGuildsReq.json();
-      isPublic = publicGuilds.includes(preview.id);
-    }
+    isPublic = publicGuildsReq.statusCode == 202;
     if (!isPublic) {
       const member = await message.client.req
         .guilds(preview.id)
