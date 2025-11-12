@@ -153,7 +153,14 @@ const websiteDomain = {
   staging: "new-web.staging.getfire.bot",
 }[process.env.NODE_ENV];
 
+const botName = {
+  production: "Fire",
+  development: "Fire Dev",
+  staging: "Fire Beta",
+}[process.env.NODE_ENV];
+
 export const constants = {
+  botName,
   badges: [
     "DISCORD_EMPLOYEE",
     "PARTNERED_SERVER_OWNER",
@@ -175,6 +182,7 @@ export const constants = {
     terms: "https://inv.wtf/terms",
     privacy: "https://inv.wtf/privacy",
     premium: "https://inv.wtf/plus",
+    billing: "https://inv.wtf/billing",
     support: "https://inv.wtf/fire",
     // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
     imageGen: "https://gen.inv.wtf/",

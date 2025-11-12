@@ -50,16 +50,16 @@ const getSource = (interaction: Interaction) =>
   interaction.guild
     ? `${interaction.guild} (${interaction.guild.id})`
     : interaction.guildId
-    ? "User App"
-    : (
-        interaction.channel as
-          | FireTextChannel
-          | NewsChannel
-          | ThreadChannel
-          | DMChannel
-      ).type == "DM"
-    ? "DM"
-    : "Unknown";
+      ? "User App"
+      : (
+            interaction.channel as
+              | FireTextChannel
+              | NewsChannel
+              | ThreadChannel
+              | DMChannel
+          ).type == "DM"
+        ? "DM"
+        : "Unknown";
 
 export default class InteractionListener extends Listener {
   constructor() {
@@ -88,8 +88,8 @@ export default class InteractionListener extends Listener {
                 // even though if useCommandName is true, interaction has a commandName property
                 (interaction as CommandInteraction).commandName
               : useCustomId
-              ? (interaction as MessageComponentInteraction).customId
-              : "unknown",
+                ? (interaction as MessageComponentInteraction).customId
+                : "unknown",
             cluster: this.client.manager.id.toString(),
             shard: getShard(interaction).id.toString(),
             user_id: interaction.user.id, // easier to query tag
@@ -99,8 +99,8 @@ export default class InteractionListener extends Listener {
             command: useCommandName
               ? (interaction as CommandInteraction).commandName
               : useCustomId
-              ? (interaction as MessageComponentInteraction).customId
-              : "unknown",
+                ? (interaction as MessageComponentInteraction).customId
+                : "unknown",
             // TODO: possibly rename to "source" rather than guild?
             guild: getSource(interaction),
             user: `${interaction.user} (${interaction.user.id})`,
@@ -209,9 +209,7 @@ export default class InteractionListener extends Listener {
           );
         return await message.error("UNKNOWN_COMMAND");
       } else if (!message.guild && message.command.channel == "guild")
-        return await message.error("SLASH_COMMAND_BOT_REQUIRED", {
-          invite: this.client.config.inviteLink,
-        });
+        return await message.error("SLASH_COMMAND_BOT_REQUIRED");
       // await message.generateContent();
       await this.client.commandHandler.handleSlash(message);
       // if (message.sent != "message")
@@ -255,9 +253,7 @@ export default class InteractionListener extends Listener {
     if (message.command.channel == "guild" && !message.guild)
       return await interaction.respond([
         {
-          name: message.language.get("COMMAND_GUILD_ONLY", {
-            invite: this.client.config.inviteLink.slice(8),
-          }),
+          name: message.language.get("COMMAND_GUILD_ONLY"),
           value: "COMMAND_GUILD_ONLY",
         },
       ]);
@@ -440,9 +436,7 @@ export default class InteractionListener extends Listener {
           );
         return await message.error("UNKNOWN_COMMAND");
       } else if (!message.guild && message.command.channel == "guild")
-        return await message.error("SLASH_COMMAND_BOT_REQUIRED", {
-          invite: this.client.config.inviteLink,
-        });
+        return await message.error("SLASH_COMMAND_BOT_REQUIRED");
       await this.client.commandHandler.handleSlash(message);
     } catch (error) {
       const guild = this.client.guilds.cache.get(context.guildId);

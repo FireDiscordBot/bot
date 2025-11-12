@@ -65,9 +65,7 @@ export default class Debug extends Command {
     if (cmd.moderatorOnly && !command.member?.isModerator())
       return await this.sendSingleError(command, "COMMAND_MODERATOR_ONLY");
     if (cmd.channel == "guild" && !command.guild)
-      return await this.sendSingleError(command, "COMMAND_GUILD_ONLY", {
-        invite: this.client.config.inviteLink,
-      });
+      return await this.sendSingleError(command, "COMMAND_GUILD_ONLY");
     if (cmd.guilds.length && !cmd.guilds.includes(command.guild?.id))
       return await this.sendSingleError(command, "COMMAND_GUILD_LOCKED");
     if (cmd.premium && !command.guild?.premium)

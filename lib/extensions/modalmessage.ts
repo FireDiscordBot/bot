@@ -23,7 +23,7 @@ import { RawMessageData, RawUserData } from "discord.js/typings/rawDataTypes";
 import Semaphore from "semaphore-async-await";
 import { Fire } from "../Fire";
 import { BaseFakeChannel } from "../interfaces/misc";
-import { i18nOptions } from "../util/constants";
+import { constants, i18nOptions } from "../util/constants";
 import { LanguageKeys } from "../util/language";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
@@ -128,10 +128,10 @@ export class ModalMessage {
     return this.guild
       ? `${this.guild} (${this.guild.id})`
       : this.guildId
-      ? "User App"
-      : this.channel.type == "DM"
-      ? "DM"
-      : "Unknown";
+        ? "User App"
+        : this.channel.type == "DM"
+          ? "DM"
+          : "Unknown";
   }
 
   get ephemeral() {
@@ -222,7 +222,13 @@ export class ModalMessage {
   send(key?: LanguageKeys, args?: i18nOptions) {
     return this.channel.send(
       {
-        content: this.language.get(key, args),
+        content: this.language.get(key, {
+          ...args,
+          identity:
+            this.guild?.premium && this.guild.members.me?.nickname
+              ? this.guild.members.me.nickname
+              : constants.botName,
+        }),
         allowedMentions: args?.allowedMentions,
         components: args?.components,
         embeds: args?.embeds,
@@ -237,7 +243,13 @@ export class ModalMessage {
   ): Promise<ModalMessage | MessageReaction | void> {
     return this.channel.send(
       {
-        content: this.language.getSuccess(key, args),
+        content: this.language.getSuccess(key, {
+          ...args,
+          identity:
+            this.guild?.premium && this.guild.members.me?.nickname
+              ? this.guild.members.me.nickname
+              : constants.botName,
+        }),
         allowedMentions: args?.allowedMentions,
         components: args?.components,
       },
@@ -251,7 +263,13 @@ export class ModalMessage {
   ): Promise<ModalMessage | MessageReaction | void> {
     return this.channel.send(
       {
-        content: this.language.getWarning(key, args),
+        content: this.language.getWarning(key, {
+          ...args,
+          identity:
+            this.guild?.premium && this.guild.members.me?.nickname
+              ? this.guild.members.me.nickname
+              : constants.botName,
+        }),
         allowedMentions: args?.allowedMentions,
         components: args?.components,
       },
@@ -265,7 +283,13 @@ export class ModalMessage {
   ): Promise<ModalMessage | MessageReaction | void> {
     return this.channel.send(
       {
-        content: this.language.getSlashError(key, args),
+        content: this.language.getSlashError(key, {
+          ...args,
+          identity:
+            this.guild?.premium && this.guild.members.me?.nickname
+              ? this.guild.members.me.nickname
+              : constants.botName,
+        }),
         allowedMentions: args?.allowedMentions,
         components: args?.components,
       },

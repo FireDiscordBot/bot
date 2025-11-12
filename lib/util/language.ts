@@ -1,7 +1,9 @@
+import { fire } from "@fire/config/fire";
 import * as enUS from "@fire/i18n/en-US.json";
 import { Fire } from "@fire/lib/Fire";
 import { AkairoHandler, AkairoModule } from "discord-akairo";
 import { TOptions } from "i18next";
+import { constants } from "./constants";
 
 type LanguageOptions = Partial<typeof enUS>;
 type NestedKeys<T, Prefix extends string = ""> = {
@@ -56,7 +58,18 @@ export class Language extends AkairoModule {
     if (!this.enabled) return this.client.i18n.t(key, { ...args });
     else if (!this.has(key))
       return `"${key}" has not been localized for any languages yet!`;
-    return this.client.i18n.t(key, { ...args, lng: this.id });
+    return this.client.i18n.t(key, {
+      identity: constants.botName,
+      website: constants.url.website,
+      domain: constants.url.websiteDomain,
+      plusURL: constants.url.premium,
+      billingURL: constants.url.billing,
+      supportURL: constants.url.support,
+      inviteURL: fire.inviteLink,
+      statusURL: constants.url.fireStatus,
+      ...args,
+      lng: this.id,
+    });
   }
 
   getSuccess(key: LanguageKeys, args?: TOptions) {

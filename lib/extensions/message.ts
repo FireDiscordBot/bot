@@ -312,7 +312,13 @@ export class FireMessage extends Message {
     if (args?.includeSlashUpsell)
       upsell = await this.client.util.getSlashUpsellEmbed(this);
     return this.channel.send({
-      content: this.language.get(key, args),
+      content: this.language.get(key, {
+        ...args,
+        identity:
+          this.guild?.premium && this.guild.members.me?.nickname
+            ? this.guild.members.me.nickname
+            : constants.botName,
+      }),
       allowedMentions: args?.allowedMentions,
       components: args?.components,
       reply: args?.reply,
@@ -349,7 +355,13 @@ export class FireMessage extends Message {
     return !key
       ? this.react(this.client.util.useEmoji("success")).catch(() => {})
       : this.channel.send({
-          content: this.language.getSuccess(key, args),
+          content: this.language.getSuccess(key, {
+            ...args,
+            identity:
+              this.guild?.premium && this.guild.members.me?.nickname
+                ? this.guild.members.me.nickname
+                : constants.botName,
+          }),
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           reply: args?.reply,
@@ -368,7 +380,13 @@ export class FireMessage extends Message {
     return !key
       ? this.react(this.client.util.useEmoji("warning")).catch(() => {})
       : this.reply({
-          content: this.language.getWarning(key, args),
+          content: this.language.getWarning(key, {
+            ...args,
+            identity:
+              this.guild?.premium && this.guild.members.me?.nickname
+                ? this.guild.members.me.nickname
+                : constants.botName,
+          }),
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           failIfNotExists: false,
@@ -387,7 +405,13 @@ export class FireMessage extends Message {
     return !key
       ? this.react(this.client.util.useEmoji("error")).catch(() => {})
       : this.reply({
-          content: this.language.getError(key, args),
+          content: this.language.getError(key, {
+            ...args,
+            identity:
+              this.guild?.premium && this.guild.members.me?.nickname
+                ? this.guild.members.me.nickname
+                : constants.botName,
+          }),
           allowedMentions: args?.allowedMentions,
           components: args?.components,
           failIfNotExists: false,

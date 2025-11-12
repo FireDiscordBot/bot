@@ -337,16 +337,10 @@ export default class GuildCommand extends Command {
       args.guild = invite.guild as FireGuild | InviteGuildWithCounts;
     }
     if (!command.guild && !args.guild) {
-      if (!command.guildId)
-        return await command.error("GUILD_INPUT_REQUIRED", {
-          invite: this.client.config.inviteLink,
-        });
+      if (!command.guildId) return await command.error("GUILD_INPUT_REQUIRED");
       const preview = await guildPreviewConverter(command, command.guildId);
       if (preview) args.guild = preview;
-      else
-        return await command.error("GUILD_INPUT_REQUIRED", {
-          invite: this.client.config.inviteLink,
-        });
+      else return await command.error("GUILD_INPUT_REQUIRED");
     }
     if (!args.guild && typeof args.guild != "undefined") return;
     const guild = args.guild ? args.guild : command.guild;

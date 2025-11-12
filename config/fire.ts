@@ -1,10 +1,11 @@
 import { Fire } from "@fire/lib/Fire";
+import { constants } from "@fire/lib/util/constants";
 import { Snowflake } from "discord-api-types/globals";
 
 export const fire = {
   dev: process.env.NODE_ENV != "production",
   readyMessage: (client: Fire) => {
-    const logger = client.getLogger("Fire");
+    const logger = client.getLogger(constants.botName);
     logger.log("-------------------------");
     logger.log(`Bot: ${client.user}`);
     logger.log(`ID: ${client.user?.id}`);

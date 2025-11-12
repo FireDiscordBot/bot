@@ -96,9 +96,7 @@ export default class CommandBlocked extends Listener {
     else if (reason == "moderator")
       return await message.error("COMMAND_MODERATOR_ONLY");
     else if (reason == "guild")
-      return await message.error("COMMAND_GUILD_ONLY", {
-        invite: this.client.config.inviteLink,
-      });
+      return await message.error("COMMAND_GUILD_ONLY");
     else if (reason == "premium")
       return await message.error("COMMAND_PREMIUM_GUILD_ONLY");
     else if (reason == "experimentlock")

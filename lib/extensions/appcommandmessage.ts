@@ -1,7 +1,7 @@
 import { Fire } from "@fire/lib/Fire";
 import { ArgumentOptions, Command } from "@fire/lib/util/command";
 import { CommandUtil } from "@fire/lib/util/commandutil";
-import { i18nOptions } from "@fire/lib/util/constants";
+import { constants, i18nOptions } from "@fire/lib/util/constants";
 import { LanguageKeys } from "@fire/lib/util/language";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
@@ -222,10 +222,10 @@ export class ApplicationCommandMessage {
     return this.guild
       ? `${this.guild} (${this.guild.id})`
       : this.guildId
-      ? "User App"
-      : this.channel.type == "DM"
-      ? "DM"
-      : "Unknown";
+        ? "User App"
+        : this.channel.type == "DM"
+          ? "DM"
+          : "Unknown";
   }
 
   get editedAt() {
@@ -425,7 +425,13 @@ export class ApplicationCommandMessage {
   send(key: LanguageKeys, args?: i18nOptions) {
     return this.channel.send(
       {
-        content: this.language.get(key, args),
+        content: this.language.get(key, {
+          ...args,
+          identity:
+            this.guild?.premium && this.guild.members.me?.nickname
+              ? this.guild.members.me.nickname
+              : constants.botName,
+        }),
         allowedMentions: args?.allowedMentions,
         components: args?.components,
         embeds: args?.embeds,
@@ -457,7 +463,13 @@ export class ApplicationCommandMessage {
     }
     return this.channel.send(
       {
-        content: this.language.getSuccess(key, args),
+        content: this.language.getSuccess(key, {
+          ...args,
+          identity:
+            this.guild?.premium && this.guild.members.me?.nickname
+              ? this.guild.members.me.nickname
+              : constants.botName,
+        }),
         allowedMentions: args?.allowedMentions,
         components: args?.components,
       },
@@ -488,7 +500,13 @@ export class ApplicationCommandMessage {
     }
     return this.channel.send(
       {
-        content: this.language.getWarning(key, args),
+        content: this.language.getWarning(key, {
+          ...args,
+          identity:
+            this.guild?.premium && this.guild.members.me?.nickname
+              ? this.guild.members.me.nickname
+              : constants.botName,
+        }),
         allowedMentions: args?.allowedMentions,
         components: args?.components,
       },
@@ -518,7 +536,13 @@ export class ApplicationCommandMessage {
     }
     return this.channel.send(
       {
-        content: this.language.getSlashError(key, args),
+        content: this.language.getSlashError(key, {
+          ...args,
+          identity:
+            this.guild?.premium && this.guild.members.me?.nickname
+              ? this.guild.members.me.nickname
+              : constants.botName,
+        }),
         allowedMentions: args?.allowedMentions,
         components: args?.components,
       },
