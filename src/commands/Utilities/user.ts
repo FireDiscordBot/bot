@@ -74,7 +74,7 @@ interface MembersSearchResult {
       join_source_type: JoinSourceType;
       inviter_id: Snowflake;
       integration_type?: number;
-    }
+    },
   ];
   page_result_count: number;
   total_result_count: number;
@@ -115,8 +115,8 @@ export default class User extends Command {
     if (typeof args.user == "undefined")
       args.user =
         command instanceof ContextCommandMessage
-          ? command.getMemberOrUser(false) ?? command.member ?? command.author
-          : command.member ?? command.author;
+          ? (command.getMemberOrUser(false) ?? command.member ?? command.author)
+          : (command.member ?? command.author);
     else if (
       args.user?.hasOwnProperty("snowflake") ||
       command.util?.parsed?.alias == "snowflake"
@@ -430,7 +430,7 @@ export default class User extends Command {
       emojis.push(this.client.util.useEmoji("GUILD_OWNER"));
     if (user.isSuperuser())
       emojis.push(this.client.util.useEmoji("FIRE_ADMIN"));
-    if (user.premium) emojis.push(this.client.util.useEmoji("FIRE_PREMIUM"));
+    if (user.premium) emojis.push(this.client.util.useEmoji("FIRE_PLUS"));
     if (user.id == "159985870458322944")
       emojis.push(this.client.util.useEmoji("NO_MEE6"));
     emojis.push(

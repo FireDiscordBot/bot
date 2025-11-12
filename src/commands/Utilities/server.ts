@@ -61,7 +61,7 @@ export default class GuildCommand extends Command {
     if (guild.id == "564052798044504084")
       emojis.push(this.client.util.useEmoji("FIRE_ADMIN"));
     if (this.client.util?.premium.has(guild.id))
-      emojis.push(this.client.util.useEmoji("FIRE_PREMIUM"));
+      emojis.push(this.client.util.useEmoji("FIRE_PLUS"));
     if (guild.features.includes("PARTNERED"))
       emojis.push(this.client.util.useEmoji("PARTNERED"));
     if (guild.features.includes("VERIFIED"))
