@@ -1,5 +1,4 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
@@ -20,7 +19,6 @@ export default class ModlogsStats extends Command {
           default: null,
         },
       ],
-      context: ["moderation log stats"],
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,
@@ -31,11 +29,9 @@ export default class ModlogsStats extends Command {
   }
 
   async run(
-    command: ApplicationCommandMessage | ContextCommandMessage,
+    command: ApplicationCommandMessage,
     args: { user: FireMember | FireUser; type?: string }
   ) {
-    if (command instanceof ContextCommandMessage)
-      args.user = command.getMemberOrUser(true);
     if (!args.user) return;
     const user = args.user instanceof FireMember ? args.user.user : args.user;
     const member = args.user instanceof FireMember ? args.user : null;

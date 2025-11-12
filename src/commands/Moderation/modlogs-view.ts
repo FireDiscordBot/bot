@@ -1,5 +1,4 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
-import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
@@ -40,7 +39,6 @@ export default class ModlogsView extends Command {
           default: null,
         },
       ],
-      context: ["moderation logs"],
       restrictTo: "guild",
       moderatorOnly: true,
       deferAnyways: true,
@@ -51,7 +49,7 @@ export default class ModlogsView extends Command {
   }
 
   async autocomplete(
-    interaction: ApplicationCommandMessage,
+    _: ApplicationCommandMessage,
     focused: CommandInteractionOption
   ) {
     if (focused.name != "type") return [];
@@ -62,11 +60,9 @@ export default class ModlogsView extends Command {
   }
 
   async run(
-    command: ApplicationCommandMessage | ContextCommandMessage,
+    command: ApplicationCommandMessage,
     args: { user: FireMember | FireUser; type?: string }
   ) {
-    if (command instanceof ContextCommandMessage)
-      args.user = command.getMemberOrUser(true);
     if (!args.user) return;
     const logs = await this.client.db
       .query(
