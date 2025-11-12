@@ -1,8 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
-import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
 import {
   LinkfilterExcluded,
@@ -10,13 +8,7 @@ import {
 } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import {
-  Channel,
-  Collection,
-  GuildChannel,
-  MessageEmbed,
-  Role,
-} from "discord.js";
+import { Channel, GuildChannel, MessageEmbed, Role } from "discord.js";
 
 type Arguments = {
   user?: FireMember;
@@ -59,7 +51,6 @@ export default class LinkfilterExclude extends Command {
           required: false,
         },
       ],
-      context: ["link filter exclude"],
       parent: "linkfilter",
       restrictTo: "guild",
       slashOnly: true,
@@ -70,19 +61,6 @@ export default class LinkfilterExclude extends Command {
     command: ApplicationCommandMessage | ContextCommandMessage,
     args?: Arguments
   ) {
-    if (command instanceof ApplicationCommandMessage && !!args)
-      return this.runSlash(command, args);
-    else if (command instanceof ContextCommandMessage && command.getUser(false))
-      return this.runContextUser(command);
-    else if (
-      command instanceof ContextCommandMessage &&
-      command.getMessage(false)
-    )
-      return this.runContextMessage(command);
-    else return await command.error("LINKFILTER_EXCLUDE_HOW");
-  }
-
-  async runSlash(command: ApplicationCommandMessage, args: Arguments) {
     const { user, role, channel } = args;
     if (channel && channel.isThread())
       return await command.error("LINKFILTER_EXCLUDE_THREAD");
@@ -155,138 +133,140 @@ export default class LinkfilterExclude extends Command {
       });
   }
 
-  async runContextUser(command: ContextCommandMessage) {
-    if (!command.guild) return await command.error("COMMAND_GUILD_ONLY");
-    const user = command.getUser(true) as FireUser;
-    const member = (await command.guild.members
-      .fetch(user)
-      .catch(() => {})) as FireMember;
-    if (!member) return await command.error("MEMBER_NOT_FOUND_COMPONENT");
-    let current = command.guild.settings.get<LinkfilterExcluded>(
-      "linkfilter.exclude",
-      []
-    );
-    let direction: "exclude" | "unexclude";
-    const id: LinkfilterExcludedItem = `user:${user.id}`;
-    if (!current.includes(id)) {
-      direction = "exclude";
-      current.push(id);
-    } else {
-      direction = "unexclude";
-      current = current.filter((e) => e != id);
-    }
-    await command.guild.settings.set<LinkfilterExcluded>(
-      "linkfilter.exclude",
-      current,
-      command.author
-    );
-    if (direction == "exclude")
-      return await command.success("LINKFILTER_EXCLUDE_SUCCESS", {
-        excluded: member.toString(),
-      });
-    else if (direction == "unexclude")
-      return await command.success("LINKFILTER_UNEXCLUDE_SUCCESS", {
-        unexcluded: member.toString(),
-      });
-    // idk how you'd ever get here but just in case
-    else return await command.error("LINKFILTER_EXCLUDE_NO_CHANGE");
-  }
+  // async runSlash(command: ApplicationCommandMessage, args: Arguments) {}
 
-  async runContextMessage(command: ContextCommandMessage) {
-    if (!command.guild) return await command.error("COMMAND_GUILD_ONLY");
-    const message = command.getMessage(true) as FireMessage;
-    if (!message || !(message instanceof FireMessage))
-      return await command.error("COMMAND_ERROR_GENERIC", {
-        id: this.id,
-      });
-    let current = command.guild.settings.get<LinkfilterExcluded>(
-      "linkfilter.exclude",
-      []
-    );
-    const { users, roles, channels } = message.mentions;
-    if (!users?.size && !roles?.size && !channels?.size)
-      return await command.error("LINKFILTER_EXCLUDE_CONTEXT_MENTIONS");
-    if (users && users.size) {
-      const excluded: FireMember[] = [];
-      const unexcluded: FireMember[] = [];
-      const beforeLength = current.length;
-      const members = (await command.guild.members
-        .fetch({
-          user: users.map((u) => u.id),
-        })
-        .catch(() => {})) as Collection<string, FireMember>;
-      if (members && members.size)
-        for (const [, member] of members) {
-          const id: LinkfilterExcludedItem = `user:${member.id}`;
-          if (!current.includes(id)) {
-            excluded.push(member);
-            current.push(id);
-          } else {
-            unexcluded.push(member);
-            current = current.filter((e) => e != id);
-          }
-        }
-      if (current.length != beforeLength)
-        await this.createAndSendSuccessEmbed(
-          command,
-          current,
-          unexcluded,
-          excluded
-        );
-    }
-    if (roles && roles.size) {
-      const excluded: Role[] = [];
-      const unexcluded: Role[] = [];
-      const beforeLength = current.length;
-      for (const [, role] of roles) {
-        if (!role.guild || role.guild.id != command.guildId) continue;
-        const id: LinkfilterExcludedItem = `role:${role.id}`;
-        if (!current.includes(id)) {
-          excluded.push(role);
-          current.push(id);
-        } else {
-          unexcluded.push(role);
-          current = current.filter((e) => e != id);
-        }
-      }
-      if (current.length != beforeLength)
-        await this.createAndSendSuccessEmbed(
-          command,
-          current,
-          unexcluded,
-          excluded
-        );
-    }
-    if (channels && channels.size) {
-      const excluded: Channel[] = [];
-      const unexcluded: Channel[] = [];
-      const beforeLength = current.length;
-      for (const [, channel] of channels) {
-        if (channel.isThread()) continue;
-        else if (
-          !(channel instanceof GuildChannel) ||
-          (channel instanceof GuildChannel &&
-            channel.guildId != command.guildId)
-        )
-          continue;
-        const id: LinkfilterExcludedItem = `channel:${channel.id}`;
-        if (!current.includes(id)) {
-          excluded.push(channel);
-          current.push(id);
-        } else {
-          unexcluded.push(channel);
-          current = current.filter((e) => e != id);
-        }
-      }
-      if (current.length != beforeLength)
-        await this.createAndSendSuccessEmbed(
-          command,
-          current,
-          unexcluded,
-          excluded
-        );
-    }
-  }
+  // async runContextUser(command: ContextCommandMessage) {
+  //   if (!command.guild) return await command.error("COMMAND_GUILD_ONLY");
+  //   const user = command.getUser(true) as FireUser;
+  //   const member = (await command.guild.members
+  //     .fetch(user)
+  //     .catch(() => {})) as FireMember;
+  //   if (!member) return await command.error("MEMBER_NOT_FOUND_COMPONENT");
+  //   let current = command.guild.settings.get<LinkfilterExcluded>(
+  //     "linkfilter.exclude",
+  //     []
+  //   );
+  //   let direction: "exclude" | "unexclude";
+  //   const id: LinkfilterExcludedItem = `user:${user.id}`;
+  //   if (!current.includes(id)) {
+  //     direction = "exclude";
+  //     current.push(id);
+  //   } else {
+  //     direction = "unexclude";
+  //     current = current.filter((e) => e != id);
+  //   }
+  //   await command.guild.settings.set<LinkfilterExcluded>(
+  //     "linkfilter.exclude",
+  //     current,
+  //     command.author
+  //   );
+  //   if (direction == "exclude")
+  //     return await command.success("LINKFILTER_EXCLUDE_SUCCESS", {
+  //       excluded: member.toString(),
+  //     });
+  //   else if (direction == "unexclude")
+  //     return await command.success("LINKFILTER_UNEXCLUDE_SUCCESS", {
+  //       unexcluded: member.toString(),
+  //     });
+  //   // idk how you'd ever get here but just in case
+  //   else return await command.error("LINKFILTER_EXCLUDE_NO_CHANGE");
+  // }
+
+  // async runContextMessage(command: ContextCommandMessage) {
+  //   if (!command.guild) return await command.error("COMMAND_GUILD_ONLY");
+  //   const message = command.getMessage(true) as FireMessage;
+  //   if (!message || !(message instanceof FireMessage))
+  //     return await command.error("COMMAND_ERROR_GENERIC", {
+  //       id: this.id,
+  //     });
+  //   let current = command.guild.settings.get<LinkfilterExcluded>(
+  //     "linkfilter.exclude",
+  //     []
+  //   );
+  //   const { users, roles, channels } = message.mentions;
+  //   if (!users?.size && !roles?.size && !channels?.size)
+  //     return await command.error("LINKFILTER_EXCLUDE_CONTEXT_MENTIONS");
+  //   if (users && users.size) {
+  //     const excluded: FireMember[] = [];
+  //     const unexcluded: FireMember[] = [];
+  //     const beforeLength = current.length;
+  //     const members = (await command.guild.members
+  //       .fetch({
+  //         user: users.map((u) => u.id),
+  //       })
+  //       .catch(() => {})) as Collection<string, FireMember>;
+  //     if (members && members.size)
+  //       for (const [, member] of members) {
+  //         const id: LinkfilterExcludedItem = `user:${member.id}`;
+  //         if (!current.includes(id)) {
+  //           excluded.push(member);
+  //           current.push(id);
+  //         } else {
+  //           unexcluded.push(member);
+  //           current = current.filter((e) => e != id);
+  //         }
+  //       }
+  //     if (current.length != beforeLength)
+  //       await this.createAndSendSuccessEmbed(
+  //         command,
+  //         current,
+  //         unexcluded,
+  //         excluded
+  //       );
+  //   }
+  //   if (roles && roles.size) {
+  //     const excluded: Role[] = [];
+  //     const unexcluded: Role[] = [];
+  //     const beforeLength = current.length;
+  //     for (const [, role] of roles) {
+  //       if (!role.guild || role.guild.id != command.guildId) continue;
+  //       const id: LinkfilterExcludedItem = `role:${role.id}`;
+  //       if (!current.includes(id)) {
+  //         excluded.push(role);
+  //         current.push(id);
+  //       } else {
+  //         unexcluded.push(role);
+  //         current = current.filter((e) => e != id);
+  //       }
+  //     }
+  //     if (current.length != beforeLength)
+  //       await this.createAndSendSuccessEmbed(
+  //         command,
+  //         current,
+  //         unexcluded,
+  //         excluded
+  //       );
+  //   }
+  //   if (channels && channels.size) {
+  //     const excluded: Channel[] = [];
+  //     const unexcluded: Channel[] = [];
+  //     const beforeLength = current.length;
+  //     for (const [, channel] of channels) {
+  //       if (channel.isThread()) continue;
+  //       else if (
+  //         !(channel instanceof GuildChannel) ||
+  //         (channel instanceof GuildChannel &&
+  //           channel.guildId != command.guildId)
+  //       )
+  //         continue;
+  //       const id: LinkfilterExcludedItem = `channel:${channel.id}`;
+  //       if (!current.includes(id)) {
+  //         excluded.push(channel);
+  //         current.push(id);
+  //       } else {
+  //         unexcluded.push(channel);
+  //         current = current.filter((e) => e != id);
+  //       }
+  //     }
+  //     if (current.length != beforeLength)
+  //       await this.createAndSendSuccessEmbed(
+  //         command,
+  //         current,
+  //         unexcluded,
+  //         excluded
+  //       );
+  //   }
+  // }
 
   private async createAndSendSuccessEmbed(
     command: ContextCommandMessage,
