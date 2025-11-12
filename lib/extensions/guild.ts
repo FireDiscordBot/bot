@@ -717,21 +717,24 @@ export class FireGuild extends Guild {
       };
     if (this.splash)
       splash = this.splashURL({
+        // 320 is used by the discord app
+        // but not in discord.js allowed sizes
+        // so we set 16 then replace
         size: 16,
-        format: "png",
+        format: "webp",
       }).replace("size=16", "size=320");
     else if (this.discoverySplash)
       splash = this.discoverySplashURL({
         size: 16,
-        format: "png",
+        format: "webp",
       }).replace("size=16", "size=320");
-    const icon =
-      this.iconURL({
-        format: "png",
-        size: 128,
-        dynamic: true,
-      }) ||
-      `https://cdn.discordapp.com/embed/avatars/${BigInt(this.id) % 5n}.png`;
+    const icon = this.icon
+      ? this.iconURL({
+          format: "webp",
+          size: 128,
+        }) +
+        `&animated=${this.features.includes("ANIMATED_ICON") ? "true" : "false"}`
+      : `https://cdn.discordapp.com/embed/avatars/${(BigInt(this.id) >> 22n) % 6n}.png`;
     return {
       name: this.name,
       id: this.id,
