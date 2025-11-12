@@ -91,6 +91,7 @@ export default class IdentityUpdate extends Command {
     await (command.slashCommand as CommandInteraction).showModal(modal);
 
     const response = await modalPromise;
+    if (!response) return;
     await response.channel.ack();
 
     let nick: string, bio: string, avatar: string, banner: string;
@@ -181,6 +182,11 @@ export default class IdentityUpdate extends Command {
   waitForModal(command: ApplicationCommandMessage): Promise<ModalMessage> {
     return new Promise((resolve) => {
       this.client.modalHandlersOnce.set(`identity:${command.guildId}`, resolve);
+
+      setTimeout(() => {
+        this.client.modalHandlersOnce.delete(`identity:${command.guildId}`);
+        resolve(null);
+      }, 300_000);
     });
   }
 }

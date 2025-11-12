@@ -321,6 +321,7 @@ export default class CodeImage extends Command {
       );
 
       const modal = await modalPromise;
+      if (!modal) return;
       await modal.channel.ack();
       respond = modal;
 
@@ -383,6 +384,11 @@ export default class CodeImage extends Command {
   waitForModal(command: ApplicationCommandMessage): Promise<ModalMessage> {
     return new Promise((resolve) => {
       this.client.modalHandlersOnce.set(`ray.so:${command.author.id}`, resolve);
+
+      setTimeout(() => {
+        this.client.modalHandlersOnce.delete(`ray.so:${command.author.id}`);
+        resolve(null);
+      }, 300_000);
     });
   }
 }

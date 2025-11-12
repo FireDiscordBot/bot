@@ -197,6 +197,7 @@ export default class Essential extends Module {
       );
 
       const modal = await modalPromise;
+      if (!modal) return;
       await modal.channel.ack();
       modal.flags = 64;
 
@@ -281,6 +282,13 @@ You can run \`/latestlog\` for instructions on how to find your log.`
         `essential_confirm_${button.author.id}`,
         resolve
       );
+
+      setTimeout(() => {
+        this.client.modalHandlersOnce.delete(
+          `essential_confirm_${button.author.id}`
+        );
+        resolve(null);
+      }, 300_000);
     });
   }
 
