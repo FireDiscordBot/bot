@@ -7,7 +7,6 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import AetherStats from "@fire/src/modules/aetherstats";
-import GuildCheckEvent from "./GuildCheckEvent";
 
 export default class Restart extends Event {
   constructor(manager: Manager) {
@@ -38,17 +37,17 @@ export default class Restart extends Event {
       )
     )
       return await this.manager.kill("resharding");
-    for (const [id, guild] of this.manager.client.guilds.cache)
+    for (const [id, guild] of this.manager.client.guilds.cache) {
+      const member = guild.members.me as FireMember;
       this.manager.ws.send(
         MessageUtil.encode(
           new Message(EventType.GUILD_CREATE, {
             id,
-            member: GuildCheckEvent.getMemberJSON(
-              guild.members.me as FireMember
-            ),
+            member: member.toAPIMemberJSON(),
           })
         )
       );
+    }
     this.manager.session = data.session;
     this.manager.state = data.state;
     this.manager.ws.heartbeatInterval = data.interval;

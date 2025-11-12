@@ -12,7 +12,6 @@ import {
   RESTPutAPIApplicationCommandsResult,
 } from "discord-api-types/v9";
 import { Collection } from "discord.js";
-import GuildCheckEvent from "../ws/events/GuildCheckEvent";
 
 export default class Ready extends Listener {
   constructor() {
@@ -38,7 +37,7 @@ export default class Ready extends Listener {
         MessageUtil.encode(
           new Message(EventType.GUILD_CREATE, {
             id: guild.id,
-            member: GuildCheckEvent.getMemberJSON(member),
+            member: member.toAPIMemberJSON(),
           })
         )
       );

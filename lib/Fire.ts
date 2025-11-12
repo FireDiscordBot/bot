@@ -39,7 +39,6 @@ import { userMemberTypeCaster } from "@fire/src/arguments/userMember";
 import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSnowflake";
 import GuildUnavailable from "@fire/src/listeners/guildUnavailable";
 import AetherStats from "@fire/src/modules/aetherstats";
-import GuildCheckEvent from "@fire/src/ws/events/GuildCheckEvent";
 import * as Sentry from "@sentry/node";
 import {
   AkairoClient,
@@ -209,17 +208,15 @@ export class Fire extends AkairoClient {
         ) as GuildUnavailable;
         let wasUnavailable = unavailableListener.unavailable.has(r.d.id);
         if (wasUnavailable) unavailableListener.unavailable.delete(r.d.id);
-        const member =
-          (this.guilds.cache.get(r.d.id)?.members.me as FireMember) ??
-          (r.d.members.find(
-            (member: APIGuildMember) => member.user.id == this.user.id
-          ) as APIGuildMember);
+        const member = r.d.members.find(
+          (member: APIGuildMember) => member.user.id == this.user.id
+        ) as APIGuildMember;
         if (!wasUnavailable)
           this.manager.ws?.send(
             MessageUtil.encode(
               new Message(EventType.GUILD_CREATE, {
                 id: r.d.id,
-                member: GuildCheckEvent.getMemberJSON(member),
+                member,
               })
             )
           );

@@ -89,6 +89,28 @@ export class FireMember extends GuildMember {
     return super.toString();
   }
 
+  toAPIMemberJSON() {
+    const user = this.user;
+    return {
+      user: {
+        id: user.id,
+        username: user.username,
+        avatar: user.avatar,
+        discriminator: user.discriminator,
+        bot: user.bot,
+        public_flags: user.flags?.bitfield || 0,
+      },
+      roles: this.roles.cache.map((role) => role.id),
+      nick: this.nickname,
+      premium_since: this.premiumSince?.toISOString(),
+      joined_at: this.joinedAt?.toISOString(),
+      pending: this.pending,
+      mute: this.voice?.mute || false,
+      deaf: this.voice?.deaf || false,
+      permissions: this.permissions?.bitfield?.toString(),
+    };
+  }
+
   _patch(data: any) {
     if ("unusual_dm_activity_until" in data)
       this.unusualDMActivityUntil = data.unusual_dm_activity_until
@@ -471,10 +493,10 @@ export class FireMember extends GuildMember {
               this.nickname == badName
                 ? `Nickname is equal to server bad name, ${badName}`
                 : this.nickname == "John Doe 0"
-                ? "Nickname is equal to default bad name with 0 discriminator (pomelo'd)"
-                : this.nickname == this.user.globalName
-                ? `Nickname is equal to display name, ${this.user.globalName}`
-                : "idk why this happened, it probably shouldn't have, please report this as an issue in discord.gg/firebot",
+                  ? "Nickname is equal to default bad name with 0 discriminator (pomelo'd)"
+                  : this.nickname == this.user.globalName
+                    ? `Nickname is equal to display name, ${this.user.globalName}`
+                    : "idk why this happened, it probably shouldn't have, please report this as an issue in discord.gg/firebot",
           })
         ).catch(() => {});
       return this.dehoistAndDecancerLock.release();
