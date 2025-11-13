@@ -3,7 +3,7 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { PresenceStatusData } from "discord.js";
 
-export default class AliasSync extends Event {
+export default class SetCustomStatus extends Event {
   constructor(manager: Manager) {
     super(manager, EventType.SET_CUSTOM_STATUS);
   }
