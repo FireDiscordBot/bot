@@ -177,8 +177,12 @@ export default class Debug extends Command {
     ) {
       const permissionCheck = channel.isThread() ? channel.parent : channel;
       const canSend = permissionCheck.permissionOverwrites.cache
-        .filter((overwrite) =>
-          overwrite.allow.has(PermissionFlagsBits.SendMessages)
+        .filter(
+          (overwrite) =>
+            overwrite.allow.has(PermissionFlagsBits.SendMessages) ||
+            overwrite.allow.has(PermissionFlagsBits.SendMessagesInThreads) ||
+            overwrite.allow.has(PermissionFlagsBits.CreatePublicThreads) ||
+            overwrite.allow.has(PermissionFlagsBits.CreatePrivateThreads)
         )
         .map((overwrite) => overwrite.id);
       const roles = [
