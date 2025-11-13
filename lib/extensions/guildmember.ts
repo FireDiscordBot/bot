@@ -1,6 +1,6 @@
 import { Fire } from "@fire/lib/Fire";
 import Appeals from "@fire/src/commands/Moderation/appeals";
-import { PermissionFlagsBits } from "discord-api-types/v9";
+import { APIGuildMember, PermissionFlagsBits } from "discord-api-types/v9";
 import {
   DMChannel,
   Formatters,
@@ -89,12 +89,13 @@ export class FireMember extends GuildMember {
     return super.toString();
   }
 
-  toAPIMemberJSON() {
+  toAPIMemberJSON(): APIGuildMember & { permissions: string } {
     const user = this.user;
     return {
       user: {
         id: user.id,
         username: user.username,
+        global_name: user.displayName,
         avatar: user.avatar,
         discriminator: user.discriminator,
         bot: user.bot,
@@ -105,6 +106,7 @@ export class FireMember extends GuildMember {
       premium_since: this.premiumSince?.toISOString(),
       joined_at: this.joinedAt?.toISOString(),
       pending: this.pending,
+      flags: this.flags.bitfield,
       mute: this.voice?.mute || false,
       deaf: this.voice?.deaf || false,
       permissions: this.permissions?.bitfield?.toString(),

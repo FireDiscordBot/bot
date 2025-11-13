@@ -32,7 +32,7 @@ import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
 export class ModalMessage {
-  realChannel?: FireTextChannel | NewsChannel | DMChannel;
+  realChannel?: FireTextChannel | ThreadChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
   interaction: ModalSubmitInteraction;
   components: ModalSubmitInteraction["components"];
@@ -64,6 +64,7 @@ export class ModalMessage {
     this.guild = modal.guild as FireGuild;
     this.realChannel = client.channels.cache.get(modal.channelId) as
       | FireTextChannel
+      | ThreadChannel
       | NewsChannel
       | DMChannel;
     this.components = modal.components;
@@ -386,7 +387,7 @@ export class FakeChannel extends BaseFakeChannel {
     client: Fire,
     id: Snowflake,
     token: string,
-    real?: FireTextChannel | NewsChannel | DMChannel
+    real?: FireTextChannel | ThreadChannel | NewsChannel | DMChannel
   ) {
     super();
     this.real = real;

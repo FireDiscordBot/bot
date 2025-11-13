@@ -33,7 +33,7 @@ import { FireTextChannel } from "./textchannel";
 import { FireUser } from "./user";
 
 export class ComponentMessage {
-  realChannel?: FireTextChannel | NewsChannel | DMChannel;
+  realChannel?: FireTextChannel | ThreadChannel | NewsChannel | DMChannel;
   private snowflake: DeconstructedSnowflake;
   component: MessageComponentInteraction;
   sent: false | "ack" | "message";
@@ -67,6 +67,7 @@ export class ComponentMessage {
     this.guild = component.guild as FireGuild;
     this.realChannel = client.channels.cache.get(component.channelId) as
       | FireTextChannel
+      | ThreadChannel
       | NewsChannel
       | DMChannel;
     this.ephemeralSource = component.message.flags
@@ -393,7 +394,7 @@ export class FakeChannel extends BaseFakeChannel {
     client: Fire,
     id: Snowflake,
     token: string,
-    real?: FireTextChannel | NewsChannel | DMChannel
+    real?: FireTextChannel | ThreadChannel | NewsChannel | DMChannel
   ) {
     super();
     this.real = real;

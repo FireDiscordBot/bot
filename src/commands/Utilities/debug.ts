@@ -170,8 +170,13 @@ export default class Debug extends Command {
         )}`
       );
 
-    if (cmd.id == "mute" && command.guild && channel instanceof GuildChannel) {
-      const canSend = channel.permissionOverwrites.cache
+    if (
+      cmd.id == "mute" &&
+      command.guild &&
+      (channel instanceof GuildChannel || channel.isThread())
+    ) {
+      const permissionCheck = channel.isThread() ? channel.parent : channel;
+      const canSend = permissionCheck.permissionOverwrites.cache
         .filter((overwrite) =>
           overwrite.allow.has(PermissionFlagsBits.SendMessages)
         )

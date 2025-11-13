@@ -46,7 +46,7 @@ import { UserContextMenuInteraction } from "./usercontextmenuinteraction";
 const PLACEHOLDER_ID = "0".repeat(15);
 
 export class ContextCommandMessage {
-  realChannel?: FireTextChannel | NewsChannel | DMChannel;
+  realChannel?: FireTextChannel | ThreadChannel | NewsChannel | DMChannel;
   attachments: Collection<string, MessageAttachment>;
   private snowflake: DeconstructedSnowflake;
   contextCommand: MessageContextMenuInteraction | UserContextMenuInteraction;
@@ -97,7 +97,7 @@ export class ContextCommandMessage {
     }
     this.realChannel = this.client.channels.cache.get(
       this.contextCommand.channelId
-    ) as FireTextChannel | NewsChannel | DMChannel;
+    ) as FireTextChannel | ThreadChannel | NewsChannel | DMChannel;
     this.latestResponseId = "@original" as Snowflake;
     this.sent = false;
     this.util = new CommandUtil(this.client.commandHandler, this);
@@ -593,7 +593,7 @@ export class FakeChannel extends BaseFakeChannel {
     client: Fire,
     id: Snowflake,
     token: string,
-    real?: FireTextChannel | NewsChannel | DMChannel
+    real?: FireTextChannel | ThreadChannel | NewsChannel | DMChannel
   ) {
     super();
     this.real = real;

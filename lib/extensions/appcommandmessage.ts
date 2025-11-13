@@ -47,7 +47,7 @@ const PLACEHOLDER_ID = "0".repeat(15);
 
 export class ApplicationCommandMessage {
   slashCommand: CommandInteraction | AutocompleteInteraction;
-  realChannel?: FireTextChannel | NewsChannel | DMChannel;
+  realChannel?: FireTextChannel | ThreadChannel | NewsChannel | DMChannel;
   attachments: Collection<string, MessageAttachment>;
   private snowflake: DeconstructedSnowflake;
   groupActivityApplication: never;
@@ -676,7 +676,7 @@ export class FakeChannel extends BaseFakeChannel {
     client: Fire,
     id: Snowflake,
     token: string,
-    real?: FireTextChannel | NewsChannel | DMChannel
+    real?: FireTextChannel | ThreadChannel | NewsChannel | DMChannel
   ) {
     super();
     this.real = real;
