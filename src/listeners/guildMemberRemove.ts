@@ -40,7 +40,7 @@ export default class GuildMemberRemove extends Listener {
       this.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.SUBSCRIBED_GUILD_DELETE, {
-            user: member.id,
+            id: member.id,
             guild: {
               id: member.guild.id,
             },

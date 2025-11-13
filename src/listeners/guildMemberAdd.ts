@@ -49,7 +49,7 @@ export default class GuildMemberAdd extends Listener {
       this.client.manager.ws?.send(
         MessageUtil.encode(
           new Message(EventType.SUBSCRIBED_GUILD_CREATE, {
-            user: member.id,
+            id: member.id,
             guild: {
               id: member.guild.id,
               name: member.guild.name,
