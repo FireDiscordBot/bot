@@ -59,6 +59,7 @@ export interface ManagerState {
   guildExperiments: GuildExperimentConfig[];
   userExperiments: UserExperimentConfig[];
   browserUserAgent: string;
+  subscribed: Snowflake[];
   appEmojis: APIEmoji[];
 }
 

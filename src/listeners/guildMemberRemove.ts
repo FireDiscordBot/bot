@@ -36,6 +36,18 @@ export default class GuildMemberRemove extends Listener {
         )
       );
 
+    if (this.client.manager.state.subscribed.includes(member.id))
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.SUBSCRIBED_GUILD_DELETE, {
+            user: member.id,
+            guild: {
+              id: member.guild.id,
+            },
+          })
+        )
+      );
+
     if (
       member.guild?.id == this.client.config.fireGuildId &&
       member.settings.has("premium.coupon")

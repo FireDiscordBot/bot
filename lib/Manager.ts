@@ -45,6 +45,7 @@ export class Manager {
     guildConfigs: {},
     userConfigs: {},
     modVersions: {},
+    subscribed: [],
     appEmojis: [],
   };
   private _ready: boolean = false;

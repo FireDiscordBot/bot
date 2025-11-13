@@ -37,9 +37,9 @@ export enum EventType {
   FORWARD_MESSAGE, // receive only
   FORWARD_MESSAGE_USER, // receive only
   SUBMIT_APPEAL, // send & receive
-  UNUSED5 = 32,
-  UNUSED6 = 33,
-  UNUSED7 = 34,
+  SUBSCRIBE_USER, // receive only
+  SUBSCRIBED_GUILD_CREATE, // send only
+  SUBSCRIBED_GUILD_DELETE, // send only
   UNUSED8 = 35,
   UNUSED9 = 36,
   CREATE_INVITE_DISCOVERABLE, // send only

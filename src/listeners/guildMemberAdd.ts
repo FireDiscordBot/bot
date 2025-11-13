@@ -13,7 +13,10 @@ import { Message } from "@fire/lib/ws/Message";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { Snowflake } from "discord-api-types/globals";
-import { PermissionFlagsBits } from "discord-api-types/v9";
+import {
+  PermissionFlagsBits,
+  RESTAPIPartialCurrentUserGuild,
+} from "discord-api-types/v9";
 import { Formatters, MessageEmbed } from "discord.js";
 
 const {
@@ -38,6 +41,27 @@ export default class GuildMemberAdd extends Listener {
           new Message(EventType.DISCOVERY_UPDATE, {
             op: DiscoveryUpdateOp.SYNC,
             guilds: [member.guild.getDiscoverableData()],
+          })
+        )
+      );
+
+    if (this.client.manager.state.subscribed.includes(member.id))
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.SUBSCRIBED_GUILD_CREATE, {
+            user: member.id,
+            guild: {
+              id: member.guild.id,
+              name: member.guild.name,
+              icon: member.guild.icon,
+              banner: member.guild.banner,
+              owner: false,
+              features: member.guild.features,
+              permissions: member.permissions.bitfield.toString(),
+              approximate_member_count: member.guild.memberCount,
+              approximate_presence_count:
+                member.guild.approximatePresenceCount ?? 2,
+            } as RESTAPIPartialCurrentUserGuild,
           })
         )
       );
