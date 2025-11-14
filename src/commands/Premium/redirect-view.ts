@@ -27,7 +27,6 @@ export default class RedirectView extends Command {
           default: null,
         },
       ],
-      restrictTo: "guild",
       parent: "redirect",
       slashOnly: true,
     });

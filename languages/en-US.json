@@ -25,7 +25,7 @@
   "COMMAND_OWNER_ONLY": "Only my owner can use this command",
   "COMMAND_SUPERUSER_ONLY": "Only a select few are powerful enough to use this command",
   "COMMAND_MODERATOR_ONLY": "Only those strong enough to wield the ban hammer (moderators) can use this command. If moderators have not been explicitly set, only those with **Manage Server** can use this command.",
-  "COMMAND_GUILD_ONLY": "You can only use this command in a server. You can invite me to a server at <{{inviteURL}}>",
+  "COMMAND_GUILD_ONLY": "You can only use this command in a server I've been added to",
   "COMMAND_CHANNEL_MODONLY": "Only moderators can run commands in this channel",
   "COMMAND_CHANNEL_ADMINONLY": "Only admins can run commands in this channel",
   "COMMAND_PREMIUM_GUILD_ONLY": "Only Fire+ servers can use this command. Learn more at {{plusURL}}",
