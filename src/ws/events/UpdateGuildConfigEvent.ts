@@ -1,3 +1,4 @@
+import { FireGuild } from "@fire/lib/extensions/guild";
 import { Manager } from "@fire/lib/Manager";
 import {
   GuildOrUserConfig,
@@ -33,6 +34,11 @@ export default class UpdateGuildConfig extends Event {
           } (${data.id}) with key "${data.key}".`
         );
         current[data.key] = data.value;
+
+        const settings = (
+          this.manager.client.guilds.cache.get(data.id) as FireGuild
+        )?.settings;
+        if (settings) settings.valueChangeTriggers(data.key);
       } else if (
         data.key in this.manager.state.guildConfigs[data.id] &&
         !("value" in data)

@@ -154,33 +154,37 @@ export class GuildSettings {
     });
 
     if (updated) {
-      if (key == "utils.featured" && this.guild instanceof FireGuild)
-        this.client.manager.ws?.send(
-          MessageUtil.encode(
-            new Message(EventType.DISCOVERY_UPDATE, {
-              op: DiscoveryUpdateOp.SYNC,
-              guilds: [this.guild.getDiscoverableData()],
-            })
-          )
-        );
-
-      if (key == "utils.public" && this.guild instanceof FireGuild)
-        this.client.manager.ws?.send(
-          MessageUtil.encode(
-            new Message(EventType.DISCOVERY_UPDATE, {
-              op: this.guild.isPublic()
-                ? DiscoveryUpdateOp.ADD_OR_SYNC
-                : DiscoveryUpdateOp.REMOVE,
-              guilds: [this.guild.getDiscoverableData()],
-            })
-          )
-        );
+      this.valueChangeTriggers(key);
     } else {
       if (typeof previous !== "undefined") this.data[key] = previous;
       else delete this.data[key];
     }
 
     return updated;
+  }
+
+  valueChangeTriggers(key: string) {
+    if (key == "utils.featured" && this.guild instanceof FireGuild)
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.DISCOVERY_UPDATE, {
+            op: DiscoveryUpdateOp.SYNC,
+            guilds: [this.guild.getDiscoverableData()],
+          })
+        )
+      );
+
+    if (key == "utils.public" && this.guild instanceof FireGuild)
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.DISCOVERY_UPDATE, {
+            op: this.guild.isPublic()
+              ? DiscoveryUpdateOp.ADD_OR_SYNC
+              : DiscoveryUpdateOp.REMOVE,
+            guilds: [this.guild.getDiscoverableData()],
+          })
+        )
+      );
   }
 
   async delete(key: string, updatedBy: FireUser | FireMember) {
