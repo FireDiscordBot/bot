@@ -37,6 +37,10 @@ export default class Restart extends Event {
       )
     )
       return await this.manager.kill("resharding");
+
+    // we need to force fetch to get certain properties (e.g. banner)
+    await this.manager.client.user.fetch().catch(() => {});
+
     for (const [id, guild] of this.manager.client.guilds.cache) {
       const member = guild.members.me as FireMember;
       this.manager.ws.send(
