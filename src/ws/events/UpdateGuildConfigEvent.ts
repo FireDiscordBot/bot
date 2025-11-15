@@ -25,6 +25,13 @@ export default class UpdateGuildConfig extends Event {
         } (${data.id})`
       );
       this.manager.state.guildConfigs[data.id] = data.config;
+
+      const settings = (
+        this.manager.client.guilds.cache.get(data.id) as FireGuild
+      )?.settings;
+      if (settings)
+        for (const key of Object.keys(data.config))
+          settings.valueChangeTriggers(key);
     } else if ("key" in data && data.id in this.manager.state.guildConfigs) {
       const current = this.manager.state.guildConfigs[data.id];
       if ("value" in data && current[data.key] !== data.value) {
