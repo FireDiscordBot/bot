@@ -89,7 +89,10 @@ export class FireMember extends GuildMember {
     return super.toString();
   }
 
-  toAPIMemberJSON(): APIGuildMember & { permissions: string } {
+  toAPIMemberJSON(): APIGuildMember & {
+    bio?: string | null;
+    permissions: string;
+  } {
     const user = this.user;
     return {
       user: {
@@ -103,6 +106,12 @@ export class FireMember extends GuildMember {
       },
       roles: this.roles.cache.map((role) => role.id),
       nick: this.nickname,
+      avatar: this.avatar,
+      banner: this.banner,
+      bio:
+        this.id == this.client.user?.id
+          ? this.guild.settings.get<string>("identity.bio")
+          : null,
       premium_since: this.premiumSince?.toISOString(),
       joined_at: this.joinedAt?.toISOString(),
       pending: this.pending,

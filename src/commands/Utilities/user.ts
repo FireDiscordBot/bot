@@ -392,8 +392,16 @@ export default class User extends Command {
       : embed.setFooter({ text: user.id });
 
     if (command.author.hasExperiment(3422641027, 1)) {
-      if (!user.banner) await user.fetch();
-      if (user.banner)
+      if (!member.banner && !member.user.banner) await member.fetch();
+      if (member.banner)
+        embed.setImage(
+          member.bannerURL({
+            size: 2048,
+            format: "png",
+            dynamic: true,
+          })
+        );
+      else if (user.banner)
         embed.setImage(
           user.bannerURL({
             size: 2048,
@@ -493,9 +501,10 @@ export default class User extends Command {
           )}`
         );
 
-      // we'll temporarily fetch members for guilds with less than 50k members
+      // we'll temporarily fetch members for guilds with less than 5k members
       // so that we can display the join position
-      if (guild.memberCount <= 50_000) await guild.members.fetch();
+      if (guild.memberCount <= 5_000)
+        await guild.members.fetch().catch(() => {});
 
       if (guild && guild.members.cache.size / guild.memberCount > 0.98) {
         const sorted = guild.members.cache
