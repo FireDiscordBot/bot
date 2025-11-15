@@ -13,7 +13,10 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
 import { Snowflake } from "discord-api-types/globals";
-import { PermissionFlagsBits } from "discord-api-types/v9";
+import {
+  PermissionFlagsBits,
+  RESTAPIPartialCurrentUserGuild,
+} from "discord-api-types/v9";
 import {
   AuditLogChange,
   Formatters,
@@ -46,6 +49,29 @@ export default class GuildMemberUpdate extends Listener {
         )
       );
     }
+
+    // we send guild update on member update because permissions may change
+    // and that is included in RESTAPIPartialCurrentUserGuild
+    if (this.client.manager.state.subscribed.includes(newMember.id))
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.SUBSCRIBED_GUILD_UPDATE, {
+            id: newMember.id,
+            guild: {
+              id: newMember.guild.id,
+              name: newMember.guild.name,
+              icon: newMember.guild.icon,
+              banner: newMember.guild.banner,
+              owner: newMember.guild.ownerId == newMember.id,
+              features: newMember.guild.features,
+              permissions: newMember.permissions.bitfield.toString(),
+              approximate_member_count: newMember.guild.memberCount,
+              approximate_presence_count:
+                newMember.guild.approximatePresenceCount ?? 2,
+            } as RESTAPIPartialCurrentUserGuild,
+          })
+        )
+      );
 
     // Both of these will check permissions & whether
     // dehoist/decancer is enabled so no need for checks here

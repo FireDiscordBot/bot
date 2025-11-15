@@ -40,8 +40,8 @@ export enum EventType {
   SUBSCRIBE_USER, // receive only
   SUBSCRIBED_GUILD_CREATE, // send only
   SUBSCRIBED_GUILD_DELETE, // send only
-  UNUSED8 = 35,
-  UNUSED9 = 36,
+  SUBSCRIBED_GUILD_UPDATE, // send only
+  GUILD_BASIC_INFO_UPDATE, // send only
   CREATE_INVITE_DISCOVERABLE, // send only
   UNUSED4 = 38,
   DISCOVERY_UPDATE, // send only

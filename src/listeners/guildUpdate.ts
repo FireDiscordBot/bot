@@ -50,6 +50,26 @@ export default class GuildUpdate extends Listener {
         )
       );
 
+    const basicInfoChanges =
+      before.name != after.name ||
+      before.icon != after.icon ||
+      before.banner != after.banner ||
+      before.ownerId != after.ownerId ||
+      before.features.length != after.features.length;
+    if (basicInfoChanges)
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.GUILD_BASIC_INFO_UPDATE, {
+            id: after.id,
+            name: after.name,
+            icon: after.icon,
+            banner: after.banner,
+            ownerId: after.ownerId,
+            features: after.features,
+          })
+        )
+      );
+
     const notableChanges =
       before.name != after.name ||
       before.ownerId != after.ownerId ||
