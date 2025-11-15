@@ -31,6 +31,9 @@ export default class Ready extends Listener {
       });
     }
 
+    // we need to force fetch to get certain properties (e.g. banner)
+    await this.client.user.fetch().catch(() => {});
+
     for (const [, guild] of this.client.guilds.cache) {
       const member = guild?.members.me as FireMember;
       this.client.manager.ws?.send(

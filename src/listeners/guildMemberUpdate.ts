@@ -8,6 +8,9 @@ import {
   ModLogTypes,
 } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
+import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
@@ -27,6 +30,23 @@ export default class GuildMemberUpdate extends Listener {
   }
 
   async exec(oldMember: FireMember, newMember: FireMember) {
+    // If it's the bot which got updated
+    // we'll resend GUILD_CREATE to update the member data
+    // since it just overwrites any existing data
+    if (newMember.id == this.client.user.id) {
+      // we need to force fetch for certain fields (e.g. banner)
+      await newMember.fetch().catch(() => {});
+
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.GUILD_CREATE, {
+            id: newMember.guild.id,
+            member: newMember.toAPIMemberJSON(),
+          })
+        )
+      );
+    }
+
     // Both of these will check permissions & whether
     // dehoist/decancer is enabled so no need for checks here
     newMember.dehoistAndDecancer();

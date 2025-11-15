@@ -100,6 +100,7 @@ export class FireMember extends GuildMember {
         username: user.username,
         global_name: user.displayName,
         avatar: user.avatar,
+        banner: user.banner,
         discriminator: user.discriminator,
         bot: user.bot,
         public_flags: user.flags?.bitfield || 0,

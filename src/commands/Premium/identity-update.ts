@@ -3,6 +3,9 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
+import { Message } from "@fire/lib/ws/Message";
+import { EventType } from "@fire/lib/ws/util/constants";
+import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
 import {
   PermissionFlagsBits,
@@ -169,6 +172,18 @@ export default class IdentityUpdate extends Command {
           updated.bio,
           command.author
         );
+
+      // we'll resend GUILD_CREATE for the server
+      // to update the member data since it will just overwrite
+      // any existing member data that was sent
+      this.client.manager.ws?.send(
+        MessageUtil.encode(
+          new Message(EventType.GUILD_CREATE, {
+            id: me.guild.id,
+            member: me.toAPIMemberJSON(),
+          })
+        )
+      );
 
       return await response.success("IDENTITY_UPDATE_SUCCESS", {
         guild: command.guild.name,
