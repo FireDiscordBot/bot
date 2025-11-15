@@ -157,7 +157,15 @@ export default class GuildMemberAdd extends Listener {
         false
       );
 
-      if (autoroleId && !delay && !member.roles.cache.has(autoroleId)) {
+      if (
+        autoroleId &&
+        !delay &&
+        !member.roles.cache.has(autoroleId) &&
+        // roles with high member counts seem to make discord unhappy
+        // with requests taking a long time (looking at you Essential Mod server)
+        // so we're going to force a delay on these large servers
+        member.guild.memberCount <= 250_000
+      ) {
         const role = member.guild.roles.cache.get(autoroleId);
         if (
           role &&
