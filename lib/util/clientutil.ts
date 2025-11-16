@@ -1107,7 +1107,10 @@ export class Util extends ClientUtil {
       .setColor(message.member?.displayColor || "#FFFFFF")
       .setAuthor({
         name: message.language.get("NOTICE_TITLE"),
-        iconURL: this.client.user.displayAvatarURL({
+        iconURL: (message.guild?.members.me.avatar
+          ? message.guild.members.me
+          : this.client.user
+        ).displayAvatarURL({
           size: 2048,
           format: "png",
         }),

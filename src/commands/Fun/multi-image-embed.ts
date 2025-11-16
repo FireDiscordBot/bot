@@ -187,7 +187,10 @@ export default class MultiImageEmbed extends Command {
               80
             ),
             {
-              avatar: this.client.user.displayAvatarURL({
+              avatar: (command.guild.members.me.avatar
+                ? command.guild.members.me
+                : this.client.user
+              ).displayAvatarURL({
                 size: 2048,
                 format: "png",
               }),

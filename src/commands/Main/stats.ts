@@ -62,7 +62,10 @@ export default class Stats extends Command {
       .setColor(message.member?.displayColor || "#FFFFFF")
       .setAuthor({
         name: this.client.user.username,
-        iconURL: this.client.user.displayAvatarURL({
+        iconURL: (message.guild?.members.me.avatar
+          ? message.guild.members.me
+          : this.client.user
+        ).displayAvatarURL({
           size: 2048,
           format: "png",
         }),

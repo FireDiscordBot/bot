@@ -261,7 +261,10 @@ export class GuildLogManager {
       ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Moderation Logs", {
-          avatar: this.client.user.displayAvatarURL({
+          avatar: (this.guild.members.me.avatar
+            ? this.guild.members.me
+            : this.client.user
+          ).displayAvatarURL({
             size: 2048,
             format: "png",
           }),
@@ -402,7 +405,10 @@ export class GuildLogManager {
       ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Member Logs", {
-          avatar: this.client.user.displayAvatarURL({
+          avatar: (this.guild.members.me.avatar
+            ? this.guild.members.me
+            : this.client.user
+          ).displayAvatarURL({
             size: 2048,
             format: "png",
           }),
@@ -543,7 +549,10 @@ export class GuildLogManager {
       ) as FireTextChannel;
       data.webhook = await channel
         .createWebhook("Action Logs", {
-          avatar: this.client.user.displayAvatarURL({
+          avatar: (this.guild.members.me.avatar
+            ? this.guild.members.me
+            : this.client.user
+          ).displayAvatarURL({
             size: 2048,
             format: "png",
           }),
