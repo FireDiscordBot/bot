@@ -392,8 +392,9 @@ export default class User extends Command {
       : embed.setFooter({ text: user.id });
 
     if (command.author.hasExperiment(3422641027, 1)) {
-      if (!member.banner && !member.user.banner) await member.fetch();
-      if (member.banner)
+      if (member && !member.banner && !member.user.banner) await member.fetch();
+      else if (user && !user.banner) await user.fetch();
+      if (member && member.banner)
         embed.setImage(
           member.bannerURL({
             size: 2048,
