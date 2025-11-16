@@ -328,8 +328,11 @@ export class GuildLogManager {
     await data.webhook
       .send({
         content: message,
-        username: this.client.user.username,
-        avatarURL: this.client.user.displayAvatarURL({
+        username: this.guild.members.me.nickname ?? this.client.user.username,
+        avatarURL: (this.guild.members.me.avatar
+          ? this.guild.members.me
+          : this.client.user
+        ).displayAvatarURL({
           size: 2048,
           format: "png",
         }),
@@ -472,8 +475,11 @@ export class GuildLogManager {
     await data.webhook
       .send({
         content: message,
-        username: this.client.user.username,
-        avatarURL: this.client.user.displayAvatarURL({
+        username: this.guild.members.me.nickname ?? this.client.user.username,
+        avatarURL: (this.guild.members.me.avatar
+          ? this.guild.members.me
+          : this.client.user
+        ).displayAvatarURL({
           size: 2048,
           format: "png",
         }),
@@ -616,8 +622,11 @@ export class GuildLogManager {
     await data.webhook
       .send({
         content: message,
-        username: this.client.user.username,
-        avatarURL: this.client.user.displayAvatarURL({
+        username: this.guild.members.me.nickname ?? this.client.user.username,
+        avatarURL: (this.guild.members.me.avatar
+          ? this.guild.members.me
+          : this.client.user
+        ).displayAvatarURL({
           size: 2048,
           format: "png",
         }),
