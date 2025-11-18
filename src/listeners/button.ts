@@ -473,7 +473,9 @@ export default class Button extends Listener {
               value: `appeals:removeFormItem:${
                 item.type
               }:${config.items.indexOf(item)}`,
-              description: this.client.util.shortenText(item.description, 100),
+              description: item.description
+                ? this.client.util.shortenText(item.description, 100)
+                : undefined,
             });
             break;
           }
@@ -488,7 +490,9 @@ export default class Button extends Listener {
               value: `appeals:removeFormItem:${
                 item.type
               }:${config.items.indexOf(item)}`,
-              description: this.client.util.shortenText(item.description, 100),
+              description: item.description
+                ? this.client.util.shortenText(item.description, 100)
+                : undefined,
             });
             break;
           }
@@ -503,7 +507,9 @@ export default class Button extends Listener {
               value: `appeals:removeFormItem:${
                 item.type
               }:${config.items.indexOf(item)}`,
-              description: this.client.util.shortenText(item.description, 100),
+              description: item.description
+                ? this.client.util.shortenText(item.description, 100)
+                : undefined,
             });
             break;
           }
@@ -557,7 +563,9 @@ export default class Button extends Listener {
               value: `appeals:editFormItem:${item.type}:${config.items.indexOf(
                 item
               )}`,
-              description: this.client.util.shortenText(item.description, 100),
+              description: item.description
+                ? this.client.util.shortenText(item.description, 100)
+                : undefined,
             });
             break;
           }
@@ -572,7 +580,9 @@ export default class Button extends Listener {
               value: `appeals:editFormItem:${item.type}:${config.items.indexOf(
                 item
               )}`,
-              description: this.client.util.shortenText(item.description, 100),
+              description: item.description
+                ? this.client.util.shortenText(item.description, 100)
+                : undefined,
             });
             break;
           }
@@ -587,7 +597,9 @@ export default class Button extends Listener {
               value: `appeals:editFormItem:${item.type}:${config.items.indexOf(
                 item
               )}`,
-              description: this.client.util.shortenText(item.description, 100),
+              description: item.description
+                ? this.client.util.shortenText(item.description, 100)
+                : undefined,
             });
             break;
           }
