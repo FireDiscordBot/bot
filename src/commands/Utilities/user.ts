@@ -502,65 +502,6 @@ export default class User extends Command {
           )}`
         );
 
-      // we'll temporarily fetch members for guilds with less than 5k members
-      // so that we can display the join position
-      if (guild.memberCount <= 5_000)
-        await guild.members.fetch().catch(() => {});
-
-      if (guild && guild.members.cache.size / guild.memberCount > 0.98) {
-        const sorted = guild.members.cache
-          .sorted(
-            (memberA, memberB) =>
-              memberA.joinedTimestamp - memberB.joinedTimestamp
-          )
-          .toJSON();
-        const joinPos = sorted.indexOf(member) + 1;
-        memberInfo.push(
-          `**${command.language.get(
-            "JOIN_POSITION"
-          )}:** ${joinPos.toLocaleString(command.language.id)}`
-        );
-        if (joinPos > 1 && guild.memberCount > 2 && joinPos < guild.memberCount)
-          memberInfo.push(
-            `**${command.language.get("JOIN_ORDER")}:** ${
-              sorted[joinPos - 2]
-            } -> **${member}** -> ${sorted[joinPos]}`
-          );
-        else if (joinPos > 1 && guild.memberCount > 2)
-          memberInfo.push(
-            `**${command.language.get("JOIN_ORDER")}:** ${
-              sorted[joinPos - 2]
-            } -> **${member}**`
-          );
-        else if (guild.memberCount > 2)
-          memberInfo.push(
-            `**${command.language.get("JOIN_ORDER")}:** **${member}** -> ${
-              sorted[joinPos]
-            }`
-          );
-        else if (joinPos < guild.memberCount)
-          memberInfo.push(
-            `**${command.language.get("JOIN_ORDER")}:** ${
-              sorted[joinPos - 2]
-            } -> **${member}**`
-          );
-      }
-
-      // and now, we get rid of them, first from user cache
-      this.client.users.cache.sweep(
-        (u: FireUser) =>
-          // we only want to sweep from the members
-          // we just cached
-          guild.members.cache.has(u.id) &&
-          // but we want to keep the usual exclusions
-          u.id != user.id &&
-          u.id != this.client.user.id &&
-          !this.client.isRunningCommand(u)
-      );
-      // and then from member cache where we can
-      // get rid of every single one except Fire
-      guild.members.cache.sweep((m) => m.id != this.client.user.id);
-
       if (member && member.nickname && member.nickname != member.user.username)
         memberInfo.push(
           `**${command.language.get("NICKNAME")}:** ${member.nickname}`
