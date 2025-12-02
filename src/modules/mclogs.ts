@@ -72,9 +72,13 @@ const validEssentialLoaders = [
   Loaders.FEATHER_FABRIC,
 ];
 
-const ESSENTIAL_TO_SEMVER_REGEX = /(?<main>\d\.\d\.\d)(\.(?<last>\d))/gim;
-const essentialVersionToSemver = (version: string) =>
-  version.replace(ESSENTIAL_TO_SEMVER_REGEX, "$1-$3");
+const ESSENTIAL_TO_SEMVER_REGEX =
+  /(?<main>\d\.\d{1,2}\.\d{1,2})(\.(?<last>\d{1,3}))?/gim;
+const essentialVersionToSemver = (version: string) => {
+  version = version.replace(ESSENTIAL_TO_SEMVER_REGEX, "$1-$3");
+  if (version.endsWith("-")) version = version.slice(0, -1);
+  return version;
+};
 
 const minecraftVersionToSemver = (version: string) =>
   version.length == 4 ? `${version}.0` : version;
@@ -91,7 +95,10 @@ const cleanModVersion = (
   loader: ModLoaders
 ) => {
   const versionBase = `${mcVer
+    .split("-snapshot-")[0]
+    .split("-pre-")[0]
     .split("-pre")[0]
+    .split("-rc-")[0]
     .split("-rc")[0]
     .split(".")
     .filter((_, index) => index != 2)
@@ -154,9 +161,24 @@ const cleanModVersion = (
 
 type ModSource = `${string}.jar`;
 
+// this is a mess now thanks to Mojang switching version scheme
+// and makes some assumptions about the future versioning
+// such as that pre and rc will follow the same {version}-{type}-{number} format
+// that snapshots will be, (i.e. 26.1-snapshot-1), e.g. 26.1-rc-1
 export type MinecraftVersion =
-  | `${number}.${number}.${number}`
-  | `${number}.${number}`;
+  | `${number}.${number}.${number}` // e.g. 1.21.11 or 26.1.1
+  | `${number}.${number}.${number}-snapshot-${number}` // e.g. 26.1.1-snapshot-1
+  | `${number}.${number}.${number}-pre-${number}` // e.g. 26.1.1-pre-1
+  | `${number}.${number}.${number}-pre${number}` // e.g. 1.21.11-pre4
+  | `${number}.${number}.${number}-rc-${number}` // e.g. 26.1.1-rc-1
+  | `${number}.${number}.${number}-rc${number}` // e.g. 1.21.11-rc1
+  | `${number}.${number}` // e.g. 1.21 or 26.1
+  | `${number}.${number}-snapshot-${number}` // e.g. 26.1-snapshot-1
+  | `${number}.${number}-pre-${number}` // e.g. 26.1-pre-1
+  | `${number}.${number}-pre${number}` // e.g. 1.21-pre4
+  | `${number}.${number}-rc-${number}` // e.g. 26.1-rc-1
+  | `${number}.${number}-rc${number}` // e.g. 1.21-rc1
+  | `${number}w${number}${string}`; // e.g. 25w04a or 25w14craftmine
 export type ModVersions = {
   [version: MinecraftVersion]: { [loader in ModLoaders]?: string };
 };
@@ -315,7 +337,6 @@ export default class MCLogs extends Module {
   regexes: {
     noRaw: RegExp;
     secrets: RegExp;
-    jvm: RegExp;
     optifine: RegExp;
     exOptifine: RegExp;
     ram: RegExp;
@@ -380,9 +401,8 @@ export default class MCLogs extends Module {
       noRaw: /(justpaste\.it)\/(\w+)/gim,
       secrets:
         /--accessToken,? [^\?\s*❄]+|\(Session ID is token:|Authorization ?: ?(Bearer\n?\w*)/gim,
-      jvm: /JVM Flags: (8|7) total;(?: -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump)? -Xmx(?:\d{1,2}G|\d{3,5}M) -XX:\+UnlockExperimentalVMOptions -XX:\+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M/gim,
       optifine:
-        /OptiFine_(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
+        /OptiFine_(?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
       exOptifine: /HD_U_\w\d_MOD/gm,
       ram: /-Xmx(?<ram>\d{1,2}G|\d{3,4}M)/gim,
       email: /[\w.+-]{1,50}@[\w-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
@@ -442,21 +462,21 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /Started Feather \((?<featherver>\w*)\)/gim,
-            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Loading Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /^\s+\- feather release\/(?<featherver>\w+)$/gim,
-            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Loading Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /Started Feather \((?<featherver>\w*)\)/gim,
-            /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Loading for game Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
@@ -464,7 +484,7 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /feather(?:@|\s*)release\/(?<featherver>\w+)$/gim,
-            /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Loading for game Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
@@ -472,7 +492,7 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /Started Feather \((?<featherver>\w*)\)/gim,
-            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
@@ -480,57 +500,57 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /^\t{2}feather: Feather Client release\/(?<featherver>[\w\.\-+${}/\s]+)$/gim,
-            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FABRIC,
           regexes: [
-            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Loading Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FABRIC,
           regexes: [
-            /Loading for game Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Loading for game Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FABRIC,
           regexes: [
-            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.QUILT,
           regexes: [
-            /Loading Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) with Quilt Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Loading Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) with Quilt Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) loading/gim,
+            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) loading/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /--version,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--version,? (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
 
             // below is a variation of the above regex, but for some reason it has the minecraft version THREE TIMES and idk why. it seems to only show in JVM crashes (hs_err_pid.log files)
-            /--version,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /--version,? (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
 
             // and then we have this.
             /Started Feather \((?<featherver>\w*)\)/gim,
@@ -539,14 +559,14 @@ export default class MCLogs extends Module {
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /Launched Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /Launched Version: forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
@@ -555,7 +575,7 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
             /--fml\.forgeVersion,? (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /--fml\.mcVersion,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /--fml\.mcVersion,? (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
@@ -563,14 +583,14 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
             /FML: MCP (?:\d{1,5}\.\d{1,5}) Powered by Forge (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /Found mod file forge-(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-client.jar of type MOD with provider net.minecraftforge/gim,
+            /Found mod file forge-(?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-client.jar of type MOD with provider net.minecraftforge/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
@@ -579,54 +599,54 @@ export default class MCLogs extends Module {
           loader: Loaders.NEOFORGE,
           regexes: [
             /--fml\.neoForgeVersion,? (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /--fml\.mcVersion,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /--fml\.mcVersion,? (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
           ],
         },
         {
           loader: Loaders.NEOFORGE,
           regexes: [
-            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /NeoForge: (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?) loading/gim,
+            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) loading/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /--version, (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--version, (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
 
             // below is a variation of the above regex, but for some reason it has the minecraft version THREE TIMES and idk why. it seems to only show in JVM crashes (hs_err_pid.log files)
-            /--version (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /--version (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /Launched Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /Launched Version: forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
             /Forge: net.minecraftforge:(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
@@ -634,26 +654,26 @@ export default class MCLogs extends Module {
           loader: Loaders.FORGE,
           regexes: [
             /--fml\.forgeVersion,? (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /--fml\.mcVersion,? (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /--fml\.mcVersion,? (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
             /FML: MCP (?:\d{1,5}\.\d{1,5}) Powered by Forge (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /Minecraft Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Found mod file forge-(?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-client.jar of type MOD with provider net.minecraftforge/gim,
+            /Found mod file forge-(?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-client.jar of type MOD with provider net.minecraftforge/gim,
           ],
         },
         {
           loader: Loaders.OPTIFINE,
           regexes: [
-            /Launched Version: (?<mcver>\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)-OptiFine_HD_U_(?<loaderver>[A-Z]\d(?:_pre\d{1,2})?)/gim,
+            /Launched Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-OptiFine_HD_U_(?<loaderver>[A-Z]\d(?:_pre\d{1,2})?)/gim,
           ],
         },
       ],
@@ -1728,13 +1748,6 @@ export default class MCLogs extends Module {
           );
       }
     }
-
-    const isDefault = this.regexes.jvm.test(log);
-    this.regexes.jvm.lastIndex = 0;
-    if (log.includes("JVM Flags: ") && !isDefault)
-      currentRecommendations.add(
-        "- Unless you know what you're doing, modifying your JVM args could have unintended side effects. It's best to use the defaults."
-      );
 
     if (versions.mods.find((m) => m.modId == "java")) {
       const javaVersion = (
