@@ -19,7 +19,6 @@ export default class CloseTicket extends Command {
       clientPermissions: [
         PermissionFlagsBits.ManageChannels,
         PermissionFlagsBits.SendMessages,
-        PermissionFlagsBits.ManageRoles,
       ],
       args: [
         {
