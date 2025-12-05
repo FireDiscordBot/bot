@@ -170,7 +170,6 @@ export const constants = {
     "EARLY_SUPPORTER",
     "EARLY_VERIFIED_BOT_DEVELOPER",
     "DISCORD_CERTIFIED_MODERATOR",
-    "ACTIVE_DEVELOPER",
   ],
   // urls
   url: {
