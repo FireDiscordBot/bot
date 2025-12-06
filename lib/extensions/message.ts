@@ -1221,7 +1221,8 @@ export class FireMessage extends Message {
         // this will ensure deleted webhooks are deleted
         // but also allow webhooks to be refreshed
         // even if the cached one still exists
-        this.guild?.quoteHooks.delete(destination.id);
+        if (this.guild?.quoteHooks?.has(destination.id))
+          this.guild?.quoteHooks.delete(destination.id);
         if (debug) debug.push(`Encountered error while sending, ${e.message}`);
         if (debug && quoter.isSuperuser() && e instanceof DiscordAPIError)
           debug.push(`\`\`\`${JSON.stringify(e.requestData.json)}\`\`\``);
