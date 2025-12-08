@@ -719,7 +719,6 @@ export class FireMessage extends Message {
     );
     if (content) {
       if (!quoter?.isSuperuser() && !this.system) {
-        content = content.replaceAll(regexes.maskedLink, "\\[$1\\]\\($2)");
         content = await filters
           .runReplace(content, quoter)
           .catch(() => content);
@@ -1316,7 +1315,6 @@ export class FireMessage extends Message {
         embed.setImage(imageMatches[0]);
         content = content.replaceAll(imageMatches[0], "");
       }
-      content = content.replaceAll(regexes.maskedLink, "\\[$1\\]\\($2)");
       const filters = this.client.getModule("filters") as Filters;
       content = await filters.runReplace(content, quoter);
       embed.setDescription(content);
