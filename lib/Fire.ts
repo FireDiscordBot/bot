@@ -137,6 +137,7 @@ export class Fire extends AkairoClient {
   // Private Utilities
   private readyWait: Promise<Fire>;
   private rawReadyWait: Promise<Fire>;
+  private rawReadyResolve: (value: Fire | PromiseLike<Fire>) => void;
 
   // temp until akairo stops being weird and reverting itself
   clearInterval: typeof clearInterval;
@@ -188,6 +189,13 @@ export class Fire extends AkairoClient {
     this.on("ready", () => config.fire.readyMessage(this));
     this.nonceHandlers = new Collection();
     this.on("raw", (r: any, shard: number) => {
+      if (
+        this.rawReadyWait &&
+        this.rawReadyResolve &&
+        (r.t == Constants.WSEvents.READY || !!this.readyAt)
+      )
+        this.rawReadyResolve(this);
+
       const aetherstats = this.getModule("aetherstats") as AetherStats;
       if (!(shard in aetherstats.events)) aetherstats.events[shard] = {};
       if (r.t && !(r.t in aetherstats.events[shard]))
@@ -491,7 +499,7 @@ export class Fire extends AkairoClient {
     if (this.rawReadyWait) return this.rawReadyWait;
     this.rawReadyWait = new Promise((resolve) => {
       if (!!this.readyAt) return resolve(this);
-      this.ws.once("READY", () => resolve(this));
+      this.rawReadyResolve = resolve;
     });
     return this.rawReadyWait;
   }
