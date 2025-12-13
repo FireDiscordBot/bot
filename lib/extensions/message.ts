@@ -7,6 +7,7 @@ import * as centra from "centra";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
+  BaseMessageComponentV2,
   BaseSelectMenu,
   Channel,
   Collection,
@@ -18,6 +19,8 @@ import {
   FileComponent,
   GuildChannel,
   GuildTextBasedChannel,
+  MediaGalleryComponent,
+  MediaGalleryItem,
   Message,
   MessageActionRow,
   MessageAttachment,
@@ -876,6 +879,8 @@ export class FireMessage extends Message {
       name: string;
       description?: string;
     }[] = [];
+    let components = this.components;
+
     const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
       EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
     const canAttach =
@@ -893,12 +898,27 @@ export class FireMessage extends Message {
     if (!canEmbed && content) content = this.client.util.supressLinks(content);
     if (
       !content &&
-      !this.flags.has("IS_COMPONENTS_V2") &&
+      !components.length &&
+      !this.embeds.length &&
       this.attachments.size &&
+      this.attachments.every(
+        (attachment) =>
+          attachment.contentType.startsWith("image/") ||
+          attachment.contentType.startsWith("video/")
+      ) &&
       canAttach
-    )
-      content = this.attachments.map((a) => a.url).join("\n");
-    else if (canAttach && this.attachments.size) {
+    ) {
+      components = [
+        new MediaGalleryComponent().addItems(
+          this.attachments.map((attachment) =>
+            new MediaGalleryItem()
+              .setMedia(attachment.url)
+              .setDescription(attachment.description)
+              .setSpoiler(attachment.spoiler)
+          )
+        ),
+      ];
+    } else if (canAttach && this.attachments.size) {
       const tooLargeAttachments = this.attachments.filter(
         (a) => a.size > EIGHT_MIB
       );
@@ -937,7 +957,6 @@ export class FireMessage extends Message {
         .fetch(this.author)
         .catch(() => null)) as FireMember);
 
-    let components = this.components;
     if (components.length)
       for (const [rowIndex, component] of components.entries()) {
         if (
@@ -1121,7 +1140,10 @@ export class FireMessage extends Message {
           : this.author.display.replace(/#0000/gim, ""));
     return await hook
       .send(
-        this.flags.has("IS_COMPONENTS_V2")
+        this.flags.has("IS_COMPONENTS_V2") ||
+          components.some(
+            (component) => component instanceof BaseMessageComponentV2
+          )
           ? {
               components,
               threadId: thread?.id,
