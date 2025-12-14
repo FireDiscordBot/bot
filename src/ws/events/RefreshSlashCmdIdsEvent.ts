@@ -18,8 +18,9 @@ export default class RefreshSlashCmdIds extends Event {
     for (const cmd of data.commands) {
       const command = this.manager.client.getCommand(cmd.id);
       if (command) {
-        command.slashId = cmd.slashId;
-        command.slashIds = cmd.slashIds;
+        if (cmd.slashId) command.slashId = cmd.slashId;
+        if (cmd.slashIds)
+          command.slashIds = { ...command.slashIds, ...cmd.slashIds };
       }
     }
     this.manager
