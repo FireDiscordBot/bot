@@ -156,7 +156,7 @@ export default class Ready extends Listener {
           this.client
             .getLogger("Commands")
             .error(`Failed to update slash commands\n${e.stack}`);
-          return [];
+          return [] as RESTPutAPIApplicationCommandsResult;
         });
       if (updated && updated.length) {
         this.client
@@ -164,7 +164,26 @@ export default class Ready extends Listener {
           .info(`Successfully bulk updated ${updated.length} slash commands`);
         for (const applicationCommand of updated.values()) {
           const command = this.client.getCommand(applicationCommand.name);
-          if (command) command.slashId = applicationCommand.id;
+          if (command) {
+            // Main Command
+            command.slashId = applicationCommand.id;
+
+            // Subcommands share the same id as the parent
+            // so we'll just iterate over the subcommands
+            // and set the slashId
+            const subcommands = command.getSubcommands();
+            for (const subcommand of subcommands.values())
+              subcommand.slashId = applicationCommand.id;
+
+            // Same goes for subcommands in groups
+            const subcommandGroups = command.getSubcommandGroups();
+            for (const subcommandGroup of subcommandGroups.values()) {
+              subcommandGroup.slashId = applicationCommand.id;
+              const groupSubcommands = subcommandGroup.getSubcommands();
+              for (const groupSubcommand of groupSubcommands.values())
+                groupSubcommand.slashId = applicationCommand.id;
+            }
+          }
         }
         this.client.manager.ws?.send(
           MessageUtil.encode(
