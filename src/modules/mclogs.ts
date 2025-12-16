@@ -402,7 +402,7 @@ export default class MCLogs extends Module {
       secrets:
         /--accessToken,? [^\?\s*❄]+|\(Session ID is token:|Authorization ?: ?(Bearer\n?\w*)/gim,
       optifine:
-        /OptiFine_(?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
+        /OptiFine_(?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)_HD_U_(?<ofver>[A-Z]\d(?:_pre\d{1,2})?)/im,
       exOptifine: /HD_U_\w\d_MOD/gm,
       ram: /-Xmx(?<ram>\d{1,2}G|\d{3,4}M)/gim,
       email: /[\w.+-]{1,50}@[\w-]{1,50}\.[a-zA-Z-.]{1,10}/gim,
@@ -462,21 +462,21 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /Started Feather \((?<featherver>\w*)\)/gim,
-            /Loading Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Loading Minecraft (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /^\s+\- feather release\/(?<featherver>\w+)$/gim,
-            /Loading Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Loading Minecraft (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /Started Feather \((?<featherver>\w*)\)/gim,
-            /Loading for game Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Loading for game Minecraft (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
@@ -484,7 +484,7 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /feather(?:@|\s*)release\/(?<featherver>\w+)$/gim,
-            /Loading for game Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Loading for game Minecraft (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
@@ -492,7 +492,7 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /Started Feather \((?<featherver>\w*)\)/gim,
-            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
@@ -500,57 +500,57 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FABRIC,
           regexes: [
             /^\t{2}feather: Feather Client release\/(?<featherver>[\w\.\-+${}/\s]+)$/gim,
-            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FABRIC,
           regexes: [
-            /Loading Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Loading Minecraft (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*) with Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FABRIC,
           regexes: [
-            /Loading for game Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Loading for game Minecraft (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /fabricloader(?:@|\s*)(?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FABRIC,
           regexes: [
-            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /fabricloader: Fabric Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.QUILT,
           regexes: [
-            /Loading Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) with Quilt Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
+            /Loading Minecraft (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*) with Quilt Loader (?<loaderver>\d\.\d{1,3}\.\d{1,3})/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) loading/gim,
+            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*) loading/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /--version,? (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--version,? (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
 
             // below is a variation of the above regex, but for some reason it has the minecraft version THREE TIMES and idk why. it seems to only show in JVM crashes (hs_err_pid.log files)
-            /--version,? (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /--version,? (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
 
             // and then we have this.
             /Started Feather \((?<featherver>\w*)\)/gim,
@@ -559,14 +559,14 @@ export default class MCLogs extends Module {
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /Launched Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /Launched Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /Launched Version: forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
@@ -575,7 +575,7 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
             /--fml\.forgeVersion,? (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /--fml\.mcVersion,? (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /--fml\.mcVersion,? (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
@@ -583,14 +583,14 @@ export default class MCLogs extends Module {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
             /FML: MCP (?:\d{1,5}\.\d{1,5}) Powered by Forge (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
         {
           loader: Loaders.FEATHER_FORGE,
           regexes: [
-            /Found mod file forge-(?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-client.jar of type MOD with provider net.minecraftforge/gim,
+            /Found mod file forge-(?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-client.jar of type MOD with provider net.minecraftforge/gim,
             /Started Feather \((?<featherver>\w*)\)/gim,
           ],
         },
@@ -599,54 +599,54 @@ export default class MCLogs extends Module {
           loader: Loaders.NEOFORGE,
           regexes: [
             /--fml\.neoForgeVersion,? (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /--fml\.mcVersion,? (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /--fml\.mcVersion,? (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
           ],
         },
         {
           loader: Loaders.NEOFORGE,
           regexes: [
-            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /NeoForge: (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?) loading/gim,
+            /Forge Mod Loader version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}) for Minecraft (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*) loading/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Forge mod loading, version (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5}), for MC (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /--version, (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /--version, (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)-forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
 
             // below is a variation of the above regex, but for some reason it has the minecraft version THREE TIMES and idk why. it seems to only show in JVM crashes (hs_err_pid.log files)
-            /--version (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
+            /--version (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Launched Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
+            /Launched Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)-forge(?:\d\.\d{1,2}(?:\.\d{1,2})?(?:-pre\d)?)?-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /Launched Version: forge-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
             /Forge: net.minecraftforge:(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
           ],
         },
@@ -654,26 +654,26 @@ export default class MCLogs extends Module {
           loader: Loaders.FORGE,
           regexes: [
             /--fml\.forgeVersion,? (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /--fml\.mcVersion,? (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /--fml\.mcVersion,? (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
             /FML: MCP (?:\d{1,5}\.\d{1,5}) Powered by Forge (?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})/gim,
-            /Minecraft Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)/gim,
+            /Minecraft Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)/gim,
           ],
         },
         {
           loader: Loaders.FORGE,
           regexes: [
-            /Found mod file forge-(?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-client.jar of type MOD with provider net.minecraftforge/gim,
+            /Found mod file forge-(?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)-(?<loaderver>(?:\d{1,2}\.)?\d{1,3}\.\d{1,3}\.\d{1,5})-client.jar of type MOD with provider net.minecraftforge/gim,
           ],
         },
         {
           loader: Loaders.OPTIFINE,
           regexes: [
-            /Launched Version: (?<mcver>(?:\d{1,2}\.\d{1,2}(?:\.\d{1,2})?(?:-(?:pre|rc|snapshot)-?\d)?|\d{2}w\d{1,2}\w)(?:_unobfuscated)?)-OptiFine_HD_U_(?<loaderver>[A-Z]\d(?:_pre\d{1,2})?)/gim,
+            /Launched Version: (?<mcver>(?:\d+\.\d+(?:\.\d+)?|(?:\d+w\d+\w))(?:[\s.-]?(?:pre|rc|snapshot|unobfuscated)[\s.-]?\d*)*)-OptiFine_HD_U_(?<loaderver>[A-Z]\d(?:_pre\d{1,2})?)/gim,
           ],
         },
       ],
@@ -927,11 +927,13 @@ export default class MCLogs extends Module {
           mods.push({
             state: modMatch.groups.state as ForgeModState,
             modId: modMatch.groups.modid.trim(),
-            version: cleanModVersion(
-              modMatch.groups.version.trim(),
-              mcVersion,
-              "Forge"
-            ),
+            version: builtInMods.includes(modMatch.groups.modid.trim())
+              ? modMatch.groups.version.trim()
+              : cleanModVersion(
+                  modMatch.groups.version.trim(),
+                  mcVersion,
+                  "Forge"
+                ),
             source: modMatch.groups.source.trim() as ModSource,
             erroredDependencies: [],
             partial: false,
@@ -953,11 +955,13 @@ export default class MCLogs extends Module {
             state: modMatch.groups.state.trim() as ForgeModState,
             modId: modMatch.groups.modid.trim(),
             name: modMatch.groups.name.trim() || undefined,
-            version: cleanModVersion(
-              modMatch.groups.version.trim(),
-              mcVersion,
-              "Forge"
-            ),
+            version: builtInMods.includes(modMatch.groups.modid.trim())
+              ? modMatch.groups.version.trim()
+              : cleanModVersion(
+                  modMatch.groups.version.trim(),
+                  mcVersion,
+                  "Forge"
+                ),
             source: modMatch.groups.source.trim() as ModSource,
             erroredDependencies: [],
             partial: false,
@@ -981,11 +985,13 @@ export default class MCLogs extends Module {
             state: modMatch.groups.state as ForgeModState,
             modId: modMatch.groups.modid.trim(),
             name: modMatch.groups.name.trim() || undefined,
-            version: cleanModVersion(
-              modMatch.groups.version.trim(),
-              mcVersion,
-              "Forge"
-            ),
+            version: builtInMods.includes(modMatch.groups.modid.trim())
+              ? modMatch.groups.version.trim()
+              : cleanModVersion(
+                  modMatch.groups.version.trim(),
+                  mcVersion,
+                  "Forge"
+                ),
             source: modMatch.groups.source.trim() as ModSource,
             erroredDependencies: [],
             partial: false,
@@ -1008,7 +1014,9 @@ export default class MCLogs extends Module {
               mods.push({
                 state: "Unknown",
                 modId,
-                version: cleanModVersion(versions[index], mcVersion, "Forge"),
+                version: builtInMods.includes(modId)
+                  ? modMatch.groups.version.trim()
+                  : cleanModVersion(versions[index], mcVersion, "Forge"),
                 source: modMatch.groups.source as ModSource,
                 erroredDependencies: [],
                 partial: false,
@@ -1018,7 +1026,9 @@ export default class MCLogs extends Module {
             mods.push({
               state: "Unknown",
               modId: modIds[0],
-              version: cleanModVersion(versions[0], mcVersion, "Forge"),
+              version: builtInMods.includes(modIds[0])
+                ? modMatch.groups.version.trim()
+                : cleanModVersion(versions[0], mcVersion, "Forge"),
               source: modMatch.groups.source as ModSource,
               erroredDependencies: [],
               partial: false,
@@ -1026,12 +1036,10 @@ export default class MCLogs extends Module {
         } else if (!mods.find((i) => i.modId == modMatch.groups.modid))
           mods.push({
             state: "Unknown",
-            modId: modMatch.groups.modid,
-            version: cleanModVersion(
-              modMatch.groups.version,
-              mcVersion,
-              "Forge"
-            ),
+            modId: modMatch.groups.modid.trim(),
+            version: builtInMods.includes(modMatch.groups.modid.trim())
+              ? modMatch.groups.version.trim()
+              : cleanModVersion(modMatch.groups.version, mcVersion, "Forge"),
             source: modMatch.groups.source as ModSource,
             erroredDependencies: [],
             partial: false,
@@ -1058,7 +1066,9 @@ export default class MCLogs extends Module {
         mods.push({
           name,
           modId,
-          version: cleanModVersion(version, mcVersion, "NeoForge"),
+          version: builtInMods.includes(modId)
+            ? modMatch.groups.version.trim()
+            : cleanModVersion(version, mcVersion, "NeoForge"),
           partial: false,
         });
       }
@@ -1088,12 +1098,14 @@ export default class MCLogs extends Module {
               );
               if (parentMod && "subMods" in parentMod)
                 parentMod.subMods.push({
-                  modId: modMatch.groups.modid,
-                  version: cleanModVersion(
-                    modMatch.groups.version,
-                    mcVersion,
-                    "Fabric"
-                  ),
+                  modId: modMatch.groups.modid.trim(),
+                  version: builtInMods.includes(modMatch.groups.modid.trim())
+                    ? modMatch.groups.version.trim()
+                    : cleanModVersion(
+                        modMatch.groups.version,
+                        mcVersion,
+                        "Fabric"
+                      ),
                   subMods: [], // don't think it can have any but this is just to make TS happy
                   partial: false,
                 });
@@ -1101,24 +1113,28 @@ export default class MCLogs extends Module {
                 const via = modMatch.groups.via;
                 if (!tempSubMods[via]) tempSubMods[via] = [];
                 tempSubMods[via].push({
-                  modId: modMatch.groups.modid,
-                  version: cleanModVersion(
-                    modMatch.groups.version,
-                    mcVersion,
-                    "Fabric"
-                  ),
+                  modId: modMatch.groups.modid.trim(),
+                  version: builtInMods.includes(modMatch.groups.modid.trim())
+                    ? modMatch.groups.version.trim()
+                    : cleanModVersion(
+                        modMatch.groups.version,
+                        mcVersion,
+                        "Fabric"
+                      ),
                   subMods: [],
                   partial: false,
                 });
               }
             } else {
               mods.push({
-                modId: modMatch.groups.modid,
-                version: cleanModVersion(
-                  modMatch.groups.version,
-                  mcVersion,
-                  "Fabric"
-                ),
+                modId: modMatch.groups.modid.trim(),
+                version: builtInMods.includes(modMatch.groups.modid.trim())
+                  ? modMatch.groups.version.trim()
+                  : cleanModVersion(
+                      modMatch.groups.version,
+                      mcVersion,
+                      "Fabric"
+                    ),
                 subMods: tempSubMods[modMatch.groups.modid] || [],
                 partial: false,
               });
@@ -1146,23 +1162,23 @@ export default class MCLogs extends Module {
             } else parentMod = mods[mods.length - 1] as FabricModNonPartial;
             if (parentMod && "subMods" in parentMod)
               parentMod.subMods.push({
-                modId: modMatch.groups.modid,
-                version: cleanModVersion(
-                  modMatch.groups.version,
-                  mcVersion,
-                  "Fabric"
-                ),
+                modId: modMatch.groups.modid.trim(),
+                version: builtInMods.includes(modMatch.groups.modid.trim())
+                  ? modMatch.groups.version.trim()
+                  : cleanModVersion(
+                      modMatch.groups.version,
+                      mcVersion,
+                      "Fabric"
+                    ),
                 subMods: [],
                 partial: false,
               });
           } else if (!mods.find((i) => i.modId == modMatch.groups.modid))
             mods.push({
-              modId: modMatch.groups.modid,
-              version: cleanModVersion(
-                modMatch.groups.version,
-                mcVersion,
-                "Fabric"
-              ),
+              modId: modMatch.groups.modid.trim(),
+              version: builtInMods.includes(modMatch.groups.modid.trim())
+                ? modMatch.groups.version.trim()
+                : cleanModVersion(modMatch.groups.version, mcVersion, "Fabric"),
               subMods: [],
               partial: false,
             });
@@ -1185,12 +1201,10 @@ export default class MCLogs extends Module {
         this.regexes.fabricCrashModEntry.lastIndex = 0;
         if (!mods.find((i) => i.modId == modMatch.groups.modid))
           mods.push({
-            modId: modMatch.groups.modid,
-            version: cleanModVersion(
-              modMatch.groups.version,
-              mcVersion,
-              "Fabric"
-            ),
+            modId: modMatch.groups.modid.trim(),
+            version: builtInMods.includes(modMatch.groups.modid.trim())
+              ? modMatch.groups.version.trim()
+              : cleanModVersion(modMatch.groups.version, mcVersion, "Fabric"),
             subMods: [],
             partial: false,
           });
@@ -1203,12 +1217,14 @@ export default class MCLogs extends Module {
           const parentMod = mods[mods.length - 1];
           if (parentMod && "subMods" in parentMod)
             parentMod.subMods.push({
-              modId: subModMatch.groups.modid,
-              version: cleanModVersion(
-                subModMatch.groups.version,
-                mcVersion,
-                "Fabric"
-              ),
+              modId: subModMatch.groups.modid.trim(),
+              version: builtInMods.includes(modMatch.groups.modid.trim())
+                ? modMatch.groups.version.trim()
+                : cleanModVersion(
+                    subModMatch.groups.version,
+                    mcVersion,
+                    "Fabric"
+                  ),
               subMods: [],
               partial: false,
             });
