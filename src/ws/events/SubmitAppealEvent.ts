@@ -115,9 +115,7 @@ export default class SubmitAppeal extends Event {
 
     const message = await channel
       .send({ components: [container], files: attachments })
-      .catch((e) => {
-        this.manager.console.debug(e);
-      });
+      .catch(() => {});
     if (!message)
       return this.sendError(
         language.get("APPEAL_SUBMIT_FAILED_TO_SEND_MESSAGE"),
