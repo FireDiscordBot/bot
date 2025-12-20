@@ -40,6 +40,8 @@ export default class Ready extends Listener {
         MessageUtil.encode(
           new Message(EventType.GUILD_CREATE, {
             id: guild.id,
+            name: guild.name,
+            icon: guild.icon,
             member: member.toAPIMemberJSON(),
           })
         )

@@ -47,6 +47,8 @@ export default class Restart extends Event {
         MessageUtil.encode(
           new Message(EventType.GUILD_CREATE, {
             id,
+            name: guild.name,
+            icon: guild.icon,
             member: member.toAPIMemberJSON(),
           })
         )

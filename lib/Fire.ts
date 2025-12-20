@@ -224,6 +224,8 @@ export class Fire extends AkairoClient {
             MessageUtil.encode(
               new Message(EventType.GUILD_CREATE, {
                 id: r.d.id,
+                name: r.d.name,
+                icon: r.d.icon,
                 member,
               })
             )

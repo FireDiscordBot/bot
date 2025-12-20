@@ -180,6 +180,8 @@ export default class IdentityUpdate extends Command {
         MessageUtil.encode(
           new Message(EventType.GUILD_CREATE, {
             id: me.guild.id,
+            name: me.guild.name,
+            icon: me.guild.icon,
             member: me.toAPIMemberJSON(),
           })
         )

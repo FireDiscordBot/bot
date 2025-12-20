@@ -44,6 +44,8 @@ export default class GuildMemberUpdate extends Listener {
         MessageUtil.encode(
           new Message(EventType.GUILD_CREATE, {
             id: newMember.guild.id,
+            name: newMember.guild.name,
+            icon: newMember.guild.icon,
             member: newMember.toAPIMemberJSON(),
           })
         )
