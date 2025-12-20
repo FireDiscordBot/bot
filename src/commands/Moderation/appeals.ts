@@ -397,7 +397,7 @@ export default class Appeals extends Command {
               new MediaGalleryComponent().addItems(
                 files.map((file) =>
                   new MediaGalleryItem().setMedia(
-                    `attachment://${encodeURI(file.originalName)}`
+                    `attachment://${file.originalName}`
                   )
                 )
               ),
