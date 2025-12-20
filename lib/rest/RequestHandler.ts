@@ -82,7 +82,7 @@ export class RequestHandler {
       else if (error instanceof HTTPError && ignoreStatusCode(error.code))
         throw error;
       else if (error.stack.includes("at Eval.eval (")) throw error;
-      else this.manager.client.sentry.captureException(error);
+      else this.manager.client.sentry?.captureException(error);
 
       // We still want to throw the error so it can be
       // handled by whatever made the request initially
