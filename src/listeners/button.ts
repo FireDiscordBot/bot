@@ -31,6 +31,7 @@ import {
   ModalActionRowComponent,
   NewsChannel,
   SnowflakeUtil,
+  TextDisplayComponent,
   TextInputComponent,
   ThreadChannel,
 } from "discord.js";
@@ -937,9 +938,38 @@ export default class Button extends Listener {
             onent.customId.startsWith("appeal:accept")
           )
       ) as MessageActionRow;
+      // user id is always the last component
+      // and we want to keep it that way
+      const userIdTextDisplay = container.components.at(
+        -1
+      ) as TextDisplayComponent;
       if (buttonsRow && buttonsRow.components.length) {
+        // First we remove it from the components as we wish to add text before it
+        const buttonsRowIndex = container.components.indexOf(buttonsRow);
+        container.components.splice(buttonsRowIndex, 1);
+        // and remove the user id too since it should always be at the bottom
+        const userIdTextIndex = container.components.indexOf(userIdTextDisplay);
+        container.components.splice(userIdTextIndex, 1);
+
+        // then we disable the buttons
         for (const component of buttonsRow.components)
           component.setDisabled(true);
+
+        // and create the text display component
+        const acceptedTextDisplay = new TextDisplayComponent({
+          content: button.guild.language.get("APPEAL_ACCEPTED_NOTE", {
+            user: button.member.toString(),
+            time: Formatters.time(button.createdAt, "F"),
+          }),
+        });
+
+        // before finally pushing them all
+        // note then buttons then user id
+        container.addComponents(
+          acceptedTextDisplay,
+          buttonsRow,
+          userIdTextDisplay
+        );
 
         // we can't edit with URLs in file components
         // so we need to reset them to attachment:// format
@@ -994,9 +1024,35 @@ export default class Button extends Listener {
             onent.customId.startsWith("appeal:reject")
           )
       ) as MessageActionRow;
+      // user id is always the last component
+      const userIdTextDisplay = container.components.at(
+        -1
+      ) as TextDisplayComponent;
       if (buttonsRow && buttonsRow.components.length) {
+        // First we remove it from the components as we wish to add text before it
+        const buttonsRowIndex = container.components.indexOf(buttonsRow);
+        container.components.splice(buttonsRowIndex, 1);
+        const userIdTextIndex = container.components.indexOf(userIdTextDisplay);
+        container.components.splice(userIdTextIndex, 1);
+
+        // then we disable the buttons
         for (const component of buttonsRow.components)
           component.setDisabled(true);
+
+        // and create the text display component
+        const rejectedTextDisplay = new TextDisplayComponent({
+          content: button.guild.language.get("APPEAL_REJECTED_NOTE", {
+            user: button.member.toString(),
+            time: Formatters.time(button.createdAt, "F"),
+          }),
+        });
+
+        // before finally pushing them both, text then buttons
+        container.addComponents(
+          rejectedTextDisplay,
+          buttonsRow,
+          userIdTextDisplay
+        );
 
         // we can't edit with URLs in file components
         // so we need to reset them to attachment:// format
