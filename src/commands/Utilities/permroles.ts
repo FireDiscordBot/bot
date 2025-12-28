@@ -69,8 +69,8 @@ export default class PermRoles extends Command {
             friendlyAllowed.length && friendlyDenied.length
               ? "PERMROLES_CURRENT_ITEM_COMBINED"
               : friendlyAllowed.length
-              ? "PERMROLES_CURRENT_ITEM_ALLOW"
-              : "PERMROLES_CURRENT_ITEM_DENY",
+                ? "PERMROLES_CURRENT_ITEM_ALLOW"
+                : "PERMROLES_CURRENT_ITEM_DENY",
             {
               role: role.toString(),
               allowed: friendlyAllowed.join(", "),
@@ -230,8 +230,8 @@ export default class PermRoles extends Command {
         failed
           ? "PERMROLES_FINISHED_FAIL_SOME"
           : message.guild.permRoles.has(args.role.id)
-          ? "PERMROLES_FINISHED"
-          : "PERMROLES_FINISHED_REMOVE",
+            ? "PERMROLES_FINISHED"
+            : "PERMROLES_FINISHED_REMOVE",
         { failed }
       )
     );
