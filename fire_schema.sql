@@ -47,6 +47,20 @@ CREATE TABLE public.aliases (
 ALTER TABLE public.aliases OWNER TO postgres;
 
 --
+-- Name: appeals; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.appeals (
+    gid text NOT NULL,
+    notbefore bigint DEFAULT 0 NOT NULL,
+    notafter bigint DEFAULT 0 NOT NULL,
+    items jsonb DEFAULT '[]'::jsonb NOT NULL
+);
+
+
+ALTER TABLE public.appeals OWNER TO postgres;
+
+--
 -- Name: assistant; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -133,6 +147,19 @@ CREATE TABLE public.datapackages (
 ALTER TABLE public.datapackages OWNER TO postgres;
 
 --
+-- Name: embeds; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.embeds (
+    id text NOT NULL,
+    uid text NOT NULL,
+    embed jsonb NOT NULL
+);
+
+
+ALTER TABLE public.embeds OWNER TO postgres;
+
+--
 -- Name: experimentfilters; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -196,6 +223,18 @@ CREATE TABLE public.invrole (
 ALTER TABLE public.invrole OWNER TO postgres;
 
 --
+-- Name: lookback; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.lookback (
+    uid text NOT NULL,
+    data jsonb NOT NULL
+);
+
+
+ALTER TABLE public.lookback OWNER TO postgres;
+
+--
 -- Name: modlogs; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -206,7 +245,9 @@ CREATE TABLE public.modlogs (
     reason text,
     caseid text,
     modid text,
-    created timestamp without time zone
+    created timestamp without time zone,
+    appealid text,
+    appealstatus text
 );
 
 
@@ -435,11 +476,46 @@ CREATE TABLE public.vcroles (
 ALTER TABLE public.vcroles OWNER TO postgres;
 
 --
+-- Name: words; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.words (
+    word text NOT NULL
+);
+
+
+ALTER TABLE public.words OWNER TO postgres;
+
+--
+-- Name: appeals appeals_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.appeals
+    ADD CONSTRAINT appeals_pkey PRIMARY KEY (gid);
+
+
+--
 -- Name: assistant assistant_uid_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.assistant
     ADD CONSTRAINT assistant_uid_key UNIQUE (uid);
+
+
+--
+-- Name: embeds embeds_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.embeds
+    ADD CONSTRAINT embeds_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: lookback lookback_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.lookback
+    ADD CONSTRAINT lookback_pkey PRIMARY KEY (uid);
 
 
 --
@@ -471,7 +547,7 @@ ALTER TABLE ONLY public.experiments
 --
 
 ALTER TABLE ONLY public.invrole
-    ADD CONSTRAINT unique_inv UNIQUE (inv);
+    ADD CONSTRAINT unique_inv UNIQUE (gid, inv);
 
 
 --
@@ -480,6 +556,14 @@ ALTER TABLE ONLY public.invrole
 
 ALTER TABLE ONLY public.vcroles
     ADD CONSTRAINT vcroles_cid_key UNIQUE (cid);
+
+
+--
+-- Name: words words_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.words
+    ADD CONSTRAINT words_pkey PRIMARY KEY (word);
 
 
 --
