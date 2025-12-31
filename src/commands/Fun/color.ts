@@ -80,7 +80,7 @@ export default class Color extends Command {
 **${message.language.get("COLOR_DECIMAL")}:** ${parseInt(color.toHex(), 16)}`;
 
     const image = await centra(
-      `${constants.url.imageGen}color?color=${color.toHex()}`
+      `${constants.url.imageGen}/color?color=${color.toHex()}`
     )
       .header("User-Agent", this.client.manager.ua)
       .send();

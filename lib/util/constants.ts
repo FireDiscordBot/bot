@@ -150,13 +150,19 @@ export class UseRun extends Error {}
 const websiteDomain = {
   production: "getfire.bot",
   development: "local.getfire.bot",
-  staging: "new-web.staging.getfire.bot",
+  staging: "staging.getfire.bot",
 }[process.env.NODE_ENV];
 
 const botName = {
   production: "Fire",
   development: "Fire Dev",
   staging: "Fire Beta",
+}[process.env.NODE_ENV];
+
+const domainSuffix = {
+  production: ".prod",
+  staging: ".staging",
+  development: ".local",
 }[process.env.NODE_ENV];
 
 export const constants = {
@@ -184,9 +190,10 @@ export const constants = {
     billing: "https://inv.wtf/billing",
     support: "https://inv.wtf/fire",
     // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
-    imageGen: "https://gen.inv.wtf/",
+    imageGen: `https://imagen${domainSuffix}.getfire.bot`,
+    serverTags: `https://server-tags${domainSuffix}.getfire.bot`,
     supportedHaste: ["hastebin.com (incl. Toptal link)", "hasteb.in", "hst.sh"],
-    automodAvatar: "https://static.inv.wtf/discord_automod.png",
+    automodAvatar: "https://static.getfire.bot/discord_automod.png",
   },
   imageExts: [".png", ".webp", ".jpg", ".jpeg", ".gif", ".gifv"],
   audioExts: [".mp3", ".wav", ".flac", ".alac", ".m4a"],

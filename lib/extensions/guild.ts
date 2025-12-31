@@ -1699,7 +1699,7 @@ ${this.language.get("JOINED")} ${Formatters.time(author.joinedAt, "R")}`;
                 dynamic: true,
               })
             : this.iconURL({ size: 2048, format: "png", dynamic: true }),
-        url: "https://static.inv.wtf/blocked.gif", // hehe
+        url: "https://static.getfire.bot/blocked.gif", // hehe
       })
       .addFields([
         {

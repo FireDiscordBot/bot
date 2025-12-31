@@ -4,7 +4,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import { Command } from "@fire/lib/util/command";
-import { zws } from "@fire/lib/util/constants";
+import { constants, zws } from "@fire/lib/util/constants";
 import {
   guildPreviewConverter,
   snowflakeConverter,
@@ -469,9 +469,7 @@ export default class GuildCommand extends Command {
 
     if (guild instanceof FireGuild && guild.profile?.tag)
       embed.setImage(
-        process.env.NODE_ENV == "production"
-          ? `https://server-tags.inv.wtf/${guild.id}/${guild.profile.badge}/${guild.profile.tag}`
-          : `${this.client.manager.REST_HOST}/v2/img/tag/${guild.id}/${guild.profile.badge}/${guild.profile.tag}`
+        `${constants.url.serverTags}/${guild.id}/${guild.profile.badge}/${guild.profile.tag}`
       );
 
     await command.channel.send({ embeds: [embed] });

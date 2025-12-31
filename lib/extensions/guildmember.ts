@@ -1126,7 +1126,7 @@ export class FireMember extends GuildMember {
           reason,
         }) +
           (this.id == "249287049482338305"
-            ? "\nhttps://static.inv.wtf/muted.mp4"
+            ? "\nhttps://static.getfire.bot/muted.mp4"
             : "")
       ).catch(() => {
         noDM = true;

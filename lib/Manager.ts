@@ -29,6 +29,7 @@ export class Manager {
       ? `http://127.0.0.1:${process.env.REST_PORT}`
       : null; // realistically never gonna be encountered
   readonly CURRENT_REST_VERSION = "v2";
+  readonly REST_SUFFIX = process.env.REST_SUFFIX ?? ".prod";
 
   private loggers: Collection<string, FireConsole> = new Collection();
   console: FireConsole = new FireConsole();

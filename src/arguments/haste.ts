@@ -25,7 +25,10 @@ export const hasteTypeCaster: ArgumentTypeCaster = async (
     await message.error("HASTE_INVALID_URL");
   }
 
-  if (uploader == "h.inv.wtf" && !message.author.isSuperuser()) {
+  if (
+    (uploader == "h.inv.wtf" || uploader == "haste.prod.getfire.bot") &&
+    !message.author.isSuperuser()
+  ) {
     await message.error("HASTE_INVALID_DOMAIN", {
       supported: supportedHaste.join(", "),
     });
