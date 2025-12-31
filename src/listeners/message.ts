@@ -97,7 +97,8 @@ export default class Message extends Listener {
 
     if (
       message.guildId == this.client.config.fireGuildId &&
-      message.channelId == "1455752234934599803"
+      message.channelId == "1455752234934599803" &&
+      process.env.NODE_ENV == "production"
     ) {
       if (
         message.attachments.size != 1 ||
