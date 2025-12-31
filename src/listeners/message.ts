@@ -97,10 +97,17 @@ export default class Message extends Listener {
 
     if (
       message.guildId == this.client.config.fireGuildId &&
-      message.channelId == "1051050542572511274"
-    )
-      if (!message.member.roles.cache.has("1051050567159525407"))
-        await message.member.roles.add("1051050567159525407").catch(() => {});
+      message.channelId == "1455752234934599803"
+    ) {
+      if (
+        message.attachments.size != 1 ||
+        message.attachments.first().name != "fire-lookback-2025.png"
+      )
+        return await message.delete();
+
+      if (!message.member.roles.cache.has("1455752804063903794"))
+        await message.member.roles.add("1455752804063903794").catch(() => {});
+    }
 
     const autoroleId = message.guild.settings.get<Snowflake>(
       "mod.autorole",
