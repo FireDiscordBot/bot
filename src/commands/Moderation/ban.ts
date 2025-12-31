@@ -170,7 +170,7 @@ export default class Ban extends Command {
     if (
       banUntil &&
       // 30 minute minimum ban time
-      +banUntil - +new Date() > 1_800_000 &&
+      +banUntil - +new Date() < 1_800_000 &&
       !command.author.isSuperuser()
     )
       return await command.error("BAN_TIME_TOO_SHORT");
