@@ -102,7 +102,10 @@ export default class Message extends Listener {
     ) {
       if (
         message.attachments.size != 1 ||
-        message.attachments.first().name != "fire-lookback-2025.png"
+        !(
+          message.attachments.first().name.endsWith(".png") ||
+          message.attachments.first().name.endsWith(".jpg")
+        )
       )
         return await message.delete();
 
