@@ -8,6 +8,24 @@ import { ParsedResult, casual } from "chrono-node";
 import * as dayjs from "dayjs";
 import { ArgumentTypeCaster } from "discord-akairo";
 
+casual.parsers.push({
+  pattern: () => /<t:(?<timestamp>\d{10,13})(:(?<style>[tTdDfFsSR]))?>/gim,
+  extract: (_, match) => {
+    const timestamp = parseInt(match.groups.timestamp);
+    const date = new Date(timestamp * 1000);
+
+    return {
+      day: date.getDate(),
+      month: date.getMonth() + 1,
+      year: date.getFullYear(),
+      hour: date.getHours(),
+      minute: date.getMinutes(),
+      second: date.getSeconds(),
+      timezoneOffset: date.getTimezoneOffset(),
+    };
+  },
+});
+
 const {
   regexes: { time },
 } = constants;

@@ -191,7 +191,7 @@ export default class RemindersCreate extends Command {
         clickedMessage?.messageSnapshots.first()?.content;
       const embeds = clickedMessage?.embeds.length
         ? clickedMessage.embeds
-        : clickedMessage?.messageSnapshots.first()?.embeds ?? [];
+        : (clickedMessage?.messageSnapshots.first()?.embeds ?? []);
       if (!content) return await command.error("REMINDER_MISSING_CONTEXT");
 
       const now = +new Date();
@@ -227,7 +227,7 @@ export default class RemindersCreate extends Command {
         embeds[0].description
       )
         // possibly a linked tweet or other social media post, use that instead
-        (parsed = strict.parse(
+        ((parsed = strict.parse(
           embeds[0].description,
           {
             instant: embeds[0].timestamp
@@ -247,7 +247,7 @@ export default class RemindersCreate extends Command {
             forwardDate: true,
           }
         )),
-          (useEmbedDescription = true);
+          (useEmbedDescription = true));
       parsed = parsed
         // Remove timex in the past, based on command reaction (probably not too far off current time)
         .filter((res) => res.start.date() > command.createdAt)
@@ -400,8 +400,8 @@ export default class RemindersCreate extends Command {
                     : "REMINDER_CONTEXT_CONTENT"
                   : "REMINDER_CONTEXT_CONTENT_WITH_AUTHOR_TZ"
                 : command.author.settings.has("timezone.iana")
-                ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
-                : "REMINDER_CONTEXT_CONTENT"
+                  ? "REMINDER_CONTEXT_CONTENT_NO_TZ"
+                  : "REMINDER_CONTEXT_CONTENT"
               : "REMINDER_CONTEXT_CONTENT_NO_TZ",
             {
               content:
