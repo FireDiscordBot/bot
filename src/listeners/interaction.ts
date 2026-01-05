@@ -93,6 +93,7 @@ export default class InteractionListener extends Listener {
             cluster: this.client.manager.id.toString(),
             shard: getShard(interaction).id.toString(),
             user_id: interaction.user.id, // easier to query tag
+            guild_id: interaction.guildId ?? "N/A",
           },
           fields: {
             type: "blocked",

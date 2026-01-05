@@ -30,6 +30,7 @@ export default class CommandFinished extends Listener {
         cluster: this.client.manager.id.toString(),
         shard: message.shard.toString(),
         user_id: message.author.id, // easier to query tag
+        guild_id: message.guildId ?? "N/A",
       },
       fields: {
         type: "finish",

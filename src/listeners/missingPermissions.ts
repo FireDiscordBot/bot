@@ -26,6 +26,7 @@ export default class MissingPermissions extends Listener {
           cluster: this.client.manager.id.toString(),
           shard: message.shard.toString() ?? "0",
           user_id: message.author.id, // easier to query tag
+          guild_id: message.guildId ?? "N/A",
         },
         fields: {
           type: "permissions",
@@ -38,8 +39,9 @@ export default class MissingPermissions extends Listener {
           missing: missing.join(", "),
           has:
             type == "client"
-              ? message.guild?.members.me.permissions.toArray().join(", ") ?? ""
-              : message.member?.permissions.toArray().join(", ") ?? "",
+              ? (message.guild?.members.me.permissions.toArray().join(", ") ??
+                "")
+              : (message.member?.permissions.toArray().join(", ") ?? ""),
         },
       },
     ]);
