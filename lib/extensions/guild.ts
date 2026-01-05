@@ -780,12 +780,12 @@ export class FireGuild extends Guild {
           SELECT count("command") AS commandCount
           FROM aether_inf.commands
           WHERE "type" = 'started'
-          AND "guild" = $server
+          AND guild_id = $server
           AND time > now() - 7d
           GROUP BY command
         )
       )`,
-      { placeholders: { server: `${this.name} (${this.id})` } }
+      { placeholders: { server: this.id } }
     );
     const popularCommands = popularCommandsResult
       .filter((r) => !!r.command)
