@@ -221,7 +221,10 @@ export class Manager {
     );
   }
 
-  queryInflux(query: string, options?: IQueryOptions) {
+  queryInflux<T>(
+    query: string,
+    options?: IQueryOptions
+  ): Promise<(T & { time: string })[]> {
     return new Promise<any[]>((resolve, reject) => {
       if (!this.ws?.open) return reject();
       const nonce = SnowflakeUtil.generate();
