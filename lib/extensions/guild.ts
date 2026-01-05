@@ -18,6 +18,7 @@ import {
   BaseFetchOptions,
   CategoryChannel,
   Collection,
+  Constants,
   DiscordAPIError,
   EmbedFieldData,
   Formatters,
@@ -699,47 +700,52 @@ export class FireGuild extends Guild {
     return null;
   }
 
-  getDiscoverableData(): DiscoverableGuild {
+  getDiscoverableSplash() {
     let splash = "";
+
+    if (this.splash)
+      splash = this.splashURL({
+        size: 512,
+        format: "webp",
+      });
+    else if (this.discoverySplash)
+      splash = this.discoverySplashURL({
+        size: 512,
+        format: "webp",
+      });
+
+    return splash;
+  }
+
+  getDiscoverableData(): DiscoverableGuild {
     if (!this.available)
       return {
         name: this.name || "Unavailable Guild",
         id: this.id,
         icon: "https://cdn.discordapp.com/emojis/293495010719170560.png?v=1",
-        splash,
+        splash: "", // this will use the default discovery splash
+        description: "",
         members: 0,
         badge: this.guildBadge,
         boostTier: this.premiumTier,
         features: this.features,
         featured: false,
-        shard: this.shardId,
-        cluster: this.client.manager.id,
       };
-    if (this.splash)
-      splash = this.splashURL({
-        // 320 is used by the discord app
-        // but not in discord.js allowed sizes
-        // so we set 16 then replace
-        size: 16,
-        format: "webp",
-      }).replace("size=16", "size=320");
-    else if (this.discoverySplash)
-      splash = this.discoverySplashURL({
-        size: 16,
-        format: "webp",
-      }).replace("size=16", "size=320");
+
+    const splash = this.getDiscoverableSplash();
     const icon = this.icon
       ? this.iconURL({
           format: "webp",
           size: 128,
-        }) +
-        `&animated=${this.features.includes("ANIMATED_ICON") ? "true" : "false"}`
+        }) + `&animated=${this.features.includes("ANIMATED_ICON")}`
       : `https://cdn.discordapp.com/embed/avatars/${(BigInt(this.id) >> 22n) % 6n}.png`;
+
     return {
       name: this.name,
       id: this.id,
       icon,
       splash,
+      description: this.description,
       members: this.memberCount,
       badge: this.guildBadge,
       boostTier: this.premiumTier,
@@ -748,8 +754,104 @@ export class FireGuild extends Guild {
         "utils.featured",
         this.features.includes("FEATURABLE")
       ),
-      shard: this.shardId,
-      cluster: this.client.manager.id,
+    };
+  }
+
+  async getExtendedDiscoverableData() {
+    const base = this.getDiscoverableData();
+    if (!this.available)
+      return {
+        ...base,
+        online: 0,
+        owner: null,
+        emojis: [],
+        stickers: [],
+        channels: [],
+        roles: [],
+        popularCommands: [],
+      };
+
+    const preview = await this.fetchPreview().catch(() => {});
+    const popularCommandsResult = await this.client.manager.queryInflux<{
+      command: string;
+    }>(
+      `SELECT command FROM (
+        SELECT top(commandCount, command, 9) FROM (
+          SELECT count("command") AS commandCount
+          FROM aether_inf.commands
+          WHERE "type" = 'started'
+          AND "guild" = $server
+          AND time > now() - 7d
+          GROUP BY command
+        )
+      )`,
+      { placeholders: { server: `${this.name} (${this.id})` } }
+    );
+    const popularCommands = popularCommandsResult
+      .filter((r) => !!r.command)
+      .map((r) => r.command);
+    const owner = await this.client.users.fetch(this.ownerId).catch(() => {});
+
+    return {
+      ...base,
+      online: preview ? preview.approximatePresenceCount : 0,
+      owner: owner
+        ? {
+            id: owner.id,
+            username: owner.username,
+            avatar: owner.displayAvatarURL({
+              format: "webp",
+              size: 128,
+            }),
+          }
+        : null,
+      emojis: preview
+        ? preview.emojis.map((emoji) => ({
+            name: emoji.name,
+            id: emoji.id,
+            animated: emoji.animated,
+          }))
+        : [],
+      stickers: preview
+        ? preview.stickers.map((sticker) => ({
+            name: sticker.name,
+            id: sticker.id,
+            format: {
+              PNG: 1,
+              APNG: 2,
+              LOTTIE: 3,
+              GIF: 4,
+            }[sticker.format],
+          }))
+        : [],
+      channels: this.channels.cache
+        .filter(
+          (channel) =>
+            !channel.isThread() &&
+            this.roles.everyone
+              .permissionsIn(channel)
+              .has(PermissionFlagsBits.ViewChannel)
+        )
+        // convert to an array so we have findIndex
+        .map((channel) => channel)
+        .map((channel, index, channels) => ({
+          name: channel.name,
+          id: index.toString(),
+          type: Constants.ChannelTypes[channel.type],
+          nsfw: "nsfw" in channel ? channel.nsfw : false,
+          position: "position" in channel ? channel.position : 0,
+          parentId: channel.parentId
+            ? channels.findIndex((c) => c.id == channel.parentId).toString()
+            : null,
+        })),
+      roles: this.roles.cache.map((role) => ({
+        name: role.name,
+        id: role.id,
+        color: role.color,
+        position: role.rawPosition,
+        hoist: role.hoist,
+      })),
+      popularCommands,
     };
   }
 

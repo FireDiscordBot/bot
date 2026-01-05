@@ -1,3 +1,5 @@
+import { Snowflake } from "discord-api-types/globals";
+import { ChannelType } from "discord-api-types/v9";
 import { GuildFeatures, PremiumTier } from "discord.js";
 import { Caches } from "./aether";
 
@@ -49,16 +51,48 @@ export interface DiscoverableGuild {
   name: string;
   id: string;
   icon: string;
-  iconProxy?: string;
   splash: string;
-  splashProxy?: string;
+  description: string;
   members: number;
   badge: BadgeType;
   boostTier: PremiumTier;
   features: GuildFeatures[];
   featured: boolean;
-  shard?: number;
-  cluster?: number;
+}
+
+export interface ExtendedDiscoverableGuild extends DiscoverableGuild {
+  online: number;
+  owner: {
+    id: Snowflake;
+    username: string;
+    avatar: string;
+  };
+  emojis: {
+    name: string;
+    id: string;
+    animated: boolean;
+  }[];
+  stickers: {
+    name: string;
+    id: string;
+    format: number;
+  }[];
+  channels: {
+    name: string;
+    id: string;
+    type: ChannelType;
+    nsfw: boolean;
+    position: number;
+    parentId: string;
+  }[];
+  roles: {
+    name: string;
+    id: string;
+    color: number;
+    position: number;
+    hoist: boolean;
+  }[];
+  popularCommands: string[];
 }
 
 export enum DiscoveryUpdateOp {

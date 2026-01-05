@@ -16,7 +16,7 @@ export enum EventType {
   DEPLOY, // send & receive
   SEND_STATS, // send only
   REQUEST_STATS, // receive only
-  UNUSED10 = 11,
+  GET_EXTENDED_DISCOVERABLE, // send & receive
   GUILD_CREATE, // send only
   GUILD_DELETE, // send only
   LOAD_MODULE, // send & receive
