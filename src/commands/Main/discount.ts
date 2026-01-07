@@ -1,3 +1,4 @@
+import { fire } from "@fire/config/fire";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { Command } from "@fire/lib/util/command";
 import { constants } from "@fire/lib/util/constants";
@@ -11,7 +12,7 @@ export default class Discount extends Command {
       enableSlashCommand: true,
       slashOnly: true,
       ephemeral: true,
-      requiresExperiment: { id: 1684718660, bucket: 1 },
+      guilds: [fire.fireGuildId],
     });
   }
 
