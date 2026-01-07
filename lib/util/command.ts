@@ -855,8 +855,18 @@ export class Command extends AkairoCommand {
         ])
       ),
       arguments:
+        //   if (argument.flag && argument.match == "flag") {
+        //   options["name"] = argument.id.toLowerCase();
+        //   options["type"] = ApplicationCommandOptionType.Boolean;
+        // } else if (argument.flag && argument.match == "option") {
+        //   options["name"] = argument.id.toLowerCase();
+        // }
+
         this.args?.map((arg) => ({
-          name: this.getSlashCommandArgName(arg),
+          name:
+            arg.flag && (arg.match == "flag" || arg.match == "option")
+              ? arg.id.toLowerCase()
+              : this.getSlashCommandArgName(arg),
           description:
             typeof arg.description == "function"
               ? arg.description(defaultLanguage)
@@ -869,9 +879,14 @@ export class Command extends AkairoCommand {
                 : arg.description,
             ])
           ),
-          type: ApplicationCommandOptionType[
-            getSlashType(arg.type?.toString())
-          ],
+          type:
+            arg.flag && arg.match == "flag"
+              ? ApplicationCommandOptionType[
+                  ApplicationCommandOptionType.Boolean
+                ]
+              : ApplicationCommandOptionType[
+                  getSlashType(arg.type?.toString())
+                ],
           required: arg.required,
           default: arg.default,
           autocomplete: arg.autocomplete,
