@@ -22,7 +22,7 @@ export class EventHandler {
 
     if (typeof event?.run == "function")
       event?.run(message.d, message.n).catch((e) => {
-        this.manager.sentry.captureException(e, {
+        this.manager.sentry?.captureException(e, {
           extra: {
             event: message.t,
             nonce: message.n,
