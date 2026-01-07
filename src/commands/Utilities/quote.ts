@@ -144,7 +144,6 @@ export default class Quote extends Command {
       message.channel as GuildTextChannel,
       message.hasInteractiveComponents()
     );
-    if (!webhook?.token) return;
     this.console.log("Forwarding cross-cluster quote", {
       user: `${message.author} (${message.author.id})`,
       guild: `${message.guild} (${message.guild.id})`,
@@ -190,8 +189,6 @@ export default class Quote extends Command {
       threadId?: Snowflake;
     }
   ) {
-    if (!webhook?.token) return;
-
     const shard = this.client.util.getShard(destination.guild_id);
     this.console.log(
       "Returning cross cluster quote due to forwarded message on another cluster",

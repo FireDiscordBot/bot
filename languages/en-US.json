@@ -1417,6 +1417,9 @@
   "QUOTE_EMBED_FOOTER_ALL": "Quoted by: {{user}} | #{{channel}} | {{guild}}",
   "QUOTE_EMBED_FOOTER_SOME": "Quoted by: {{user}} | #{{channel}}",
   "QUOTE_EMBED_FOOTER": "Quoted by: {{user}}",
+  "QUOTE_COMPONENTS_FOOTER_ALL": "-# Quoted by: {{user}} | #{{channel}} | {{guild}}",
+  "QUOTE_COMPONENTS_FOOTER_SOME": "-# Quoted by: {{user}} | #{{channel}}",
+  "QUOTE_COMPONENTS_FOOTER": "-# Quoted by: {{user}}",
   "QUOTE_SYSTSEM_MESSAGE_JOIN": {
     "JOIN_MESSAGE_0": "{{member}} has joined the party.",
     "JOIN_MESSAGE_1": "{{member}} is here.",

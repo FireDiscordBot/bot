@@ -19,6 +19,7 @@ import {
   FileComponent,
   GuildChannel,
   GuildTextBasedChannel,
+  HTTPAttachmentData,
   MediaGalleryComponent,
   MediaGalleryItem,
   Message,
@@ -34,14 +35,18 @@ import {
   SectionComponent,
   StageChannel,
   Structures,
+  TextDisplayComponent,
   ThreadChannel,
+  ThumbnailComponent,
   VoiceChannel,
   Webhook,
   WebhookClient,
 } from "discord.js";
-import { RawMessageData } from "discord.js/typings/rawDataTypes";
+import {
+  RawMessageData,
+  RawMessagePayloadData,
+} from "discord.js/typings/rawDataTypes";
 import Semaphore from "semaphore-async-await";
-import { BaseFakeChannel } from "../interfaces/misc";
 import { Range } from "../util/clientutil";
 import { LanguageKeys } from "../util/language";
 import { FireGuild } from "./guild";
@@ -52,6 +57,10 @@ import { FireUser } from "./user";
 const { regexes, imageExts, audioExts, videoExts } = constants;
 
 const EIGHT_MIB = 8_388_608;
+
+const isMediaAttachment = (attachment: MessageAttachment) =>
+  attachment.contentType.startsWith("image/") ||
+  attachment.contentType.startsWith("video/");
 
 export class FireMessage extends Message {
   declare channel:
@@ -508,6 +517,7 @@ export class FireMessage extends Message {
 
       const canUseAttachmentsInWebhook =
         !this.attachments.size ||
+        (!this.content && this.attachments.every(isMediaAttachment)) ||
         this.attachments.reduce((size, attach) => {
           if (
             attach.size + size > EIGHT_MIB &&
@@ -517,8 +527,7 @@ export class FireMessage extends Message {
             // we can append the url of this
             return size;
           return size + attach.size;
-        }, 0) <= EIGHT_MIB ||
-        !this.content;
+        }, 0) <= EIGHT_MIB;
       const useWebhooks = webhook
         ? true
         : (typeof destination.fetchWebhooks == "function" &&
@@ -533,7 +542,7 @@ export class FireMessage extends Message {
 
       return useWebhooks
         ? await this.webhookQuote(destination, quoter, webhook, thread, debug)
-        : await this.embedQuote(thread ?? destination, quoter, debug);
+        : await this.componentsQuote(destination, quoter, thread, debug);
     } else if (this.channel.type == "DM") {
       if (debug) debug.push("Message is in DMs");
       return "dm";
@@ -642,7 +651,7 @@ export class FireMessage extends Message {
 
     return useWebhooks
       ? await this.webhookQuote(destination, quoter, webhook, thread, debug)
-      : await this.embedQuote(thread ?? destination, quoter, debug);
+      : await this.componentsQuote(destination, quoter, thread, debug);
   }
 
   private async webhookQuote(
@@ -698,8 +707,10 @@ export class FireMessage extends Message {
           .catch(() => null);
         if (!hook) {
           if (debug)
-            debug.push("Failed to create webhook, falling back to embed quote");
-          return await this.embedQuote(destination, quoter);
+            debug.push(
+              "Failed to create webhook, falling back to component quote"
+            );
+          return await this.componentsQuote(destination, quoter, thread, debug);
         }
       }
     } else hook = destinationGuild?.quoteHooks.get(destination.id);
@@ -901,11 +912,7 @@ export class FireMessage extends Message {
       !components.length &&
       !this.embeds.length &&
       this.attachments.size &&
-      this.attachments.every(
-        (attachment) =>
-          attachment.contentType.startsWith("image/") ||
-          attachment.contentType.startsWith("video/")
-      ) &&
+      this.attachments.every(isMediaAttachment) &&
       canAttach
     ) {
       components = [
@@ -1247,8 +1254,1046 @@ export class FireMessage extends Message {
         if (debug) debug.push(`Encountered error while sending, ${e.message}`);
         if (debug && quoter.isSuperuser() && e instanceof DiscordAPIError)
           debug.push(`\`\`\`${JSON.stringify(e.requestData.json)}\`\`\``);
-        return await this.embedQuote(thread ?? destination, quoter);
+        return await this.componentsQuote(destination, quoter, thread, debug);
       });
+  }
+
+  // hello there, story time
+  // while working on this new style of quoting, I got locked out of my two Discord accounts
+  // turns out, discord flagged @gaminggeek.dev as being a disposable email provider
+  // and it was the most stressful 35 minutes of my life
+  // god bless nepotism, otherwise it would've been longer
+  // anyways, you probably don't care, but I wanted to immortalise this moment
+  private async componentsQuote(
+    destination:
+      | Exclude<GuildTextBasedChannel, ThreadChannel>
+      | PartialQuoteDestination,
+    quoter: FireMember | FireUser,
+    thread?: ThreadChannel,
+    debug?: string[]
+  ) {
+    let components: BaseMessageComponentV2[] = [],
+      attachments: {
+        attachment: Buffer;
+        name: string;
+        description?: string;
+      }[] = [];
+
+    if (quoter.hasExperiment(3468474178, 1)) {
+      const response = await this.componentsQuoteTreatment1(
+        destination,
+        quoter,
+        thread
+      );
+      if (!response) return;
+      components = response.components;
+      attachments = response.attachments;
+    } else if (quoter.hasExperiment(3468474178, 2)) {
+      const response = await this.componentsQuoteTreatment2(
+        destination,
+        quoter,
+        thread
+      );
+      if (!response) return;
+      components = response.components;
+      attachments = response.attachments;
+    } else if (quoter.hasExperiment(3468474178, 3)) {
+      const response = await this.componentsQuoteTreatment3(
+        destination,
+        quoter,
+        thread
+      );
+      if (!response) return;
+      components = response.components;
+      attachments = response.attachments;
+    } else if (quoter.hasExperiment(3468474178, 4)) {
+      const response = await this.componentsQuoteTreatment4(
+        destination,
+        quoter,
+        thread
+      );
+      if (!response) return;
+      components = response.components;
+      attachments = response.attachments;
+    } else if (quoter.hasExperiment(3468474178, 5)) {
+      const response = await this.componentsQuoteTreatment5(
+        destination,
+        quoter,
+        thread
+      );
+      if (!response) return;
+      components = response.components;
+      attachments = response.attachments;
+    }
+
+    if (!components.length && !attachments.length) return; // something fucked up idk idc bruh moment
+
+    if (thread)
+      return await thread
+        .send({
+          components,
+          files: attachments.map((data) =>
+            new MessageAttachment(data.attachment, data.name).setDescription(
+              data.description
+            )
+          ),
+        })
+        .catch(() => {});
+    else if (destination instanceof Channel)
+      return await destination.send({
+        components,
+        files: attachments.map((data) =>
+          new MessageAttachment(data.attachment, data.name).setDescription(
+            data.description
+          )
+        ),
+      });
+    else {
+      const payload = MessagePayload.create(quoter, {
+        components,
+        files: attachments.map((data) =>
+          new MessageAttachment(data.attachment, data.name).setDescription(
+            data.description
+          )
+        ),
+      }).resolveData();
+
+      const { data, files } = (await payload.resolveFiles()) as {
+        data: RawMessagePayloadData;
+        files: HTTPAttachmentData[];
+      };
+
+      return await this.client.req
+        .channels(destination.id)
+        .messages.post({ data, files })
+        .catch(() => {});
+    }
+  }
+
+  // Treatment 1: Everything is a single container
+  private async componentsQuoteTreatment1(
+    destination:
+      | Exclude<GuildTextBasedChannel, ThreadChannel>
+      | PartialQuoteDestination,
+    quoter: FireMember | FireUser,
+    thread?: ThreadChannel
+  ) {
+    const hasContent = !!this.content,
+      hasMedia = this.attachments.some(isMediaAttachment),
+      hasFile =
+        this.attachments.size && !this.attachments.every(isMediaAttachment),
+      isComponentsV2 = this.flags.has("IS_COMPONENTS_V2"),
+      legacyComponentsOnly = this.components.length && !isComponentsV2,
+      hasBotEmbed =
+        this.author.bot &&
+        this.embeds.some(
+          (embed) => !embed.url || !this.content.includes(embed.url)
+        );
+
+    // TODO: handle hasBotEmbed properly, since we can't exactly quote that here
+    // as components v2 prevents the use of standard fields (content, embeds etc.)
+    if (hasBotEmbed) return null;
+
+    const guild = (thread ?? destination).guild as FireGuild;
+    const { language } = guild ?? quoter;
+    const quoteFooter = language
+      .get(
+        this.channel != (thread ?? destination)
+          ? this.guild && this.guild.id != guild?.id
+            ? "QUOTE_COMPONENTS_FOOTER_ALL"
+            : "QUOTE_COMPONENTS_FOOTER_SOME"
+          : "QUOTE_COMPONENTS_FOOTER",
+        {
+          user: quoter.toString(),
+          channel: this.isSavedToQuote
+            ? this.savedQuoteData.name
+            : (this.channel as FireTextChannel).name,
+          guild: this.guild.name,
+        }
+      )
+      .trim();
+
+    const member =
+      this.member ??
+      ((await this.guild?.members
+        .fetch(this.author)
+        .catch(() => null)) as FireMember) ??
+      null;
+
+    let attachments: {
+      attachment: Buffer;
+      name: string;
+      description?: string;
+    }[] = [];
+
+    const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
+      EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
+    const canAttach =
+      destination instanceof GuildChannel && quoter instanceof FireMember
+        ? quoter.permissionsIn(destination).has(ATTACH_FILES)
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            ATTACH_FILES) ==
+          ATTACH_FILES;
+    const canEmbed =
+      destination instanceof GuildChannel && quoter instanceof FireMember
+        ? quoter.permissionsIn(destination).has(EMBED_LINKS)
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            EMBED_LINKS) ==
+          EMBED_LINKS;
+
+    const main = new ContainerComponent()
+      .setColor(
+        member?.displayColor ||
+          (quoter instanceof FireMember ? quoter.displayColor : null)
+      )
+      .addComponents(
+        new SectionComponent()
+          .setComponents(
+            new TextDisplayComponent({
+              content: `## ${
+                this.system &&
+                this.guild &&
+                this.reference?.guildId != this.guild.id
+                  ? this.guild?.name
+                  : member
+                    ? member.display.replaceAll("#0000", "")
+                    : this.author.display.replaceAll("#0000", "")
+              }${hasContent && this.content.length <= 2000 ? `\n${this.content}` : hasContent ? "" : `\n${quoteFooter}`}`,
+            })
+          )
+          .setAccessory(
+            new ThumbnailComponent().setMedia(
+              this.system && this.guild
+                ? this.guild.iconURL({
+                    size: 2048,
+                    format: "png",
+                  })
+                : (member ?? this.author).displayAvatarURL({
+                    size: 2048,
+                    format: "png",
+                  })
+            )
+          )
+      );
+    const additionalContainers = [] as ContainerComponent[];
+
+    if (hasContent && this.content.length > 2000)
+      main.addComponents(new TextDisplayComponent({ content: this.content }));
+    if (isComponentsV2) {
+      for (const [index, component] of this.components.entries()) {
+        if (component instanceof ContainerComponent && index == 0) {
+          for (const child of component.components) main.addComponents(child);
+        } else if (component instanceof ContainerComponent)
+          additionalContainers.push(component);
+        else main.addComponents(component);
+      }
+    }
+    if (hasMedia && (canEmbed || canAttach) && !isComponentsV2)
+      main.addComponents(
+        new MediaGalleryComponent().addItems(
+          this.attachments
+            .filter(isMediaAttachment)
+            .map((attachment) =>
+              new MediaGalleryItem()
+                .setMedia(attachment.url)
+                .setDescription(attachment.description)
+                .setSpoiler(attachment.spoiler)
+            )
+        )
+      );
+    if (hasFile && canAttach) {
+      const tooLargeAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size > EIGHT_MIB);
+
+      const finalAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size <= EIGHT_MIB);
+
+      const info = finalAttachments.map((attach) => ({
+        name: attach.name,
+        description: attach.description,
+      }));
+      const attachReqs = await Promise.all(
+        finalAttachments.map((attachment) =>
+          centra(attachment.url)
+            .header("User-Agent", this.client.manager.ua)
+            .send()
+            .catch(() => {})
+        )
+      ).catch(() => []);
+      for (const [index, req] of attachReqs.entries()) {
+        if (req && req.statusCode == 200)
+          attachments.push({
+            attachment: req.body,
+            name: info[index].name,
+            description: info[index].description,
+          });
+      }
+
+      if (finalAttachments.size)
+        main.addComponents(
+          finalAttachments.map((attachment) =>
+            new FileComponent()
+              .setFile(attachment.name)
+              .setSpoiler(attachment.spoiler)
+          )
+        );
+      if (tooLargeAttachments.size)
+        main.addComponents(
+          new TextDisplayComponent({
+            content: tooLargeAttachments.map((attach) => attach.url).join("\n"),
+          })
+        );
+    }
+    if (legacyComponentsOnly) main.addComponents(this.components);
+
+    if (hasContent)
+      main.addComponents(new TextDisplayComponent({ content: quoteFooter }));
+
+    return {
+      components: [main, ...additionalContainers],
+      attachments,
+    };
+  }
+
+  // Treatment 2: Nothing is a container unless originally a container
+  private async componentsQuoteTreatment2(
+    destination:
+      | Exclude<GuildTextBasedChannel, ThreadChannel>
+      | PartialQuoteDestination,
+    quoter: FireMember | FireUser,
+    thread?: ThreadChannel
+  ) {
+    const hasContent = !!this.content,
+      hasMedia = this.attachments.some(isMediaAttachment),
+      hasFile =
+        this.attachments.size && !this.attachments.every(isMediaAttachment),
+      isComponentsV2 = this.flags.has("IS_COMPONENTS_V2"),
+      legacyComponentsOnly = this.components.length && !isComponentsV2,
+      hasBotEmbed =
+        this.author.bot &&
+        this.embeds.some(
+          (embed) => !embed.url || !this.content.includes(embed.url)
+        );
+
+    // TODO: handle hasBotEmbed properly, since we can't exactly quote that here
+    // as components v2 prevents the use of standard fields (content, embeds etc.)
+    if (hasBotEmbed) return null;
+
+    const guild = (thread ?? destination).guild as FireGuild;
+    const { language } = guild ?? quoter;
+    const quoteFooter = language
+      .get(
+        this.channel != (thread ?? destination)
+          ? this.guild && this.guild.id != guild?.id
+            ? "QUOTE_COMPONENTS_FOOTER_ALL"
+            : "QUOTE_COMPONENTS_FOOTER_SOME"
+          : "QUOTE_COMPONENTS_FOOTER",
+        {
+          user: quoter.toString(),
+          channel: this.isSavedToQuote
+            ? this.savedQuoteData.name
+            : (this.channel as FireTextChannel).name,
+          guild: this.guild.name,
+        }
+      )
+      .trim();
+
+    const member =
+      this.member ??
+      ((await this.guild?.members
+        .fetch(this.author)
+        .catch(() => null)) as FireMember) ??
+      null;
+
+    let attachments: {
+      attachment: Buffer;
+      name: string;
+      description?: string;
+    }[] = [];
+
+    const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
+      EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
+    const canAttach =
+      destination instanceof GuildChannel && quoter instanceof FireMember
+        ? quoter.permissionsIn(destination).has(ATTACH_FILES)
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            ATTACH_FILES) ==
+          ATTACH_FILES;
+    const canEmbed =
+      destination instanceof GuildChannel && quoter instanceof FireMember
+        ? quoter.permissionsIn(destination).has(EMBED_LINKS)
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            EMBED_LINKS) ==
+          EMBED_LINKS;
+
+    const components = [
+      new SectionComponent()
+        .setComponents(
+          new TextDisplayComponent({
+            content: `## ${
+              this.system &&
+              this.guild &&
+              this.reference?.guildId != this.guild.id
+                ? this.guild?.name
+                : member
+                  ? member.display.replaceAll("#0000", "")
+                  : this.author.display.replaceAll("#0000", "")
+            }${hasContent && this.content.length <= 2000 ? `\n${this.content}` : hasContent ? "" : `\n${quoteFooter}`}`,
+          })
+        )
+        .setAccessory(
+          new ThumbnailComponent().setMedia(
+            this.system && this.guild
+              ? this.guild.iconURL({
+                  size: 2048,
+                  format: "png",
+                })
+              : (member ?? this.author).displayAvatarURL({
+                  size: 2048,
+                  format: "png",
+                })
+          )
+        ),
+    ] as BaseMessageComponentV2[];
+
+    const additionalContainers = [] as ContainerComponent[];
+
+    if (hasContent && this.content.length > 2000)
+      components.push(new TextDisplayComponent({ content: this.content }));
+    if (isComponentsV2) {
+      for (const component of this.components.values()) {
+        if (component instanceof ContainerComponent)
+          additionalContainers.push(component);
+        else components.push(component);
+      }
+    }
+    if (hasMedia && (canEmbed || canAttach) && !isComponentsV2)
+      components.push(
+        new MediaGalleryComponent().addItems(
+          this.attachments
+            .filter(isMediaAttachment)
+            .map((attachment) =>
+              new MediaGalleryItem()
+                .setMedia(attachment.url)
+                .setDescription(attachment.description)
+                .setSpoiler(attachment.spoiler)
+            )
+        )
+      );
+    if (hasFile && canAttach) {
+      const tooLargeAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size > EIGHT_MIB);
+
+      const finalAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size <= EIGHT_MIB);
+
+      const info = finalAttachments.map((attach) => ({
+        name: attach.name,
+        description: attach.description,
+      }));
+      const attachReqs = await Promise.all(
+        finalAttachments.map((attachment) =>
+          centra(attachment.url)
+            .header("User-Agent", this.client.manager.ua)
+            .send()
+            .catch(() => {})
+        )
+      ).catch(() => []);
+      for (const [index, req] of attachReqs.entries()) {
+        if (req && req.statusCode == 200)
+          attachments.push({
+            attachment: req.body,
+            name: info[index].name,
+            description: info[index].description,
+          });
+      }
+
+      if (finalAttachments.size)
+        components.push(
+          ...finalAttachments.map((attachment) =>
+            new FileComponent()
+              .setFile(attachment.name)
+              .setSpoiler(attachment.spoiler)
+          )
+        );
+      if (tooLargeAttachments.size)
+        components.push(
+          new TextDisplayComponent({
+            content: tooLargeAttachments.map((attach) => attach.url).join("\n"),
+          })
+        );
+    }
+    if (legacyComponentsOnly) components.push(...this.components);
+
+    if (hasContent)
+      components.push(new TextDisplayComponent({ content: quoteFooter }));
+
+    return {
+      components: [...components, ...additionalContainers],
+      attachments,
+    };
+  }
+
+  // Treatment 3: Quote info outside container, the rest inside
+  private async componentsQuoteTreatment3(
+    destination:
+      | Exclude<GuildTextBasedChannel, ThreadChannel>
+      | PartialQuoteDestination,
+    quoter: FireMember | FireUser,
+    thread?: ThreadChannel
+  ) {
+    const hasContent = !!this.content,
+      hasMedia = this.attachments.some(isMediaAttachment),
+      hasFile =
+        this.attachments.size && !this.attachments.every(isMediaAttachment),
+      isComponentsV2 = this.flags.has("IS_COMPONENTS_V2"),
+      legacyComponentsOnly = this.components.length && !isComponentsV2,
+      hasBotEmbed =
+        this.author.bot &&
+        this.embeds.some(
+          (embed) => !embed.url || !this.content.includes(embed.url)
+        );
+
+    // TODO: handle hasBotEmbed properly, since we can't exactly quote that here
+    // as components v2 prevents the use of standard fields (content, embeds etc.)
+    if (hasBotEmbed) return null;
+
+    const guild = (thread ?? destination).guild as FireGuild;
+    const { language } = guild ?? quoter;
+    const quoteFooter = language
+      .get(
+        this.channel != (thread ?? destination)
+          ? this.guild && this.guild.id != guild?.id
+            ? "QUOTE_COMPONENTS_FOOTER_ALL"
+            : "QUOTE_COMPONENTS_FOOTER_SOME"
+          : "QUOTE_COMPONENTS_FOOTER",
+        {
+          user: quoter.toString(),
+          channel: this.isSavedToQuote
+            ? this.savedQuoteData.name
+            : (this.channel as FireTextChannel).name,
+          guild: this.guild.name,
+        }
+      )
+      .trim();
+
+    const member =
+      this.member ??
+      ((await this.guild?.members
+        .fetch(this.author)
+        .catch(() => null)) as FireMember) ??
+      null;
+
+    let attachments: {
+      attachment: Buffer;
+      name: string;
+      description?: string;
+    }[] = [];
+
+    const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
+      EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
+    const canAttach =
+      destination instanceof GuildChannel && quoter instanceof FireMember
+        ? quoter.permissionsIn(destination).has(ATTACH_FILES)
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            ATTACH_FILES) ==
+          ATTACH_FILES;
+    const canEmbed =
+      destination instanceof GuildChannel && quoter instanceof FireMember
+        ? quoter.permissionsIn(destination).has(EMBED_LINKS)
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            EMBED_LINKS) ==
+          EMBED_LINKS;
+
+    const quoteInfo = new SectionComponent()
+      .setComponents(
+        new TextDisplayComponent({
+          content: `## ${
+            this.system &&
+            this.guild &&
+            this.reference?.guildId != this.guild.id
+              ? this.guild?.name
+              : member
+                ? member.display.replaceAll("#0000", "")
+                : this.author.display.replaceAll("#0000", "")
+          }\n${quoteFooter}`,
+        })
+      )
+      .setAccessory(
+        new ThumbnailComponent().setMedia(
+          this.system && this.guild
+            ? this.guild.iconURL({
+                size: 2048,
+                format: "png",
+              })
+            : (member ?? this.author).displayAvatarURL({
+                size: 2048,
+                format: "png",
+              })
+        )
+      );
+
+    const main = new ContainerComponent().setColor(
+      member?.displayColor ||
+        (quoter instanceof FireMember ? quoter.displayColor : null)
+    );
+    const additionalContainers = [] as ContainerComponent[];
+
+    if (hasContent)
+      main.addComponents(new TextDisplayComponent({ content: this.content }));
+    if (isComponentsV2) {
+      for (const [index, component] of this.components.entries()) {
+        if (component instanceof ContainerComponent && index == 0) {
+          for (const child of component.components) main.addComponents(child);
+        } else if (component instanceof ContainerComponent)
+          additionalContainers.push(component);
+        else main.addComponents(component);
+      }
+    }
+    if (hasMedia && (canEmbed || canAttach) && !isComponentsV2)
+      main.addComponents(
+        new MediaGalleryComponent().addItems(
+          this.attachments
+            .filter(isMediaAttachment)
+            .map((attachment) =>
+              new MediaGalleryItem()
+                .setMedia(attachment.url)
+                .setDescription(attachment.description)
+                .setSpoiler(attachment.spoiler)
+            )
+        )
+      );
+    if (hasFile && canAttach) {
+      const tooLargeAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size > EIGHT_MIB);
+
+      const finalAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size <= EIGHT_MIB);
+
+      const info = finalAttachments.map((attach) => ({
+        name: attach.name,
+        description: attach.description,
+      }));
+      const attachReqs = await Promise.all(
+        finalAttachments.map((attachment) =>
+          centra(attachment.url)
+            .header("User-Agent", this.client.manager.ua)
+            .send()
+            .catch(() => {})
+        )
+      ).catch(() => []);
+      for (const [index, req] of attachReqs.entries()) {
+        if (req && req.statusCode == 200)
+          attachments.push({
+            attachment: req.body,
+            name: info[index].name,
+            description: info[index].description,
+          });
+      }
+
+      if (finalAttachments.size)
+        main.addComponents(
+          finalAttachments.map((attachment) =>
+            new FileComponent()
+              .setFile(attachment.name)
+              .setSpoiler(attachment.spoiler)
+          )
+        );
+      if (tooLargeAttachments.size)
+        main.addComponents(
+          new TextDisplayComponent({
+            content: tooLargeAttachments.map((attach) => attach.url).join("\n"),
+          })
+        );
+    }
+    if (legacyComponentsOnly) main.addComponents(this.components);
+
+    return {
+      components: [quoteInfo, main, ...additionalContainers],
+      attachments,
+    };
+  }
+
+  // Treatment 4: Quote info in a container, the rest outside
+  private async componentsQuoteTreatment4(
+    destination:
+      | Exclude<GuildTextBasedChannel, ThreadChannel>
+      | PartialQuoteDestination,
+    quoter: FireMember | FireUser,
+    thread?: ThreadChannel
+  ) {
+    const hasContent = !!this.content,
+      hasMedia = this.attachments.some(isMediaAttachment),
+      hasFile =
+        this.attachments.size && !this.attachments.every(isMediaAttachment),
+      isComponentsV2 = this.flags.has("IS_COMPONENTS_V2"),
+      legacyComponentsOnly = this.components.length && !isComponentsV2,
+      hasBotEmbed =
+        this.author.bot &&
+        this.embeds.some(
+          (embed) => !embed.url || !this.content.includes(embed.url)
+        );
+
+    // TODO: handle hasBotEmbed properly, since we can't exactly quote that here
+    // as components v2 prevents the use of standard fields (content, embeds etc.)
+    if (hasBotEmbed) return null;
+
+    const guild = (thread ?? destination).guild as FireGuild;
+    const { language } = guild ?? quoter;
+    const quoteFooter = language
+      .get(
+        this.channel != (thread ?? destination)
+          ? this.guild && this.guild.id != guild?.id
+            ? "QUOTE_COMPONENTS_FOOTER_ALL"
+            : "QUOTE_COMPONENTS_FOOTER_SOME"
+          : "QUOTE_COMPONENTS_FOOTER",
+        {
+          user: quoter.toString(),
+          channel: this.isSavedToQuote
+            ? this.savedQuoteData.name
+            : (this.channel as FireTextChannel).name,
+          guild: this.guild.name,
+        }
+      )
+      .trim();
+
+    const member =
+      this.member ??
+      ((await this.guild?.members
+        .fetch(this.author)
+        .catch(() => null)) as FireMember) ??
+      null;
+
+    let attachments: {
+      attachment: Buffer;
+      name: string;
+      description?: string;
+    }[] = [];
+
+    const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
+      EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
+    const canAttach =
+      destination instanceof GuildChannel && quoter instanceof FireMember
+        ? quoter.permissionsIn(destination).has(ATTACH_FILES)
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            ATTACH_FILES) ==
+          ATTACH_FILES;
+    const canEmbed =
+      destination instanceof GuildChannel && quoter instanceof FireMember
+        ? quoter.permissionsIn(destination).has(EMBED_LINKS)
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            EMBED_LINKS) ==
+          EMBED_LINKS;
+
+    const main = new ContainerComponent()
+      .setColor(
+        member?.displayColor ||
+          (quoter instanceof FireMember ? quoter.displayColor : null)
+      )
+      .addComponents(
+        new SectionComponent()
+          .setComponents(
+            new TextDisplayComponent({
+              content: `## ${
+                this.system &&
+                this.guild &&
+                this.reference?.guildId != this.guild.id
+                  ? this.guild?.name
+                  : member
+                    ? member.display.replaceAll("#0000", "")
+                    : this.author.display.replaceAll("#0000", "")
+              }\n${quoteFooter}`,
+            })
+          )
+          .setAccessory(
+            new ThumbnailComponent().setMedia(
+              this.system && this.guild
+                ? this.guild.iconURL({
+                    size: 2048,
+                    format: "png",
+                  })
+                : (member ?? this.author).displayAvatarURL({
+                    size: 2048,
+                    format: "png",
+                  })
+            )
+          )
+      );
+    const components = [] as BaseMessageComponentV2[];
+
+    const additionalContainers = [] as ContainerComponent[];
+
+    if (hasContent && this.content.length > 2000)
+      components.push(new TextDisplayComponent({ content: this.content }));
+    if (isComponentsV2) {
+      for (const component of this.components.values()) {
+        if (component instanceof ContainerComponent)
+          additionalContainers.push(component);
+        else components.push(component);
+      }
+    }
+    if (hasMedia && (canEmbed || canAttach) && !isComponentsV2)
+      components.push(
+        new MediaGalleryComponent().addItems(
+          this.attachments
+            .filter(isMediaAttachment)
+            .map((attachment) =>
+              new MediaGalleryItem()
+                .setMedia(attachment.url)
+                .setDescription(attachment.description)
+                .setSpoiler(attachment.spoiler)
+            )
+        )
+      );
+    if (hasFile && canAttach) {
+      const tooLargeAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size > EIGHT_MIB);
+
+      const finalAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size <= EIGHT_MIB);
+
+      const info = finalAttachments.map((attach) => ({
+        name: attach.name,
+        description: attach.description,
+      }));
+      const attachReqs = await Promise.all(
+        finalAttachments.map((attachment) =>
+          centra(attachment.url)
+            .header("User-Agent", this.client.manager.ua)
+            .send()
+            .catch(() => {})
+        )
+      ).catch(() => []);
+      for (const [index, req] of attachReqs.entries()) {
+        if (req && req.statusCode == 200)
+          attachments.push({
+            attachment: req.body,
+            name: info[index].name,
+            description: info[index].description,
+          });
+      }
+
+      if (finalAttachments.size)
+        components.push(
+          ...finalAttachments.map((attachment) =>
+            new FileComponent()
+              .setFile(attachment.name)
+              .setSpoiler(attachment.spoiler)
+          )
+        );
+      if (tooLargeAttachments.size)
+        components.push(
+          new TextDisplayComponent({
+            content: tooLargeAttachments.map((attach) => attach.url).join("\n"),
+          })
+        );
+    }
+    if (legacyComponentsOnly) components.push(...this.components);
+
+    return {
+      components: [main, ...components, ...additionalContainers],
+      attachments,
+    };
+  }
+
+  // Treatment 5: Quote info in a container, the rest in a separate container
+  private async componentsQuoteTreatment5(
+    destination:
+      | Exclude<GuildTextBasedChannel, ThreadChannel>
+      | PartialQuoteDestination,
+    quoter: FireMember | FireUser,
+    thread?: ThreadChannel
+  ) {
+    const hasContent = !!this.content,
+      hasMedia = this.attachments.some(isMediaAttachment),
+      hasFile =
+        this.attachments.size && !this.attachments.every(isMediaAttachment),
+      isComponentsV2 = this.flags.has("IS_COMPONENTS_V2"),
+      legacyComponentsOnly = this.components.length && !isComponentsV2,
+      hasBotEmbed =
+        this.author.bot &&
+        this.embeds.some(
+          (embed) => !embed.url || !this.content.includes(embed.url)
+        );
+
+    // TODO: handle hasBotEmbed properly, since we can't exactly quote that here
+    // as components v2 prevents the use of standard fields (content, embeds etc.)
+    if (hasBotEmbed) return null;
+
+    const guild = (thread ?? destination).guild as FireGuild;
+    const { language } = guild ?? quoter;
+    const quoteFooter = language
+      .get(
+        this.channel != (thread ?? destination)
+          ? this.guild && this.guild.id != guild?.id
+            ? "QUOTE_COMPONENTS_FOOTER_ALL"
+            : "QUOTE_COMPONENTS_FOOTER_SOME"
+          : "QUOTE_COMPONENTS_FOOTER",
+        {
+          user: quoter.toString(),
+          channel: this.isSavedToQuote
+            ? this.savedQuoteData.name
+            : (this.channel as FireTextChannel).name,
+          guild: this.guild.name,
+        }
+      )
+      .trim();
+
+    const member =
+      this.member ??
+      ((await this.guild?.members
+        .fetch(this.author)
+        .catch(() => null)) as FireMember) ??
+      null;
+
+    let attachments: {
+      attachment: Buffer;
+      name: string;
+      description?: string;
+    }[] = [];
+
+    const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
+      EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
+    const canAttach =
+      destination instanceof GuildChannel && quoter instanceof FireMember
+        ? quoter.permissionsIn(destination).has(ATTACH_FILES)
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            ATTACH_FILES) ==
+          ATTACH_FILES;
+    const canEmbed =
+      destination instanceof GuildChannel && quoter instanceof FireMember
+        ? quoter.permissionsIn(destination).has(EMBED_LINKS)
+        : (BigInt((destination as PartialQuoteDestination).permissions) &
+            EMBED_LINKS) ==
+          EMBED_LINKS;
+
+    const quoteInfo = new ContainerComponent()
+      .setColor(
+        member?.displayColor ||
+          (quoter instanceof FireMember ? quoter.displayColor : null)
+      )
+      .addComponents(
+        new SectionComponent()
+          .setComponents(
+            new TextDisplayComponent({
+              content: `## ${
+                this.system &&
+                this.guild &&
+                this.reference?.guildId != this.guild.id
+                  ? this.guild?.name
+                  : member
+                    ? member.display.replaceAll("#0000", "")
+                    : this.author.display.replaceAll("#0000", "")
+              }\n${quoteFooter}`,
+            })
+          )
+          .setAccessory(
+            new ThumbnailComponent().setMedia(
+              this.system && this.guild
+                ? this.guild.iconURL({
+                    size: 2048,
+                    format: "png",
+                  })
+                : (member ?? this.author).displayAvatarURL({
+                    size: 2048,
+                    format: "png",
+                  })
+            )
+          )
+      );
+    const content = new ContainerComponent().setColor(
+      member?.displayColor ||
+        (quoter instanceof FireMember ? quoter.displayColor : null)
+    );
+
+    const additionalContainers = [] as ContainerComponent[];
+
+    if (hasContent && this.content.length > 2000)
+      content.addComponents(
+        new TextDisplayComponent({ content: this.content })
+      );
+    if (isComponentsV2) {
+      for (const [index, component] of this.components.entries()) {
+        if (component instanceof ContainerComponent && index == 0) {
+          for (const child of component.components)
+            content.addComponents(child);
+        } else if (component instanceof ContainerComponent)
+          additionalContainers.push(component);
+        else content.addComponents(component);
+      }
+    }
+    if (hasMedia && (canEmbed || canAttach) && !isComponentsV2)
+      content.addComponents(
+        new MediaGalleryComponent().addItems(
+          this.attachments
+            .filter(isMediaAttachment)
+            .map((attachment) =>
+              new MediaGalleryItem()
+                .setMedia(attachment.url)
+                .setDescription(attachment.description)
+                .setSpoiler(attachment.spoiler)
+            )
+        )
+      );
+    if (hasFile && canAttach) {
+      const tooLargeAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size > EIGHT_MIB);
+
+      const finalAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size <= EIGHT_MIB);
+
+      const info = finalAttachments.map((attach) => ({
+        name: attach.name,
+        description: attach.description,
+      }));
+      const attachReqs = await Promise.all(
+        finalAttachments.map((attachment) =>
+          centra(attachment.url)
+            .header("User-Agent", this.client.manager.ua)
+            .send()
+            .catch(() => {})
+        )
+      ).catch(() => []);
+      for (const [index, req] of attachReqs.entries()) {
+        if (req && req.statusCode == 200)
+          attachments.push({
+            attachment: req.body,
+            name: info[index].name,
+            description: info[index].description,
+          });
+      }
+
+      if (finalAttachments.size)
+        content.addComponents(
+          finalAttachments.map((attachment) =>
+            new FileComponent()
+              .setFile(attachment.name)
+              .setSpoiler(attachment.spoiler)
+          )
+        );
+      if (tooLargeAttachments.size)
+        content.addComponents(
+          new TextDisplayComponent({
+            content: tooLargeAttachments.map((attach) => attach.url).join("\n"),
+          })
+        );
+    }
+    if (legacyComponentsOnly) content.addComponents(this.components);
+
+    return {
+      components: [quoteInfo, content, ...additionalContainers],
+      attachments,
+    };
   }
 
   private isImageEmbed(embed: MessageEmbed) {
@@ -1270,142 +2315,6 @@ export class FireMessage extends Message {
         ((embedURL?.host == "imgur.com" || embedURL?.host == "i.imgur.com") &&
           thumbURL?.host == "i.imgur.com"))
     );
-  }
-
-  private async embedQuote(
-    destination: GuildTextBasedChannel | PartialQuoteDestination,
-    quoter: FireMember | FireUser,
-    debug?: string[]
-  ) {
-    // PartialQuoteDestination needs to be set for type here
-    // since this#quote can take either but it should never
-    // actually end up at this point
-    if (
-      !(destination instanceof Channel) &&
-      !(destination instanceof ThreadChannel)
-    ) {
-      if (debug) debug.push("Destination is not a channel or thread");
-      return;
-    }
-
-    if (this.flags.has("IS_COMPONENTS_V2")) {
-      if (debug)
-        debug.push("Cannot use embedQuote for a components v2 message");
-      return;
-    }
-
-    const { language } = (destination.guild as FireGuild) ?? quoter;
-    const extraEmbeds: MessageEmbed[] = [];
-    if (!this.content && this.author.bot && this.embeds.length) {
-      return await destination.send({
-        content: language.get("QUOTE_EMBED_FROM", {
-          author: this.author.toString(),
-          channel: this.isSavedToQuote
-            ? this.savedQuoteData.name
-            : (this.channel as FireTextChannel).name,
-        }),
-        embeds: this.embeds,
-      });
-    } else if (this.author.bot && this.embeds.length)
-      extraEmbeds.push(...this.embeds);
-    const member =
-      this.member ??
-      ((await this.guild?.members
-        .fetch(this.author)
-        .catch(() => null)) as FireMember) ??
-      null;
-    const embed = new MessageEmbed()
-      .setColor(
-        member?.displayColor ||
-          (quoter instanceof FireMember ? quoter.displayColor : null)
-      )
-      .setTimestamp(this.createdAt)
-      .setAuthor({
-        name: member
-          ? member.display.replace(/#0000/gim, "")
-          : this.author.display.replace(/#0000/gim, ""),
-        iconURL: (member ?? this.author).displayAvatarURL({
-          size: 2048,
-          format: "png",
-          dynamic: true,
-        }),
-      });
-    if (this.content) {
-      let content = this.system ? await this.getSystemContent() : this.content;
-      const imageMatches = regexes.imageURL.exec(content);
-      if (imageMatches) {
-        embed.setImage(imageMatches[0]);
-        content = content.replaceAll(imageMatches[0], "");
-      }
-      const filters = this.client.getModule("filters") as Filters;
-      content = await filters.runReplace(content, quoter);
-      embed.setDescription(content);
-    }
-    embed.addFields({
-      name: language.get("JUMP_URL"),
-      value: `[${language.get("CLICK_TO_VIEW")}](${this.url})`,
-    });
-    const ATTACH_FILES = PermissionFlagsBits.AttachFiles;
-    if (
-      this.attachments?.size &&
-      (quoter instanceof FireMember
-        ? quoter
-            .permissionsIn(
-              destination instanceof BaseFakeChannel
-                ? (destination.real as GuildTextBasedChannel)
-                : destination
-            )
-            .has(ATTACH_FILES)
-        : (BigInt(
-            (destination as unknown as PartialQuoteDestination)?.permissions ||
-              "0"
-          ) &
-            ATTACH_FILES) ==
-          ATTACH_FILES)
-    ) {
-      if (
-        this.attachments.size == 1 &&
-        imageExts.filter((ext) =>
-          this.attachments.first().name.toLowerCase().endsWith(ext)
-        ).length &&
-        !embed.image?.url
-      )
-        embed.setImage(this.attachments.first().url);
-      else
-        embed.addFields(
-          this.attachments.map((attachment) => ({
-            name: language.get("ATTACHMENT"),
-            value: `[${attachment.name}](${attachment.url})`,
-          }))
-        );
-    }
-    if (this.channel != destination) {
-      if (this.guild && this.guild.id != destination.guild?.id)
-        embed.setFooter({
-          text: language.get("QUOTE_EMBED_FOOTER_ALL", {
-            user: quoter.toString(),
-            channel: this.isSavedToQuote
-              ? this.savedQuoteData.name
-              : (this.channel as FireTextChannel).name,
-            guild: this.guild.name,
-          }),
-        });
-      else
-        embed.setFooter({
-          text: language.get("QUOTE_EMBED_FOOTER_SOME", {
-            user: quoter.toString(),
-            channel: this.isSavedToQuote
-              ? this.savedQuoteData.name
-              : (this.channel as FireTextChannel).name,
-          }),
-        });
-    } else
-      embed.setFooter({
-        text: language.get("QUOTE_EMBED_FOOTER", { user: quoter.toString() }),
-      });
-    return await destination
-      .send({ embeds: [embed, ...extraEmbeds], components: this.components })
-      .catch(() => {});
   }
 
   async star(

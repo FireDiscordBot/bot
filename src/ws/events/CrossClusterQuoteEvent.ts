@@ -29,7 +29,7 @@ export default class CrossClusterQuote extends Event {
     data: MessageLinkMatch & {
       destination: PartialQuoteDestination;
       quoter: Snowflake;
-      webhook: {
+      webhook?: {
         id: Snowflake;
         token: string;
         threadId?: Snowflake;
@@ -62,17 +62,19 @@ export default class CrossClusterQuote extends Event {
         return await saved.quote(
           destination,
           quoter,
-          new ThreadhookClient(
-            { id: data.webhook.id, token: data.webhook.token },
-            { threadId: data.webhook.threadId }
-          )
+          data.webhook
+            ? new ThreadhookClient(
+                { id: data.webhook.id, token: data.webhook.token },
+                { threadId: data.webhook.threadId }
+              )
+            : undefined
         );
       }
     }
 
     let guild = this.client.guilds.cache.get(data.guild_id) as FireGuild;
     if (!guild) return;
-    destination.guild = guild;
+    if (guild.id == destination.guild_id) destination.guild = guild;
     const member = (await guild.members
       .fetch(data.quoter)
       .catch(() => {})) as FireMember;
@@ -141,10 +143,12 @@ export default class CrossClusterQuote extends Event {
       await message.quote(
         destination,
         member,
-        new ThreadhookClient(
-          { id: data.webhook.id, token: data.webhook.token },
-          { threadId: data.webhook.threadId }
-        )
+        data.webhook
+          ? new ThreadhookClient(
+              { id: data.webhook.id, token: data.webhook.token },
+              { threadId: data.webhook.threadId }
+            )
+          : undefined
       );
 
     if (data.iteratedMessages)
@@ -152,10 +156,12 @@ export default class CrossClusterQuote extends Event {
         await iterated.quote(
           destination,
           member,
-          new ThreadhookClient(
-            { id: data.webhook.id, token: data.webhook.token },
-            { threadId: data.webhook.threadId }
-          )
+          data.webhook
+            ? new ThreadhookClient(
+                { id: data.webhook.id, token: data.webhook.token },
+                { threadId: data.webhook.threadId }
+              )
+            : undefined
         );
   }
 }
