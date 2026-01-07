@@ -24,7 +24,7 @@ export default class IdentityResetBio extends Command {
       .members("@me")
       .patch({
         data: {
-          bio: null,
+          bio: "", // null currently not accepted, discord-api-docs#8067
         },
       })
       .catch(() => {});
