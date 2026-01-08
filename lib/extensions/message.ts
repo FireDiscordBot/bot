@@ -1493,6 +1493,7 @@ export class FireMessage extends Message {
       main.addComponents(new TextDisplayComponent({ content }));
     if (singleEmbedNoFields) {
       const embed = this.embeds.at(0);
+      const isVideoEmbed = !!embed.video?.url;
       if (embed.title)
         main.addComponents(
           new TextDisplayComponent({
@@ -1517,10 +1518,16 @@ export class FireMessage extends Message {
             new MediaGalleryItem().setMedia(embed.image.url)
           )
         );
-      if (embed.thumbnail?.url && !embed.image)
+      if (embed.thumbnail?.url && !embed.image && !isVideoEmbed)
         main.addComponents(
           new MediaGalleryComponent().addItems(
             new MediaGalleryItem().setMedia(embed.thumbnail.url)
+          )
+        );
+      if (isVideoEmbed)
+        main.addComponents(
+          new MediaGalleryComponent().addItems(
+            new MediaGalleryItem().setMedia(embed.video.url)
           )
         );
     }
@@ -2765,6 +2772,7 @@ export class FireMessage extends Message {
 
     if (singleEmbedNoFields) {
       const embed = this.embeds.at(0);
+      const isVideoEmbed = !!embed.video?.url;
       if (embed.title)
         container.addComponents(
           new TextDisplayComponent({
@@ -2789,10 +2797,16 @@ export class FireMessage extends Message {
             new MediaGalleryItem().setMedia(embed.image.url)
           )
         );
-      if (embed.thumbnail?.url && !embed.image)
+      if (embed.thumbnail?.url && !embed.image && !isVideoEmbed)
         container.addComponents(
           new MediaGalleryComponent().addItems(
             new MediaGalleryItem().setMedia(embed.thumbnail.url)
+          )
+        );
+      if (isVideoEmbed)
+        container.addComponents(
+          new MediaGalleryComponent().addItems(
+            new MediaGalleryItem().setMedia(embed.video.url)
           )
         );
     }
