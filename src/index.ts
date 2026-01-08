@@ -44,8 +44,8 @@ const version =
   process.env.NODE_ENV == "development"
     ? `dev-${getCommitHash().slice(0, 7)}`
     : process.env.NODE_ENV == "staging"
-    ? `stg-${getCommitHash().slice(0, 7)}`
-    : getCommitHash().slice(0, 7);
+      ? `stg-${getCommitHash().slice(0, 7)}`
+      : getCommitHash().slice(0, 7);
 
 const loadSentry =
   typeof process.env.SENTRY_DSN != "undefined" &&
@@ -55,6 +55,11 @@ if (loadSentry) {
     dsn: process.env.SENTRY_DSN,
     release: `fire@${version}`,
     environment: process.env.NODE_ENV,
+    integrations: [
+      sentry.extraErrorDataIntegration({
+        depth: 3,
+      }),
+    ],
     beforeBreadcrumb: (breadcrumb) => {
       if (breadcrumb.type != "http") return breadcrumb;
       else if (breadcrumb.data?.url?.includes("/webhooks/")) {
