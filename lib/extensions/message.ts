@@ -28,6 +28,7 @@ import {
   MessageAttachment,
   MessageButton,
   MessageEmbed,
+  MessageFlags,
   MessagePayload,
   MessageReaction,
   MessageSelectMenu,
@@ -44,6 +45,7 @@ import {
   Webhook,
   WebhookClient,
 } from "discord.js";
+import { MessageButtonStyles } from "discord.js/typings/enums";
 import {
   RawMessageData,
   RawMessagePayloadData,
@@ -63,6 +65,13 @@ const EIGHT_MIB = 8_388_608;
 const isMediaAttachment = (attachment: MessageAttachment) =>
   attachment.contentType.startsWith("image/") ||
   attachment.contentType.startsWith("video/");
+
+type RawAttachmentDataArray = {
+  attachment: Buffer;
+  name: string;
+  description?: string;
+  spoiler?: boolean;
+}[];
 
 export class FireMessage extends Message {
   declare channel:
@@ -887,11 +896,7 @@ export class FireMessage extends Message {
             })
           );
       }
-    let attachments: {
-      attachment: Buffer;
-      name: string;
-      description?: string;
-    }[] = [];
+    const attachments: RawAttachmentDataArray = [];
     let components = this.components;
 
     const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
@@ -942,6 +947,7 @@ export class FireMessage extends Message {
       const info = finalAttachments.map((attach) => ({
         name: attach.name,
         description: attach.description,
+        spoiler: attach.spoiler,
       }));
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
@@ -957,6 +963,7 @@ export class FireMessage extends Message {
             attachment: req.body,
             name: info[index].name,
             description: info[index].description,
+            spoiler: info[index].spoiler,
           });
       }
     }
@@ -1174,10 +1181,9 @@ export class FireMessage extends Message {
                     }),
               allowedMentions: this.client.options.allowedMentions,
               files: attachments.map((data) =>
-                new MessageAttachment(
-                  data.attachment,
-                  data.name
-                ).setDescription(data.description)
+                new MessageAttachment(data.attachment, data.name)
+                  .setDescription(data.description)
+                  .setSpoiler(data.spoiler)
               ),
             }
           : {
@@ -1200,10 +1206,9 @@ export class FireMessage extends Message {
                     }),
               embeds: isAutomod ? automodEmbeds : embeds,
               files: attachments.map((data) =>
-                new MessageAttachment(
-                  data.attachment,
-                  data.name
-                ).setDescription(data.description)
+                new MessageAttachment(data.attachment, data.name)
+                  .setDescription(data.description)
+                  .setSpoiler(data.spoiler)
               ),
               allowedMentions: this.client.options.allowedMentions,
               threadId: thread?.id,
@@ -1275,11 +1280,7 @@ export class FireMessage extends Message {
     debug?: string[]
   ) {
     let components: BaseMessageComponentV2[] = [],
-      attachments: {
-        attachment: Buffer;
-        name: string;
-        description?: string;
-      }[] = [];
+      attachments: RawAttachmentDataArray = [];
 
     if (quoter.hasExperiment(3468474178, 1)) {
       const response = await this.componentsQuoteTreatment1(
@@ -1335,9 +1336,9 @@ export class FireMessage extends Message {
         .send({
           components,
           files: attachments.map((data) =>
-            new MessageAttachment(data.attachment, data.name).setDescription(
-              data.description
-            )
+            new MessageAttachment(data.attachment, data.name)
+              .setDescription(data.description)
+              .setSpoiler(data.spoiler)
           ),
         })
         .catch(() => {});
@@ -1345,18 +1346,18 @@ export class FireMessage extends Message {
       return await destination.send({
         components,
         files: attachments.map((data) =>
-          new MessageAttachment(data.attachment, data.name).setDescription(
-            data.description
-          )
+          new MessageAttachment(data.attachment, data.name)
+            .setDescription(data.description)
+            .setSpoiler(data.spoiler)
         ),
       });
     else {
       const payload = MessagePayload.create(quoter, {
         components,
         files: attachments.map((data) =>
-          new MessageAttachment(data.attachment, data.name).setDescription(
-            data.description
-          )
+          new MessageAttachment(data.attachment, data.name)
+            .setDescription(data.description)
+            .setSpoiler(data.spoiler)
         ),
       }).resolveData();
 
@@ -1422,11 +1423,7 @@ export class FireMessage extends Message {
         .catch(() => null)) as FireMember) ??
       null;
 
-    let attachments: {
-      attachment: Buffer;
-      name: string;
-      description?: string;
-    }[] = [];
+    const attachments: RawAttachmentDataArray = [];
 
     const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
       EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
@@ -1482,7 +1479,7 @@ export class FireMessage extends Message {
             )
           )
       );
-    const additionalContainers = [] as ContainerComponent[];
+    const additionalContainers: ContainerComponent[] = [];
 
     if (hasContent && content.length > 2000)
       main.addComponents(new TextDisplayComponent({ content }));
@@ -1521,6 +1518,7 @@ export class FireMessage extends Message {
       const info = finalAttachments.map((attach) => ({
         name: attach.name,
         description: attach.description,
+        spoiler: attach.spoiler,
       }));
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
@@ -1536,6 +1534,7 @@ export class FireMessage extends Message {
             attachment: req.body,
             name: info[index].name,
             description: info[index].description,
+            spoiler: info[index].spoiler,
           });
       }
 
@@ -1678,11 +1677,7 @@ export class FireMessage extends Message {
         .catch(() => null)) as FireMember) ??
       null;
 
-    let attachments: {
-      attachment: Buffer;
-      name: string;
-      description?: string;
-    }[] = [];
+    const attachments: RawAttachmentDataArray = [];
 
     const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
       EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
@@ -1729,7 +1724,7 @@ export class FireMessage extends Message {
         ),
     ] as BaseMessageComponentV2[];
 
-    const additionalContainers = [] as ContainerComponent[];
+    const additionalContainers: ContainerComponent[] = [];
 
     if (hasContent && this.content.length > 2000)
       components.push(new TextDisplayComponent({ content: this.content }));
@@ -1765,6 +1760,7 @@ export class FireMessage extends Message {
       const info = finalAttachments.map((attach) => ({
         name: attach.name,
         description: attach.description,
+        spoiler: attach.spoiler,
       }));
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
@@ -1780,6 +1776,7 @@ export class FireMessage extends Message {
             attachment: req.body,
             name: info[index].name,
             description: info[index].description,
+            spoiler: info[index].spoiler,
           });
       }
 
@@ -1859,11 +1856,7 @@ export class FireMessage extends Message {
         .catch(() => null)) as FireMember) ??
       null;
 
-    let attachments: {
-      attachment: Buffer;
-      name: string;
-      description?: string;
-    }[] = [];
+    const attachments: RawAttachmentDataArray = [];
 
     const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
       EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
@@ -1912,7 +1905,7 @@ export class FireMessage extends Message {
       member?.displayColor ||
         (quoter instanceof FireMember ? quoter.displayColor : null)
     );
-    const additionalContainers = [] as ContainerComponent[];
+    const additionalContainers: ContainerComponent[] = [];
 
     if (hasContent)
       main.addComponents(new TextDisplayComponent({ content: this.content }));
@@ -1950,6 +1943,7 @@ export class FireMessage extends Message {
       const info = finalAttachments.map((attach) => ({
         name: attach.name,
         description: attach.description,
+        spoiler: attach.spoiler,
       }));
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
@@ -1965,6 +1959,7 @@ export class FireMessage extends Message {
             attachment: req.body,
             name: info[index].name,
             description: info[index].description,
+            spoiler: info[index].spoiler,
           });
       }
 
@@ -2041,11 +2036,7 @@ export class FireMessage extends Message {
         .catch(() => null)) as FireMember) ??
       null;
 
-    let attachments: {
-      attachment: Buffer;
-      name: string;
-      description?: string;
-    }[] = [];
+    const attachments: RawAttachmentDataArray = [];
 
     const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
       EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
@@ -2098,7 +2089,7 @@ export class FireMessage extends Message {
       );
     const components = [] as BaseMessageComponentV2[];
 
-    const additionalContainers = [] as ContainerComponent[];
+    const additionalContainers: ContainerComponent[] = [];
 
     if (hasContent && this.content.length > 2000)
       components.push(new TextDisplayComponent({ content: this.content }));
@@ -2134,6 +2125,7 @@ export class FireMessage extends Message {
       const info = finalAttachments.map((attach) => ({
         name: attach.name,
         description: attach.description,
+        spoiler: attach.spoiler,
       }));
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
@@ -2149,6 +2141,7 @@ export class FireMessage extends Message {
             attachment: req.body,
             name: info[index].name,
             description: info[index].description,
+            spoiler: info[index].spoiler,
           });
       }
 
@@ -2225,11 +2218,7 @@ export class FireMessage extends Message {
         .catch(() => null)) as FireMember) ??
       null;
 
-    let attachments: {
-      attachment: Buffer;
-      name: string;
-      description?: string;
-    }[] = [];
+    const attachments: RawAttachmentDataArray = [];
 
     const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
       EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
@@ -2285,7 +2274,7 @@ export class FireMessage extends Message {
         (quoter instanceof FireMember ? quoter.displayColor : null)
     );
 
-    const additionalContainers = [] as ContainerComponent[];
+    const additionalContainers: ContainerComponent[] = [];
 
     if (hasContent && this.content.length > 2000)
       content.addComponents(
@@ -2326,6 +2315,7 @@ export class FireMessage extends Message {
       const info = finalAttachments.map((attach) => ({
         name: attach.name,
         description: attach.description,
+        spoiler: attach.spoiler,
       }));
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
@@ -2341,6 +2331,7 @@ export class FireMessage extends Message {
             attachment: req.body,
             name: info[index].name,
             description: info[index].description,
+            spoiler: info[index].spoiler,
           });
       }
 
@@ -2397,6 +2388,10 @@ export class FireMessage extends Message {
 
     // same condition, checks if still partial
     if (this.partial) return;
+
+    // we're no longer allowing bot embed messages to be starred
+    // since we can't use embeds with components v2
+    if (this.author.bot && this.embeds.length) return;
 
     const starEmoji: string = this.guild.settings
       .get("starboard.emoji", "⭐")
@@ -2469,10 +2464,10 @@ export class FireMessage extends Message {
       setTimeout(() => {
         this.starLock.release();
       }, 3500);
-      const [content, embed] = this.getStarboardMessage(
-        emoji,
-        this.guild.starboardReactions.get(this.id)
-      );
+      // const [content, embed] = this.getStarboardMessage(
+      //   emoji,
+      //   this.guild.starboardReactions.get(this.id)
+      // );
       if (this.guild.starboardMessages.has(this.id)) {
         const message = (await starboard.messages
           .fetch(this.guild.starboardMessages.get(this.id))
@@ -2489,13 +2484,41 @@ export class FireMessage extends Message {
               );
             }
           })) as FireMessage;
-        if (message)
+        if (message) {
+          const [components, attachments] = await this.getStarboardContainer(
+            emoji,
+            this.guild.starboardReactions.get(this.id)
+          );
           return await message
-            .edit({ content, embeds: [embed] })
+            // .edit({ content, embeds: [embed] })
+            .edit({
+              content: null,
+              embeds: [],
+              flags: MessageFlags.FLAGS.IS_COMPONENTS_V2,
+              components,
+              files: attachments.map((data) =>
+                new MessageAttachment(data.attachment, data.name)
+                  .setDescription(data.description)
+                  .setSpoiler(data.spoiler)
+              ),
+            })
             .catch(() => {});
+        }
       } else {
+        const [components, attachments] = await this.getStarboardContainer(
+          emoji,
+          this.guild.starboardReactions.get(this.id)
+        );
         const message = await starboard
-          .send({ content, embeds: [embed] })
+          // .send({ content, embeds: [embed] })
+          .send({
+            components,
+            files: attachments.map((data) =>
+              new MessageAttachment(data.attachment, data.name)
+                .setDescription(data.description)
+                .setSpoiler(data.spoiler)
+            ),
+          })
           .catch(() => {});
         if (!message) return;
         this.guild.starboardMessages.set(this.id, message.id);
@@ -2627,6 +2650,130 @@ export class FireMessage extends Message {
         value: `[${this.guild.language.get("STARBOARD_JUMP_TO")}](${this.url})`,
       });
     return [`${emoji} **${stars}** | ${this.channel}`, embed];
+  }
+
+  async getStarboardContainer(
+    emoji: string,
+    stars: number
+  ): Promise<[ContainerComponent[], RawAttachmentDataArray]> {
+    const container = new ContainerComponent()
+      .setColor(this.member?.displayColor || "#FFFFFF")
+      .addComponents(
+        new SectionComponent()
+          .setComponents(
+            new TextDisplayComponent({
+              content: `# ${(this.member ?? this.author).display} | ${this.channel}`,
+            })
+          )
+          .setAccessory(
+            new ThumbnailComponent().setMedia(
+              (this.member ?? this.author).displayAvatarURL({
+                size: 2048,
+                format: "png",
+                dynamic: true,
+              })
+            )
+          )
+      );
+    const additionalContainers: ContainerComponent[] = [];
+    const attachments: RawAttachmentDataArray = [];
+
+    if (this.content)
+      container.addComponents(
+        new TextDisplayComponent({ content: this.content })
+      );
+    const isComponentsV2 = this.flags.has("IS_COMPONENTS_V2");
+    if (isComponentsV2) {
+      for (const [index, component] of this.components.entries()) {
+        if (component instanceof ContainerComponent && index == 0) {
+          for (const child of component.components)
+            container.addComponents(child);
+        } else if (component instanceof ContainerComponent)
+          additionalContainers.push(component);
+        else container.addComponents(component);
+      }
+    }
+
+    if (this.attachments.some(isMediaAttachment) && !isComponentsV2)
+      container.addComponents(
+        new MediaGalleryComponent().addItems(
+          this.attachments
+            .filter(isMediaAttachment)
+            .map((attachment) =>
+              new MediaGalleryItem()
+                .setMedia(attachment.url)
+                .setDescription(attachment.description)
+                .setSpoiler(attachment.spoiler)
+            )
+        )
+      );
+    if (this.attachments.some((attachment) => !isMediaAttachment(attachment))) {
+      const tooLargeAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size > EIGHT_MIB);
+
+      const finalAttachments = this.attachments
+        .filter((attachment) => !isMediaAttachment(attachment))
+        .filter((a) => a.size <= EIGHT_MIB);
+
+      const info = finalAttachments.map((attach) => ({
+        name: attach.name,
+        description: attach.description,
+        spoiler: attach.spoiler,
+      }));
+      const attachReqs = await Promise.all(
+        finalAttachments.map((attachment) =>
+          centra(attachment.url)
+            .header("User-Agent", this.client.manager.ua)
+            .send()
+            .catch(() => {})
+        )
+      ).catch(() => []);
+      for (const [index, req] of attachReqs.entries()) {
+        if (req && req.statusCode == 200)
+          attachments.push({
+            attachment: req.body,
+            name: info[index].name,
+            description: info[index].description,
+            spoiler: info[index].spoiler,
+          });
+      }
+
+      if (finalAttachments.size)
+        container.addComponents(
+          finalAttachments.map((attachment) =>
+            new FileComponent()
+              .setFile(attachment.name)
+              .setSpoiler(attachment.spoiler)
+          )
+        );
+      if (tooLargeAttachments.size)
+        container.addComponents(
+          new TextDisplayComponent({
+            content: tooLargeAttachments.map((attach) => attach.url).join("\n"),
+          })
+        );
+    }
+
+    const legacyComponentsOnly = this.components.length && !isComponentsV2;
+    if (legacyComponentsOnly) container.addComponents(this.components);
+
+    container.addComponents(
+      new MessageActionRow().addComponents(
+        new MessageButton()
+          .setStyle(MessageButtonStyles.SECONDARY)
+          .setEmoji(emoji)
+          .setLabel(stars.toLocaleString())
+          .setDisabled(true)
+          .setCustomId("lol"),
+        new MessageButton()
+          .setStyle(MessageButtonStyles.LINK)
+          .setLabel(this.guild.language.get("STARBOARD_JUMP_TO"))
+          .setURL(this.url)
+      )
+    );
+
+    return [[container, ...additionalContainers], attachments];
   }
 
   async runAntiFilters() {
