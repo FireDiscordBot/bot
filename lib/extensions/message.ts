@@ -2727,7 +2727,7 @@ export class FireMessage extends Message {
         new SectionComponent()
           .setComponents(
             new TextDisplayComponent({
-              content: `# ${(this.member ?? this.author).display} | ${this.channel}${contentOnlyEmbedLink ? `\n${this.content}` : ""}`,
+              content: `## ${(this.member ?? this.author).display}${contentOnlyEmbedLink ? `\n${this.channel}\n${this.content}` : `\n${this.channel}`}`,
             })
           )
           .setAccessory(
