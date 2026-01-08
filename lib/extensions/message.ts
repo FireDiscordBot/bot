@@ -1379,6 +1379,7 @@ export class FireMessage extends Message {
     thread?: ThreadChannel
   ) {
     const hasContent = !!this.content,
+      content = this.system ? await this.getSystemContent() : this.content,
       hasMedia = this.attachments.some(isMediaAttachment),
       hasFile =
         this.attachments.size && !this.attachments.every(isMediaAttachment),
@@ -1386,9 +1387,7 @@ export class FireMessage extends Message {
       legacyComponentsOnly = this.components.length && !isComponentsV2,
       hasBotEmbed =
         this.author.bot &&
-        this.embeds.some(
-          (embed) => !embed.url || !this.content.includes(embed.url)
-        );
+        this.embeds.some((embed) => !embed.url || !content.includes(embed.url));
 
     // TODO: handle hasBotEmbed properly, since we can't exactly quote that here
     // as components v2 prevents the use of standard fields (content, embeds etc.)
@@ -1458,7 +1457,7 @@ export class FireMessage extends Message {
                   : member
                     ? member.display.replaceAll("#0000", "")
                     : this.author.display.replaceAll("#0000", "")
-              }${hasContent && this.content.length <= 2000 ? `\n${this.content}` : hasContent ? "" : `\n${quoteFooter}`}`,
+              }${hasContent && content.length <= 2000 ? `\n${content}` : hasContent ? "" : `\n${quoteFooter}`}`,
             })
           )
           .setAccessory(
@@ -1477,8 +1476,8 @@ export class FireMessage extends Message {
       );
     const additionalContainers = [] as ContainerComponent[];
 
-    if (hasContent && this.content.length > 2000)
-      main.addComponents(new TextDisplayComponent({ content: this.content }));
+    if (hasContent && content.length > 2000)
+      main.addComponents(new TextDisplayComponent({ content }));
     if (isComponentsV2) {
       for (const [index, component] of this.components.entries()) {
         if (component instanceof ContainerComponent && index == 0) {
