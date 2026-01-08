@@ -1499,7 +1499,7 @@ export class FireMessage extends Message {
             content: Formatters.bold(embed.title),
           })
         );
-      if (embed.author?.name)
+      if (embed.author?.name && embed.author.name != embed.description)
         main.addComponents(
           new TextDisplayComponent({
             content: Formatters.bold(embed.author.name),
@@ -2771,7 +2771,7 @@ export class FireMessage extends Message {
             content: Formatters.bold(embed.title),
           })
         );
-      if (embed.author?.name)
+      if (embed.author?.name && embed.author.name != embed.description)
         container.addComponents(
           new TextDisplayComponent({
             content: Formatters.bold(embed.author.name),
