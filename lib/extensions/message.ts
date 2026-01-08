@@ -1480,12 +1480,14 @@ export class FireMessage extends Message {
 
     const singleEmbedNoFields =
       this.embeds.length == 1 && !this.embeds.at(0).fields.length;
-    const areEmbedsMediaGallery = this.embeds.every(
-      (embed) =>
-        embed.url &&
-        this.content.includes(new URL(embed.url).pathname) &&
-        !!embed.image?.url
-    );
+    const areEmbedsMediaGallery =
+      this.embeds.length &&
+      this.embeds.every(
+        (embed) =>
+          embed.url &&
+          this.content.includes(new URL(embed.url).pathname) &&
+          !!embed.image?.url
+      );
 
     if (hasContent && content.length > 2000)
       main.addComponents(new TextDisplayComponent({ content }));
@@ -2736,12 +2738,14 @@ export class FireMessage extends Message {
 
     const singleEmbedNoFields =
       this.embeds.length == 1 && !this.embeds.at(0).fields.length;
-    const areEmbedsMediaGallery = this.embeds.every(
-      (embed) =>
-        embed.url &&
-        this.content.includes(new URL(embed.url).pathname) &&
-        !!embed.image?.url
-    );
+    const areEmbedsMediaGallery =
+      this.embeds.length &&
+      this.embeds.every(
+        (embed) =>
+          embed.url &&
+          this.content.includes(new URL(embed.url).pathname) &&
+          !!embed.image?.url
+      );
 
     if (this.content && !contentOnlyEmbedLink)
       container.addComponents(
