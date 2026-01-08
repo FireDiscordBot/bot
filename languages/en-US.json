@@ -1413,9 +1413,24 @@
   "QUOTE_WEBHOOK_CREATE_REASON": "This webhook will be used for quoting messages in this channel",
   "QUOTE_AUTOMOD_USERNAME": "AutoMod has blocked a message",
   "QUOTE_AUTOMOD_CONTENT": "Rule: {{rule}}\nChannel: {{channel}}",
-  "QUOTE_COMPONENTS_FOOTER_ALL": "-# Quoted by: {{user}} | #{{channel}} | {{guild}}",
-  "QUOTE_COMPONENTS_FOOTER_SOME": "-# Quoted by: {{user}} | #{{channel}}",
-  "QUOTE_COMPONENTS_FOOTER": "-# Quoted by: {{user}}",
+  "QUOTE_AUTOMOD_SCENARIOS": {
+    "clan_tag_update": "**AutoMod** quarantined a member at tag adoption",
+    "username_update": "**AutoMod** quarantined a member at username update",
+    "guild_join": "**AutoMod** quarantined a member at server join",
+    "message": "**AutoMod** blocked a message in {{channel}}"
+  },
+  "QUOTE_AUTOMOD_KEYWORD": "Keyword: {{keyword}}",
+  "QUOTE_AUTOMOD_RULE": "Rule: {{rule}}",
+  "QUOTE_AUTOMOD_REASON": "Reason: $t(QUOTE_AUTOMOD_REASONS.{{reason}})",
+  "QUOTE_AUTOMOD_REASONS": {
+    "display_name": "Display Name",
+    "nickname": "Nickname",
+    "username": "Username",
+    "clan_tag": "Tag"
+  },
+  "QUOTE_COMPONENTS_FOOTER_ALL": "-# Quoted by {{user}} from #{{channel}} in {{guild}}",
+  "QUOTE_COMPONENTS_FOOTER_SOME": "-# Quoted by {{user}} from #{{channel}}",
+  "QUOTE_COMPONENTS_FOOTER": "-# Quoted by {{user}}",
   "QUOTE_SYSTSEM_MESSAGE_JOIN": {
     "JOIN_MESSAGE_0": "{{member}} has joined the party.",
     "JOIN_MESSAGE_1": "{{member}} is here.",

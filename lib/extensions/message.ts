@@ -17,6 +17,7 @@ import {
   DiscordAPIError,
   EmojiIdentifierResolvable,
   FileComponent,
+  Formatters,
   GuildChannel,
   GuildTextBasedChannel,
   HTTPAttachmentData,
@@ -38,6 +39,7 @@ import {
   TextDisplayComponent,
   ThreadChannel,
   ThumbnailComponent,
+  Util,
   VoiceChannel,
   Webhook,
   WebhookClient,
@@ -48,7 +50,7 @@ import {
 } from "discord.js/typings/rawDataTypes";
 import Semaphore from "semaphore-async-await";
 import { Range } from "../util/clientutil";
-import { LanguageKeys } from "../util/language";
+import { Language, LanguageKeys } from "../util/language";
 import { FireGuild } from "./guild";
 import { FireMember } from "./guildmember";
 import { FireTextChannel } from "./textchannel";
@@ -1380,6 +1382,7 @@ export class FireMessage extends Message {
   ) {
     const hasContent = !!this.content,
       content = this.system ? await this.getSystemContent() : this.content,
+      isAutoMod = this.type == "AUTO_MODERATION_ACTION",
       hasMedia = this.attachments.some(isMediaAttachment),
       hasFile =
         this.attachments.size && !this.attachments.every(isMediaAttachment),
@@ -1444,7 +1447,7 @@ export class FireMessage extends Message {
       this.system &&
       this.guild &&
       this.reference?.guildId != this.guild.id &&
-      this.type != "AUTO_MODERATION_ACTION";
+      !isAutoMod;
     const main = new ContainerComponent()
       .setColor(
         member?.displayColor ||
@@ -1470,10 +1473,12 @@ export class FireMessage extends Message {
                     size: 2048,
                     format: "png",
                   })
-                : (member ?? this.author).displayAvatarURL({
-                    size: 2048,
-                    format: "png",
-                  })
+                : isAutoMod
+                  ? constants.url.automodAvatar
+                  : (member ?? this.author).displayAvatarURL({
+                      size: 2048,
+                      format: "png",
+                    })
             )
           )
       );
@@ -1481,6 +1486,7 @@ export class FireMessage extends Message {
 
     if (hasContent && content.length > 2000)
       main.addComponents(new TextDisplayComponent({ content }));
+    if (isAutoMod) main.addComponents(this.getAutomodComponents(language));
     if (isComponentsV2) {
       for (const [index, component] of this.components.entries()) {
         if (component instanceof ContainerComponent && index == 0) {
@@ -1557,6 +1563,69 @@ export class FireMessage extends Message {
       components: [main, ...additionalContainers],
       attachments,
     };
+  }
+
+  private getAutomodComponents(language: Language) {
+    if (this.type != "AUTO_MODERATION_ACTION") return [];
+
+    const embed = this.embeds[0];
+    const components = [] as BaseMessageComponentV2[];
+
+    const scenario = embed.fields.find((f) => f.name == "quarantine_event");
+    if (scenario)
+      components.push(
+        new TextDisplayComponent({
+          content: language.get(
+            `QUOTE_AUTOMOD_SCENARIOS.${scenario.value}` as LanguageKeys
+          ),
+        })
+      );
+    else {
+      // afaik blocking a message is the only one
+      // that doesn't have the quarantine_event field
+      const channelId = embed.fields.find((f) => f.name == "channel_id")?.value;
+      const channel = channelId
+        ? this.guild?.channels.cache.get(channelId)
+        : null;
+      if (channel)
+        components.push(
+          new TextDisplayComponent({
+            content: language.get("QUOTE_AUTOMOD_SCENARIOS.message", {
+              channel: channel.toString(),
+            }),
+          })
+        );
+    }
+
+    const matchedContent = embed.fields.find(
+      (f) => f.name == "keyword_matched_content"
+    );
+    components.push(
+      new TextDisplayComponent({
+        content: matchedContent
+          ? embed.description.replace(
+              matchedContent.value,
+              Formatters.bold(matchedContent.value)
+            )
+          : embed.description,
+      })
+    );
+
+    let subText = "";
+    const keyword = embed.fields.find((f) => f.name == "keyword");
+    if (keyword)
+      subText += `-# ${language.get("QUOTE_AUTOMOD_KEYWORD", { keyword: Util.escapeMarkdown(keyword.value) })}\t`;
+    const rule = embed.fields.find((f) => f.name == "rule_name");
+    if (rule)
+      subText += `${subText.length ? "" : "-# "}${language.get("QUOTE_AUTOMOD_RULE", { rule: rule.value })}\t`;
+    const reason = embed.fields.find((f) => f.name == "quarantine_user");
+    if (reason)
+      subText += `${subText.length ? "" : "-# "}${language.get("QUOTE_AUTOMOD_REASON", { reason: reason.value })}`;
+
+    if (subText.length)
+      components.push(new TextDisplayComponent({ content: subText }));
+
+    return components;
   }
 
   // Treatment 2: Nothing is a container unless originally a container
