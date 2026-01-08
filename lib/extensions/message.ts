@@ -1440,6 +1440,11 @@ export class FireMessage extends Message {
             EMBED_LINKS) ==
           EMBED_LINKS;
 
+    const useGuild =
+      this.system &&
+      this.guild &&
+      this.reference?.guildId != this.guild.id &&
+      this.type != "AUTO_MODERATION_ACTION";
     const main = new ContainerComponent()
       .setColor(
         member?.displayColor ||
@@ -1450,9 +1455,7 @@ export class FireMessage extends Message {
           .setComponents(
             new TextDisplayComponent({
               content: `## ${
-                this.system &&
-                this.guild &&
-                this.reference?.guildId != this.guild.id
+                useGuild
                   ? this.guild?.name
                   : member
                     ? member.display.replaceAll("#0000", "")
@@ -1462,7 +1465,7 @@ export class FireMessage extends Message {
           )
           .setAccessory(
             new ThumbnailComponent().setMedia(
-              this.system && this.guild
+              useGuild
                 ? this.guild.iconURL({
                     size: 2048,
                     format: "png",
