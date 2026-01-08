@@ -1388,18 +1388,10 @@ export class FireMessage extends Message {
       hasFile =
         this.attachments.size && !this.attachments.every(isMediaAttachment),
       isComponentsV2 = this.flags.has("IS_COMPONENTS_V2"),
-      legacyComponentsOnly = this.components.length && !isComponentsV2,
-      hasBotEmbed =
-        this.author.bot &&
-        this.embeds.some((embed) => !embed.url || !content.includes(embed.url));
-
-    // TODO: handle hasBotEmbed properly, since we can't exactly quote that here
-    // as components v2 prevents the use of standard fields (content, embeds etc.)
-    if (hasBotEmbed) return null;
-
+      legacyComponentsOnly = this.components.length && !isComponentsV2;
     const guild = (thread ?? destination).guild as FireGuild;
     const { language } = guild ?? quoter;
-    const quoteFooter = language
+    let quoteFooter = language
       .get(
         this.channel != (thread ?? destination)
           ? this.guild && this.guild.id != guild?.id
@@ -1415,6 +1407,11 @@ export class FireMessage extends Message {
         }
       )
       .trim();
+    if (
+      this.embeds.length == 1 &&
+      (this.embeds.at(0).footer?.text || this.embeds.at(0).timestamp)
+    )
+      quoteFooter = `-# ${this.embeds.at(0).footer?.text ? `${this.embeds.at(0).footer?.text} • ` : ""}${this.embeds.at(0).timestamp ? `${Formatters.time(new Date(this.embeds.at(0).timestamp))} • ` : ""}${quoteFooter.slice(3)}`;
 
     const member =
       this.member ??
@@ -1481,8 +1478,58 @@ export class FireMessage extends Message {
       );
     const additionalContainers: ContainerComponent[] = [];
 
+    const singleEmbedNoFields =
+      this.embeds.length == 1 && !this.embeds.at(0).fields.length;
+    const areEmbedsMediaGallery = this.embeds.every(
+      (embed) =>
+        embed.url &&
+        this.content.includes(new URL(embed.url).pathname) &&
+        !!embed.image?.url
+    );
+
     if (hasContent && content.length > 2000)
       main.addComponents(new TextDisplayComponent({ content }));
+    if (singleEmbedNoFields) {
+      const embed = this.embeds.at(0);
+      if (embed.title)
+        main.addComponents(
+          new TextDisplayComponent({
+            content: Formatters.bold(embed.title),
+          })
+        );
+      if (embed.author?.name)
+        main.addComponents(
+          new TextDisplayComponent({
+            content: Formatters.bold(embed.author.name),
+          })
+        );
+      if (embed.description)
+        main.addComponents(
+          new TextDisplayComponent({
+            content: embed.description,
+          })
+        );
+      if (embed.image?.url && !areEmbedsMediaGallery)
+        main.addComponents(
+          new MediaGalleryComponent().addItems(
+            new MediaGalleryItem().setMedia(embed.image.url)
+          )
+        );
+      if (embed.thumbnail?.url && !embed.image)
+        main.addComponents(
+          new MediaGalleryComponent().addItems(
+            new MediaGalleryItem().setMedia(embed.thumbnail.url)
+          )
+        );
+    }
+    if (areEmbedsMediaGallery)
+      main.addComponents(
+        new MediaGalleryComponent().addItems(
+          this.embeds.map((embed) =>
+            new MediaGalleryItem().setMedia(embed.image.url)
+          )
+        )
+      );
     if (isAutoMod) main.addComponents(this.getAutomodComponents(language));
     if (isComponentsV2) {
       for (const [index, component] of this.components.entries()) {
@@ -2389,9 +2436,11 @@ export class FireMessage extends Message {
     // same condition, checks if still partial
     if (this.partial) return;
 
-    // we're no longer allowing bot embed messages to be starred
-    // since we can't use embeds with components v2
-    if (this.author.bot && this.embeds.length) return;
+    // we're no longer allowing bot messages to be starred
+    // if they have embeds w/fields since we
+    // can't use embeds with components v2
+    if (this.author.bot && this.embeds.some((embed) => embed.fields.length))
+      return;
 
     const starEmoji: string = this.guild.settings
       .get("starboard.emoji", "⭐")
@@ -2656,13 +2705,20 @@ export class FireMessage extends Message {
     emoji: string,
     stars: number
   ): Promise<[ContainerComponent[], RawAttachmentDataArray]> {
+    const contentOnlyEmbedLink =
+      this.embeds.length == 1 &&
+      this.embeds.at(0).url &&
+      // fuck you elon
+      this.content.trim().replaceAll("twitter.com", "x.com") ==
+        this.embeds.at(0).url.replaceAll("twitter.com", "x.com");
+
     const container = new ContainerComponent()
       .setColor(this.member?.displayColor || "#FFFFFF")
       .addComponents(
         new SectionComponent()
           .setComponents(
             new TextDisplayComponent({
-              content: `# ${(this.member ?? this.author).display} | ${this.channel}`,
+              content: `# ${(this.member ?? this.author).display} | ${this.channel}${contentOnlyEmbedLink ? `\n${this.content}` : ""}`,
             })
           )
           .setAccessory(
@@ -2678,7 +2734,16 @@ export class FireMessage extends Message {
     const additionalContainers: ContainerComponent[] = [];
     const attachments: RawAttachmentDataArray = [];
 
-    if (this.content)
+    const singleEmbedNoFields =
+      this.embeds.length == 1 && !this.embeds.at(0).fields.length;
+    const areEmbedsMediaGallery = this.embeds.every(
+      (embed) =>
+        embed.url &&
+        this.content.includes(new URL(embed.url).pathname) &&
+        !!embed.image?.url
+    );
+
+    if (this.content && !contentOnlyEmbedLink)
       container.addComponents(
         new TextDisplayComponent({ content: this.content })
       );
@@ -2694,6 +2759,47 @@ export class FireMessage extends Message {
       }
     }
 
+    if (singleEmbedNoFields) {
+      const embed = this.embeds.at(0);
+      if (embed.title)
+        container.addComponents(
+          new TextDisplayComponent({
+            content: Formatters.bold(embed.title),
+          })
+        );
+      if (embed.author?.name)
+        container.addComponents(
+          new TextDisplayComponent({
+            content: Formatters.bold(embed.author.name),
+          })
+        );
+      if (embed.description)
+        container.addComponents(
+          new TextDisplayComponent({
+            content: embed.description,
+          })
+        );
+      if (embed.image?.url && !areEmbedsMediaGallery)
+        container.addComponents(
+          new MediaGalleryComponent().addItems(
+            new MediaGalleryItem().setMedia(embed.image.url)
+          )
+        );
+      if (embed.thumbnail?.url && !embed.image)
+        container.addComponents(
+          new MediaGalleryComponent().addItems(
+            new MediaGalleryItem().setMedia(embed.thumbnail.url)
+          )
+        );
+    }
+    if (areEmbedsMediaGallery)
+      container.addComponents(
+        new MediaGalleryComponent().addItems(
+          this.embeds.map((embed) =>
+            new MediaGalleryItem().setMedia(embed.image.url)
+          )
+        )
+      );
     if (this.attachments.some(isMediaAttachment) && !isComponentsV2)
       container.addComponents(
         new MediaGalleryComponent().addItems(
@@ -2772,6 +2878,22 @@ export class FireMessage extends Message {
           .setURL(this.url)
       )
     );
+
+    if (
+      this.embeds.length == 1 &&
+      (this.embeds.at(0).footer?.text || this.embeds.at(0).timestamp)
+    )
+      container.addComponents(
+        new TextDisplayComponent({
+          content: `-# ${this.embeds.at(0).footer?.text ? `${this.embeds.at(0).footer?.text} • ` : ""}${this.embeds.at(0).timestamp ? `${Formatters.time(new Date(this.embeds.at(0).timestamp))} • ` : `${Formatters.time(this.createdAt)} • `} ${this.id}`,
+        })
+      );
+    else
+      container.addComponents(
+        new TextDisplayComponent({
+          content: `-# ${Formatters.time(this.createdAt)} • ${this.id}`,
+        })
+      );
 
     return [[container, ...additionalContainers], attachments];
   }
