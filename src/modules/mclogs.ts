@@ -18,6 +18,7 @@ import { Language } from "@fire/lib/util/language";
 import { Module } from "@fire/lib/util/module";
 import * as centra from "centra";
 import {
+  DiscordAPIError,
   MessageActionRow,
   MessageAttachment,
   MessageButton,
@@ -2477,8 +2478,9 @@ export default class MCLogs extends Module {
           });
       }
     } catch (e) {
-      this.console.error(`Failed to create log haste\n${e.stack}`);
-      this.client.sentry.captureException(e);
+      this.console.error(`Failed to create/send log haste\n${e.stack}`);
+      if (!(e instanceof DiscordAPIError))
+        this.client.sentry.captureException(e);
     }
   }
 
