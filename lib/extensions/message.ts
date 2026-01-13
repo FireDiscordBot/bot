@@ -33,6 +33,7 @@ import {
   MessageReaction,
   MessageSelectMenu,
   NewsChannel,
+  Permissions,
   ReplyMessageOptions,
   SectionComponent,
   StageChannel,
@@ -71,6 +72,8 @@ type RawAttachmentDataArray = {
   name: string;
   description?: string;
   spoiler?: boolean;
+  duration?: number;
+  waveform?: string;
 }[];
 
 export class FireMessage extends Message {
@@ -948,7 +951,9 @@ export class FireMessage extends Message {
         name: attach.name,
         description: attach.description,
         spoiler: attach.spoiler,
-      }));
+        duration: attach.duration,
+        waveform: attach.waveform,
+      })) as RawAttachmentDataArray;
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
           centra(attachment.url)
@@ -964,6 +969,8 @@ export class FireMessage extends Message {
             name: info[index].name,
             description: info[index].description,
             spoiler: info[index].spoiler,
+            duration: info[index].duration,
+            waveform: info[index].waveform,
           });
       }
     }
@@ -1154,12 +1161,33 @@ export class FireMessage extends Message {
         : member
           ? member.display.replace(/#0000/gim, "")
           : this.author.display.replace(/#0000/gim, ""));
+
+    const flags = new MessageFlags(this.flags);
+    if (
+      components.some(
+        (component) => component instanceof BaseMessageComponentV2
+      )
+    )
+      flags.add("IS_COMPONENTS_V2");
+
+    if (
+      flags.has("IS_VOICE_MESSAGE") &&
+      !(
+        "permissions" in destination
+          ? new Permissions(BigInt(destination.permissions))
+          : (quoter instanceof FireMember
+              ? quoter
+              : // we'll just use ourselves as a fallback
+                // if the quoter is a user
+                destination.guild.members.me
+            ).permissionsIn(destination)
+      ).has(PermissionFlagsBits.SendVoiceMessages)
+    )
+      flags.remove("IS_VOICE_MESSAGE");
+
     return await hook
       .send(
-        this.flags.has("IS_COMPONENTS_V2") ||
-          components.some(
-            (component) => component instanceof BaseMessageComponentV2
-          )
+        flags.has("IS_COMPONENTS_V2")
           ? {
               components,
               threadId: thread?.id,
@@ -1181,10 +1209,14 @@ export class FireMessage extends Message {
                     }),
               allowedMentions: this.client.options.allowedMentions,
               files: attachments.map((data) =>
+                // if we have components v2
+                // we can't have voice messages
+                // so no need to set duration/waveform here
                 new MessageAttachment(data.attachment, data.name)
                   .setDescription(data.description)
                   .setSpoiler(data.spoiler)
               ),
+              flags: flags.bitfield,
             }
           : {
               content: content.length ? content : null,
@@ -1208,11 +1240,14 @@ export class FireMessage extends Message {
               files: attachments.map((data) =>
                 new MessageAttachment(data.attachment, data.name)
                   .setDescription(data.description)
+                  .setDuration(data.duration)
+                  .setWaveform(data.waveform)
                   .setSpoiler(data.spoiler)
               ),
               allowedMentions: this.client.options.allowedMentions,
               threadId: thread?.id,
               components,
+              flags: flags.bitfield,
             }
       )
       .catch(async (e: Error) => {
@@ -1575,7 +1610,7 @@ export class FireMessage extends Message {
         name: attach.name,
         description: attach.description,
         spoiler: attach.spoiler,
-      }));
+      })) as RawAttachmentDataArray;
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
           centra(attachment.url)
@@ -1817,7 +1852,7 @@ export class FireMessage extends Message {
         name: attach.name,
         description: attach.description,
         spoiler: attach.spoiler,
-      }));
+      })) as RawAttachmentDataArray;
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
           centra(attachment.url)
@@ -2000,7 +2035,7 @@ export class FireMessage extends Message {
         name: attach.name,
         description: attach.description,
         spoiler: attach.spoiler,
-      }));
+      })) as RawAttachmentDataArray;
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
           centra(attachment.url)
@@ -2182,7 +2217,7 @@ export class FireMessage extends Message {
         name: attach.name,
         description: attach.description,
         spoiler: attach.spoiler,
-      }));
+      })) as RawAttachmentDataArray;
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
           centra(attachment.url)
@@ -2372,7 +2407,7 @@ export class FireMessage extends Message {
         name: attach.name,
         description: attach.description,
         spoiler: attach.spoiler,
-      }));
+      })) as RawAttachmentDataArray;
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
           centra(attachment.url)
@@ -2844,7 +2879,7 @@ export class FireMessage extends Message {
         name: attach.name,
         description: attach.description,
         spoiler: attach.spoiler,
-      }));
+      })) as RawAttachmentDataArray;
       const attachReqs = await Promise.all(
         finalAttachments.map((attachment) =>
           centra(attachment.url)
