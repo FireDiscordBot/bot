@@ -12,7 +12,6 @@
     "node": ">=16.20.2"
   },
   "scripts": {
-    "fire:install": "yarn && yarn add discord-akairo/discord-akairo FireDiscordBot/discord.js",
     "dev": "yarn compile && yarn rundev",
     "rundev": "NODE_ENV=development node dist/src/index.js",
     "compile": "rm -rf dist/ && tsc && git rev-parse HEAD > dist/commit.txt",
