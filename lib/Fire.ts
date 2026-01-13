@@ -226,6 +226,7 @@ export class Fire extends AkairoClient {
                 id: r.d.id,
                 name: r.d.name,
                 icon: r.d.icon,
+                vanity: r.d.vanity_url_code,
                 member,
               })
             )

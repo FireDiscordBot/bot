@@ -42,6 +42,7 @@ export default class Ready extends Listener {
             id: guild.id,
             name: guild.name,
             icon: guild.icon,
+            vanity: guild.vanityURLCode,
             member: member.toAPIMemberJSON(),
           })
         )

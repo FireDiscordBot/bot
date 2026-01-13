@@ -46,6 +46,7 @@ export default class GuildMemberUpdate extends Listener {
             id: newMember.guild.id,
             name: newMember.guild.name,
             icon: newMember.guild.icon,
+            vanity: newMember.guild.vanityURLCode,
             member: newMember.toAPIMemberJSON(),
           })
         )

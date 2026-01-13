@@ -49,6 +49,7 @@ export default class Restart extends Event {
             id,
             name: guild.name,
             icon: guild.icon,
+            vanity: guild.vanityURLCode,
             member: member.toAPIMemberJSON(),
           })
         )

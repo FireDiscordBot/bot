@@ -182,6 +182,7 @@ export default class IdentityUpdate extends Command {
             id: me.guild.id,
             name: me.guild.name,
             icon: me.guild.icon,
+            vanity: me.guild.vanityURLCode,
             member: me.toAPIMemberJSON(),
           })
         )

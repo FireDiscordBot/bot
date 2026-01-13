@@ -55,7 +55,8 @@ export default class GuildUpdate extends Listener {
       before.icon != after.icon ||
       before.banner != after.banner ||
       before.ownerId != after.ownerId ||
-      before.features.length != after.features.length;
+      before.features.length != after.features.length ||
+      before.vanityURLCode != after.vanityURLCode;
     if (basicInfoChanges)
       this.client.manager.ws?.send(
         MessageUtil.encode(
@@ -66,6 +67,7 @@ export default class GuildUpdate extends Listener {
             banner: after.banner,
             ownerId: after.ownerId,
             features: after.features,
+            vanity: after.vanityURLCode,
           })
         )
       );
