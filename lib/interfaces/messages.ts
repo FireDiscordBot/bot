@@ -19,6 +19,7 @@ export interface PartialQuoteDestination {
   permissions: string;
   guild_id?: Snowflake;
   guild?: FireGuild;
+  source: string;
   nsfw: boolean;
   name?: never;
   id: string;

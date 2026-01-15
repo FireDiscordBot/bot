@@ -32,6 +32,17 @@ import {
 
 const { CommandHandlerEvents } = AkairoConstants;
 
+type CrossClusterQuoteContext = {
+  id: Snowflake;
+  author: {
+    id: Snowflake;
+    toString(): string;
+  };
+  guildId?: Snowflake;
+  shard: number;
+  source: string;
+};
+
 export default class Quote extends Command {
   savedQuotes: Collection<string, FireMessage>;
 
@@ -71,7 +82,7 @@ export default class Quote extends Command {
   async handleLocalQuote(
     message: FireMessage,
     match: MessageLinkMatch,
-    debug = false // TODO: reimplement debug messages
+    debug = false
   ) {
     const convertedMessage = await messageConverter(
       message,
@@ -110,7 +121,9 @@ export default class Quote extends Command {
           message,
           referencedMessage,
           message.channel as GuildTextBasedChannel,
-          message.member ?? message.author
+          message.member ?? message.author,
+          undefined,
+          debug ? [] : undefined
         );
     } else if (
       convertedMessage.reference?.type != Constants.MessageReferenceType.FORWARD
@@ -119,7 +132,9 @@ export default class Quote extends Command {
         message,
         convertedMessage,
         message.channel as GuildTextBasedChannel,
-        message.member ?? message.author
+        message.member ?? message.author,
+        undefined,
+        debug ? [] : undefined
       );
       if (match.iteratedMessages?.length)
         for (const iterated of match.iteratedMessages) {
@@ -127,7 +142,9 @@ export default class Quote extends Command {
             message,
             iterated,
             message.channel as GuildTextBasedChannel,
-            message.member ?? message.author
+            message.member ?? message.author,
+            undefined,
+            debug ? [] : undefined
           );
         }
     }
@@ -170,8 +187,11 @@ export default class Quote extends Command {
               ? message.member?.permissions.bitfield.toString() || "0"
               : "0",
             guild_id: message.guild?.id,
+            source: message.source,
             id: message.channelId,
           } as PartialQuoteDestination,
+          debug:
+            quote.channel == "debug." || process.env.NODE_ENV == "development",
         })
       )
     );
@@ -204,13 +224,15 @@ export default class Quote extends Command {
           webhook,
           message: quote,
           destination,
+          debug:
+            quote.channel == "debug." || process.env.NODE_ENV == "development",
         })
       )
     );
   }
 
   async quoteWithCommandEvents(
-    context: FireMessage,
+    context: FireMessage | CrossClusterQuoteContext,
     message: FireMessage,
     destination: GuildTextBasedChannel | PartialQuoteDestination,
     quoter: FireMember | FireUser,
@@ -228,15 +250,38 @@ export default class Quote extends Command {
     );
     await message
       .quote(destination, quoter, webhook, debug)
-      .then((returnVal: unknown) =>
+      .then((returnVal: unknown) => {
         this.client.commandHandler.emit(
           CommandHandlerEvents.COMMAND_FINISHED,
           context,
           this,
           args,
           returnVal
-        )
-      )
+        );
+
+        if (debug?.length)
+          this.client.manager.writeToInflux([
+            {
+              measurement: "commands",
+              tags: {
+                type: "debug",
+                command: "quote",
+                cluster: this.client.manager.id.toString(),
+                shard: message.shard.toString(),
+                user_id: message.author.id, // easier to query tag
+                guild_id: message.guildId ?? "N/A",
+              },
+              fields: {
+                type: "debug",
+                command: "quote",
+                guild: message.source,
+                user: `${message.author} (${message.author.id})`,
+                message_id: message.id,
+                debug: debug.join(", "),
+              },
+            },
+          ]);
+      })
       .catch((error: Error) =>
         this.client.commandHandler.emit(
           "commandError",

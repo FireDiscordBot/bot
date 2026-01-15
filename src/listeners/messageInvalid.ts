@@ -240,7 +240,7 @@ export default class MessageInvalid extends Listener {
       await quoteCommand.handleLocalQuote(
         message,
         quote,
-        quote.channel == "debug."
+        quote.channel == "debug." || process.env.NODE_ENV == "development"
       );
   }
 

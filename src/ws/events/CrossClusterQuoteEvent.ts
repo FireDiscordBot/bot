@@ -50,16 +50,32 @@ export default class CrossClusterQuote extends Event {
     const quoteCommand = this.client.getCommand("quote") as Quote;
     if (!quoteCommand) return;
 
+    const destinationGuild = this.client.guilds.cache.get(
+      destination.guild_id
+    ) as FireGuild;
+    const quoter = destinationGuild
+      ? ((await destinationGuild.members.fetch(data.quoter)) as FireMember)
+      : ((await this.client.users.fetch(data.quoter)) as FireUser);
+
+    const quoteContext = {
+      id: data.webhook.id,
+      author: {
+        id: quoter.id,
+        toString: quoter.toString,
+      },
+      guildId: destination.guild_id,
+      shard: this.client.util.getShard(destination.guild_id),
+      source: destination.source,
+    };
+
     // Handle saved quotes first since we don't need to fetch anything
     const link = `${data.guild_id}/${data.channel_id}/${data.message_id}`;
     if (quoteCommand && quoteCommand.savedQuotes.has(link)) {
-      const guild = this.client.guilds.cache.get(destination.guild_id);
       const saved = quoteCommand.savedQuotes.get(link);
-      if (saved instanceof FireMessage && saved.savedToQuoteBy == data.quoter) {
-        const quoter = guild
-          ? ((await guild.members.fetch(data.quoter)) as FireMember)
-          : ((await this.client.users.fetch(data.quoter)) as FireUser);
-        return await saved.quote(
+      if (saved instanceof FireMessage && saved.savedToQuoteBy == data.quoter)
+        return quoteCommand.quoteWithCommandEvents(
+          quoteContext,
+          saved,
           destination,
           quoter,
           data.webhook
@@ -67,22 +83,22 @@ export default class CrossClusterQuote extends Event {
                 { id: data.webhook.id, token: data.webhook.token },
                 { threadId: data.webhook.threadId }
               )
-            : undefined
+            : undefined,
+          data.debug ? [] : undefined
         );
-      }
     }
 
-    let guild = this.client.guilds.cache.get(data.guild_id) as FireGuild;
-    if (!guild) return;
-    if (guild.id == destination.guild_id) destination.guild = guild;
-    const member = (await guild.members
+    let quoteGuild = this.client.guilds.cache.get(data.guild_id) as FireGuild;
+    if (!quoteGuild) return;
+    if (quoteGuild.id == destinationGuild.id) destination.guild = quoteGuild;
+    const member = (await quoteGuild.members
       .fetch(data.quoter)
       .catch(() => {})) as FireMember;
     if (!member)
       return this.console.warn(
         "Attempted cross cluster quote with unknown member"
       );
-    const channel = guild.channels.cache
+    const channel = quoteGuild.channels.cache
       .filter((channel) => channel.isText() || channel.isThread())
       .get(data.channel_id) as FireTextChannel | NewsChannel | ThreadChannel;
     if (!channel)
@@ -140,28 +156,34 @@ export default class CrossClusterQuote extends Event {
     } else if (
       message.reference?.type != Constants.MessageReferenceType.FORWARD
     )
-      await message.quote(
+      return quoteCommand.quoteWithCommandEvents(
+        quoteContext,
+        message,
         destination,
-        member,
+        quoter,
         data.webhook
           ? new ThreadhookClient(
               { id: data.webhook.id, token: data.webhook.token },
               { threadId: data.webhook.threadId }
             )
-          : undefined
+          : undefined,
+        data.debug ? [] : undefined
       );
 
     if (data.iteratedMessages)
       for (const iterated of data.iteratedMessages)
-        await iterated.quote(
+        await quoteCommand.quoteWithCommandEvents(
+          quoteContext,
+          iterated,
           destination,
-          member,
+          quoter,
           data.webhook
             ? new ThreadhookClient(
                 { id: data.webhook.id, token: data.webhook.token },
                 { threadId: data.webhook.threadId }
               )
-            : undefined
+            : undefined,
+          data.debug ? [] : undefined
         );
   }
 }
