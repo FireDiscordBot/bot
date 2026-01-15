@@ -1387,8 +1387,8 @@ export class FireMessage extends Message {
     quoter: FireMember | FireUser,
     thread?: ThreadChannel
   ) {
-    const hasContent = !!this.content,
-      content = this.system ? await this.getSystemContent() : this.content,
+    const content = this.system ? await this.getSystemContent() : this.content,
+      hasContent = !!content,
       isAutoMod = this.type == "AUTO_MODERATION_ACTION",
       hasMedia = this.attachments.some(isMediaAttachment),
       hasFile =
