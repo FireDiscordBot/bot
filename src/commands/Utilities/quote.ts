@@ -31,8 +31,6 @@ import {
 } from "discord.js";
 
 const { CommandHandlerEvents } = AkairoConstants;
-const { regexes } = constants;
-const QUOTE_PREMIUM_INCREASED_LENGTH = "QUOTE_PREMIUM_INCREASED_LENGTH";
 
 export default class Quote extends Command {
   savedQuotes: Collection<string, FireMessage>;

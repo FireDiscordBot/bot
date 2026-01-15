@@ -639,6 +639,7 @@ export class FireMessage extends Message {
 
     const canUseAttachmentsInWebhook =
       !this.attachments.size ||
+      this.attachments.every(isMediaAttachment) ||
       this.attachments.reduce((size, attach) => {
         if (
           attach.size + size > EIGHT_MIB &&
@@ -657,7 +658,7 @@ export class FireMessage extends Message {
         typeof destination.createWebhook == "function" &&
         destination.guild
           ? "permissions" in destination
-            ? true // PartialQuoteDestination will always allow webhooks currently
+            ? !!webhook // PartialQuoteDestination will always allow webhooks if one is present
             : destination
                 .permissionsFor(destination.guild.members.me)
                 .has(PermissionFlagsBits.ManageWebhooks)
@@ -742,7 +743,7 @@ export class FireMessage extends Message {
     }
     destinationGuild?.quoteHooks.set(destination.id, hook);
     let content = this.system ? await this.getSystemContent() : this.content;
-    const embeds = [...this.embeds].filter(
+    const embeds = this.embeds.filter(
       (embed) => !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
     );
     let components = this.components;
@@ -799,7 +800,20 @@ export class FireMessage extends Message {
             );
         }
 
-      if (content.length > 2000) return "QUOTE_PREMIUM_INCREASED_LENGTH";
+      if (
+        content.length > 2000 &&
+        (components.length ||
+          embeds.length ||
+          (this.attachments.size &&
+            !this.attachments.every(isMediaAttachment)) ||
+          content.length > 4000)
+      )
+        return "QUOTE_PREMIUM_INCREASED_LENGTH";
+      else if (
+        !embeds.length &&
+        (!this.attachments.size || this.attachments.every(isMediaAttachment))
+      )
+        components = [new TextDisplayComponent({ content })];
     }
     if (embeds.length)
       for (const embed of embeds) {
@@ -924,14 +938,15 @@ export class FireMessage extends Message {
           EMBED_LINKS;
     if (!canEmbed && content) content = this.client.util.supressLinks(content);
     if (
-      !content &&
-      !components.length &&
-      !this.embeds.length &&
+      (!content ||
+        (components[0] instanceof TextDisplayComponent &&
+          components[0].content == content)) &&
+      !embeds.length &&
       this.attachments.size &&
       this.attachments.every(isMediaAttachment) &&
       canAttach
     ) {
-      components = [
+      components.push(
         new MediaGalleryComponent().addItems(
           this.attachments.map((attachment) =>
             new MediaGalleryItem()
@@ -939,8 +954,8 @@ export class FireMessage extends Message {
               .setDescription(attachment.description)
               .setSpoiler(attachment.spoiler)
           )
-        ),
-      ];
+        )
+      );
     } else if (canAttach && this.attachments.size) {
       const tooLargeAttachments = this.attachments.filter(
         (a) => a.size > EIGHT_MIB
