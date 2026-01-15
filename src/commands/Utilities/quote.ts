@@ -10,7 +10,7 @@ import {
   PartialQuoteDestination,
 } from "@fire/lib/interfaces/messages";
 import { Command } from "@fire/lib/util/command";
-import { GuildTextChannel, constants } from "@fire/lib/util/constants";
+import { GuildTextChannel } from "@fire/lib/util/constants";
 import { messageConverter } from "@fire/lib/util/converters";
 import { Language } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
@@ -282,14 +282,6 @@ export default class Quote extends Command {
       !messageToSave.components.length
     )
       return await command.error("QUOTE_NO_CONTENT_TO_SAVE");
-
-    if (
-      command.contextCommand.commandName.endsWith("(Preview)") &&
-      !interaction.rawGuild?.features.includes("DISCOVERABLE") &&
-      !constants.allowedInvites.includes(interaction.rawGuild?.id) &&
-      !command.author.isSuperuser()
-    )
-      return await command.error("QUOTE_SAVE_PREVIEW_NOT_DISCOVERABLE");
 
     const currenlySaved = this.savedQuotes.filter(
       (q) => q.savedToQuoteBy == command.author.id
