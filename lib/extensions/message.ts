@@ -745,7 +745,16 @@ export class FireMessage extends Message {
     const embeds = [...this.embeds].filter(
       (embed) => !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
     );
-    if (content) {
+    let components = this.components;
+
+    const isAutoMod = this.type == "AUTO_MODERATION_ACTION";
+    if (isAutoMod)
+      components = [
+        new ContainerComponent()
+          .setColor("#5765F2")
+          .setComponents(this.getAutomodComponents(destinationGuild.language)),
+      ];
+    else if (content) {
       if (!quoter?.isSuperuser() && !this.system) {
         content = await filters
           .runReplace(content, quoter)
@@ -786,9 +795,7 @@ export class FireMessage extends Message {
           else if (!canView)
             content = content.replaceAll(
               channel.toString(),
-              (destination.guild as FireGuild).language.get(
-                "QUOTE_CHANNEL_NO_ACCESS"
-              )
+              destinationGuild.language.get("QUOTE_CHANNEL_NO_ACCESS")
             );
         }
 
@@ -900,7 +907,6 @@ export class FireMessage extends Message {
           );
       }
     const attachments: RawAttachmentDataArray = [];
-    let components = this.components;
 
     const ATTACH_FILES = PermissionFlagsBits.AttachFiles,
       EMBED_LINKS = PermissionFlagsBits.EmbedLinks;
@@ -1109,51 +1115,6 @@ export class FireMessage extends Message {
         );
     }
 
-    const isAutomod = this.type == "AUTO_MODERATION_ACTION";
-    const automodEmbeds = [];
-    if (isAutomod) {
-      const automodEmbed = this.embeds?.[0];
-      const rule =
-        automodEmbed?.fields?.find((f) => f.name == "rule_name")?.value ??
-        "Unknown";
-      const channelId = automodEmbed?.fields?.find(
-        (f) => f.name == "channel_id"
-      )?.value;
-      let channel: string = "Unknown";
-      if (channelId)
-        channel = await this.client.channels
-          .fetch(channelId, {
-            allowUnknownGuild: true,
-            cache: false,
-          })
-          .then((c) =>
-            c instanceof GuildChannel
-              ? c.guildId ==
-                (destination instanceof Channel
-                  ? destination.guildId
-                  : destination.guild_id)
-                ? c.toString()
-                : `#${c.name}`
-              : "Unknown"
-          )
-          .catch(() => "Unknown");
-      content = this.guild.language.get("QUOTE_AUTOMOD_CONTENT", {
-        rule,
-        channel,
-      });
-      const embed = new MessageEmbed()
-        .setAuthor({
-          name: this.author.toString(),
-          iconURL: (member ?? this.author).displayAvatarURL({
-            size: 2048,
-            format: "png",
-          }),
-        })
-        .setTimestamp(this.createdTimestamp);
-      if (automodEmbed.description)
-        embed.setDescription(automodEmbed.description);
-      automodEmbeds.push(embed);
-    }
     const username =
       usernameOverride ||
       (this.system && this.guild && this.reference?.guildId != this.guild.id
@@ -1191,12 +1152,12 @@ export class FireMessage extends Message {
           ? {
               components,
               threadId: thread?.id,
-              username: isAutomod
+              username: isAutoMod
                 ? this.guild.language.get("QUOTE_AUTOMOD_USERNAME", {
                     username,
                   })
                 : username,
-              avatarURL: isAutomod
+              avatarURL: isAutoMod
                 ? constants.url.automodAvatar
                 : this.system && this.guild
                   ? this.guild.iconURL({
@@ -1220,14 +1181,9 @@ export class FireMessage extends Message {
             }
           : {
               content: content.length ? content : null,
-              username: isAutomod
-                ? this.guild.language.get("QUOTE_AUTOMOD_USERNAME", {
-                    username,
-                  })
-                : username,
-              avatarURL: isAutomod
-                ? constants.url.automodAvatar
-                : this.system && this.guild
+              username,
+              avatarURL:
+                this.system && this.guild
                   ? this.guild.iconURL({
                       size: 2048,
                       format: "png",
@@ -1236,7 +1192,7 @@ export class FireMessage extends Message {
                       size: 2048,
                       format: "png",
                     }),
-              embeds: isAutomod ? automodEmbeds : embeds,
+              embeds,
               files: attachments.map((data) =>
                 new MessageAttachment(data.attachment, data.name)
                   .setDescription(data.description)

@@ -1411,7 +1411,7 @@
   "QUOTE_COPIED_BUTTON": "This button was copied from the quoted message. To interact with it, you'll need to do so on the original!",
   "QUOTE_COPIED_SELECT": "This dropdown was copied from the quoted message. To interact with it, you'll need to do so on the original!",
   "QUOTE_WEBHOOK_CREATE_REASON": "This webhook will be used for quoting messages in this channel",
-  "QUOTE_AUTOMOD_USERNAME": "AutoMod has blocked a message",
+  "QUOTE_AUTOMOD_USERNAME": "AutoMod",
   "QUOTE_AUTOMOD_CONTENT": "Rule: {{rule}}\nChannel: {{channel}}",
   "QUOTE_AUTOMOD_SCENARIOS": {
     "clan_tag_update": "**AutoMod** quarantined a member at tag adoption",
