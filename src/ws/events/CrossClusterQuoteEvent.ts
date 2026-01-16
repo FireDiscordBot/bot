@@ -90,7 +90,7 @@ export default class CrossClusterQuote extends Event {
 
     let quoteGuild = this.client.guilds.cache.get(data.guild_id) as FireGuild;
     if (!quoteGuild) return;
-    if (quoteGuild.id == destinationGuild.id) destination.guild = quoteGuild;
+    if (quoteGuild.id == destinationGuild?.id) destination.guild = quoteGuild;
     const member = (await quoteGuild.members
       .fetch(data.quoter)
       .catch(() => {})) as FireMember;
