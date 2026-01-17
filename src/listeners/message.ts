@@ -96,6 +96,13 @@ export default class Message extends Listener {
     if (!message.member || message.author.bot) return;
 
     if (
+      message.guildId == "864592657572560958" &&
+      message.attachments.some((attach) => attach.name.endsWith(".zip")) &&
+      !message.member.isModerator()
+    )
+      return await message.delete().catch(() => {});
+
+    if (
       message.guildId == this.client.config.fireGuildId &&
       message.channelId == "1455752234934599803" &&
       process.env.NODE_ENV == "production"
