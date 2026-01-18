@@ -110,7 +110,7 @@ export class ProfileConflictError extends MojangAPIError {
 
 export const validPasteURLs = [
   "h.inv.wtf",
-  "haste.prod.getfire.bot",
+  // "haste.prod.getfire.bot",
   "hst.sh",
   "paste.ee",
   "api.paste.ee",
@@ -409,8 +409,9 @@ export class Util extends ClientUtil {
     raw?: R
   ): Promise<R extends true ? { url: string; raw: string } : string> {
     const url = fallback
-      ? "https://haste.prod.getfire.bot/"
-      : "https://hst.sh/";
+      ? "https://h.inv.wtf/"
+      : // ? "https://haste.prod.getfire.bot/"
+        "https://hst.sh/";
     try {
       const h: { key: string } = await (
         await centra(url, "POST")
@@ -1265,7 +1266,7 @@ export class Util extends ClientUtil {
     if (!this.isValidPasteURL(hostname)) return null;
     switch (hostname) {
       case "h.inv.wtf":
-      case "haste.prod.getfire.bot":
+      // case "haste.prod.getfire.bot":
       case "hst.sh":
       case "paste.essential.gg":
       case "pastebin.com": {
