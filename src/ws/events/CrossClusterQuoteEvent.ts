@@ -66,7 +66,7 @@ export default class CrossClusterQuote extends Event {
       id: data.webhook?.id ?? SnowflakeUtil.generate(),
       author: {
         id: quoter.id,
-        toString: quoter.toString,
+        toString: quoter.toString.bind(quoter),
       },
       guildId: destination.guild_id,
       shard: this.client.util.getShard(destination.guild_id),
