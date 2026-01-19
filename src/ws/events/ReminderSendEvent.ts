@@ -43,6 +43,12 @@ export default class ReminderSend extends Event {
   }
 
   async run(data: SendingReminder, nonce: string) {
+    // sending before ready causes it to fail
+    // it *will* retry and succeed but
+    // we may as well prevent it failing
+    // in the first place
+    await this.manager.client.waitUntilReady();
+
     const user = (await this.manager.client.users
       .fetch(data.user, { cache: false })
       .catch(() => {})) as FireUser;
@@ -112,8 +118,8 @@ export default class ReminderSend extends Event {
           ? "REMINDER_MESSAGE_BODY_WITH_TIME_NO_TEXT"
           : "REMINDER_MESSAGE_BODY_WITH_TIME_AND_TEXT"
         : requiresEmbed
-        ? "REMINDER_MESSAGE_BODY_NO_TIME_OR_TEXT"
-        : "REMINDER_MESSAGE_BODY_NO_TIME_WITH_TEXT",
+          ? "REMINDER_MESSAGE_BODY_NO_TIME_OR_TEXT"
+          : "REMINDER_MESSAGE_BODY_NO_TIME_WITH_TEXT",
       {
         time: reminderSetAt ? Formatters.time(reminderSetAt, "R") : undefined,
         text: data.text,
