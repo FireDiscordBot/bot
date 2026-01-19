@@ -15,7 +15,12 @@ import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import Quote from "@fire/src/commands/Utilities/quote";
 import { Snowflake } from "discord-api-types/globals";
-import { Constants, NewsChannel, ThreadChannel } from "discord.js";
+import {
+  Constants,
+  NewsChannel,
+  SnowflakeUtil,
+  ThreadChannel,
+} from "discord.js";
 
 export default class CrossClusterQuote extends Event {
   client: Fire;
@@ -58,7 +63,7 @@ export default class CrossClusterQuote extends Event {
       : ((await this.client.users.fetch(data.quoter)) as FireUser);
 
     const quoteContext = {
-      id: data.webhook.id,
+      id: data.webhook?.id ?? SnowflakeUtil.generate(),
       author: {
         id: quoter.id,
         toString: quoter.toString,
