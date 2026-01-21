@@ -705,20 +705,15 @@ export class FireMessage extends Message {
           ?.first();
       if (!hook && typeof destination.createWebhook == "function") {
         hook = await destination
-          .createWebhook(
-            `Fire Quotes #${
-              destination.name ? destination.name : destination.id
-            }`,
-            {
-              avatar: this.client.user.displayAvatarURL({
-                size: 2048,
-                format: "png",
-              }),
-              reason: (destination.guild as FireGuild).language.get(
-                "QUOTE_WEBHOOK_CREATE_REASON"
-              ) as string,
-            }
-          )
+          .createWebhook("Fire Quotes", {
+            avatar: this.client.user.displayAvatarURL({
+              size: 2048,
+              format: "png",
+            }),
+            reason: (destination.guild as FireGuild).language.get(
+              "QUOTE_WEBHOOK_CREATE_REASON"
+            ) as string,
+          })
           .catch(() => null);
         if (!hook) {
           if (debug)
@@ -2992,8 +2987,9 @@ export class FireMessage extends Message {
       if (this.embeds.length)
         embedsHaste = await this.client.util.haste(
           JSON.stringify(this.embeds.map((e) => e.toJSON())),
+          "embeds.json",
+          undefined,
           true,
-          "json",
           true
         );
       const URLs = [];
@@ -3006,8 +3002,9 @@ export class FireMessage extends Message {
       if (URLs.length)
         linkHaste = await this.client.util.haste(
           JSON.stringify(URLs),
+          "links.json",
+          undefined,
           true,
-          "json",
           true
         );
       this.client.manager.writeToInflux([

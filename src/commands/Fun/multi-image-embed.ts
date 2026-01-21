@@ -181,24 +181,18 @@ export default class MultiImageEmbed extends Command {
           ?.first();
       if (!webhook && typeof channel.createWebhook == "function") {
         webhook = await channel
-          .createWebhook(
-            `Fire Quotes #${channel.name ? channel.name : channel.id}`.slice(
-              0,
-              80
-            ),
-            {
-              avatar: (command.guild.members.me.avatar
-                ? command.guild.members.me
-                : this.client.user
-              ).displayAvatarURL({
-                size: 2048,
-                format: "png",
-              }),
-              reason: command.guild.language.get(
-                "QUOTE_WEBHOOK_CREATE_REASON"
-              ) as string,
-            }
-          )
+          .createWebhook("Fire Quotes", {
+            avatar: (command.guild.members.me.avatar
+              ? command.guild.members.me
+              : this.client.user
+            ).displayAvatarURL({
+              size: 2048,
+              format: "png",
+            }),
+            reason: command.guild.language.get(
+              "QUOTE_WEBHOOK_CREATE_REASON"
+            ) as string,
+          })
           .catch(() => null);
       }
     }
