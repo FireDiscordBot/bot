@@ -139,10 +139,16 @@ export default class Eval extends Command {
       try {
         input = await this.client.util.haste(
           args.code.content,
-          true,
-          args.code?.language
+          "eval.js",
+          { authorId: message.author.id, executedAt: new Date().toISOString() },
+          true
         );
-        output = await this.client.util.haste(result, true, "js");
+        output = await this.client.util.haste(
+          result,
+          "evalResult.js",
+          { authorId: message.author.id, executedAt: new Date().toISOString() },
+          true
+        );
       } catch {
         input = "Unknown";
         output = "Unknown";

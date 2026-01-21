@@ -364,6 +364,8 @@ export default class CodeImage extends Command {
         return await respond.error("CODE_IMAGE_FAILED");
       const response = await this.client.util.haste(
         image.body.toString(),
+        undefined,
+        undefined,
         true
       );
       return await respond.error("CODE_IMAGE_FAILED_SUPERUSER", {

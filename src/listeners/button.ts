@@ -1381,7 +1381,21 @@ export default class Button extends Listener {
       delete tag.uses;
 
       const data = await this.client.util
-        .haste(JSON.stringify(tag, null, 4), false, "json")
+        .haste(
+          tag.content,
+          `${tag.name}.md`,
+          {
+            createdBy:
+              typeof tag.createdBy == "string"
+                ? tag.createdBy
+                : tag.createdBy.id,
+            embedIds: tag.embedIds,
+            aliases: tag.aliases,
+            uses: tag.uses,
+          },
+          true,
+          false
+        )
         .catch(() => {});
       if (!data) return;
 

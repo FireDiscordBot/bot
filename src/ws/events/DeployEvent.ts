@@ -57,7 +57,7 @@ export default class Deploy extends Event {
         e
       );
       await this.execPromise(`git checkout ${data.branch}`).catch(() => {}); // switch back if not already
-      await this.sendFailure(e);
+      await this.sendFailure(data, e);
     }
     this.deployLog = {
       out: [],
@@ -77,16 +77,25 @@ export default class Deploy extends Event {
     }) as Promise<{ out: string; err: string }>;
   }
 
-  async sendFailure(error: Error) {
+  async sendFailure(
+    data: {
+      commit: string;
+      branch: "master" | "deploy";
+      requireInstall: boolean;
+    },
+    error: Error
+  ) {
     const outHaste = await this.manager.client.util.haste(
       this.deployLog.out.join("\n"),
-      true,
-      "sh"
+      "stdout.sh",
+      data,
+      true
     );
     const errHaste = await this.manager.client.util.haste(
       this.deployLog.err.join("\n"),
-      true,
-      "sh"
+      "stderr.sh",
+      data,
+      true
     );
     const embed = new MessageEmbed()
       .setAuthor({

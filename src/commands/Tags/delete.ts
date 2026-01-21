@@ -70,7 +70,21 @@ export default class TagDelete extends Command {
     delete cachedTag.uses;
 
     const data = await this.client.util
-      .haste(JSON.stringify(cachedTag, null, 4), false, "json")
+      .haste(
+        cachedTag.content,
+        `${cachedTag.name}.md`,
+        {
+          createdBy:
+            typeof cachedTag.createdBy == "string"
+              ? cachedTag.createdBy
+              : cachedTag.createdBy.id,
+          embedIds: cachedTag.embedIds,
+          aliases: cachedTag.aliases,
+          uses: cachedTag.uses,
+        },
+        true,
+        false
+      )
       .catch(() => {});
     if (!data) return await message.error("ERROR_CONTACT_SUPPORT");
     const deleted = await manager.deleteTag(tag).catch(() => false);

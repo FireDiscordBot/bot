@@ -57,7 +57,20 @@ export default class TagRaw extends Command {
     const cachedTag = await manager.getTag(tag);
     if (!cachedTag) return await message.error("TAG_INVALID_TAG", { tag });
     return await message.channel.send({
-      content: await this.client.util.haste(cachedTag.content, false, "md"),
+      content: await this.client.util.haste(
+        cachedTag.content,
+        `${cachedTag.name}.md`,
+        {
+          createdBy:
+            typeof cachedTag.createdBy == "string"
+              ? cachedTag.createdBy
+              : cachedTag.createdBy.id,
+          embedIds: cachedTag.embedIds,
+          aliases: cachedTag.aliases,
+        },
+        false,
+        false
+      ),
     });
   }
 }

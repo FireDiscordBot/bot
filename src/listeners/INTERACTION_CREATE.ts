@@ -27,8 +27,9 @@ export default class InteractionCreate extends Listener {
     else {
       const haste = await this.client.util.haste(
         JSON.stringify(interaction, null, 4),
-        false,
-        "json"
+        "interaction.json",
+        undefined,
+        true
       );
       this.client.sentry.captureEvent({
         level: "warning",

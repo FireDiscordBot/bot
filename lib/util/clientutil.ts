@@ -31,6 +31,7 @@ import {
   Webhook,
   version as djsver,
 } from "discord.js";
+import * as FormData from "form-data";
 import { murmur3 } from "murmurhash-js";
 import { cpus, totalmem } from "os";
 import * as pidusage from "pidusage";
@@ -402,43 +403,61 @@ export class Util extends ClientUtil {
       .map((guild: FireGuild) => guild.getDiscoverableData());
   }
 
-  async haste<R extends boolean = false>(
+  async haste(
     text: string,
-    fallback?: boolean,
-    language?: string,
-    raw?: R
-  ): Promise<R extends true ? { url: string; raw: string } : string> {
-    const url = fallback
-      ? "https://h.inv.wtf/"
-      : // ? "https://haste.prod.getfire.bot/"
-        "https://hst.sh/";
-    try {
-      const h: { key: string } = await (
-        await centra(url, "POST")
-          .path("/documents")
-          .body(text, "buffer")
-          .header("User-Agent", this.client.manager.ua)
-          .send()
-      ).json();
-      if (!h.key) throw new Error(JSON.stringify(h));
-      const fullURL = language
-        ? `${url}${h.key}.${language}`
-        : `${url}${h.key}`;
-      return (
-        raw
-          ? {
-              url: fullURL,
-              raw: language
-                ? `${url}raw/${h.key}.${language}`
-                : `${url}raw/${h.key}`,
-            }
-          : url + h.key + (language ? "." + language : "")
-      ) as any;
-    } catch (e) {
-      e.message += ` (Haste Service: ${url})`;
-      if (!fallback) return await this.haste(text, true, language, raw);
-      else throw e;
-    }
+    filename: string | undefined,
+    metadata: Record<string, any> | undefined,
+    readonly: boolean | undefined,
+    raw: true
+  ): Promise<{ url: string; raw: string }>;
+  async haste(
+    text: string,
+    filename?: string,
+    metadata?: Record<string, any>,
+    readonly?: boolean,
+    raw?: false
+  ): Promise<string>;
+  async haste(
+    text: string,
+    filename?: string,
+    metadata?: Record<string, any>,
+    readonly?: boolean
+  ): Promise<string>;
+  async haste(
+    text: string,
+    filename?: string,
+    metadata?: Record<string, any>,
+    readonly: boolean = false,
+    raw?: boolean
+  ): Promise<string | { url: string; raw: string }> {
+    const body = new FormData();
+    body.append("content", text);
+    if (filename) body.append("filename", filename);
+    if (metadata) body.append("metadata", JSON.stringify(metadata));
+    if (readonly) body.append("readonly", "true");
+    const hasteReq = await centra(`${constants.url.haste}/documents`, "post")
+      .body(body.getBuffer())
+      .header(body.getHeaders())
+      .header("Authorization", `Bearer ${process.env.HASTE_API_KEY}`)
+      .send();
+    if (hasteReq.statusCode != 200)
+      switch (hasteReq.statusCode) {
+        case 413: {
+          throw new Error("Payload Too Large");
+        }
+        default: {
+          throw new Error(
+            `Failed to upload haste, got status ${hasteReq.statusCode}`
+          );
+        }
+      }
+    const haste = (await hasteReq.json()) as { key: string; metadata: object };
+    return raw
+      ? {
+          url: `${constants.url.haste}/${haste.key}`,
+          raw: `${constants.url.haste}/raw/${haste.key}`,
+        }
+      : `${constants.url.haste}/${haste.key}`;
   }
 
   async mcProfile(player: string, uuid?: string) {
@@ -1048,7 +1067,7 @@ export class Util extends ClientUtil {
         .first();
     if (!hook)
       hook = await destination
-        .createWebhook(`Fire Quotes #${destination.name}`.slice(0, 80), {
+        .createWebhook("Fire Quotes", {
           avatar: this.client.user.displayAvatarURL({
             size: 2048,
             format: "png",
