@@ -438,6 +438,7 @@ export class Util extends ClientUtil {
     const hasteReq = await centra(`${constants.url.haste}/documents`, "post")
       .body(body.getBuffer())
       .header(body.getHeaders())
+      .header("User-Agent", this.client.manager.ua)
       .header("Authorization", `Bearer ${process.env.HASTE_API_KEY}`)
       .send();
     if (hasteReq.statusCode != 200)
