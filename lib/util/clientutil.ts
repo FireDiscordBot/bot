@@ -454,12 +454,12 @@ export class Util extends ClientUtil {
     const body = await profileReq.json();
     if (profileReq.statusCode == 404) throw new ProfileNotFoundError();
     else if (
-      profileReq.statusCode == 209 &&
+      profileReq.statusCode == 409 &&
       "success" in body &&
       body.success == false
     )
       throw new UUIDConflictError(player, uuid);
-    else if (profileReq.statusCode == 209) {
+    else if (profileReq.statusCode == 409) {
       // We should have a profile here, but the name will be different
       if (
         "name" in body &&
