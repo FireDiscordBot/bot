@@ -459,31 +459,34 @@ export default class MCLogs extends Module {
       message.reactions.removeAll().catch(() => {});
 
     const allowedMentions = { users: [message.author.id] };
-    const components = [
-      new MessageActionRow().addComponents([
-        new MessageButton()
-          .setStyle("LINK")
-          .setURL(
-            haste ? haste.toString() : "https://google.com/something_broke_lol"
-          )
-          .setLabel(language.get(`MC_LOG_VIEW_${mclogsRes.logType}`))
-          .setDisabled(!haste),
-        new MessageButton()
-          .setStyle("LINK")
-          .setURL(
-            hasteRaw
-              ? hasteRaw.toString()
-              : "https://google.com/something_broke_lol"
-          )
-          .setLabel(language.get(`MC_LOG_VIEW_${mclogsRes.logType}_RAW`))
-          .setDisabled(!hasteRaw),
-        new MessageButton()
-          .setStyle("PRIMARY")
-          .setCustomId("!mclogscan:solution")
-          .setLabel(language.get("MC_LOG_REPORT_SOLUTION"))
-          .setDisabled(mclogsRes.analysis.unsupported),
-      ]),
-    ];
+    const components =
+      message instanceof ApplicationCommandMessage || !haste
+        ? []
+        : [
+            new MessageActionRow().addComponents([
+              new MessageButton()
+                .setStyle("LINK")
+                .setURL(
+                  haste
+                    ? haste.toString()
+                    : "https://google.com/something_broke_lol"
+                )
+                .setLabel(language.get(`MC_LOG_VIEW_${mclogsRes.logType}`)),
+              new MessageButton()
+                .setStyle("LINK")
+                .setURL(
+                  hasteRaw
+                    ? hasteRaw.toString()
+                    : "https://google.com/something_broke_lol"
+                )
+                .setLabel(language.get(`MC_LOG_VIEW_${mclogsRes.logType}_RAW`)),
+              new MessageButton()
+                .setStyle("PRIMARY")
+                .setCustomId("!mclogscan:solution")
+                .setLabel(language.get("MC_LOG_REPORT_SOLUTION"))
+                .setDisabled(mclogsRes.analysis.unsupported),
+            ]),
+          ];
 
     const details = [];
     if (mclogsRes.client.javaVersion)
