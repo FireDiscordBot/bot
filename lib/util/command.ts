@@ -80,6 +80,7 @@ export const getSlashType = (type: string) => {
     case "member|role":
       return ApplicationCommandOptionType.Mentionable;
     case "image":
+    case "attachment":
       return ApplicationCommandOptionType.Attachment;
     default:
       return ApplicationCommandOptionType.String;
