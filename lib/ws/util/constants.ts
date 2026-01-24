@@ -31,7 +31,7 @@ export enum EventType {
   REMINDER_DELETE, // send only
   CROSS_CLUSTER_QUOTE, // send & receive
   PREMIUM_SYNC, // receive only
-  UPDATE_BLOCKGAMESOLUTIONS, // receive only
+  UNUSED1 = 26,
   PLAYWRIGHT_REQUEST, // send only
   REFRESH_COMMANDS, // send only
   FORWARD_MESSAGE, // receive only
