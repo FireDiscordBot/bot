@@ -111,7 +111,7 @@ export class ProfileConflictError extends MojangAPIError {
 
 export const validPasteURLs = [
   "h.inv.wtf",
-  // "haste.prod.getfire.bot",
+  "haste.prod.getfire.bot",
   "hst.sh",
   "paste.ee",
   "api.paste.ee",
@@ -1286,7 +1286,7 @@ export class Util extends ClientUtil {
     if (!this.isValidPasteURL(hostname)) return null;
     switch (hostname) {
       case "h.inv.wtf":
-      // case "haste.prod.getfire.bot":
+      case "haste.prod.getfire.bot":
       case "hst.sh":
       case "paste.essential.gg":
       case "pastebin.com": {
