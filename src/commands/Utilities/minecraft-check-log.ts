@@ -73,7 +73,7 @@ export default class CheckLog extends Command {
       .body(
         {
           url,
-          paste: true,
+          paste: false,
           config: {
             mobile: command.guild?.settings.get(
               "minecraft.logscan.mobile",
