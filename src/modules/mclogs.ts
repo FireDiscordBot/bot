@@ -1,7 +1,8 @@
+import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
-import { validPasteURLs } from "@fire/lib/util/clientutil";
+import { humanFileSize, validPasteURLs } from "@fire/lib/util/clientutil";
 import { constants } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
 import { Module } from "@fire/lib/util/module";
@@ -37,6 +38,24 @@ enum Loaders {
   FEATHER_FABRIC = "Feather with Fabric", // same here
 }
 type ModLoaders = "Forge" | "NeoForge" | "Fabric" | "Quilt";
+
+export type SystemInfo = {
+  os?: string;
+  cpu?: string;
+  gpu?: string;
+  gpuDriver?: string;
+  display?: string;
+  physicalCores?: number;
+  logicalCores?: number;
+  totalMemory?: string;
+  shaderPack?: string;
+  shaderProfile?: string;
+  memory?: {
+    max?: string;
+    allocated?: string;
+    free?: string;
+  };
+};
 
 // this is a mess now thanks to Mojang switching version scheme
 // and makes some assumptions about the future versioning
@@ -158,7 +177,28 @@ type DupedModsData = {
 };
 type ModSource = `${string}.jar`;
 
-type MCLogsResponse =
+export enum BlameReason {
+  MIXIN_HANDLER = "MIXIN_HANDLER",
+  MIXIN_INJECTION_FAILURE = "MIXIN_INJECTION_FAILURE",
+  MIXIN_PRE_PROCESSOR_EXCEPTION = "MIXIN_PRE_PROCESSOR_EXCEPTION",
+  MIXIN_APPLY_FAILURE = "MIXIN_APPLY_FAILURE",
+  INVALID_MIXIN = "INVALID_MIXIN",
+  FORGE_SUSPECT_MOD = "FORGE_SUSPECT_MOD",
+  MOD_LOADING_ERROR = "MOD_LOADING_ERROR",
+  MISSING_DEPENDENCY = "MISSING_DEPENDENCY",
+  DEPENDENCY_NOT_FOUND = "DEPENDENCY_NOT_FOUND",
+  WRONG_LOADER = "WRONG_LOADER",
+  OUT_OF_MEMORY = "OUT_OF_MEMORY",
+  STACKTRACE_CULPRIT = "STACKTRACE_CULPRIT",
+}
+
+export type ModBlame = {
+  modId: string;
+  modName?: string;
+  reason: BlameReason;
+};
+
+export type MCLogsResponse =
   | { error: string }
   | {
       logType: LogType;
@@ -171,12 +211,14 @@ type MCLogsResponse =
         javaVersion: string | undefined;
         jvmType: string | undefined;
         jvmArguments: string[];
+        system?: SystemInfo;
         mods: ModInfo[];
         duplicateMods: DupedModsData[];
       };
       analysis: {
         solutions: string[];
         recommendations: string[];
+        blame: ModBlame[];
         unsupported: boolean;
       };
       profile: {
@@ -195,6 +237,38 @@ const builtInMods = [
   "java",
   "fabricloader",
 ];
+
+const cleanSystemString = (str: string) => {
+  if (!str) return "";
+  return str
+    .replace(/Advanced Micro Devices,?\s*Inc\.?/gi, "AMD")
+    .replace(/NVIDIA\s+Corporation/gi, "NVIDIA")
+    .replace(/Intel\s+Corporation/gi, "Intel")
+    .replace(/\s\([\w\d]+\)/g, "")
+    .replace(/\sversion\s[\d\.]+/gi, "")
+    .replace(/\((?:R|TM)\)/gi, "")
+    .replace(/,\s*Inc\.?|,\s*Corp\.?|Corporation/gi, "")
+    .replace(/@\s*[\d\.]+\s*GHz/gi, "")
+    .replace(/(Intel|AMD|NVIDIA)\s+\1/gi, "$1")
+    .trim()
+    .replace(/\s+/g, " ");
+};
+
+const getMiB = (str) => {
+  const match = str.match(/\((\d+)\s+MiB\)/);
+  return match ? parseInt(match[1]) : null;
+};
+const formatMemory = (memory) => {
+  if (!memory || !memory.max) return "";
+
+  const maxMiB = getMiB(memory.max);
+  const allocatedMiB = getMiB(memory.allocated);
+
+  if (allocatedMiB && maxMiB) {
+    return `${humanFileSize(allocatedMiB * 1_048_576)} / ${humanFileSize(maxMiB * 1_048_576)}`;
+  }
+  return maxMiB ? humanFileSize(maxMiB * 1_048_576) : "";
+};
 
 export default class MCLogs extends Module {
   constructor() {
@@ -332,8 +406,8 @@ export default class MCLogs extends Module {
     }
   }
 
-  private async handleLogRes(
-    message: FireMessage,
+  async handleLogRes(
+    message: FireMessage | ApplicationCommandMessage,
     language: Language,
     pasteURLs: { match: string; rawURL: URL }[],
     match: string,
@@ -375,7 +449,8 @@ export default class MCLogs extends Module {
         },
       ]);
 
-    if (haste) message.delete().catch(() => {});
+    if (haste && !(message instanceof ApplicationCommandMessage))
+      message.delete().catch(() => {});
     else if (
       message.guild?.members.me
         .permissionsIn(message.channelId)
@@ -457,6 +532,43 @@ export default class MCLogs extends Module {
           version: mclogsRes.client.optifineVersion,
         })
       );
+    if (mclogsRes.client.system) {
+      const system = mclogsRes.client.system;
+      const systemDetails = [];
+      if (system.os) systemDetails.push(cleanSystemString(system.os));
+      if (system.cpu) systemDetails.push(cleanSystemString(system.cpu));
+      if (system.gpu)
+        systemDetails.push(
+          cleanSystemString(system.gpu) +
+            (system.gpuDriver
+              ? ` (${cleanSystemString(system.gpuDriver)})`
+              : "")
+        );
+      if (systemDetails.length)
+        details.push(
+          language.get("MC_LOG_SYSTEM_INFO", {
+            details: systemDetails.filter(Boolean).join(", "),
+          })
+        );
+      const memory = formatMemory(system.memory);
+      if (memory)
+        details.push(
+          language.get(
+            system.totalMemory
+              ? "MC_LOG_MEMORY_INFO_WITH_TOTAL"
+              : "MC_LOG_MEMORY_INFO",
+            { memory, total: system.totalMemory }
+          )
+        );
+
+      if (system.shaderPack)
+        details.push(
+          language.get("MC_LOG_SHADER_INFO", {
+            pack: system.shaderPack,
+            profile: system.shaderProfile,
+          })
+        );
+    }
 
     const solutions =
       mclogsRes.analysis.solutions.length && !mclogsRes.analysis.unsupported
@@ -464,10 +576,30 @@ export default class MCLogs extends Module {
             .map((s) => `- **${s}**`)
             .join("\n")}`
         : "";
+
+    const blameModIds = mclogsRes.analysis.blame
+      .map((b) => b.modId)
+      .filter((m, i, a) => a.indexOf(m) === i);
+    const possibleCulprits = [];
+    for (const mod of blameModIds) {
+      const blames = mclogsRes.analysis.blame.filter((b) => b.modId == mod);
+      for (const blame of blames)
+        possibleCulprits.push(
+          language.get(`MC_LOG_POTENTIAL_CULPRIT_${blame.reason}`, {
+            name: blame.modName ?? blame.modId,
+          })
+        );
+    }
+    const blame = possibleCulprits.length
+      ? `${
+          mclogsRes.analysis.solutions.length ? "\n" : ""
+        }### ${message.guild.language.get("MC_LOG_POTENTIAL_CULPRITS")}:\n${possibleCulprits.map((s) => `- ${s}`).join("\n")}`
+      : "";
+
     const recommendations =
       mclogsRes.analysis.recommendations.length &&
       !mclogsRes.analysis.unsupported
-        ? `${mclogsRes.analysis.solutions.length ? "\n\n" : ""}${message.guild.language.get(
+        ? `${mclogsRes.analysis.solutions.length || mclogsRes.analysis.blame.length ? "\n\n" : ""}${message.guild.language.get(
             "MC_LOG_RECOMMENDATIONS"
           )}:\n${mclogsRes.analysis.recommendations.map((r) => `- ${r}`).join("\n")}`
         : "";
@@ -477,19 +609,28 @@ export default class MCLogs extends Module {
       if (content.includes(match)) content = content.replaceAll(match, "");
 
     const logHaste = language
-      .get(mclogsRes.profile.ign ? "MC_LOG_HASTE_WITH_IGN" : "MC_LOG_HASTE", {
-        extra: rawURL.host.includes("discordapp") ? content : "",
-        details: details.map((d) => `- ${d}`).join("\n"),
-        user: message.author.toMention(),
-        solutions: mclogsRes.analysis.unsupported
-          ? "\n" +
-            (mclogsRes.analysis.solutions[0] ?? "Unable to provide solutions")
-          : solutions + recommendations,
-        ign: mclogsRes.profile.ign
-          ? Util.escapeMarkdown(mclogsRes.profile.ign)
-          : undefined,
-        msgType: rawURL.host.includes("discordapp") ? "uploaded" : "sent",
-      })
+      .get(
+        message instanceof ApplicationCommandMessage
+          ? mclogsRes.profile.ign
+            ? "MC_CHECK_LOG_HASTE_WITH_IGN"
+            : "MC_CHECK_LOG_HASTE"
+          : mclogsRes.profile.ign
+            ? "MC_LOG_HASTE_WITH_IGN"
+            : "MC_LOG_HASTE",
+        {
+          extra: rawURL.host.includes("discordapp") ? content : "",
+          details: details.map((d) => `- ${d}`).join("\n"),
+          user: message.author.toMention(),
+          solutions: mclogsRes.analysis.unsupported
+            ? "\n" +
+              (mclogsRes.analysis.solutions[0] ?? "Unable to provide solutions")
+            : solutions + blame + recommendations,
+          ign: mclogsRes.profile.ign
+            ? Util.escapeMarkdown(mclogsRes.profile.ign)
+            : undefined,
+          msgType: rawURL.host.includes("discordapp") ? "uploaded" : "sent",
+        }
+      )
       .trim();
 
     if (logHaste.length <= 2000)
@@ -508,13 +649,21 @@ export default class MCLogs extends Module {
       else
         return await message.channel.send({
           content: language.get(
-            mclogsRes.client.loader
-              ? mclogsRes.profile.ign
-                ? "MC_LOG_HASTE_WITH_LOADER_AND_IGN"
-                : "MC_LOG_HASTE_WITH_LOADER"
-              : mclogsRes.profile.ign
-                ? "MC_LOG_HASTE_WITH_IGN"
-                : "MC_LOG_HASTE",
+            message instanceof ApplicationCommandMessage
+              ? mclogsRes.client.loader
+                ? mclogsRes.profile.ign
+                  ? "MC_CHECK_LOG_HASTE_WITH_LOADER_AND_IGN"
+                  : "MC_CHECK_LOG_HASTE_WITH_LOADER"
+                : mclogsRes.profile.ign
+                  ? "MC_CHECK_LOG_HASTE_WITH_IGN"
+                  : "MC_CHECK_LOG_HASTE"
+              : mclogsRes.client.loader
+                ? mclogsRes.profile.ign
+                  ? "MC_LOG_HASTE_WITH_LOADER_AND_IGN"
+                  : "MC_LOG_HASTE_WITH_LOADER"
+                : mclogsRes.profile.ign
+                  ? "MC_LOG_HASTE_WITH_IGN"
+                  : "MC_LOG_HASTE",
             {
               extra: rawURL.host.includes("discordapp") ? content : "",
               solutions: language.get("MC_LOG_WTF"),
