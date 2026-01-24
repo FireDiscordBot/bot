@@ -808,7 +808,7 @@ export class FireMessage extends Message {
         !embeds.length &&
         (!this.attachments.size || this.attachments.every(isMediaAttachment))
       )
-        components = [new TextDisplayComponent({ content })];
+        components.unshift(new TextDisplayComponent({ content }));
     }
     if (embeds.length)
       for (const embed of embeds) {
