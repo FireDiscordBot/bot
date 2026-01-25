@@ -1,6 +1,7 @@
 import { Fire } from "@fire/lib/Fire";
 import { constants } from "@fire/lib/util/constants";
 import { Snowflake } from "discord-api-types/globals";
+import { version } from "../src";
 
 export const fire = {
   dev: process.env.NODE_ENV != "production",
@@ -8,6 +9,8 @@ export const fire = {
     const logger = client.getLogger(constants.botName);
     logger.log("-------------------------");
     logger.log(`Bot: ${client.user}`);
+    logger.log(`Version: ${version}`);
+    logger.log(`Branch: ${process.env.GIT_BRANCH}`);
     logger.log(`ID: ${client.user?.id}`);
     logger.log(`Guilds: ${client.guilds.cache.size.toLocaleString()}`);
     logger.log(

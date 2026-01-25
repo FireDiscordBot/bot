@@ -2,8 +2,6 @@
 logs
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 lerna-debug.log*
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
@@ -62,16 +60,13 @@ jspm_packages/
 # Output of 'npm pack'
 *.tgz
 
-# Yarn Integrity file
-.yarn-integrity
+# pnpm
+.pnpm-store
 
 # dotenv environment variables file
 .env
 dev.env
 stg.env
-lc.env
-# i am doing thing and i needed to make a copy of this
-lc.env.real
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

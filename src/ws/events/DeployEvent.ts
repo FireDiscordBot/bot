@@ -1,5 +1,4 @@
 import { Manager } from "@fire/lib/Manager";
-import { getCommitHash } from "@fire/lib/util/gitUtils";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { exec, ExecOptions } from "child_process";
@@ -27,8 +26,7 @@ export default class Deploy extends Event {
       data.requireInstall ? "(requires install)" : ""
     );
     // check what commit we're currently on first
-    const currentCommit = getCommitHash();
-    if (currentCommit == data.commit) {
+    if (process.env.GIT_COMMIT == data.commit) {
       this.console.info(`Already on commit ${data.commit}, no need to pull`);
       // no need to pull from git, but we may need to restart if it doesn't match what is loaded
       // (another cluster on the same machine may have already deployed this commit meaning it has already pulled and compiled)
@@ -41,13 +39,9 @@ export default class Deploy extends Event {
       await this.execPromise(`git checkout ${data.commit}`);
       if (data.requireInstall) {
         await this.execPromise("rm -rf node_modules");
-        await this.execPromise("yarn install");
-        // for some reason, we need to install these two last
-        await this.execPromise(
-          "yarn add discord-akairo/discord-akairo FireDiscordBot/discord.js"
-        );
+        await this.execPromise("pnpm install");
       }
-      await this.execPromise("yarn compile");
+      await this.execPromise("pnpm compile");
       await this.execPromise(`git checkout ${data.branch}`);
       return this.manager.kill("deploy");
     } catch (e) {
@@ -68,7 +62,7 @@ export default class Deploy extends Event {
   execPromise(command: string, options: ExecOptions = {}) {
     this.lastCommand = command;
     return new Promise((resolve, reject) => {
-      exec(command, options, (except, out, err) => {
+      exec(command, options, (except, out: string, err: string) => {
         this.deployLog.out.push(out);
         this.deployLog.err.push(err);
         if (except) reject(except);

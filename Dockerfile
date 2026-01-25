@@ -1,42 +1,43 @@
-## Dependencies (production)
-FROM node:14-alpine AS dependencies
-
+## Base
+FROM node:24-alpine AS base
 WORKDIR /app
+RUN corepack enable
+ARG GIT_COMMIT
+ENV GIT_COMMIT=$GIT_COMMIT
+ARG GIT_BRANCH
+ENV GIT_BRANCH=$GIT_BRANCH
 
-COPY package.json yarn.lock ./
+## Dependencies (production)
+FROM base AS dependencies
+
+COPY package.json pnpm-lock.yaml ./
 RUN apk add --no-cache python3 make gcc g++ \
-  && yarn install --frozen-lockfile --production
+  && pnpm install --prod --frozen-lockfile
 
 ## Builder
-FROM dependencies AS builder
+FROM base AS builder
 
-WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN apk add --no-cache python3 make gcc g++ git \
+  && pnpm install --frozen-lockfile
 
-COPY tsconfig.json ./
-COPY ./config/ ./config/
-COPY ./lib/ ./lib/
-COPY ./src/ ./src/
+COPY . .
 
-RUN yarn install --frozen-lockfile --slient \
-  && yarn cache clean \
-  && yarn compile
+RUN pnpm compile
 
 ## Runner
-FROM node:14-alpine
+FROM base AS runner
 
 WORKDIR /app
-RUN chown node:node .
+USER node
 
-COPY --from=dependencies /app/node_modules/ ./node_modules/
-COPY --from=builder /app/ ./
-COPY ./.git/ ./.git
-COPY words.txt ./
+COPY --from=dependencies --chown=node:node /app/node_modules/ ./node_modules/
+COPY --from=builder --chown=node:node /app/dist/ ./dist/
+COPY --from=builder --chown=node:node /app/package.json ./
+COPY --from=builder --chown=node:node /app/languages/ ./dist/languages/
 
 ENV NODE_ENV production
 ENV BOOT_SINGLE true
-ENV WS_PORT 1336
-ENV REST_PORT 1337
 ENV POSTGRES_USER postgres
 
-USER node
-CMD ["node", "dist/src/index.js"]
+CMD ["node", "--enable-source-maps", "dist/src/index.js"]

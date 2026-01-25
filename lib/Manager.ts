@@ -11,7 +11,6 @@ import {
 import { Command } from "./util/command";
 import { FireConsole } from "./util/console";
 import { constants } from "./util/constants";
-import { getCommitHash } from "./util/gitUtils";
 import { Module } from "./util/module";
 import { Message } from "./ws/Message";
 import { Reconnector } from "./ws/Reconnector";
@@ -61,12 +60,16 @@ export class Manager {
   ws?: Websocket;
   client: Fire;
   seq?: number;
-  id: number;
+
+  // INSTANCE_ID is automatically set via pm2 (see fire.config.js)
+  // and if it's not present, undefined will mean Aether automatically assigns
+  // with automatic assignment being the next available cluster id
+  id: number = process.env.INSTANCE_ID ? +process.env.INSTANCE_ID : undefined;
 
   constructor(version: string, sentry?: typeof Sentry) {
     this.version = version;
     this.sentry = sentry;
-    this.commit = getCommitHash();
+    this.commit = process.env.GIT_COMMIT;
 
     this.client = new Fire(this, sentry);
 
