@@ -1114,14 +1114,17 @@ export class FireMessage extends Message {
     // remove invalid file components
     components = components.filter(
       (c) =>
-        !(c instanceof FileComponent) || c.file.url.startsWith("attachment://")
+        !(c instanceof FileComponent) ||
+        (c.file.url.startsWith("attachment://") &&
+          attachments.find((a) => a.name == c.name))
     );
     for (const component of components) {
       if (component instanceof ContainerComponent)
         component.components = component.components.filter(
           (c) =>
             !(c instanceof FileComponent) ||
-            c.file.url.startsWith("attachment://")
+            (c.file.url.startsWith("attachment://") &&
+              attachments.find((a) => a.name == c.name))
         );
     }
 
@@ -1335,7 +1338,9 @@ export class FireMessage extends Message {
     // remove invalid file components
     components = components.filter(
       (c) =>
-        !(c instanceof FileComponent) || c.file.url.startsWith("attachment://")
+        !(c instanceof FileComponent) ||
+        (c.file.url.startsWith("attachment://") &&
+          attachments.find((a) => a.name == c.name))
     );
     for (const component of components) {
       if (component instanceof ContainerComponent)
