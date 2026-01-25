@@ -54,10 +54,10 @@ if (!process.env.GIT_BRANCH)
     process.env.GIT_BRANCH = "unknown";
   }
 
-const commit = process.env.GIT_COMMIT;
+const commit = process.env.GIT_COMMIT.slice(0, 7);
 export const version =
   process.env.NODE_ENV == "development"
-    ? `dev-${commit.slice(0, 7)}`
+    ? `dev-${commit}`
     : process.env.NODE_ENV == "staging"
       ? `stg-${commit}`
       : commit;
