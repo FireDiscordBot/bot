@@ -300,6 +300,9 @@ export class Command extends AkairoCommand {
   }
 
   async unload(): Promise<any> {
+    // likely loading on startup so we
+    // return as we'll fresh on ready
+    if (!this.client.readyAt) return;
     this.client.manager.ws?.send(
       MessageUtil.encode(
         new Message(
