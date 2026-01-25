@@ -65,7 +65,7 @@ export class Reconnector {
     }
     if (code == 4007)
       // Cluster has attempted to connect multiple times
-      // so kill the process and let pm2 restart it
+      // so kill the process and let it be auto-restarted
       this.manager.kill("replaced");
     if (code == 4029 && reason != "You are being rate limited")
       // This means that the current process is

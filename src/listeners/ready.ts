@@ -63,9 +63,6 @@ export default class Ready extends Listener {
             id: this.client.manager.id,
             env: process.env.NODE_ENV,
             commit: this.client.manager.commit,
-            uuid:
-              process.env.pm_id ??
-              this.client.util.randInt(0, 65535).toString(),
           })
         )
       );

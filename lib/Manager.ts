@@ -61,7 +61,7 @@ export class Manager {
   client: Fire;
   seq?: number;
 
-  // INSTANCE_ID is automatically set via pm2 (see fire.config.js)
+  // INSTANCE_ID is currently set via pm2 (see fire.config.js)
   // and if it's not present, undefined will mean Aether automatically assigns
   // with automatic assignment being the next available cluster id
   id: number = process.env.INSTANCE_ID ? +process.env.INSTANCE_ID : undefined;
