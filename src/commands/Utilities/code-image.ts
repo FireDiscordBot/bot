@@ -332,7 +332,7 @@ export default class CodeImage extends Command {
 
       if (files?.size) {
         const file = files.first();
-        if (!file.contentType.startsWith("text/"))
+        if (!file.contentType?.startsWith("text/"))
           return await modal.error("CODE_IMAGE_INVALID_FILE_TYPE");
         else if (file.size >= 2_500_000)
           return await modal.error("CODE_IMAGE_FILE_TOO_LARGE");

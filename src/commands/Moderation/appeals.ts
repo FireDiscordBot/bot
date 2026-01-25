@@ -385,8 +385,8 @@ export default class Appeals extends Command {
             files.length &&
             files.every(
               (file) =>
-                (file.contentType.startsWith("image/") ||
-                  file.contentType.startsWith("video/")) &&
+                (file.contentType?.startsWith("image/") ||
+                  file.contentType?.startsWith("video/")) &&
                 attachments.find((attach) => attach.name == file.originalName)
             );
           if (allMedia) {
