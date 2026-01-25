@@ -220,6 +220,21 @@ export class ModalMessage {
       return this.interaction.fields.getUploadedFiles(field, required);
   }
 
+  getSelectedRadioOption(field: string, required?: boolean) {
+    if (this.hasField(field))
+      return this.interaction.fields.getRadioGroupValue(field, required);
+  }
+
+  getSelectedCheckboxValues(field: string, required?: boolean) {
+    if (this.hasField(field))
+      return this.interaction.fields.getCheckboxGroupValues(field, required);
+  }
+
+  getSelectedCheckboxValue(field: string) {
+    if (this.hasField(field))
+      return this.interaction.fields.getCheckboxValue(field);
+  }
+
   send(key?: LanguageKeys, args?: i18nOptions) {
     return this.channel.send(
       {

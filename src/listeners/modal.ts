@@ -31,6 +31,7 @@ import Appeals, {
   AppealFormTextInputItem,
 } from "../commands/Moderation/appeals";
 import Embed from "../commands/Utilities/embed";
+import LogScan from "../commands/Utilities/minecraft-log-scan";
 
 const { regexes } = constants;
 
@@ -142,7 +143,7 @@ export default class Modal extends Listener {
       const [, userId, timestamp] = modal.customId.split(":") as [
         string,
         Snowflake,
-        `${number}`
+        `${number}`,
       ];
       if (userId != modal.author.id) return;
 
@@ -167,11 +168,11 @@ export default class Modal extends Listener {
       const modalValues = {
         text: modal.getTextInputValue("reminder") || reminder.text,
         time: modal.getTextInputValue("time")
-          ? parseWithUserTimezone(
+          ? (parseWithUserTimezone(
               modal.getTextInputValue("time"),
               modal.createdAt,
               modal.author.timezone
-            ).parsed[0]?.start.date() ?? reminder.date
+            ).parsed[0]?.start.date() ?? reminder.date)
           : reminder.date,
       };
 
@@ -189,15 +190,15 @@ export default class Modal extends Listener {
           | [string, Snowflake, Date]
           | [Date, Snowflake, Date];
       if (isContentChanged && isTimeChanged)
-        (query =
+        ((query =
           "UPDATE remind SET reminder=$1, forwhen=$2 WHERE uid=$3 AND forwhen=$4"),
-          (values = [modalValues.text, modalValues.time, userId, date]);
+          (values = [modalValues.text, modalValues.time, userId, date]));
       else if (isContentChanged)
-        (query = "UPDATE remind SET reminder=$1 WHERE uid=$2 AND forwhen=$3"),
-          (values = [modalValues.text, userId, date]);
+        ((query = "UPDATE remind SET reminder=$1 WHERE uid=$2 AND forwhen=$3"),
+          (values = [modalValues.text, userId, date]));
       else if (isTimeChanged)
-        (query = "UPDATE remind SET forwhen=$1 WHERE uid=$2 AND forwhen=$3"),
-          (values = [modalValues.time, userId, date]);
+        ((query = "UPDATE remind SET forwhen=$1 WHERE uid=$2 AND forwhen=$3"),
+          (values = [modalValues.time, userId, date]));
 
       const updated = await this.client.db.query(query, values).catch(() => {});
       if (!updated) return await modal.error("REMINDERS_EDIT_FAILED");
@@ -270,6 +271,24 @@ export default class Modal extends Listener {
       }
     }
 
+    if (modal.customId == "mclogscan:toggle") {
+      const logScan = this.client.getCommand("minecraft-log-scan") as LogScan;
+      modal.flags = 64;
+      if (modal.channel.type == "DM")
+        return await modal.error("MINECRAFT_LOGSCAN_MANAGE_DMS");
+      else if (!modal.member?.isAdmin(modal.channel))
+        return await modal
+          .error("MINECRAFT_LOGSCAN_MANAGE_ADMIN_ONLY")
+          .catch(() => {});
+
+      await modal.guild.settings.set("minecraft.logscan", true, modal.author);
+      if (modal.guild.settings.get<boolean>("minecraft.logscan", false) == true)
+        return await modal.success("MINECRAFT_LOGSCAN_TOGGLE_FAIL");
+      const components = logScan.getMenuComponents(modal);
+      await modal.channel.update({ components });
+      return await modal.success("MINECRAFT_LOGSCAN_ENABLED");
+    }
+
     if (modal.customId.startsWith("mclogscan:solution:")) {
       await modal.channel.ack();
       modal.flags = 64; // make messages ephemeral
@@ -307,8 +326,8 @@ export default class Modal extends Listener {
             logInfo.loader && logInfo.mcVersion
               ? "MINECRAFT_LOGSCAN_SOLUTION_LOG_INFO_FULL"
               : logInfo.mcVersion
-              ? "MINECRAFT_LOGSCAN_SOLUTION_LOG_INFO_NO_LOADER"
-              : "MINECRAFT_LOGSCAN_SOLUTION_LOG_INFO_BASIC",
+                ? "MINECRAFT_LOGSCAN_SOLUTION_LOG_INFO_NO_LOADER"
+                : "MINECRAFT_LOGSCAN_SOLUTION_LOG_INFO_BASIC",
             {
               user: logInfo.user,
               loader: logInfo.loader,

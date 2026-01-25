@@ -6,7 +6,6 @@ import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import { constants, titleCase } from "@fire/lib/util/constants";
-import { getBranch } from "@fire/lib/util/gitUtils";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
@@ -17,6 +16,7 @@ import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   CategoryChannel,
+  CheckboxGroupComponent,
   ContainerComponent,
   EmbedFieldData,
   FileComponent,
@@ -2019,6 +2019,40 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           "minecraft.logscan",
           false
         );
+
+        if (!current && button.author.hasExperiment(3324162204, 1))
+          return await button.component.showModal(
+            new Modal()
+              .setTitle(button.language.get("MINECRAFT_LOGSCAN_MODAL_TITLE"))
+              .setCustomId("mclogscan:toggle")
+              .addComponents(
+                new TextDisplayComponent({
+                  content: button.language.get("MINECRAFT_LOGSCAN_MODAL_DESC"),
+                }).setId(1),
+                new LabelComponent()
+                  .setId(2)
+                  .setLabel(
+                    button.language.get("MINECRAFT_LOGSCAN_MODAL_LABEL")
+                  )
+                  .setDescription(
+                    button.language.get("MINECRAFT_LOGSCAN_MODAL_LABEL_DESC")
+                  )
+                  .setComponent(
+                    new CheckboxGroupComponent()
+                      .setCustomId("agreement")
+                      .addOptions([
+                        {
+                          label: button.language.get(
+                            "MINECRAFT_LOGSCAN_MODAL_AGREEMENT"
+                          ),
+                          value: "true",
+                        },
+                      ])
+                      .setRequired(true)
+                  )
+              )
+          );
+
         await button.guild.settings.set(
           "minecraft.logscan",
           !current,
@@ -2251,7 +2285,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           null,
           (button.message as FireMessage).embeds[0].fields[0].value
         )?.content.trim() ?? "Commit Message Unknown";
-      const branch = await getBranch();
+      const branch = process.env.GIT_BRANCH;
       const githubChannel = this.client.channels.cache.get(
         this.client.config.githubChannelId
       ) as NewsChannel;

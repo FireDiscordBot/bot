@@ -1332,6 +1332,21 @@ export class FireMessage extends Message {
 
     if (!components.length && !attachments.length) return; // something fucked up idk idc bruh moment
 
+    // remove invalid file components
+    components = components.filter(
+      (c) =>
+        !(c instanceof FileComponent) || c.file.url.startsWith("attachment://")
+    );
+    for (const component of components) {
+      if (component instanceof ContainerComponent)
+        component.components = component.components.filter(
+          (c) =>
+            !(c instanceof FileComponent) ||
+            (c.file.url.startsWith("attachment://") &&
+              attachments.find((a) => a.name == c.name))
+        );
+    }
+
     if (thread)
       return await thread
         .send({
