@@ -13,10 +13,11 @@
   },
   "scripts": {
     "dev": "pnpm compile && pnpm rundev",
-    "rundev": "GIT_COMMIT=$(git rev-parse HEAD) GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) NODE_ENV=development node --enable-source-maps dist/src/index.js",
-    "compile": "rm -rf dist/ && tsc",
-    "start": "GIT_COMMIT=${GIT_COMMIT:-$(git rev-parse HEAD || echo unknown)} GIT_BRANCH=${GIT_BRANCH:-$(git rev-parse --abbrev-ref HEAD || echo unknown)} NODE_ENV=production node --enable-source-maps dist/src/index.js",
-    "format": "prettier . --write"
+    "rundev": "NODE_ENV=development node --enable-source-maps dist/src/index.js",
+    "compile": "rm -rf dist/ && tsc && pnpm gitinfo",
+    "start": "NODE_ENV=production node --enable-source-maps dist/src/index.js",
+    "format": "prettier . --write",
+    "gitinfo": "git rev-parse HEAD > dist/commit.txt && git rev-parse --abbrev-ref HEAD > dist/branch.txt"
   },
   "_moduleAliases": {
     "@fire/lib": "dist/lib",
