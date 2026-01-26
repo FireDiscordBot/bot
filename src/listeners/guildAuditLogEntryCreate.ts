@@ -88,7 +88,7 @@ export default class GuildAuditLogEntryCreate extends Listener {
         auditLogEntry,
         guild
       ).catch((e) => {
-        this.client.sentry.captureException(e, {
+        this.client.sentry?.captureException(e, {
           tags: {
             action: auditLogEntry.action,
             guild: guild.id,

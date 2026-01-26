@@ -81,7 +81,7 @@ export default class CommandError extends Listener {
         // sometimes leads to circular structure error
         extras["command.args"] = JSON.stringify(args);
       } catch {}
-      const eventId = sentry.captureException(error, {
+      const eventId = sentry?.captureException(error, {
         extra: extras,
         user: { id: message.author.id, username: message.author.toString() },
       });

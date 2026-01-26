@@ -86,7 +86,7 @@ export default class PremiumSync extends Event {
           !client.config.dev
         )
           await member.roles.remove(premiumRole, "fire+ is gone").catch((e) => {
-            this.manager.sentry.captureException(e, {
+            this.manager.sentry?.captureException(e, {
               user: {
                 id: member.id,
                 username: member.user.toString(),
@@ -100,7 +100,7 @@ export default class PremiumSync extends Event {
           await member.roles
             .add(premiumRole, "wow member now has fire+")
             .catch((e) => {
-              this.manager.sentry.captureException(e, {
+              this.manager.sentry?.captureException(e, {
                 user: {
                   id: member.id,
                   username: member.user.toString(),

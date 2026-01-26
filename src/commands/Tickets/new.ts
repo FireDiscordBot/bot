@@ -77,7 +77,7 @@ export default class NewTicket extends Command {
         message.channel as FireTextChannel
       )
       .catch((e) => {
-        this.client.sentry.captureException(e, {
+        this.client.sentry?.captureException(e, {
           extra: {
             guild: message.guild.id,
             author: message.author.id,

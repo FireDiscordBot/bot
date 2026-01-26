@@ -225,7 +225,7 @@ export default class InteractionListener extends Listener {
         });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.captureException(error, {
+        sentry?.captureException(error, {
           extra: {
             slashCommand: JSONStringifyBigint(command),
             member: command.member
@@ -295,7 +295,7 @@ export default class InteractionListener extends Listener {
       });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.captureException(error, {
+        sentry?.captureException(error, {
           extra: {
             button: JSONStringifyBigint(button),
             member: button.member
@@ -331,7 +331,7 @@ export default class InteractionListener extends Listener {
       });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.captureException(error, {
+        sentry?.captureException(error, {
           extra: {
             button: JSONStringifyBigint(select),
             member: select.member
@@ -367,7 +367,7 @@ export default class InteractionListener extends Listener {
       });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.captureException(error, {
+        sentry?.captureException(error, {
           extra: {
             button: JSONStringifyBigint(select),
             member: select.member
@@ -402,7 +402,7 @@ export default class InteractionListener extends Listener {
         });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.captureException(error, {
+        sentry?.captureException(error, {
           extra: {
             modal: JSONStringifyBigint(modal),
             member: modal.member
@@ -449,7 +449,7 @@ export default class InteractionListener extends Listener {
         });
       if (typeof this.client.sentry != "undefined") {
         const sentry = this.client.sentry;
-        sentry.captureException(error, {
+        sentry?.captureException(error, {
           extra: {
             contextCommand: JSONStringifyBigint(context),
             member: context.member

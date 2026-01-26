@@ -100,7 +100,7 @@ export default class SubmitAppeal extends Event {
         },
       })
       .catch((e) => {
-        this.manager.sentry.captureException(e);
+        this.manager.sentry?.captureException(e);
         return { container: undefined, attachments: [] } as {
           container: ContainerComponent;
           attachments: MessageAttachment[];

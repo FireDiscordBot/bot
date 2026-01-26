@@ -24,7 +24,7 @@ export class Websocket extends Client {
     if (manager.session) headers["x-aether-session"] = manager.session;
     super(
       process.env.WS_HOST
-        ? `wss://${process.env.WS_HOST}`
+        ? `${process.env.WS_SCHEME ?? "wss"}://${process.env.WS_HOST}`
         : `ws://127.0.0.1:${process.env.WS_PORT}`,
       { headers }
     );
@@ -68,7 +68,7 @@ export class Websocket extends Client {
       }
 
       this.manager.eventHandler.handle(decoded).catch((e) => {
-        this.manager.sentry.captureException(e);
+        this.manager.sentry?.captureException(e);
         this.manager
           .getLogger("Aether")
           .error(

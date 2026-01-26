@@ -443,7 +443,7 @@ export class Fire extends AkairoClient {
       ssl: SSLMode.Disable, // we're connecting locally
     });
     this.db.on("error", (err) => {
-      this.sentry.captureException(err);
+      this.sentry?.captureException(err);
       this.getLogger("DB").error(err.stack);
     });
     this.db.on("connect", () => this.getLogger("DB").log("Connected"));

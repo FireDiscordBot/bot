@@ -1176,7 +1176,7 @@ export class FireGuild extends Guild {
         .catch((e) => {
           // prevent capturing permission errors
           if (!(e instanceof DiscordAPIError && e.httpStatus == 403))
-            this.client.sentry.captureException(e);
+            this.client.sentry?.captureException(e);
         });
       if (!overflowCategory) return "overflow";
       else {

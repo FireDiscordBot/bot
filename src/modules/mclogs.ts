@@ -387,7 +387,7 @@ export default class MCLogs extends Module {
       if ("error" in mclogsRes) {
         const e = new Error(mclogsRes.error);
         this.console.debug("Failed to process log\n", e.stack);
-        this.client.sentry.captureException(e);
+        this.client.sentry?.captureException(e);
       } else if ("logType" in mclogsRes) {
         try {
           await this.handleLogRes(
@@ -401,7 +401,7 @@ export default class MCLogs extends Module {
         } catch (e) {
           this.console.error(`Failed to send log message\n${e.stack}`);
           if (!(e instanceof DiscordAPIError))
-            this.client.sentry.captureException(e);
+            this.client.sentry?.captureException(e);
         }
       }
     }

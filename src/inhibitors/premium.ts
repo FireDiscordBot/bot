@@ -109,7 +109,7 @@ export default class Premium extends Inhibitor {
             await member.roles
               .remove(premiumRole, "premium is gone :crabrave:")
               .catch((e) => {
-                this.client.sentry.captureException(e, {
+                this.client.sentry?.captureException(e, {
                   user: {
                     id: member.id,
                     username: member.user.toString(),
@@ -123,7 +123,7 @@ export default class Premium extends Inhibitor {
             await member.roles
               .add(premiumRole, "wow member now has premium")
               .catch((e) => {
-                this.client.sentry.captureException(e, {
+                this.client.sentry?.captureException(e, {
                   user: {
                     id: member.id,
                     username: member.user.toString(),

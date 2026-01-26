@@ -28,7 +28,7 @@ export default class BroadcastEval extends Event {
       const handled = await this.manager.client.commandHandler.handle(message);
       if (!handled) this.console.warn("Broadcasted eval failed!");
     } catch (e) {
-      this.manager.sentry.captureException(e);
+      this.manager.sentry?.captureException(e);
     }
   }
 }

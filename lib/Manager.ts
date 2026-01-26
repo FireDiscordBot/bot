@@ -11,6 +11,7 @@ import {
 import { Command } from "./util/command";
 import { FireConsole } from "./util/console";
 import { constants } from "./util/constants";
+import { getCommitHash } from "./util/gitUtils";
 import { Module } from "./util/module";
 import { Message } from "./ws/Message";
 import { Reconnector } from "./ws/Reconnector";
@@ -23,7 +24,7 @@ type InfluxPoints = { points: IPoint[]; options?: IWriteOptions }[];
 
 export class Manager {
   readonly REST_HOST = process.env.REST_HOST
-    ? `https://${process.env.REST_HOST}`
+    ? `${process.env.REST_SCHEME ?? "https"}://${process.env.REST_HOST}`
     : process.env.REST_PORT
       ? `http://127.0.0.1:${process.env.REST_PORT}`
       : null; // realistically never gonna be encountered
@@ -69,7 +70,7 @@ export class Manager {
   constructor(version: string, sentry?: typeof Sentry) {
     this.version = version;
     this.sentry = sentry;
-    this.commit = process.env.GIT_COMMIT;
+    this.commit = getCommitHash();
 
     this.client = new Fire(this, sentry);
 
