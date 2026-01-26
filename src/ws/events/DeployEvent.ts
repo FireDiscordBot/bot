@@ -1,4 +1,5 @@
 import { Manager } from "@fire/lib/Manager";
+import { getCommitHash } from "@fire/lib/util/gitUtils";
 import { Event } from "@fire/lib/ws/event/Event";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { exec, ExecOptions } from "child_process";
@@ -26,7 +27,7 @@ export default class Deploy extends Event {
       data.requireInstall ? "(requires install)" : ""
     );
     // check what commit we're currently on first
-    if (process.env.GIT_COMMIT == data.commit) {
+    if (getCommitHash() == data.commit) {
       this.console.info(`Already on commit ${data.commit}, no need to pull`);
       // no need to pull from git, but we may need to restart if it doesn't match what is loaded
       // (another cluster on the same machine may have already deployed this commit meaning it has already pulled and compiled)

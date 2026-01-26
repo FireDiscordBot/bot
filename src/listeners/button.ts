@@ -6,6 +6,7 @@ import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import { constants, titleCase } from "@fire/lib/util/constants";
+import { getBranch } from "@fire/lib/util/gitUtils";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
 import { Message } from "@fire/lib/ws/Message";
@@ -1540,7 +1541,7 @@ export default class Button extends Listener {
             })
           );
         else if (ticket instanceof Error)
-          this.client.sentry.captureException(ticket, {
+          this.client.sentry?.captureException(ticket, {
             user: {
               username: button.author.toString(),
               id: button.author.id,
@@ -1674,7 +1675,7 @@ export default class Button extends Listener {
             })
           );
         else if (ticket instanceof Error)
-          this.client.sentry.captureException(ticket, {
+          this.client.sentry?.captureException(ticket, {
             user: {
               username: button.author.toString(),
               id: button.author.id,
@@ -1832,7 +1833,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
             })
           );
         else if (ticket instanceof Error)
-          this.client.sentry.captureException(ticket, {
+          this.client.sentry?.captureException(ticket, {
             user: {
               username: button.author.toString(),
               id: button.author.id,
@@ -2285,7 +2286,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           null,
           (button.message as FireMessage).embeds[0].fields[0].value
         )?.content.trim() ?? "Commit Message Unknown";
-      const branch = process.env.GIT_BRANCH;
+      const branch = getBranch();
       const githubChannel = this.client.channels.cache.get(
         this.client.config.githubChannelId
       ) as NewsChannel;
