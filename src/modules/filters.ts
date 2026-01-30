@@ -228,7 +228,7 @@ export default class Filters extends Module {
         const apiReq = await centra(`https://inv.wtf/api/${code}`)
           .header("User-Agent", this.client.manager.ua)
           .header("Referer", message instanceof FireMessage ? message.url : "")
-          .header("Authorization", process.env.VANITY_KEY)
+          .header("Authorization", process.env.WS_AUTH)
           .send();
         if (apiReq.statusCode != 200) continue;
         data = (await apiReq.json().catch(() => {})) as {
