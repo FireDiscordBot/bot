@@ -26,7 +26,8 @@ dotEnvExtended.load({
   errorOnRegex: true,
 });
 
-if (process.env.NODE_ENV == "litecord") process.env.NODE_ENV = "development";
+if (process.env.POD_NAME)
+  process.env.INSTANCE_ID = process.env.POD_NAME.split("-").at(1);
 
 import { Manager } from "@fire/lib/Manager";
 import { constants } from "@fire/lib/util/constants";
@@ -79,9 +80,5 @@ const manager = new Manager(version, loadSentry ? sentry : undefined);
 global.manager = manager;
 manager.init();
 
-process.on("exit", () => {
-  manager.kill("exit");
-});
-process.on("SIGINT", () => {
-  manager.kill("SIGINT");
-});
+for (const event of ["exit", "SIGINT", "SIGTERM"])
+  process.on(event, () => manager.kill(event));
