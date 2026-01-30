@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/node";
+import * as centra from "centra";
 import { Collection, version as djsver, SnowflakeUtil } from "discord.js";
 import { isDeepStrictEqual } from "util";
 import { Fire } from "./Fire";
@@ -78,7 +79,6 @@ export class Manager {
       this.eventHandler = new EventHandler(this);
       this.reconnector = new Reconnector(this);
       this.eventHandler.store.init();
-      this.ws = new Websocket(this);
     } else {
       this.id = 0; // default to shard 0
       this.client.options.shardCount = 1;
@@ -130,11 +130,27 @@ export class Manager {
     }
   }
 
-  private initWebsocket() {
+  private async initWebsocket() {
+    // we need aether to be ready before we can init
+    // the websocket
+    while (true) {
+      const healthReq = await centra(`${this.REST_HOST}/v2/health`)
+        .header("User-Agent", this.ua)
+        .send()
+        .catch(() => {});
+      if (
+        healthReq &&
+        healthReq.statusCode >= 200 &&
+        healthReq.statusCode <= 399
+      )
+        break;
+    }
+
     if (this.ws?.open)
       return this.getLogger("Manager").warn(
         `Tried to initialize websocket while already open with state ${this.ws.readyState}`
       );
+    this.ws = new Websocket(this);
     this.ws.init();
 
     this.ws.once("open", () => {

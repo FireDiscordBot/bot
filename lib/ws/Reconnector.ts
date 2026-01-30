@@ -1,5 +1,4 @@
 import { Manager } from "@fire/lib/Manager";
-import { Websocket } from "./Websocket";
 import { WebsocketStates } from "./util/constants";
 
 export class Reconnector {
@@ -107,7 +106,6 @@ export class Reconnector {
     this.manager.ws?.removeAllListeners();
     this.manager.ws?.terminate();
     delete this.manager.ws;
-    this.manager.ws = new Websocket(this.manager);
     this.manager.init(true);
   }
 }
