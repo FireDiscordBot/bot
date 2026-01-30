@@ -28,6 +28,6 @@ COPY --from=dependencies --chown=node:node /app/node_modules/ ./node_modules/
 COPY --from=builder --chown=node:node /app/dist/ ./dist/
 COPY --from=builder --chown=node:node /app/package.json ./
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 CMD ["node", "--enable-source-maps", "dist/src/index.js"]
