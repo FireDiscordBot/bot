@@ -49,9 +49,7 @@ export class Reconnector {
       // I'll eventually make sessions persist though
       delete this.manager.session;
       delete this.manager.seq;
-      return this.activate(
-        process.env.NODE_ENV == "development" ? 10000 : 2500
-      ); // takes longer to reboot in dev
+      return this.activate(1000);
     }
     if (code == 4000) {
       // Unknown error, we should wait some time before connecting
