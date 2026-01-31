@@ -101,3 +101,9 @@ dist
 
 # VSCode Settings
 .vscode/
+
+# macOS stupidity
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
