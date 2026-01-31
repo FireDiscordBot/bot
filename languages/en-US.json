@@ -1715,7 +1715,7 @@
   "STATS_MEMORY_USAGE": "Memory Usage",
   "STATS_DJS_VER": "Discord.JS Version",
   "STATS_NODE_VER": "Node.JS Version",
-  "STATS_UPTIME": "Uptime",
+  "STATS_UPTIME": "Cluster Started",
   "STATS_COMMANDS": "Commands",
   "STATS_FOOTER": "PID: {{pid}} | Cluster: {{cluster}} | Shard: {{shard}}",
   "SUPPORT_COMMAND_DESCRIPTION": "Get a link to Fire's support server",

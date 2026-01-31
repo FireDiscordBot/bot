@@ -604,6 +604,7 @@ export class Util extends ClientUtil {
       started: new Date(this.client.launchTime).toISOString(),
       ready: !!this.client.isReady(),
       uptime: `Since ${new Date(this.client.launchTime).toLocaleString()}`,
+      launchTime: this.client.launchTime,
       cpu: parseFloat((processStats.cpu / cpus().length).toFixed(2)),
       ram: humanFileSize(processStats.memory),
       ramBytes: processStats.memory,

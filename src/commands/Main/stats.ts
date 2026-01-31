@@ -5,7 +5,7 @@ import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import * as centra from "centra";
 import { PermissionFlagsBits } from "discord-api-types/v9";
-import { MessageEmbed, version as djsver } from "discord.js";
+import { Formatters, MessageEmbed, version as djsver } from "discord.js";
 import { totalmem } from "os";
 
 export default class Stats extends Command {
@@ -107,9 +107,7 @@ export default class Stats extends Command {
         },
         {
           name: message.language.get("STATS_MEMORY_USAGE"),
-          value: `${clusterStats.ram}/${humanFileSize(
-            stats.map((c) => c.ramBytes).reduce((a, b) => a + b, 0)
-          )}`,
+          value: `${clusterStats.ram}/${clusterStats.totalRam}`,
           inline: true,
         },
         {
@@ -125,7 +123,7 @@ export default class Stats extends Command {
         },
         {
           name: message.language.get("STATS_UPTIME"),
-          value: clusterStats.uptime,
+          value: Formatters.time(new Date(clusterStats.launchTime), "R"),
           inline: true,
         },
         {
@@ -195,7 +193,7 @@ export default class Stats extends Command {
         },
         {
           name: message.language.get("STATS_UPTIME"),
-          value: stats.uptime,
+          value: Formatters.time(new Date(this.client.launchTime), "R"),
           inline: true,
         },
         {
