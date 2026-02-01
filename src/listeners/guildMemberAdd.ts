@@ -245,7 +245,7 @@ export default class GuildMemberAdd extends Listener {
     if (member.guild.settings.has("log.members")) {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")
-        .setTimestamp()
+        .setTimestamp(member.joinedAt)
         .setAuthor({
           name: language.get("MEMBERJOIN_LOG_AUTHOR", {
             member: member.toString(),
