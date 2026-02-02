@@ -13,6 +13,8 @@ export default class MessageDelete extends Listener {
   }
 
   async exec(message: FireMessage) {
+    if (message.paginator) this.client.util.paginators.delete(message.id);
+
     if (!message.guild) return;
 
     if (message.guild.premium && !message.guild.reactionRoles)

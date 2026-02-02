@@ -183,6 +183,8 @@ export class PaginatorInterface {
 
   buttonHandler: (button: ComponentMessage) => Promise<any>;
 
+  timeoutTask: NodeJS.Timeout;
+
   constructor(
     bot: Fire,
     paginator: Paginator,
@@ -225,6 +227,14 @@ export class PaginatorInterface {
 
     this.buttonHandler = async (button: ComponentMessage) => {
       this.lastInteraction = +new Date();
+      if (this.timeout) {
+        clearTimeout(this.timeoutTask);
+        this.timeoutTask = setTimeout(() => {
+          this.closed = true;
+          if (this.message)
+            this.message.client.util.paginators.delete(this.message.id);
+        }, this.timeout);
+      }
       if (button.customId == "close") {
         this.closed = true;
         return (
@@ -241,6 +251,13 @@ export class PaginatorInterface {
       if (this.streaming) this.streaming = false;
 
       this.update(true);
+
+      if (this.timeout)
+        this.timeoutTask = setTimeout(() => {
+          this.closed = true;
+          if (this.message)
+            this.message.client.util.paginators.delete(this.message.id);
+        }, this.timeout);
     };
   }
 

@@ -55,6 +55,14 @@ export const discord: ClientOptions = {
     //   maxSize: 1, // needs to be any number > 0 for keepOverLimit to work
     //   keepOverLimit: (channel) => !channel.isThread(), // only keep non-threads in global channel cache
     // },
+    MessageManager: {
+      maxSize: 50,
+      keepOverLimit: (value: FireMessage, _, cache) => {
+        if (value.paginator && !value.paginator.closed) return true;
+        if (value.guild && value.guild.premium && cache.size < 250) return true;
+        return false;
+      },
+    },
     // @ts-ignore
     GuildApplicationCommandManager: 0,
     ApplicationCommandManager: 0,

@@ -593,15 +593,16 @@ export class Util extends ClientUtil {
     );
     return {
       id: this.client.manager.id,
-      name: this.client.user
-        ? `${this.client.user.username
-            .replace(/\s/gim, "")
-            .toLowerCase()}-${env}-${this.client.manager.id}`
-        : `fire-${env}-${this.client.manager.id}`,
+      name: process.env.KUBERNETES_PORT // easy way to identify running in k8s
+        ? process.env.HOSTNAME // hostname is set to the pod's name, helpful for kubectl commands
+        : this.client.user
+          ? `${this.client.user.username
+              .replace(/\s/gim, "")
+              .toLowerCase()}-${env}-${this.client.manager.id}`
+          : `fire-${env}-${this.client.manager.id}`,
       env: env,
       user: this.client.user ? this.client.user.toString() : "Unknown#0000",
       userId: this.client.user ? this.client.user.id : "",
-      started: new Date(this.client.launchTime).toISOString(),
       ready: !!this.client.isReady(),
       uptime: `Since ${new Date(this.client.launchTime).toLocaleString()}`,
       launchTime: this.client.launchTime,
