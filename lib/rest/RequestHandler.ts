@@ -417,14 +417,11 @@ export class RequestHandler {
       status: response?.statusCode ?? 500,
       method: request.method,
       retries: request.retries,
-      limit: 0,
-      remaining: 0,
+      limit: this.limit ?? -1,
+      remaining: this.remaining ?? -1,
+      reset: this.reset,
       reason: undefined,
     };
-    if (typeof this.limit == "number" && this.limit != null)
-      fields.limit ??= this.limit;
-    if (typeof this.remaining == "number" && this.remaining)
-      fields.remaining = this.remaining;
     if (typeof request.options?.reason == "string")
       fields.reason = request.options.reason;
     this.manager.client.manager.writeToInflux([
