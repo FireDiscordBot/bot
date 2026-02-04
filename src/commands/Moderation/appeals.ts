@@ -253,7 +253,11 @@ export default class Appeals extends Command {
 
   async getAppealsConfig(guild: FireGuild) {
     let dbResult = await this.client.db
-      .query("SELECT notbefore, notafter, items FROM appeals WHERE gid=$1;", [
+      .query<{
+        notbefore: bigint;
+        notafter: bigint;
+        items: AppealFormItem[];
+      }>("SELECT notbefore, notafter, items FROM appeals WHERE gid=$1;", [
         typeof guild == "string" ? guild : guild.id,
       ])
       .first()
@@ -261,16 +265,20 @@ export default class Appeals extends Command {
     if (dbResult instanceof Error) return null;
     else if (!dbResult)
       dbResult = await this.client.db
-        .query(
+        .query<{
+          notbefore: bigint;
+          notafter: bigint;
+          items: AppealFormItem[];
+        }>(
           "INSERT INTO appeals (gid) VALUES ($1) RETURNING notbefore, notafter, items;",
           [typeof guild == "string" ? guild : guild.id]
         )
         .first();
     return {
       channel: guild.settings.get<Snowflake>("appeals.channel"),
-      notBefore: Number(dbResult.get("notbefore") as bigint),
-      notAfter: Number(dbResult.get("notafter") as bigint),
-      items: dbResult.get("items") as AppealFormItem[],
+      notBefore: Number(dbResult.notbefore),
+      notAfter: Number(dbResult.notafter),
+      items: dbResult.items,
     } as AppealsConfig;
   }
 

@@ -23,11 +23,11 @@ export default class VanityURLs extends Module {
 
   async init() {
     this.blacklisted = [];
-    const blacklistResult = await this.client.db.query(
-      "SELECT * FROM vanitybl;"
+    const blacklistResult = await this.client.db.query<{ gid: Snowflake }>(
+      "SELECT gid FROM vanitybl;"
     );
     for await (const blacklist of blacklistResult)
-      this.blacklisted.push(blacklist.get("gid") as string);
+      this.blacklisted.push(blacklist.gid);
   }
 
   get vanityDomain() {
@@ -75,18 +75,23 @@ export default class VanityURLs extends Module {
     );
     if (!totalLimit) {
       const current = await this.client.db
-        .query("SELECT code FROM vanity WHERE gid=$1;", [guild.id])
+        .query<{
+          code: string;
+        }>("SELECT code FROM vanity WHERE gid=$1;", [guild.id])
         .first();
-      if (current && current.get("code")) return 0;
+      if (current && current.code) return 0;
       else return 1; // each guild can have one vanity by default
     } else {
-      const currentUser = await this.client.db.query(
+      const currentUser = await this.client.db.query<{
+        gid: Snowflake;
+        count: bigint;
+      }>(
         "SELECT gid, count(code) FROM vanity WHERE uid=$1 AND redirect IS NULL GROUP BY gid;",
         [user.id]
       );
       let inUse = 0;
       for await (const row of currentUser) {
-        const count = Number(row.get("count") as bigint);
+        const count = Number(row.count);
         if (!count) continue;
         // we subtract 1 because each guild can have one vanity by default
         inUse += count - 1;
@@ -105,7 +110,9 @@ export default class VanityURLs extends Module {
     if (this.isBlacklisted(guild)) return "blacklisted";
     code = code.toLowerCase();
     const currentResult = await this.client.db
-      .query("SELECT code FROM vanity WHERE gid=$1 AND code ILIKE $2;", [
+      .query<{
+        code: string;
+      }>("SELECT code FROM vanity WHERE gid=$1 AND code ILIKE $2;", [
         guild.id,
         code,
       ])
@@ -124,7 +131,7 @@ export default class VanityURLs extends Module {
       const updated = await this.client.db
         .query(
           "UPDATE vanity SET (code, invite, uid) = ($1, $2, $3) WHERE code=$4 RETURNING *;",
-          [code, invite.code, createdBy.id, currentResult.get("code") as string]
+          [code, invite.code, createdBy.id, currentResult.code]
         )
         .first()
         .catch(() => {});
@@ -189,9 +196,11 @@ export default class VanityURLs extends Module {
         this.requestFetch(guildId);
 
         const remainingResult = await this.client.db
-          .query("SELECT count(code) FROM vanity WHERE gid=$1;", [guildId])
+          .query<{
+            count: bigint;
+          }>("SELECT count(code) FROM vanity WHERE gid=$1;", [guildId])
           .first();
-        const remaining = Number(remainingResult.get("count") as bigint);
+        const remaining = Number(remainingResult.count);
 
         // if there are no more vanities for this guild, we should remove it from discovery
         if (!remaining) {

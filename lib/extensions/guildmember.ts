@@ -232,7 +232,10 @@ export class FireMember extends GuildMember {
   async getModeratorStats(guild: FireGuild, since?: Date) {
     if (!this.isModerator()) return null;
     const logs = await this.client.db
-      .query(
+      .query<{
+        type: ModLogTypeString;
+        count: bigint;
+      }>(
         since
           ? "SELECT type, count(caseid) FROM modlogs WHERE modid=$1 AND gid=$2 AND created >= $3 GROUP BY type;"
           : "SELECT type, count(caseid) FROM modlogs WHERE modid=$1 AND gid=$2 GROUP BY type;",
@@ -260,8 +263,8 @@ export class FireMember extends GuildMember {
     };
     if (!logs) return types;
     for await (const entry of logs) {
-      const type = entry.get("type") as ModLogTypeString;
-      const count = entry.get("count") as bigint;
+      const type = entry.type;
+      const count = entry.count;
       types[type] = Number(count); // we don't want bigints nor should we ever need them
     }
     return types;
@@ -570,15 +573,15 @@ export class FireMember extends GuildMember {
       });
     await this.guild.modLog(embed, ModLogTypes.WARN).catch(() => {});
     const countResult = await this.client.db
-      .query(
+      .query<{
+        count: number;
+      }>(
         "SELECT count(caseid) FROM modlogs WHERE gid=$1 AND type=$2 AND uid=$3;",
         [this.guild.id, "warn", this.id]
       )
       .first()
-      .catch(() => ({ get: (_: string) => 0n }));
-    const times = this.client.util.numberWithSuffix(
-      Number(countResult.get("count") as bigint)
-    );
+      .catch(() => ({ count: 0n }));
+    const times = this.client.util.numberWithSuffix(countResult.count);
     if (channel) {
       const stats = await this.getModLogStats();
       const nonZeroTypes = Object.entries(stats)
@@ -651,15 +654,16 @@ export class FireMember extends GuildMember {
     ).catch(() => {});
     if (!logEntry) return "ENTRY";
     await this.guild.modLog(embed, ModLogTypes.NOTE).catch(() => {});
-    const count = await this.client.db
-      .query(
-        "SELECT COUNT(*) FROM modlogs WHERE gid=$1 AND type=$2 AND uid=$3;",
+    const result = await this.client.db
+      .query<{
+        count: bigint;
+      }>(
+        "SELECT COUNT(caseid) FROM modlogs WHERE gid=$1 AND type=$2 AND uid=$3;",
         [this.guild.id, "note", this.id]
       )
       .first()
-      .then((result) => (result.get("count") as number) ?? 0)
-      .catch(() => 0);
-    const times = this.client.util.numberWithSuffix(count);
+      .catch(() => ({ count: 0n }));
+    const times = this.client.util.numberWithSuffix(result.count);
     if (channel) {
       const stats = await this.getModLogStats();
       const nonZeroTypes = Object.entries(stats)

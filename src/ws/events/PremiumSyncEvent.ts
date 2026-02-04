@@ -58,15 +58,17 @@ export default class PremiumSync extends Event {
       return;
 
     const premiumStripeResult = await client.db
-      .query("SELECT uid, status FROM premium_stripe;")
+      .query<{
+        uid: Snowflake;
+        status: SubscriptionStatus;
+      }>("SELECT uid, status FROM premium_stripe;")
       .catch(() => {});
     if (!premiumStripeResult) return;
 
     let paidIds: Snowflake[] = [];
     let removeIds: Snowflake[] = [];
     for await (const entry of premiumStripeResult) {
-      const uid = entry.get("uid") as Snowflake;
-      const status = entry.get("status") as SubscriptionStatus;
+      const { uid, status } = entry;
       if (uid && hasPaid(status)) paidIds.push(uid);
       else if (uid) removeIds.push(uid);
     }

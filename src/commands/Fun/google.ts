@@ -6,6 +6,7 @@ import { Language } from "@fire/lib/util/language";
 import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
+import { Snowflake } from "discord-api-types/globals";
 import {
   MessageActionRow,
   MessageButton,
@@ -104,15 +105,12 @@ export default class Google extends Command {
     let useDefaultCreds = true;
     if (command.author.hasExperiment(2100999090, 1)) {
       const hasCredentials = await this.client.db
-        .query("SELECT uid FROM assistant WHERE uid = $1", [command.author.id])
+        .query<{
+          uid: Snowflake;
+        }>("SELECT uid FROM assistant WHERE uid = $1", [command.author.id])
         .first()
-        .catch(() => null);
-      if (
-        typeof hasCredentials != "undefined" &&
-        hasCredentials &&
-        hasCredentials.get("uid") &&
-        hasCredentials.get("uid") != command.author.id
-      )
+        .catch(() => ({ uid: "" }));
+      if (hasCredentials.uid && hasCredentials.uid != command.author.id)
         return await command.send("GOOGLE_CREDENTIAL_CHECK_FAILED");
       useDefaultCreds = !hasCredentials;
     }

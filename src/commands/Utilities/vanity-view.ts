@@ -40,7 +40,9 @@ export default class VanityView extends Command {
     focused: CommandInteractionOption
   ): Promise<ApplicationCommandOptionChoiceData[] | string[]> {
     const focusedValue = focused.value?.toString();
-    const vanityResult = await this.client.db.query(
+    const vanityResult = await this.client.db.query<{
+      code: string;
+    }>(
       focusedValue
         ? "SELECT code FROM vanity WHERE gid=$1 AND code ILIKE $2 LIMIT 25;"
         : "SELECT code FROM vanity WHERE gid=$1 LIMIT 25;",
@@ -51,7 +53,7 @@ export default class VanityView extends Command {
     if (!vanityResult.rows.length) return [];
     const vanities: ApplicationCommandOptionChoiceData[] = [];
     for await (const vanity of vanityResult) {
-      const code = vanity.get("code") as string;
+      const { code } = vanity;
       vanities.push({
         name: code,
         value: code,

@@ -37,7 +37,7 @@ export default class RedirectView extends Command {
     focused: CommandInteractionOption
   ): Promise<ApplicationCommandOptionChoiceData[] | string[]> {
     const focusedValue = focused.value?.toString();
-    const redirectResult = await this.client.db.query(
+    const redirectResult = await this.client.db.query<{ code: string }>(
       focusedValue
         ? "SELECT code FROM vanity WHERE uid=$1 AND code ILIKE $2 AND redirect IS NOT NULL LIMIT 25;"
         : "SELECT code FROM vanity WHERE uid=$1 AND redirect IS NOT NULL LIMIT 25;",
@@ -48,7 +48,7 @@ export default class RedirectView extends Command {
     if (!redirectResult.rows.length) return [];
     const vanities: ApplicationCommandOptionChoiceData[] = [];
     for await (const vanity of redirectResult) {
-      const code = vanity.get("code") as string;
+      const code = vanity.code as string;
       vanities.push({
         name: code,
         value: code,

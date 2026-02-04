@@ -4,7 +4,7 @@ import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { Command } from "@fire/lib/util/command";
 import { Language } from "@fire/lib/util/language";
 import { parseTime } from "@fire/src/arguments/time";
-import { Snowflake } from "discord-api-types/v9";
+import { APIEmbed, Snowflake } from "discord-api-types/v9";
 import {
   MessageActionRow,
   MessageButton,
@@ -15,7 +15,6 @@ import {
   TextInputComponent,
 } from "discord.js";
 import * as tinycolor from "tinycolor2";
-import { Value } from "ts-postgres";
 
 interface EmbedData {
   id: string;
@@ -104,19 +103,21 @@ export default class Embed extends Command {
     if (!language) language = this.client.getLanguage("en-US");
 
     const data = await this.client.db
-      .query("SELECT uid, embed FROM embeds WHERE id=$1;", [id])
+      .query<{
+        uid: Snowflake;
+        embed: APIEmbed;
+      }>("SELECT uid, embed FROM embeds WHERE id=$1;", [id])
       .first()
       .catch(() => {});
     if (!data) return null;
-    // @ts-ignore idk why this complains when APIEmbed from /v9 is *in* the type
-    const embed = new MessageEmbed(data.get("embed") as APIEmbed);
+    const embed = new MessageEmbed(data.embed);
 
     if (embed.description == BASE_EMBED_DESCRIPTION_KEY)
       embed.setDescription(language.get(BASE_EMBED_DESCRIPTION_KEY));
 
     return {
       id,
-      createdBy: data.get("uid") as Snowflake,
+      createdBy: data.uid,
       embed,
     } as EmbedData;
   }
@@ -125,18 +126,21 @@ export default class Embed extends Command {
     if (!language) language = this.client.getLanguage("en-US");
 
     const data = await this.client.db
-      .query("SELECT id, uid, embed FROM embeds WHERE id=ANY($1);", [ids])
+      .query<{
+        id: string;
+        uid: Snowflake;
+        embed: APIEmbed;
+      }>("SELECT id, uid, embed FROM embeds WHERE id=ANY($1);", [ids])
       .catch(() => {});
     if (!data) return null;
     const embeds: EmbedData[] = [];
     for await (const row of data) {
-      // @ts-ignore idk why this complains when APIEmbed from /v9 is *in* the type
-      const embed = new MessageEmbed(row.get("embed") as APIEmbed);
+      const embed = new MessageEmbed(row.embed);
       if (embed.description == BASE_EMBED_DESCRIPTION_KEY)
         embed.setDescription(language.get(BASE_EMBED_DESCRIPTION_KEY));
       embeds.push({
-        id: row.get("id") as string,
-        createdBy: row.get("uid") as Snowflake,
+        id: row.id,
+        createdBy: row.uid,
         embed,
       });
     }
@@ -253,7 +257,7 @@ export default class Embed extends Command {
       EmbedBuilderButtonActionFull,
       string,
       Snowflake,
-      `${number}`
+      `${number}`,
     ];
     if (!actionFull.startsWith("embed-builder") || button.author.id != uid)
       return;
@@ -427,7 +431,7 @@ export default class Embed extends Command {
 
         const updated = await this.client.db
           .query("UPDATE embeds SET embed=$1 WHERE id=$2 AND uid=$3;", [
-            embed.embed.toJSON() as Value,
+            embed.embed.toJSON(),
             id,
             button.author.id,
           ])
@@ -495,7 +499,7 @@ export default class Embed extends Command {
     const [action, id, uid] = dropdown.customId.split(":") as [
       EmbedBuilderDropdownAction,
       string,
-      Snowflake
+      Snowflake,
     ];
     if (!action.startsWith("embed-builder") || dropdown.author.id != uid)
       return;
@@ -569,7 +573,7 @@ export default class Embed extends Command {
                       .setRequired(false)
                       .setValue(
                         !isBaseDescription
-                          ? dropdown.message.embeds[0].description ?? ""
+                          ? (dropdown.message.embeds[0].description ?? "")
                           : ""
                       )
                       .setStyle("PARAGRAPH")
@@ -647,12 +651,12 @@ export default class Embed extends Command {
                       .setRequired(false)
                       .setValue(
                         dropdown.message.embeds[0].timestamp
-                          ? this.client.util.getTimestamp(
+                          ? (this.client.util.getTimestamp(
                               dropdown.message.embeds[0].timestamp,
                               dropdown.language,
                               dropdown.author.timezone,
                               "f"
-                            ) ?? ""
+                            ) ?? "")
                           : ""
                       )
                       .setStyle("SHORT")
@@ -990,7 +994,7 @@ export default class Embed extends Command {
 
         const updated = await this.client.db
           .query("UPDATE embeds SET embed=$1 WHERE id=$2 AND uid=$3;", [
-            embed.embed.toJSON() as Value,
+            embed.embed.toJSON(),
             id,
             dropdown.author.id,
           ])
@@ -1023,7 +1027,7 @@ export default class Embed extends Command {
       EmbedBuilderModalAction,
       EmbedBuilderModalPart,
       string,
-      Snowflake
+      Snowflake,
     ];
     if (!action.startsWith("embed-builder") || modal.author.id != uid) return;
 
@@ -1033,7 +1037,7 @@ export default class Embed extends Command {
 
     let index: number;
     if (action == "embed-builder-edit-field")
-      (index = parseInt(part)), (part = "edit-field");
+      ((index = parseInt(part)), (part = "edit-field"));
 
     switch (part) {
       case "title":
@@ -1097,7 +1101,7 @@ export default class Embed extends Command {
             try {
               new URL(footerIconURL);
             } catch {
-              (footerIconURL = undefined), (footerIconURLInvalid = true);
+              ((footerIconURL = undefined), (footerIconURLInvalid = true));
             }
           }
           embed.setFooter({
@@ -1135,14 +1139,14 @@ export default class Embed extends Command {
             try {
               new URL(authorIconURL);
             } catch {
-              (authorIconURL = undefined), (authorURLInvalid = true);
+              ((authorIconURL = undefined), (authorURLInvalid = true));
             }
           }
           if (authorURL) {
             try {
               new URL(authorURL);
             } catch {
-              (authorURL = undefined), (authorURLInvalid = true);
+              ((authorURL = undefined), (authorURLInvalid = true));
             }
           }
           embed.setAuthor({
@@ -1157,7 +1161,7 @@ export default class Embed extends Command {
 
         const updated = await this.client.db
           .query("UPDATE embeds SET embed=$1 WHERE id=$2 AND uid=$3;", [
-            embed.toJSON() as Value,
+            embed.toJSON(),
             id,
             modal.author.id,
           ])
@@ -1199,7 +1203,7 @@ export default class Embed extends Command {
 
         const updated = await this.client.db
           .query("UPDATE embeds SET embed=$1 WHERE id=$2 AND uid=$3;", [
-            embed.toJSON() as Value,
+            embed.toJSON(),
             id,
             modal.author.id,
           ])
@@ -1230,7 +1234,7 @@ export default class Embed extends Command {
 
         const updated = await this.client.db
           .query("UPDATE embeds SET embed=$1 WHERE id=$2 AND uid=$3;", [
-            embed.toJSON() as Value,
+            embed.toJSON(),
             id,
             modal.author.id,
           ])

@@ -39,22 +39,23 @@ export default class RemindersList extends Command {
     context: ApplicationCommandMessage | ComponentMessage,
     page: number
   ) {
-    const reminderCount = (await this.client.db
-      .query("SELECT COUNT(*) FROM remind WHERE uid=$1", [context.author.id])
+    const reminders = await this.client.db
+      .query<{ count: bigint }>("SELECT COUNT(*) FROM remind WHERE uid=$1", [
+        context.author.id,
+      ])
       .first()
-      .then((r) => r.get("count"))
-      .catch(() => -1n)) as bigint;
-    if (reminderCount == -1n)
+      .catch(() => ({ count: -1n }));
+    if (reminders.count == -1n)
       return await context.error("COMMAND_ERROR_500", {
         status: constants.url.fireStatus,
       });
-    else if (!reminderCount)
+    else if (!reminders)
       return await context.error("REMINDERS_LIST_NONE_FOUND");
 
     let previousPageButton: MessageButton, nextPageButton: MessageButton;
-    const pages = Math.ceil(Number(reminderCount / 10n));
+    const pages = Math.ceil(Number(reminders.count / 10n));
     if (pages > 1)
-      (previousPageButton = new MessageButton()
+      ((previousPageButton = new MessageButton()
         .setEmoji(this.client.util.useEmoji("PAGINATOR_BACK"))
         .setDisabled(page === 0)
         .setStyle("PRIMARY")
@@ -63,7 +64,9 @@ export default class RemindersList extends Command {
           .setEmoji(this.client.util.useEmoji("PAGINATOR_FORWARD"))
           .setStyle("PRIMARY")
           .setDisabled(page === pages - 1)
-          .setCustomId(`reminders-list-page:${context.author.id}:${page + 1}`));
+          .setCustomId(
+            `reminders-list-page:${context.author.id}:${page + 1}`
+          )));
 
     const dropdown = new MessageSelectMenu()
       .setCustomId(`reminders-list:${context.author.id}`)
@@ -73,13 +76,16 @@ export default class RemindersList extends Command {
       .setMinValues(1)
       .setMaxValues(1);
 
-    const remindersResult = await this.client.db.query(
-      "SELECT * FROM remind WHERE uid=$1 ORDER BY forwhen LIMIT 10 OFFSET $2",
+    const remindersResult = await this.client.db.query<{
+      forwhen: Date;
+      reminder: string;
+    }>(
+      "SELECT forwhen, reminder FROM remind WHERE uid=$1 ORDER BY forwhen LIMIT 10 OFFSET $2",
       [context.author.id, page * 10]
     );
     for await (const reminder of remindersResult) {
-      const forwhen = reminder.get("forwhen") as Date,
-        text = reminder.get("reminder") as string;
+      const forwhen = reminder.forwhen,
+        text = reminder.reminder;
       dropdown.addOptions({
         label: this.client.util.shortenText(
           text.includes("http")

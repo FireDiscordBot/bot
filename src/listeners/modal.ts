@@ -23,7 +23,6 @@ import {
   MessageComponentTypes,
   TextInputStyles,
 } from "discord.js/typings/enums";
-import { Value } from "ts-postgres";
 import { parseWithUserTimezone } from "../arguments/time";
 import Appeals, {
   AppealFormDropdownItem,
@@ -152,7 +151,10 @@ export default class Modal extends Listener {
         return await modal.error("REMINDERS_EDIT_PAST_DATE");
 
       const reminderResult = await this.client.db
-        .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2", [
+        .query<{
+          reminder: string;
+          link: string;
+        }>("SELECT reminder, link FROM remind WHERE uid=$1 AND forwhen=$2", [
           userId,
           date,
         ])
@@ -161,8 +163,8 @@ export default class Modal extends Listener {
         return await modal.error("REMINDERS_EDIT_INVALID_SELECTION");
 
       const reminder = {
-        text: reminderResult.get("reminder") as string,
-        link: reminderResult.get("link") as string,
+        text: reminderResult.reminder,
+        link: reminderResult.link,
         date,
       };
       const modalValues = {
@@ -573,7 +575,7 @@ export default class Modal extends Listener {
 
       const updated = await this.client.db
         .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
-          config.items as Value,
+          config.items,
           modal.guild.id,
         ])
         .catch((e: Error) => e);
@@ -627,7 +629,7 @@ export default class Modal extends Listener {
 
       const updated = await this.client.db
         .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
-          config.items as Value,
+          config.items,
           modal.guild.id,
         ])
         .catch((e: Error) => e);
@@ -677,7 +679,7 @@ export default class Modal extends Listener {
 
       const updated = await this.client.db
         .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
-          config.items as Value,
+          config.items,
           modal.guild.id,
         ])
         .catch((e: Error) => e);
@@ -741,7 +743,7 @@ export default class Modal extends Listener {
 
       const updated = await this.client.db
         .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
-          config.items as Value,
+          config.items,
           modal.guild.id,
         ])
         .catch((e: Error) => e);
@@ -797,7 +799,7 @@ export default class Modal extends Listener {
 
       const updated = await this.client.db
         .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
-          config.items as Value,
+          config.items,
           modal.guild.id,
         ])
         .catch((e: Error) => e);
@@ -852,7 +854,7 @@ export default class Modal extends Listener {
 
       const updated = await this.client.db
         .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
-          config.items as Value,
+          config.items,
           modal.guild.id,
         ])
         .catch((e: Error) => e);
@@ -918,7 +920,7 @@ export default class Modal extends Listener {
 
       const updated = await this.client.db
         .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
-          config.items as Value,
+          config.items,
           modal.guild.id,
         ])
         .catch((e: Error) => e);

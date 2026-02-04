@@ -28,27 +28,29 @@ export default class Premium extends Inhibitor {
   async init() {
     this.client.util.premium = new Collection();
     this.client.util.loadedData.premium = false;
-    const premiumStripe = await this.client.db.query(
-      "SELECT * FROM premium_stripe;"
-    );
+    const premiumStripe = await this.client.db.query<{
+      guilds: Snowflake[];
+      periodend: Date;
+      active: boolean;
+      status: SubscriptionStatus;
+      serverlimit: number;
+      uid: Snowflake;
+    }>("SELECT guilds, periodend FROM premium_stripe;");
     const now = new Date();
     for await (const row of premiumStripe) {
-      const guilds = row.get("guilds") as Snowflake[];
-      const expiry = row.get("periodend") as Date;
+      const { guilds, periodend: expiry } = row;
       if (now > expiry) continue;
       if (guilds && guilds.length)
         for (const guild of guilds) {
           const instance = this.client.guilds.cache.get(guild) as FireGuild;
           if (
-            row.get("status") == "trialing" &&
+            row.status == "trialing" &&
             instance?.settings.get<boolean>("premium.trialeligible", true)
           ) {
             this.client
               .getLogger("Premium")
               .warn(
-                `Setting trial eligibility for ${instance} due to subscription from ${row.get(
-                  "uid"
-                )} in trial period`
+                `Setting trial eligibility for ${instance} due to subscription from ${row.uid} in trial period`
               );
             await instance.settings.set<boolean>(
               "premium.trialeligible",
@@ -56,11 +58,11 @@ export default class Premium extends Inhibitor {
               this.client.user
             );
           }
-          if (row.get("active"))
+          if (row.active)
             this.client.util.premium.set(guild, {
-              status: row.get("status") as SubscriptionStatus,
-              limit: row.get("serverlimit") as 1 | 3 | 5,
-              user: row.get("uid") as string,
+              status: row.status,
+              limit: row.serverlimit,
+              user: row.uid,
               periodEnd: +expiry,
             });
         }
@@ -83,8 +85,8 @@ export default class Premium extends Inhibitor {
     let paidIds: Snowflake[] = [];
     let removeIds: Snowflake[] = [];
     for await (const entry of premiumStripe) {
-      const uid = entry.get("uid") as Snowflake;
-      const status = entry.get("status") as SubscriptionStatus;
+      const uid = entry.uid;
+      const status = entry.status;
       if (uid && hasPaid(status)) paidIds.push(uid);
       else if (uid) removeIds.push(uid);
     }

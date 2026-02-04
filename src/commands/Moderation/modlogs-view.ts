@@ -12,6 +12,7 @@ import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
+import { Snowflake } from "discord-api-types/globals";
 import {
   CommandInteractionOption,
   Formatters,
@@ -65,10 +66,16 @@ export default class ModlogsView extends Command {
   ) {
     if (!args.user) return;
     const logs = await this.client.db
-      .query(
+      .query<{
+        type?: string;
+        caseid: string;
+        reason: string;
+        modid: Snowflake;
+        created: Date;
+      }>(
         args.type
-          ? "SELECT * FROM modlogs WHERE uid=$1 AND gid=$2 AND type=$3;"
-          : "SELECT * FROM modlogs WHERE uid=$1 AND gid=$2;",
+          ? "SELECT caseid, reason, modid, created FROM modlogs WHERE uid=$1 AND gid=$2 AND type=$3;"
+          : "SELECT type, caseid, reason, modid, created FROM modlogs WHERE uid=$1 AND gid=$2;",
         args.type
           ? [args.user.id, command.guild.id, args.type]
           : [args.user.id, command.guild.id]
@@ -87,19 +94,19 @@ export default class ModlogsView extends Command {
       let typeInfo: string = "";
       if (!args.type)
         typeInfo = `\n**${command.language.get("TYPE")}**: ${titleCase(
-          action.get("type") as string,
+          action.type,
           "_"
         )}`;
       paginator.addLine(
         Util.escapeItalic(`**${command.language.get(
           "MODLOGS_CASE_ID"
-        )}**: ${action.get("caseid")}
-**${command.language.get("REASON")}**: ${action.get("reason")}
+        )}**: ${action.caseid}
+**${command.language.get("REASON")}**: ${action.reason}
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
-          action.get("modid") || constants.escapedShruggie
+          action.modid || constants.escapedShruggie
         }
 **${command.language.get("DATE")}**: ${Formatters.time(
-          action.get("created") as Date,
+          action.created,
           "f"
         )}${typeInfo}
 **-----------------**`)

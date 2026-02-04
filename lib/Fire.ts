@@ -51,6 +51,7 @@ import {
   APIGuildMember,
   ActivityType,
   GatewayOpcodes,
+  Snowflake,
 } from "discord-api-types/v9";
 import {
   ClientUser,
@@ -63,7 +64,7 @@ import {
 } from "discord.js";
 import * as fuzz from "fuzzball";
 import * as i18next from "i18next";
-import { Client as PGClient, SSLMode } from "ts-postgres";
+import { Client as PGClient, SSLMode, connect } from "ts-postgres";
 import { Manager } from "./Manager";
 import { ApplicationCommandMessage } from "./extensions/appcommandmessage";
 import { ComponentMessage } from "./extensions/componentmessage";
@@ -179,8 +180,6 @@ export class Fire extends AkairoClient {
     this.manager = manager;
     this.util = new Util(this);
 
-    this.initDB();
-
     this.experiments = new Collection();
     this.aliases = new Collection();
 
@@ -251,6 +250,41 @@ export class Fire extends AkairoClient {
     }
 
     this.config = config.fire;
+
+    this.buttonHandlers = new Collection();
+    this.buttonHandlersOnce = new Collection();
+    this.selectHandlers = new Collection();
+    this.modalHandlers = new Collection();
+    this.modalHandlersOnce = new Collection();
+    this.dropdownHandlers = new Collection();
+    this.dropdownHandlersOnce = new Collection();
+
+    this.init();
+  }
+
+  get req() {
+    return this.restManager.api;
+  }
+
+  get restManager(): RESTManager {
+    // @ts-ignore
+    return this.rest;
+  }
+
+  get isDist() {
+    return __dirname.includes("/dist/") || __dirname.includes("\\dist\\");
+  }
+
+  get console() {
+    return this.manager.console;
+  }
+
+  getLogger(tag: string) {
+    return this.manager.getLogger(tag);
+  }
+
+  private async init() {
+    await this.initDB();
 
     this.commandHandler = new CommandHandler(this, {
       directory: this.isDist ? "./dist/src/commands/" : "./src/commands/",
@@ -400,64 +434,35 @@ export class Fire extends AkairoClient {
       await module?.unload();
     });
     this.modules.loadAll();
-
-    this.buttonHandlers = new Collection();
-    this.buttonHandlersOnce = new Collection();
-    this.selectHandlers = new Collection();
-    this.modalHandlers = new Collection();
-    this.modalHandlersOnce = new Collection();
-    this.dropdownHandlers = new Collection();
-    this.dropdownHandlersOnce = new Collection();
-  }
-
-  get req() {
-    return this.restManager.api;
-  }
-
-  get restManager(): RESTManager {
-    // @ts-ignore
-    return this.rest;
-  }
-
-  get isDist() {
-    return __dirname.includes("/dist/") || __dirname.includes("\\dist\\");
-  }
-
-  get console() {
-    return this.manager.console;
-  }
-
-  getLogger(tag: string) {
-    return this.manager.getLogger(tag);
   }
 
   private async initDB(reconnect: boolean = false) {
     if (this.db && !this.db.closed) await this.db.end();
     delete this.db;
     if (reconnect) await this.util.sleep(2500); // delay reconnect
-    this.db = new PGClient({
-      host: process.env.POSTGRES_HOST,
-      user: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASS,
-      database: process.env.POSTGRES_DB,
-      ssl: SSLMode.Disable, // we're connecting locally
-    });
+    this.getLogger("DB").warn("Attempting to connect...");
+    try {
+      this.db = await connect({
+        host: process.env.POSTGRES_HOST,
+        user: process.env.POSTGRES_USER,
+        password: process.env.POSTGRES_PASS,
+        database: process.env.POSTGRES_DB,
+        ssl: SSLMode.Disable, // we're connecting locally
+      });
+    } catch (err) {
+      this.getLogger("DB").error("Failed to connect\n", err.stack);
+      return this.manager.kill("db_error");
+    }
+    this.getLogger("DB").log("Connected");
     this.db.on("error", (err) => {
       this.sentry?.captureException(err);
       this.getLogger("DB").error(err.stack);
     });
-    this.db.on("connect", () => this.getLogger("DB").log("Connected"));
     this.db.on("end", () => {
       this.getLogger("DB").error(
         "Connection ended, attempting to reconnect..."
       );
       this.initDB(true);
-    });
-
-    this.getLogger("DB").warn("Attempting to connect...");
-    this.db.connect().catch((err) => {
-      this.getLogger("DB").error("Failed to connect\n", err.stack);
-      this.manager.kill("db_error");
     });
 
     return this.db;
@@ -520,38 +525,58 @@ export class Fire extends AkairoClient {
   async loadExperiments() {
     this.experiments = new Collection();
     const experiments = await this.db
-      .query("SELECT * FROM experiments;")
+      .query<{
+        id: bigint;
+        kind: "user" | "guild";
+        label: string;
+        buckets: number[];
+        active: boolean;
+        data: [string, number][];
+      }>("SELECT * FROM experiments;")
       .catch(() => {});
     if (!experiments) return;
     for await (const experiment of experiments) {
       const data: Experiment = {
-        hash: Number(experiment.get("id")),
-        kind: experiment.get("kind") as "user" | "guild",
-        id: experiment.get("label") as string,
-        buckets: experiment.get("buckets") as number[],
-        active: experiment.get("active") as boolean,
-        data: (experiment.get("data") ?? []) as [string, number][],
+        hash: Number(experiment.id),
+        kind: experiment.kind,
+        id: experiment.label,
+        buckets: experiment.buckets,
+        active: experiment.active,
+        data: experiment.data ?? [],
         filters: [],
       };
       data.buckets.unshift(0); // control bucket
       this.experiments.set(data.hash, data);
     }
-    const filters = await this.db.query("SELECT * FROM experimentfilters;");
+    const filters = await this.db.query<{
+      id: bigint;
+      bucket: number;
+      features: GuildFeatures[];
+      min_range: number | null;
+      max_range: number | null;
+      min_members: number | null;
+      max_members: number | null;
+      min_id: bigint | null;
+      max_id: bigint | null;
+      min_boosts: number | null;
+      max_boosts: number | null;
+      boost_tier: number | null;
+    }>("SELECT * FROM experimentfilters;");
     for await (const filter of filters) {
-      const id = Number(filter.get("id"));
+      const id = Number(filter.id);
       const data = this.experiments.get(id);
       data.filters.push({
-        bucket: filter.get("bucket") as number,
-        features: (filter.get("features") ?? []) as GuildFeatures[],
-        min_range: (filter.get("min_range") ?? null) as number,
-        max_range: (filter.get("max_range") ?? null) as number,
-        min_members: (filter.get("min_members") ?? null) as number,
-        max_members: (filter.get("max_members") ?? null) as number,
-        min_id: (filter.get("min_id")?.toString() ?? null) as string,
-        max_id: (filter.get("max_id")?.toString() ?? null) as string,
-        min_boosts: (filter.get("min_boosts") ?? null) as number,
-        max_boosts: (filter.get("max_boosts") ?? null) as number,
-        boost_tier: (filter.get("boost_tier") ?? null) as number,
+        bucket: filter.bucket,
+        features: filter.features ?? [],
+        min_range: filter.min_range ?? null,
+        max_range: filter.max_range ?? null,
+        min_members: filter.min_members ?? null,
+        max_members: filter.max_members ?? null,
+        min_id: filter.min_id?.toString() ?? null,
+        max_id: filter.max_id?.toString() ?? null,
+        min_boosts: filter.min_boosts ?? null,
+        max_boosts: filter.max_boosts ?? null,
+        boost_tier: filter.boost_tier ?? null,
       });
     }
   }
@@ -565,13 +590,16 @@ export class Fire extends AkairoClient {
   async loadAliases() {
     this.aliases = new Collection();
     const aliases = await this.db
-      .query("SELECT * FROM aliases;")
+      .query<{
+        uid: Snowflake;
+        aliases: string[];
+      }>("SELECT uid, aliases FROM aliases;")
       .catch(() => {});
     if (!aliases) return;
     for await (const alias of aliases) {
       this.aliases.set(
-        alias.get("uid") as string,
-        (alias.get("aliases") as string[]).map((a) => a.toLowerCase())
+        alias.uid,
+        alias.aliases.map((a) => a.toLowerCase())
       );
     }
   }

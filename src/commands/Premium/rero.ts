@@ -10,10 +10,12 @@ import {
   MessageButton,
   MessageEmbed,
   MessageReaction,
+  PartialMessageReaction,
+  PartialUser,
   Role,
   SnowflakeUtil,
 } from "discord.js";
-import * as pEvent from "p-event";
+import { pEvent } from "p-event";
 
 export default class ReactionRole extends Command {
   constructor() {
@@ -58,7 +60,10 @@ export default class ReactionRole extends Command {
     [reaction, user] = await pEvent(this.client, "messageReactionAdd", {
       timeout: 60000,
       multiArgs: true,
-      filter: ([messageReaction, user]) => {
+      filter: ([messageReaction, user]: [
+        reaction: MessageReaction | PartialMessageReaction,
+        user: FireUser | PartialUser,
+      ]) => {
         return (
           user?.id == message.author.id &&
           messageReaction.message?.guild.id == message.guild.id

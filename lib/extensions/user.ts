@@ -6,6 +6,7 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import {
   DMChannel,
   MessageEmbed,
+  Snowflake,
   Structures,
   User,
   UserMention,
@@ -58,7 +59,7 @@ export class FireUser extends User {
   get display() {
     return this.globalName && this.globalName.toLowerCase() != this.toString()
       ? `${this.globalName} (${this})`
-      : this.globalName ?? this.toString();
+      : (this.globalName ?? this.toString());
   }
 
   get voice() {
@@ -183,13 +184,12 @@ export class FireUser extends User {
     // we can only have one reminder per user per time
     // so we need to check if the user already has a reminder at that time
     const existing = await this.client.db
-      .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2;", [
-        this.id,
-        when,
-      ])
+      .query<{
+        uid: Snowflake;
+      }>("SELECT uid FROM remind WHERE uid=$1 AND forwhen=$2;", [this.id, when])
       .first()
       .catch(() => {});
-    if (existing && existing.get("uid") == this.id) return false;
+    if (existing && existing.uid == this.id) return false;
 
     const reminder = await this.client.db
       .query(
@@ -235,7 +235,10 @@ export class FireUser extends User {
 
   async getModLogStats(guild: FireGuild, excludeAutomated = true) {
     const logs = await this.client.db
-      .query(
+      .query<{
+        type: ModLogTypeString;
+        count: bigint;
+      }>(
         excludeAutomated
           ? "SELECT type, count(caseid) FROM modlogs WHERE uid=$1 AND gid=$2 AND modid != $3 GROUP BY type;"
           : "SELECT type, count(caseid) FROM modlogs WHERE uid=$1 AND gid=$2 GROUP BY type;",
@@ -265,8 +268,8 @@ export class FireUser extends User {
     };
     if (!logs) return types;
     for await (const entry of logs) {
-      const type = entry.get("type") as ModLogTypeString;
-      const count = entry.get("count") as bigint;
+      const type = entry.type;
+      const count = entry.count;
       types[type] = Number(count); // we don't want bigints nor should we ever need them
     }
     return types;

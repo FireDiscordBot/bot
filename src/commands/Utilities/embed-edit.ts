@@ -35,7 +35,9 @@ export default class EmbedEdit extends Command {
     _: CommandInteractionOption
   ): Promise<ApplicationCommandOptionChoiceData[] | string[]> {
     const embedIds = await this.client.db
-      .query("SELECT id FROM embeds WHERE uid=$1", [interaction.author.id])
+      .query<{
+        id: string;
+      }>("SELECT id FROM embeds WHERE uid=$1", [interaction.author.id])
       .catch(() => {});
     if (!embedIds) return [];
     return embedIds.rows.map((r) => ({

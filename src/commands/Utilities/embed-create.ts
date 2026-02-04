@@ -4,7 +4,6 @@ import { Language } from "@fire/lib/util/language";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import { MessageEmbed } from "discord.js";
 import { nanoid } from "nanoid";
-import { Value } from "ts-postgres";
 import Embed from "./embed";
 
 const BASE_EMBED_DESCRIPTION_KEY = "EMBED_CREATE_BASE_DESCRIPTION";
@@ -27,11 +26,16 @@ export default class EmbedCreate extends Command {
     const parent = this.parentCommand as Embed;
 
     const existingEmbeds = await this.client.db
-      .query("SELECT count(id) FROM embeds WHERE uid=$1", [command.author.id])
+      .query<{ count: bigint }>("SELECT count(id) FROM embeds WHERE uid=$1", [
+        command.author.id,
+      ])
       .first()
-      .then((r) => r.get("count") as bigint)
-      .catch(() => 0n);
-    if (command.author.premium ? existingEmbeds >= 10n : existingEmbeds >= 5n)
+      .catch(() => ({ count: 0n }));
+    if (
+      command.author.premium
+        ? existingEmbeds.count >= 10n
+        : existingEmbeds.count >= 5n
+    )
       return await command.error(
         command.author.premium
           ? "EMBED_CREATE_MAXIMUM_REACHED"
@@ -40,15 +44,15 @@ export default class EmbedCreate extends Command {
 
     // :wethinkbigbrain:
     const emptyEmbed = await this.client.db
-      .query(
+      .query<{ id: string }>(
         "SELECT id FROM embeds WHERE uid=$1 AND embed ->> 'description' = $2",
         [command.author.id, BASE_EMBED_DESCRIPTION_KEY]
       )
       .first()
       .catch(() => {});
-    if (emptyEmbed && emptyEmbed.get("id"))
+    if (emptyEmbed && emptyEmbed.id)
       return await command.error("EMBED_CREATE_EMPTY_EMBED_EXISTS", {
-        id: emptyEmbed.get("id"),
+        id: emptyEmbed.id,
       });
 
     const id = nanoid();
@@ -57,7 +61,7 @@ export default class EmbedCreate extends Command {
       .query("INSERT INTO embeds (id, uid, embed) VALUES ($1, $2,$3)", [
         id,
         command.author.id,
-        base.toJSON() as Value,
+        base.toJSON(),
       ])
       .catch(() => {});
     if (!insertedEmpty || !insertedEmpty.status.startsWith("INSERT"))

@@ -746,7 +746,7 @@ export class Util extends ClientUtil {
     return text.slice(0, limit - 3) + "...";
   }
 
-  numberWithSuffix(num: number, toLocale: boolean = true) {
+  numberWithSuffix(num: number | bigint, toLocale: boolean = true) {
     let suffixed: string = toLocale ? num.toLocaleString() : num.toString();
     // shit code tm
     if (suffixed.endsWith("1"))

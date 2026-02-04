@@ -8,6 +8,7 @@ import {
   PaginatorEmbedInterface,
   WrappedPaginator,
 } from "@fire/lib/util/paginators";
+import { Snowflake } from "discord-api-types/globals";
 import { Formatters, MessageEmbed, Util } from "discord.js";
 
 export default class Warnings extends Command {
@@ -40,11 +41,15 @@ export default class Warnings extends Command {
   ) {
     if (!args.user) return;
     const warnings = await this.client.db
-      .query("SELECT * FROM modlogs WHERE uid=$1 AND gid=$2 AND type=$3;", [
-        args.user.id,
-        command.guild.id,
-        "warn",
-      ])
+      .query<{
+        caseid: string;
+        reason: string;
+        modid: Snowflake;
+        created: Date;
+      }>(
+        "SELECT caseid, reason, modid, created FROM modlogs WHERE uid=$1 AND gid=$2 AND type=$3;",
+        [args.user.id, command.guild.id, "warn"]
+      )
       .catch(() => {});
     if (!warnings || !warnings.rows.length)
       return await command.error("WARNINGS_NONE_FOUND");
@@ -53,15 +58,12 @@ export default class Warnings extends Command {
       paginator.addLine(
         Util.escapeItalic(`**${command.language.get(
           "MODLOGS_CASE_ID"
-        )}**: ${warn.get("caseid")}
-**${command.language.get("REASON")}**: ${warn.get("reason")}
+        )}**: ${warn.caseid}
+**${command.language.get("REASON")}**: ${warn.reason}
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
-          warn.get("modid") || constants.escapedShruggie
+          warn.modid || constants.escapedShruggie
         }
-**${command.language.get("DATE")}**: ${Formatters.time(
-          warn.get("created") as Date,
-          "f"
-        )}
+**${command.language.get("DATE")}**: ${Formatters.time(warn.created, "f")}
 **-----------------**`)
       );
     }

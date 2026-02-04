@@ -43,14 +43,16 @@ export default class Redirects extends Module {
 
   async list(user: FireMember | FireUser) {
     const result = await this.client.db
-      .query("SELECT code FROM vanity WHERE uid=$1 AND redirect IS NOT NULL;", [
+      .query<{
+        code: string;
+      }>("SELECT code FROM vanity WHERE uid=$1 AND redirect IS NOT NULL;", [
         user.id,
       ])
       .catch(() => {});
 
     if (!result) return [];
 
-    return [...result].map((row) => row.get("code") as string);
+    return [...result].map((row) => row.code);
   }
 
   async create(user: FireMember | FireUser, code: string, url: string) {

@@ -342,16 +342,15 @@ export class FireGuild extends Guild {
   private async loadMutes() {
     this.mutes = new Collection();
     const mutes = await this.client.db
-      .query("SELECT * FROM mutes WHERE gid=$1;", [this.id])
+      .query<{
+        uid: Snowflake;
+        until: string;
+      }>("SELECT uid, until FROM mutes WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!mutes)
       return this.console.error(`Failed to load mutes for ${this.name} `);
-    for await (const mute of mutes) {
-      this.mutes.set(
-        mute.get("uid") as Snowflake,
-        parseInt(mute.get("until") as string)
-      );
-    }
+    for await (const mute of mutes)
+      this.mutes.set(mute.uid, parseInt(mute.until));
     if (this.muteCheckTask) clearInterval(this.muteCheckTask);
     this.muteCheckTask = setInterval(this.checkMutes.bind(this), 60000);
   }
@@ -359,16 +358,15 @@ export class FireGuild extends Guild {
   private async loadBans() {
     this.tempBans = new Collection();
     const bans = await this.client.db
-      .query("SELECT * FROM bans WHERE gid=$1;", [this.id])
+      .query<{
+        uid: Snowflake;
+        until: string;
+      }>("SELECT uid, until FROM bans WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!bans)
       return this.console.error(`Failed to load bans for ${this.name} `);
-    for await (const ban of bans) {
-      this.tempBans.set(
-        ban.get("uid") as Snowflake,
-        parseInt(ban.get("until") as string)
-      );
-    }
+    for await (const ban of bans)
+      this.tempBans.set(ban.uid, parseInt(ban.until));
     if (this.banCheckTask) clearInterval(this.banCheckTask);
     this.banCheckTask = setInterval(this.checkBans.bind(this), 90000);
   }
@@ -470,88 +468,90 @@ export class FireGuild extends Guild {
   async loadStarboardMessages() {
     this.starboardMessages = new Collection();
     const messages = await this.client.db
-      .query("SELECT * FROM starboard WHERE gid=$1;", [this.id])
+      .query<{
+        original: Snowflake;
+        board: Snowflake;
+      }>("SELECT original, board FROM starboard WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!messages)
       return this.console.error(
         `Failed to load starboard messages for ${this.name} `
       );
     for await (const message of messages)
-      this.starboardMessages.set(
-        message.get("original") as Snowflake,
-        message.get("board") as Snowflake
-      );
+      this.starboardMessages.set(message.original, message.board);
   }
 
   async loadStarboardReactions() {
     this.starboardReactions = new Collection();
     const reactions = await this.client.db
-      .query("SELECT * FROM starboard_reactions WHERE gid=$1;", [this.id])
+      .query<{
+        mid: Snowflake;
+        reactions: number;
+      }>("SELECT mid, reactions FROM starboard_reactions WHERE gid=$1;", [
+        this.id,
+      ])
       .catch(() => {});
     if (!reactions)
       return this.console.error(
         `Failed to load starboard reactions for ${this.name} `
       );
     for await (const reaction of reactions)
-      this.starboardReactions.set(
-        reaction.get("mid") as Snowflake,
-        reaction.get("reactions") as number
-      );
+      this.starboardReactions.set(reaction.mid, reaction.reactions);
   }
 
   async loadInviteRoles() {
     this.inviteRoles = new Collection();
     if (!this.premium || !this.available) return;
     const invroles = await this.client.db
-      .query("SELECT * FROM invrole WHERE gid=$1;", [this.id])
+      .query<{
+        inv: string;
+        rid: Snowflake;
+      }>("SELECT inv, rid FROM invrole WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!invroles)
       return this.console.error(
         `Failed to load invite roles for ${this.name} `
       );
     for await (const invrole of invroles)
-      this.inviteRoles.set(
-        invrole.get("inv") as string,
-        invrole.get("rid") as Snowflake
-      );
+      this.inviteRoles.set(invrole.inv, invrole.rid);
   }
 
   async loadPersistedRoles() {
     this.persistedRoles = new Collection();
     if (!this.premium || !this.available) return;
     const persisted = await this.client.db
-      .query("SELECT * FROM rolepersists WHERE gid=$1;", [this.id])
+      .query<{
+        uid: Snowflake;
+        roles: Snowflake[];
+      }>("SELECT uid, roles FROM rolepersists WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!persisted)
       return this.console.error(
         `Failed to load persisted roles for ${this.name} `
       );
     for await (const role of persisted)
-      this.persistedRoles.set(
-        role.get("uid") as Snowflake,
-        role.get("roles") as Snowflake[]
-      );
+      this.persistedRoles.set(role.uid, role.roles);
   }
 
   async loadVcRoles() {
     this.vcRoles = new Collection();
     if (!this.premium || !this.available) return;
     const voiceroles = await this.client.db
-      .query("SELECT * FROM vcroles WHERE gid=$1;", [this.id])
+      .query<{
+        cid: Snowflake;
+        rid: Snowflake;
+      }>("SELECT cid, rid FROM vcroles WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!voiceroles)
       return this.console.error(`Failed to load voice roles for ${this.name} `);
     for await (const vcrole of voiceroles) {
-      this.vcRoles.set(
-        vcrole.get("cid") as Snowflake,
-        vcrole.get("rid") as Snowflake
-      );
+      this.vcRoles.set(vcrole.cid, vcrole.rid);
       await this.client.waitUntilReady(); // this will resolve when ready or if already ready
-      const channel = this.channels.cache.get(
-        vcrole.get("cid") as Snowflake
-      ) as VoiceChannel | StageChannel;
+      const channel = this.channels.cache.get(vcrole.cid) as
+        | VoiceChannel
+        | StageChannel;
       if (!channel) continue;
-      const role = this.roles.cache.get(vcrole.get("rid") as Snowflake);
+      const role = this.roles.cache.get(vcrole.rid);
       if (!role) continue;
       const members = await this.members
         .fetch({
@@ -576,18 +576,22 @@ export class FireGuild extends Guild {
     this.reactionRoles = new Collection();
     if (!this.premium || !this.available) return;
     const reactRoles = await this.client.db
-      .query("SELECT * FROM reactrole WHERE gid=$1;", [this.id])
+      .query<{
+        mid: Snowflake;
+        rid: Snowflake;
+        eid: Snowflake | string;
+      }>("SELECT mid, rid, eid FROM reactrole WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!reactRoles)
       return this.console.error(
         `Failed to load reaction roles for ${this.name} `
       );
     for await (const rero of reactRoles) {
-      const mid = rero.get("mid") as Snowflake;
+      const mid = rero.mid;
       if (!this.reactionRoles.has(mid)) this.reactionRoles.set(mid, []);
       this.reactionRoles.get(mid).push({
-        role: rero.get("rid") as Snowflake,
-        emoji: rero.get("eid") as Snowflake | string,
+        role: rero.rid,
+        emoji: rero.eid,
       });
     }
   }
@@ -595,17 +599,21 @@ export class FireGuild extends Guild {
   async loadPermRoles() {
     this.permRoles = new Collection();
     const permRoles = await this.client.db
-      .query("SELECT * FROM permroles WHERE gid=$1;", [this.id])
+      .query<{
+        rid: Snowflake;
+        allow: string;
+        deny: string;
+      }>("SELECT rid, allow, deny FROM permroles WHERE gid=$1;", [this.id])
       .catch(() => {});
     if (!permRoles)
       return this.console.error(
         `Failed to load permission roles for ${this.name} `
       );
     for await (const role of permRoles) {
-      if (!this.roles.cache.has(role.get("rid") as Snowflake)) continue;
-      this.permRoles.set(role.get("rid") as Snowflake, {
-        allow: BigInt(role.get("allow") as string),
-        deny: BigInt(role.get("deny") as string),
+      if (!this.roles.cache.has(role.rid)) continue;
+      this.permRoles.set(role.rid, {
+        allow: BigInt(role.allow),
+        deny: BigInt(role.deny),
       });
     }
     await this.client.waitUntilReady();

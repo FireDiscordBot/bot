@@ -2,6 +2,7 @@ import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessag
 import { Command } from "@fire/lib/util/command";
 import { constants, titleCase } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
+import { Snowflake } from "discord-api-types/globals";
 import { Formatters, MessageEmbed } from "discord.js";
 
 export default class Reason extends Command {
@@ -42,10 +43,16 @@ export default class Reason extends Command {
   ) {
     if (!args.case) return await command.error("REASON_MISSING_CASE");
     const result = await this.client.db
-      .query("SELECT * FROM modlogs WHERE caseid=$1 AND gid=$2;", [
-        args.case,
-        command.guildId,
-      ])
+      .query<{
+        caseid: string;
+        reason: string;
+        modid: Snowflake;
+        created: Date;
+        type: string;
+      }>(
+        "SELECT caseid, reason, modid, created, type FROM modlogs WHERE caseid=$1 AND gid=$2;",
+        [args.case, command.guildId]
+      )
       .first()
       .catch(() => {});
     if (!result) return await command.error("REASON_UNKNOWN_CASE");
@@ -54,18 +61,13 @@ export default class Reason extends Command {
         command.member?.displayColor || "#FFFFFF"
       ).setDescription(`**${command.language.get(
         "MODLOGS_CASE_ID"
-      )}**: ${result.get("caseid")}
-**${command.language.get("REASON")}**: ${result.get("reason")}
+      )}**: ${result.caseid}
+**${command.language.get("REASON")}**: ${result.reason}
 **${command.language.get("MODLOGS_MODERATOR_ID")}**: ${
-        result.get("modid") || constants.escapedShruggie
+        result.modid || constants.escapedShruggie
       }
-**${command.language.get("DATE")}**: ${Formatters.time(
-        result.get("created") as Date,
-        "f"
-      )}
-**${command.language.get("TYPE")}**: ${titleCase(
-        result.get("type") as string
-      )}`);
+**${command.language.get("DATE")}**: ${Formatters.time(result.created, "f")}
+**${command.language.get("TYPE")}**: ${titleCase(result.type)}`);
       return await command.channel.send({ embeds: [embed] });
     } else {
       const updated = await this.client.db

@@ -40,10 +40,13 @@ export default class RemindersDelete extends Command {
     focused: CommandInteractionOption
   ) {
     const focusedValue = focused.value?.toString();
-    const remindersResult = await this.client.db.query(
+    const remindersResult = await this.client.db.query<{
+      forwhen: Date;
+      reminder: string;
+    }>(
       focusedValue
-        ? "SELECT * FROM remind WHERE uid=$1 AND reminder ILIKE $2 ORDER BY forwhen LIMIT 25;"
-        : "SELECT * FROM remind WHERE uid=$1 ORDER BY forwhen LIMIT 25;",
+        ? "SELECT forwhen, reminder FROM remind WHERE uid=$1 AND reminder ILIKE $2 ORDER BY forwhen LIMIT 25;"
+        : "SELECT forwhen, reminder FROM remind WHERE uid=$1 ORDER BY forwhen LIMIT 25;",
       focusedValue
         ? [interaction.author.id, `%${focusedValue}%`]
         : [interaction.author.id]
@@ -51,14 +54,14 @@ export default class RemindersDelete extends Command {
     if (!remindersResult.rows.length) return [];
     const reminders: ApplicationCommandOptionChoiceData[] = [];
     for await (const reminder of remindersResult) {
-      const forWhen = reminder.get("forwhen") as Date;
+      const forWhen = reminder.forwhen;
       const timestamp = +forWhen;
       const relativeTime = this.client.util.getRelativeTimeString(
         forWhen,
         interaction.language
       );
       let text = this.client.util.shortenText(
-        this.client.util.stripMaskedLinks(reminder.get("reminder") as string),
+        this.client.util.stripMaskedLinks(reminder.reminder),
         100 - 3 - relativeTime.length
       );
       text += ` - ${relativeTime}`;
@@ -84,19 +87,24 @@ export default class RemindersDelete extends Command {
     if (!args.reminder)
       return await command.error("REMINDERS_DELETE_MISSING_ARG");
     const remindersResult = await this.client.db
-      .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2 LIMIT 1;", [
-        command.author.id,
-        new Date(timestamp),
-      ])
+      .query<{
+        forwhen: Date;
+        uid: Snowflake;
+        reminder: string;
+        link: string;
+      }>(
+        "SELECT forwhen, uid, reminder, link FROM remind WHERE uid=$1 AND forwhen=$2 LIMIT 1;",
+        [command.author.id, new Date(timestamp)]
+      )
       .first()
       .catch(() => {});
     if (!remindersResult)
       return await command.error("REMINDERS_LIST_NONE_FOUND");
-    const date = remindersResult.get("forwhen") as Date;
+    const date = remindersResult.forwhen;
     const reminder = {
-      user: remindersResult.get("uid") as Snowflake,
-      text: remindersResult.get("reminder") as string,
-      link: remindersResult.get("link") as string,
+      user: remindersResult.uid,
+      text: remindersResult.reminder,
+      link: remindersResult.link,
       timestamp: +date,
       date,
     };

@@ -55,7 +55,9 @@ export default class ClearWarnings extends Command {
 
     // we'll get the count first so we know if there's even anything to delete
     const available = await this.client.db
-      .query(
+      .query<{
+        count: bigint;
+      }>(
         typeof userOrCaseId == "string"
           ? "SELECT count(caseid) FROM modlogs WHERE gid = $1 AND caseid = $2 AND type=ANY(array['warn','note']);"
           : "SELECT count(caseid) FROM modlogs WHERE gid = $1 AND uid = $2 AND type=ANY(array['warn','note']);",
@@ -65,9 +67,8 @@ export default class ClearWarnings extends Command {
         ]
       )
       .first()
-      .then((r) => r.get("count") as bigint)
-      .catch(() => 0n);
-    if (available <= 0n)
+      .catch(() => ({ count: 0n }));
+    if (available.count <= 0n)
       return await command.error(
         typeof userOrCaseId == "string"
           ? "WARNINGS_CLEAR_SINGLE_NONE_FOUND"

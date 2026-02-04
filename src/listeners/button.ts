@@ -893,19 +893,23 @@ export default class Button extends Listener {
 
       const caseId = button.customId.split(":").at(2);
       const entry = await this.client.db
-        .query("SELECT * FROM modlogs WHERE caseid=$1 AND gid=$2;", [
-          caseId,
-          button.guildId,
-        ])
+        .query<{
+          caseid: string;
+          appealstatus: AppealStatus;
+          uid: Snowflake;
+        }>(
+          "SELECT caseid, appealstatus, uid FROM modlogs WHERE caseid=$1 AND gid=$2;",
+          [caseId, button.guildId]
+        )
         .first()
         .catch(() => {});
-      if (!entry || entry.get("caseid") != caseId)
+      if (!entry || entry.caseid != caseId)
         return await button.error("APPEAL_ACCEPT_FAILED_TO_FIND_ENTRY");
-      const appealStatus = entry.get("appealstatus") as AppealStatus;
+      const appealStatus = entry.appealstatus;
       if (appealStatus != "appealed")
         return await button.error("APPEAL_ACTION_DECIDED_ALREADY");
 
-      const userId = entry.get("uid") as Snowflake;
+      const userId = entry.uid;
       const user = (await this.client.users
         .fetch(userId)
         .catch(() => {})) as FireUser;
@@ -996,15 +1000,19 @@ export default class Button extends Listener {
 
       const caseId = button.customId.split(":").at(2);
       const entry = await this.client.db
-        .query("SELECT * FROM modlogs WHERE caseid=$1 AND gid=$2;", [
-          caseId,
-          button.guildId,
-        ])
+        .query<{
+          caseid: string;
+          appealstatus: AppealStatus;
+          uid: Snowflake;
+        }>(
+          "SELECT caseid, appealstatus, uid FROM modlogs WHERE caseid=$1 AND gid=$2;",
+          [caseId, button.guildId]
+        )
         .first()
         .catch(() => {});
-      if (!entry || entry.get("caseid") != caseId)
+      if (!entry || entry.caseid != caseId)
         return await button.error("APPEAL_REJECT_FAILED_TO_FIND_ENTRY");
-      const appealStatus = entry.get("appealstatus") as AppealStatus;
+      const appealStatus = entry.appealstatus;
       if (appealStatus != "appealed")
         return await button.error("APPEAL_ACTION_DECIDED_ALREADY");
 
@@ -1067,7 +1075,7 @@ export default class Button extends Listener {
 
       await button.success("APPEAL_REJECT_RESPONSE");
 
-      const userId = entry.get("uid") as Snowflake;
+      const userId = entry.uid;
       const user = (await this.client.users
         .fetch(userId)
         .catch(() => {})) as FireUser;
@@ -2381,7 +2389,9 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       }
 
       const reminder = await this.client.db
-        .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2", [
+        .query<{
+          reminder: string;
+        }>("SELECT reminder FROM remind WHERE uid=$1 AND forwhen=$2", [
           userId,
           date,
         ])
@@ -2389,7 +2399,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
       if (!reminder)
         return await button.error("REMINDERS_EDIT_INVALID_SELECTION");
 
-      const text = reminder.get("reminder") as string;
+      const text = reminder.reminder;
       return await button.component.showModal(
         new Modal()
           .setCustomId(button.customId)

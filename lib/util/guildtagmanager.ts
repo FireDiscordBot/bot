@@ -67,14 +67,15 @@ export class GuildTagManager {
 
   async init() {
     const result = await this.client.db
-      .query("SELECT name FROM tags WHERE gid=$1;", [this.guild.id])
+      .query<{
+        name: string;
+        aliases: string[];
+      }>("SELECT name, aliases FROM tags WHERE gid=$1;", [this.guild.id])
       .catch(() => {});
     if (!result) return 0;
     for await (const tag of result) {
-      this.names.push((tag.get("name") as string).toLowerCase());
-      (tag.get("aliases") as string[])?.forEach((alias) =>
-        this.aliases.push(alias.toLowerCase())
-      );
+      this.names.push(tag.name.toLowerCase());
+      tag.aliases?.forEach((alias) => this.aliases.push(alias.toLowerCase()));
     }
     if (this.size && !this.preparedSlashCommands)
       await this.prepareSlashCommands();
@@ -106,7 +107,13 @@ export class GuildTagManager {
   private async fetchTag(name: string, includeCreator = false): Promise<Tag> {
     name = name.toLowerCase();
     const fetchedTag = await this.client.db
-      .query(
+      .query<{
+        name: string;
+        content: string;
+        uid?: Snowflake;
+        aliases: string[];
+        uses: number;
+      }>(
         includeCreator
           ? "SELECT name, content, uid, aliases, uses FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)"
           : "SELECT name, content, aliases, uses FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)",
@@ -116,12 +123,12 @@ export class GuildTagManager {
       .catch(() => {});
     if (!fetchedTag) return null;
     const tag: Tag = {
-      createdBy: (fetchedTag.get("uid") as string) ?? null,
-      content: fetchedTag.get("content") as string,
+      createdBy: fetchedTag.uid ?? null,
+      content: fetchedTag.content,
       embedIds: [],
-      aliases: (fetchedTag.get("aliases") as string[]) ?? [],
-      name: fetchedTag.get("name") as string,
-      uses: fetchedTag.get("uses") as number,
+      aliases: fetchedTag.aliases ?? [],
+      name: fetchedTag.name,
+      uses: fetchedTag.uses,
     };
     if (typeof tag.createdBy == "string") {
       const creatorId = tag.createdBy;
@@ -153,39 +160,39 @@ export class GuildTagManager {
     name = name.toLowerCase();
     if (this.names.includes(name)) return true;
     const exists = await this.client.db
-      .query("SELECT name FROM tags WHERE gid=$1 AND name=$2", [
-        this.guild.id,
-        name,
-      ])
+      .query<{ name: string }>(
+        "SELECT name FROM tags WHERE gid=$1 AND name=$2",
+        [this.guild.id, name]
+      )
       .first()
       .catch(() => {});
-    return exists && exists.get("name") == name;
+    return exists && exists.name == name;
   }
 
   private async doesAliasExist(alias: string) {
     alias = alias.toLowerCase();
     if (this.aliases.includes(alias)) return true;
     const exists = await this.client.db
-      .query("SELECT name FROM tags WHERE gid=$1 AND $2=ANY(aliases)", [
-        this.guild.id,
-        alias,
-      ])
+      .query<{ name: string }>(
+        "SELECT name FROM tags WHERE gid=$1 AND $2=ANY(aliases)",
+        [this.guild.id, alias]
+      )
       .first()
       .catch(() => {});
-    return exists && (exists.get("aliases") as string[])?.includes(alias);
+    return exists && !!exists.name;
   }
 
   private async getUses(name: string) {
     name = name.toLowerCase();
     const fetchedTag = await this.client.db
-      .query(
+      .query<{ uses: number }>(
         "SELECT uses FROM tags WHERE gid=$1 AND name=$2 OR gid=$1 AND $2=ANY(aliases)",
         [this.guild.id, name]
       )
       .first()
       .catch(() => {});
     if (!fetchedTag) return null;
-    else return fetchedTag.get("uses") as number;
+    else return fetchedTag.uses;
   }
 
   private getTagSlashCommandJSON(cached: Tag) {
@@ -344,24 +351,26 @@ export class GuildTagManager {
   }
 
   async fetchTags() {
-    const tagsQuery = await this.client.db.query(
-      "SELECT * FROM tags WHERE gid=$1;",
-      [this.guild.id]
-    );
+    const tagsQuery = await this.client.db.query<{
+      name: string;
+      content: string;
+      aliases: string[];
+      uid: Snowflake;
+      uses: number;
+    }>("SELECT name, content, aliases, uid, uses FROM tags WHERE gid=$1;", [
+      this.guild.id,
+    ]);
     const tags = new LimitedCollection<string, Tag>({
       maxSize: 100,
     });
     for await (const result of tagsQuery) {
       const tag = {
-        name: (result.get("name") as string).toLowerCase(),
-        content: result.get("content") as string,
+        name: result.name.toLowerCase(),
+        content: result.content,
         embedIds: [],
-        aliases:
-          (result.get("aliases") as string[])?.map((alias) =>
-            alias.toLowerCase()
-          ) || [],
-        createdBy: result.get("uid") as Snowflake,
-        uses: result.get("uses") as number,
+        aliases: result.aliases?.map((alias) => alias.toLowerCase()) || [],
+        createdBy: result.uid,
+        uses: result.uses,
       } as Tag;
 
       const embeds = Array.from(tag.content.matchAll(embedRegex)).sort(
@@ -388,7 +397,12 @@ export class GuildTagManager {
 
   async findSimilarTag(content: string) {
     const fetchedTag = await this.client.db
-      .query(
+      .query<{
+        name: string;
+        content: string;
+        aliases: string[];
+        uses: number;
+      }>(
         "SELECT name, content, aliases, uses FROM tags WHERE gid=$1 AND content=$2",
         [this.guild.id, content.trim()]
       )
@@ -396,11 +410,11 @@ export class GuildTagManager {
     if (!fetchedTag) return null;
     else {
       const tag = {
-        content: fetchedTag.get("content") as string,
-        aliases: (fetchedTag.get("aliases") as string[]) ?? [],
+        content: fetchedTag.content,
+        aliases: fetchedTag.aliases ?? [],
         embedIds: [],
-        name: fetchedTag.get("name") as string,
-        uses: fetchedTag.get("uses") as number,
+        name: fetchedTag.name,
+        uses: fetchedTag.uses,
         createdBy: null,
       } as Tag;
 

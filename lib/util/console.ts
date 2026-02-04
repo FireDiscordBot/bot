@@ -1,7 +1,7 @@
-import { Instance } from "chalk";
+import { Chalk } from "chalk";
 import { inspect } from "util";
 
-const chalk = new Instance({
+const chalk = new Chalk({
   level: 3,
 });
 

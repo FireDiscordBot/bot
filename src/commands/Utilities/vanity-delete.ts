@@ -49,7 +49,10 @@ export default class VanityDelete extends Command {
     focused: CommandInteractionOption
   ): Promise<ApplicationCommandOptionChoiceData[] | string[]> {
     const focusedValue = focused.value?.toString();
-    const vanityResult = await this.client.db.query(
+    const vanityResult = await this.client.db.query<{
+      code: string;
+      invite: string;
+    }>(
       focusedValue
         ? "SELECT code, invite FROM vanity WHERE gid=$1 AND code ILIKE $2 LIMIT 24;"
         : "SELECT code, invite FROM vanity WHERE gid=$1 LIMIT 24;",
@@ -60,8 +63,7 @@ export default class VanityDelete extends Command {
     if (!vanityResult.rows.length) return [];
     const vanities: ApplicationCommandOptionChoiceData[] = [];
     for await (const vanity of vanityResult) {
-      const code = vanity.get("code") as string,
-        invite = vanity.get("invite") as string;
+      const { code, invite } = vanity;
       vanities.push({
         name: `${code} - discord.gg/${invite}`,
         value: code,

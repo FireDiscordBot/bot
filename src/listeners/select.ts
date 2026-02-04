@@ -34,7 +34,6 @@ import {
   MessageComponentTypes,
   TextInputStyles,
 } from "discord.js/typings/enums";
-import { Value } from "ts-postgres";
 import { parseWithUserTimezone } from "../arguments/time";
 import LinkfilterToggle from "../commands/Configuration/linkfilter-toggle";
 import LoggingConfig from "../commands/Configuration/logging-configure";
@@ -249,7 +248,7 @@ export default class Select extends Listener {
         originalMessage?.messageSnapshots.first()?.content;
       const embeds = originalMessage?.embeds.length
         ? originalMessage.embeds
-        : originalMessage?.messageSnapshots.first()?.embeds ?? [];
+        : (originalMessage?.messageSnapshots.first()?.embeds ?? []);
 
       if (
         // these conditions should all be true for the reminder message
@@ -282,22 +281,22 @@ export default class Select extends Listener {
           hasYouTubeLink && hasYouTubeEmbed
             ? `[${hasYouTubeEmbed.title}](${hasYouTubeEmbed.url})`
             : useEmbedDescription
-            ? embeds[0].description
-            : content;
+              ? embeds[0].description
+              : content;
       }
 
       const currentRemind = {
         text: isContext
           ? contextText
           : embeds.length
-          ? embeds[0].description
-          : content.split("\n\n").at(1) ?? undefined,
+            ? embeds[0].description
+            : (content.split("\n\n").at(1) ?? undefined),
         link: originalMessage.components.length
-          ? (
+          ? ((
               (originalMessage.components[0] as MessageActionRow)
                 .components as MessageButton[]
             ).find((button) => button.style == "LINK")?.url ??
-            originalMessage.url + `?setAt=${+new Date()}`
+            originalMessage.url + `?setAt=${+new Date()}`)
           : originalMessage.url + `?setAt=${+new Date()}`,
       };
       // if we don't have the text, we can't snooze it so we return an error
@@ -392,9 +391,11 @@ export default class Select extends Listener {
               }),
           })
           .catch(() => {});
-        await (specifyTimeModal
-          ? specifyTimeModal.channel.update.bind(specifyTimeModal.channel)
-          : select.channel.update.bind(select.channel))({
+        await (
+          specifyTimeModal
+            ? specifyTimeModal.channel.update.bind(specifyTimeModal.channel)
+            : select.channel.update.bind(select.channel)
+        )({
           components: [],
           content: select.author.language.getSuccess(
             success.length == 1
@@ -456,8 +457,8 @@ export default class Select extends Listener {
                         )
                       : `\`${command.id.replace("-", " ")}\``
                     : command.slashOnly && !message.interaction && shouldUpsell
-                    ? Formatters.strikethrough(`\`${command.id}\``)
-                    : `\`${command.id}\``
+                      ? Formatters.strikethrough(`\`${command.id}\``)
+                      : `\`${command.id}\``
                 )
                 .join(", "),
               inline: false,
@@ -638,7 +639,10 @@ export default class Select extends Listener {
       const date = new Date(timestamp);
 
       const reminderResult = await this.client.db
-        .query("SELECT * FROM remind WHERE uid=$1 AND forwhen=$2", [
+        .query<{
+          reminder: string;
+          link: string;
+        }>("SELECT reminder, link FROM remind WHERE uid=$1 AND forwhen=$2", [
           userId,
           date,
         ])
@@ -648,8 +652,8 @@ export default class Select extends Listener {
         return await select.error("REMINDERS_LIST_SELECTED_UNKNOWN");
 
       const reminder = {
-        text: reminderResult.get("reminder") as string,
-        link: reminderResult.get("link") as string,
+        text: reminderResult.reminder,
+        link: reminderResult.link,
         date,
       };
 
@@ -758,7 +762,7 @@ export default class Select extends Listener {
         string,
         string,
         `${MessageComponentTypes}`,
-        `${number}`
+        `${number}`,
       ];
 
       const type = +typeString,
@@ -781,7 +785,7 @@ export default class Select extends Listener {
       );
       const updated = await this.client.db
         .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
-          config.items as Value,
+          config.items,
           select.guild.id,
         ])
         .catch((e: Error) => e);
@@ -820,7 +824,7 @@ export default class Select extends Listener {
         string,
         string,
         `${MessageComponentTypes}`,
-        `${number}`
+        `${number}`,
       ];
 
       const type = +typeString as
@@ -955,7 +959,7 @@ export default class Select extends Listener {
 
       const updated = await this.client.db
         .query("UPDATE appeals SET items=$1 WHERE gid=$2", [
-          config.items as Value,
+          config.items,
           select.guild.id,
         ])
         .catch((e: Error) => e);

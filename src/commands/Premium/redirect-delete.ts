@@ -36,7 +36,10 @@ export default class RedirectDelete extends Command {
     focused: CommandInteractionOption
   ): Promise<ApplicationCommandOptionChoiceData[] | string[]> {
     const focusedValue = focused.value?.toString();
-    const redirectResult = await this.client.db.query(
+    const redirectResult = await this.client.db.query<{
+      code: string;
+      redirect: string;
+    }>(
       focusedValue
         ? "SELECT code, redirect FROM vanity WHERE uid=$1 AND code ILIKE $2 AND redirect IS NOT NULL LIMIT 25;"
         : "SELECT code, redirect FROM vanity WHERE uid=$1 AND redirect IS NOT NULL LIMIT 25;",
@@ -47,8 +50,8 @@ export default class RedirectDelete extends Command {
     if (!redirectResult.rows.length) return [];
     const vanities: ApplicationCommandOptionChoiceData[] = [];
     for await (const vanity of redirectResult) {
-      const code = vanity.get("code") as string,
-        redirect = vanity.get("redirect") as string;
+      const code = vanity.code,
+        redirect = vanity.redirect;
       vanities.push({
         name: this.client.util.shortenText(`${code} - ${redirect}`, 100),
         value: code,
