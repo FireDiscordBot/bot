@@ -1,9 +1,7 @@
 import { Chalk } from "chalk";
 import { inspect } from "util";
 
-const chalk = new Chalk({
-  level: 3,
-});
+const chalk = new Chalk();
 
 const format = new Intl.DateTimeFormat("en-GB", {
   year: "numeric",
