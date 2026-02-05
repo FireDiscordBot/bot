@@ -2,7 +2,7 @@ name: Build and Deploy
 
 on:
   push:
-    branches: ["deploy"]
+    branches: ["master", "deploy"]
 
 jobs:
   build-and-push:
@@ -39,22 +39,25 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Install Argo CD CLI
+      - name: Determine Target Environment
+        id: env-check
         run: |
-          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
-          chmod +x argocd
-          sudo mv argocd /usr/local/bin/
-
-      - name: Sync and Restart Argo CD Application
+          if [[ "${{ github.ref_name }}" == "deploy" ]]; then
+            echo "target=production" >> $GITHUB_OUTPUT
+          else
+            echo "target=staging" >> $GITHUB_OUTPUT
+          fi
+      - name: Update Manifest in Infra Repo
         run: |
-          argocd app sync fire-prod \
-            --server ${{ secrets.ARGOCD_SERVER }} \
-            --auth-token ${{ secrets.ARGOCD_TOKEN }} \
-            --grpc-web
+          git clone https://x-access-token:${{ secrets.INFRA_REPO_TOKEN }}@github.com/FireDiscordBot/k3s-infra.git
+          cd k3s-infra
 
-          argocd app actions run fire-prod restart \
-            --kind Deployment \
-            --resource-name fire-bot \
-            --server ${{ secrets.ARGOCD_SERVER }} \
-            --auth-token ${{ secrets.ARGOCD_TOKEN }} \
-            --grpc-web
+          TARGET_ENV=${{ steps.env-check.outputs.target }}
+
+          sed -i "s|image: ghcr.io/firediscordbot/bot:.*|image: ghcr.io/firediscordbot/bot:${{ github.sha }}|g" clusters/$TARGET_ENV/fire/fire.yaml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "deploy($TARGET_ENV): update bot to ${{ github.sha }}"
+          git push
