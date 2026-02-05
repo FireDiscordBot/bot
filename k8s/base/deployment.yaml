@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fire-bot
+  namespace: fire
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fire
+  template:
+    metadata:
+      labels:
+        app: fire
+    spec:
+      imagePullSecrets:
+        - name: ghcr-creds
+      containers:
+        - name: bot
+          image: ghcr.io/firediscordbot/bot:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1200m"
+          env:
+            - name: BOOT_SINGLE
+              value: "false"
+            - name: NODE_ENV
+              value: "production"
+            - name: REST_SUFFIX
+              value: ".prod"
+            - name: REST_HOST
+              value: "aether-service.aether.svc.cluster.local:1337"
+            - name: REST_SCHEME
+              value: "http"
+            - name: WS_HOST
+              value: "aether-service.aether.svc.cluster.local:1335"
+            - name: WS_SCHEME
+              value: "ws"
+            - name: POSTGRES_HOST
+              value: "postgres-rw.infra.svc.cluster.local"
+            - name: POSTGRES_USER
+              value: "fire"
+            - name: POSTGRES_DB
+              value: "fire"
+          envFrom:
+            - secretRef:
+                name: fire-creds
