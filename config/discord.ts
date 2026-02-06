@@ -7,6 +7,7 @@ import {
   Intents,
   Options,
   Sweepers,
+  ThreadChannel,
 } from "discord.js";
 
 export const discord: ClientOptions = {
@@ -17,44 +18,24 @@ export const discord: ClientOptions = {
     roles: [],
   },
   makeCache: Options.cacheWithLimits({
+    // only keep non-archived threads
     ThreadManager: {
-      sweepFilter: () => {
-        return (thread) => thread.archived;
-      },
-      sweepInterval: 60,
-      maxSize: 1000,
+      maxSize: 1,
+      keepOverLimit: (value) => !value.archived,
     },
     // @ts-ignore
+    // same here
     GuildTextThreadManager: {
-      sweepFilter: () => {
-        return (thread) => thread.archived;
-      },
-      sweepInterval: 60,
-      maxSize: 1000,
+      maxSize: 1,
+      keepOverLimit: (value: ThreadChannel) => !value.archived,
     },
+    // same here (though idk why this doesn't need ts-ignore)
     GuildForumThreadManager: {
-      sweepFilter: () => {
-        return (thread) => thread.archived;
-      },
-      sweepInterval: 60,
-      maxSize: 1000,
+      maxSize: 1,
+      keepOverLimit: (value: ThreadChannel) => !value.archived,
     },
-    // GuildChannelManager: {
-    //   sweepFilter: () => {
-    //     return (channel) => channel.isThread() && channel.archived;
-    //   },
-    //   sweepInterval: 60,
-    //   maxSize: 1500, // 500 channels + 1000 active threads
-    //   keepOverLimit: (channel) => !channel.isThread(), // keep normal channels over limit
-    // },
-    // ChannelManager: {
-    //   sweepFilter: () => {
-    //     return (channel) => channel.isThread() && channel.archived;
-    //   },
-    //   sweepInterval: 60,
-    //   maxSize: 1, // needs to be any number > 0 for keepOverLimit to work
-    //   keepOverLimit: (channel) => !channel.isThread(), // only keep non-threads in global channel cache
-    // },
+    // 50 messages max per channel for non-plus guilds
+    // 250 for plus guilds
     MessageManager: {
       maxSize: 50,
       keepOverLimit: (value: FireMessage, _, cache) => {
@@ -63,7 +44,21 @@ export const discord: ClientOptions = {
         return false;
       },
     },
-    // @ts-ignore
+    GuildMemberManager: {
+      // maxSize of 1 means we may have a single member
+      // that isn't the bot or running a command
+      maxSize: 1,
+      keepOverLimit: (value: FireMember) =>
+        value.id == value.client.user?.id ||
+        value.client.isRunningCommand(value),
+    },
+    UserManager: {
+      // same here
+      maxSize: 1,
+      keepOverLimit: (value: FireUser) =>
+        value.id == value.client.user?.id ||
+        value.client.isRunningCommand(value),
+    },
     GuildApplicationCommandManager: 0,
     ApplicationCommandManager: 0,
     BaseGuildEmojiManager: 0,
@@ -82,7 +77,8 @@ export const discord: ClientOptions = {
         lifetime: 150,
         getComparisonTimestamp: (message: FireMessage) =>
           message.editedTimestamp ?? message.createdTimestamp,
-        excludeFromSweep: (message: FireMessage) => !!message.paginator,
+        excludeFromSweep: (message: FireMessage) =>
+          !!message.paginator && !message.paginator.closed,
       }),
     },
     users: {
@@ -105,7 +101,7 @@ export const discord: ClientOptions = {
       filter: () => (state) => state.channelId == null,
     },
   },
-  restRequestTimeout: 15000,
+  restRequestTimeout: 30000,
   restSweepInterval: 60,
   partials: [
     Constants.PartialTypes.GUILD_MEMBER,
