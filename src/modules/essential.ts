@@ -144,11 +144,8 @@ export default class Essential extends Module {
 
   async init() {
     if (this.client.config.dev) return this.remove();
-    if (this.client.readyAt) await this.ready();
-    else this.client.once("ready", () => this.ready());
-  }
 
-  async ready() {
+    await this.client.waitUntilReady();
     this.publicGuild = this.client.guilds.cache.get(
       this.publicGuildId
     ) as FireGuild;

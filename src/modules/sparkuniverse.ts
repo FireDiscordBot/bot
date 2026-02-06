@@ -57,11 +57,8 @@ export default class SparkUniverse extends Module {
 
   async init() {
     if (this.client.config.dev) return this.remove();
-    if (this.client.readyAt) await this.ready();
-    else this.client.once("ready", () => this.ready());
-  }
 
-  async ready() {
+    await this.client.waitUntilReady();
     this.guild = this.client.guilds.cache.get(this.guildId) as FireGuild;
     if (!this.guild) {
       this.remove();

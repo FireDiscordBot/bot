@@ -22,6 +22,11 @@ export default class VanityURLs extends Module {
   }
 
   async init() {
+    // we wait for raw ready as that is a point
+    // where we can guarantee that everything we need
+    // is already initialized (e.g. the db connection)
+    await this.client.waitUntilRawReady();
+
     this.blacklisted = [];
     const blacklistResult = await this.client.db.query<{ gid: Snowflake }>(
       "SELECT gid FROM vanitybl;"

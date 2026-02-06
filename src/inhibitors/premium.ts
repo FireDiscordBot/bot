@@ -26,6 +26,11 @@ export default class Premium extends Inhibitor {
   }
 
   async init() {
+    // we wait for raw ready as that is a point
+    // where we can guarantee that everything we need
+    // is already initialized (e.g. the db connection)
+    await this.client.waitUntilRawReady();
+
     this.client.util.premium = new Collection();
     this.client.util.loadedData.premium = false;
     const premiumStripe = await this.client.db.query<{

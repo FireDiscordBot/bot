@@ -13,7 +13,12 @@ export default class AetherStats extends Module {
   }
 
   async init() {
-    if (!this.client.manager.ws) return;
+    // we wait for raw ready as that is a point
+    // where we can guarantee that everything we need
+    // is already initialized (e.g. the ws connection)
+    await this.client.waitUntilRawReady();
+
+    if (!this.client.manager.ws) return this.remove();
     if (this.statsTask) clearInterval(this.statsTask);
     await this.sendStats();
     this.statsTask = setInterval(() => {

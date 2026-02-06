@@ -13,6 +13,8 @@ export default class Blacklist extends Inhibitor {
   }
 
   async exec(message: FireMessage, command?: Command) {
+    if (!this.client.util.loadedData.plonked) await this.loadBlacklist();
+
     return this.client.util.isBlacklisted(
       message.author.id,
       message.guild,
@@ -20,7 +22,7 @@ export default class Blacklist extends Inhibitor {
     );
   }
 
-  async init() {
+  async loadBlacklist() {
     this.client.util.plonked = [];
     this.client.util.loadedData.plonked = false;
     const plonked = await this.client.db.query<{
