@@ -284,8 +284,6 @@ export class Fire extends AkairoClient {
   }
 
   private async init() {
-    await this.initDB();
-
     this.commandHandler = new CommandHandler(this, {
       directory: this.isDist ? "./dist/src/commands/" : "./src/commands/",
       commandUtil: true,
@@ -434,6 +432,8 @@ export class Fire extends AkairoClient {
       await module?.unload();
     });
     this.modules.loadAll();
+
+    await this.initDB();
   }
 
   private async initDB(reconnect: boolean = false) {
@@ -683,6 +683,7 @@ export class Fire extends AkairoClient {
   }
 
   getFuzzyCommands(command: string, limit = 20, forceRatio?: number) {
+    if (!this.commandHandler) return;
     let ratio = forceRatio ?? 90;
     let fuzzy: Command[] = [];
     const commands = this.commandHandler.modules.toJSON();
@@ -703,6 +704,7 @@ export class Fire extends AkairoClient {
   }
 
   getCommand(id: string) {
+    if (!this.commandHandler) return;
     id = id.toLowerCase();
     if (this.commandHandler.modules.has(id))
       return this.commandHandler.modules.get(id) as Command;
@@ -716,6 +718,7 @@ export class Fire extends AkairoClient {
   }
 
   getContextCommand(interaction: ContextMenuInteraction) {
+    if (!this.commandHandler) return;
     const command = this.commandHandler.modules.find(
       (command) =>
         command.context.includes(interaction.commandName.toLowerCase()) ||
@@ -725,18 +728,22 @@ export class Fire extends AkairoClient {
   }
 
   getLanguage(id: string) {
+    if (!this.languages) return;
     return this.languages.modules.get(id) as Language;
   }
 
   getModule(id: string) {
+    if (!this.modules) return;
     return this.modules.modules.get(id.toLowerCase()) as Module;
   }
 
   getListener(id: string) {
+    if (!this.listenerHandler) return;
     return this.listenerHandler.modules.get(id) as Listener;
   }
 
   getInhibitor(id: string) {
+    if (!this.inhibitorHandler) return;
     return this.inhibitorHandler.modules.get(id) as Inhibitor;
   }
 }
