@@ -15,13 +15,14 @@ export default class Emoji extends Command {
         language.get("EMOJI_COMMAND_DESCRIPTION"),
       clientPermissions: [
         PermissionFlagsBits.SendMessages,
-        PermissionFlagsBits.ManageEmojisAndStickers,
+        PermissionFlagsBits.ManageGuildExpressions,
       ],
-      userPermissions: [PermissionFlagsBits.ManageEmojisAndStickers],
+      userPermissions: [PermissionFlagsBits.ManageGuildExpressions],
       args: [
         {
           id: "name",
-          type: "string",
+          type: /\w{2,32}/gim,
+          readableType: "name",
           default: null,
           required: true,
         },
