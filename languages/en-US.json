@@ -259,7 +259,7 @@
     "MANAGE_ROLES": "Manage Roles",
     "MANAGE_WEBHOOKS": "Manage Webhooks",
     "MANAGE_EMOJIS": "Manage Emojis",
-    "MANAGE_EMOJIS_AND_STICKERS": "Manage Emojis & Stickers",
+    "MANAGE_GUILD_EXPRESSIONS": "Manage Expressions",
     "USE_APPLICATION_COMMANDS": "Use Application Commands",
     "REQUEST_TO_SPEAK": "Request to Speak",
     "MANAGE_THREADS": "Manage Threads",
@@ -269,7 +269,7 @@
     "CREATE_PRIVATE_THREADS": "Create Private Threads",
     "USE_EXTERNAL_STICKERS": "Use External Stickers",
     "SEND_MESSAGES_IN_THREADS": "Send Messages in Threads",
-    "START_EMBEDDED_ACTIVITIES": "Start Activities",
+    "USE_EMBEDDED_ACTIVITIES": "Start Activities",
     "MODERATE_MEMBERS": "Timeout Members",
     "MANAGE_EVENTS": "Manage Events",
     "VIEW_CREATOR_MONETIZATION_ANALYTICS": "View Creator Monetization Analytics",
@@ -279,7 +279,9 @@
     "USE_EXTERNAL_SOUNDS": "Use External Sounds",
     "SEND_VOICE_MESSAGES": "Send Voice Messages",
     "SEND_POLLS": "Send Polls",
-    "USE_EXTERNAL_APPS": "Use External Apps"
+    "USE_EXTERNAL_APPS": "Use External Apps",
+    "PIN_MESSAGES": "Pin Messages",
+    "BYPASS_SLOWMODE": "Bypass Slowmode"
   },
   "ACTIVITY_TYPES": {
     "1": "Join",

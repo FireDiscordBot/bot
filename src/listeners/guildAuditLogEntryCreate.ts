@@ -22,6 +22,7 @@ import {
   NewsChannel,
   PermissionOverwriteManager,
   Permissions,
+  PermissionString,
   TextChannel,
   ThreadChannel,
 } from "discord.js";
@@ -53,7 +54,7 @@ const KEY_PERMISSIONS = [
   "KICK_MEMBERS",
   "MANAGE_CHANNELS",
   "MANAGE_GUILD",
-  "MANAGE_EMOJIS_AND_STICKERS",
+  "MANAGE_GUILD_EXPRESSIONS",
   "MANAGE_MESSAGES",
   "MANAGE_NICKNAMES",
   "MANAGE_ROLES",
@@ -64,7 +65,7 @@ const KEY_PERMISSIONS = [
   "MANAGE_THREADS",
   "MODERATE_MEMBERS",
   "MANAGE_EVENTS",
-];
+] as PermissionString[];
 const TEXT_AND_NEWS_TYPES = [0, 5];
 
 type AuditLogActionMethod = (
