@@ -33,6 +33,8 @@ export default class GuildMemberUpdate extends Listener {
   }
 
   async exec(oldMember: FireMember, newMember: FireMember) {
+    if (newMember.deleted) return;
+
     // If it's the bot which got updated
     // we'll resend GUILD_CREATE to update the member data
     // since it just overwrites any existing data

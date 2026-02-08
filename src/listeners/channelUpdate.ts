@@ -20,7 +20,7 @@ export default class ChannelUpdate extends Listener {
     _: GuildBasedChannel | DMChannel,
     after: GuildBasedChannel | DMChannel
   ) {
-    if (after instanceof DMChannel) return;
+    if (after instanceof DMChannel || after.deleted) return;
 
     const guild = after.guild as FireGuild;
     const muteRole = guild.muteRole;

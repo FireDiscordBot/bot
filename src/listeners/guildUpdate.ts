@@ -17,6 +17,8 @@ export default class GuildUpdate extends Listener {
   }
 
   async exec(before: FireGuild, after: FireGuild) {
+    if (after.deleted) return;
+
     const discoveryChanges =
       before.name != after.name ||
       before.icon != after.icon ||
