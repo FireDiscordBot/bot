@@ -275,7 +275,7 @@ export default class GuildMemberAdd extends Listener {
         )
       ) {
         // this is (or at least should be) infrequent enough
-        // to make moving it to guildAuditLogEntryCreate not completely necessarys
+        // to make moving it to guildAuditLogEntryCreate not completely necessary
         // however, it might be worth doing so to add extra details and/or have it in mod logs
         // especially since this is the last audit fetch remaining
         const auditLogActions = await member.guild
