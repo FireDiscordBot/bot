@@ -142,7 +142,7 @@ export default class GuildCommand extends Command {
                             this.client.util.useEmoji("REGION_WUMPUS"),
                         })
                   )
-                  .filter((region, idx, arr) => arr.indexOf(region) == idx)
+                  .filter(this.client.util.deduplicate)
                   .join(", ")
               : command.language.get("REGION_AUTOMATIC", {
                   automaticEmoji: this.client.util.useEmoji("REGION_WUMPUS"),

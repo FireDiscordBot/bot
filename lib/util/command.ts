@@ -282,7 +282,7 @@ export class Command extends AkairoCommand {
             )
             .map((guild) => guild.id)
         : []),
-    ].filter((guildId, idx, arr) => arr.indexOf(guildId) == idx);
+    ].filter(this.client.util.deduplicate);
   }
 
   async init(): Promise<any> {

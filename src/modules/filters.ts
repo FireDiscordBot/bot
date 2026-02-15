@@ -460,7 +460,7 @@ export default class Filters extends Module {
                   `${invite.channel.name} (${invite.channel.id})`,
                   ...sameGuild
                     .map((i) => `${i.channel.name} (${i.channel.id})`)
-                    .filter((val, index, full) => full.indexOf(val) == index),
+                    .filter(this.client.util.deduplicate),
                 ].join("\n")
               : `${invite.channel.name} (${invite.channel.id})`,
           },

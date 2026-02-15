@@ -234,6 +234,10 @@ export class Util extends ClientUtil {
     return Math.floor(Math.random() * max) + min;
   }
 
+  deduplicate<T>(item: T, index: number, array: T[]) {
+    return array.indexOf(item) == index;
+  }
+
   async randomWord() {
     const req = await centra(`${this.client.manager.REST_HOST}/v2/word/random`)
       .header("User-Agent", this.client.manager.ua)
