@@ -125,10 +125,9 @@ export default class Help extends Command {
           name: message.language.get("HELP_SOFTWARE_CREDITS_NAME"),
           value:
             message.language.get("HELP_SOFTWARE_CREDITS_VALUE", {
-              links:
-                "[Ravy](https://ravy.pink/) & [The Aero Team](https://aero.bot/)",
+              links: "[mint](https://ravy.dev/mint) @ [Aero](https://aero.bot)",
             }) +
-            "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n[Aether](https://ravy.dev/aero/aether)\n",
+            "\n[@aero/sanitizer](https://www.npmjs.com/package/@aero/sanitizer)\n",
         },
         {
           name: message.language.get("HELP_EMOJI_CREDITS_NAME"),
@@ -164,7 +163,7 @@ export default class Help extends Command {
       description:
         typeof command.description == "function"
           ? command.description(message.language)
-          : command.description ?? "No Description Provided",
+          : (command.description ?? "No Description Provided"),
       fields: [
         {
           name: message.language.get("HELP_USAGE"),

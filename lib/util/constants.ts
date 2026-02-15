@@ -189,7 +189,6 @@ export const constants = {
     premium: "https://inv.wtf/plus",
     billing: "https://inv.wtf/billing",
     support: "https://inv.wtf/fire",
-    // selfhosted instance of https://git.farfrom.earth/aero/imagegen (but with profile removed since I don't need it)
     imageGen: `https://imagen${domainSuffix}.getfire.bot`,
     serverTags: `https://server-tags${domainSuffix}.getfire.bot`,
     mclogs: `https://mclogs${domainSuffix}.getfire.bot`,
