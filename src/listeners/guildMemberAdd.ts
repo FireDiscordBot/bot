@@ -182,7 +182,10 @@ export default class GuildMemberAdd extends Listener {
     if (member.premium && member.guild.id == this.client.config.fireGuildId)
       await member.roles.add("564060922688176139").catch(() => {});
 
-    if (member.guild.memberCount >= 1000) {
+    if (
+      member.guild.memberCount >= 1000 &&
+      process.env.NODE_ENV != "development"
+    ) {
       const logChannelIds = logTypes.map((type) =>
         member.guild.settings.get<string>(`log.${type}`)
       );

@@ -60,7 +60,8 @@ export default class LoggingToggle extends Command {
     if (
       args.channel &&
       otherChannels.includes(args.channel.id) &&
-      command.guild.memberCount >= 1000
+      command.guild.memberCount >= 1000 &&
+      process.env.NODE_ENV != "development"
     )
       return await command.error("LOGGING_SIZE_SAME_CHANNEL");
     if (!args.channel) {
