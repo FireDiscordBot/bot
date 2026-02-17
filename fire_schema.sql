@@ -2,12 +2,15 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.23 (Ubuntu 10.23-0ubuntu0.18.04.2)
--- Dumped by pg_dump version 10.23 (Ubuntu 10.23-0ubuntu0.18.04.2)
+\restrict 953I0quCnllVkg2ActaOfQXcGtZRrRyOXf6nYHsjtfk8xsYoxT2S9w1AnQBgmYM
+
+-- Dumped from database version 18.1 (Ubuntu 18.1-1.pgdg24.04+2)
+-- Dumped by pg_dump version 18.1 (Ubuntu 18.1-1.pgdg24.04+2)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -16,95 +19,76 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
-
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
--- Name: aliases; Type: TABLE; Schema: public; Owner: postgres
+-- Name: aliases; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.aliases (
+CREATE TABLE IF NOT EXISTS public.aliases (
     uid text NOT NULL,
     aliases text[]
 );
 
-
-ALTER TABLE public.aliases OWNER TO postgres;
+ALTER TABLE public.aliases OWNER TO fire;
 
 --
--- Name: appeals; Type: TABLE; Schema: public; Owner: postgres
+-- Name: appeals; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.appeals (
-    gid text NOT NULL,
+CREATE TABLE IF NOT EXISTS public.appeals (
+    gid text NOT NULL PRIMARY KEY,
     notbefore bigint DEFAULT 0 NOT NULL,
     notafter bigint DEFAULT 0 NOT NULL,
     items jsonb DEFAULT '[]'::jsonb NOT NULL
 );
 
-
-ALTER TABLE public.appeals OWNER TO postgres;
+ALTER TABLE public.appeals OWNER TO fire;
 
 --
--- Name: assistant; Type: TABLE; Schema: public; Owner: postgres
+-- Name: assistant; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.assistant (
-    uid text NOT NULL,
+CREATE TABLE IF NOT EXISTS public.assistant (
+    uid text NOT NULL UNIQUE,
     access_token text,
     refresh_token text
 );
 
-
-ALTER TABLE public.assistant OWNER TO postgres;
+ALTER TABLE public.assistant OWNER TO fire;
 
 --
--- Name: bans; Type: TABLE; Schema: public; Owner: postgres
+-- Name: bans; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.bans (
+CREATE TABLE IF NOT EXISTS public.bans (
     gid text NOT NULL,
     uid text NOT NULL,
     until text DEFAULT 0
 );
 
-
-ALTER TABLE public.bans OWNER TO postgres;
+ALTER TABLE public.bans OWNER TO fire;
 
 --
--- Name: blacklist; Type: TABLE; Schema: public; Owner: postgres
+-- Name: blacklist; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.blacklist (
+CREATE TABLE IF NOT EXISTS public.blacklist (
     "user" text,
     uid text,
     reason text,
     perm integer
 );
 
-
-ALTER TABLE public.blacklist OWNER TO postgres;
+ALTER TABLE public.blacklist OWNER TO fire;
 
 --
--- Name: buildoverrides; Type: TABLE; Schema: public; Owner: postgres
+-- Name: buildoverrides; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.buildoverrides (
+CREATE TABLE IF NOT EXISTS public.buildoverrides (
     id bigint NOT NULL,
     bucket integer NOT NULL,
     releasechannel text NOT NULL,
@@ -114,14 +98,26 @@ CREATE TABLE public.buildoverrides (
     experiment bigint NOT NULL
 );
 
-
-ALTER TABLE public.buildoverrides OWNER TO postgres;
+ALTER TABLE public.buildoverrides OWNER TO fire;
 
 --
--- Name: customers; Type: TABLE; Schema: public; Owner: postgres
+-- Name: command_usage; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.customers (
+CREATE TABLE IF NOT EXISTS public.command_usage (
+    gid bigint NOT NULL,
+    command text NOT NULL,
+    count bigint DEFAULT 0,
+    PRIMARY KEY (gid, command)
+);
+
+ALTER TABLE public.command_usage OWNER TO fire;
+
+--
+-- Name: customers; Type: TABLE; Schema: public; Owner: fire
+--
+
+CREATE TABLE IF NOT EXISTS public.customers (
     cid text NOT NULL,
     email text,
     discord text NOT NULL,
@@ -131,39 +127,36 @@ CREATE TABLE public.customers (
     cantrial boolean DEFAULT true NOT NULL
 );
 
-
-ALTER TABLE public.customers OWNER TO postgres;
+ALTER TABLE public.customers OWNER TO fire;
 
 --
--- Name: datapackages; Type: TABLE; Schema: public; Owner: postgres
+-- Name: datapackages; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.datapackages (
+CREATE TABLE IF NOT EXISTS public.datapackages (
     id text NOT NULL,
     status text DEFAULT 'starting collection'::text NOT NULL
 );
 
-
-ALTER TABLE public.datapackages OWNER TO postgres;
+ALTER TABLE public.datapackages OWNER TO fire;
 
 --
--- Name: embeds; Type: TABLE; Schema: public; Owner: postgres
+-- Name: embeds; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.embeds (
-    id text NOT NULL,
+CREATE TABLE IF NOT EXISTS public.embeds (
+    id text NOT NULL PRIMARY KEY,
     uid text NOT NULL,
     embed jsonb NOT NULL
 );
 
-
-ALTER TABLE public.embeds OWNER TO postgres;
+ALTER TABLE public.embeds OWNER TO fire;
 
 --
--- Name: experimentfilters; Type: TABLE; Schema: public; Owner: postgres
+-- Name: experimentfilters; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.experimentfilters (
+CREATE TABLE IF NOT EXISTS public.experimentfilters (
     id bigint NOT NULL,
     bucket integer NOT NULL,
     features text[],
@@ -178,67 +171,64 @@ CREATE TABLE public.experimentfilters (
     boost_tier integer
 );
 
-
-ALTER TABLE public.experimentfilters OWNER TO postgres;
+ALTER TABLE public.experimentfilters OWNER TO fire;
 
 --
--- Name: experiments; Type: TABLE; Schema: public; Owner: postgres
+-- Name: experiments; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.experiments (
+CREATE TABLE IF NOT EXISTS public.experiments (
     id bigint NOT NULL,
     kind text NOT NULL,
     label text NOT NULL,
     buckets integer[],
     data json,
-    active boolean DEFAULT true
+    active boolean DEFAULT true,
+    UNIQUE (id, label)
 );
 
-
-ALTER TABLE public.experiments OWNER TO postgres;
+ALTER TABLE public.experiments OWNER TO fire;
 
 --
--- Name: guildconfig; Type: TABLE; Schema: public; Owner: postgres
+-- Name: guildconfig; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.guildconfig (
-    gid bigint NOT NULL,
+CREATE TABLE IF NOT EXISTS public.guildconfig (
+    gid bigint NOT NULL UNIQUE,
     data jsonb NOT NULL
 );
 
-
-ALTER TABLE public.guildconfig OWNER TO postgres;
+ALTER TABLE public.guildconfig OWNER TO fire;
 
 --
--- Name: invrole; Type: TABLE; Schema: public; Owner: postgres
+-- Name: invrole; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.invrole (
+CREATE TABLE IF NOT EXISTS public.invrole (
     gid text,
     rid text,
-    inv text
+    inv text,
+    UNIQUE (gid, inv)
 );
 
-
-ALTER TABLE public.invrole OWNER TO postgres;
+ALTER TABLE public.invrole OWNER TO fire;
 
 --
--- Name: lookback; Type: TABLE; Schema: public; Owner: postgres
+-- Name: lookback; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.lookback (
-    uid text NOT NULL,
+CREATE TABLE IF NOT EXISTS public.lookback (
+    uid text NOT NULL PRIMARY KEY,
     data jsonb NOT NULL
 );
 
-
-ALTER TABLE public.lookback OWNER TO postgres;
+ALTER TABLE public.lookback OWNER TO fire;
 
 --
--- Name: modlogs; Type: TABLE; Schema: public; Owner: postgres
+-- Name: modlogs; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.modlogs (
+CREATE TABLE IF NOT EXISTS public.modlogs (
     gid text,
     uid text,
     type text,
@@ -250,41 +240,38 @@ CREATE TABLE public.modlogs (
     appealstatus text
 );
 
-
-ALTER TABLE public.modlogs OWNER TO postgres;
+ALTER TABLE public.modlogs OWNER TO fire;
 
 --
--- Name: mutes; Type: TABLE; Schema: public; Owner: postgres
+-- Name: mutes; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.mutes (
+CREATE TABLE IF NOT EXISTS public.mutes (
     gid text DEFAULT 0 NOT NULL,
     uid text DEFAULT 0 NOT NULL,
     until text DEFAULT 0
 );
 
-
-ALTER TABLE public.mutes OWNER TO postgres;
+ALTER TABLE public.mutes OWNER TO fire;
 
 --
--- Name: permroles; Type: TABLE; Schema: public; Owner: postgres
+-- Name: permroles; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.permroles (
+CREATE TABLE IF NOT EXISTS public.permroles (
     gid text NOT NULL,
     rid text NOT NULL,
     allow text NOT NULL,
     deny text NOT NULL
 );
 
-
-ALTER TABLE public.permroles OWNER TO postgres;
+ALTER TABLE public.permroles OWNER TO fire;
 
 --
--- Name: premium_stripe; Type: TABLE; Schema: public; Owner: postgres
+-- Name: premium_stripe; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.premium_stripe (
+CREATE TABLE IF NOT EXISTS public.premium_stripe (
     uid text NOT NULL,
     subscription text NOT NULL,
     customer text NOT NULL,
@@ -295,94 +282,87 @@ CREATE TABLE public.premium_stripe (
     active boolean DEFAULT true
 );
 
-
-ALTER TABLE public.premium_stripe OWNER TO postgres;
+ALTER TABLE public.premium_stripe OWNER TO fire;
 
 --
--- Name: reactrole; Type: TABLE; Schema: public; Owner: postgres
+-- Name: reactrole; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.reactrole (
+CREATE TABLE IF NOT EXISTS public.reactrole (
     gid text NOT NULL,
     mid text,
     eid text,
     rid text
 );
 
-
-ALTER TABLE public.reactrole OWNER TO postgres;
+ALTER TABLE public.reactrole OWNER TO fire;
 
 --
--- Name: referrals; Type: TABLE; Schema: public; Owner: postgres
+-- Name: referrals; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.referrals (
+CREATE TABLE IF NOT EXISTS public.referrals (
     url text NOT NULL,
     count integer DEFAULT 0 NOT NULL,
     code text
 );
 
-
-ALTER TABLE public.referrals OWNER TO postgres;
+ALTER TABLE public.referrals OWNER TO fire;
 
 --
--- Name: remind; Type: TABLE; Schema: public; Owner: postgres
+-- Name: remind; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.remind (
+CREATE TABLE IF NOT EXISTS public.remind (
     uid text NOT NULL,
     forwhen timestamp without time zone,
     reminder text,
     link text
 );
 
-
-ALTER TABLE public.remind OWNER TO postgres;
+ALTER TABLE public.remind OWNER TO fire;
 
 --
--- Name: rolepersists; Type: TABLE; Schema: public; Owner: postgres
+-- Name: rolepersists; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.rolepersists (
+CREATE TABLE IF NOT EXISTS public.rolepersists (
     gid text,
     uid text,
     roles text[]
 );
 
-
-ALTER TABLE public.rolepersists OWNER TO postgres;
+ALTER TABLE public.rolepersists OWNER TO fire;
 
 --
--- Name: starboard; Type: TABLE; Schema: public; Owner: postgres
+-- Name: starboard; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.starboard (
+CREATE TABLE IF NOT EXISTS public.starboard (
     gid text NOT NULL,
     original text NOT NULL,
     board text NOT NULL
 );
 
-
-ALTER TABLE public.starboard OWNER TO postgres;
+ALTER TABLE public.starboard OWNER TO fire;
 
 --
--- Name: starboard_reactions; Type: TABLE; Schema: public; Owner: postgres
+-- Name: starboard_reactions; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.starboard_reactions (
+CREATE TABLE IF NOT EXISTS public.starboard_reactions (
     gid text NOT NULL,
     mid text NOT NULL,
     reactions integer DEFAULT 1 NOT NULL
 );
 
-
-ALTER TABLE public.starboard_reactions OWNER TO postgres;
+ALTER TABLE public.starboard_reactions OWNER TO fire;
 
 --
--- Name: subscriptions; Type: TABLE; Schema: public; Owner: postgres
+-- Name: subscriptions; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.subscriptions (
+CREATE TABLE IF NOT EXISTS public.subscriptions (
     id text NOT NULL,
     cid text NOT NULL,
     discord text NOT NULL,
@@ -400,14 +380,13 @@ CREATE TABLE public.subscriptions (
     trialend timestamp without time zone
 );
 
-
-ALTER TABLE public.subscriptions OWNER TO postgres;
+ALTER TABLE public.subscriptions OWNER TO fire;
 
 --
--- Name: tags; Type: TABLE; Schema: public; Owner: postgres
+-- Name: tags; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.tags (
+CREATE TABLE IF NOT EXISTS public.tags (
     gid text,
     name text,
     content text,
@@ -416,26 +395,24 @@ CREATE TABLE public.tags (
     uses integer DEFAULT 0
 );
 
-
-ALTER TABLE public.tags OWNER TO postgres;
+ALTER TABLE public.tags OWNER TO fire;
 
 --
--- Name: userconfig; Type: TABLE; Schema: public; Owner: postgres
+-- Name: userconfig; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.userconfig (
-    uid bigint NOT NULL,
+CREATE TABLE IF NOT EXISTS public.userconfig (
+    uid bigint NOT NULL UNIQUE,
     data jsonb NOT NULL
 );
 
-
-ALTER TABLE public.userconfig OWNER TO postgres;
+ALTER TABLE public.userconfig OWNER TO fire;
 
 --
--- Name: vanity; Type: TABLE; Schema: public; Owner: postgres
+-- Name: vanity; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.vanity (
+CREATE TABLE IF NOT EXISTS public.vanity (
     gid text,
     code text NOT NULL,
     invite text,
@@ -446,218 +423,104 @@ CREATE TABLE public.vanity (
     description text
 );
 
-
-ALTER TABLE public.vanity OWNER TO postgres;
+ALTER TABLE public.vanity OWNER TO fire;
 
 --
--- Name: vanitybl; Type: TABLE; Schema: public; Owner: postgres
+-- Name: vanitybl; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.vanitybl (
+CREATE TABLE IF NOT EXISTS public.vanitybl (
     guild text NOT NULL,
     gid text NOT NULL,
     reason text
 );
 
-
-ALTER TABLE public.vanitybl OWNER TO postgres;
+ALTER TABLE public.vanitybl OWNER TO fire;
 
 --
--- Name: vcroles; Type: TABLE; Schema: public; Owner: postgres
+-- Name: vcroles; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.vcroles (
+CREATE TABLE IF NOT EXISTS public.vcroles (
     gid text NOT NULL,
     rid text NOT NULL,
-    cid text NOT NULL
+    cid text NOT NULL UNIQUE
 );
 
-
-ALTER TABLE public.vcroles OWNER TO postgres;
+ALTER TABLE public.vcroles OWNER TO fire;
 
 --
--- Name: words; Type: TABLE; Schema: public; Owner: postgres
+-- Name: words; Type: TABLE; Schema: public; Owner: fire
 --
 
-CREATE TABLE public.words (
-    word text NOT NULL
+CREATE TABLE IF NOT EXISTS public.words (
+    word text NOT NULL PRIMARY KEY
 );
 
-
-ALTER TABLE public.words OWNER TO postgres;
-
---
--- Name: appeals appeals_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.appeals
-    ADD CONSTRAINT appeals_pkey PRIMARY KEY (gid);
-
+ALTER TABLE public.words OWNER TO fire;
 
 --
--- Name: assistant assistant_uid_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: idx_bans_gid_uid; Type: INDEX; Schema: public; Owner: fire
 --
-
-ALTER TABLE ONLY public.assistant
-    ADD CONSTRAINT assistant_uid_key UNIQUE (uid);
-
+CREATE INDEX IF NOT EXISTS idx_bans_gid_uid ON public.bans (gid, uid);
 
 --
--- Name: embeds embeds_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: idx_mutes_gid_uid; Type: INDEX; Schema: public; Owner: fire
 --
-
-ALTER TABLE ONLY public.embeds
-    ADD CONSTRAINT embeds_pkey PRIMARY KEY (id);
-
+CREATE INDEX IF NOT EXISTS idx_mutes_gid_uid ON public.mutes (gid, uid);
 
 --
--- Name: lookback lookback_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: idx_modlogs_gid_uid; Type: INDEX; Schema: public; Owner: fire
 --
-
-ALTER TABLE ONLY public.lookback
-    ADD CONSTRAINT lookback_pkey PRIMARY KEY (uid);
-
+CREATE INDEX IF NOT EXISTS idx_modlogs_gid_uid ON public.modlogs (gid, uid);
 
 --
--- Name: guildconfig single_guild; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: idx_modlogs_caseid; Type: INDEX; Schema: public; Owner: fire
 --
-
-ALTER TABLE ONLY public.guildconfig
-    ADD CONSTRAINT single_guild UNIQUE (gid);
-
+CREATE INDEX IF NOT EXISTS idx_modlogs_caseid ON public.modlogs (caseid);
 
 --
--- Name: userconfig single_user; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: idx_starboard_gid_original; Type: INDEX; Schema: public; Owner: fire
 --
-
-ALTER TABLE ONLY public.userconfig
-    ADD CONSTRAINT single_user UNIQUE (uid);
-
+CREATE INDEX IF NOT EXISTS idx_starboard_gid_original ON public.starboard (gid, original);
 
 --
--- Name: experiments unique_id; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: idx_starboard_reactions_gid_mid; Type: INDEX; Schema: public; Owner: fire
 --
-
-ALTER TABLE ONLY public.experiments
-    ADD CONSTRAINT unique_id UNIQUE (id, label);
-
+CREATE INDEX IF NOT EXISTS idx_starboard_reactions_gid_mid ON public.starboard_reactions (gid, mid);
 
 --
--- Name: invrole unique_inv; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: idx_tags_gid_name; Type: INDEX; Schema: public; Owner: fire
 --
-
-ALTER TABLE ONLY public.invrole
-    ADD CONSTRAINT unique_inv UNIQUE (gid, inv);
-
+CREATE INDEX IF NOT EXISTS idx_tags_gid_name ON public.tags (gid, name);
 
 --
--- Name: vcroles vcroles_cid_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: idx_vanity_code; Type: INDEX; Schema: public; Owner: fire
 --
-
-ALTER TABLE ONLY public.vcroles
-    ADD CONSTRAINT vcroles_cid_key UNIQUE (cid);
-
+CREATE INDEX IF NOT EXISTS idx_vanity_code ON public.vanity (code);
 
 --
--- Name: words words_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: idx_subscriptions_discord_cid; Type: INDEX; Schema: public; Owner: fire
 --
-
-ALTER TABLE ONLY public.words
-    ADD CONSTRAINT words_pkey PRIMARY KEY (word);
-
+CREATE INDEX IF NOT EXISTS idx_subscriptions_discord_cid ON public.subscriptions (discord, cid);
 
 --
--- Name: TABLE aliases; Type: ACL; Schema: public; Owner: postgres
+-- Name: idx_blacklist_uid; Type: INDEX; Schema: public; Owner: fire
 --
-
-GRANT SELECT ON TABLE public.aliases TO grafana;
-
+CREATE INDEX IF NOT EXISTS idx_blacklist_uid ON public.blacklist (uid);
 
 --
--- Name: TABLE blacklist; Type: ACL; Schema: public; Owner: postgres
+-- Name: idx_remind_uid; Type: INDEX; Schema: public; Owner: fire
 --
-
-GRANT SELECT ON TABLE public.blacklist TO grafana;
-
+CREATE INDEX IF NOT EXISTS idx_remind_uid ON public.remind (uid);
 
 --
--- Name: TABLE guildconfig; Type: ACL; Schema: public; Owner: postgres
+-- Name: idx_remind_forwhen; Type: INDEX; Schema: public; Owner: fire
 --
-
-GRANT SELECT ON TABLE public.guildconfig TO grafana;
-
-
---
--- Name: TABLE invrole; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.invrole TO grafana;
-
-
---
--- Name: TABLE modlogs; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.modlogs TO grafana;
-
-
---
--- Name: TABLE mutes; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.mutes TO grafana;
-
-
---
--- Name: TABLE reactrole; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.reactrole TO grafana;
-
-
---
--- Name: TABLE referrals; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.referrals TO grafana;
-
-
---
--- Name: TABLE remind; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.remind TO grafana;
-
-
---
--- Name: TABLE rolepersists; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.rolepersists TO grafana;
-
-
---
--- Name: TABLE tags; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.tags TO grafana;
-
-
---
--- Name: TABLE vanity; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.vanity TO grafana;
-
-
---
--- Name: TABLE vanitybl; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT SELECT ON TABLE public.vanitybl TO grafana;
-
+CREATE INDEX IF NOT EXISTS idx_remind_forwhen ON public.remind (forwhen);
 
 --
 -- PostgreSQL database dump complete
 --
 
+\unrestrict 953I0quCnllVkg2ActaOfQXcGtZRrRyOXf6nYHsjtfk8xsYoxT2S9w1AnQBgmYM

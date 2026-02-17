@@ -16,6 +16,15 @@ export default class CommandStarted extends Listener {
     command: Command,
     args: Record<string, unknown>
   ) {
+    await this.client.db
+      .query(
+        "INSERT INTO command_usage (gid, command, count) " +
+          "VALUES ($1, $2, 1) ON CONFLICT (gid, command) " +
+          "DO UPDATE SET count = command_usage.count + 1",
+        [message.guildId ? BigInt(message.guildId) : 0n, command.id]
+      )
+      .catch(() => {});
+
     const point = {
       measurement: "commands",
       tags: {
@@ -43,10 +52,6 @@ export default class CommandStarted extends Listener {
             : "",
       },
     };
-    this.client.manager.writeToInflux([point], {
-      // command started logs are kept forever to power
-      // the commands used counter on the WIP Fire website
-      retentionPolicy: "aether_inf",
-    });
+    this.client.manager.writeToInflux([point]);
   }
 }
