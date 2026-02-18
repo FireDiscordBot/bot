@@ -60,12 +60,7 @@ if (loadSentry) {
       sentry.extraErrorDataIntegration({
         depth: 3,
       }),
-      process.env.KUBERNETES_SERVICE_HOST
-        ? sentry.rewriteFramesIntegration({
-            root: "/app/dist",
-          })
-        : undefined,
-    ].filter(Boolean),
+    ],
     beforeBreadcrumb: (breadcrumb) => {
       if (breadcrumb.type != "http") return breadcrumb;
       else if (breadcrumb.data?.url?.includes("/webhooks/")) {

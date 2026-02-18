@@ -8,9 +8,7 @@
     "esModuleInterop": false,
     "skipLibCheck": true,
     "sourceMap": true,
-    "inlineSources": true,
     "outDir": "dist/",
-    "sourceRoot": "",
     "baseUrl": ".",
     "paths": {
       "@fire/lib/*": ["lib/*"],
