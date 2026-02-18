@@ -838,12 +838,27 @@ export class Command extends AkairoCommand {
     return commands;
   }
 
-  getCommandsV2Data() {
+  getCommandsV2Data(): CommandsV2Command {
     const defaultLanguage = this.client.getLanguage("en-US");
     const languages = this.client.languages.modules;
     return {
       id: `${this.categoryID}/${this.id}` as `${string}/${string}`,
       name: this.parent ? this.id.replace(`${this.parent}-`, "") : this.id,
+      fullName: (this.parent
+        ? this.parentCommand.parent
+          ? [
+              this.parentCommand.parentCommand.id,
+              this.parentCommand.id.replace(
+                `${this.parentCommand.parent}-`,
+                ""
+              ),
+              this.id
+                .replace(`${this.parent}-`, "")
+                .replace(`${this.parentCommand.parent}-`, ""),
+            ]
+          : [this.parentCommand.id, this.id.replace(`${this.parent}-`, "")]
+        : [this.id]
+      ).join(" "),
       category: this.categoryID,
       parent: this.parent,
       description:
@@ -957,7 +972,9 @@ export interface ArgumentOptions extends AkairoArgumentOptions {
 export interface CommandsV2Command {
   id: `${string}/${string}`;
   name: string;
+  fullName: string;
   category: string;
+  parent: string;
   description: ReturnType<Command["description"]>;
   localisedDescription: {
     [k: string]: ReturnType<ArgumentOptions["description"]>;
@@ -977,7 +994,9 @@ export interface CommandsV2Command {
     autocomplete: ArgumentOptions["autocomplete"];
     choices: ArgumentOptions["choices"];
   }[];
+  subCommands: CommandsV2Command[];
   guilds: Command["guilds"];
+  popular: boolean;
   channel: Command["channel"];
   availableViaSlash: Command["enableSlashCommand"];
   ownerOnly: Command["ownerOnly"];
