@@ -780,24 +780,16 @@ export class FireGuild extends Guild {
       };
 
     const preview = await this.fetchPreview().catch(() => {});
-    const popularCommandsResult = await this.client.manager.queryInflux<{
+    const popularCommandsResult = await this.client.db.query<{
       command: string;
+      total_usage: bigint;
     }>(
-      `SELECT command FROM (
-        SELECT top(commandCount, command, 9) FROM (
-          SELECT count("command") AS commandCount
-          FROM aether_inf.commands
-          WHERE "type" = 'started'
-          AND guild_id = $server
-          AND time > now() - 7d
-          GROUP BY command
-        )
-      )`,
-      { placeholders: { server: this.id } }
+      "SELECT command, SUM(count::int) AS total_usage FROM command_usage WHERE gid=$1 GROUP BY command ORDER BY total_usage DESC LIMIT 10;",
+      [BigInt(this.id)]
     );
-    const popularCommands = popularCommandsResult
-      .filter((r) => !!r.command)
-      .map((r) => r.command);
+    const popularCommands = popularCommandsResult.rows
+      .filter((r) => !!r[0])
+      .map((r) => r[0]);
     const owner = await this.client.users.fetch(this.ownerId).catch(() => {});
 
     return {
