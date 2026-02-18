@@ -62,7 +62,7 @@ if (loadSentry) {
       }),
       process.env.KUBERNETES_SERVICE_HOST
         ? sentry.rewriteFramesIntegration({
-            root: "/app",
+            root: "/app/dist",
           })
         : undefined,
     ].filter(Boolean),
