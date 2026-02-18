@@ -44,21 +44,6 @@ export const discord: ClientOptions = {
         return false;
       },
     },
-    GuildMemberManager: {
-      // maxSize of 1 means we may have a single member
-      // that isn't the bot or running a command
-      maxSize: 1,
-      keepOverLimit: (value: FireMember) =>
-        value.id == value.client.user?.id ||
-        value.client.isRunningCommand(value),
-    },
-    UserManager: {
-      // same here
-      maxSize: 1,
-      keepOverLimit: (value: FireUser) =>
-        value.id == value.client.user?.id ||
-        value.client.isRunningCommand(value),
-    },
     GuildApplicationCommandManager: 0,
     ApplicationCommandManager: 0,
     BaseGuildEmojiManager: 0,
