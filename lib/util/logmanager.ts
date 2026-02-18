@@ -341,8 +341,12 @@ export class GuildLogManager {
           .map((log) => log.content) as logContentEmbed[],
       })
       .catch((e) => {
+        // Unknown Webhook
         if (e instanceof DiscordAPIError && e.code == 10015)
           data.webhook = null;
+        // Invalid Form Body, no point in retrying
+        else if (e instanceof DiscordAPIError && e.code == 50035)
+          return this.client.sentry?.captureException(e);
         else this.client.sentry?.captureException(e);
         data.queue.push(
           ...sending
