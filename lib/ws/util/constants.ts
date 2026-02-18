@@ -13,7 +13,7 @@ export enum EventType {
   RESUME_CLIENT, // receive only
   HEARTBEAT, // send only
   HEARTBEAT_ACK, // receive only
-  DEPLOY, // send & receive
+  UNUSED1 = 8,
   SEND_STATS, // send only
   REQUEST_STATS, // receive only
   GET_EXTENDED_DISCOVERABLE, // send & receive

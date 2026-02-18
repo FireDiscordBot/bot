@@ -6,12 +6,8 @@ import { ModalMessage } from "@fire/lib/extensions/modalmessage";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
 import { constants, titleCase } from "@fire/lib/util/constants";
-import { getBranch } from "@fire/lib/util/gitUtils";
 import { GuildTagManager } from "@fire/lib/util/guildtagmanager";
 import { Listener } from "@fire/lib/util/listener";
-import { Message } from "@fire/lib/ws/Message";
-import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
-import { EventType } from "@fire/lib/ws/util/constants";
 import * as centra from "centra";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
@@ -30,7 +26,6 @@ import {
   MessageSelectOptionData,
   Modal,
   ModalActionRowComponent,
-  NewsChannel,
   SnowflakeUtil,
   TextDisplayComponent,
   TextInputComponent,
@@ -41,7 +36,6 @@ import {
   MessageComponentTypes,
   TextInputStyles,
 } from "discord.js/typings/enums";
-import { codeblockTypeCaster } from "../arguments/codeblock";
 import Anti from "../commands/Configuration/anti";
 import Google from "../commands/Fun/google";
 import Appeals, {
@@ -2282,55 +2276,6 @@ Please choose accurately as it will allow us to help you as quick as possible! â
         return await button.error("COMMAND_ERROR_500", {
           status: constants.url.fireStatus,
         });
-    }
-
-    if (button.customId.startsWith("deploy:") && button.author.isSuperuser()) {
-      await button.channel.ack();
-      await button.delete("@original");
-      const commit = button.customId.slice(7);
-      // i should probably make this less jank
-      const commitMessage =
-        codeblockTypeCaster(
-          null,
-          (button.message as FireMessage).embeds[0].fields[0].value
-        )?.content.trim() ?? "Commit Message Unknown";
-      const branch = getBranch();
-      const githubChannel = this.client.channels.cache.get(
-        this.client.config.githubChannelId
-      ) as NewsChannel;
-      let threadId: Snowflake;
-      if (githubChannel) {
-        const messages = await githubChannel.messages
-          .fetch({ limit: 10 })
-          .catch(() => {});
-        if (messages) {
-          const commitMsg = messages.find(
-            (m) =>
-              m.embeds.length && m.embeds[0].title.startsWith(`[bot:${branch}]`)
-          );
-          if (commitMsg)
-            if (commitMsg.hasThread) threadId = commitMsg.id;
-            else {
-              const thread = await commitMsg
-                .startThread({
-                  name: "Deploy Log",
-                  autoArchiveDuration: 1440,
-                })
-                .catch(() => {});
-              if (thread) threadId = thread?.id;
-            }
-        }
-      }
-      return this.client.manager.ws.send(
-        MessageUtil.encode(
-          new Message(EventType.DEPLOY, {
-            commit,
-            branch,
-            threadId,
-            message: commitMessage,
-          })
-        )
-      );
     }
 
     if (button.customId.startsWith("reminders-list-page:")) {
