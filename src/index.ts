@@ -58,7 +58,7 @@ if (loadSentry) {
     environment: process.env.NODE_ENV,
     integrations: [
       sentry.extraErrorDataIntegration({
-        depth: 3,
+        depth: 8,
       }),
     ],
     beforeBreadcrumb: (breadcrumb) => {
