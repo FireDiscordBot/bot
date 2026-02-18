@@ -153,7 +153,9 @@ export class Fire extends AkairoClient {
   config: typeof config.fire;
   useCanary: boolean;
   declare util: Util;
+
   db: PGClient;
+  dbPromise: ReturnType<typeof connect>;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -442,13 +444,14 @@ export class Fire extends AkairoClient {
     if (reconnect) await this.util.sleep(2500); // delay reconnect
     this.getLogger("DB").warn("Attempting to connect...");
     try {
-      this.db = await connect({
+      this.dbPromise = connect({
         host: process.env.POSTGRES_HOST,
         user: process.env.POSTGRES_USER,
         password: process.env.POSTGRES_PASS,
         database: process.env.POSTGRES_DB,
         ssl: SSLMode.Disable, // we're connecting locally
       });
+      this.db = await this.dbPromise;
     } catch (err) {
       this.getLogger("DB").error("Failed to connect\n", err.stack);
       return this.manager.kill("db_error");
@@ -470,6 +473,7 @@ export class Fire extends AkairoClient {
 
   async login() {
     if (!this.options.shards) this.options.shards = [this.manager.id || 0];
+    await this.dbPromise; // ensure we're connected before logging in
     this.getLogger("Discord").warn(
       `Attempting to login on cluster ${this.manager.id} with shards [${(
         this.options.shards as number[]
