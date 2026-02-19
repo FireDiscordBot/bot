@@ -1160,6 +1160,16 @@ export class FireMessage extends Message {
     )
       flags.remove("IS_VOICE_MESSAGE");
 
+    const doWeHaveContent =
+      content.length ||
+      embeds.length ||
+      attachments.length ||
+      components.length;
+    if (!doWeHaveContent)
+      // nothing to see here, move along people
+      // (likely removed content due to lack of perms, e.g. attach files)
+      return;
+
     return await hook
       .send(
         flags.has("IS_COMPONENTS_V2")
