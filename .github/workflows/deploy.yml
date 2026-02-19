@@ -3,6 +3,8 @@ name: Build and Deploy
 on:
   push:
     branches: ["master", "deploy"]
+    paths-ignore:
+      - '.github/**'
 
 jobs:
   build-and-push:
@@ -26,7 +28,17 @@ jobs:
         id: repo_lc
         run: echo "repo=${GITHUB_REPOSITORY,,}" >> ${GITHUB_OUTPUT}
 
+      - name: Check Image Build Needed
+        id: check-image
+        run: |
+          if docker manifest inspect ghcr.io/${{ steps.repo_lc.outputs.repo }}:${{ github.sha }} > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build and Push Image
+        if: steps.check-image.outputs.exists != 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
