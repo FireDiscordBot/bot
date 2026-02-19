@@ -414,7 +414,7 @@ export default class User extends Command {
 
     if (user instanceof FireUser && user.primaryGuild?.tag)
       embed.setThumbnail(
-        `${constants.url.serverTags}/${user.primaryGuild.guildId}/${user.primaryGuild.badge}/${user.primaryGuild.tag}`
+        `${constants.url.serverTags}/${user.primaryGuild.guildId}/${user.primaryGuild.badge}/${encodeURIComponent(user.primaryGuild.tag)}`
       );
 
     return await command.channel.send({ embeds: [embed], components });

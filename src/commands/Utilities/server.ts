@@ -469,7 +469,7 @@ export default class GuildCommand extends Command {
 
     if (guild instanceof FireGuild && guild.profile?.tag)
       embed.setImage(
-        `${constants.url.serverTags}/${guild.id}/${guild.profile.badge}/${guild.profile.tag}`
+        `${constants.url.serverTags}/${guild.id}/${guild.profile.badge}/${encodeURIComponent(guild.profile.tag)}`
       );
 
     await command.channel.send({ embeds: [embed] });
