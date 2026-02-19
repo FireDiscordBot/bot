@@ -490,7 +490,7 @@ export default class MCLogs extends Module {
           ];
 
     const details = [];
-    if (mclogsRes.client.javaVersion)
+    if (mclogsRes.client.javaVersion && mclogsRes.client.jvmType)
       details.push(
         language.get("MC_LOG_JVM_INFO", {
           type: mclogsRes.client.jvmType.trim() ?? "Unknown JVM type",
