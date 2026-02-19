@@ -671,10 +671,10 @@ export class FireGuild extends Guild {
     if (!invites) return this.inviteUses;
     for (const [code, invite] of invites)
       this.inviteUses.set(code, invite.uses);
-    if (this.features.includes("VANITY_URL")) {
-      const vanity = await this.fetchVanityData().catch(() => {});
-      if (vanity) this.inviteUses.set(vanity.code, vanity.uses);
-    }
+    // if (this.features.includes("VANITY_URL")) {
+    //   const vanity = await this.fetchVanityData().catch(() => {});
+    //   if (vanity) this.inviteUses.set(vanity.code, vanity.uses);
+    // }
     return this.inviteUses;
   }
 
