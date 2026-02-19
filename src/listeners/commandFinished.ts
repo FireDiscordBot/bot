@@ -86,6 +86,7 @@ export default class CommandFinished extends Listener {
             .reply({
               embeds: [upsellEmbed],
               allowedMentions: { repliedUser: true },
+              failIfNotExists: false,
             })
             .catch(() => {});
       }
