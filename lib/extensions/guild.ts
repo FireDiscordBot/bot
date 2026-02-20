@@ -47,6 +47,7 @@ import { murmur3 } from "murmurhash-js";
 import { nanoid } from "nanoid";
 import Semaphore from "semaphore-async-await";
 import { v4 as uuidv4 } from "uuid";
+import { MembersSearchResult } from "../interfaces/members-search";
 import { BaseFakeChannel } from "../interfaces/misc";
 import { PermRolesData } from "../interfaces/permroles";
 import { BadgeType, DiscoverableGuild } from "../interfaces/stats";
@@ -100,9 +101,10 @@ export class FireGuild extends Guild {
   inviteRoles: Collection<string, Snowflake>;
   vcRoles: Collection<Snowflake, Snowflake>;
   tempBans: Collection<Snowflake, number>;
-  inviteUses: Collection<string, number>;
   mutes: Collection<Snowflake, number>;
+  membersSearchTask: NodeJS.Timeout;
   muteCheckTask: NodeJS.Timeout;
+  membersSearchLock: Semaphore;
   banCheckTask: NodeJS.Timeout;
   settings: GuildSettings;
   logger: GuildLogManager;
@@ -659,23 +661,144 @@ export class FireGuild extends Guild {
         .catch(() => {});
   }
 
-  async loadInvites() {
+  async getRecentJoins(before?: Snowflake, depth: number = 0) {
     if (
       !this.premium ||
-      !this.available ||
-      !this.members.me.permissions.has(PermissionFlagsBits.ManageGuild)
+      !this.members.me.permissions.has(PermissionFlagsBits.ManageGuild) ||
+      !this.logger ||
+      !this.logger.isMembersEnabled() ||
+      !this.logger.isMembersTypeEnabled(MemberLogTypes.JOIN) ||
+      !this.logger.getMembersWebhook()
     )
       return;
-    this.inviteUses = new Collection();
-    const invites = await this.invites.fetch({ cache: false }).catch(() => {});
-    if (!invites) return this.inviteUses;
-    for (const [code, invite] of invites)
-      this.inviteUses.set(code, invite.uses);
-    // if (this.features.includes("VANITY_URL")) {
-    //   const vanity = await this.fetchVanityData().catch(() => {});
-    //   if (vanity) this.inviteUses.set(vanity.code, vanity.uses);
-    // }
-    return this.inviteUses;
+
+    if (!this.membersSearchLock) this.membersSearchLock = new Semaphore(1);
+
+    await this.membersSearchLock.acquire();
+
+    // We'll get messages from the member log channel
+    // as we need those to know recent joins and to update them
+    // with the invite used
+    const memberLogChannel = this.logger.getMembersChannel();
+    const lastHundred = await memberLogChannel.messages
+      .fetch({ limit: 100, before })
+      .catch(() => {});
+    if (!lastHundred || !lastHundred.size)
+      return this.membersSearchLock.release();
+
+    // if any of them have the invite used,
+    // we know that fetching more isn't needed
+    const anyInviteLog = lastHundred.some(
+      (m) =>
+        !!m.embeds
+          .at(0)
+          ?.fields.find((f) => f.name == this.language.get("JOIN_METHOD"))
+    );
+
+    // creates an empty title for startsWith checking
+    const joinTitle = this.language.get("MEMBERJOIN_LOG_AUTHOR", {
+      member: "",
+    });
+    // get the ids from the footer of join logs
+    // to use in our search query
+    const oldestJoin = lastHundred
+      .filter((m) =>
+        m.embeds.some(
+          (e) =>
+            e.author?.name.startsWith(joinTitle) &&
+            !e.fields.find((f) => f.name == this.language.get("JOIN_METHOD"))
+        )
+      )
+      .map((m) => m.embeds.map((e) => e.timestamp))
+      .flat()
+      .filter(Boolean)
+      .at(-1);
+    if (!oldestJoin)
+      if (!anyInviteLog && depth <= 5 && lastHundred.size) {
+        this.membersSearchLock.release();
+        return await this.getRecentJoins(lastHundred.at(-1).id, ++depth);
+      } else return this.membersSearchLock.release();
+
+    const search = (await this.client.req
+      .guilds(this.id, "members-search")
+      .post({
+        data: {
+          and_query: {
+            guild_joined_at: {
+              range: {
+                gte: oldestJoin,
+              },
+            },
+          },
+          limit: 250,
+        },
+      })
+      .catch(() => {})) as MembersSearchResult;
+    if (!search)
+      if (!anyInviteLog && depth <= 5 && lastHundred.size) {
+        this.membersSearchLock.release();
+        return await this.getRecentJoins(lastHundred.at(-1).id, ++depth);
+      } else return this.membersSearchLock.release();
+
+    // multiple logs can be within the same message
+    // so we'll keep note of which messages we've changed
+    // then edit them after we've gone through all members
+    const edited: Snowflake[] = [];
+    for (const data of search.members) {
+      // handle invite roles first
+      if (!this.inviteRoles) await this.loadInviteRoles().catch(() => {});
+      if (this.inviteRoles?.has(data.source_invite_code)) {
+        const role = this.inviteRoles.get(data.source_invite_code);
+        await this.members.addRole(data.member.user.id, role).catch(() => {});
+      }
+
+      const message = lastHundred.find((m) =>
+        m.embeds.some(
+          (e) =>
+            e.footer?.text == data.member.user.id &&
+            !e.fields.find(
+              (f) =>
+                f.name == this.language.get("JOIN_METHOD") ||
+                f.name == this.language.get("INVITED_BY")
+            )
+        )
+      );
+      if (!message) continue;
+
+      const fields = await this.client.util
+        .getJoinMethodEmbedFields(this, data)
+        .catch(() => {});
+      if (fields && fields.length) {
+        const embedIndex = message.embeds.findIndex(
+          (e) => e.footer?.text == data.member.user.id
+        );
+        if (embedIndex < 0) continue;
+
+        message.embeds.at(embedIndex).fields.push(...fields);
+        if (!edited.includes(message.id)) edited.push(message.id);
+      }
+    }
+
+    const memberWebhook = await this.logger.getMembersWebhook();
+    for (const id of edited) {
+      const message = lastHundred.get(id);
+      // in theory message should always be truthy
+      //. but we'll check just in case
+      if (
+        message &&
+        (!message.webhookId || message.webhookId == memberWebhook.id)
+      )
+        message.webhookId
+          ? await memberWebhook
+              .editMessage(message, { embeds: message.embeds })
+              .catch(() => {})
+          : await message.edit({ embeds: message.embeds }).catch(() => {});
+    }
+
+    if (!anyInviteLog && depth <= 5 && lastHundred.size) {
+      this.membersSearchLock.release();
+      return await this.getRecentJoins(lastHundred.at(-1).id, ++depth);
+    } else return this.membersSearchLock.release();
   }
 
   isPublic() {

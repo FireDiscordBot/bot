@@ -21,31 +21,45 @@ export default class PremiumSync extends Event {
     [guild: string]: PremiumData & { action: "add" | "remove" };
   }) {
     const { client } = this.manager;
-    for (const [guild, premium] of Object.entries(data)) {
-      const instance = client.guilds.cache.get(guild as Snowflake) as FireGuild;
+    for (const [guildId, premium] of Object.entries(data)) {
+      const guild = client.guilds.cache.get(guildId as Snowflake) as FireGuild;
       if (
         premium.status == "trialing" &&
-        instance?.settings.get<boolean>("premium.trialeligible", true)
+        guild?.settings.get<boolean>("premium.trialeligible", true)
       ) {
         client
           .getLogger("Premium")
           .warn(
-            `Setting trial eligibility for ${instance} due to subscription from ${premium.user} in trial period`
+            `Setting trial eligibility for ${guild} due to subscription from ${premium.user} in trial period`
           );
-        await instance.settings.set<boolean>(
+        await guild.settings.set<boolean>(
           "premium.trialeligible",
           false,
           this.manager.client.user
         );
       }
-      if (premium.action == "remove") client.util.premium.delete(guild);
-      else if (dataKeys.every((key) => premium.hasOwnProperty(key)))
-        client.util.premium.set(guild, {
+      if (premium.action == "remove") {
+        client.util.premium.delete(guildId);
+        if (guild) clearInterval(guild.membersSearchTask);
+      } else if (dataKeys.every((key) => premium.hasOwnProperty(key)))
+        client.util.premium.set(guildId, {
           periodEnd: premium.periodEnd,
           status: premium.status,
           limit: premium.limit,
           user: premium.user,
         });
+
+      if (!guild) continue;
+
+      clearInterval(guild.membersSearchTask);
+      let membersSearchInterval: number = 300_000;
+      if (guild.memberCount >= 50_000) membersSearchInterval = 60_000;
+      else if (guild.memberCount >= 5_000) membersSearchInterval = 150_000;
+
+      guild.membersSearchTask = setInterval(
+        guild.getRecentJoins.bind(guild),
+        membersSearchInterval
+      );
     }
 
     // Premium role stuffs

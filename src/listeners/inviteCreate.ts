@@ -15,9 +15,6 @@ export default class InviteCreate extends Listener {
     const guild = invite.guild as FireGuild;
     const language = guild.language;
 
-    if (guild.premium && !guild.inviteUses) await guild.loadInvites();
-    guild.inviteUses?.set(invite.code, 0);
-
     if (guild.settings.has("log.action")) {
       const embed = new MessageEmbed()
         .setColor("#2ECC71")

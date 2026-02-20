@@ -70,54 +70,6 @@ export default class GuildMemberAdd extends Listener {
     // dehoist/decancer is enabled so no need for checks here
     member.dehoistAndDecancer();
 
-    let usedInvite: string;
-    if (
-      member.guild.premium &&
-      !member.user.bot &&
-      member.guild.members.me.permissions.has(
-        PermissionFlagsBits.ManageGuild
-      ) &&
-      member.guild.inviteUses
-    ) {
-      const before = member.guild.inviteUses.clone();
-      const after = await member.guild.loadInvites();
-      if (before.size && after.size) {
-        for (const [code, uses] of before) {
-          if (
-            after.has(code) &&
-            after.get(code) != uses &&
-            after.get(code) > uses
-          ) {
-            usedInvite = code;
-            break;
-          }
-        }
-        if (usedInvite) {
-          if (!member.guild.inviteRoles) await member.guild.loadInviteRoles();
-          const roleId = member.guild.inviteRoles.get(usedInvite);
-          if (roleId) {
-            const role = member.guild.roles.cache.get(roleId);
-            await member.roles.add(
-              role,
-              member.guild.language.get("INVITE_ROLE_REASON", {
-                invite: usedInvite,
-              }) as string
-            );
-          }
-        } else if (member.guild.features.includes("DISCOVERABLE"))
-          usedInvite = member.guild.language.get(
-            "JOINED_WITHOUT_INVITE"
-          ) as string;
-      }
-    } else if (
-      member.guild.premium &&
-      member.guild.members.me.permissions.has(
-        PermissionFlagsBits.ManageGuild
-      ) &&
-      !member.guild.inviteUses
-    )
-      await member.guild.loadInvites();
-
     if (
       member.guild.mutes.has(member.id) &&
       !member.communicationDisabledUntilTimestamp
@@ -142,6 +94,7 @@ export default class GuildMemberAdd extends Listener {
       );
       if (
         role &&
+        role.position < member.guild.members.me.roles.highest.position &&
         member.guild.members.me.permissions.has(PermissionFlagsBits.ManageRoles)
       )
         await member.roles
@@ -297,11 +250,6 @@ export default class GuildMemberAdd extends Listener {
             });
         }
       }
-      if (usedInvite)
-        embed.addFields({
-          name: language.get("INVITE_USED"),
-          value: usedInvite,
-        });
       const roles = member.roles.cache
         .filter((role) => role.id != member.guild.roles.everyone.id)
         .map((role) => role.toString())

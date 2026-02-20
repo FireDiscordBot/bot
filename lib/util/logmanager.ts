@@ -1,5 +1,6 @@
 import RateLimit from "@fire/src/listeners/rateLimit";
 import { Snowflake } from "discord-api-types/globals";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   DiscordAPIError,
   MessageEmbed,
@@ -79,7 +80,7 @@ export class GuildLogManager {
     };
   };
   rateLimitListener: RateLimit;
-  checkQueue: NodeJS.Timer;
+  checkQueue: NodeJS.Timeout;
 
   constructor(client: Fire, guild: FireGuild) {
     this.client = client;
@@ -195,6 +196,32 @@ export class GuildLogManager {
     );
   }
 
+  getMembersChannel() {
+    return this.guild.channels.cache.get(
+      this.guild.settings.get<Snowflake>("log.members")
+    ) as FireTextChannel;
+  }
+
+  async getMembersWebhook() {
+    const data = this._data.members;
+    if (!data.webhook) {
+      const channel = this.getMembersChannel();
+      if (
+        !channel ||
+        typeof channel.fetchWebhooks != "function" ||
+        !this.guild.members.me
+          .permissionsIn(channel)
+          .has(PermissionFlagsBits.ManageWebhooks)
+      )
+        return;
+
+      const webhooks = await channel.fetchWebhooks().catch(() => {});
+      if (webhooks)
+        data.webhook = webhooks.filter((webhook) => !!webhook.token).first();
+    }
+    return data.webhook;
+  }
+
   isActionEnabled() {
     return (
       this.guild.settings.has("log.action") &&
@@ -244,7 +271,14 @@ export class GuildLogManager {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get<Snowflake>("log.moderation")
       ) as FireTextChannel;
-      if (!channel || typeof channel.fetchWebhooks != "function") return;
+      if (
+        !channel ||
+        typeof channel.fetchWebhooks != "function" ||
+        !this.guild.members.me
+          .permissionsIn(channel)
+          .has(PermissionFlagsBits.ManageWebhooks)
+      )
+        return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
       if (!webhooks)
@@ -392,10 +426,15 @@ export class GuildLogManager {
     }
 
     if (!data.webhook) {
-      const channel = this.guild.channels.cache.get(
-        this.guild.settings.get<Snowflake>("log.members")
-      ) as FireTextChannel;
-      if (!channel || typeof channel.fetchWebhooks != "function") return;
+      const channel = this.getMembersChannel();
+      if (
+        !channel ||
+        typeof channel.fetchWebhooks != "function" ||
+        !this.guild.members.me
+          .permissionsIn(channel)
+          .has(PermissionFlagsBits.ManageWebhooks)
+      )
+        return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
       if (!webhooks)
@@ -542,7 +581,14 @@ export class GuildLogManager {
       const channel = this.guild.channels.cache.get(
         this.guild.settings.get<Snowflake>("log.action")
       ) as FireTextChannel;
-      if (!channel || typeof channel.fetchWebhooks != "function") return;
+      if (
+        !channel ||
+        typeof channel.fetchWebhooks != "function" ||
+        !this.guild.members.me
+          .permissionsIn(channel)
+          .has(PermissionFlagsBits.ManageWebhooks)
+      )
+        return;
 
       const webhooks = await channel.fetchWebhooks().catch(() => {});
       if (!webhooks)

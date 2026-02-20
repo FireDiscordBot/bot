@@ -36,5 +36,9 @@ export default class GuildDelete extends Listener {
           })
         )
       );
+
+    clearInterval(guild.membersSearchTask);
+    clearInterval(guild.muteCheckTask);
+    clearInterval(guild.banCheckTask);
   }
 }

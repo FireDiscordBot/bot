@@ -15,6 +15,7 @@ import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   Collection,
+  EmbedField,
   GuildChannel,
   GuildFeatures,
   GuildTextBasedChannel,
@@ -37,6 +38,11 @@ import { cpus, totalmem } from "os";
 import * as pidusage from "pidusage";
 import { Readable } from "stream";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
+import {
+  JoinSourceType,
+  MembersSearchResult,
+  integrationEmojis,
+} from "../interfaces/members-search";
 import { ClusterStats } from "../interfaces/stats";
 import { Command, CommandsV2Command } from "./command";
 import {
@@ -1117,6 +1123,97 @@ export class Util extends ClientUtil {
       !embed.author?.url &&
       !embed.fields?.length
     );
+  }
+
+  async getJoinMethodEmbedFields(
+    guild: FireGuild,
+    member: MembersSearchResult["members"][number]
+  ) {
+    const fields: EmbedField[] = [],
+      language = guild.language,
+      joinMethod = member.join_source_type,
+      inviteCode = member.source_invite_code,
+      inviterId = member.inviter_id;
+
+    if (joinMethod == JoinSourceType.BOT)
+      fields.push({
+        name: language.get("JOIN_METHOD"),
+        value: language.get(`JOIN_METHODS.BOT`, {
+          emoji: this.client.util.useEmoji("BOT_INVITE"),
+        }),
+        inline: false,
+      });
+    else if (joinMethod == JoinSourceType.INTEGRATION)
+      fields.push({
+        name: language.get("JOIN_METHOD"),
+        value: language.get(`JOIN_METHODS.INTEGRATION`, {
+          emoji: this.client.util.useEmoji("INTEGRATION"),
+        }),
+        inline: false,
+      });
+    else if (joinMethod == JoinSourceType.DISCOVERY)
+      fields.push({
+        name: language.get("JOIN_METHOD"),
+        value: language.get(`JOIN_METHODS.DISCOVERY`, {
+          emoji: this.client.util.useEmoji("SERVER_DISCOVERY"),
+        }),
+        inline: false,
+      });
+    else if (joinMethod == JoinSourceType.HUB)
+      fields.push({
+        name: language.get("JOIN_METHOD"),
+        value: language.get(`JOIN_METHODS.HUB`, {
+          emoji: this.client.util.useEmoji("STUDENT_HUB"),
+        }),
+        inline: false,
+      });
+    else if (
+      joinMethod == JoinSourceType.INVITE ||
+      joinMethod == JoinSourceType.VANITY_URL
+    )
+      fields.push({
+        name: language.get("JOIN_METHOD"),
+        value: language.get(`JOIN_METHODS.INVITE_LINK`, {
+          emoji: this.client.util.useEmoji("INVITE_LINK"),
+          invite: inviteCode,
+        }),
+        inline: false,
+      });
+    else if (joinMethod == JoinSourceType.MANUAL_MEMBER_VERIFICATION)
+      fields.push({
+        name: language.get("JOIN_METHOD"),
+        value: language.get(`JOIN_METHODS.MANUAL_VERIFICATION`, {
+          emoji: this.client.util.useEmoji("MANUAL_VERIFICATION"),
+          invite: inviteCode,
+        }),
+        inline: false,
+      });
+
+    if (inviterId && joinMethod != JoinSourceType.INTEGRATION) {
+      const inviter = await this.client.users.fetch(inviterId).catch(() => {});
+      if (inviter)
+        fields.push({
+          name: language.get("INVITED_BY"),
+          value: `${inviter.toString()} (${inviterId})`,
+          inline: false,
+        });
+    } else if (inviterId) {
+      const integrations = await guild.fetchIntegrations().catch(() => {});
+      if (integrations && integrations.has(inviterId)) {
+        const inviter = integrations.get(inviterId);
+        fields.push({
+          name: language.get("INVITED_BY"),
+          value: `${
+            integrationEmojis[inviter.type]
+              ? ` ${this.client.util.useEmoji(integrationEmojis[inviter.type])}`
+              : ""
+          } ${inviter.name}`,
+          inline: false,
+        });
+      }
+    }
+
+    return fields;
   }
 
   async getSlashUpsellEmbed(message: FireMessage) {

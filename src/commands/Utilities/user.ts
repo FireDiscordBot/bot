@@ -5,6 +5,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { FireTextChannel } from "@fire/lib/extensions/textchannel";
 import { FireUser } from "@fire/lib/extensions/user";
+import { MembersSearchResult } from "@fire/lib/interfaces/members-search";
 import { Command } from "@fire/lib/util/command";
 import { constants, zws } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
@@ -13,15 +14,14 @@ import { Snowflake } from "discord-api-types/globals";
 import {
   APIApplication,
   APIChannel,
-  APIGuildMember,
   ApplicationFlags,
   PermissionFlagsBits,
 } from "discord-api-types/v9";
 import {
   ClientUser,
-  DMChannel,
   DeconstructedSnowflake,
   DiscordAPIError,
+  DMChannel,
   Formatters,
   GuildBasedChannel,
   MessageActionRow,
@@ -48,37 +48,6 @@ type InstallParams = {
   };
   custom_install_url?: string;
 };
-
-enum JoinSourceType {
-  UNSPECIFIED,
-  BOT,
-  INTEGRATION,
-  DISCOVERY,
-  HUB,
-  INVITE,
-  VANITY_URL,
-  MANUAL_MEMBER_VERIFICATION,
-}
-
-const integrationEmojis = {
-  twitch: "icons_TWITCH",
-  youtube: "icons_YOUTUBE",
-};
-
-interface MembersSearchResult {
-  guild_id: Snowflake;
-  members: [
-    {
-      member: APIGuildMember;
-      source_invite_code: string;
-      join_source_type: JoinSourceType;
-      inviter_id: Snowflake;
-      integration_type?: number;
-    },
-  ];
-  page_result_count: number;
-  total_result_count: number;
-}
 
 export default class User extends Command {
   plsShutUp: number = 0;
@@ -528,89 +497,12 @@ export default class User extends Command {
           (m) => m.member.user.id == member.id
         );
         if (memberSearchData) {
-          const joinMethod = memberSearchData.join_source_type,
-            inviteCode = memberSearchData.source_invite_code,
-            inviterId = memberSearchData.inviter_id;
-
-          if (joinMethod == JoinSourceType.BOT)
-            memberInfo.push(
-              `**${command.language.get(
-                "JOIN_METHOD"
-              )}:** ${command.language.get(`JOIN_METHODS.BOT`, {
-                emoji: this.client.util.useEmoji("BOT_INVITE"),
-              })}`
-            );
-          else if (joinMethod == JoinSourceType.INTEGRATION)
-            memberInfo.push(
-              `**${command.language.get(
-                "JOIN_METHOD"
-              )}:** ${command.language.get(`JOIN_METHODS.INTEGRATION`, {
-                emoji: this.client.util.useEmoji("INTEGRATION"),
-              })}`
-            );
-          else if (joinMethod == JoinSourceType.DISCOVERY)
-            memberInfo.push(
-              `**${command.language.get(
-                "JOIN_METHOD"
-              )}:** ${command.language.get(`JOIN_METHODS.DISCOVERY`, {
-                emoji: this.client.util.useEmoji("SERVER_DISCOVERY"),
-              })}`
-            );
-          else if (joinMethod == JoinSourceType.HUB)
-            memberInfo.push(
-              `**${command.language.get(
-                "JOIN_METHOD"
-              )}:** ${command.language.get(`JOIN_METHODS.HUB`, {
-                emoji: this.client.util.useEmoji("STUDENT_HUB"),
-              })}`
-            );
-          else if (
-            joinMethod == JoinSourceType.INVITE ||
-            joinMethod == JoinSourceType.VANITY_URL
-          )
-            memberInfo.push(
-              `**${command.language.get(
-                "JOIN_METHOD"
-              )}:** ${command.language.get(`JOIN_METHODS.INVITE_LINK`, {
-                emoji: this.client.util.useEmoji("INVITE_LINK"),
-                invite: inviteCode,
-              })}`
-            );
-          else if (joinMethod == JoinSourceType.MANUAL_MEMBER_VERIFICATION)
-            memberInfo.push(
-              `**${command.language.get(
-                "JOIN_METHOD"
-              )}:** ${command.language.get(`JOIN_METHODS.MANUAL_VERIFICATION`, {
-                emoji: this.client.util.useEmoji("MANUAL_VERIFICATION"),
-                invite: inviteCode,
-              })}`
-            );
-
-          if (inviterId && joinMethod != JoinSourceType.INTEGRATION) {
-            const inviter = await this.client.users
-              .fetch(inviterId)
-              .catch(() => {});
-            if (inviter)
-              memberInfo.push(
-                `**${command.language.get(
-                  "INVITED_BY"
-                )}:** ${inviter.toString()} (${inviterId})`
-              );
-          } else if (inviterId) {
-            const integrations = await guild.fetchIntegrations();
-            if (integrations.has(inviterId)) {
-              const inviter = integrations.get(inviterId);
-              memberInfo.push(
-                `**${command.language.get("INVITED_BY")}:**${
-                  integrationEmojis[inviter.type]
-                    ? ` ${this.client.util.useEmoji(
-                        integrationEmojis[inviter.type]
-                      )}`
-                    : ""
-                } ${inviter.name}`
-              );
-            }
-          }
+          const fields = await this.client.util
+            .getJoinMethodEmbedFields(guild, memberSearchData)
+            .catch(() => {});
+          if (fields && fields.length)
+            for (const field of fields)
+              memberInfo.push(`**${field.name}:** ${field.value}`);
         }
       }
     }
