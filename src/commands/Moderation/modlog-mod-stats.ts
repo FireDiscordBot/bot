@@ -4,7 +4,7 @@ import { FireMember } from "@fire/lib/extensions/guildmember";
 import { Command } from "@fire/lib/util/command";
 import { ModLogTypeString } from "@fire/lib/util/constants";
 import { Language } from "@fire/lib/util/language";
-import { casual } from "chrono-node";
+import { parseTime } from "@fire/src/arguments/time";
 import { MessageEmbed } from "discord.js";
 
 export default class ModlogsStats extends Command {
@@ -31,6 +31,14 @@ export default class ModlogsStats extends Command {
           required: false,
           default: null,
         },
+        {
+          id: "until",
+          type: "string",
+          description: (language: Language) =>
+            language.get("MODLOGS_MODERATOR_STATS_ARGUMENT_UNTIL_DESCRIPTION"),
+          required: false,
+          default: null,
+        },
       ],
       restrictTo: "guild",
       moderatorOnly: true,
@@ -43,12 +51,13 @@ export default class ModlogsStats extends Command {
 
   async run(
     command: ApplicationCommandMessage | ContextCommandMessage,
-    args: { moderator: FireMember; time: string }
+    args: { moderator: FireMember; time?: string; until?: string }
   ) {
     if (!args.moderator) return;
     const moderator = args.moderator;
-    const time = args.time ? this.parseTimeInput(args.time) : null;
-    const stats = await moderator.getModeratorStats(command.guild, time);
+    const time = args.time ? this.parseTimeInput(args.time, command) : null;
+    const until = args.until ? this.parseTimeInput(args.until, command) : null;
+    const stats = await moderator.getModeratorStats(command.guild, time, until);
     if (!stats)
       return await command.error("MODLOGS_MODERATOR_STATS_NOT_A_MODERATOR");
     else if (Object.values(stats).every((count) => count === 0))
@@ -91,10 +100,17 @@ export default class ModlogsStats extends Command {
     return await command.channel.send({ embeds: [countsEmbed] });
   }
 
-  private parseTimeInput(input: string) {
-    const parsed = casual.parseDate(input + " ago", new Date(), {
-      forwardDate: false,
-    });
+  private parseTimeInput(
+    input: string,
+    context: ApplicationCommandMessage | ContextCommandMessage
+  ) {
+    const { date: parsed } = parseTime(
+      input + " ago",
+      new Date(),
+      context.author.timezone,
+      context,
+      false
+    );
     // check if truthy and not older than the bot (because that'd be pointless)
     if (!parsed || +parsed <= 1526136073155) return null;
     return parsed;

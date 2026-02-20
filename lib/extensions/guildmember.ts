@@ -229,17 +229,27 @@ export class FireMember extends GuildMember {
     return this.user.getModLogStats(this.guild, excludeAutomated);
   }
 
-  async getModeratorStats(guild: FireGuild, since?: Date) {
+  async getModeratorStats(guild: FireGuild, since?: Date, until?: Date) {
     if (!this.isModerator()) return null;
     const logs = await this.client.db
       .query<{
         type: ModLogTypeString;
         count: bigint;
       }>(
-        since
-          ? "SELECT type, count(caseid) FROM modlogs WHERE modid=$1 AND gid=$2 AND created >= $3 GROUP BY type;"
-          : "SELECT type, count(caseid) FROM modlogs WHERE modid=$1 AND gid=$2 GROUP BY type;",
-        since ? [this.id, guild.id, since] : [this.id, guild.id]
+        since && until
+          ? "SELECT type, count(caseid) FROM modlogs WHERE modid=$1 AND gid=$2 AND created >= $3 AND created <= $4 GROUP BY type;"
+          : since
+            ? "SELECT type, count(caseid) FROM modlogs WHERE modid=$1 AND gid=$2 AND created >= $3 GROUP BY type;"
+            : until
+              ? "SELECT type, count(caseid) FROM modlogs WHERE modid=$1 AND gid=$2 AND created <= $3 GROUP BY type;"
+              : "SELECT type, count(caseid) FROM modlogs WHERE modid=$1 AND gid=$2 GROUP BY type;",
+        since && until
+          ? [this.id, guild.id, since, until]
+          : since
+            ? [this.id, guild.id, since]
+            : until
+              ? [this.id, guild.id, until]
+              : [this.id, guild.id]
       )
       .catch(() => {});
     const types: {

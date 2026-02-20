@@ -1301,6 +1301,7 @@
   "MODLOGS_MODERATOR_STATS_COMMAND_DESCRIPTION": "View stats on moderation actions taken by a moderator",
   "MODLOGS_MODERATOR_STATS_ARGUMENT_MODERATOR_DESCRIPTION": "The moderator you would like to view stats for",
   "MODLOGS_MODERATOR_STATS_ARGUMENT_TIME_DESCRIPTION": "The time period to view stats for (e.g. 1 hour, 3 days), omit for all-time stats",
+  "MODLOGS_MODERATOR_STATS_ARGUMENT_UNTIL_DESCRIPTION": "A time to limit results to allowing you to view stats within a timeframe, omit for up to now",
   "MODLOGS_MODERATOR_STATS_NOT_A_MODERATOR": "That user is not a moderator",
   "MODLOGS_MODERATOR_STATS_NOT_FOUND": "**{{moderator}}** has not taken any moderation actions",
   "MODLOGS_MODERATOR_STATS_NOT_FOUND_TIME": "**{{moderator}}** has not taken any moderation actions in that time period",

@@ -56,7 +56,8 @@ export const parseTime = (
     | ApplicationCommandMessage
     | ContextCommandMessage
     | ComponentMessage
-    | ModalMessage
+    | ModalMessage,
+  forwardDate: boolean = true
 ) => {
   text = text.trim();
   let useClassic = false;
@@ -68,17 +69,13 @@ export const parseTime = (
   }
   let parsed: ParsedResult[];
   if (useClassic)
-    parsed = classicRemind.parse(text, { instant }, { forwardDate: true });
+    parsed = classicRemind.parse(text, { instant }, { forwardDate });
   else {
     // Get the date first, doesn't need to be exact with timing since we only want it to get the offset
     // This will probably break if you try to set a reminder around the switch to/from DST
     // but if you're doing that, fuck you.
     // timezones suck, daylight savings sucks more
-    const preliminaryParse = casual.parse(
-      text,
-      { instant },
-      { forwardDate: true }
-    );
+    const preliminaryParse = casual.parse(text, { instant }, { forwardDate });
     const date = preliminaryParse[0]?.start.date();
     if (!date) return null;
     let offset: number;
@@ -91,11 +88,7 @@ export const parseTime = (
     // This means a timezone was specified in the text so we'll use that
     else offset = preliminaryParse[0].start.get("timezoneOffset");
 
-    parsed = casual.parse(
-      text,
-      { instant, timezone: offset },
-      { forwardDate: true }
-    );
+    parsed = casual.parse(text, { instant, timezone: offset }, { forwardDate });
   }
   if (!parsed.length) return null;
 
@@ -122,7 +115,8 @@ export const parseTime = (
 export const parseWithUserTimezone = (
   text: string,
   instant: Date,
-  IANA: string
+  IANA: string,
+  forwardDate: boolean = true
 ) => {
   // Get the date first, doesn't need to be exact with timing since we only want it to get the offset
   // This will probably break if you try to set a reminder around the switch to/from DST
@@ -154,7 +148,7 @@ export const parseWithUserTimezone = (
       text,
       { instant, timezone: offset },
       {
-        forwardDate: true,
+        forwardDate,
       }
     ),
   };

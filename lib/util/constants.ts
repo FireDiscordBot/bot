@@ -416,68 +416,6 @@ export const titleCase = (
 
 export const zws = "\u200b";
 
-export const parseTime = (content: string, replace: boolean = false) => {
-  if (!content && !replace) return 0;
-  else if (!content) return content;
-  const {
-    regexes: { time: regexes },
-  } = constants;
-  // to try reduce false positives for the time
-  // it requires a space before the time
-  // so here we add a space before the content
-  // in case the time is at the start
-  content = " " + content;
-  if (replace) {
-    for (const phrase of regexes.phrasing) {
-      const match = phrase.exec(content);
-      phrase.lastIndex = 0;
-      content = content.replace(phrase, match?.groups?.reminder || "");
-    }
-    // trimStart here will remove the space we added earlier
-    return content.replace(/\s{2,}/gim, " ").trimStart();
-  }
-  const matches = {
-    months: regexes.month.exec(content)?.groups?.months,
-    weeks: regexes.week.exec(content)?.groups?.weeks,
-    days: regexes.day.exec(content)?.groups?.days,
-    hours: regexes.hours.exec(content)?.groups?.hours,
-    minutes: regexes.minutes.exec(content)?.groups?.minutes,
-    seconds: regexes.seconds.exec(content)?.groups?.seconds,
-  };
-  let minutes = parseInt(matches.minutes || "0");
-  if (matches.seconds) minutes += parseInt(matches.seconds || "0") / 60;
-  if (matches.hours) minutes += parseInt(matches.hours || "0") * 60;
-  if (matches.days) minutes += parseInt(matches.days || "0") * 1440;
-  if (matches.weeks) minutes += parseInt(matches.weeks || "0") * 10080;
-  if (matches.months) minutes += parseInt(matches.months || "0") * 43800;
-
-  return minutes;
-};
-
-export const pluckTime = (content: string) => {
-  if (!content) return null;
-  else if (!content) return content;
-  const {
-    regexes: { time: regexes },
-  } = constants;
-  // to try reduce false positives for the time
-  // it requires a space before the time
-  // so here we add a space before the content
-  // in case the time is at the start
-  content = " " + content;
-  const matches = [
-    [regexes.month.exec(content)?.groups?.months, "mo"],
-    [regexes.week.exec(content)?.groups?.weeks, "w"],
-    [regexes.day.exec(content)?.groups?.days, "d"],
-    [regexes.hours.exec(content)?.groups?.hours, "h"],
-    [regexes.minutes.exec(content)?.groups?.minutes, "m"],
-    [regexes.seconds.exec(content)?.groups?.seconds, "s"],
-  ]
-    .filter((match) => !!match[0])
-    .map(([match, unit]) => match + unit);
-  return matches.join(" ");
-};
-
 const dayJSToDateComponents = (dayjs: dayjs.Dayjs) => ({
   year: dayjs.year(),
   month: dayjs.month() + 1,
