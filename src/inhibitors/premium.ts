@@ -40,7 +40,9 @@ export default class Premium extends Inhibitor {
       status: SubscriptionStatus;
       serverlimit: number;
       uid: Snowflake;
-    }>("SELECT guilds, periodend FROM premium_stripe;");
+    }>(
+      "SELECT guilds, periodend, active, status, serverlimit, uid FROM premium_stripe;"
+    );
     const now = new Date();
     for await (const row of premiumStripe) {
       const { guilds, periodend: expiry } = row;
