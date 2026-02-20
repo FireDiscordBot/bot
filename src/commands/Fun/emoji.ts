@@ -42,9 +42,12 @@ export default class Emoji extends Command {
     });
   }
 
-  async exec(message: FireMessage, args: { name?: string; emoji?: string }) {
-    let emoji = args.emoji || message.attachments.first()?.url || args.name;
-    let name = args.name || "stolen_emoji";
+  async exec(
+    message: FireMessage,
+    args: { name?: { match?: string }; emoji?: string }
+  ) {
+    let emoji = args.emoji || message.attachments.first()?.url;
+    let name = args.name?.match || "stolen_emoji";
 
     // smol checks on the arguments to ensure they're valid
     if (!emoji) return await message.error("EMOJI_INVALID");
