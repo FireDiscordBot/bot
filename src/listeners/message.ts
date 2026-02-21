@@ -102,24 +102,6 @@ export default class Message extends Listener {
     )
       return await message.delete().catch(() => {});
 
-    if (
-      message.guildId == this.client.config.fireGuildId &&
-      message.channelId == "1455752234934599803" &&
-      process.env.NODE_ENV == "production"
-    ) {
-      if (
-        message.attachments.size != 1 ||
-        !(
-          message.attachments.first().name.endsWith(".png") ||
-          message.attachments.first().name.endsWith(".jpg")
-        )
-      )
-        return await message.delete();
-
-      if (!message.member.roles.cache.has("1455752804063903794"))
-        await message.member.roles.add("1455752804063903794").catch(() => {});
-    }
-
     const autoroleId = message.guild.settings.get<Snowflake>(
       "mod.autorole",
       null
