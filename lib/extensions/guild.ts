@@ -755,6 +755,7 @@ export class FireGuild extends Guild {
       const message = lastHundred.find((m) =>
         m.embeds.some(
           (e) =>
+            e.author?.name.startsWith(joinTitle) &&
             e.footer?.text == data.member.user.id &&
             !e.fields.find(
               (f) =>
@@ -770,7 +771,14 @@ export class FireGuild extends Guild {
         .catch(() => {});
       if (fields && fields.length) {
         const embedIndex = message.embeds.findIndex(
-          (e) => e.footer?.text == data.member.user.id
+          (e) =>
+            e.author?.name.startsWith(joinTitle) &&
+            e.footer?.text == data.member.user.id &&
+            !e.fields.find(
+              (f) =>
+                f.name == this.language.get("JOIN_METHOD") ||
+                f.name == this.language.get("INVITED_BY")
+            )
         );
         if (embedIndex < 0) continue;
 
