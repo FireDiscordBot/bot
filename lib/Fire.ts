@@ -220,18 +220,17 @@ export class Fire extends AkairoClient {
         const member = r.d.members.find(
           (member: APIGuildMember) => member.user.id == this.user.id
         ) as APIGuildMember;
-        if (!wasUnavailable)
-          this.manager.ws?.send(
-            MessageUtil.encode(
-              new Message(EventType.GUILD_CREATE, {
-                id: r.d.id,
-                name: r.d.name,
-                icon: r.d.icon,
-                vanity: r.d.vanity_url_code,
-                member,
-              })
-            )
-          );
+        this.manager.ws?.send(
+          MessageUtil.encode(
+            new Message(EventType.GUILD_CREATE, {
+              id: r.d.id,
+              name: r.d.name,
+              icon: r.d.icon,
+              vanity: r.d.vanity_url_code,
+              member,
+            })
+          )
+        );
       } else if (
         r.t == Constants.WSEvents.GUILD_DELETE &&
         r.d.unavailable != false
