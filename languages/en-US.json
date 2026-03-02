@@ -423,6 +423,7 @@
   "APPEALS_CONFIG_UPDATE_CHANNEL_INVALID": "The channel you've selected is invalid! You'll need to make sure it's a text channel and that I have permission to view & send messages in it",
   "APPEALS_CONFIG_UPDATE_CHANNEL_SET": "Successfully updated the server's appeals config to send new appeal submissions to your chosen channel",
   "APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED": "You must set a channel for appeals to be sent to first before using this option!",
+  "APPEALS_CONFIG_UPDATE_ITEMS_REQUIRED": "You must add at least one form item before using this option!",
   "APPEALS_CONFIG_UPDATE_STRING_SELECT": "Dropdown Menu",
   "APPEALS_CONFIG_UPDATE_TEXT_INPUT": "Text Input",
   "APPEALS_CONFIG_UPDATE_FILE_UPLOAD": "File Upload",

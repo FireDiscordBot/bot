@@ -1112,6 +1112,8 @@ export default class Button extends Listener {
       const config = await appeals.getAppealsConfig(button.guild);
       if (!config.channel || !button.guild.channels.cache.has(config.channel))
         return await button.error("APPEALS_CONFIG_UPDATE_CHANNEL_REQUIRED");
+      else if (!config.items.length)
+        return await button.error("APPEALS_CONFIG_UPDATE_ITEMS_REQUIRED");
 
       const modal = appeals.getAppealSubmitModal(
         button,
