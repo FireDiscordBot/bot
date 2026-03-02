@@ -38,6 +38,7 @@ export default class Ready extends Listener {
       string,
       FireGuild
     >) {
+      if (!guild.available) continue;
       const member = guild?.members.me as FireMember;
       this.client.manager.ws?.send(
         MessageUtil.encode(
