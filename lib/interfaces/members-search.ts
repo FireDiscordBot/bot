@@ -30,4 +30,8 @@ export interface MembersSearchResult {
   ];
   page_result_count: number;
   total_result_count: number;
+  message?: string;
+  code?: number;
+  documents_indexed?: number;
+  retry_after?: number;
 }

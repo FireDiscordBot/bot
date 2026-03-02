@@ -739,6 +739,12 @@ export class FireGuild extends Guild {
         this.membersSearchLock.release();
         return await this.getRecentJoins(lastHundred.at(-1).id, ++depth);
       } else return this.membersSearchLock.release();
+    else if ("retry_after" in search) {
+      await this.client.util.sleep(
+        search.retry_after ? search.retry_after * 1000 : 10_000
+      );
+      return this.membersSearchLock.release();
+    }
 
     // multiple logs can be within the same message
     // so we'll keep note of which messages we've changed
