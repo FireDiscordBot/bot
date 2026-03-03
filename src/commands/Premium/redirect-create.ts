@@ -92,8 +92,8 @@ export default class RedirectCreate extends Command {
           ? "REDIRECT_CREATE_SUCCESS_WITH_LOCATION"
           : "REDIRECT_CREATE_SUCCESS",
         {
-          redirect: `${this.module.redirectDomain}/${created.get("code")}`,
-          url: created.get("redirect"),
+          redirect: `${this.module.redirectDomain}/${created.code}`,
+          url: created.redirect,
           location: location?.toString(),
         }
       );

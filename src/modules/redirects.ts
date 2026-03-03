@@ -7,6 +7,7 @@ import { Message } from "@fire/lib/ws/Message";
 import { EventType } from "@fire/lib/ws/util/constants";
 import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import * as centra from "centra";
+import { Snowflake } from "discord-api-types/globals";
 import { MessageEmbed } from "discord.js";
 
 export default class Redirects extends Module {
@@ -69,7 +70,7 @@ export default class Redirects extends Module {
       return "EXISTS";
     if (!exists) {
       const created = await this.client.db
-        .query(
+        .query<{ uid: Snowflake; code: string; redirect: string }>(
           "INSERT INTO vanity (uid, code, redirect) VALUES ($1, $2, $3) RETURNING *;",
           [user.id, code, url]
         )
@@ -79,7 +80,7 @@ export default class Redirects extends Module {
       return created;
     } else {
       const updated = await this.client.db
-        .query(
+        .query<{ uid: Snowflake; code: string; redirect: string }>(
           "UPDATE vanity SET (code, redirect) = ($1, $2) WHERE code=$1 AND uid=$3 RETURNING *;",
           [code, url, user.id]
         )

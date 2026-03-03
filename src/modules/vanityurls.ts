@@ -167,14 +167,16 @@ export default class VanityURLs extends Module {
 
       // and now we actually delete the guild's vanities
       const deleted = await this.client.db
-        .query("DELETE FROM vanity WHERE gid=$1 RETURNING *;", [source.id])
+        .query<{
+          invite: string;
+        }>("DELETE FROM vanity WHERE gid=$1 RETURNING *;", [source.id])
         .catch(() => {});
       if (deleted && deleted.status.startsWith("DELETE ")) {
         this.requestFetch(source.id);
         if (alsoDeleteInvite)
           for await (const vanity of deleted)
             await this.client
-              .fetchInvite(vanity.get("invite") as string)
+              .fetchInvite(vanity.invite)
               // we only want to delete invites *we* created
               .then(
                 (i) =>
@@ -190,14 +192,14 @@ export default class VanityURLs extends Module {
     } else {
       // If we have a code, we delete first and ask questions later
       const deleted = await this.client.db
-        .query(
+        .query<{ gid: Snowflake; invite: string }>(
           "DELETE FROM vanity WHERE (code ILIKE $1 OR invite ILIKE $1) AND gid IS NOT NULL RETURNING *;",
           [source]
         )
         .first()
         .catch(() => {});
-      if (deleted && deleted.get("gid")) {
-        const guildId = deleted.get("gid") as Snowflake;
+      if (deleted && deleted.gid) {
+        const guildId = deleted.gid;
         this.requestFetch(guildId);
 
         const remainingResult = await this.client.db
@@ -235,9 +237,9 @@ export default class VanityURLs extends Module {
 
         if (alsoDeleteInvite) {
           // this should always be true but just in case
-          if (deleted.get("invite")) {
+          if (deleted.invite) {
             const invite = await this.client
-              .fetchInvite(deleted.get("invite") as string)
+              .fetchInvite(deleted.invite)
               .catch(() => {});
             if (invite && invite.inviterId == this.client.user.id)
               await invite.delete().catch(() => {});
@@ -245,7 +247,7 @@ export default class VanityURLs extends Module {
         }
       }
 
-      return deleted && deleted.get("gid");
+      return deleted && deleted.gid;
     }
   }
 
