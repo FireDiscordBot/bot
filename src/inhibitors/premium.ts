@@ -82,7 +82,7 @@ export default class Premium extends Inhibitor {
     }>("SELECT gid, uid, active, ends_at FROM discord_entitlements;");
     for await (const row of premiumDiscord) {
       const { gid, uid, active, ends_at } = row;
-      if (now > ends_at) continue;
+      if (ends_at && now > ends_at) continue;
       // Stripe takes priority, don't add if already existing
       if (active && !this.client.util.premium.has(gid))
         this.client.util.premium.set(gid, {
