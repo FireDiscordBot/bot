@@ -397,7 +397,7 @@ export default class Appeals extends Command {
               new MessageSelectMenu()
                 .setCustomId(`IGNORE_ME${index}`)
                 .setDisabled(true)
-                .setPlaceholder(item.placeholder)
+                .setPlaceholder(item.placeholder ?? "")
                 .setMinValues(0)
                 .setMaxValues(item.options.length)
                 .addOptions(
@@ -600,7 +600,7 @@ export default class Appeals extends Command {
               .setComponent(
                 new StringSelectMenu()
                   .setCustomId(index.toString())
-                  .setPlaceholder(item.placeholder)
+                  .setPlaceholder(item.placeholder ?? "")
                   .setRequired(item.required)
                   .setMinValues(item.required ? 1 : 0)
                   .setMaxValues(1)
@@ -625,7 +625,7 @@ export default class Appeals extends Command {
               .setComponent(
                 new TextInputComponent()
                   .setCustomId(index.toString())
-                  .setPlaceholder(item.placeholder)
+                  .setPlaceholder(item.placeholder ?? "")
                   .setStyle(item.style)
                   .setRequired(item.required)
               )
