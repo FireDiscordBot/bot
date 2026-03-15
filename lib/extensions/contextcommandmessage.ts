@@ -579,15 +579,8 @@ export class ContextCommandMessage {
     return await this.latestResponse.react(emoji);
   }
 
-  hasExperiment(id: number, bucket: number | number[]) {
-    // if (this.client.config.dev) return true;
-    const experiment = this.client.experiments.get(id);
-    if (!experiment) return false;
-    else if (!experiment.active) return true;
-    else if (experiment.kind == "guild" && !this.guild) return false;
-    else if (experiment.kind == "guild")
-      return this.guild.hasExperiment(id, bucket);
-    else return this.author.hasExperiment(id, bucket);
+  hasExperiment(id: string) {
+    return this.guild.hasExperiment(id) || this.author.hasExperiment(id);
   }
 }
 

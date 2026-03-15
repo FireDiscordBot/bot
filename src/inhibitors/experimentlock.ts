@@ -14,14 +14,11 @@ export default class ExperimentLock extends Inhibitor {
   async exec(message: FireMessage, command: Command) {
     if (!command) return false;
     const requiresExperiment = command.requiresExperiment;
-    if (requiresExperiment) {
-      const experiment = this.client.experiments.get(requiresExperiment.id);
-      if (!experiment) return true;
-      else if (
-        !message.hasExperiment(experiment.hash, requiresExperiment.bucket)
-      )
-        return true;
-    }
+    if (requiresExperiment)
+      return !message.hasExperiment(
+        requiresExperiment.id,
+        requiresExperiment.projectName
+      );
 
     return false;
   }

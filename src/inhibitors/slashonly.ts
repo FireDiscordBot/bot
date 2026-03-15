@@ -17,7 +17,11 @@ export default class SlashOnly extends Inhibitor {
     message: FireMessage | ApplicationCommandMessage,
     command: Command
   ) {
-    if (message.hasExperiment(93659956, 1)) return false;
+    if (
+      message.hasExperiment("msg_cmds", "user") ||
+      message.author.isSuperuser()
+    )
+      return false;
     if (command.slashOnly && message instanceof FireMessage) return true;
     if (message.util?.parsed && message.util.parsed.prefix != "/")
       message.util.parsed.prefix = "/";

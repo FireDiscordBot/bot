@@ -174,10 +174,7 @@ export default class InteractionListener extends Listener {
       await message.init();
       if (
         message.command?.requiresExperiment?.id &&
-        !message.hasExperiment(
-          message.command.requiresExperiment.id,
-          message.command.requiresExperiment.bucket
-        )
+        !message.hasExperiment(message.command.requiresExperiment.id)
       ) {
         await message.error("COMMAND_EXPERIMENT_REQUIRED");
         // subcommands will always be global so we ignore if parent is set

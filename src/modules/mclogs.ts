@@ -279,7 +279,7 @@ export default class MCLogs extends Module {
   private canUse(guild?: FireGuild, user?: FireUser) {
     if (guild)
       return (
-        guild.hasExperiment(77266757, [1, 2]) ||
+        guild.hasExperiment("mclogs", "guild") ||
         (guild.premium && guild.settings.get("minecraft.logscan", false))
       );
     else if (user) return user.isSuperuser() || user.premium;
@@ -422,7 +422,9 @@ export default class MCLogs extends Module {
       hasteRaw = new URL(mclogsRes.paste);
       hasteRaw.pathname = `/raw${hasteRaw.pathname}`;
     }
-    if (!message.hasExperiment(2219986954, 1))
+    if (
+      !message.author.settings.get<boolean>("mclogs.analytics_opt_out", false)
+    )
       this.client.manager.writeToInflux([
         {
           measurement: "mclogs",

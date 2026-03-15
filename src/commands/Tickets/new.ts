@@ -46,7 +46,7 @@ export default class NewTicket extends Command {
       []
     );
     if (
-      message.guild.hasExperiment(1651882237, 1) &&
+      message.guild.hasExperiment("ticket_threads", "guild") &&
       parents.length &&
       !message.guild.members.me
         ?.permissionsIn(message.guild.channels.cache.get(parents[0]))

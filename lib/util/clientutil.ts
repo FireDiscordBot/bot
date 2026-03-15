@@ -33,7 +33,6 @@ import {
   version as djsver,
 } from "discord.js";
 import * as FormData from "form-data";
-import { murmur3 } from "murmurhash-js";
 import { cpus, totalmem } from "os";
 import * as pidusage from "pidusage";
 import { Readable } from "stream";
@@ -824,53 +823,16 @@ export class Util extends ClientUtil {
 
   userHasExperiment(
     user: Snowflake,
-    id: number,
-    bucket: number | number[]
+    id: string,
+    projectName?: string
   ): boolean {
-    // if (this.client.config.dev) return true;
-    const experiment = this.client.experiments.get(id);
-    if (!experiment || experiment.kind != "user") return false;
-    if (!experiment.active) return true;
-    if (Array.isArray(bucket))
-      return bucket
-        .map((b) => this.userHasExperiment(user, id, b))
-        .some((hasexp) => !!hasexp);
-    if (bucket == 0)
-      return experiment.buckets
-        .slice(1)
-        .map((b) => this.userHasExperiment(user, id, b))
-        .every((hasexp) => hasexp == false);
-    if (!!experiment.data.find(([i, b]) => i == user && b == bucket))
-      // override
-      return true;
-    else if (!!experiment.data.find(([i, b]) => i == user && b != bucket))
-      // override for another bucket, stop here and ignore filters
-      return false;
-    const filters = experiment.filters.find(
-      (filter) => filter.bucket == bucket
+    return this.client.vellum.isEnabled(
+      id,
+      {
+        user_id: user,
+      },
+      projectName
     );
-    if (!filters) return false;
-    if (
-      typeof filters.min_range == "number" &&
-      murmur3(`${experiment.id}:${user}`) % 1e4 < filters.min_range
-    )
-      return false;
-    if (
-      typeof filters.max_range == "number" &&
-      murmur3(`${experiment.id}:${user}`) % 1e4 >= filters.max_range
-    )
-      return false;
-    if (
-      typeof filters.min_id == "string" &&
-      BigInt(user) < BigInt(filters.min_id)
-    )
-      return false;
-    if (
-      typeof filters.max_id == "string" &&
-      BigInt(user) >= BigInt(filters.max_id)
-    )
-      return false;
-    return true;
   }
 
   isBlacklisted(
@@ -901,9 +863,12 @@ export class Util extends ClientUtil {
     if (guild?.settings.get<string[]>("utils.plonked", []).includes(user))
       return true;
 
-    if (guild?.hasExperiment(436359108, 1)) return true;
+    if (guild?.hasExperiment("blacklist", "guild")) return true;
 
-    if (guild?.ownerId && this.userHasExperiment(guild.ownerId, 1521321135, 1))
+    if (
+      guild?.ownerId &&
+      this.userHasExperiment(guild.ownerId, "blacklist", "user")
+    )
       return true;
 
     return false;
@@ -1218,8 +1183,9 @@ export class Util extends ClientUtil {
 
   async getSlashUpsellEmbed(message: FireMessage) {
     if (
-      !message.hasExperiment(3144709624, 1) ||
-      message.hasExperiment(93659956, 1)
+      !message.hasExperiment("slash_upsell", "user") ||
+      message.hasExperiment("msg_cmds", "user") ||
+      message.author.isSuperuser()
     )
       return false;
     else if (!(message instanceof FireMessage)) return false;

@@ -17,6 +17,9 @@ importers:
       '@sentry/node':
         specifier: ^10.38.0
         version: 10.38.0
+      '@vellum-flags/sdk-node':
+        specifier: ^0.0.6
+        version: 0.0.6
       centra:
         specifier: ^2.7.0
         version: 2.7.0
@@ -422,6 +425,9 @@ packages:
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
+
+  '@vellum-flags/sdk-node@0.0.6':
+    resolution: {integrity: sha512-DO7oN/jz90lbb8qZvYn64dc7U5UW0LIXVV/1DuM7vxXvwgChhiIiPXRtrIdDkBxQtSxK5HOxHde5EpE3tyr3QA==}
 
   acorn-import-attributes@1.9.5:
     resolution: {integrity: sha512-n02Vykv5uA3eHGM/Z2dQrcD56kL8TyDb2p1+0P83PClMnC/nc+anbQRhIOWnSq4Ke/KvDPrY3C9hDtC/A3eHnQ==}
@@ -1217,6 +1223,8 @@ snapshots:
   '@types/ws@8.18.1':
     dependencies:
       '@types/node': 25.2.0
+
+  '@vellum-flags/sdk-node@0.0.6': {}
 
   acorn-import-attributes@1.9.5(acorn@8.15.0):
     dependencies:

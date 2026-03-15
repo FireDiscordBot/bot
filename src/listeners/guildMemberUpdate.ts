@@ -186,7 +186,7 @@ export default class GuildMemberUpdate extends Listener {
     // TODO: use timestamp - 24 hours to determine if new and log as additional treatment
     const now = +new Date();
     if (
-      newMember.guild.hasExperiment(495100165, 2) &&
+      newMember.guild.hasExperiment("ban_dm_activity", "guild") &&
       newMember.unusualDMActivityUntil &&
       newMember.unusualDMActivityUntilTimestamp > now &&
       // ignore non-new members (here longer than a month), less likely to be a result of spam/sus activity
@@ -220,7 +220,7 @@ export default class GuildMemberUpdate extends Listener {
         false
       );
     } else if (
-      newMember.guild.hasExperiment(495100165, 1) &&
+      newMember.guild.hasExperiment("log_dm_activity", "guild") &&
       newMember.unusualDMActivityUntil &&
       newMember.unusualDMActivityUntilTimestamp > now &&
       newMember.unusualDMActivityUntilTimestamp - 86_400_000 > now - 60_000

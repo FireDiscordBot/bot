@@ -83,7 +83,7 @@ export default class LogScan extends Command {
   }
 
   async run(command: ApplicationCommandMessage) {
-    if (command.hasExperiment(77266757, [1, 2]))
+    if (command.hasExperiment("mclogs", "guild"))
       return await command.error("MINECRAFT_LOGSCAN_MANUAL");
     return await command.send("MINECRAFT_LOGSCAN_MESSAGE", {
       components: this.getMenuComponents(command),

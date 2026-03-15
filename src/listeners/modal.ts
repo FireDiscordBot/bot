@@ -294,8 +294,8 @@ export default class Modal extends Listener {
           .catch(() => {});
 
       await modal.guild.settings.set("minecraft.logscan", true, modal.author);
-      if (modal.guild.settings.get<boolean>("minecraft.logscan", false) == true)
-        return await modal.success("MINECRAFT_LOGSCAN_TOGGLE_FAIL");
+      if (!modal.guild.settings.get<boolean>("minecraft.logscan", false))
+        return await modal.error("MINECRAFT_LOGSCAN_TOGGLE_FAIL");
       const components = logScan.getMenuComponents(modal);
       await modal.channel.update({ components });
       return await modal.success("MINECRAFT_LOGSCAN_ENABLED");

@@ -29,9 +29,6 @@ const cleanMap = {
     [/\/(?:watch\?v=)?dQw4w9WgXcQ/gim],
 };
 
-const youForgotTheHyphen =
-  /spider\s*?[!"#$%&'()*+,./:;<=>?@[\]^_`{|}~]*?\s*?man/gim;
-
 const safeDecodeURI = (encodedURI: string) => {
   try {
     return decodeURI(encodedURI);
@@ -64,20 +61,6 @@ export default class Message extends Listener {
 
     if (message.type == "CHANNEL_PINNED_MESSAGE")
       this.client.emit("channelPinsAdd", message.reference, message.member);
-
-    if (message.hasExperiment(2779566859, 1)) {
-      const theyForgot = youForgotTheHyphen.test(
-        this.cleanContent(message, false)
-      );
-      youForgotTheHyphen.lastIndex = 0;
-      if (theyForgot && message.guild?.members.me?.permissions.has(67584n))
-        await message
-          .reply({
-            content: "You forgot the hyphen! It's Spider-Man*",
-            allowedMentions: { users: [message.author.id] },
-          })
-          .catch(() => {});
-    }
 
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
     // These won't run if the modules aren't loaded

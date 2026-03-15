@@ -467,15 +467,11 @@ export class FireMessage extends Message {
     return await super.react(emoji);
   }
 
-  hasExperiment(id: number, bucket: number | number[]) {
-    // if (this.client.config.dev) return true;
-    const experiment = this.client.experiments.get(id);
-    if (!experiment) return false;
-    else if (!experiment.active) return true;
-    else if (experiment.kind == "guild" && !this.guild) return false;
-    else if (experiment.kind == "guild")
-      return this.guild.hasExperiment(id, bucket);
-    else return this.author.hasExperiment(id, bucket);
+  hasExperiment(id: string, projectName?: string) {
+    return (
+      this.guild.hasExperiment(id, projectName) ||
+      this.author.hasExperiment(id, projectName)
+    );
   }
 
   async delete(options?: { timeout?: number; reason?: string }) {
@@ -820,7 +816,8 @@ export class FireMessage extends Message {
         return "QUOTE_PREMIUM_INCREASED_LENGTH";
       else if (
         !embeds.length &&
-        (!this.attachments.size || this.attachments.every(isMediaAttachment))
+        (!this.attachments.size || this.attachments.every(isMediaAttachment)) &&
+        content.length > 2000
       )
         components.unshift(new TextDisplayComponent({ content }));
     }
@@ -1310,7 +1307,7 @@ export class FireMessage extends Message {
     let components: BaseMessageComponentV2[] = [],
       attachments: RawAttachmentDataArray = [];
 
-    if (quoter.hasExperiment(3468474178, 1)) {
+    if (quoter.hasExperiment("cv2_style_a", "quotes")) {
       const response = await this.componentsQuoteTreatment1(
         destination,
         quoter,
@@ -1319,7 +1316,7 @@ export class FireMessage extends Message {
       if (!response) return;
       components = response.components;
       attachments = response.attachments;
-    } else if (quoter.hasExperiment(3468474178, 2)) {
+    } else if (quoter.hasExperiment("cv2_style_b", "quotes")) {
       const response = await this.componentsQuoteTreatment2(
         destination,
         quoter,
@@ -1328,7 +1325,7 @@ export class FireMessage extends Message {
       if (!response) return;
       components = response.components;
       attachments = response.attachments;
-    } else if (quoter.hasExperiment(3468474178, 3)) {
+    } else if (quoter.hasExperiment("cv2_style_c", "quotes")) {
       const response = await this.componentsQuoteTreatment3(
         destination,
         quoter,
@@ -1337,7 +1334,7 @@ export class FireMessage extends Message {
       if (!response) return;
       components = response.components;
       attachments = response.attachments;
-    } else if (quoter.hasExperiment(3468474178, 4)) {
+    } else if (quoter.hasExperiment("cv2_style_d", "quotes")) {
       const response = await this.componentsQuoteTreatment4(
         destination,
         quoter,
@@ -1346,7 +1343,7 @@ export class FireMessage extends Message {
       if (!response) return;
       components = response.components;
       attachments = response.attachments;
-    } else if (quoter.hasExperiment(3468474178, 5)) {
+    } else if (quoter.hasExperiment("cv2_style_e", "quotes")) {
       const response = await this.componentsQuoteTreatment5(
         destination,
         quoter,
@@ -3010,7 +3007,8 @@ export class FireMessage extends Message {
       this.author?.bot ||
       this.webhookId ||
       this.author.system ||
-      !this.guild?.hasExperiment(936071411, [1, 2])
+      !this.guild?.hasExperiment("steam_nitro_autoban", "guild") ||
+      !this.guild?.hasExperiment("steam_nitro_autoban_no_msg", "guild")
     )
       return;
     if (
@@ -3110,7 +3108,7 @@ The lack of this is a sign that this message may have been sent automatically by
             this.guild.members.me as FireMember,
             null,
             7,
-            this.guild?.hasExperiment(936071411, 1)
+            this.guild?.hasExperiment("steam_nitro_autoban", "guild")
               ? (this.channel as FireTextChannel)
               : undefined
           )
@@ -3128,7 +3126,7 @@ The lack of this is a sign that this message may have been sent automatically by
           ?.yeet(
             match ? `Phishing Links (Triggered by ${match})` : "Phishing links",
             this.guild.members.me as FireMember,
-            this.guild?.hasExperiment(936071411, 1)
+            this.guild?.hasExperiment("steam_nitro_autoban", "guild")
               ? (this.channel as FireTextChannel)
               : undefined,
             false

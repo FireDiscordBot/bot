@@ -58,7 +58,7 @@ export default class Lockdown extends Command {
           required: false,
         },
       ],
-      requiresExperiment: { id: 1387469587, bucket: 1 },
+      requiresExperiment: { id: "lockdown" },
       enableSlashCommand: true,
       moderatorOnly: true,
       restrictTo: "guild",

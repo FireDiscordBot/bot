@@ -2342,7 +2342,10 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           false
         );
 
-        if (!current && button.author.hasExperiment(3324162204, 1))
+        if (
+          !current &&
+          button.author.hasExperiment("mclogs_agree_modal", "commands")
+        )
           return await button.component.showModal(
             new Modal()
               .setTitle(button.language.get("MINECRAFT_LOGSCAN_MODAL_TITLE"))
@@ -2381,7 +2384,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
           button.author
         );
         if (button.guild.settings.get("minecraft.logscan", current) == current)
-          return await button.success("MINECRAFT_LOGSCAN_TOGGLE_FAIL");
+          return await button.error("MINECRAFT_LOGSCAN_TOGGLE_FAIL");
         const components = logScan.getMenuComponents(button);
         await button.channel.update({ components });
         return await button.success(
@@ -2562,7 +2565,7 @@ Please choose accurately as it will allow us to help you as quick as possible! â
 
     if (
       button.customId == "googleauth" &&
-      button.author.hasExperiment(2100999090, 1)
+      button.author.hasExperiment("google_auth", "user")
     ) {
       button.flags = 64;
       await button.channel.ack();

@@ -442,7 +442,7 @@ export default class Select extends Listener {
           components: message.components,
         });
       } else {
-        const shouldUpsell = select.hasExperiment(3144709624, 1);
+        const shouldUpsell = select.hasExperiment("slash_upsell", "user");
         if (message.embeds.length) {
           delete message.embeds[0].description;
           message.embeds[0].fields = [

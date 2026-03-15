@@ -128,7 +128,7 @@ export default class RemindersCreate extends Command {
           ? command.contextCommand
           : command.slashCommand
       ).authorizingIntegrationOwners.includes(command.author.id) &&
-      command.hasExperiment(3028355873, 1)
+      command.hasExperiment("remind_user_app", "user")
     )
       return await command.error("REMINDER_NOT_AUTHORIZED_USER_APP", {
         components: [

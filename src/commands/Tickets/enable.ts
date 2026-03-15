@@ -64,7 +64,7 @@ export default class TicketEnable extends Command {
         category: args.category.name.toUpperCase(),
       });
     } else if (args.channel && !args.category) {
-      if (!message.guild.hasExperiment(1651882237, 1))
+      if (!message.guild.hasExperiment("ticket_threads", "guild"))
         return await message.error("TICKET_ENABLE_THREADS_UNAVAILABLE");
       else if (args.channel.type != "GUILD_TEXT")
         return await message.error("TICKET_ENABLE_CHANNEL_INVALID");

@@ -360,7 +360,7 @@ export default class User extends Command {
         })
       : embed.setFooter({ text: user.id });
 
-    if (command.author.hasExperiment(3422641027, 1)) {
+    if (command.author.hasExperiment("user_banner", "commands")) {
       if (member && !member.banner && !member.user.banner)
         await member.fetch().catch(() => {});
       else if (user && !user.banner) await user.fetch();

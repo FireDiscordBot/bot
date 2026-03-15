@@ -116,42 +116,8 @@ export class FireUser extends User {
     return await this.client.util.unblacklist(this);
   }
 
-  hasExperiment(id: number, bucket: number | number[]): boolean {
-    return this.client.util.userHasExperiment(this.id, id, bucket);
-  }
-
-  async giveExperiment(id: number, bucket: number) {
-    const experiment = this.client.experiments.get(id);
-    if (!experiment || experiment.kind != "user")
-      throw new Error("Experiment is not a user experiment");
-    if (!experiment.buckets.includes(bucket)) throw new Error("Invalid Bucket");
-    experiment.data = experiment.data.filter(([i]) => i != this.id);
-    experiment.data.push([this.id, bucket]);
-    await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
-      experiment.data?.length ? experiment.data : null,
-      BigInt(experiment.hash),
-    ]);
-    this.client.experiments.set(experiment.hash, experiment);
-    this.client.refreshExperiments([experiment]);
-    return this.hasExperiment(id, bucket);
-  }
-
-  async removeExperiment(id: number, bucket: number) {
-    const experiment = this.client.experiments.get(id);
-    if (!experiment || experiment.kind != "user")
-      throw new Error("Experiment is not a user experiment");
-    const b = experiment.data.length;
-    experiment.data = experiment.data.filter(
-      ([i, b]) => i != this.id && b != bucket
-    );
-    if (b == experiment.data.length) return !this.hasExperiment(id, bucket);
-    await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
-      experiment.data?.length ? experiment.data : null,
-      BigInt(experiment.hash),
-    ]);
-    this.client.experiments.set(experiment.hash, experiment);
-    this.client.refreshExperiments([experiment]);
-    return !this.hasExperiment(id, bucket);
+  hasExperiment(id: string, projectName?: string): boolean {
+    return this.client.util.userHasExperiment(this.id, id, projectName);
   }
 
   get hoisted() {

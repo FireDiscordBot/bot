@@ -103,7 +103,7 @@ export default class Google extends Command {
       return await command.send("GOOGLE_NOT_READY_YET");
 
     let useDefaultCreds = true;
-    if (command.author.hasExperiment(2100999090, 1)) {
+    if (command.author.hasExperiment("google_auth", "user")) {
       const hasCredentials = await this.client.db
         .query<{
           uid: Snowflake;
@@ -160,7 +160,7 @@ export default class Google extends Command {
       );
     if (
       useDefaultCreds &&
-      command.author.hasExperiment(2100999090, 1) &&
+      command.author.hasExperiment("google_auth", "user") &&
       !command.author.settings.get("assistant.noauthprompt", false) &&
       (command.author.isSuperuser()
         ? // Allow on dev & prod for superusers

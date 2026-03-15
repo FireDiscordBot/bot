@@ -72,21 +72,8 @@ export default class Debug extends Command {
       return await this.sendSingleError(command, "COMMAND_PREMIUM_GUILD_ONLY");
 
     const requiresExperiment = cmd.requiresExperiment;
-    if (requiresExperiment) {
-      const experiment = this.client.experiments.get(requiresExperiment.id);
-      if (!experiment)
-        return await this.sendSingleError(
-          command,
-          "COMMAND_EXPERIMENT_REQUIRED"
-        );
-      else if (
-        !command.hasExperiment(experiment.hash, requiresExperiment.bucket)
-      )
-        return await this.sendSingleError(
-          command,
-          "COMMAND_EXPERIMENT_REQUIRED"
-        );
-    }
+    if (requiresExperiment && !command.hasExperiment(requiresExperiment.id))
+      return await this.sendSingleError(command, "COMMAND_EXPERIMENT_REQUIRED");
 
     const details: string[] = [];
 

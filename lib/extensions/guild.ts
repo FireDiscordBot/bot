@@ -43,7 +43,6 @@ import {
   WebhookClient,
 } from "discord.js";
 import { RawGuildData } from "discord.js/typings/rawDataTypes";
-import { murmur3 } from "murmurhash-js";
 import { nanoid } from "nanoid";
 import Semaphore from "semaphore-async-await";
 import { v4 as uuidv4 } from "uuid";
@@ -1103,115 +1102,19 @@ export class FireGuild extends Guild {
     else return await this.logger.handleMembers(log, type);
   }
 
-  hasExperiment(id: number, bucket: number | number[]): boolean {
-    // if (this.client.config.dev) return true;
-    const experiment = this.client.experiments.get(id);
-    if (!experiment || experiment.kind != "guild") return false;
-    if (!experiment.active) return true;
-    if (Array.isArray(bucket))
-      return bucket
-        .map((b) => this.hasExperiment(id, b))
-        .some((hasexp) => !!hasexp);
-    if (bucket == 0)
-      return experiment.buckets
-        .slice(1)
-        .map((b) => this.hasExperiment(id, b))
-        .every((hasexp) => hasexp == false);
-    if (!!experiment.data.find(([i, b]) => i == this.id && b == bucket))
-      // override
-      return true;
-    else if (!!experiment.data.find(([i, b]) => i == this.id && b != bucket))
-      // override for another bucket, stop here and ignore filters
-      return false;
-    const filters = experiment.filters.find(
-      (filter) => filter.bucket == bucket
+  hasExperiment(id: string, projectName?: string): boolean {
+    return this.client.vellum.isEnabled(
+      id,
+      {
+        guild_id: this.id,
+        boost_tier: BOOST_TIERS[this.premiumTier],
+        boost_count: this.premiumSubscriptionCount,
+        features: this.features,
+        member_count: this.memberCount,
+        presence_count: this.approximatePresenceCount,
+      },
+      projectName
     );
-    if (!filters) return false;
-    if (
-      filters.features.length &&
-      !filters.features.every((feature) => this.features.includes(feature))
-    )
-      return false;
-    if (
-      typeof filters.min_range == "number" &&
-      murmur3(`${experiment.id}:${this.id}`) % 1e4 < filters.min_range
-    )
-      return false;
-    if (
-      typeof filters.max_range == "number" &&
-      murmur3(`${experiment.id}:${this.id}`) % 1e4 >= filters.max_range
-    )
-      return false;
-    if (
-      typeof filters.min_members == "number" &&
-      this.memberCount < filters.min_members
-    )
-      return false;
-    if (
-      typeof filters.max_members == "number" &&
-      this.memberCount >= filters.max_members
-    )
-      return false;
-    if (
-      typeof filters.min_id == "string" &&
-      BigInt(this.id) < BigInt(filters.min_id)
-    )
-      return false;
-    if (
-      typeof filters.max_id == "string" &&
-      BigInt(this.id) >= BigInt(filters.max_id)
-    )
-      return false;
-    if (
-      typeof filters.min_boosts == "number" &&
-      this.premiumSubscriptionCount < filters.min_boosts
-    )
-      return false;
-    if (
-      typeof filters.max_boosts == "number" &&
-      this.premiumSubscriptionCount >= filters.max_boosts
-    )
-      return false;
-    if (
-      typeof filters.boost_tier == "number" &&
-      BOOST_TIERS[this.premiumTier] != filters.boost_tier
-    )
-      return false;
-    return true;
-  }
-
-  async giveExperiment(id: number, bucket: number) {
-    const experiment = this.client.experiments.get(id);
-    if (!experiment || experiment.kind != "guild")
-      throw new Error("Experiment is not a guild experiment");
-    if (!experiment.buckets.includes(bucket)) throw new Error("Invalid Bucket");
-    experiment.data = experiment.data.filter(([i]) => i != this.id);
-    experiment.data.push([this.id, bucket]);
-    await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
-      experiment.data?.length ? experiment.data : null,
-      BigInt(experiment.hash),
-    ]);
-    this.client.experiments.set(experiment.hash, experiment);
-    this.client.refreshExperiments([experiment]);
-    return this.hasExperiment(id, bucket);
-  }
-
-  async removeExperiment(id: number, bucket: number) {
-    const experiment = this.client.experiments.get(id);
-    if (!experiment || experiment.kind != "guild")
-      throw new Error("Experiment is not a guild experiment");
-    const b = experiment.data.length;
-    experiment.data = experiment.data.filter(
-      ([i, b]) => i != this.id && b != bucket
-    );
-    if (b == experiment.data.length) return !this.hasExperiment(id, bucket);
-    await this.client.db.query("UPDATE experiments SET data=$1 WHERE id=$2;", [
-      experiment.data?.length ? experiment.data : null,
-      BigInt(experiment.hash),
-    ]);
-    this.client.experiments.set(experiment.hash, experiment);
-    this.client.refreshExperiments([experiment]);
-    return !this.hasExperiment(id, bucket);
   }
 
   areTicketsEnabled() {
@@ -1289,7 +1192,7 @@ export class FireGuild extends Guild {
     if (toggled) return "toggled";
 
     const useThreads =
-      this.hasExperiment(1651882237, 1) &&
+      this.hasExperiment("ticket_threads", "guild") &&
       this.channels.cache.get(parents[0]).type != "GUILD_CATEGORY";
 
     category =

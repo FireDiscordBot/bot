@@ -118,7 +118,7 @@ export class CommandHandler extends AkairoCommandHandler {
     )
       return false;
 
-    if (!message.content && message.hasExperiment(3901360561, 1))
+    if (!message.content && message.hasExperiment("alt_text_cmds", "user"))
       message.content =
         message.attachments.first()?.description ?? message.content;
 

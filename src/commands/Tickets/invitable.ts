@@ -19,8 +19,8 @@ export default class TicketInvitable extends Command {
       parent: "ticket",
       slashOnly: true,
       requiresExperiment: {
-        id: 1651882237,
-        bucket: 1,
+        id: "ticket_threads",
+        projectName: "guild",
       },
     });
   }

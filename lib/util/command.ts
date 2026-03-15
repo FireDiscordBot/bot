@@ -180,7 +180,7 @@ export class Command extends AkairoCommand {
   // into the array too
   private _guilds: Snowflake[];
 
-  requiresExperiment?: { id: number; bucket: number };
+  requiresExperiment?: { id: string; projectName?: string };
   declare description: (language: Language) => string;
   slashIds: Record<Snowflake, Snowflake>; // map of guild id to snowflake if guild specific
   declare channel?: "guild" | "dm";
@@ -277,7 +277,7 @@ export class Command extends AkairoCommand {
             .filter((guild: FireGuild) =>
               guild.hasExperiment(
                 this.requiresExperiment.id,
-                this.requiresExperiment.bucket
+                this.requiresExperiment.projectName ?? "commands"
               )
             )
             .map((guild) => guild.id)
@@ -941,8 +941,8 @@ export class Command extends AkairoCommand {
 
 // @ts-ignore
 export interface CommandOptions extends AkairoCommandOptions {
+  requiresExperiment?: { id: string; projectName?: string };
   description?: ((language: Language) => string) | string;
-  requiresExperiment?: { id: number; bucket: number };
   restrictTo?: "guild" | "dm" | "all";
   enableSlashCommand?: boolean;
   args?: ArgumentOptions[];

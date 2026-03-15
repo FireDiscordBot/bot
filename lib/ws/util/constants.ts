@@ -13,7 +13,7 @@ export enum EventType {
   RESUME_CLIENT, // receive only
   HEARTBEAT, // send only
   HEARTBEAT_ACK, // receive only
-  UNUSED1 = 8,
+  VELLUM_WEBHOOK, // receive only
   SEND_STATS, // send only
   REQUEST_STATS, // receive only
   GET_EXTENDED_DISCOVERABLE, // send & receive
@@ -24,7 +24,7 @@ export enum EventType {
   ADMIN_ACTION, // send only
   VANITY_REFRESH, // send only
   BLACKLIST_SYNC, // send & receive
-  RELOAD_EXPERIMENTS, // send & receive
+  UNUSED1 = 19,
   UPDATE_STATE, // receive only
   REMINDER_SEND, // receive only
   REMINDER_CREATE, // send only

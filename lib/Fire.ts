@@ -40,6 +40,7 @@ import { userMemberSnowflakeTypeCaster } from "@fire/src/arguments/userMemberSno
 import GuildUnavailable from "@fire/src/listeners/guildUnavailable";
 import AetherStats from "@fire/src/modules/aetherstats";
 import * as Sentry from "@sentry/node";
+import { VellumManager } from "@vellum-flags/sdk-node";
 import {
   AkairoClient,
   ArgumentTypeCaster,
@@ -58,12 +59,11 @@ import {
   Collection,
   Constants,
   ContextMenuInteraction,
-  GuildFeatures,
   PresenceStatusData,
   version as djsver,
 } from "discord.js";
-import * as fuzz from "fuzzball";
-import * as i18next from "i18next";
+import { ratio } from "fuzzball";
+import i18next from "i18next";
 import { Client as PGClient, SSLMode, connect } from "ts-postgres";
 import { Manager } from "./Manager";
 import { ApplicationCommandMessage } from "./extensions/appcommandmessage";
@@ -73,7 +73,6 @@ import { FireMember } from "./extensions/guildmember";
 import { FireMessage } from "./extensions/message";
 import { ModalMessage } from "./extensions/modalmessage";
 import { FireUser } from "./extensions/user";
-import { Experiment } from "./interfaces/experiments";
 import { RESTManager } from "./rest/RESTManager";
 import { ThreadMembersUpdateAction } from "./util/actions/ThreadMembersUpdate";
 import { Util } from "./util/clientutil";
@@ -86,8 +85,6 @@ import { Module, ModuleHandler } from "./util/module";
 import { Message } from "./ws/Message";
 import { MessageUtil } from "./ws/util/MessageUtil";
 import { EventType } from "./ws/util/constants";
-// this shit has some weird import fuckery, this is the only way I can use it
-const i18n = i18next as unknown as typeof i18next.default;
 
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 type ModalHandler = (modal: ModalMessage) => Promise<any> | any;
@@ -102,7 +99,7 @@ export class Fire extends AkairoClient {
   restPing: number;
 
   // i18n
-  i18n: typeof i18next.default;
+  i18n: typeof i18next;
 
   // Sharding
   manager: Manager;
@@ -147,7 +144,6 @@ export class Fire extends AkairoClient {
   setTimeout: typeof setTimeout;
 
   // Common Attributes
-  experiments: Collection<number, Experiment>;
   aliases: Collection<string, string[]>;
   declare user: FireUser & ClientUser;
   config: typeof config.fire;
@@ -156,6 +152,8 @@ export class Fire extends AkairoClient {
 
   db: PGClient;
   dbPromise: ReturnType<typeof connect>;
+
+  vellum: VellumManager;
 
   constructor(manager: Manager, sentry?: typeof Sentry) {
     super({ ...config.akairo, ...config.discord });
@@ -166,7 +164,7 @@ export class Fire extends AkairoClient {
     this.setInterval = setInterval;
     this.setTimeout = setTimeout;
 
-    this.i18n = i18n;
+    this.i18n = i18next;
 
     // @ts-ignore
     this.rest = new RESTManager(this);
@@ -182,7 +180,10 @@ export class Fire extends AkairoClient {
     this.manager = manager;
     this.util = new Util(this);
 
-    this.experiments = new Collection();
+    this.vellum = new VellumManager({
+      apiUrl: `${constants.url.website}/api/vellum`,
+      refreshInterval: 300_000,
+    });
     this.aliases = new Collection();
 
     this.on("warn", (warning) => this.getLogger("Discord").warn(warning));
@@ -412,12 +413,13 @@ export class Fire extends AkairoClient {
       directory: this.isDist ? "./dist/src/languages/" : "./src/languages/",
     });
     this.languages.loadAll();
-    i18n
+    this.i18n
       .init({
         fallbackLng: "en-US",
         fallbackNS: "fire",
         resources: {},
         lng: "en-US",
+        interpolation: { escapeValue: false },
       })
       .then(() => {
         this.languages.modules.forEach((language: Language) => language.init());
@@ -426,7 +428,7 @@ export class Fire extends AkairoClient {
     this.modules = new ModuleHandler(this, {
       directory: this.isDist ? "./dist/src/modules/" : "./src/modules/",
     });
-    this.modules.on("load", async (module: Module, isReload: boolean) => {
+    this.modules.on("load", async (module: Module) => {
       await module?.init();
     });
     this.modules.on("remove", async (module: Module) => {
@@ -470,6 +472,23 @@ export class Fire extends AkairoClient {
     return this.db;
   }
 
+  private async initVellum() {
+    const projects = await this.db.query<{
+      name: string;
+      key: string;
+      refresh: number;
+      identifier: string;
+    }>("SELECT name, key, refresh, identifier FROM vellum_projects;");
+    for await (const project of projects) {
+      this.vellum.addProject(project.name, project.key, {
+        refreshInterval: project.refresh ?? 300_000,
+        identifierKey: project.identifier ?? "user_id",
+      });
+    }
+
+    await this.vellum.init();
+  }
+
   async login() {
     if (!this.options.shards) this.options.shards = [this.manager.id || 0];
     await this.dbPromise; // ensure we're connected before logging in
@@ -478,7 +497,7 @@ export class Fire extends AkairoClient {
         this.options.shards as number[]
       ).join(", ")}] (Total: ${this.options.shardCount}).`
     );
-    await Promise.all([this.loadExperiments(), this.loadAliases()]);
+    await Promise.all([this.initVellum(), this.loadAliases()]);
     this.commandHandler.modules.forEach((command: Command) => {
       if (
         command.guilds.length &&
@@ -525,70 +544,70 @@ export class Fire extends AkairoClient {
     return !!hasCommandUtil;
   }
 
-  async loadExperiments() {
-    this.experiments = new Collection();
-    const experiments = await this.db
-      .query<{
-        id: bigint;
-        kind: "user" | "guild";
-        label: string;
-        buckets: number[];
-        active: boolean;
-        data: [string, number][];
-      }>("SELECT * FROM experiments;")
-      .catch(() => {});
-    if (!experiments) return;
-    for await (const experiment of experiments) {
-      const data: Experiment = {
-        hash: Number(experiment.id),
-        kind: experiment.kind,
-        id: experiment.label,
-        buckets: experiment.buckets,
-        active: experiment.active,
-        data: experiment.data ?? [],
-        filters: [],
-      };
-      data.buckets.unshift(0); // control bucket
-      this.experiments.set(data.hash, data);
-    }
-    const filters = await this.db.query<{
-      id: bigint;
-      bucket: number;
-      features: GuildFeatures[];
-      min_range: number | null;
-      max_range: number | null;
-      min_members: number | null;
-      max_members: number | null;
-      min_id: bigint | null;
-      max_id: bigint | null;
-      min_boosts: number | null;
-      max_boosts: number | null;
-      boost_tier: number | null;
-    }>("SELECT * FROM experimentfilters;");
-    for await (const filter of filters) {
-      const id = Number(filter.id);
-      const data = this.experiments.get(id);
-      data.filters.push({
-        bucket: filter.bucket,
-        features: filter.features ?? [],
-        min_range: filter.min_range ?? null,
-        max_range: filter.max_range ?? null,
-        min_members: filter.min_members ?? null,
-        max_members: filter.max_members ?? null,
-        min_id: filter.min_id?.toString() ?? null,
-        max_id: filter.max_id?.toString() ?? null,
-        min_boosts: filter.min_boosts ?? null,
-        max_boosts: filter.max_boosts ?? null,
-        boost_tier: filter.boost_tier ?? null,
-      });
-    }
-  }
+  // async loadExperiments() {
+  //   this.experiments = new Collection();
+  //   const experiments = await this.db
+  //     .query<{
+  //       id: bigint;
+  //       kind: "user" | "guild";
+  //       label: string;
+  //       buckets: number[];
+  //       active: boolean;
+  //       data: [string, number][];
+  //     }>("SELECT * FROM experiments;")
+  //     .catch(() => {});
+  //   if (!experiments) return;
+  //   for await (const experiment of experiments) {
+  //     const data: Experiment = {
+  //       hash: Number(experiment.id),
+  //       kind: experiment.kind,
+  //       id: experiment.label,
+  //       buckets: experiment.buckets,
+  //       active: experiment.active,
+  //       data: experiment.data ?? [],
+  //       filters: [],
+  //     };
+  //     data.buckets.unshift(0); // control bucket
+  //     this.experiments.set(data.hash, data);
+  //   }
+  //   const filters = await this.db.query<{
+  //     id: bigint;
+  //     bucket: number;
+  //     features: GuildFeatures[];
+  //     min_range: number | null;
+  //     max_range: number | null;
+  //     min_members: number | null;
+  //     max_members: number | null;
+  //     min_id: bigint | null;
+  //     max_id: bigint | null;
+  //     min_boosts: number | null;
+  //     max_boosts: number | null;
+  //     boost_tier: number | null;
+  //   }>("SELECT * FROM experimentfilters;");
+  //   for await (const filter of filters) {
+  //     const id = Number(filter.id);
+  //     const data = this.experiments.get(id);
+  //     data.filters.push({
+  //       bucket: filter.bucket,
+  //       features: filter.features ?? [],
+  //       min_range: filter.min_range ?? null,
+  //       max_range: filter.max_range ?? null,
+  //       min_members: filter.min_members ?? null,
+  //       max_members: filter.max_members ?? null,
+  //       min_id: filter.min_id?.toString() ?? null,
+  //       max_id: filter.max_id?.toString() ?? null,
+  //       min_boosts: filter.min_boosts ?? null,
+  //       max_boosts: filter.max_boosts ?? null,
+  //       boost_tier: filter.boost_tier ?? null,
+  //     });
+  //   }
+  // }
 
-  refreshExperiments(experiments: Experiment[]) {
-    this.manager.ws?.send(
-      MessageUtil.encode(new Message(EventType.RELOAD_EXPERIMENTS, experiments))
-    );
-  }
+  // refreshExperiments(experiments: Experiment[]) {
+  //   this.manager.ws?.send(
+  //     MessageUtil.encode(new Message(EventType.RELOAD_EXPERIMENTS, experiments))
+  //   );
+  // }
 
   async loadAliases() {
     this.aliases = new Collection();
@@ -687,16 +706,14 @@ export class Fire extends AkairoClient {
 
   getFuzzyCommands(command: string, limit = 20, forceRatio?: number) {
     if (!this.commandHandler) return;
-    let ratio = forceRatio ?? 90;
+    let fuzzRatio = forceRatio ?? 90;
     let fuzzy: Command[] = [];
     const commands = this.commandHandler.modules.toJSON();
-    while (!fuzzy.length && ratio >= (forceRatio ?? 60)) {
+    while (!fuzzy.length && fuzzRatio >= (forceRatio ?? 60)) {
       fuzzy = commands.filter(
         (cmd) =>
-          fuzz.ratio(
-            command.trim().toLowerCase(),
-            cmd.id.trim().toLowerCase()
-          ) >= ratio--
+          ratio(command.trim().toLowerCase(), cmd.id.trim().toLowerCase()) >=
+          fuzzRatio--
       );
     }
     if (!fuzzy.length)
