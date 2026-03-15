@@ -63,7 +63,7 @@ import {
   version as djsver,
 } from "discord.js";
 import { ratio } from "fuzzball";
-import i18next from "i18next";
+import * as i18next from "i18next";
 import { Client as PGClient, SSLMode, connect } from "ts-postgres";
 import { Manager } from "./Manager";
 import { ApplicationCommandMessage } from "./extensions/appcommandmessage";
@@ -85,6 +85,8 @@ import { Module, ModuleHandler } from "./util/module";
 import { Message } from "./ws/Message";
 import { MessageUtil } from "./ws/util/MessageUtil";
 import { EventType } from "./ws/util/constants";
+// this shit has some weird import fuckery, this is the only way I can use it
+const i18n = i18next as unknown as typeof i18next.default;
 
 type ButtonHandler = (button: ComponentMessage) => Promise<any> | any;
 type ModalHandler = (modal: ModalMessage) => Promise<any> | any;
@@ -99,7 +101,7 @@ export class Fire extends AkairoClient {
   restPing: number;
 
   // i18n
-  i18n: typeof i18next;
+  i18n: typeof i18n;
 
   // Sharding
   manager: Manager;
@@ -164,7 +166,7 @@ export class Fire extends AkairoClient {
     this.setInterval = setInterval;
     this.setTimeout = setTimeout;
 
-    this.i18n = i18next;
+    this.i18n = i18n;
 
     // @ts-ignore
     this.rest = new RESTManager(this);
