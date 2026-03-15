@@ -12,7 +12,7 @@ export default class InviteInfo extends Command {
       args: [
         {
           id: "invite",
-          type: /^discord(?:app)?\.(?:com|gg)\/(?:invite\/|invite\\)?(?<code>[\w-]{1,25})$/im,
+          type: /^(?:discord(?:app)?\.(?:com|gg)\/(?:(?:invite\/|invite\\))?)?(?<code>[\w-]{1,25})$/im,
           readableType: "invite",
           description: (language: Language) =>
             language.get("INVITEINFO_ARGUMENT_INVITE_DESCRIPTION"),
@@ -29,14 +29,13 @@ export default class InviteInfo extends Command {
 
   async run(
     command: ApplicationCommandMessage,
-    args: { invite?: { match: RegExpMatchArray; matches: RegExpExecArray[] } }
+    args: { invite?: { match: string } }
   ) {
     if (!this.command)
       this.command = this.client.getCommand("guild") as GuildCommand;
-    if (!args.invite?.match?.groups?.invite)
-      return await command.error("INVITEINFO_NO_INVITE");
+    if (!args.invite?.match) return await command.error("INVITEINFO_NO_INVITE");
     const invite = (await this.client
-      .fetchInvite(args.invite.match.groups.invite)
+      .fetchInvite(args.invite.match)
       .catch((e) => e)) as InviteWithGuildCounts | Error;
     if (invite instanceof Error)
       return await command.error("INVITEINFO_INVALID");
