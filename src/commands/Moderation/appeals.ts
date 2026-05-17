@@ -757,7 +757,7 @@ export default class Appeals extends Command {
         .setComponent(
           new TextInputComponent()
             .setCustomId("description")
-            .setRequired(false)
+            .setRequired(true)
             .setStyle(TextInputStyles.SHORT)
             .setMaxLength(100)
             .setValue(existing ? existing.description : undefined)
@@ -837,7 +837,7 @@ export default class Appeals extends Command {
         .setComponent(
           new TextInputComponent()
             .setCustomId("description")
-            .setRequired(false)
+            .setRequired(true)
             .setStyle(TextInputStyles.SHORT)
             .setMaxLength(100)
             .setValue(existing ? existing.description : undefined)
@@ -947,7 +947,7 @@ export default class Appeals extends Command {
         .setComponent(
           new TextInputComponent()
             .setCustomId("description")
-            .setRequired(false)
+            .setRequired(true)
             .setStyle(TextInputStyles.SHORT)
             .setMaxLength(100)
             .setValue(existing ? existing.description : undefined)
@@ -1055,7 +1055,7 @@ export default class Appeals extends Command {
         .setComponent(
           new TextInputComponent()
             .setCustomId("description")
-            .setRequired(false)
+            .setRequired(true)
             .setStyle(TextInputStyles.SHORT)
             .setMaxLength(100)
             .setValue(existing ? existing.description : undefined)
@@ -1117,7 +1117,7 @@ export default class Appeals extends Command {
         .setComponent(
           new TextInputComponent()
             .setCustomId("description")
-            .setRequired(false)
+            .setRequired(true)
             .setStyle(TextInputStyles.SHORT)
             .setMaxLength(100)
             .setValue(existing ? existing.description : undefined)
@@ -1229,7 +1229,7 @@ export default class Appeals extends Command {
         .setComponent(
           new TextInputComponent()
             .setCustomId("description")
-            .setRequired(false)
+            .setRequired(true)
             .setStyle(TextInputStyles.SHORT)
             .setMaxLength(100)
             .setValue(existing ? existing.description : undefined)
