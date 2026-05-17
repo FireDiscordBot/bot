@@ -14,6 +14,7 @@ import { MessageUtil } from "@fire/lib/ws/util/MessageUtil";
 import RolePersist from "@fire/src/commands/Premium/rolepersist";
 import { Snowflake } from "discord-api-types/globals";
 import {
+  APIRole,
   PermissionFlagsBits,
   RESTAPIPartialCurrentUserGuild,
 } from "discord-api-types/v9";
@@ -295,12 +296,34 @@ export default class GuildMemberUpdate extends Listener {
         ids.length != roles.length
       ) {
         const command = this.client.getCommand("rolepersist") as RolePersist;
+        const auditEntries = await newMember.guild.fetchAuditLogs({
+          type: "MEMBER_ROLE_UPDATE",
+          limit: 10,
+        });
+        const entry = auditEntries.entries.find(
+          (e) =>
+            e.targetId == newMember.id &&
+            e.changes.some(
+              (change) =>
+                change.key == "$remove" &&
+                roles.some(
+                  (role) =>
+                    Array.isArray(change.new) &&
+                    (change.new as Pick<APIRole, "id" | "name">[]).some(
+                      (c) => c.id == role.id
+                    )
+                )
+            )
+        );
+        const executor = await newMember.guild.members
+          .fetch(entry.executorId)
+          .catch(() => {});
         await command.sendLog(
           newMember,
           newMember.guild.roles.cache
             .filter((role) => ids.includes(role.id) && !roles.includes(role))
             .toJSON(),
-          newMember.guild.members.me as FireMember,
+          (executor ?? newMember.guild.members.me) as FireMember,
           newMember.guild.language.get("ROLEPERSIST_AUTO_REMOVE_REASON")
         );
       }
