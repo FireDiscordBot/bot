@@ -104,15 +104,20 @@ export default class ModlogsStats extends Command {
     input: string,
     context: ApplicationCommandMessage | ContextCommandMessage
   ) {
-    const { date: parsed } = parseTime(
-      input + " ago",
-      new Date(),
-      context.author.timezone,
-      context,
-      false
-    );
-    // check if truthy and not older than the bot (because that'd be pointless)
-    if (!parsed || +parsed <= 1526136073155) return null;
-    return parsed;
+    try {
+      const { date: parsed } = parseTime(
+        input + " ago",
+        new Date(),
+        context.author.timezone,
+        context,
+        false
+      );
+      // check if truthy and not older than the bot (because that'd be pointless)
+      if (!parsed || +parsed <= 1526136073155) return null;
+      return parsed;
+    } catch {
+      // likely invalid input, see FIRE-DT9
+      return null;
+    }
   }
 }
