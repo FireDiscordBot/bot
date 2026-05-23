@@ -5,6 +5,7 @@ import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
 import MCLogs from "@fire/src/modules/mclogs";
 import { Snowflake } from "discord-api-types/globals";
+import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   GuildChannel,
   MediaGalleryComponent,
@@ -79,21 +80,19 @@ export default class Message extends Listener {
       this.client.emit("channelPinsAdd", message.reference, message.member);
 
     const mcLogsModule = this.client.getModule("mclogs") as MCLogs;
-    // These won't run if the modules aren't loaded
+    // This won't run if the module isn't loaded
     await mcLogsModule?.checkLogs(message).catch(() => {});
-
-    // Ensures people get dehoisted/decancered even if
-    // Fire missed them joining/changing name
-    if (message.member) {
-      // This will check permissions & whether
-      // dehoist/decancer is enabled so no need for checks here
-      message.member.dehoistAndDecancer();
-    }
 
     await message.runAntiFilters().catch(() => {});
     await message.runPhishFilters().catch(() => {});
 
     if (!message.member || message.author.bot) return;
+
+    // Ensures people get dehoisted/decancered even if
+    // Fire missed them joining/changing name.
+    // This will check permissions & whether
+    // dehoist/decancer is enabled so no need for checks here
+    message.member.dehoistAndDecancer();
 
     if (
       message.guildId == "864592657572560958" &&
@@ -106,17 +105,28 @@ export default class Message extends Listener {
       return await message.delete().catch(() => {});
     else if (
       fourMediaDeletionGuilds.includes(message.guildId) &&
-      (message.attachments.size == 4 ||
-        (message.attachments.size == 3 &&
-          (!message.content ||
-            message.content.trim().toLowerCase() == "bro"))) &&
-      message.attachments.every(isMediaAttachment) &&
       !message.member.isModerator() &&
+      message.attachments.every(isMediaAttachment) &&
       !message.member.roles.cache.find(
         (role) => role.name == "TEMP MEDIA PERMISSIONS"
       ) &&
-      // avoid deleting intial message in forums
-      !(message.channel.isThread() && message.id == message.channelId)
+      (message.attachments.size == 4 ||
+        // also delete with 3 if no content or "bro" (since the bots love to say bro)
+        (message.attachments.size == 3 &&
+          (!message.content ||
+            message.content.trim().toLowerCase() == "bro"))) &&
+      // avoid deleting intial message in forums (they don't seem to create posts in forums)
+      !(message.channel.isThread() && message.id == message.channelId) &&
+      // avoid deleting if the user is explicitly allowed to view the channek
+      // (likely temporary channels, e.g. LFG in Essential Mod)
+      !(
+        (message.channel as GuildChannel).permissionOverwrites.cache.has(
+          message.author.id
+        ) &&
+        (message.channel as GuildChannel).permissionOverwrites.cache
+          .get(message.author.id)
+          .allow.has(PermissionFlagsBits.ViewChannel)
+      )
     ) {
       const alertsThread = await message.guild.channels
         .fetch(fourMediaThreads[message.guildId])
