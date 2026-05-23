@@ -432,6 +432,15 @@ export default class MCLogs extends Module {
     mclogsRes: MCLogsResponse
   ) {
     if ("error" in mclogsRes) return;
+    else if (
+      message instanceof ApplicationCommandMessage &&
+      !mclogsRes.analysis.solutions.length &&
+      !mclogsRes.analysis.recommendations.length &&
+      !mclogsRes.analysis.blame.length
+    )
+      return await message.error("MC_LOG_NO_INFORMATION", {
+        logType: mclogsRes.logType ?? "LOG",
+      });
     const haste = mclogsRes.paste ? new URL(mclogsRes.paste) : null;
     let hasteRaw: URL;
     if (haste) {
@@ -490,7 +499,11 @@ export default class MCLogs extends Module {
                     ? haste.toString()
                     : "https://google.com/something_broke_lol"
                 )
-                .setLabel(language.get(`MC_LOG_VIEW_${mclogsRes.logType}`)),
+                .setLabel(
+                  language.get("MC_LOG_VIEW_LOG", {
+                    logType: mclogsRes.logType,
+                  })
+                ),
               new MessageButton()
                 .setStyle("LINK")
                 .setURL(
@@ -498,7 +511,11 @@ export default class MCLogs extends Module {
                     ? hasteRaw.toString()
                     : "https://google.com/something_broke_lol"
                 )
-                .setLabel(language.get(`MC_LOG_VIEW_${mclogsRes.logType}_RAW`)),
+                .setLabel(
+                  language.get("MC_LOG_VIEW_LOG_RAW", {
+                    logType: mclogsRes.logType,
+                  })
+                ),
               new MessageButton()
                 .setStyle("PRIMARY")
                 .setCustomId("!mclogscan:solution")
