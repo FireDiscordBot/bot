@@ -306,24 +306,26 @@ export default class GuildMemberUpdate extends Listener {
             e.changes.some(
               (change) =>
                 change.key == "$remove" &&
-                roles.some(
-                  (role) =>
+                ids.some(
+                  (id) =>
                     Array.isArray(change.new) &&
                     (change.new as Pick<APIRole, "id" | "name">[]).some(
-                      (c) => c.id == role.id
+                      (c) => c.id == id
                     )
                 )
             )
         );
-        const executor = await newMember.guild.members
-          .fetch(entry.executorId)
-          .catch(() => {});
+        let executor = newMember.guild.members.me;
+        if (entry && entry.executorId)
+          executor = await newMember.guild.members
+            .fetch(entry.executorId)
+            .catch(() => executor);
         await command.sendLog(
           newMember,
           newMember.guild.roles.cache
             .filter((role) => ids.includes(role.id) && !roles.includes(role))
             .toJSON(),
-          (executor ?? newMember.guild.members.me) as FireMember,
+          executor as FireMember,
           newMember.guild.language.get("ROLEPERSIST_AUTO_REMOVE_REASON")
         );
       }
