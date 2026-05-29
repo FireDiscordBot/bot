@@ -52,6 +52,7 @@
     "remove-markdown": "^0.6.3",
     "semaphore-async-await": "^1.5.1",
     "semver": "^7.7.3",
+    "tesseract.js": "^7.0.0",
     "tinycolor2": "^1.6.0",
     "ts-postgres": "^2.0.4",
     "typescript": "^5.9.3",

@@ -4,12 +4,14 @@ import { constants } from "@fire/lib/util/constants";
 import { Listener } from "@fire/lib/util/listener";
 import Filters from "@fire/src/modules/filters";
 import MCLogs from "@fire/src/modules/mclogs";
+import centra from "centra";
 import { Snowflake } from "discord-api-types/globals";
 import { PermissionFlagsBits } from "discord-api-types/v9";
 import {
   GuildChannel,
   MediaGalleryComponent,
   MediaGalleryItem,
+  MessageAttachment,
   SeparatorComponent,
   TextDisplayComponent,
 } from "discord.js";
@@ -61,6 +63,8 @@ const fourMediaThreads = {
   "1255986894513246280": "1501164234623680617",
 };
 const fourMediaDeletionGuilds = Object.keys(fourMediaThreads);
+const SCAM_KEYWORDS = ["mrbeast", "withdraw", "crypto", "promo", "bonus"];
+const KNOWN_BLURHASHES: string[][] = [];
 
 export default class Message extends Listener {
   recentTokens: string[];
@@ -96,7 +100,9 @@ export default class Message extends Listener {
 
     if (
       message.guildId == "864592657572560958" &&
-      message.attachments.some((attach) => attach.name.endsWith(".zip")) &&
+      message.attachments.some(
+        (attach) => attach.name.endsWith(".zip") || attach.name.endsWith(".jar")
+      ) &&
       (message.channel as FireTextChannel).parentId != "1033867272260943893" &&
       (message.channel as FireTextChannel).parentId != "1033869240274526311" &&
       (message.channel as FireTextChannel).parentId != "1033869280938307625" &&
@@ -104,17 +110,13 @@ export default class Message extends Listener {
     )
       return await message.delete().catch(() => {});
     else if (
+      process.env.NODE_ENV == "production" &&
       fourMediaDeletionGuilds.includes(message.guildId) &&
       !message.member.isModerator() &&
       message.attachments.every(isMediaAttachment) &&
       !message.member.roles.cache.find(
         (role) => role.name == "TEMP MEDIA PERMISSIONS"
       ) &&
-      (message.attachments.size == 4 ||
-        // also delete with 3 if no content or "bro" (since the bots love to say bro)
-        (message.attachments.size == 3 &&
-          (!message.content ||
-            message.content.trim().toLowerCase() == "bro"))) &&
       // avoid deleting intial message in forums (they don't seem to create posts in forums)
       !(message.channel.isThread() && message.id == message.channelId) &&
       // avoid deleting if the user is explicitly allowed to view the channek
@@ -128,49 +130,114 @@ export default class Message extends Listener {
           .allow.has(PermissionFlagsBits.ViewChannel)
       )
     ) {
-      const alertsThread = await message.guild.channels
-        .fetch(fourMediaThreads[message.guildId])
-        .catch(() => {});
-      const deleteMessage = () =>
-        message.delete({ reason: "four media deletion" }).catch((e) => {
-          this.console.error(
-            `Failed to delete possible scam message in ${message.guild} (${message.guildId}) from author ${message.author} (${message.author.id})`,
-            e
-          );
-        });
-      // isThread gives type guard to ensure #send doesn't complain
-      // since not all guild channels can have messages
-      if (alertsThread && alertsThread.isThread?.()) {
-        const deleteTimeout = setTimeout(deleteMessage, 10_000);
-        return await alertsThread
-          .send({
-            components: [
-              new TextDisplayComponent({
-                content: `Deleted message from ${message.author.toMention()} (${message.author.id}) in ${message.channel} due to ${message.attachments.size} media attachments\n${message.attachments.map((a) => a.name).join(", ")}`,
-              }),
-              new SeparatorComponent().setSpacing("SMALL").displayDivider(true),
-              message.content
-                ? new TextDisplayComponent({ content: message.content })
-                : undefined,
-              new MediaGalleryComponent().addItems(
-                message.attachments.map((attach) =>
-                  new MediaGalleryItem()
-                    .setMedia(attach.proxyURL)
-                    .setDescription(attach.description)
-                    .setSpoiler(attach.spoiler)
-                )
-              ),
-            ].filter(Boolean),
-            allowedMentions: {
-              users: [message.author.id],
-            },
-          })
-          .then(() => {
-            clearTimeout(deleteTimeout);
-            deleteMessage();
-          })
-          .catch(() => {});
-      } else return await deleteMessage();
+      const isKnownBlurHashes = KNOWN_BLURHASHES.some((hashes) =>
+        hashes.every((hash) =>
+          message.attachments.find((a) => a.placeholder == hash)
+        )
+      );
+
+      const images: Record<string, Buffer> = {};
+      if (!isKnownBlurHashes)
+        for (const attachment of message.attachments.values()) {
+          const res = await centra(attachment.url)
+            .header("User-Agent", this.client.manager.ua)
+            .send()
+            .catch(() => {});
+          if (res && res.statusCode == 200) images[attachment.id] = res.body;
+        }
+
+      const imageCount = isKnownBlurHashes
+        ? message.attachments.size
+        : Object.keys(images).length;
+      if (imageCount) {
+        const worker = await this.client.util.getTesseractWorker();
+
+        let isMatch = isKnownBlurHashes;
+        for (const image of Object.values(images)) {
+          if (isMatch) continue;
+          let {
+            data: { text },
+          } = await worker
+            .recognize(image)
+            .catch(() => ({ data: { text: "" } }));
+          text = text.toLowerCase();
+          isMatch ||=
+            SCAM_KEYWORDS.filter((word) => text.includes(word)).length >=
+            message.guild.settings.get<number>(
+              "fourmediadeletion.threshold",
+              2
+            );
+        }
+
+        if (isMatch) {
+          if (!isKnownBlurHashes)
+            KNOWN_BLURHASHES.push(
+              message.attachments.map((a) => a.placeholder)
+            );
+          const alertsThread = await message.guild.channels
+            .fetch(fourMediaThreads[message.guildId])
+            .catch(() => {});
+          let deleted = null;
+          await message
+            .delete({ reason: "four media deletion" })
+            .then(() => (deleted = true))
+            .catch((e) => {
+              deleted = false;
+              this.console.error(
+                `Failed to delete possible scam message in ${message.guild} (${message.guildId}) from author ${message.author} (${message.author.id})`,
+                e
+              );
+            });
+          // isThread gives type guard to ensure #send doesn't complain
+          // since not all guild channels can have messages
+          if (alertsThread && alertsThread.isThread?.()) {
+            return await alertsThread
+              .send({
+                components: [
+                  new TextDisplayComponent({
+                    content: `${deleted ? "Deleted" : deleted == null ? "Detected" : "Failed to delete"} likely${isKnownBlurHashes ? "*" : ""} scam message from ${message.author.toMention()} (${message.author.id}) in ${message.channel}\n${message.attachments.map((a) => `${a.name} (${a.placeholder})`).join(", ")}`,
+                  }),
+                  new SeparatorComponent()
+                    .setSpacing("SMALL")
+                    .displayDivider(true),
+                  message.content
+                    ? new TextDisplayComponent({ content: message.content })
+                    : undefined,
+                  new MediaGalleryComponent().addItems(
+                    message.attachments
+                      .filter(
+                        (attachment) =>
+                          isKnownBlurHashes || !!images[attachment.id]
+                      )
+                      .map((attach) =>
+                        new MediaGalleryItem()
+                          .setMedia(
+                            isKnownBlurHashes
+                              ? attach.proxyURL
+                              : `attachment://${attach.id}.${attach.name.split(".").at(-1)}`
+                          )
+                          .setDescription(attach.description)
+                          .setSpoiler(attach.spoiler)
+                      )
+                  ),
+                ].filter(Boolean),
+                allowedMentions: {
+                  users: [message.author.id],
+                },
+                files: isKnownBlurHashes
+                  ? []
+                  : Object.entries(images).map(
+                      ([id, data]) =>
+                        new MessageAttachment(
+                          data,
+                          `${id}.${message.attachments.get(id).name.split(".").at(-1)}`
+                        )
+                    ),
+              })
+              .catch(() => {});
+          }
+        }
+      }
     } else if (
       message.member.roles.cache.has("886669291439656970") &&
       (message.attachments.size || message.embeds.length) &&

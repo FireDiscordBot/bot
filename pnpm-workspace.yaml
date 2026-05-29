@@ -1,4 +1,6 @@
-onlyBuiltDependencies:
-  - discord.js
 allowBuilds:
   discord.js: true
+  tesseract.js: true
+
+onlyBuiltDependencies:
+  - discord.js

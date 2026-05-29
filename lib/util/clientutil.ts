@@ -36,6 +36,11 @@ import FormData from "form-data";
 import { cpus, totalmem } from "os";
 import pidusage from "pidusage";
 import { Readable } from "stream";
+import Tesseract, {
+  OEM,
+  PSM,
+  createWorker as createTesseract,
+} from "tesseract.js";
 import { ApplicationCommandMessage } from "../extensions/appcommandmessage";
 import {
   JoinSourceType,
@@ -177,7 +182,9 @@ export class Util extends ClientUtil {
   mcProfileCache: Collection<string, MojangProfile & { retrievedAt: Date }>;
   permissionFlags: [PermissionString, bigint][];
   premium: Collection<string, PremiumData>;
+  tesseract: Tesseract.Worker;
   hasRoleUpdates: string[];
+  tesseractCreated: Date;
   declare client: Fire;
   plonked: string[];
   admins: string[];
@@ -1431,5 +1438,17 @@ export class Util extends ClientUtil {
     if (req && (req.statusCode == 200 || req.statusCode == 206))
       return req.body.toString();
     else return "";
+  }
+
+  async getTesseractWorker() {
+    if (!this.tesseract || +new Date() - +this.tesseractCreated >= 43_200_000) {
+      this.tesseract = await createTesseract("eng", OEM.LSTM_ONLY, {
+        workerBlobURL: false,
+        logger: () => {},
+      });
+      this.tesseract.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT });
+      this.tesseractCreated = new Date();
+      return this.tesseract;
+    } else return this.tesseract;
   }
 }
