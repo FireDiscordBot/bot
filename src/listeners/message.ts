@@ -204,23 +204,23 @@ export default class Message extends Listener {
                   message.content
                     ? new TextDisplayComponent({ content: message.content })
                     : undefined,
-                  new MediaGalleryComponent().addItems(
-                    message.attachments
-                      .filter(
-                        (attachment) =>
-                          isKnownBlurHashes || !!images[attachment.id]
-                      )
-                      .map((attach) =>
-                        new MediaGalleryItem()
-                          .setMedia(
-                            isKnownBlurHashes
-                              ? attach.proxyURL
-                              : `attachment://${attach.id}.${attach.name.split(".").at(-1)}`
+                  isKnownBlurHashes
+                    ? undefined
+                    : new MediaGalleryComponent().addItems(
+                        message.attachments
+                          .filter(
+                            (attachment) =>
+                              isKnownBlurHashes || !!images[attachment.id]
                           )
-                          .setDescription(attach.description)
-                          .setSpoiler(attach.spoiler)
-                      )
-                  ),
+                          .map((attach) =>
+                            new MediaGalleryItem()
+                              .setMedia(
+                                `attachment://${attach.id}.${attach.name.split(".").at(-1)}`
+                              )
+                              .setDescription(attach.description)
+                              .setSpoiler(attach.spoiler)
+                          )
+                      ),
                 ].filter(Boolean),
                 allowedMentions: {
                   users: [message.author.id],
