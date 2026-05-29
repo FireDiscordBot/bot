@@ -113,6 +113,7 @@ export default class Message extends Listener {
       process.env.NODE_ENV == "production" &&
       fourMediaDeletionGuilds.includes(message.guildId) &&
       !message.member.isModerator() &&
+      message.attachments.size &&
       message.attachments.every(isMediaAttachment) &&
       !message.member.roles.cache.find(
         (role) => role.name == "TEMP MEDIA PERMISSIONS"
