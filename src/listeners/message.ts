@@ -175,9 +175,6 @@ export default class Message extends Listener {
             KNOWN_BLURHASHES.push(
               message.attachments.map((a) => a.placeholder)
             );
-          const alertsThread = await message.guild.channels
-            .fetch(fourMediaThreads[message.guildId])
-            .catch(() => {});
           let deleted = null;
           await message
             .delete({ reason: "four media deletion" })
@@ -189,6 +186,9 @@ export default class Message extends Listener {
                 e
               );
             });
+          const alertsThread = await message.guild.channels
+            .fetch(fourMediaThreads[message.guildId])
+            .catch(() => {});
           // isThread gives type guard to ensure #send doesn't complain
           // since not all guild channels can have messages
           if (alertsThread && alertsThread.isThread?.()) {
