@@ -37,6 +37,7 @@ import {
   TextDisplayComponent,
   TextInputComponent,
   ThumbnailComponent,
+  Util,
 } from "discord.js";
 import {
   ChannelTypes,
@@ -364,15 +365,15 @@ export default class Appeals extends Command {
               ? "APPEAL_SUBMIT_HEADER"
               : "APPEAL_SUBMIT_HEADER_DISPLAY",
             {
-              displayName: user.displayName,
-              username: user.username,
+              displayName: Util.escapeMarkdown(user.displayName),
+              username: Util.escapeMarkdown(user.username),
             }
           ),
         }),
         new TextDisplayComponent({
           content:
             language.get("APPEAL_SUBMIT_BANNED_BY", {
-              username: moderator.username,
+              username: Util.escapeMarkdown(moderator.username),
               id: moderator.id,
             }) +
             "\n" +
