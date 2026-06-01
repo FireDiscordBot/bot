@@ -765,7 +765,11 @@ export class FireMessage extends Message {
       components = [
         new ContainerComponent()
           .setColor("#5765F2")
-          .setComponents(this.getAutomodComponents(destinationGuild.language)),
+          .setComponents(
+            this.getAutomodComponents(
+              destinationGuild?.language ?? quoter.language
+            )
+          ),
       ];
     else if (content) {
       if (!quoter?.isSuperuser() && !this.system) {
@@ -808,7 +812,9 @@ export class FireMessage extends Message {
           else if (!canView)
             content = content.replaceAll(
               channel.toString(),
-              destinationGuild.language.get("QUOTE_CHANNEL_NO_ACCESS")
+              (destinationGuild?.language ?? quoter.language).get(
+                "QUOTE_CHANNEL_NO_ACCESS"
+              )
             );
         }
 
