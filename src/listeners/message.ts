@@ -231,7 +231,7 @@ export default class Message extends Listener {
                       ([id, data]) =>
                         new MessageAttachment(
                           data,
-                          `${id}.${message.attachments.get(id).name.split(".").at(-1)}`
+                          `${id}.${message.attachments.get(id).name?.split(".").at(-1) ?? "jpeg"}`
                         )
                     ),
               })
