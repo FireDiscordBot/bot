@@ -144,7 +144,12 @@ export default class Message extends Listener {
             .header("User-Agent", this.client.manager.ua)
             .send()
             .catch(() => {});
-          if (res && res.statusCode == 200) images[attachment.id] = res.body;
+          if (
+            res &&
+            res.statusCode == 200 &&
+            res.headers["content-type"]?.startsWith("image/")
+          )
+            images[attachment.id] = res.body;
         }
 
       const imageCount = isKnownBlurHashes
@@ -155,7 +160,7 @@ export default class Message extends Listener {
 
         let isMatch = isKnownBlurHashes;
         for (const image of Object.values(images)) {
-          if (isMatch) continue;
+          if (isMatch || !image.byteLength) continue;
           let {
             data: { text },
           } = await worker
