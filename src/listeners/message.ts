@@ -98,9 +98,13 @@ export default class Message extends Listener {
     // dehoist/decancer is enabled so no need for checks here
     message.member.dehoistAndDecancer();
 
+    const attachmentsToCheck = message.messageSnapshots.size
+      ? message.messageSnapshots.first().attachments
+      : message.attachments;
+
     if (
       message.guildId == "864592657572560958" &&
-      message.attachments.some(
+      attachmentsToCheck.some(
         (attach) => attach.name.endsWith(".zip") || attach.name.endsWith(".jar")
       ) &&
       (message.channel as FireTextChannel).parentId != "1033867272260943893" &&
@@ -113,8 +117,8 @@ export default class Message extends Listener {
       process.env.NODE_ENV == "production" &&
       fourMediaDeletionGuilds.includes(message.guildId) &&
       !message.member.isModerator() &&
-      message.attachments.size &&
-      message.attachments.every(isMediaAttachment) &&
+      attachmentsToCheck.size &&
+      attachmentsToCheck.every(isMediaAttachment) &&
       !message.member.roles.cache.find(
         (role) => role.name == "TEMP MEDIA PERMISSIONS"
       ) &&
@@ -133,13 +137,13 @@ export default class Message extends Listener {
     ) {
       const isKnownBlurHashes = KNOWN_BLURHASHES.some((hashes) =>
         hashes.every((hash) =>
-          message.attachments.find((a) => a.placeholder == hash)
+          attachmentsToCheck.find((a) => a.placeholder == hash)
         )
       );
 
       const images: Record<string, Buffer> = {};
       if (!isKnownBlurHashes)
-        for (const attachment of message.attachments.values()) {
+        for (const attachment of attachmentsToCheck.values()) {
           const res = await centra(attachment.url)
             .header("User-Agent", this.client.manager.ua)
             .send()
@@ -153,7 +157,7 @@ export default class Message extends Listener {
         }
 
       const imageCount = isKnownBlurHashes
-        ? message.attachments.size
+        ? attachmentsToCheck.size
         : Object.keys(images).length;
       if (imageCount) {
         const worker = await this.client.util.getTesseractWorker();
@@ -177,9 +181,7 @@ export default class Message extends Listener {
 
         if (isMatch) {
           if (!isKnownBlurHashes)
-            KNOWN_BLURHASHES.push(
-              message.attachments.map((a) => a.placeholder)
-            );
+            KNOWN_BLURHASHES.push(attachmentsToCheck.map((a) => a.placeholder));
           let deleted = null;
           await message
             .delete({ reason: "four media deletion" })
@@ -201,7 +203,7 @@ export default class Message extends Listener {
               .send({
                 components: [
                   new TextDisplayComponent({
-                    content: `${deleted ? "Deleted" : deleted == null ? "Detected" : "Failed to delete"} likely${isKnownBlurHashes ? "*" : ""} scam message from ${message.author.toMention()} (${message.author.id}) in ${message.channel}\n${message.attachments.map((a) => `${a.name} (${a.placeholder})`).join(", ")}`,
+                    content: `${deleted ? "Deleted" : deleted == null ? "Detected" : "Failed to delete"} likely${isKnownBlurHashes ? "*" : ""} scam message from ${message.author.toMention()} (${message.author.id}) in ${message.channel}\n${attachmentsToCheck.map((a) => `${a.name} (${a.placeholder})`).join(", ")}`,
                   }),
                   new SeparatorComponent()
                     .setSpacing("SMALL")
@@ -212,7 +214,7 @@ export default class Message extends Listener {
                   isKnownBlurHashes
                     ? undefined
                     : new MediaGalleryComponent().addItems(
-                        message.attachments
+                        attachmentsToCheck
                           .filter(
                             (attachment) =>
                               isKnownBlurHashes || !!images[attachment.id]
@@ -236,7 +238,7 @@ export default class Message extends Listener {
                       ([id, data]) =>
                         new MessageAttachment(
                           data,
-                          `${id}.${message.attachments.get(id).name?.split(".").at(-1) ?? "jpeg"}`
+                          `${id}.${attachmentsToCheck.get(id).name?.split(".").at(-1) ?? "jpeg"}`
                         )
                     ),
               })
@@ -246,7 +248,7 @@ export default class Message extends Listener {
       }
     } else if (
       message.member.roles.cache.has("886669291439656970") &&
-      (message.attachments.size || message.embeds.length) &&
+      (attachmentsToCheck.size || message.embeds.length) &&
       !message.member.isModerator()
     )
       return await message.delete().catch(() => {});
