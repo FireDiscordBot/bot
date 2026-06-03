@@ -63,7 +63,19 @@ const fourMediaThreads = {
   "1255986894513246280": "1501164234623680617",
 };
 const fourMediaDeletionGuilds = Object.keys(fourMediaThreads);
-const SCAM_KEYWORDS = ["mrbeast", "withdraw", "crypto", "promo", "bonus"];
+const SCAM_KEYWORDS = [
+  "mrbeast",
+  "withdraw",
+  "crypto",
+  "casino",
+  "promo",
+  "bonus",
+  "bet.cc",
+  "coin",
+  "10,822.54",
+  "+10 823",
+  "hobocthu",
+];
 const KNOWN_BLURHASHES: string[][] = [];
 
 export default class Message extends Listener {
@@ -114,7 +126,7 @@ export default class Message extends Listener {
     )
       return await message.delete().catch(() => {});
     else if (
-      process.env.NODE_ENV == "production" &&
+      process.env.NODE_ENV != "staging" &&
       fourMediaDeletionGuilds.includes(message.guildId) &&
       !message.member.isModerator() &&
       attachmentsToCheck.size &&

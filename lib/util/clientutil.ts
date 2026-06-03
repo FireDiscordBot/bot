@@ -1446,7 +1446,10 @@ export class Util extends ClientUtil {
         workerBlobURL: false,
         logger: () => {},
       });
-      this.tesseract.setParameters({ tessedit_pageseg_mode: PSM.SPARSE_TEXT });
+      this.tesseract.setParameters({
+        tessedit_pageseg_mode: PSM.SPARSE_TEXT,
+        debug_file: "/dev/null",
+      });
       this.tesseractCreated = new Date();
       return this.tesseract;
     } else return this.tesseract;
