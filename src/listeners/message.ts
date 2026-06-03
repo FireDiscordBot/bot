@@ -127,7 +127,8 @@ export default class Message extends Listener {
       return await message.delete().catch(() => {});
     else if (
       process.env.NODE_ENV != "staging" &&
-      fourMediaDeletionGuilds.includes(message.guildId) &&
+      (fourMediaDeletionGuilds.includes(message.guildId) ||
+        message.guild.settings.has("fourmediadeletion.thread")) &&
       !message.member.isModerator() &&
       attachmentsToCheck.size &&
       attachmentsToCheck.every(isMediaAttachment) &&
@@ -206,7 +207,12 @@ export default class Message extends Listener {
               );
             });
           const alertsThread = await message.guild.channels
-            .fetch(fourMediaThreads[message.guildId])
+            .fetch(
+              fourMediaThreads[message.guildId] ??
+                message.guild.settings.get<Snowflake>(
+                  "fourmediadeletion.thread"
+                )
+            )
             .catch(() => {});
           // isThread gives type guard to ensure #send doesn't complain
           // since not all guild channels can have messages
