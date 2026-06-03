@@ -27,7 +27,11 @@ export default class RateLimit extends Listener {
         this.limited = this.limited.filter((route) => route != rateLimit.route);
       }, rateLimit.timeout);
     }
-    if (rateLimit.route.includes("/messages/:id/reactions")) return;
+    if (
+      rateLimit.route.includes("/messages/:id/reactions") ||
+      rateLimit.route.includes("members-search")
+    )
+      return;
     if (this.last == rateLimit.route) return;
     else this.last = rateLimit.route;
     if (rateLimit.limit == Infinity) return;
