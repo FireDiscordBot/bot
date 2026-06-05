@@ -110,9 +110,13 @@ export default class Message extends Listener {
     // dehoist/decancer is enabled so no need for checks here
     message.member.dehoistAndDecancer();
 
-    const attachmentsToCheck = message.messageSnapshots.size
-      ? message.messageSnapshots.first().attachments
-      : message.attachments;
+    const attachmentsToCheck = (
+      message.messageSnapshots.size
+        ? message.messageSnapshots.first().attachments
+        : message.attachments
+    )
+      // limit to 1.5MiB
+      .filter((attachment) => attachment.size <= 1_572_864);
 
     if (
       message.guildId == "864592657572560958" &&
