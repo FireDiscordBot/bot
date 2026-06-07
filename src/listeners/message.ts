@@ -116,7 +116,13 @@ export default class Message extends Listener {
         : message.attachments
     )
       // limit to 1.5MiB
-      .filter((attachment) => attachment.size <= 1_572_864);
+      .filter((attachment) => attachment.size <= 1_572_864)
+      // limit to non-GIF images
+      .filter(
+        (attachment) =>
+          attachment.contentType.startsWith("image/") &&
+          attachment.contentType != "image/gif"
+      );
 
     if (
       message.guildId == "864592657572560958" &&
@@ -152,6 +158,8 @@ export default class Message extends Listener {
           .allow.has(PermissionFlagsBits.ViewChannel)
       )
     ) {
+      // we only check for exact matches on all attachments to limit
+      // potential false positives
       const isKnownBlurHashes = KNOWN_BLURHASHES.some((hashes) =>
         hashes.every((hash) =>
           attachmentsToCheck.find((a) => a.placeholder == hash)
@@ -165,12 +173,7 @@ export default class Message extends Listener {
             .header("User-Agent", this.client.manager.ua)
             .send()
             .catch(() => {});
-          if (
-            res &&
-            res.statusCode == 200 &&
-            res.headers["content-type"]?.startsWith("image/")
-          )
-            images[attachment.id] = res.body;
+          if (res && res.statusCode == 200) images[attachment.id] = res.body;
         }
 
       const imageCount = isKnownBlurHashes
