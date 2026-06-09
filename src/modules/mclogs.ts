@@ -611,7 +611,7 @@ export default class MCLogs extends Module {
 
     const solutions =
       mclogsRes.analysis.solutions.length && !mclogsRes.analysis.unsupported
-        ? `## ${message.guild.language.get("MC_LOG_POSSIBLE_SOLUTIONS")}:\n${mclogsRes.analysis.solutions
+        ? `## ${(message.guild ?? message.author).language.get("MC_LOG_POSSIBLE_SOLUTIONS")}:\n${mclogsRes.analysis.solutions
             .map((s) => `- **${s}**`)
             .join("\n")}`
         : "";
@@ -633,13 +633,15 @@ export default class MCLogs extends Module {
     const blame = possibleCulprits.length
       ? `${
           mclogsRes.analysis.solutions.length ? "\n" : ""
-        }### ${message.guild.language.get("MC_LOG_POTENTIAL_CULPRITS")}:\n${possibleCulprits.map((s) => `- ${s}`).join("\n")}`
+        }### ${(message.guild ?? message.author).language.get("MC_LOG_POTENTIAL_CULPRITS")}:\n${possibleCulprits.map((s) => `- ${s}`).join("\n")}`
       : "";
 
     const recommendations =
       mclogsRes.analysis.recommendations.length &&
       !mclogsRes.analysis.unsupported
-        ? `${mclogsRes.analysis.solutions.length || mclogsRes.analysis.blame.length ? "\n\n" : ""}${message.guild.language.get(
+        ? `${mclogsRes.analysis.solutions.length || mclogsRes.analysis.blame.length ? "\n\n" : ""}${(
+            message.guild ?? message.author
+          ).language.get(
             "MC_LOG_RECOMMENDATIONS"
           )}:\n${mclogsRes.analysis.recommendations.map((r) => `- ${r}`).join("\n")}`
         : "";
