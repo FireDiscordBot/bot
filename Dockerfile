@@ -6,13 +6,13 @@ RUN corepack enable
 ## Dependencies (production)
 FROM base AS dependencies
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN HUSKY=0 pnpm install --prod --frozen-lockfile --ignore-scripts
+RUN HUSKY=0 pnpm install --prod --frozen-lockfile --ignore-scripts --dangerously-allow-all-builds
 
 ## Builder
 FROM base AS builder
 RUN apk add --no-cache git
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-RUN HUSKY=0 pnpm install --frozen-lockfile
+RUN HUSKY=0 pnpm install --frozen-lockfile --dangerously-allow-all-builds
 
 COPY . .
 
