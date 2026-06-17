@@ -75,8 +75,15 @@ const SCAM_KEYWORDS = [
   "10,822.54",
   "+10 823",
   "hobocthu",
+  "locker",
+  "value",
+  "fn.gg",
+  "fortnite", // unlikely to trigger on actual fortnite based on the servers it's enabled in
+  "starcheck",
+  "market",
+  "prices",
 ];
-const KNOWN_BLURHASHES: string[][] = [];
+export const KNOWN_BLURHASHES: string[][] = [];
 
 export default class Message extends Listener {
   recentTokens: string[];
