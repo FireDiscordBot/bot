@@ -133,7 +133,7 @@ export default class Message extends Listener {
 
     if (
       message.guildId == "864592657572560958" &&
-      attachmentsToCheck.some(
+      message.attachments.some(
         (attach) => attach.name.endsWith(".zip") || attach.name.endsWith(".jar")
       ) &&
       (message.channel as FireTextChannel).parentId != "1033867272260943893" &&
