@@ -867,7 +867,14 @@ export class FireMember extends GuildMember {
     sendDM: boolean = true
   ) {
     if (!reason || !moderator) return null;
-    if (!moderator.isModerator(channel)) return "FORBIDDEN";
+    else if (!moderator.isModerator(channel)) return "FORBIDDEN";
+    else if (
+      this.roles.highest.position >=
+        this.guild.members.me.roles.highest.position ||
+      this.roles.highest.position >= moderator.roles.highest.position
+    )
+      return "HIGHER";
+
     const logEntry = await this.createModLogEntry(
       moderator,
       ModLogTypes.KICK,
@@ -953,6 +960,13 @@ export class FireMember extends GuildMember {
   ) {
     if (!reason || !moderator) return null;
     if (!moderator.isModerator(channel)) return "FORBIDDEN";
+    else if (
+      this.roles.highest.position >=
+        this.guild.members.me.roles.highest.position ||
+      this.roles.highest.position >= moderator.roles.highest.position
+    )
+      return "HIGHER";
+
     const logEntry = await this.createModLogEntry(
       moderator,
       ModLogTypes.DERANK,
@@ -1060,7 +1074,14 @@ export class FireMember extends GuildMember {
         PermissionFlagsBits.ModerateMembers
       );
     if (!reason || !moderator) return null;
-    if (!moderator.isModerator(channel)) return "FORBIDDEN";
+    else if (!moderator.isModerator(channel)) return "FORBIDDEN";
+    else if (
+      this.roles.highest.position >=
+        this.guild.members.me.roles.highest.position ||
+      this.roles.highest.position >= moderator.roles.highest.position
+    )
+      return "HIGHER";
+
     let useEdit = false;
     if (!this.guild.muteRole && !canTimeOut) {
       if (channel) {
