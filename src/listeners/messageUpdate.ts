@@ -66,9 +66,13 @@ export default class MessageUpdate extends Listener {
     }
 
     const filters = this.client.getModule("filters") as Filters;
-    await filters?.runAll(after, messageListener.cleanContent(after));
+    const isEdited = !!after.editedAt,
+      hasEmbeds = after.embeds.length > 0,
+      isAutoMod = after.type == "AUTO_MODERATION_ACTION";
+    if (isEdited || (hasEmbeds && !isAutoMod))
+      await filters?.runAll(after, messageListener.cleanContent(after));
 
-    if (before.content.trim() == after.content.trim()) return;
+    if (!before || before.content.trim() == after.content.trim()) return;
 
     if (
       guild?.settings.has("log.action") &&
