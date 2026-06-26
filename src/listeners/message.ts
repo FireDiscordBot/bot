@@ -127,7 +127,7 @@ export default class Message extends Listener {
       // limit to non-GIF images
       .filter(
         (attachment) =>
-          attachment.contentType.startsWith("image/") &&
+          attachment.contentType?.startsWith("image/") &&
           attachment.contentType != "image/gif"
       );
 
