@@ -667,7 +667,7 @@ export class FireGuild extends Guild {
       !this.logger ||
       !this.logger.isMembersEnabled() ||
       !this.logger.isMembersTypeEnabled(MemberLogTypes.JOIN) ||
-      !this.logger.getMembersWebhook()
+      !(await this.logger.getMembersWebhook().catch(() => {}))
     )
       return;
 
@@ -793,20 +793,21 @@ export class FireGuild extends Guild {
     }
 
     const memberWebhook = await this.logger.getMembersWebhook();
-    for (const id of edited) {
-      const message = lastHundred.get(id);
-      // in theory message should always be truthy
-      //. but we'll check just in case
-      if (
-        message &&
-        (!message.webhookId || message.webhookId == memberWebhook.id)
-      )
-        message.webhookId
-          ? await memberWebhook
-              .editMessage(message, { embeds: message.embeds })
-              .catch(() => {})
-          : await message.edit({ embeds: message.embeds }).catch(() => {});
-    }
+    if (memberWebhook && memberWebhook.id)
+      for (const id of edited) {
+        const message = lastHundred.get(id);
+        // in theory message should always be truthy
+        //. but we'll check just in case
+        if (
+          message &&
+          (!message.webhookId || message.webhookId == memberWebhook.id)
+        )
+          message.webhookId
+            ? await memberWebhook
+                .editMessage(message, { embeds: message.embeds })
+                .catch(() => {})
+            : await message.edit({ embeds: message.embeds }).catch(() => {});
+      }
 
     if (!anyInviteLog && depth <= 5 && lastHundred.size) {
       this.membersSearchLock.release();
