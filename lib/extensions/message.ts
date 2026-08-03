@@ -2522,6 +2522,7 @@ export class FireMessage extends Message {
     );
     if (limitedChannels.length && !limitedChannels.includes(this.channel.id))
       return;
+    if ("nsfw" in this.channel && this.channel.nsfw && !starboard.nsfw) return;
 
     if (!this.guild.starboardReactions)
       await this.guild.loadStarboardReactions();
