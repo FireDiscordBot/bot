@@ -134,8 +134,11 @@ export default class MessageInvalid extends Listener {
 
     const quoteCommand = this.client.getCommand("quote") as Quote;
 
+    // early return if disabled to avoid running regexes only to be
+    // hit with the disabledcommands inhibitor later
     if (
       quoteCommand?.isDisabled(message.guild) &&
+      !message.member?.isModerator(message.channel) &&
       !message.author?.isSuperuser()
     ) {
       this.cleanCommandUtil(message);
