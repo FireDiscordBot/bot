@@ -82,6 +82,17 @@ const SCAM_KEYWORDS = [
   "starcheck",
   "market",
   "prices",
+  "contents exclusive",
+  "in cam",
+  "cams",
+  "no limits",
+  "what todo",
+  "what to do",
+
+  // might not be a scam but I believe all enabled servers block invites
+  // under advertising rules and we require more than one scam keyword
+  // to be present for actionn to be taken
+  "discord.gg",
 ];
 export const KNOWN_BLURHASHES: string[][] = [];
 
