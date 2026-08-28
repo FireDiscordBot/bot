@@ -33,7 +33,7 @@ export default class ReactionRole extends Command {
         },
       ],
       aliases: ["rero", "reactrole", "reactroles", "reactionroles"],
-      guilds: ["864592657572560958"],
+      guilds: ["864592657572560958", "662109704549433380"],
       enableSlashCommand: true,
       restrictTo: "guild",
       premium: true,
