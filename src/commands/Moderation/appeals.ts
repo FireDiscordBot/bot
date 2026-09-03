@@ -153,7 +153,7 @@ const removeMarkdownForModal = (text: string) =>
   removeMarkdown(text, {
     useImgAltText: false, // this is required for some reason
     separateLinksAndTexts: " - ",
-  });
+  }) || null; // should remove the description if empty (FIRE-E85)
 
 export default class Appeals extends Command {
   constructor() {
