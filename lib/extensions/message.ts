@@ -33,6 +33,7 @@ import {
   MessageReaction,
   MessageSelectMenu,
   NewsChannel,
+  Partialize,
   Permissions,
   ReplyMessageOptions,
   SectionComponent,
@@ -76,6 +77,25 @@ type RawAttachmentDataArray = {
   waveform?: string;
 }[];
 
+export interface FireMessageSnapshot extends Partialize<
+  FireMessage,
+  null,
+  Exclude<
+    keyof FireMessage,
+    | "attachments"
+    | "client"
+    | "components"
+    | "content"
+    | "createdTimestamp"
+    | "editedTimestamp"
+    | "embeds"
+    | "flags"
+    | "mentions"
+    | "stickers"
+    | "type"
+  >
+> {}
+
 export class FireMessage extends Message {
   declare channel:
     | DMChannel
@@ -86,6 +106,7 @@ export class FireMessage extends Message {
     | VoiceChannel;
   invWtfResolved: Collection<string, { invite?: string; url?: string }>;
   savedQuoteData: { nsfw: boolean; name: string; guildId: Snowflake };
+  declare messageSnapshots: Collection<string, FireMessageSnapshot>;
   declare member: FireMember;
   savedToQuoteBy: Snowflake;
   declare guild: FireGuild;
@@ -500,25 +521,30 @@ export class FireMessage extends Message {
       this.client.guilds.cache.has(this.reference.guildId)
     ) {
       const guild = this.client.guilds.cache.get(this.reference.guildId);
-      if (!guild) return;
+      if (!guild) return; // unsure how this would happen but likely best to ignore
       const channel = guild.channels.cache.get(this.reference.channelId);
-      if (!channel || !("messages" in channel)) return;
-      const message = (await channel.messages.fetch(
-        this.reference.messageId
-      )) as FireMessage;
+      if (!channel || !("messages" in channel)) return; // same here
+      const message = (await channel.messages
+        .fetch(this.reference.messageId)
+        .catch(() => {})) as FireMessage;
       if (message)
         return await message.quote(destination, quoter, webhook, debug);
-      else return;
-    } else if (this.reference?.type == Constants.MessageReferenceType.FORWARD)
-      return; // not cached and nothing to quote so just ignore it
+    }
+
+    let snapshot: FireMessageSnapshot;
+    if (
+      this.reference?.type == Constants.MessageReferenceType.FORWARD &&
+      this.messageSnapshots.size
+    )
+      snapshot = this.messageSnapshots.first();
 
     // check for quoteable content first
     if (
-      !this.content &&
-      !this.embeds.length &&
-      !this.attachments.size &&
-      !this.components.length &&
-      !(await this.getSystemContent())
+      !(snapshot ?? this).content &&
+      !(snapshot ?? this).embeds.length &&
+      !(snapshot ?? this).attachments.size &&
+      !(snapshot ?? this).components.length &&
+      !(await (snapshot ?? this).getSystemContent())
     )
       return "empty";
 
@@ -540,13 +566,14 @@ export class FireMessage extends Message {
       if (this.savedQuoteData.nsfw && !destination.nsfw) return "nsfw";
 
       const canUseAttachmentsInWebhook =
-        !this.attachments.size ||
-        (!this.content && this.attachments.every(isMediaAttachment)) ||
-        this.attachments.reduce((size, attach) => {
+        !(snapshot ?? this).attachments.size ||
+        (!(snapshot ?? this).content &&
+          (snapshot ?? this).attachments.every(isMediaAttachment)) ||
+        (snapshot ?? this).attachments.reduce((size, attach) => {
           if (
             attach.size + size > EIGHT_MIB &&
-            this.content &&
-            this.content.length + attach.url.length + 2 <= 2000
+            (snapshot ?? this).content &&
+            (snapshot ?? this).content.length + attach.url.length + 2 <= 2000
           )
             // we can append the url of this
             return size;
@@ -754,11 +781,26 @@ export class FireMessage extends Message {
       return await this.webhookQuote(destination, quoter, null, thread, debug);
     }
     destinationGuild?.quoteHooks.set(destination.id, hook);
-    let content = this.system ? await this.getSystemContent() : this.content;
-    const embeds = this.embeds.filter(
-      (embed) => !this.content?.includes(embed.url) && !this.isImageEmbed(embed)
+
+    // if we've ended up here with a forwarded message,
+    // it's not one we can get the original for, so we use
+    // the snapshot to build the body of the quote
+    let snapshot: FireMessageSnapshot;
+    if (
+      this.reference?.type == Constants.MessageReferenceType.FORWARD &&
+      this.messageSnapshots.size
+    )
+      snapshot = this.messageSnapshots.first();
+
+    let content = this.system
+      ? await this.getSystemContent()
+      : (snapshot ?? this).content;
+    const embeds = (snapshot ?? this).embeds.filter(
+      (embed) =>
+        !(snapshot ?? this).content?.includes(embed.url) &&
+        !this.isImageEmbed(embed)
     );
-    let components = [...this.components];
+    let components = [...(snapshot ?? this).components];
 
     const isAutoMod = this.type == "AUTO_MODERATION_ACTION";
     if (isAutoMod)
@@ -772,24 +814,24 @@ export class FireMessage extends Message {
           ),
       ];
     else if (content) {
-      if (!quoter?.isSuperuser() && !this.system) {
+      if (!quoter?.isSuperuser() && !(snapshot ?? this).system) {
         content = await filters
           .runReplace(content, quoter)
           .catch(() => content);
       }
-      for (const [, user] of this.mentions.users)
+      for (const [, user] of (snapshot ?? this).mentions.users)
         content = content.replaceAll(
           (user as FireUser).toMention(),
           `@${user}`
         );
       if (foreignDestination) {
-        for (const [, role] of this.mentions.roles)
+        for (const [, role] of (snapshot ?? this).mentions.roles)
           content = content.replaceAll(
             role.toString(),
             `@${role.name ?? "Unknown Role"}`
           );
       }
-      for (const [, channel] of this.mentions.channels)
+      for (const [, channel] of (snapshot ?? this).mentions.channels)
         if (channel instanceof GuildChannel) {
           const VIEW_CHANNEL = PermissionFlagsBits.ViewChannel;
           const canView =
@@ -822,14 +864,15 @@ export class FireMessage extends Message {
         content.length > 2000 &&
         (components.length ||
           embeds.length ||
-          (this.attachments.size &&
-            !this.attachments.every(isMediaAttachment)) ||
+          ((snapshot ?? this).attachments.size &&
+            !(snapshot ?? this).attachments.every(isMediaAttachment)) ||
           content.length > 4000)
       )
         return "QUOTE_PREMIUM_INCREASED_LENGTH";
       else if (
         !embeds.length &&
-        (!this.attachments.size || this.attachments.every(isMediaAttachment)) &&
+        (!(snapshot ?? this).attachments.size ||
+          (snapshot ?? this).attachments.every(isMediaAttachment)) &&
         content.length > 2000
       )
         components.unshift(new TextDisplayComponent({ content }));
@@ -961,13 +1004,13 @@ export class FireMessage extends Message {
         (components[0] instanceof TextDisplayComponent &&
           components[0].content == content)) &&
       !embeds.length &&
-      this.attachments.size &&
-      this.attachments.every(isMediaAttachment) &&
+      (snapshot ?? this).attachments.size &&
+      (snapshot ?? this).attachments.every(isMediaAttachment) &&
       canAttach
     ) {
       components.push(
         new MediaGalleryComponent().addItems(
-          this.attachments.map((attachment) =>
+          (snapshot ?? this).attachments.map((attachment) =>
             new MediaGalleryItem()
               .setMedia(attachment.url)
               .setDescription(attachment.description)
@@ -975,15 +1018,15 @@ export class FireMessage extends Message {
           )
         )
       );
-    } else if (canAttach && this.attachments.size) {
-      const tooLargeAttachments = this.attachments.filter(
+    } else if (canAttach && (snapshot ?? this).attachments.size) {
+      const tooLargeAttachments = (snapshot ?? this).attachments.filter(
         (a) => a.size > EIGHT_MIB
       );
       for (const [, attach] of tooLargeAttachments)
         if (content.length + attach.url.length + 2 <= 2000)
           content += `\n${attach.url}`;
 
-      const finalAttachments = this.attachments.filter(
+      const finalAttachments = (snapshot ?? this).attachments.filter(
         (a) => a.size <= EIGHT_MIB
       );
 
@@ -1160,7 +1203,7 @@ export class FireMessage extends Message {
           ? member.display.replace(/#0000/gim, "")
           : this.author.display.replace(/#0000/gim, ""));
 
-    const flags = new MessageFlags(this.flags);
+    const flags = new MessageFlags((snapshot ?? this).flags);
     if (
       components.some(
         (component) => component instanceof BaseMessageComponentV2
@@ -1436,14 +1479,28 @@ export class FireMessage extends Message {
     quoter: FireMember | FireUser,
     thread?: ThreadChannel
   ) {
-    const content = this.system ? await this.getSystemContent() : this.content,
+    let snapshot: FireMessageSnapshot;
+    if (
+      this.reference?.type == Constants.MessageReferenceType.FORWARD &&
+      this.messageSnapshots.size
+    )
+      snapshot = this.messageSnapshots.first();
+
+    // makes it easier instead of doing
+    // (snapshot ?? this) all the time
+    const quoting = snapshot ?? this;
+
+    const content = quoting.system
+        ? await quoting.getSystemContent()
+        : quoting.content,
       hasContent = !!content,
       isAutoMod = this.type == "AUTO_MODERATION_ACTION",
-      hasMedia = this.attachments.some(isMediaAttachment),
+      hasMedia = quoting.attachments.some(isMediaAttachment),
       hasFile =
-        this.attachments.size && !this.attachments.every(isMediaAttachment),
-      isComponentsV2 = this.flags.has("IS_COMPONENTS_V2"),
-      legacyComponentsOnly = this.components.length && !isComponentsV2;
+        quoting.attachments.size &&
+        !quoting.attachments.every(isMediaAttachment),
+      isComponentsV2 = quoting.flags.has("IS_COMPONENTS_V2"),
+      legacyComponentsOnly = quoting.components.length && !isComponentsV2;
     const guild = (thread ?? destination).guild as FireGuild;
     const { language } = guild ?? quoter;
     let quoteFooter = language
@@ -1463,10 +1520,10 @@ export class FireMessage extends Message {
       )
       .trim();
     if (
-      this.embeds.length == 1 &&
-      (this.embeds.at(0).footer?.text || this.embeds.at(0).timestamp)
+      quoting.embeds.length == 1 &&
+      (quoting.embeds.at(0).footer?.text || quoting.embeds.at(0).timestamp)
     )
-      quoteFooter = `-# ${this.embeds.at(0).footer?.text ? `${this.embeds.at(0).footer?.text} • ` : ""}${this.embeds.at(0).timestamp ? `${Formatters.time(new Date(this.embeds.at(0).timestamp))} • ` : ""}${quoteFooter.slice(3)}`;
+      quoteFooter = `-# ${quoting.embeds.at(0).footer?.text ? `${quoting.embeds.at(0).footer?.text} • ` : ""}${quoting.embeds.at(0).timestamp ? `${Formatters.time(new Date(quoting.embeds.at(0).timestamp))} • ` : ""}${quoteFooter.slice(3)}`;
 
     const member =
       this.member ??
@@ -1534,20 +1591,20 @@ export class FireMessage extends Message {
     const additionalContainers: ContainerComponent[] = [];
 
     const singleEmbedNoFields =
-      this.embeds.length == 1 && !this.embeds.at(0).fields.length;
+      quoting.embeds.length == 1 && !quoting.embeds.at(0).fields.length;
     const areEmbedsMediaGallery =
-      this.embeds.length &&
-      this.embeds.every(
+      quoting.embeds.length &&
+      quoting.embeds.every(
         (embed) =>
           embed.url &&
-          this.content.includes(new URL(embed.url).pathname) &&
+          quoting.content.includes(new URL(embed.url).pathname) &&
           !!embed.image?.url
       );
 
     if (hasContent && content.length > 2000)
       main.addComponents(new TextDisplayComponent({ content }));
     if (singleEmbedNoFields) {
-      const embed = this.embeds.at(0);
+      const embed = quoting.embeds.at(0);
       const isVideoEmbed = !!embed.video?.url;
       if (embed.title)
         main.addComponents(
@@ -1589,14 +1646,14 @@ export class FireMessage extends Message {
     if (areEmbedsMediaGallery)
       main.addComponents(
         new MediaGalleryComponent().addItems(
-          this.embeds.map((embed) =>
+          quoting.embeds.map((embed) =>
             new MediaGalleryItem().setMedia(embed.image.url)
           )
         )
       );
     if (isAutoMod) main.addComponents(this.getAutomodComponents(language));
     if (isComponentsV2) {
-      for (const [index, component] of this.components.entries()) {
+      for (const [index, component] of quoting.components.entries()) {
         if (component instanceof ContainerComponent && index == 0) {
           for (const child of component.components) main.addComponents(child);
         } else if (component instanceof ContainerComponent)
@@ -1607,7 +1664,7 @@ export class FireMessage extends Message {
     if (hasMedia && (canEmbed || canAttach) && !isComponentsV2)
       main.addComponents(
         new MediaGalleryComponent().addItems(
-          this.attachments
+          quoting.attachments
             .filter(isMediaAttachment)
             .map((attachment) =>
               new MediaGalleryItem()
@@ -1618,11 +1675,11 @@ export class FireMessage extends Message {
         )
       );
     if (hasFile && canAttach) {
-      const tooLargeAttachments = this.attachments
+      const tooLargeAttachments = quoting.attachments
         .filter((attachment) => !isMediaAttachment(attachment))
         .filter((a) => a.size > EIGHT_MIB);
 
-      const finalAttachments = this.attachments
+      const finalAttachments = quoting.attachments
         .filter((attachment) => !isMediaAttachment(attachment))
         .filter((a) => a.size <= EIGHT_MIB);
 
@@ -1664,7 +1721,7 @@ export class FireMessage extends Message {
           })
         );
     }
-    if (legacyComponentsOnly) main.addComponents(this.components);
+    if (legacyComponentsOnly) main.addComponents(quoting.components);
 
     if (hasContent)
       main.addComponents(new TextDisplayComponent({ content: quoteFooter }));

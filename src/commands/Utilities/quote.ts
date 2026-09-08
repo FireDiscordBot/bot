@@ -1,6 +1,5 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { ContextCommandMessage } from "@fire/lib/extensions/contextcommandmessage";
-import { FireGuild } from "@fire/lib/extensions/guild";
 import { FireMember } from "@fire/lib/extensions/guildmember";
 import { FireMessage } from "@fire/lib/extensions/message";
 import { MessageContextMenuInteraction } from "@fire/lib/extensions/messagecontextmenuinteraction";
@@ -97,34 +96,52 @@ export default class Quote extends Command {
       convertedMessage.reference?.guildId
     ) {
       const { reference } = convertedMessage;
-      const shard = this.client.util.getShard(reference.guildId);
-      if (!(this.client.options.shards as number[]).includes(shard))
-        return this.forwardCrossClusterQuote(message, {
-          guild_id: reference.guildId,
-          channel_id: reference.channelId,
-          message_id: reference.messageId,
-        });
-      const guild = this.client.guilds.cache.get(
-        reference.guildId
-      ) as FireGuild;
-      if (!guild) return;
-      const channel = guild.channels.cache.get(
-        reference.channelId
-      ) as GuildTextBasedChannel;
-      if (!channel) return;
-      const referencedMessage = (await channel.messages
-        .fetch(reference.messageId)
-        .catch(() => {})) as FireMessage;
-      if (!referencedMessage) return;
-      else
+      const channel = await this.client.channels
+        .fetch(reference.channelId, {
+          allowUnknownGuild: true,
+        })
+        .catch(() => {});
+      if (!channel) {
+        // we likely don't have access to it, so we'll quote the converted message
+        // and we'll just use the snapshot as our content
+        const shard = this.client.util.getShard(reference.guildId);
+        if (!(this.client.options.shards as number[]).includes(shard))
+          return this.forwardCrossClusterQuote(message, {
+            guild_id: convertedMessage.guildId,
+            channel_id: convertedMessage.channelId,
+            message_id: convertedMessage.id,
+          });
         await this.quoteWithCommandEvents(
           message,
-          referencedMessage,
+          convertedMessage,
           message.channel as GuildTextBasedChannel,
           message.member ?? message.author,
           undefined,
           debug ? [] : undefined
         );
+      } else if ("messages" in channel) {
+        const referencedMessage = (await channel.messages
+          .fetch(reference.messageId)
+          .catch(() => {})) as FireMessage;
+        if (!referencedMessage)
+          await this.quoteWithCommandEvents(
+            message,
+            convertedMessage,
+            message.channel as GuildTextBasedChannel,
+            message.member ?? message.author,
+            undefined,
+            debug ? [] : undefined
+          );
+        else
+          await this.quoteWithCommandEvents(
+            message,
+            referencedMessage,
+            message.channel as GuildTextBasedChannel,
+            message.member ?? message.author,
+            undefined,
+            debug ? [] : undefined
+          );
+      }
     } else if (
       convertedMessage.reference?.type != Constants.MessageReferenceType.FORWARD
     ) {
@@ -324,7 +341,16 @@ export default class Quote extends Command {
       !messageToSave.content &&
       !messageToSave.embeds.length &&
       !messageToSave.attachments.size &&
-      !messageToSave.components.length
+      !messageToSave.components.length &&
+      !messageToSave.messageSnapshots.some(
+        (snapshot) =>
+          !!(
+            snapshot.content ||
+            snapshot.embeds.length ||
+            snapshot.attachments.size ||
+            snapshot.components.length
+          )
+      )
     )
       return await command.error("QUOTE_NO_CONTENT_TO_SAVE");
 

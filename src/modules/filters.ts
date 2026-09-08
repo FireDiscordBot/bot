@@ -1,6 +1,6 @@
 import { ApplicationCommandMessage } from "@fire/lib/extensions/appcommandmessage";
 import { FireMember } from "@fire/lib/extensions/guildmember";
-import { FireMessage } from "@fire/lib/extensions/message";
+import { FireMessage, FireMessageSnapshot } from "@fire/lib/extensions/message";
 import { FireUser } from "@fire/lib/extensions/user";
 import { ChannelItem } from "@fire/lib/interfaces/youtube";
 import {
@@ -18,7 +18,6 @@ import {
   GuildChannelResolvable,
   Invite,
   MessageEmbed,
-  MessageSnapshot,
 } from "discord.js";
 import { LinkFilters } from "../commands/Configuration/linkfilter-toggle";
 
@@ -286,7 +285,7 @@ export default class Filters extends Module {
   }
 
   private async getSearchStringBasicComponents(
-    message: FireMessage | MessageSnapshot
+    message: FireMessage | FireMessageSnapshot
   ) {
     return [
       message.content,
@@ -315,7 +314,7 @@ export default class Filters extends Module {
   }
 
   async getSearchString(
-    message: FireMessage | MessageSnapshot,
+    message: FireMessage | FireMessageSnapshot,
     extra: string = ""
   ) {
     const searchString = [
