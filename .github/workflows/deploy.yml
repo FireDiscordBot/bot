@@ -2,7 +2,7 @@ name: Build and Deploy
 
 on:
   push:
-    branches: ["master", "deploy"]
+    branches: ["deploy"]
     paths-ignore:
       - '.github/**'
 
