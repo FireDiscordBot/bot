@@ -302,6 +302,19 @@ export default class Message extends Listener {
     )
       return await message.delete().catch(() => {});
 
+    if (
+      message.channelId == "1527266140466712708" &&
+      message.author.id == "171264036682334208" &&
+      !message.content.includes("1036252163028033536")
+    )
+      return await message.channel
+        .send({
+          content:
+            "you forgot about the trial mods again gregory.... smh\n\nhere you go: <@&1036252163028033536>",
+          allowedMentions: { roles: ["1036252163028033536"] },
+        })
+        .catch(() => {});
+
     const autoroleId = message.guild.settings.get<Snowflake>(
       "mod.autorole",
       null
