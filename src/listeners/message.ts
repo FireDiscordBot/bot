@@ -74,7 +74,9 @@ const SCAM_KEYWORDS = [
   "coin",
   "10,822.54",
   "+10 823",
+  "10000",
   "hobocthu",
+  "camu",
   "locker",
   "value",
   "fn.gg",
@@ -88,6 +90,7 @@ const SCAM_KEYWORDS = [
   "no limits",
   "what todo",
   "what to do",
+  "drgn25",
 
   // might not be a scam but I believe all enabled servers block invites
   // under advertising rules and we require more than one scam keyword
