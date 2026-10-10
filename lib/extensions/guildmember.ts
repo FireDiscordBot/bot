@@ -284,7 +284,7 @@ export class FireMember extends GuildMember {
   private isHoisted() {
     const badName = this.guild.settings.get<string>(
       "utils.badname",
-      `John Doe ${this.user.discriminator}`
+      this.user.username
     );
     const member = this,
       user = this.user;
@@ -310,7 +310,7 @@ export class FireMember extends GuildMember {
   private isNonASCII() {
     const badName = this.guild.settings.get<string>(
       "utils.badname",
-      `John Doe ${this.user.discriminator}`
+      this.user.username
     );
     const member = this,
       user = this.user;
@@ -321,7 +321,10 @@ export class FireMember extends GuildMember {
       },
       globalName:
         user.globalName && !member.client.util.isASCII(user.globalName),
-      username: !member.client.util.isASCII(user.username),
+      username:
+        user.discriminator == "0"
+          ? false
+          : !member.client.util.isASCII(user.username),
     };
   }
 
@@ -361,7 +364,7 @@ export class FireMember extends GuildMember {
     // as we have nothing else to fallback on.
     const badName = this.guild.settings.get<string>(
       "utils.badname",
-      `John Doe ${this.user.discriminator}`
+      this.user.username
     );
     return this.edit(
       { nick: badName },
@@ -384,12 +387,12 @@ export class FireMember extends GuildMember {
       return;
     const badName = this.guild.settings.get<string>(
       "utils.badname",
-      `John Doe ${this.user.discriminator}`
+      this.user.username
     );
     if (nonASCII.nickname) {
       let sanitized: string = this.client.util.sanitizer(
         this.nickname,
-        badName
+        nonASCII.globalName ? badName : this.user.displayName
       );
       if (this.guild.settings.get<boolean>("mod.autodehoist"))
         // we need to make sure our sanitized nickname isn't hoisted
@@ -440,6 +443,9 @@ export class FireMember extends GuildMember {
           this.guild.language.get("AUTODECANCER_BADNAME_REASON")
         );
     } else if (nonASCII.username && !this.globalName) {
+      // don't believe we can actually make it here now
+      // with pomelo usernames having strict character limits
+      // but we'll keep it anyways
       let sanitized: string = this.client.util.sanitizer(
         this.user.username,
         badName
@@ -478,7 +484,7 @@ export class FireMember extends GuildMember {
     if (!couldAcquire) return; // already running
     const badName = this.guild.settings.get<string>(
       "utils.badname",
-      `John Doe ${this.user.discriminator}`
+      this.user.username
     );
     const hoisted = this.isHoisted(),
       nonASCII = this.isNonASCII();
