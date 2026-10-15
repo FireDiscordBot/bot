@@ -576,7 +576,9 @@ export default class MCLogs extends Module {
       const systemDetails = [];
       if (system.os) systemDetails.push(cleanSystemString(system.os));
       if (system.cpu) systemDetails.push(cleanSystemString(system.cpu));
-      if (system.gpu)
+      if (system.gpu && system.gpu != system.cpu)
+        // Apple M-series has the same text for both CPU & GPU
+        // so we don't add the GPU if it's the same as CPU
         systemDetails.push(
           cleanSystemString(system.gpu) +
             (system.gpuDriver
