@@ -187,17 +187,38 @@ export enum BlameReason {
   INVALID_MIXIN = "INVALID_MIXIN",
   FORGE_SUSPECT_MOD = "FORGE_SUSPECT_MOD",
   MOD_LOADING_ERROR = "MOD_LOADING_ERROR",
-  MISSING_DEPENDENCY = "MISSING_DEPENDENCY",
   DEPENDENCY_NOT_FOUND = "DEPENDENCY_NOT_FOUND",
   WRONG_LOADER = "WRONG_LOADER",
   OUT_OF_MEMORY = "OUT_OF_MEMORY",
   STACKTRACE_CULPRIT = "STACKTRACE_CULPRIT",
+  JAVA_VERSION_MISMATCH = "JAVA_VERSION_MISMATCH",
+  MISSING_CLASS = "MISSING_CLASS",
+  MOD_VERSION_MISMATCH = "MOD_VERSION_MISMATCH",
+  MINECRAFT_VERSION_MISMATCH = "MINECRAFT_VERSION_MISMATCH",
+  INCOMPATIBLE_MOD = "INCOMPATIBLE_MOD",
+}
+
+export interface BlameVersionRequirement {
+  min?: string;
+  max?: string;
+  includeNewer?: boolean;
+}
+
+export interface IncompatibleModInfo {
+  modId: string;
+  modName?: string;
+  version?: string;
 }
 
 export type ModBlame = {
   modId: string;
   modName?: string;
+  package?: string;
+  method?: string;
   reason: BlameReason;
+  version?: string;
+  requiredVersion?: BlameVersionRequirement;
+  incompatibleWith?: IncompatibleModInfo;
 };
 
 export type MCLogsResponse =
@@ -284,6 +305,34 @@ export default class MCLogs extends Module {
         (guild.premium && guild.settings.get("minecraft.logscan", false))
       );
     else if (user) return user.isSuperuser() || user.premium;
+  }
+
+  // this is a method so we can use
+  // this.client for language
+  // otherwise it'd be up with
+  // other formatting functions
+  formatVersionRequirement(
+    req?: BlameVersionRequirement,
+    language?: Language
+  ): string {
+    language ??= this.client.getLanguage("en-US");
+    if (!req) return language.get("MC_LOG_VERSION_REQUIREMENTS.ANY");
+    if (req.min && req.max)
+      return language.get("MC_LOG_VERSION_REQUIREMENTS.BETWEEN", {
+        min: req.min,
+        max: req.max,
+      });
+    if (req.min && req.includeNewer)
+      return language.get("MC_LOG_VERSION_REQUIREMENTS.MIN_OR_NEWER", {
+        min: req.min,
+      });
+    if (req.min)
+      return language.get("MC_LOG_VERSION_REQUIREMENTS.EXACT", {
+        min: req.min,
+      });
+    if (req.max)
+      return language.get("MC_LOG_VERSION_REQUIREMENTS.MAX", { max: req.max });
+    return language.get("MC_LOG_VERSION_REQUIREMENTS.ANY");
   }
 
   async checkLogs(message: FireMessage) {
@@ -625,12 +674,43 @@ export default class MCLogs extends Module {
     for (const mod of blameModIds) {
       const blames = mclogsRes.analysis.blame.filter((b) => b.modId == mod);
       for (const blame of blames)
-        possibleCulprits.push(
-          language.get(`MC_LOG_POTENTIAL_CULPRIT_${blame.reason}`, {
-            name: blame.modName ?? blame.modId,
-            mcVersion: mclogsRes.client.mcVersion,
-          })
-        );
+        if (
+          blame.reason == BlameReason.JAVA_VERSION_MISMATCH &&
+          blame.modId == "java"
+        )
+          possibleCulprits.push(
+            language.get(
+              "MC_LOG_POTENTIAL_CULPRIT_JAVA_VERSION_MISMATCH_MULTI",
+              {
+                name: blame.modName ?? blame.modId,
+                mcVersion: mclogsRes.client.mcVersion,
+                version:
+                  blame.version || language.get("MC_LOG_UNKNOWN_VERSION"),
+                requiredVersion: this.formatVersionRequirement(
+                  blame.requiredVersion,
+                  language
+                ),
+                incompatibleWith:
+                  blame.incompatibleWith?.modName ??
+                  blame.incompatibleWith?.modId,
+              }
+            )
+          );
+        else
+          possibleCulprits.push(
+            language.get(`MC_LOG_POTENTIAL_CULPRIT_${blame.reason}`, {
+              name: blame.modName ?? blame.modId,
+              mcVersion: mclogsRes.client.mcVersion,
+              version: blame.version || language.get("MC_LOG_UNKNOWN_VERSION"),
+              requiredVersion: this.formatVersionRequirement(
+                blame.requiredVersion,
+                language
+              ),
+              incompatibleWith:
+                blame.incompatibleWith?.modName ??
+                blame.incompatibleWith?.modId,
+            })
+          );
     }
     const blame = possibleCulprits.length
       ? `${
