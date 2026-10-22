@@ -1396,6 +1396,7 @@ export default class Modal extends Listener {
       )
         .body(body, "json")
         .header("User-Agent", this.client.manager.ua)
+        .header("Authorization", process.env.WS_AUTH)
         .send()
         .catch(() => {});
       if (!submitRequest)
