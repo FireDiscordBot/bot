@@ -742,7 +742,7 @@ export default class MCLogs extends Module {
             ? "MC_LOG_HASTE_WITH_IGN"
             : "MC_LOG_HASTE",
         {
-          extra: rawURL.host.includes("discordapp") ? content : "",
+          extra: content,
           details: details.map((d) => `- ${d}`).join("\n"),
           user: message.author.toMention(),
           solutions: mclogsRes.analysis.unsupported
