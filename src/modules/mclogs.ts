@@ -742,7 +742,7 @@ export default class MCLogs extends Module {
             ? "MC_LOG_HASTE_WITH_IGN"
             : "MC_LOG_HASTE",
         {
-          extra: content,
+          extra: content.trim(),
           details: details.map((d) => `- ${d}`).join("\n"),
           user: message.author.toMention(),
           solutions: mclogsRes.analysis.unsupported
@@ -789,7 +789,7 @@ export default class MCLogs extends Module {
                   ? "MC_LOG_HASTE_WITH_IGN"
                   : "MC_LOG_HASTE",
             {
-              extra: rawURL.host.includes("discordapp") ? content : "",
+              extra: content.trim(),
               solutions: language.get("MC_LOG_WTF"),
               user: message.author.toMention(),
               version: mclogsRes.client.loaderVersion,
