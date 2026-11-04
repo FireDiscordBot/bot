@@ -1165,7 +1165,7 @@
   },
   "MC_LOG_UNKNOWN_VERSION": "unknown version",
   "MC_LOG_UPDATE": "Update {{item}} from {{current}} to {{latest}}",
-  "MC_LOG_POTENTIAL_CULPRIT_MIXIN_HANDLER": "The mod `{{name}}` has modified parts of the game which are present in errors within the log",
+  "MC_LOG_POTENTIAL_CULPRIT_MIXIN_HANDLER": "The mod `{{name}}` has modified parts of the game (`{{method}}`) which are present in errors within the log",
   "MC_LOG_POTENTIAL_CULPRIT_MIXIN_INJECTION_FAILURE": "The mod `{{name}}` tried to rewrite code for the game or another mod and encountered an issue doing so",
   "MC_LOG_POTENTIAL_CULPRIT_MIXIN_PRE_PROCESSOR_EXCEPTION": "The mod `{{name}}` has a configuration error that prevented it from loading",
   "MC_LOG_POTENTIAL_CULPRIT_MIXIN_APPLY_FAILURE": "The mod `{{name}}` failed to apply its changes to the game's code",
