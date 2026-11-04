@@ -703,7 +703,7 @@ export default class MCLogs extends Module {
               mcVersion: mclogsRes.client.mcVersion,
               method:
                 blame.package && blame.method
-                  ? `${blame.package.split(".").at(-1)}#${blame.method}`
+                  ? `${blame.package.split(".").at(-1)}#${blame.modId}$${blame.method}`
                   : "unknown",
               version: blame.version || language.get("MC_LOG_UNKNOWN_VERSION"),
               requiredVersion: this.formatVersionRequirement(
