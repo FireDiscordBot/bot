@@ -207,6 +207,7 @@ export default class Quote extends Command {
             source: message.source,
             id: message.channelId,
           } as PartialQuoteDestination,
+          quoterMessageId: message.id,
           debug:
             quote.channel == "debug." || process.env.NODE_ENV == "development",
         })
@@ -222,7 +223,8 @@ export default class Quote extends Command {
       id: Snowflake;
       token: string;
       threadId?: Snowflake;
-    }
+    },
+    quoterMessageId: Snowflake
   ) {
     const shard = this.client.util.getShard(destination.guild_id);
     this.console.log(
@@ -241,6 +243,7 @@ export default class Quote extends Command {
           webhook,
           message: quote,
           destination,
+          quoterMessageId,
           debug:
             quote.channel == "debug." || process.env.NODE_ENV == "development",
         })

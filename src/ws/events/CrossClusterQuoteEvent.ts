@@ -16,13 +16,16 @@ import { EventType } from "@fire/lib/ws/util/constants";
 import Quote from "@fire/src/commands/Utilities/quote";
 import { Snowflake } from "discord-api-types/globals";
 import {
+  Collection,
   Constants,
   NewsChannel,
   SnowflakeUtil,
   ThreadChannel,
 } from "discord.js";
+import Semaphore from "semaphore-async-await";
 
 export default class CrossClusterQuote extends Event {
+  quoteLocks: Collection<Snowflake, Semaphore> = new Collection();
   client: Fire;
 
   constructor(manager: Manager) {
@@ -39,6 +42,7 @@ export default class CrossClusterQuote extends Event {
         token: string;
         threadId?: Snowflake;
       };
+      quoterMessageId: Snowflake;
       debug: boolean;
     }
   ) {
@@ -54,6 +58,17 @@ export default class CrossClusterQuote extends Event {
     let { destination } = data;
     const quoteCommand = this.client.getCommand("quote") as Quote;
     if (!quoteCommand) return;
+
+    let lock: Semaphore;
+    if (this.quoteLocks.has(data.quoterMessageId))
+      lock = this.quoteLocks.get(data.quoterMessageId);
+    else {
+      lock = new Semaphore(1);
+      this.quoteLocks.set(data.quoterMessageId, lock);
+      setTimeout(() => {
+        this.quoteLocks.delete(data.quoterMessageId);
+      }, 60_000);
+    }
 
     const destinationGuild = this.client.guilds.cache.get(
       destination.guild_id
@@ -94,7 +109,7 @@ export default class CrossClusterQuote extends Event {
     }
 
     let quoteGuild = this.client.guilds.cache.get(data.guild_id) as FireGuild;
-    if (!quoteGuild) return;
+    if (!quoteGuild) return lock.release();
     if (quoteGuild.id == destinationGuild?.id) destination.guild = quoteGuild;
     const member = (await quoteGuild.members
       .fetch(data.quoter)
@@ -140,6 +155,8 @@ export default class CrossClusterQuote extends Event {
       }
     }
 
+    await lock.acquire();
+
     if (
       message.reference?.type == Constants.MessageReferenceType.FORWARD &&
       message.reference?.guildId
@@ -156,11 +173,12 @@ export default class CrossClusterQuote extends Event {
             message_id: reference.messageId,
           },
           data.quoter,
-          data.webhook
+          data.webhook,
+          data.quoterMessageId
         );
       else
         // FireMessage#quote will handle quoting the forwarded message
-        quoteCommand.quoteWithCommandEvents(
+        await quoteCommand.quoteWithCommandEvents(
           quoteContext,
           message,
           destination,
@@ -176,7 +194,7 @@ export default class CrossClusterQuote extends Event {
     } else if (
       message.reference?.type != Constants.MessageReferenceType.FORWARD
     )
-      quoteCommand.quoteWithCommandEvents(
+      await quoteCommand.quoteWithCommandEvents(
         quoteContext,
         message,
         destination,
@@ -208,7 +226,8 @@ export default class CrossClusterQuote extends Event {
                 message_id: reference.messageId,
               },
               data.quoter,
-              data.webhook
+              data.webhook,
+              data.quoterMessageId
             );
           else
             // FireMessage#quote will handle quoting the forwarded message
@@ -239,5 +258,7 @@ export default class CrossClusterQuote extends Event {
               : undefined,
             data.debug ? [] : undefined
           );
+
+    lock.release();
   }
 }
