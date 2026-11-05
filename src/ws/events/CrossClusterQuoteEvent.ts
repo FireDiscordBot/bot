@@ -148,7 +148,7 @@ export default class CrossClusterQuote extends Event {
       const shard = this.client.util.getShard(reference.guildId);
       if (!(this.client.options.shards as number[]).includes(shard))
         // back to you in the studio (and by studio, I mean aether)
-        return quoteCommand.returnCrossClusterQuote(
+        quoteCommand.returnCrossClusterQuote(
           destination,
           {
             guild_id: reference.guildId,
@@ -158,10 +158,25 @@ export default class CrossClusterQuote extends Event {
           data.quoter,
           data.webhook
         );
+      else
+        // FireMessage#quote will handle quoting the forwarded message
+        quoteCommand.quoteWithCommandEvents(
+          quoteContext,
+          message,
+          destination,
+          quoter,
+          data.webhook
+            ? new ThreadhookClient(
+                { id: data.webhook.id, token: data.webhook.token },
+                { threadId: data.webhook.threadId }
+              )
+            : undefined,
+          data.debug ? [] : undefined
+        );
     } else if (
       message.reference?.type != Constants.MessageReferenceType.FORWARD
     )
-      return quoteCommand.quoteWithCommandEvents(
+      quoteCommand.quoteWithCommandEvents(
         quoteContext,
         message,
         destination,
@@ -177,18 +192,52 @@ export default class CrossClusterQuote extends Event {
 
     if (data.iteratedMessages)
       for (const iterated of data.iteratedMessages)
-        await quoteCommand.quoteWithCommandEvents(
-          quoteContext,
-          iterated,
-          destination,
-          quoter,
-          data.webhook
-            ? new ThreadhookClient(
-                { id: data.webhook.id, token: data.webhook.token },
-                { threadId: data.webhook.threadId }
-              )
-            : undefined,
-          data.debug ? [] : undefined
-        );
+        if (
+          iterated.reference?.type == Constants.MessageReferenceType.FORWARD &&
+          iterated.reference?.guildId
+        ) {
+          const { reference } = iterated;
+          const shard = this.client.util.getShard(reference.guildId);
+          if (!(this.client.options.shards as number[]).includes(shard))
+            // back to you in the studio (and by studio, I mean aether)
+            quoteCommand.returnCrossClusterQuote(
+              destination,
+              {
+                guild_id: reference.guildId,
+                channel_id: reference.channelId,
+                message_id: reference.messageId,
+              },
+              data.quoter,
+              data.webhook
+            );
+          else
+            // FireMessage#quote will handle quoting the forwarded message
+            await quoteCommand.quoteWithCommandEvents(
+              quoteContext,
+              iterated,
+              destination,
+              quoter,
+              data.webhook
+                ? new ThreadhookClient(
+                    { id: data.webhook.id, token: data.webhook.token },
+                    { threadId: data.webhook.threadId }
+                  )
+                : undefined,
+              data.debug ? [] : undefined
+            );
+        } else
+          await quoteCommand.quoteWithCommandEvents(
+            quoteContext,
+            iterated,
+            destination,
+            quoter,
+            data.webhook
+              ? new ThreadhookClient(
+                  { id: data.webhook.id, token: data.webhook.token },
+                  { threadId: data.webhook.threadId }
+                )
+              : undefined,
+            data.debug ? [] : undefined
+          );
   }
 }
