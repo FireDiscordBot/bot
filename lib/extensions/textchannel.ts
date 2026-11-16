@@ -19,7 +19,9 @@ export class FireTextChannel extends TextChannel {
   constructor(guild: FireGuild, data?: RawGuildChannelData) {
     super(guild, data);
 
-    if ("linked_lobby" in data)
+    // linked lobby seems to exist but be null in
+    // obfuscated channels, FIRE-EFE
+    if ("linked_lobby" in data && data.linked_lobby)
       this.linkedLobby = new LinkedLobby(
         this,
         data.linked_lobby as LinkedLobbyData
