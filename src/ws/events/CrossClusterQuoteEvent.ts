@@ -118,12 +118,15 @@ export default class CrossClusterQuote extends Event {
       return this.console.warn(
         "Attempted cross cluster quote with unknown member"
       );
-    const channel = quoteGuild.channels.cache
-      .filter((channel) => channel.isText() || channel.isThread())
-      .get(data.channel_id) as FireTextChannel | NewsChannel | ThreadChannel;
-    if (!channel)
+
+    // fetch channel to ensure we allow archived threads
+    // if cached, it should behave like cache.get
+    const channel = (await quoteGuild.channels
+      .fetch(data.channel_id)
+      .catch(() => {})) as FireTextChannel | NewsChannel | ThreadChannel;
+    if (!channel || !channel.isText())
       return this.console.warn(
-        "Attempted cross cluster quote with unknown channel"
+        "Attempted cross cluster quote with unknown/non-text channel"
       );
     const message = (await channel.messages
       .fetch(data.message_id)

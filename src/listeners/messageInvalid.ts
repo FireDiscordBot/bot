@@ -226,7 +226,11 @@ export default class MessageInvalid extends Listener {
       if (message.author.premium) limit = 10;
       if (message.author.isSuperuser()) limit = 50;
 
-      const source = this.client.channels.cache.get(quote.channel_id);
+      // fetch channel to ensure we allow archived threads
+      // if cached, it should behave like cache.get
+      const source = await this.client.channels
+        .fetch(quote.channel_id)
+        .catch(() => {});
       if (!source || !("messages" in source)) continue;
 
       const iterator = new MessageIterator(source, {
