@@ -49,7 +49,7 @@ export default class RemindersList extends Command {
       return await context.error("COMMAND_ERROR_500", {
         status: constants.url.fireStatus,
       });
-    else if (!reminders)
+    else if (!reminders?.count)
       return await context.error("REMINDERS_LIST_NONE_FOUND");
 
     let previousPageButton: MessageButton, nextPageButton: MessageButton;
