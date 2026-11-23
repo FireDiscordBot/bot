@@ -308,6 +308,7 @@ export default class Message extends Listener {
     if (
       message.channelId == "1527266140466712708" &&
       message.author.id == "171264036682334208" &&
+      message.content.includes("880664771756716072") &&
       !message.content.includes("1036252163028033536")
     )
       return await message.channel
