@@ -287,7 +287,8 @@
     "1": "Join",
     "2": "Spectate",
     "3": "Listen",
-    "5": "Join Request"
+    "5": "Join Request",
+    "6": "Stream Request"
   },
   "FEATURES": {
     "NEWS": "[Announcement Channels](https://support.discord.com/hc/en-us/articles/360032008192)",
