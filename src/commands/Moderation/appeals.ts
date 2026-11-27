@@ -414,7 +414,7 @@ export default class Appeals extends Command {
                     value: option.value,
                     description: option.description,
                     default: field.values.includes(option.value),
-                    emoji: option.emoji.name,
+                    emoji: option.emoji?.id ?? option.emoji?.name,
                   }))
                 )
             ),
